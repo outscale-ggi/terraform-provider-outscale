@@ -1,0 +1,598 @@
+test_CreateTags.py#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+'''
+Created on 8 aout 2017
+
+@author: EmanuelDias
+'''
+import datetime
+
+import pytest
+
+from qa_tools.tools.test_base import OscTestSuite
+from qa_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state
+
+
+class Test_CreateTags(OscTestSuite):
+    @classmethod
+    def setup_class(cls):
+        super(Test_CreateTags, cls).setup_class()
+
+        cls.snap_id = None
+        IP_Ingress = '0.0.0.0/0'
+
+        time_now = datetime.datetime.now()
+        unique_id = st = time_now.strftime('%Y%m%d%H%M%S')
+
+        cls.sg_name = 'sg_T111_{}'.format(unique_id)
+        cls.dict_resources = {}
+        # todo: create test for vpc peering
+        try:
+
+            Instance_Type = cls.a1_r1._config.region.get_info('default_instance_type')
+            key_name = 'KPT111_{}'.format(unique_id)
+
+            # create security group
+            sg_response = cls.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test_sg_description',
+                                                            GroupName=cls.sg_name)
+            
+
+            id_dict = 'sg0'
+            cls.dict_resources[id_dict] = sg_response.response.groupId
+
+            # authorize rules
+            sg1 = cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupName=cls.sg_name, IpProtocol='tcp',
+                                                              FromPort=22,
+                                                              ToPort=22, CidrIp=IP_Ingress)
+
+
+            # create keypair
+            cls.kp = cls.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
+
+
+            id_dict = 'kp0'
+
+            cls.dict_resources[id_dict] = cls.kp.response.keyName
+
+            ret = cls.a1_r1.fcu.CreateVolume(AvailabilityZone=cls.a2_r1._config.region.az_name, Size=1,
+                                             VolumeType='standard')
+
+
+            id_dict = 'vol0'
+            cls.dict_resources[id_dict] = ret.response.volumeId
+
+            wait_volumes_state(cls.a1_r1, [cls.dict_resources['vol0']], state='available')
+
+            ret = cls.a1_r1.fcu.CreateSnapshot(VolumeId=cls.dict_resources['vol0'])
+
+
+            id_dict = 'snap0'
+            cls.dict_resources[id_dict] = ret.response.snapshotId
+
+            # run instance
+            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region._conf['centos7'], MaxCount='1',
+                                              MinCount='1',
+                                              SecurityGroupId=cls.dict_resources['sg0'],
+                                              KeyName=cls.kp.response.keyName,
+                                              InstanceType=Instance_Type)
+
+
+
+            id_dict = 'inst0'
+            cls.dict_resources[id_dict] = inst.response.instancesSet[0].instanceId
+
+            # create internetgateway
+            ret = cls.a1_r1.fcu.CreateInternetGateway()
+
+            id_dict = 'igw0'
+            cls.dict_resources[id_dict] = ret.response.internetGateway.internetGatewayId
+
+            # create VPC
+            vpc = cls.a1_r1.fcu.CreateVpc(CidrBlock='10.0.0.0/16')
+
+            id_dict = 'vpc0'
+            cls.dict_resources[id_dict] = vpc.response.vpc.vpcId
+
+            # create VPC
+            vpc = cls.a2_r1.fcu.CreateVpc(CidrBlock='192.0.0.0/16')
+
+            id_dict = 'vpc1'
+            cls.dict_resources[id_dict] = vpc.response.vpc.vpcId
+
+            # create subnet 1
+            ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock='10.0.1.0/24',
+                                             VpcId=cls.dict_resources['vpc0'])
+
+
+            id_dict = 'subnet0'
+            cls.dict_resources[id_dict] = ret.response.subnet.subnetId
+
+            ret = cls.a1_r1.fcu.CreateRouteTable(VpcId=cls.dict_resources['vpc0'])
+
+
+            id_dict = 'rtb0'
+            cls.dict_resources[id_dict] = ret.response.routeTable.routeTableId
+
+            ret = cls.a1_r1.fcu.CreateNetworkInterface(SubnetId=cls.dict_resources['subnet0'])
+
+            id_dict = 'fni0'
+            cls.dict_resources[id_dict] = ret.response.networkInterface.networkInterfaceId
+
+            ret = cls.a1_r1.fcu.CreateCustomerGateway(BgpAsn='1', IpAddress='12.12.12.12', Type='ipsec.1')
+
+            id_dict = 'cgw0'
+            cls.dict_resources[id_dict] = ret.response.customerGateway.customerGatewayId
+
+            ret = cls.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1')
+            id_dict = 'vgw0'
+            cls.dict_resources['vgw0'] = ret.response.vpnGateway.vpnGatewayId
+
+            ret = cls.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=cls.dict_resources['cgw0'],
+                                                    Type='ipsec.1',
+                                                    VpnGatewayId=cls.dict_resources['vgw0'])
+            id_dict = 'vpn0'
+            cls.dict_resources[id_dict] = ret.response.vpnConnection.vpnConnectionId
+
+            ret = cls.a1_r1.fcu.CreateVpcPeeringConnection(VpcId=cls.dict_resources['vpc0'],
+                                                           PeerVpcId=cls.dict_resources['vpc1'],
+                                                           PeerOwnerId=cls.a2_r1.config.account.account_id)
+
+
+            id_dict = 'pcx0'
+            cls.dict_resources[id_dict] = ret.response.vpcPeeringConnection.vpcPeeringConnectionId
+
+            # wait instance to become ready
+            wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.dict_resources['inst0']],
+                                 state='ready')
+
+            # create internetgateway
+            ret = cls.a1_r1.fcu.CreateImage(InstanceId=cls.dict_resources['inst0'],
+                                            Name='OMI_t111_{}'.format(unique_id))
+
+            id_dict = 'ami0'
+            cls.dict_resources[id_dict] = ret.response.imageId
+
+        except Exception as error:
+            cls.logger.exception(error)
+            pytest.fail("An unexpected error happened")
+
+    @classmethod
+    def teardown_class(cls):
+        super(Test_CreateTags, cls).teardown_class()
+        try:
+
+            if cls.dict_resources['inst0']:
+                res = cls.a1_r1.fcu.TerminateInstances(InstanceId=[cls.dict_resources['inst0']])
+
+
+                # replace by wait function
+                wait_instances_state(osc_sdk=cls.a1_r1,
+                                     instance_id_list=[cls.dict_resources['inst0']], state='terminated')
+
+            if cls.dict_resources['kp0']:
+                res = cls.a1_r1.fcu.DeleteKeyPair(KeyName=cls.dict_resources['kp0'])
+
+
+            if cls.dict_resources['sg0']:
+                res = cls.a1_r1.fcu.DeleteSecurityGroup(GroupId=cls.dict_resources['sg0'])
+
+            if cls.dict_resources['vol0']:
+                ret = cls.a1_r1.fcu.DeleteVolume(VolumeId=cls.dict_resources['vol0'])
+
+
+            if cls.dict_resources['snap0']:
+                ret = cls.a1_r1.fcu.DeleteSnapshot(SnapshotId=cls.dict_resources['snap0'])
+
+
+            if cls.dict_resources['igw0']:
+                ret = cls.a1_r1.fcu.DeleteInternetGateway(
+                    InternetGatewayId=cls.dict_resources['igw0'])
+
+
+            if cls.dict_resources['fni0']:
+                ret = cls.a1_r1.fcu.DeleteNetworkInterface(
+                    NetworkInterfaceId=cls.dict_resources['fni0'])
+
+
+            if cls.dict_resources['subnet0']:
+                ret = cls.a1_r1.fcu.DeleteSubnet(SubnetId=cls.dict_resources['subnet0'])
+
+
+            if cls.dict_resources['rtb0']:
+                ret = cls.a1_r1.fcu.DeleteRouteTable(RouteTableId=cls.dict_resources['rtb0'])
+
+
+            if cls.dict_resources['pcx0']:
+                ret = cls.a1_r1.fcu.DeleteVpcPeeringConnection(VpcPeeringConnectionId=cls.dict_resources['pcx0'])
+
+
+            if cls.dict_resources['vpc0']:
+                ret = cls.a1_r1.fcu.DeleteVpc(VpcId=cls.dict_resources['vpc0'])
+
+
+            if cls.dict_resources['vpc1']:
+                ret = cls.a2_r1.fcu.DeleteVpc(VpcId=cls.dict_resources['vpc1'])
+
+
+            if cls.dict_resources['vpn0']:
+                ret = cls.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=cls.dict_resources['vpn0'])
+
+            if cls.dict_resources['vgw0']:
+                ret = cls.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=cls.dict_resources['vgw0'])
+
+
+            if cls.dict_resources['cgw0']:
+                ret = cls.a1_r1.fcu.DeleteCustomerGateway(
+                    CustomerGatewayId=cls.dict_resources['cgw0'])
+
+
+            if cls.dict_resources['ami0']:
+                ret = cls.a1_r1.fcu.DeregisterImage(ImageId=cls.dict_resources['ami0'])
+
+
+        except Exception as error:
+            cls.logger.exception(error)
+            pytest.fail("An unexpected error happened")
+
+    def test_tags_non_wrong_type_tag(self):
+
+        ret = self.a1_r1.fcu.CreateTags(Tag=['A'], ResourceId='vol-12345678')
+        assert ret.status_code == 400, ret.response.display()
+
+    def test_tags_non_existing_tag_foo(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['foo'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'Client.InvalidID'
+
+    def test_tags_non_existing_tag_vol(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['vol-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidVolume.NotFound'
+
+    def test_tags_non_existing_tag_snapshots(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['snap-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidSnapshot.NotFound'
+
+    def test_tags_non_existing_tag_ami(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['ami-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidAMIID.NotFound'
+
+    def test_tags_non_existing_tag_instances(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['i-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidInstanceId.NotFound'
+
+    def test_tags_non_existing_tag_sg(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['sg-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidGroup.NotFound'
+
+    def test_tags_non_existing_tag_igw(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['eni-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidInternetGatewayId.NotFound'
+
+    def test_tags_non_existing_tag_rtb(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['rtb-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidRouteTableId.NotFound'
+
+    def test_tags_non_existing_tag_subnet(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['subnet-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidSubnetId.NotFound'
+
+    def test_tags_non_existing_tag_vpc(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['vpc-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidVPCId.NotFound'
+
+    def test_tags_non_existing_tag_vpc_peering(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['pcx-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidVPCId.NotFound'
+
+    def test_tags_non_existing_tag_cgw(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['cgw-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidCustomerGatewayId.NotFound'
+
+    def test_tags_non_existing_tag_vgw(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['vgw-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidvirtualgatewayId.NotFound'
+
+    def test_tags_non_existing_tag_vpn(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['vpn-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidVPNId.NotFound'
+
+    def test_tags_non_existing_tag_vpn(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['pcx-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidPCVPeeringId.NotFound'
+
+    def test_tags_non_existing_tag_fni(self):
+        tag_dict = {'Key': 'name', 'Value': 'Value'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=['eni-12345678'])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidFNI.NotFound'
+
+    def test_create_tag_volume(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['vol0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_snapshot(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_snapshot'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['snap0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_instance(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_instance_ID'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['inst0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_image(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['ami0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_security_group(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['sg0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_security_igw(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['igw0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_security_fni(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['fni0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_security_routetable(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['rtb0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_security_vpc(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['vpc0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_security_cgw(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['cgw0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_security_vpn(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['vpn0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_subnet(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['subnet0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_vpc_peering(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['pcx0']])
+
+    def test_create_tag_volume_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['vol0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_snapshot_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['snap0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_instance_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['inst0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_sg_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['sg0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_igw_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['igw0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_fni_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['fni0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_routetable_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['rtb0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_subnet_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['subnet0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_vpc_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['vpc0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_cgw_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['cgw0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_vgw_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['vgw0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_vpn_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['vpn0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_vpn_peering_multiple(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['pcx0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_one_tag_multiple_resources(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict],
+                                        ResourceId=[self.dict_resources['vol0'], self.dict_resources['snap0'],
+                                                    self.dict_resources['inst0'], self.dict_resources['ami0'],
+                                                    self.dict_resources['sg0'], self.dict_resources['igw0'],
+                                                    self.dict_resources['fni0'], self.dict_resources['rtb0'],
+                                                    self.dict_resources['vpc0'], self.dict_resources['cgw0'],
+                                                    self.dict_resources['vpn0'], self.dict_resources['pcx0'],
+                                                    self.dict_resources['vgw0']])
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_special_character_value(self):
+        tag_dict = {'Key': 'Name', 'Value': 'éà'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict],
+                                        ResourceId=[self.dict_resources['vol0'], self.dict_resources['snap0'],
+                                                    self.dict_resources['inst0'], self.dict_resources['ami0'],
+                                                    self.dict_resources['sg0'], self.dict_resources['igw0'],
+                                                    self.dict_resources['fni0'], self.dict_resources['rtb0'],
+                                                    self.dict_resources['vpc0'], self.dict_resources['cgw0'],
+                                                    self.dict_resources['vpn0'], self.dict_resources['vgw0'],
+                                                    self.dict_resources['pcx0']])
+
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_special_character_key(self):
+        tag_dict = {'Key': 'éà', 'Value': 'test'}
+        ret = self.a1_r1.fcu.CreateTags(Tag=[tag_dict],
+                                        ResourceId=[self.dict_resources['vol0'], self.dict_resources['snap0'],
+                                                    self.dict_resources['inst0'], self.dict_resources['ami0'],
+                                                    self.dict_resources['sg0'], self.dict_resources['igw0'],
+                                                    self.dict_resources['fni0'], self.dict_resources['rtb0'],
+                                                    self.dict_resources['vpc0'], self.dict_resources['cgw0'],
+                                                    self.dict_resources['vpn0'], self.dict_resources['vgw0'],
+                                                    self.dict_resources['vgw0']])
+
+        assert ret.status_code == 200, ret.response.display()
+
+    def test_create_tag_volume_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['vol0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidVolume.NotFound'
+
+    def test_create_tag_snapshot_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_snapshot'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['snap0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidSnapshot.NotFound'
+
+    def test_create_tag_instance_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_instance_ID'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['inst0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidInstanceId.NotFound'
+
+    def test_create_tag_image_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['ami0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidAMIID.NotFound'
+
+    def test_create_tag_security_group_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['sg0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidGroup.NotFound'
+
+    def test_create_tag_security_igw_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['igw0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidInternetGatewayId.NotFound'
+
+    def test_create_tag_security_fni_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['fni0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidFNI.NotFound'
+
+    def test_create_tag_security_routetable_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['rtb0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidRouteTableId.NotFound'
+
+    def test_create_tag_security_vpc_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['vpc0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidVPCId.NotFound'
+
+    def test_create_tag_security_cgw_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['cgw0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidCustomerGatewayId.NotFound'
+
+    def test_create_tag_security_vpn_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_image'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict], ResourceId=[self.dict_resources['vpn0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidVPNId.NotFound'
+
+    def test_create_tag_subnet_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['subnet0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidSubnetId.NotFound'
+
+    def test_create_tag_vpc_peering_another_account(self):
+        tag_dict = {'Key': 'Name', 'Value': 'Tag_volume'}
+        tag_dict1 = {'Key': 'Name1', 'Value': 'Tag_volume'}
+        ret = self.a2_r1.fcu.CreateTags(Tag=[tag_dict, tag_dict1], ResourceId=[self.dict_resources['pcx0']])
+        assert ret.status_code == 400, ret.response.display()
+        assert ret.response.Errors.Error.Code == 'InvalidVPCPeeringID.NotFound'

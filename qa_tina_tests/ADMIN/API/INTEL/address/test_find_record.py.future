@@ -1,0 +1,49 @@
+
+from qa_tools.tools.test_base import OscTestSuite
+
+
+class Test_find_record(OscTestSuite):
+
+    @classmethod
+    def setup_class(cls):
+        super(Test_find_record, cls).setup_class()
+
+    @classmethod
+    def teardown_class(cls):
+        super(Test_find_record, cls).teardown_class()
+
+    def test_T449_with_limit(self):
+        pass
+
+    def test_T450_with_limit_and_offset(self):
+        pass
+
+    def test_T451_without_param(self):
+        pass
+
+    def test_T454_with_filter_subnet(self):
+        pass
+
+    def test_T455_with_filter_owner(self):
+        pass
+
+    def test_T456_with_filter_explicit(self):
+        pass
+
+    def test_T457_with_filter_id(self):
+        pass
+
+    def test_T458_with_filter_ip(self):
+        pass
+
+    def test_T459_with_filter_vm(self):
+        pass
+
+    def test_T460_with_filter_operation(self):
+        pass
+
+    def test_T461_with_filter_operation_date(self):
+        pass
+
+    def test_T462_with_multi_filter(self):
+        pass

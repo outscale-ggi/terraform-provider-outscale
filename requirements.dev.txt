@@ -1,0 +1,4 @@
+pylint==1.9.1
+bpython==0.17.1
+Sphinx==1.7.5
+bandit==1.6.2

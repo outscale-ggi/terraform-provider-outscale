@@ -1,0 +1,60 @@
+from qa_common_tools.test_base import OscTestSuite
+from osc_common.exceptions.osc_exceptions import OscApiException
+from qa_common_tools.misc import assert_error
+from osc_sdk_pub.osc_api import AuthMethod
+from time import sleep
+from osc_sdk_pub import osc_api
+
+
+class Test_ListAccessKeys(OscTestSuite):
+
+    @classmethod
+    def setup_class(cls):
+        super(Test_ListAccessKeys, cls).setup_class()
+
+    @classmethod
+    def teardown_class(cls):
+        super(Test_ListAccessKeys, cls).teardown_class()
+
+    def test_T1495_without_param(self):
+        ret = self.a1_r1.icu.ListAccessKeys()
+        assert len(ret.response.accessKeys) >= 1
+        # TODO: check returned attributes
+
+    # TODO: add more tests
+
+    def test_T3775_check_throttling(self):
+        sleep(11)
+        found_error = False
+        osc_api.disable_throttling()
+        self.a1_r1.icu.ListAccessKeys(max_retry=0)
+        for _ in range(3):
+            try:
+                self.a1_r1.icu.ListAccessKeys(max_retry=0)
+            except OscApiException as error:
+                if error.status_code == 503:
+                    found_error = True
+                else:
+                    raise error
+        osc_api.enable_throttling()
+        assert found_error, "Throttling did not happen"
+
+    def test_T3968_non_authenticated(self):
+        sleep(11)
+        try:
+            self.a1_r1.icu.ListAccessKeys(auth=AuthMethod.Empty)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, 'IcuClientException', 'Field AuthenticationMethod is required')
+
+    def test_T3978_with_method_ak_sk(self):
+        sleep(11)
+        ret = self.a1_r1.icu.ListAccessKeys(auth=AuthMethod.AkSk)
+        assert len(ret.response.accessKeys) >= 1
+        # TODO: check returned attributes
+
+    def test_T3979_with_method_login_password(self):
+        sleep(11)
+        ret = self.a1_r1.icu.ListAccessKeys(auth=AuthMethod.LoginPassword)
+        assert len(ret.response.accessKeys) >= 1
+        # TODO: check returned attributes

@@ -1,0 +1,254 @@
+import pytest
+from qa_common_tools.constants import CENTOS_USER
+from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
+from qa_tina_tools.tina.check_tools import check_volume
+from qa_tina_tools.tools.tina.delete_tools import delete_instances_old
+from qa_tina_tools.tina.info_keys import PATH
+from qa_common_tools.ssh import SshTools
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_common_tools.config.configuration import Configuration
+from qa_common_tools.test_base import known_error
+from osc_common.exceptions.osc_exceptions import OscApiException
+from qa_common_tools.misc import assert_error
+from qa_common_tools.config.region import REGIONS_WITH_INTERNET
+
+# EPH_TYPES = ['m3.medium', 'm3.large', 'm3.xlarge', 'm3.2xlarge', 'r3.large', 'r3.xlarge', 'r3.2xlarge', 'r3.4xlarge', 'r3.8xlarge', 'g2.2xlarge',
+#              'mv3.large', 'mv3.xlarge', 'mv3.2xlarge', 'og4.xlarge', 'og4.2xlarge', 'og4.4xlarge', 'og4.8xlarge', 'io5.2xlarge', 'io5.4xlarge',
+#              'io5.6xlarge', 'io5.8xlarge', 'io5.12xlarge', 'io5.18xlarge']
+EPH_TYPES = ['r3.2xlarge']
+
+
+class Test_public_linux_instance(Test_linux_instance):
+
+    @classmethod
+    def setup_class(cls):
+        cls.QUOTAS = {'gpu_limit': 4}
+        cls.GROUPS = ['PRODUCTION', 'NVIDIA']
+        super(Test_public_linux_instance, cls).setup_class()
+
+    @classmethod
+    def teardown_class(cls):
+        super(Test_public_linux_instance, cls).teardown_class()
+
+    @pytest.mark.tag_redwire
+    def test_T61_create_use_linux_instance(self):
+        inst_id = None
+        try:
+            inst_id, inst_public_ip = self.create_instance()
+            if inst_id:
+                sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                cmd = 'pwd'
+                out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+                self.logger.info(out)
+                assert not status, "SSH command was not executed correctly on the remote host"
+                if self.a1_r1.config.region.name in REGIONS_WITH_INTERNET:
+                    target_ip = Configuration.get('ipaddress', 'dns_google')
+                else:
+                    target_ip = '.'.join(inst_public_ip.split('.')[:-1]) + '.254'
+                cmd = "ping " + target_ip + " -c 1"
+                out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+                self.logger.info(out)
+                # check ping google DNS
+                assert not status, "Instance not connected to internet"
+        finally:
+            if inst_id:
+                delete_instances_old(self.a1_r1, [inst_id])
+
+    @pytest.mark.tag_redwire
+    @pytest.mark.region_gpu
+    def test_T98_create_use_linux_GPU_instance(self):
+        inst_id = None
+        try:
+            inst_id, inst_public_ip = self.create_instance(Instance_Type='mv3.large')
+            if inst_id:
+                sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                cmd = 'sudo pwd'
+                out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+                self.logger.info(out)
+                assert not status, "SSH command was not executed correctly on the remote host"
+                cmd = 'sudo yum install pciutils -y'
+                out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+                self.logger.info(out)
+                assert not status, "SSH command was not executed correctly on the remote host"
+                cmd = 'sudo lspci | grep -c NVIDIA '
+                out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+                self.logger.info(out)
+                assert not status, "SSH command was not executed correctly on the remote host"
+        finally:
+            if inst_id:
+                delete_instances_old(self.a1_r1, [inst_id])
+
+    @pytest.mark.tag_redwire
+    @pytest.mark.region_dedicated
+    def test_T103_create_use_linux_dedicated_instance(self):
+        inst_id = None
+        try:
+            inst_id, inst_public_ip = self.create_instance(dedicated=True)
+            if inst_id:
+                sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                cmd = 'pwd'
+                out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+                self.logger.info(out)
+                assert not status, "SSH command was not executed correctly on the remote host"
+        finally:
+            if inst_id:
+                delete_instances_old(self.a1_r1, [inst_id])
+
+    @pytest.mark.tag_redwire
+    def test_T119_create_start_stop_use_linux_instance(self):
+        inst_id = None
+        try:
+            inst_id, _ = self.create_instance()
+            if inst_id:
+                self.a1_r1.fcu.StopInstances(InstanceId=[inst_id])
+                wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[inst_id], state='stopped')
+                self.a1_r1.fcu.StartInstances(InstanceId=inst_id)
+                # wait instance to become ready check for login page
+                wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[inst_id], state='ready')
+                # get public IP
+
+                describe_res = self.a1_r1.fcu.DescribeInstances(Filter=[{'Name': 'instance-id', 'Value': [inst_id]}])
+                public_ip_inst = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
+
+                sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
+                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+
+                cmd = 'pwd'
+                out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+                self.logger.info(out)
+                assert not status, "SSH command was not executed correctly on the remote host"
+
+        finally:
+            if inst_id:
+                delete_instances_old(self.a1_r1, [inst_id])
+
+    @pytest.mark.tag_redwire
+    def test_T120_create_reboot_linux_instance(self):
+        inst_id = None
+        try:
+
+            inst_id, _ = self.create_instance()
+
+            if inst_id:
+
+                self.a1_r1.fcu.RebootInstances(InstanceId=[inst_id])
+
+                # wait instance to become ready check for login page
+                describe_res = wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[inst_id], state='ready')
+
+                inst_public_ip = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
+
+                sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+
+                out, status, _ = SshTools.exec_command_paramiko_2(sshclient, 'pwd')
+                self.logger.info(out)
+                assert not status, "SSH command was not executed correctly on the remote host"
+
+        finally:
+            if inst_id:
+                delete_instances_old(self.a1_r1, [inst_id])
+
+    def test_T185_create_instance_with_ebs(self):
+        inst_id = None
+        device_name = '/dev/xvdb'
+        size = 1
+        ebs = {'DeleteOnTermination': 'true', 'VolumeSize': str(size), 'VolumeType': 'standard'}
+        BlockDevice = [{'DeviceName': device_name, 'Ebs': ebs}]
+
+        try:
+
+            inst_id, inst_public_ip = self.create_instance(Instance_Type='t2.small', BlockDeviceMapping=BlockDevice)
+            if inst_id:
+
+                sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+
+                check_volume(sshclient, device_name, size, perf_iops=2, volume_type='standard')
+
+        finally:
+            if inst_id:
+                delete_instances_old(self.a1_r1, [inst_id])
+
+#     def test_TXXX_create_instance_with_ebs(self):
+#         inst_id = None
+#         device_name = '/dev/xvdb'
+#         size = 1000
+#         iops = 5000
+#         v_type = 'io1'
+#         ebs = {'DeleteOnTermination': 'true', 'VolumeSize': str(size), 'VolumeType': v_type, 'Iops': iops}
+#         BlockDevice = [{'DeviceName': device_name, 'Ebs': ebs}]
+#
+#         try:
+#
+#             inst_id, inst_public_ip = self.create_instance(Instance_Type='t2.small', BlockDeviceMapping=BlockDevice)
+#             if inst_id:
+#
+#                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+#                                                                username=self.a1_r1.config.region.get_info(CENTOS_USER))
+#
+#                 check_volume(sshclient, device_name, size, perf_iops=1, volume_type=v_type, iops_io1=iops)
+#
+#         finally:
+#             if inst_id:
+#                 delete_instances_old(self.a1_r1, [inst_id])
+
+    @pytest.mark.tag_redwire
+    @pytest.mark.region_ephemeral
+    def test_T123_create_instance_linux_ephemeral(self):
+        inst_id = None
+        device_name = '/dev/xvdc'
+        # size = 128
+        size = 32
+        BlockDevice = [{'DeviceName': device_name, 'VirtualName': 'ephemeral0'}]
+        placement = None
+        if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
+            placement = {'AvailabilityZone': 'cn-southeast-1b'}
+        if self.a1_r1.config.region.name == 'in-west-2':
+            known_error('TINA-5461', 'Instance with ephemeral stuck in pending state')
+        try:
+            inst_id, inst_public_ip = self.create_instance(Instance_Type='r3.large', BlockDeviceMapping=BlockDevice, placement=placement)
+            if inst_id:
+                sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                check_volume(sshclient, device_name, size, with_format=False)
+        except OscApiException as error:
+            raise error
+        finally:
+            if inst_id:
+                delete_instances_old(self.a1_r1, [inst_id])
+
+#     def test_TXXX(self):
+#         inst_id = None
+#         device_name = '/dev/xvdb'
+#         #size = 128
+#         size = 32
+#         BlockDevice = [{'DeviceName': device_name, 'VirtualName': 'ephemeral0'}]
+#         placement = None
+#         if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
+#             placement = {'AvailabilityZone': 'cn-southeast-1b'}
+#         results = {}
+#         for typ in EPH_TYPES:
+#             inst_id = None
+#             try:
+#                 print('Testing type {}'.format(typ))
+#                 inst_id, inst_public_ip = self.create_instance(Instance_Type=typ, BlockDeviceMapping=BlockDevice, placement=placement)
+#                 if inst_id:
+#
+#                     sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+#                                                                    username=self.a1_r1.config.region.get_info(CENTOS_USER))
+#
+#                     check_volume(sshclient, device_name, size, with_format=False)
+#                 results[typ] = 'OK'
+#             except Exception:
+#                 results[typ] = 'KO'
+#             finally:
+#                 if inst_id:
+#                     try:
+#                         delete_instances_old(self.a1_r1, [inst_id])
+#                     except:
+#                         pass
+#         print(results)

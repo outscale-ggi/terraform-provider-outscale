@@ -1,0 +1,16 @@
+{
+    "c5.large": {"cpu": 2, "ram": 4, "gpu": 0},
+    "c5.xlarge": {"cpu": 4, "ram": 8, "gpu": 0},
+    "c5.2xlarge": {"cpu": 8, "ram": 16, "gpu": 0},
+    "c5.4xlarge": {"cpu": 16, "ram": 32, "gpu": 0},
+    "c5.9xlarge": {"cpu": 36, "ram": 72, "gpu": 0},
+    "c5.18xlarge": {"cpu": 72, "ram": 144, "gpu": 0},
+    "m5.large": {"cpu": 2, "ram": 8, "gpu": 0},
+    "m5.xlarge": {"cpu": 4, "ram": 16, "gpu": 0},
+    "m5.2xlarge": {"cpu": 8, "ram": 32, "gpu": 0},
+    "m5.4xlarge": {"cpu": 16, "ram": 64, "gpu": 0},
+    "m5.12xlarge": {"cpu": 48, "ram": 192, "gpu": 0},
+    "m5.24xlarge": {"cpu": 96, "ram": 384, "gpu": 0},
+    "tinav5.c1r1": {"cpu": 1, "ram": 1, "gpu": 0},
+    "tinav5.c38r180": {"cpu": 38, "ram": 180, "gpu": 0}
+}  
