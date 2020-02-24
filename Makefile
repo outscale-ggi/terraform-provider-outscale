@@ -1,8 +1,8 @@
 SHELL = /bin/bash
 
-PROJECT_NAME = qa_tina
+PROJECT_NAME = qa_tina_tests
 
-PROJECT_DEPENDENCIES = qa_tools
+PROJECT_DEPENDENCIES = qa_tina_tools
 
 ROOT_PATH ?= $$(pwd)
 USER_VENV_PATH ?= "$$(pwd)/venv_p3"
