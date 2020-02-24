@@ -2,7 +2,8 @@ import time
 import requests
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.check_tools import wait_lbu_backend_state
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer, create_self_signed_cert, create_instances
@@ -51,7 +52,7 @@ class Test_secured_cookie(OscTestSuite):
 
         try:
             start_test_http_server(inst['ipAddress'], kp_info[PATH],
-                                   self.a1_r1.config.region.get_info(CENTOS_USER))
+                                   self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             crtpath, keypath = create_self_signed_cert()
             key = open(keypath).read()
             cert = open(crtpath).read()

@@ -1,5 +1,6 @@
 from osc_common.exceptions import OscApiException
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.misc import assert_error
 from qa_common_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -36,7 +37,7 @@ class Test_virtiorng(OscTestSuite):
         kp_info = self.inst_info[KEY_PAIR]
 
         connection = SshTools.check_connection_paramiko(inst['ipAddress'], kp_info[PATH],
-                                                        self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                        self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         cmd = "cat /sys/devices/virtual/misc/hw_random/rng_available"
         out, status, error = SshTools.exec_command_paramiko_2(connection, cmd)
         if out == "\r\n":

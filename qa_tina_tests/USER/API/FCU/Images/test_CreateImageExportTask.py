@@ -6,7 +6,7 @@
 import pytest
 
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.misc import id_generator, assert_error
 from qa_common_tools.test_base import OscTestSuite, known_error
 from qa_common_tools.test_base import assert_code

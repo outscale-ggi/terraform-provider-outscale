@@ -1,11 +1,11 @@
 import pytest
 
 from qa_common_tools.test_base import OscTestSuite
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.misc import assert_dry_run, assert_oapi_error
 from qa_tina_tools.tools.tina.wait_tools import wait_images_state
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.constants import CENTOS7
+from qa_common_tools.config import config_constants as constants
 
 
 class Test_DeleteImage(OscTestSuite):
@@ -15,7 +15,7 @@ class Test_DeleteImage(OscTestSuite):
         super(Test_DeleteImage, cls).setup_class()
         cls.image_id = None
         try:
-            image_id = cls.a1_r1.config.region.get_info(CENTOS7)
+            image_id = cls.a1_r1.config.region.get_info(constants.CENTOS7)
             cls.image_id = cls.a1_r1.oapi.CreateImage(
                 SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name).response.Image.ImageId
         except:

@@ -2,11 +2,10 @@
 import datetime
 import pytest
 
-from qa_common_tools.test_base import OscTestSuite, is_skipped, known_error
+from qa_common_tools.test_base import OscTestSuite, known_error
 from qa_common_tools.misc import id_generator
 from qa_tina_tools.tools.tina.wait_tools import wait_load_balancer_state
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
-from qa_common_tools.config.region import REGIONS_QA
 
 
 class Test_find(OscTestSuite):
@@ -26,7 +25,7 @@ class Test_find(OscTestSuite):
 
     # test_T000_without_param(self) is not a good idea
 
-    @pytest.mark.skipif(**is_skipped(regions=REGIONS_QA, typ='QA'))
+    @pytest.mark.region_qa
     def test_T1583_with_limit(self):
         ret = self.a1_r1.intel_lbu.accounting.find(limit=10)
         assert ret.response.result.count == 10
@@ -49,7 +48,7 @@ class Test_find(OscTestSuite):
             assert result.type
             assert result.id
 
-    @pytest.mark.skipif(**is_skipped(regions=REGIONS_QA, typ='QA'))
+    @pytest.mark.region_qa
     def test_T1584_with_orders(self):
         try:
             res = self.a1_r1.intel_lbu.accounting.find(limit=3, orders=[('id', 'DESC')]).response.result.results
@@ -69,14 +68,14 @@ class Test_find(OscTestSuite):
         for i in range(3):
             assert orig[i] == sort[i]
 
-    @pytest.mark.skipif(**is_skipped(regions=REGIONS_QA, typ='QA'))
+    @pytest.mark.region_qa
     def test_T1585_with_after_id(self):
         ret = self.a1_r1.intel_lbu.accounting.find(limit=1000)
         search_id = ret.response.result.results[ret.response.result.count-4].id
         ret = self.a1_r1.intel_lbu.accounting.find(limit=3, after_id=search_id)
         assert [i.id for i in ret.response.result.results] == [search_id+1, search_id+2, search_id+3]
 
-    @pytest.mark.skipif(**is_skipped(regions=REGIONS_QA, typ='QA'))
+    @pytest.mark.region_qa
     def test_T1586_with_invalid_after_id(self):
         ret = self.a1_r1.intel_lbu.accounting.find(limit=3, after_id=100000000)
         assert ret.response.result.count == 0

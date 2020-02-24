@@ -2,7 +2,7 @@
 import pytest
 
 from qa_common_tools.test_base import OscTestSuite, known_error
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response
 from qa_common_tools.misc import assert_dry_run

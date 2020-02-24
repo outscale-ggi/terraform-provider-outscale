@@ -1,5 +1,6 @@
 
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_peering
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, INSTANCE_SET, KEY_PAIR, PATH, VPC_ID, PEERING, EIP, ROUTE_TABLE_ID, SECURITY_GROUP_ID
@@ -48,7 +49,7 @@ class Test_VPC_Peering(OscTestSuite):
                                        VpcPeeringConnectionId=peering_info[PEERING].id)
             # connect to instance 1 via eip1
             sshclient = SshTools.check_connection_paramiko(self.vpc1_info[SUBNETS][0][EIP]['publicIp'], self.vpc1_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # connect to instance2 via vpc peering
             sshclient_jhost = SshTools.check_connection_paramiko_nested(
                 sshclient=sshclient,
@@ -56,7 +57,7 @@ class Test_VPC_Peering(OscTestSuite):
                 ssh_key=self.vpc2_info[KEY_PAIR][PATH],
                 local_private_addr=self.vpc1_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
                 dest_private_addr=self.vpc2_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
-                username=self.a1_r1.config.region.get_info(CENTOS_USER),
+                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                 retry=4, timeout=10)
             cmd = "sudo ifconfig"
             out, _, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, cmd)

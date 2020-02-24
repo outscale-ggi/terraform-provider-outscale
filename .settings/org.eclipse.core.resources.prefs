@@ -1,2 +1,8 @@
 eclipse.preferences.version=1
+encoding//qa_tina_tests/ADMIN/FUNCTIONAL/streaming/__init__.py=utf-8
 encoding//qa_tina_tests/ADMIN/FUNCTIONAL/streaming/base.py=utf-8
+encoding//qa_tina_tests/USER/API/OAPI/Image/test_CreateImage.py=utf-8
+encoding//qa_tina_tests/USER/CAPA/check_instance_types.py=utf-8
+encoding//qa_tina_tests/USER/FUNCTIONAL/FCU/VPN_Connections/vpn.py=utf-8
+encoding//qa_tina_tests/USER/STRESS/PERF/perf_deleting_lot_of_snapshot.py=utf-8
+encoding//qa_tina_tests/USER/STRESS/PERF/perf_find_snapshot_by_user.py=utf-8

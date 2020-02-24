@@ -5,7 +5,7 @@ import logging
 import ssl
 from osc_sdk_as import OscSdkAs
 from osc_sdk_priv import OscPrivApi
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.osc_sdk import OscSdk
 from qa_common_tools.config import OscConfig
 from osc_common.exceptions.osc_exceptions import OscApiException

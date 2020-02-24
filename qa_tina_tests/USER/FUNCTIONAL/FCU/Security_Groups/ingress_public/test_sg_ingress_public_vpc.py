@@ -3,7 +3,8 @@ import os
 from platform import system as system_name
 import pytest
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_keypair
@@ -183,7 +184,7 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             assert self.ping(host=public_ip_inst)
 
             sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
-                                                           username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             # validate tcp
             cmd = 'pwd'
@@ -240,7 +241,7 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             # validate tcp
 
             sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
-                                                           username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # validate tcp
             cmd = 'pwd'
             _, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)

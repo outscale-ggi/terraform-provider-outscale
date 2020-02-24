@@ -5,7 +5,8 @@ import time
 import requests
 
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER, MY_IP
+from qa_common_tools.config import config_constants as constants
+, MY_IP
 from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.check_tools import wait_lbu_backend_state
@@ -30,7 +31,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
             cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.inst_info[SECURITY_GROUP_ID], IpProtocol='tcp',
                                                         FromPort=80, ToPort=80, CidrIp=Configuration.get('cidr', 'allips'))
             start_test_http_server(cls.inst_info[INSTANCE_SET][0]['ipAddress'], cls.inst_info[KEY_PAIR][PATH],
-                                   cls.a1_r1.config.region.get_info(CENTOS_USER))
+                                   cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             cls.crtpath, cls.keypath = create_self_signed_cert()
             key = open(cls.keypath).read()

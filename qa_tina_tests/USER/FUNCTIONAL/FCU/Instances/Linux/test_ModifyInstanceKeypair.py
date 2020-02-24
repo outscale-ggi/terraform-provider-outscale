@@ -5,7 +5,8 @@ from qa_tina_tools.tools.tina.info_keys import PATH, INSTANCE_ID_LIST, INSTANCE_
 from qa_common_tools.ssh import SshTools
 from qa_common_tools.test_base import OscTestSuite
 from qa_common_tools.misc import id_generator
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 
 
 class Test_ModifyInstanceKeypair(OscTestSuite):
@@ -37,7 +38,7 @@ class Test_ModifyInstanceKeypair(OscTestSuite):
             inst_info = create_instances(self.a1_r1, state='ready')
             # ssh on instance
             sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # execute command
             cmd = 'curl http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key'
             out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)

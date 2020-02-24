@@ -5,7 +5,8 @@ from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_common_tools.ssh import SshTools
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER, FW_ADMIN_SUBNET, FW_KP
+from qa_common_tools.config import config_constants as constants
+, FW_ADMIN_SUBNET, FW_KP
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, SUBNETS, SUBNET_ID, INSTANCE_ID_LIST, INTERNET_GATEWAY_ID, SECURITY_GROUP_ID
 from qa_tina_tools.tools.tina.info_keys import KEY_PAIR, PATH, INSTANCE_SET, VPC_ID
@@ -112,7 +113,7 @@ class Test_agent_fw_vpc(OscTestSuite):
 
     def check_ngw_ping(self, pub_ip, kp_path, local_addr, dest_addr):
         sshclient = SshTools.check_connection_paramiko(pub_ip, kp_path,
-                                                       username=self.a1_r1.config.region.get_info(CENTOS_USER), retry=4, timeout=10)
+                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=4, timeout=10)
 
         # read file and save it on distant machine
         with open(kp_path, 'r') as content_file:
@@ -129,7 +130,7 @@ class Test_agent_fw_vpc(OscTestSuite):
                                                                     ssh_key=kp_path,
                                                                     local_private_addr=local_addr,
                                                                     dest_private_addr=dest_addr,
-                                                                    username=self.a1_r1.config.region.get_info(CENTOS_USER),
+                                                                    username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                                     retry=4, timeout=10)
         cmd = "sudo ping " + Configuration.get('ipaddress', 'dns_google') + " -c 1"
         out, status, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, cmd)

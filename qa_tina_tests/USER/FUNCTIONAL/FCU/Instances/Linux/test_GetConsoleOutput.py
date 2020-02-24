@@ -1,4 +1,3 @@
-from qa_common_tools.constants import CENTOS_USER
 from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -6,6 +5,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST, PATH, KEY_PAIR
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_common_tools.ssh import SshTools
+from qa_common_tools.config import config_constants as constants
 import base64
 import string
 import datetime
@@ -41,7 +41,7 @@ class Test_GetConsoleOutput(OscTestSuite):
         kp_info = self.instance_info_a1[KEY_PAIR]
 
         connection = SshTools.check_connection_paramiko(inst['ipAddress'], kp_info[PATH],
-                                                        self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                        self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         msg_output = id_generator(size=128, chars=string.ascii_letters)
         cmd = "echo " + msg_output + " | sudo tee  /dev/kmsg"
         out, status, error = SshTools.exec_command_paramiko_2(connection, cmd)

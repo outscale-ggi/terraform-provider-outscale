@@ -7,7 +7,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_i
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET
 from qa_common_tools.misc import assert_error
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 import pytest
 
 

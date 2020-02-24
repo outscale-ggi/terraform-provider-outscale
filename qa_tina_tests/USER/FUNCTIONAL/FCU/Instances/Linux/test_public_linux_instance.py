@@ -1,5 +1,5 @@
 import pytest
-from qa_common_tools.constants import CENTOS_USER
+
 from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
 from qa_tina_tools.tina.check_tools import check_volume
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old
@@ -9,8 +9,8 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_common_tools.config.configuration import Configuration
 from qa_common_tools.test_base import known_error
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.misc import assert_error
-from qa_common_tools.config.region import REGIONS_WITH_INTERNET
+from qa_common_tools.config.region import Feature
+from qa_common_tools.config import config_constants as constants
 
 # EPH_TYPES = ['m3.medium', 'm3.large', 'm3.xlarge', 'm3.2xlarge', 'r3.large', 'r3.xlarge', 'r3.2xlarge', 'r3.4xlarge', 'r3.8xlarge', 'g2.2xlarge',
 #              'mv3.large', 'mv3.xlarge', 'mv3.2xlarge', 'og4.xlarge', 'og4.2xlarge', 'og4.4xlarge', 'og4.8xlarge', 'io5.2xlarge', 'io5.4xlarge',
@@ -37,12 +37,12 @@ class Test_public_linux_instance(Test_linux_instance):
             inst_id, inst_public_ip = self.create_instance()
             if inst_id:
                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
                 self.logger.info(out)
                 assert not status, "SSH command was not executed correctly on the remote host"
-                if self.a1_r1.config.region.name in REGIONS_WITH_INTERNET:
+                if Feature.INTERNET in self.a1_r1.config.region.get_info(constants.FEATURES):
                     target_ip = Configuration.get('ipaddress', 'dns_google')
                 else:
                     target_ip = '.'.join(inst_public_ip.split('.')[:-1]) + '.254'
@@ -63,7 +63,7 @@ class Test_public_linux_instance(Test_linux_instance):
             inst_id, inst_public_ip = self.create_instance(Instance_Type='mv3.large')
             if inst_id:
                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'sudo pwd'
                 out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
                 self.logger.info(out)
@@ -88,7 +88,7 @@ class Test_public_linux_instance(Test_linux_instance):
             inst_id, inst_public_ip = self.create_instance(dedicated=True)
             if inst_id:
                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
                 self.logger.info(out)
@@ -114,7 +114,7 @@ class Test_public_linux_instance(Test_linux_instance):
                 public_ip_inst = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
 
                 sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
-                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
@@ -142,7 +142,7 @@ class Test_public_linux_instance(Test_linux_instance):
                 inst_public_ip = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
 
                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
                 out, status, _ = SshTools.exec_command_paramiko_2(sshclient, 'pwd')
                 self.logger.info(out)
@@ -165,7 +165,7 @@ class Test_public_linux_instance(Test_linux_instance):
             if inst_id:
 
                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
                 check_volume(sshclient, device_name, size, perf_iops=2, volume_type='standard')
 
@@ -188,7 +188,7 @@ class Test_public_linux_instance(Test_linux_instance):
 #             if inst_id:
 #
 #                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-#                                                                username=self.a1_r1.config.region.get_info(CENTOS_USER))
+#                                                                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 #
 #                 check_volume(sshclient, device_name, size, perf_iops=1, volume_type=v_type, iops_io1=iops)
 #
@@ -213,7 +213,7 @@ class Test_public_linux_instance(Test_linux_instance):
             inst_id, inst_public_ip = self.create_instance(Instance_Type='r3.large', BlockDeviceMapping=BlockDevice, placement=placement)
             if inst_id:
                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 check_volume(sshclient, device_name, size, with_format=False)
         except OscApiException as error:
             raise error
@@ -239,7 +239,7 @@ class Test_public_linux_instance(Test_linux_instance):
 #                 if inst_id:
 #
 #                     sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-#                                                                    username=self.a1_r1.config.region.get_info(CENTOS_USER))
+#                                                                    username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 #
 #                     check_volume(sshclient, device_name, size, with_format=False)
 #                 results[typ] = 'OK'

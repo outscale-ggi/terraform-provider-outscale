@@ -3,7 +3,7 @@ from subprocess import call
 from threading import current_thread
 
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_security_groups_state, wait_keypairs_state, wait_instances_state

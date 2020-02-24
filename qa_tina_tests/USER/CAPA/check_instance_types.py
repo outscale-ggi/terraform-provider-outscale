@@ -6,7 +6,7 @@ import json
 import os
 
 from qa_common_tools.config import OscConfig
-from qa_common_tools.constants import ZONE, CENTOS_USER
+from qa_common_tools.config import config_constants as constants
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.osc_sdk import OscSdk
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -91,7 +91,7 @@ def exec_test(osc_sdk):
     comment = ""
 
     # Try to make test on all AZ
-    for az in osc_sdk.config.region.get_info(ZONE):
+    for az in osc_sdk.config.region.get_info(constants.ZONE):
         info = None
         try:
             # Init default status
@@ -101,7 +101,7 @@ def exec_test(osc_sdk):
             info = create_instances(osc_sdk, az=az, inst_type=instance_type, state='ready')
 
             sshclient = SshTools.check_connection_paramiko(info[INSTANCE_SET][0]['ipAddress'], info[KEY_PAIR][PATH],
-                                                           username=osc_sdk.config.region.get_info(CENTOS_USER))
+                                                           username=osc_sdk.config.region.get_info(constants.CENTOS_USER))
 
             cmd = "cat /proc/cpuinfo | grep -c proc"
             out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)

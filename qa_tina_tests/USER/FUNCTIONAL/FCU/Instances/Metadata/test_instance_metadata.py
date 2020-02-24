@@ -1,4 +1,5 @@
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_tina_tools.tools.state import InstanceState
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_keypair
@@ -23,7 +24,7 @@ class Test_instance_metadata(OscTestSuite):
             cls.a1_r1.fcu.CreateTags(ResourceId=[inst['instanceId']], Tag=[{'Key': 'key1', 'Value': 'value1'},
                                                                            {'Key': 'key2', 'Value': 'value2'},
                                                                            {'Key': 'key3', 'Value': ''}])
-            cls.connection = SshTools.check_connection_paramiko(inst['ipAddress'], cls.kp_info[PATH], cls.a1_r1.config.region.get_info(CENTOS_USER))
+            cls.connection = SshTools.check_connection_paramiko(inst['ipAddress'], cls.kp_info[PATH], cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except Exception as error:
             try:
                 cls.teardown_class()

@@ -8,7 +8,7 @@ from qa_tina_tools.tina.check_tools import get_snapshot_id_list
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_volumes
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.wait_tools import wait_images_state
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from osc_common.exceptions.osc_exceptions import OscApiException
 
 

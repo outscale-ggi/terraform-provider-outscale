@@ -5,7 +5,7 @@ import logging
 
 
 import ssl
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.osc_sdk import OscSdk
 from qa_common_tools.config import OscConfig
 from osc_sdk_pub.osc_api import disable_throttling

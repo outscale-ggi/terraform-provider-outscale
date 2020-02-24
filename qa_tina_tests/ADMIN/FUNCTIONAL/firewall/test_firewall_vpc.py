@@ -6,7 +6,8 @@ from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, SUBNETS, KEY_PAIR, PATH, VPC_ID, INSTANCE_ID_LIST
-from qa_common_tools.constants import CENTOS_USER, FW_OWNER
+from qa_common_tools.config import config_constants as constants
+, FW_OWNER
 
 
 class Test_firewall_vpc(OscTestSuite):
@@ -53,7 +54,7 @@ class Test_firewall_vpc(OscTestSuite):
     def test_T1533_spwan_firewall_VPC(self):
         sshclient = SshTools.check_connection_paramiko(self.public_ip,
                                                        self.vpc_info[KEY_PAIR][PATH],
-                                                       username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         out, _, _ = SshTools.exec_command_paramiko_2(
             sshclient,
             'ping -W 1 -c 1 {}'.format(
@@ -76,7 +77,7 @@ class Test_firewall_vpc(OscTestSuite):
 
         sshclient = SshTools.check_connection_paramiko(self.public_ip,
                                                        self.vpc_info[KEY_PAIR][PATH],
-                                                       username=self.a1_r1.config.region.get_info(CENTOS_USER),
+                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                        retry=20, timeout=10)
 
         out, _, _ = SshTools.exec_command_paramiko_2(
@@ -90,7 +91,7 @@ class Test_firewall_vpc(OscTestSuite):
     def test_T1925_stop_start_firewall_VPC(self):
         sshclient = SshTools.check_connection_paramiko(self.public_ip,
                                                        self.vpc_info[KEY_PAIR][PATH],
-                                                       username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         out, _, _ = SshTools.exec_command_paramiko_2(
             sshclient,
             'ping -W 1 -c 1 {}'.format(
@@ -112,7 +113,7 @@ class Test_firewall_vpc(OscTestSuite):
 
         sshclient = SshTools.check_connection_paramiko(self.public_ip,
                                                        self.vpc_info[KEY_PAIR][PATH],
-                                                       username=self.a1_r1.config.region.get_info(CENTOS_USER),
+                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                        retry=20, timeout=10)
 
         out, _, _ = SshTools.exec_command_paramiko_2(

@@ -3,7 +3,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances, create_volum
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH, INSTANCE_ID_LIST
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances
 import logging
 import urllib3
@@ -37,11 +37,11 @@ def setup_streaming_ressources(osc_sdk):
             _, [vol_id] = create_volumes(osc_sdk, size=snap_cfg[1])
             wait_volumes_state(osc_sdk, [vol_id], 'available')
             sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
-                                                           username=osc_sdk.config.region.get_info(CENTOS_USER))
+                                                           username=osc_sdk.config.region.get_info(constants.CENTOS_USER))
             osc_sdk.fcu.AttachVolume(InstanceId=inst_info[INSTANCE_ID_LIST][0], VolumeId=vol_id, Device='/dev/xvdc')
             wait_volumes_state(osc_sdk, [vol_id], state='in-use')
             sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
-                                                           username=osc_sdk.config.region.get_info(CENTOS_USER))
+                                                           username=osc_sdk.config.region.get_info(constants.CENTOS_USER))
             if snap_cfg[3]:
                 cmd = 'sudo yum install -y epel-release'
                 SshTools.exec_command_paramiko_2(sshclient, cmd)

@@ -1,6 +1,7 @@
 import pytest
 
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
@@ -46,7 +47,7 @@ class Test_create_image_from_snapshot(OscTestSuite):
             instance = ci1_info[INSTANCE_SET][0]
             # check instance connection
             SshTools.check_connection_paramiko(instance['ipAddress'], ci1_info[KEY_PAIR][PATH],
-                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # get instance boot disk
             assert len(instance['blockDeviceMapping']) == 1
             # stop instance
@@ -63,7 +64,7 @@ class Test_create_image_from_snapshot(OscTestSuite):
             assert len(ci2_info[INSTANCE_SET]) == 1
             # check instance connection
             SshTools.check_connection_paramiko(ci2_info[INSTANCE_SET][0]['ipAddress'], ci2_info[KEY_PAIR][PATH],
-                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
             if ci2_info:
                 try:

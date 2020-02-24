@@ -1,13 +1,12 @@
 
 import pytest
 
-from qa_common_tools.test_base import OscTestSuite, is_skipped
+from qa_common_tools.test_base import OscTestSuite
 from qa_common_tools.misc import id_generator
 from qa_tina_tools.tools.tina.wait_tools import wait_load_balancer_state
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu, delete_vpc
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tina.info_keys import SUBNETS, SECURITY_GROUP_ID, SUBNET_ID
-from qa_common_tools.config.region import REGIONS_QA
 
 
 class Test_gc(OscTestSuite):
@@ -48,7 +47,7 @@ class Test_gc(OscTestSuite):
         finally:
             super(Test_gc, cls).teardown_class()
 
-    @pytest.mark.skipif(**is_skipped(regions=REGIONS_QA, typ='QA'))
+    @pytest.mark.region_qa
     def test_T3999_with_lbu_using_inst_sg(self):
         self.a1_r1.intel_lbu.control.gc(name=self.lb_name, owner=self.a1_r1.config.account.account_id)
         self.ret_lbu = None

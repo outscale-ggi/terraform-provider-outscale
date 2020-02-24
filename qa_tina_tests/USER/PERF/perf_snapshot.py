@@ -3,10 +3,9 @@ from threading import current_thread
 import time
 
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tools.tina.create_tools import create_keypair
-from qa_common_tools.constants import CENTOS_USER
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state,\
     wait_keypairs_state, wait_security_groups_state, wait_snapshots_state
@@ -147,7 +146,7 @@ def perf_snapshot(oscsdk, logger, queue, args):
                     volume_id_list.append(volumes.ebs.volumeId)
                 inst = ret.response.reservationSet[0].instancesSet[0]
                 sshclient = SshTools.check_connection_paramiko(inst.ipAddress, '/tmp/{}.pem'.format(kp_name),
-                                                               username=oscsdk.config.region.get_info(CENTOS_USER))
+                                                               username=oscsdk.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'sudo mkfs.xfs -f {}'.format(DEV)
                 SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=600, retry=1)
             except Exception as error:
@@ -157,7 +156,7 @@ def perf_snapshot(oscsdk, logger, queue, args):
 
         #print(inst.display())
         sshclient = SshTools.check_connection_paramiko(inst.ipAddress, '/tmp/{}.pem'.format(kp_name),
-                                                       username=oscsdk.config.region.get_info(CENTOS_USER))
+                                                       username=oscsdk.config.region.get_info(constants.CENTOS_USER))
         cmd = 'sudo mount -o nouuid {} /mnt'.format(DEV)
         SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
         cmd = 'sudo openssl rand -out /mnt/data_xxx.txt -base64 $(({} * 2**20 * 3/4))'.format(100)

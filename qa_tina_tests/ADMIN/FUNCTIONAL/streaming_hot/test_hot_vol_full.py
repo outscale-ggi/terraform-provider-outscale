@@ -3,7 +3,8 @@
 import pytest
 
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.misc import assert_error
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
@@ -95,7 +96,7 @@ class Test_hot_vol_full(StreamingBaseHot):
     def test_T4361_hot_vol_full_without_snapshots_on_last_datafiles(self):
         ret = wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.inst_running_info[INSTANCE_ID_LIST], state='ready')
         sshclient = SshTools.check_connection_paramiko(ret.response.reservationSet[0].instancesSet[0].ipAddress, self.inst_running_info[KEY_PAIR][PATH],
-                                                       username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         for i in range(5):
             write_data(sshclient=sshclient, f_num=100+i, device='/dev/xvdc', folder='/mnt', w_size=self.w_size, fio=False)
             snap_id = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_1_id, Description='S{}'.format(100+i)).response.snapshotId

@@ -7,7 +7,8 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, K
 from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
 from qa_common_tools.misc import assert_error, assert_oapi_error
 from qa_common_tools.ssh import SshTools
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 
@@ -97,7 +98,7 @@ class Test_fgpu_life_cycle(OscTestSuite):
                            self.inst_info[INSTANCE_ID_LIST][0],
                            self.inst_info[INSTANCE_SET][0]['ipAddress'],
                            self.inst_info[KEY_PAIR][PATH],
-                           self.a1_r1.config.region.get_info(CENTOS_USER),
+                           self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                            self.logger,
                            total_gpu, vcores, memory_ram)
 

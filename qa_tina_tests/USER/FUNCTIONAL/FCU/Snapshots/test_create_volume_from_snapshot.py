@@ -5,7 +5,8 @@ import pytest
 from osc_common.exceptions import OscApiException
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming import get_data_file_chain
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tina.check_tools import create_text_file_volume, format_mount_volume, read_text_file_volume
 from qa_tina_tools.tools.tina.create_tools import attach_volume, create_instances_old, create_keypair
@@ -43,7 +44,7 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             cls.public_ip_inst = ret.response.reservationSet[0].instancesSet[0].ipAddress
             cls.logger.info('PublicIP : {}'.format(cls.public_ip_inst))
             cls.sshclient = SshTools.check_connection_paramiko(cls.public_ip_inst, cls.kp_info[PATH],
-                                                               username=cls.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except Exception as error:
             cls.teardown_class()
             raise error

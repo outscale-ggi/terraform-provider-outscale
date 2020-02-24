@@ -5,7 +5,8 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_instances_state
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances
 from qa_common_tools.ssh import SshTools
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_tina_tools.tina.check_tools import format_mount_volume, umount_volume
 from qa_common_tools.test_base import OscTestSuite
 import time
@@ -28,7 +29,7 @@ class Test_attach_detach(OscTestSuite):
             ret_desc = wait_instances_state(cls.a1_r1, cls.inst_info[INSTANCE_ID_LIST], state='ready')
             cls.sshclient = SshTools.check_connection_paramiko(ret_desc.response.reservationSet[0].instancesSet[0].ipAddress,
                                                                cls.inst_info[KEY_PAIR][PATH],
-                                                               username=cls.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except:
             try:
                 cls.teardown_class()

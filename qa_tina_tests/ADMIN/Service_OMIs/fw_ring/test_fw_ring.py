@@ -5,9 +5,8 @@ import time
 import pytest
 from qa_common_tools.test_base import OscTestSuite
 from qa_common_tools.ssh import SshTools
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from netaddr import IPNetwork, IPAddress
-from qa_common_tools.constants import FW_ADMIN_SUBNET
 
 
 class Test_fw_ring(OscTestSuite):
@@ -24,7 +23,7 @@ class Test_fw_ring(OscTestSuite):
 
             inst_ip = None
             for nic in ret.response.result:
-                if IPAddress(nic.ips[0].ip) in IPNetwork(cls.a1_r1.config.region.get_info(FW_ADMIN_SUBNET)):
+                if IPAddress(nic.ips[0].ip) in IPNetwork(cls.a1_r1.config.region.get_info(constants.FW_ADMIN_SUBNET)):
                     inst_ip = nic.ips[0].ip
             assert inst_ip
 

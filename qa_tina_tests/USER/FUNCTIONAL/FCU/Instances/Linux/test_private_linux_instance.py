@@ -1,7 +1,8 @@
 import pytest
 
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_subnet
 from qa_tina_tools.tina.info_keys import PATH
@@ -82,7 +83,7 @@ class Test_private_linux_instance(Test_linux_instance):
             inst_id, inst_public_ip = self.create_instance(subnet=self.subnet1_id, security_group_id=self.sg_vpc_id)
             if inst_id:
                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                                                               username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
                 self.logger.info(out)

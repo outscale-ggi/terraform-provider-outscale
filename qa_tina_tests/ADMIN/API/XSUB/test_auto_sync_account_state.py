@@ -1,4 +1,4 @@
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from osc_common.exceptions.osc_exceptions import OscException, OscTestException
 from qa_common_tools.test_base import OscTestSuite
 from qa_common_tools.account_tools import create_account

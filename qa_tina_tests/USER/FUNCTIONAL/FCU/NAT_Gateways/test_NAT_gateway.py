@@ -1,14 +1,13 @@
 import datetime
 import pytest
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER, CENTOS7, DEFAULT_INSTANCE_TYPE
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_keypair, delete_subnet
-from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_common_tools.config.region import REGIONS_WITH_INTERNET
+from qa_tina_tools.tools.tina import info_keys
 
 
 class Test_NAT_gateway(OscTestSuite):
@@ -41,7 +40,7 @@ class Test_NAT_gateway(OscTestSuite):
 
         try:
 
-            Instance_Type = cls.a1_r1._config.region.get_info(DEFAULT_INSTANCE_TYPE)
+            Instance_Type = cls.a1_r1._config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
 
             IP_Ingress = Configuration.get('cidr', 'allips')
             time_now = datetime.datetime.now()
@@ -111,18 +110,18 @@ class Test_NAT_gateway(OscTestSuite):
             cls.a1_r1.fcu.CreateRoute(DestinationCidrBlock=cls.all_ips, GatewayId=cls.igw_id, RouteTableId=cls.rtb1)
 
             # run instance
-            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region.get_info(CENTOS7), MaxCount='1',
+            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region.get_info(constants.CENTOS7), MaxCount='1',
                                               MinCount='1',
-                                              SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[NAME],
+                                              SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[info_keys.NAME],
                                               InstanceType=Instance_Type, SubnetId=cls.subnet1_id)
 
             cls.inst1_id = inst.response.instancesSet[0].instanceId
             cls.inst1_local_addr = inst.response.instancesSet[0].privateIpAddress
 
             # run instance
-            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region.get_info(CENTOS7), MaxCount='1',
+            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region.get_info(constants.CENTOS7), MaxCount='1',
                                               MinCount='1',
-                                              SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[NAME],
+                                              SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[info_keys.NAME],
                                               InstanceType=Instance_Type, SubnetId=cls.subnet2_id)
 
             cls.inst2_id = inst.response.instancesSet[0].instanceId
@@ -198,13 +197,13 @@ class Test_NAT_gateway(OscTestSuite):
 
             self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst1_id)
 
-            sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[PATH],
-                                                           username=self.a1_r1.config.region.get_info(CENTOS_USER), retry=4, timeout=10)
+            sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[info_keys.PATH],
+                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=4, timeout=10)
             # read file and save it on distant machine
-            with open(self.kp_info[PATH], 'r') as content_file:
+            with open(self.kp_info[info_keys.PATH], 'r') as content_file:
                 content = content_file.read()
 
-            cmd = "sudo echo '" + content + "' > " + self.kp_info[PATH]
+            cmd = "sudo echo '" + content + "' > " + self.kp_info[info_keys.PATH]
             out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
             self.logger.info(out)
             # put file
@@ -216,13 +215,13 @@ class Test_NAT_gateway(OscTestSuite):
 
             sshclient_jhost = SshTools.check_connection_paramiko_nested(sshclient=sshclient,
                                                                         ip_address=self.eip2.response.publicIp,
-                                                                        ssh_key=self.kp_info[PATH],
+                                                                        ssh_key=self.kp_info[info_keys.PATH],
                                                                         local_private_addr=self.inst1_local_addr,
                                                                         dest_private_addr=self.inst2_local_addr,
-                                                                        username=self.a1_r1.config.region.get_info(CENTOS_USER),
+                                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                                         retry=4, timeout=10)
 
-            if self.a1_r1.config.region.name in REGIONS_WITH_INTERNET:
+            if 'internet' in self.a1_r1.config.region.get_info(constants.FEATURES):
                 target_ip = Configuration.get('ipaddress', 'dns_google')
             else:
                 target_ip = '.'.join(self.eip2.response.publicIp.split('.')[:-1]) + '.254'

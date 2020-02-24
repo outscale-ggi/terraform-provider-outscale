@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 # pylint: disable=missing-docstring
 
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
@@ -84,7 +84,7 @@ class StreamingBase(OscTestSuite):
             wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=cls.inst_info[INSTANCE_ID_LIST], state='ready')
 
             cls.sshclient = SshTools.check_connection_paramiko(cls.inst_info[INSTANCE_SET][0]['ipAddress'], cls.inst_info[KEY_PAIR][PATH],
-                                                               username=cls.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             if cls.fio:
                 cmd = 'sudo yum install -y epel-release'

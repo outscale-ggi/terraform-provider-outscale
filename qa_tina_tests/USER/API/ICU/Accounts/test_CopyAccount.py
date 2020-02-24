@@ -4,7 +4,7 @@ from qa_common_tools.config import OscConfig
 from qa_common_tools.osc_sdk import OscSdk
 from qa_common_tools.misc import id_generator
 import string
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 import pytest
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
 from qa_common_tools.account_tools import create_account, delete_account

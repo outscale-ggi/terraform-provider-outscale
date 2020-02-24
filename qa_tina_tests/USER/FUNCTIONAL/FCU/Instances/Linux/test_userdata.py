@@ -2,7 +2,8 @@ import base64
 import zlib
 
 
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
@@ -25,7 +26,7 @@ echo "yes" > /tmp/userdata.txt
 
     def check_user_data(self, inst_info, gzip=False, decode=True):
         sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
-                                                       username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         out, _, _ = SshTools.exec_command_paramiko_2(sshclient, 'curl http://169.254.169.254/latest/user-data', decode=decode)
         if gzip:
             self.logger.debug(zlib.decompress(out))

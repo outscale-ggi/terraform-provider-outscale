@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import re
 import pytest
-from qa_common_tools.constants import CENTOS_USER, UBUNTU_USER
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
+, UBUNTU_USER
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
@@ -42,7 +43,7 @@ class Test_ntp(OscTestSuite):
             super(Test_ntp, cls).teardown_class()
 
     def _test_centos_ntp(self, ipAddress, keyPath):
-        sshclient = SshTools.check_connection_paramiko(ipAddress, keyPath, username=self.a1_r1.config.region.get_info(CENTOS_USER))
+        sshclient = SshTools.check_connection_paramiko(ipAddress, keyPath, username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         retry = 3
         missing = False
         for _ in range(retry):

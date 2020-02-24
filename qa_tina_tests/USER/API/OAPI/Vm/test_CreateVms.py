@@ -3,7 +3,7 @@ from qa_common_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state,\
     wait_network_interfaces_state
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.misc import assert_oapi_error, id_generator
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response, create_vms
 import random

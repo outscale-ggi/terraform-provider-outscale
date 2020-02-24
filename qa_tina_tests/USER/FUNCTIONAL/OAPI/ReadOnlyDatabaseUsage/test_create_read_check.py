@@ -1,6 +1,6 @@
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 
 
 class Test_create_read_check(OscTestSuite):

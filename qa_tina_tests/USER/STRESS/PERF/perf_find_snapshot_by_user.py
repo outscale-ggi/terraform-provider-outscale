@@ -22,7 +22,7 @@ import argparse
 import logging
 import ssl
 from qa_common_tools.ssh import SshTools
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.osc_sdk import OscSdk
 from qa_common_tools.config import OscConfig
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
@@ -30,7 +30,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapsho
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR, INSTANCE_SET
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from datetime import datetime
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
 
 ssl._create_default_https_context = ssl._create_unverified_context
 LOGGING_LEVEL = logging.DEBUG
@@ -63,7 +63,7 @@ def create_snapshot(oscsdk, kp_info, inst_info, volId, device, args, queue):
     try:
         # connect to instance
         sshclient = SshTools.check_connection_paramiko(inst_info['ipAddress'], kp_info[PATH],
-                                                       username=oscsdk.config.region.get_info(CENTOS_USER))
+                                                       username=oscsdk.config.region.get_info(constants.CENTOS_USER))
 
         # format / mount /write to volume
         cmd = 'sudo mkfs.ext4 -F {}'.format(device)

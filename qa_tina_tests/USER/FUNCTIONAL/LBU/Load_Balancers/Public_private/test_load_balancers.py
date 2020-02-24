@@ -1,7 +1,8 @@
 import pytest
 
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
@@ -58,7 +59,7 @@ class Test_load_balancers(OscTestSuite):
                                                          FromPort=443, ToPort=443, CidrIp=Configuration.get('cidr', 'allips'))
             insts = []
             for inst in ci_info[INSTANCE_SET]:
-                start_http_server(inst['ipAddress'], ci_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(CENTOS_USER),
+                start_http_server(inst['ipAddress'], ci_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                   text='ins{}'.format(inst['instanceId']))
 
                 insts.append({'InstanceId': inst['instanceId']})
@@ -110,7 +111,7 @@ class Test_load_balancers(OscTestSuite):
             insts = []
             for i in range(2):
                 inst = vpc_insts[i]
-                start_http_server(eips[i].publicIp, vpc_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(CENTOS_USER))
+                start_http_server(eips[i].publicIp, vpc_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 insts.append({'InstanceId': inst['instanceId']})
             self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=lb_name, Instances=insts)
             wait_health(self.a1_r1, lb_name, insts, 'InService')
@@ -118,7 +119,7 @@ class Test_load_balancers(OscTestSuite):
             # run command on instance wget -o /tmp/toto.txt http://....
             # check output file for http response status (regex)
             sshclient = SshTools.check_connection_paramiko(eips[2].publicIp, vpc_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             SshTools.exec_command_paramiko_2(sshclient, "sudo curl -v -o /tmp/out.html {} &> /tmp/out.log".format(ret_lb.DNSName))
             SshTools.exec_command_paramiko_2(sshclient, "sudo grep '< HTTP/1.* 200 OK' /tmp/out.log")
 
@@ -163,7 +164,7 @@ class Test_load_balancers(OscTestSuite):
             insts = []
             for i in range(2):
                 inst = vpc_insts[i]
-                start_http_server(eips[i].publicIp, vpc_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(CENTOS_USER))
+                start_http_server(eips[i].publicIp, vpc_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 insts.append({'InstanceId': inst['instanceId']})
             self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=lb_name, Instances=insts)
             wait_health(self.a1_r1, lb_name, insts, 'InService')
@@ -193,7 +194,7 @@ class Test_load_balancers(OscTestSuite):
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=inst_info[SECURITY_GROUP_ID], IpProtocol='udp',
                                                          FromPort=12000, ToPort=12000, CidrIp=Configuration.get('cidr', 'allips'))
             wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=inst_info[INSTANCE_ID_LIST], state='ready')
-            install_udp_server(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(CENTOS_USER))
+            install_udp_server(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             for pings in range(10):
                 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 client_socket.settimeout(1.0)

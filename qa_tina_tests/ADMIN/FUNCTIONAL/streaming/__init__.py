@@ -5,13 +5,13 @@ import re
 import pytest
 
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import OscTestSuite, is_skipped, known_error
+from qa_common_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state, wait_instances_state
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH
 from qa_common_tools.misc import assert_error
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.ssh import SshTools
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import write_on_device, read_on_device, assert_streaming_state, wait_streaming_state, get_streaming_operation,\
     get_data_file_chain
@@ -81,7 +81,7 @@ class StreamingBase(OscTestSuite):
 
             # init ssh
             cls.sshclient = SshTools.check_connection_paramiko(cls.inst_info[INSTANCE_SET][0]['ipAddress'], cls.inst_info[KEY_PAIR][PATH],
-                                                               username=cls.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
             if cls.with_fio:
                 cmd = 'sudo yum install -y epel-release'
                 SshTools.exec_command_paramiko_2(cls.sshclient, cmd)
@@ -127,7 +127,7 @@ class StreamingBase(OscTestSuite):
             wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=cls.test_inst_info[INSTANCE_ID_LIST], state='ready')
             cls.test_sshclient = SshTools.check_connection_paramiko(cls.test_inst_info[INSTANCE_SET][0]['ipAddress'],
                                                                     cls.test_inst_info[KEY_PAIR][PATH],
-                                                                    username=cls.a1_r1.config.region.get_info(CENTOS_USER))
+                                                                    username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
             if cls.with_fio:
                 cmd = 'sudo yum install -y epel-release'
                 SshTools.exec_command_paramiko_2(cls.test_sshclient, cmd)
@@ -205,7 +205,7 @@ class StreamingBase(OscTestSuite):
             ret = wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.test_inst_info[INSTANCE_ID_LIST], state='ready')
             self.test_sshclient = SshTools.check_connection_paramiko(ret.response.reservationSet[0].instancesSet[0].ipAddress,
                                                                      self.test_inst_info[KEY_PAIR][PATH],
-                                                                     username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                                     username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             cmd = 'sudo mkdir -p /vol; sudo mount -o nouuid /dev/xvdb /vol'
             SshTools.exec_command_paramiko_2(self.test_sshclient, cmd)
 

@@ -3,7 +3,7 @@ from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.test_base import OscTestSuite
 from qa_common_tools.misc import assert_error
 from qa_common_tools.misc import id_generator
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from osc_sdk_pub.osc_api import AuthMethod
 from qa_common_tools.account_tools import create_account
 import string

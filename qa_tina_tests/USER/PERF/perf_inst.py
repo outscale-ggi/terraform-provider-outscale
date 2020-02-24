@@ -10,8 +10,7 @@ import paramiko
 from paramiko.ssh_exception import BadHostKeyException, AuthenticationException
 
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tina.info_keys import NAME, PATH
@@ -129,7 +128,7 @@ def perf_inst_exec(oscsdk, logger, queue, args, os):
             while (not inst_ssh_time or not prompt_inst_time) and (datetime.now() - start_ssh).total_seconds() < MAX_WAIT_TIME:
                 if os != 'windows' and not inst_ssh_time:
                     try:
-                        client.connect(inst.ipAddress, 22, pkey=private_key, username=oscsdk.config.region.get_info(CENTOS_USER))
+                        client.connect(inst.ipAddress, 22, pkey=private_key, username=oscsdk.config.region.get_info(constants.CENTOS_USER))
                         inst_ssh_time = (datetime.now() - start_run_inst_time).total_seconds()
                         result['inst_ssh'] = inst_ssh_time
                     except (BadHostKeyException, AuthenticationException, SSHException, socket.error):

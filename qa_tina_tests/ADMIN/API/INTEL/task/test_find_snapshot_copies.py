@@ -4,7 +4,8 @@ from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instanc
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state, wait_instances_state
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, KEY_PAIR, INSTANCE_SET, PATH
 from qa_common_tools.ssh import SshTools
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 
 DEVICE = '/dev/xvdc'
 MOUNT_DIR = 'mountdir'
@@ -36,7 +37,7 @@ class Test_find_snapshot_copies(OscTestSuite):
 
             wait_instances_state(self.a1_r1, inst_info[INSTANCE_ID_LIST], state='ready')
             sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             # format / mount /write to volume
             cmd = 'sudo mkfs.ext4 -F {}'.format(DEVICE)

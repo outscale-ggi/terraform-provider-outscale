@@ -4,7 +4,8 @@ import base64
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.info_keys import PATH, KEY_PAIR, INSTANCE_SET
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.misc import assert_error
 
@@ -27,7 +28,7 @@ class Test_server_allocation(OscTestSuite):
         try:
             cls.inst_info = create_instances(cls.a1_r1, state='ready', user_data=cls.userdata)
             connection = SshTools.check_connection_paramiko(cls.inst_info[INSTANCE_SET][0]['ipAddress'], cls.inst_info[KEY_PAIR][PATH],
-                                                            cls.a1_r1.config.region.get_info(CENTOS_USER))
+                                                            cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
             cls.server, _, _ = SshTools.exec_command_paramiko_2(connection, METADATA_PACEMENT + 'server')
             cls.cluster, _, _ = SshTools.exec_command_paramiko_2(connection, METADATA_PACEMENT + 'cluster')
         except:
@@ -47,7 +48,7 @@ class Test_server_allocation(OscTestSuite):
 
     def check_placement(self, ref_cluster, ref_server, inst_info, same_server, same_cluster):
         connection = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
-                                                        self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                        self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         server, _, _ = SshTools.exec_command_paramiko_2(connection, METADATA_PACEMENT + 'server')
         cluster, _, _ = SshTools.exec_command_paramiko_2(connection, METADATA_PACEMENT + 'cluster')
         # print('CHECK PLACEMENT {} {}'.format(same_cluster, same_server))

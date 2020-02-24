@@ -1,7 +1,8 @@
 import datetime
 import pytest
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER, CENTOS7, DEFAULT_INSTANCE_TYPE
+from qa_common_tools.config import config_constants as constants
+, CENTOS7, DEFAULT_INSTANCE_TYPE
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_keypair, delete_subnet
@@ -60,7 +61,7 @@ class Test_internet_gateway(OscTestSuite):
             ret = cls.a1_r1.fcu.AssociateRouteTable(RouteTableId=cls.rtb1, SubnetId=cls.subnet1_id)
             cls.rt_asso1_id = ret.response.associationId
             # run instance
-            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region.get_info(CENTOS7), MaxCount='1',
+            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region.get_info(constants.CENTOS7), MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[NAME],
                                               InstanceType=Instance_Type, SubnetId=cls.subnet1_id)
@@ -111,7 +112,7 @@ class Test_internet_gateway(OscTestSuite):
         self.a1_r1.fcu.CreateRoute(DestinationCidrBlock=cidr, GatewayId=self.igw_id, RouteTableId=self.rtb1)
         self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst1_id)
         sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[PATH],
-                                                       username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         if self.a1_r1.config.region.name in REGIONS_WITH_INTERNET:
             target_ip = Configuration.get('ipaddress', 'dns_google')
         else:

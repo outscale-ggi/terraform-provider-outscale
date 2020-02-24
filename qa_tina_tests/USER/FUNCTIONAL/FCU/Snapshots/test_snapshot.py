@@ -5,7 +5,8 @@ from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.check_tools import create_text_file_volume, format_mount_volume, check_volume
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina import wait_tools
 
@@ -34,7 +35,7 @@ class Test_snapshot(OscTestSuite):
             cls.ret_attach = cls.a1_r1.fcu.AttachVolume(InstanceId=cls.inst_info[INSTANCE_ID_LIST][0], VolumeId=cls.vol1_id[0], Device=cls.device)
             wait_tools.wait_volumes_state(cls.a1_r1, cls.vol1_id, state='in-use')
             cls.sshclient = SshTools.check_connection_paramiko(cls.inst_info[INSTANCE_SET][0]['ipAddress'], cls.inst_info[KEY_PAIR][PATH],
-                                                               username=cls.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
             #format/mount
             format_mount_volume(cls.sshclient, cls.device, cls.volume_mount, True)
             # write
@@ -85,7 +86,7 @@ class Test_snapshot(OscTestSuite):
             attached = self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], VolumeId=vol2_id, Device=device)
             wait_tools.wait_volumes_state(self.a1_r1, [vol2_id], state='in-use')
             self.sshclient = SshTools.check_connection_paramiko(self.inst_info[INSTANCE_SET][0]['ipAddress'], self.inst_info[KEY_PAIR][PATH],
-                                                                username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # mount the volume
             cmd = 'sudo mkdir {}'.format(volume_mount)
             self.logger.info("Executing: %s", cmd)

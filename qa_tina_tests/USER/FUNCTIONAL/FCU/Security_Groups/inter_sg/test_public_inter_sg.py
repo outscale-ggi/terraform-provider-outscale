@@ -1,6 +1,7 @@
 import time
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_tina_tools.constants import SG_WAIT_TIME
 from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite
@@ -52,7 +53,7 @@ class Test_public_inter_sg(OscTestSuite):
                                                      user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'), state='running')
             cls.inst2 = ret.response.reservationSet[0].instancesSet[0]
             cls.sshclient = SshTools.check_connection_paramiko(cls.inst1.ipAddress, cls.kp_info[PATH],
-                                                               username=cls.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
         except Exception as error:
             try:

@@ -1,7 +1,7 @@
 import argparse
 import logging
 import ssl
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.config import OscConfig
 from qa_common_tools.osc_sdk import OscSdk
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
@@ -14,7 +14,8 @@ import datetime
 from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
 from qa_common_tools.misc import assert_error
 from qa_common_tools.ssh import SshTools
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from vmtypes import INST_TYPE_MATRIX
 from osc_common.objects.osc_objects import OscObjectDict
 
@@ -45,7 +46,7 @@ def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
         ip_address = inst_info[INSTANCE_SET][0]['ipAddress']
 
     sshclient = SshTools.check_connection_paramiko(ip_address, key_path,
-                                                   username=osc_sdk.config.region.get_info(CENTOS_USER))
+                                                   username=osc_sdk.config.region.get_info(constants.CENTOS_USER))
 
     cmd = 'sudo nproc'
     out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)

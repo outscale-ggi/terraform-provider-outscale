@@ -5,7 +5,7 @@ from qa_common_tools.misc import id_generator
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_lbu
 from qa_tina_tools.tina.setup_tools import setup_private_load_balancer, setup_public_load_balancer
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 
 

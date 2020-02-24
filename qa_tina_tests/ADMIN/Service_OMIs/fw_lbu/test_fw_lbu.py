@@ -6,9 +6,8 @@ import pytest
 from qa_common_tools.test_base import OscTestSuite, known_error
 from qa_common_tools.misc import id_generator
 from qa_common_tools.ssh import SshTools
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from netaddr import IPNetwork, IPAddress
-from qa_common_tools.constants import FW_ADMIN_SUBNET
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 
 
@@ -32,7 +31,7 @@ class Test_fw_lbu(OscTestSuite):
 
             inst_ip = None
             for nic in ret.response.result:
-                if IPAddress(nic.ips[0].ip) in IPNetwork(cls.a1_r1.config.region.get_info(FW_ADMIN_SUBNET)):
+                if IPAddress(nic.ips[0].ip) in IPNetwork(cls.a1_r1.config.region.get_info(constants.FW_ADMIN_SUBNET)):
                     inst_ip = nic.ips[0].ip
             assert inst_ip
 

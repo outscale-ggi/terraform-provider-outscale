@@ -1,6 +1,7 @@
 import pytest
 
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
@@ -55,7 +56,7 @@ class Test_create_and_use_images(OscTestSuite):
             public_ip_inst = info[INSTANCE_SET][0]['ipAddress']
 
             sshclient = SshTools.check_connection_paramiko(public_ip_inst, info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             out, status, _ = SshTools.exec_command_paramiko_2(sshclient, 'pwd')
             self.logger.info(out)
             assert not status, "SSH command was not executed correctly on the remote host"

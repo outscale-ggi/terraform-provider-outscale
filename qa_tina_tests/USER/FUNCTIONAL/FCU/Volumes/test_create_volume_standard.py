@@ -5,7 +5,8 @@ from qa_tina_tools.tools.tina.create_tools import create_volumes
 import pytest
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tina.info_keys import PATH
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 import uuid
 
 
@@ -44,7 +45,7 @@ class Test_create_volume_standard(CreateVolume):
             self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_id, VolumeId=self.volume_id, Device=dev)
             wait_volumes_state(self.a1_r1, [self.volume_id], state='in-use', cleanup=False, threshold=20, wait_time=3)
             self.sshclient = SshTools.check_connection_paramiko(self.public_ip_inst, self.kp_info[PATH],
-                                                                username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             check_volume(self.sshclient, dev, 8, with_format=False, text_to_check=text_to_check, no_create=True)
         finally:
             try:

@@ -2,7 +2,7 @@ import string
 
 from qa_common_tools.test_base import OscTestSuite, known_error
 from osc_sdk_pub.osc_api import disable_throttling
-from qa_common_tools import constants
+from qa_common_tools.config import config_constants as constants
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.error import load_errors, error_type
 from osc_sdk_as.osc_sdk_as import OscSdkAs

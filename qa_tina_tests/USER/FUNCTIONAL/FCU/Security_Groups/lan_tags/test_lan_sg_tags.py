@@ -8,7 +8,8 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_common_tools.ssh import SshTools
 from qa_common_tools.config.configuration import Configuration
 from time import sleep
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.error import OscCommandError
 
 
@@ -82,7 +83,7 @@ class Test_lan_sg_tags(OscTestSuite):
         try:
             out, _, _ = SshTools.run_command_paramiko_2(vpc_info[SUBNETS][0][EIP]['publicIp'], vpc_info[KEY_PAIR][PATH],
                                                         'ping -c 5 {}'.format(vpc_info[SUBNETS][0][INSTANCE_SET][1]['privateIpAddress']),
-                                                        username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except OscCommandError as error:
             if success:
                 raise error

@@ -3,7 +3,7 @@ import sys
 import time
 
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
 from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_keypair
@@ -59,7 +59,7 @@ class Test_ConsoleThrottling(OscTestSuite):
             cls.public_ip_inst = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
 
             cls.sshclient = SshTools.check_connection_paramiko(cls.public_ip_inst, cls.kp_info[PATH],
-                                                               username=cls.a1_r1.config.region.get_info(CENTOS_USER))
+                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
         except Exception as error:
             cls.teardown_class()

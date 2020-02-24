@@ -1,5 +1,6 @@
 import pytest
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
@@ -21,7 +22,7 @@ class Test_create_verify_gpu_instances(OscTestSuite):
 
     def verify_instance_type(self, inst_info, total_gpu, vcores, memory_ram):
         sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
-                                                       username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         cmd = 'sudo nproc'
         out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
         self.logger.info(out)

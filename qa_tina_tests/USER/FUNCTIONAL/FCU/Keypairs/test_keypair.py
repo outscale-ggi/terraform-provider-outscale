@@ -2,7 +2,8 @@
 import base64
 import pytest
 
-from qa_common_tools.constants import CENTOS_USER
+from qa_common_tools.config import config_constants as constants
+
 from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_keypair, generate_key
@@ -49,7 +50,7 @@ class Test_keypair(OscTestSuite):
             config = create_instances(self.a1_r1, key_name=key_name, state='ready')
             ip_address = config[INSTANCE_SET][0]['ipAddress']
             # access instance using key
-            SshTools.check_connection_paramiko(ip_address, kp_info[PRIVATE], username=self.a1_r1.config.region.get_info(CENTOS_USER))
+            SshTools.check_connection_paramiko(ip_address, kp_info[PRIVATE], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
             if config:
                 delete_instances(self.a1_r1, config)
@@ -69,7 +70,7 @@ class Test_keypair(OscTestSuite):
             config = create_instances(self.a1_r1, key_name=kp_info[NAME], state='ready')
             ip_address = config[INSTANCE_SET][0]['ipAddress']
             # access instance using key
-            SshTools.check_connection_paramiko(ip_address, kp_info[PATH], username=self.a1_r1.config.region.get_info(CENTOS_USER))
+            SshTools.check_connection_paramiko(ip_address, kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
             if config:
                 delete_instances(self.a1_r1, config)

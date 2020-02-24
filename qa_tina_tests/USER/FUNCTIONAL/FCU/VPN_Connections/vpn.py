@@ -4,7 +4,6 @@ from datetime import datetime
 import re
 import time
 
-from qa_common_tools.constants import CENTOS_USER
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.create_tools import create_vpc
@@ -18,6 +17,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
 from qa_common_tools.error import OscCommandError
+from qa_common_tools.config import config_constants as constants
 
 
 class Vpn(OscTestSuite):
@@ -127,7 +127,7 @@ class Vpn(OscTestSuite):
             wait_instances_state(self.a1_r1, [self.inst_cgw_info[INSTANCE_ID_LIST][0]], state='ready')
 
             sshclient = SshTools.check_connection_paramiko(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(CENTOS_USER))
+                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             setup_customer_gateway(self.a1_r1, sshclient, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
                                    self.inst_cgw_info, vgw_ip, psk_key, static, vpn_id)
