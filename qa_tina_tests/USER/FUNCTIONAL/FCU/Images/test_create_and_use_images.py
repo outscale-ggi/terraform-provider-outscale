@@ -3,7 +3,7 @@ import pytest
 from qa_common_tools.config import config_constants as constants
 
 from qa_common_tools.misc import id_generator
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instances

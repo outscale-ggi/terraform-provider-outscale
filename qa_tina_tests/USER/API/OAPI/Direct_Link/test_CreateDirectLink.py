@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.misc import assert_oapi_error, id_generator
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 import string
 import pytest
 

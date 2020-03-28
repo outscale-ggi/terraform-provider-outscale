@@ -12,7 +12,7 @@ class Test_DisableKey(Kms):
         cls.known_error = False
         super(Test_DisableKey, cls).setup_class()
         try:
-            cls.key_id = cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='EXTERNAL').response.KeyMetadata.KeyId
+            cls.key_id = cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='OKMS').response.KeyMetadata.KeyId
         except Exception as error:
             try:
                 cls.teardown_class()

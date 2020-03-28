@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 import pytest
 
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.delete_tools import delete_instances

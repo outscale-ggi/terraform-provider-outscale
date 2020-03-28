@@ -2,7 +2,7 @@ import pytest
 
 from qa_common_tools.config.configuration import Configuration
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_customer_gateways
 from qa_tina_tools.tools.tina.create_tools import create_customer_gateway
 from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_connections_state
@@ -50,10 +50,6 @@ class Test_DeleteCustomerGateway(OscTestSuite):
             self.conns[0].fcu.DeleteCustomerGateway()
             pytest.fail('Call should not have been successful, no arguments')
         except OscApiException as error:
-            if error.error_code == 'InternalError':
-                known_error('TINA-5473', 'internal error ')
-            else:
-                assert False, 'Remove known error'
             assert_error(error, 400, "MissingParameter", "Parameter cannot be empty: CustomerGatewayID")
 
     def test_T771_invalid_cgw_id(self):

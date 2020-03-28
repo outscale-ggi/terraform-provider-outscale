@@ -6,7 +6,7 @@ import pytest
 import osc_sdk_pub.osc_api as osc_api
 from osc_sdk_pub.osc_api import AuthMethod
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_common_tools.misc import assert_error
 import time
 
@@ -74,7 +74,7 @@ class Test_KMS(OscTestSuite):
         start = time.time()
         for _ in range(10):
             try:
-                ret = self.a1_r1.kms.ListKeys(max_retry=0)
+                self.a1_r1.kms.ListKeys(max_retry=0)
                 nb_ok += 1
             except OscApiException as error:
                 if error.status_code == 503:

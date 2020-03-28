@@ -3,7 +3,7 @@ import re
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.constants import VOLUME_MAX_SIZE, VOLUME_SIZES, VOLUME_IOPS, MAX_IO1_RATIO
 from qa_common_tools.misc import assert_error
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 
@@ -82,10 +82,6 @@ class Test_CreateVolume(OscTestSuite):
             else:
                 min_size = VOLUME_SIZES[kwargs['VolumeType']]['min_size']
                 max_size = VOLUME_SIZES[kwargs['VolumeType']]['max_size']
-                if error.message == "Volume size must be between '{}' and '{}'".format(0, 0):
-                    good_exception_raise = True
-                    known_error('TINA-5470', 'Incorrect error message')
-                assert False, 'Remove known error code'
                 assert error.message == "Volume size must be between '{}' and '{}'".format(min_size, max_size)
             good_exception_raise = True
         finally:

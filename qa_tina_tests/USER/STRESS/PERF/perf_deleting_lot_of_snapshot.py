@@ -33,7 +33,6 @@ from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapsho
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR, INSTANCE_SET
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from datetime import datetime
-from qa_common_tools.config import config_constants as constants
 
 ssl._create_default_https_context = ssl._create_unverified_context
 LOGGING_LEVEL = logging.DEBUG

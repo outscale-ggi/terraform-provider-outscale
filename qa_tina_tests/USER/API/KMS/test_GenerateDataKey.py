@@ -1,5 +1,5 @@
 from qa_common_tools.misc import assert_error
-from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
+from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tests.USER.API.KMS.kms import Kms
 import pytest
 

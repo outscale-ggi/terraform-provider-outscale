@@ -75,7 +75,9 @@ class Test_ReadQuotas(OscTestSuite):
                 # #'certificate_limit': ('Certificate Limit', 'Maximum number of certificate the user can own', 'Other'),
                 # #'tag_limit': ('Tag Limit', 'Maximum number of tags per resource the user can create', 'Other'),
                 'bypass_group_limit': ('Bypass Group Limit', 'Maximum number of bypass group the user can own', 'Other'),
-                'bypass_group_size_limit': ('Bypass Group Size Limit', 'Maximum size of a bypass group', 'Other')
+                'bypass_group_size_limit': ('Bypass Group Size Limit', 'Maximum size of a bypass group', 'Other'),
+                #OKMS
+                'cmk_limit': ('Customer master key limit', 'Maximum number of customer master key the user can own', 'OKMS')
             }
         except Exception as error:
             cls.teardown_class()

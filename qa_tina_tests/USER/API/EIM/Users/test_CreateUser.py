@@ -62,7 +62,7 @@ class Test_CreateUser(OscTestSuite):
                 assert False, "CreateUser must fail with invalid UserName"
             except OscApiException as error:
                 if error.status_code == 500 and error.message == 'Internal Error':
-                    known_error('TINA-5474', 'EIM CreateGroup: Internal error when using a colon in group name')
+                    known_error('TINA-5530', 'EIM CreateGroup: Internal error when using a colon in group name')
                 assert_error(error, 400, "ValidationError",
                              "Invalid IdauthUser: [name: must contain only alphanumeric characters and/or +=,.@-_ characters]")
         assert False, 'Remove known error code'
@@ -97,7 +97,7 @@ class Test_CreateUser(OscTestSuite):
                 assert False, "CreateUser must fail with invalid Path {}".format(path)
             except OscApiException as error:
                 if error.status_code == 500 and error.message == 'Internal Error':
-                    known_error('TINA-5474', 'EIM CreateGroup: Internal error when using a colon in group name')
+                    known_error('TINA-5530', 'EIM CreateGroup: Internal error when using a colon in group name')
                 assert_error(error, 400, "ValidationError",
                             "Invalid IdauthUser: [path: must begin and end with / and contain only alphanumeric characters " \
                             +"and/or /_ characters]")
@@ -111,7 +111,7 @@ class Test_CreateUser(OscTestSuite):
                 assert False, "CreateUser must fail with invalid Path {}".format(path)
             except OscApiException as error:
                 if error.status_code == 500 and error.message == 'Internal Error':
-                    known_error('TINA-5474', 'EIM CreateGroup: Internal error when using a colon in group name')
+                    known_error('TINA-5530', 'EIM CreateGroup: Internal error when using a colon in group name')
                 assert_error(error, 400, "ValidationError",
                              "Invalid IdauthUser: [path: must begin and end with / and contain only alphanumeric characters " \
                              +"and/or /_ characters]")

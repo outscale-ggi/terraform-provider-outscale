@@ -2,7 +2,7 @@ from qa_common_tools.test_base import OscTestSuite
 import pytest
 from qa_common_tools import misc
 from qa_common_tools.misc import id_generator, assert_error
-from osc_sdk_pub.default_config import DefaultPubConfig
+from osc_common.config.default_public_config import DefaultPubConfig
 from osc_sdk_pub.osc_api.osc_icu_api import OscIcuApi
 from osc_sdk_pub.osc_api import AuthMethod
 from osc_common.exceptions.osc_exceptions import OscApiException

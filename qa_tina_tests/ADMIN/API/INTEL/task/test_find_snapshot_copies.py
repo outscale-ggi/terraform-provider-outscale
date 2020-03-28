@@ -42,19 +42,19 @@ class Test_find_snapshot_copies(OscTestSuite):
             # format / mount /write to volume
             cmd = 'sudo mkfs.ext4 -F {}'.format(DEVICE)
             self.logger.info("Executing: %s", cmd)
-            out, status, err = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            _, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
             cmd = 'sudo mkdir {}'.format(MOUNT_DIR)
             self.logger.info("Executing: %s", cmd)
-            out, status, err = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            _, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
             cmd = 'sudo mount ' + DEVICE + ' ' + MOUNT_DIR
             self.logger.info("Executing: %s", cmd)
-            out, status, err = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            _, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
             cmd = 'cd  ' + MOUNT_DIR
             self.logger.info("Executing: %s", cmd)
-            out, status, err = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            _, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
             cmd = 'sudo openssl rand -out ' + MOUNT_DIR + '.txt -base64 $((' + str(SIZE_GB - 100) + ' * 2**30 * 3/4))'
             self.logger.info("Executing: %s", cmd)
-            out, status, err = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            _, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
 
             self.a1_r1.fcu.DetachVolume(InstanceId=inst_info[INSTANCE_ID_LIST][0], VolumeId=vol_id)
             wait_volumes_state(self.a1_r1, [vol_id], state='available')
@@ -71,8 +71,6 @@ class Test_find_snapshot_copies(OscTestSuite):
                 assert res.start_date
                 assert res.completion_date
             wait_snapshots_state(self.a2_r1, snap_ids, state='completed')
-        except Exception as error:
-            print('kjgkgh')
         finally:
             wait_snapshots_state(self.a2_r1, snap_ids, state='completed')
             for snap_id in snap_ids:

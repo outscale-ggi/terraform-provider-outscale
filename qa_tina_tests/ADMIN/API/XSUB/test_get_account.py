@@ -113,3 +113,16 @@ class Test_get_account(OscTestSuite):
         finally:
             if pid:
                 delete_account(self.a1_r1, pid, terminate=False)
+
+    def test_T4739_with_ak(self):
+        pid = None
+        try:
+            pid = create_account(self.a1_r1)
+            ret = self.a1_r1.intel.accesskey.find_by_user(owner=pid)
+            keys = ret.response.result[0]
+            self.a1_r1.xsub.restrict_account(pid=pid)
+            ret = self.a1_r1.xsub.get_account(ak=keys.name)
+            assert ret.response.result.account.username == pid
+        finally:
+            if pid:
+                delete_account(self.a1_r1, pid)

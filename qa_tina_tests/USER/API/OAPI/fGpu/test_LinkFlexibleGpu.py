@@ -33,7 +33,7 @@ class Test_LinkFlexibleGpu(OscTestSuite):
         cls.fg_id = None
         super(Test_LinkFlexibleGpu, cls).setup_class()
         try:
-            cls.inst_info = create_instances(cls.a1_r1, inst_type='tinav3.c10r10')
+            cls.inst_info = create_instances(cls.a1_r1, inst_type='tinav4.c10r10')
             cls.fg_id = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME,
                                                          SubregionName=cls.a1_r1.config.region.az_name).response.FlexibleGpu.FlexibleGpuId
         except:

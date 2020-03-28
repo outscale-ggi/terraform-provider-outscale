@@ -26,7 +26,6 @@ def read_function_loop(osc_sdk, queue, args, api_read, throtting_account=False):
     result = {'status': 'OK'}
     disable_throttling()
     start = time.time()
-    success_time = []
     call_number = 0
     nb_throttling_error = 0
     errs = load_errors()

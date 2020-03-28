@@ -4,7 +4,6 @@ from qa_common_tools.config import OscConfig
 from qa_common_tools.osc_sdk import OscSdk
 from qa_common_tools.misc import id_generator
 import string
-from qa_common_tools.config import config_constants as constants
 import pytest
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
 from qa_common_tools.account_tools import create_account, delete_account
@@ -42,7 +41,7 @@ class Test_CopyAccount(OscTestSuite):
             pytest.skip(TWO_REGIONS_NEEDED)
         try:
             email = 'qa+{}@outscale.com'.format(id_generator(prefix="test-copyAccount"))
-            password = id_generator(size=8, chars=string.digits)
+            password = id_generator(size=20, chars=string.digits)
             account_info = {'city': 'Saint_Cloud', 'company_name': 'Outscale', 'country': 'France', 'email_address': email, 'firstname': 'Test_user',
                             'lastname': 'Test_Last_name', 'password': password, 'zipcode': '92210'}
             pid = create_account(self.a1_r1, account_info=account_info)

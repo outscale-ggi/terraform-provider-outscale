@@ -6,7 +6,6 @@ from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
-from qa_tina_tools.tools.tina.wait_tools import wait_load_balancer_state
 
 
 class Test_find_tag_resource_owner(OscTestSuite):
@@ -17,7 +16,7 @@ class Test_find_tag_resource_owner(OscTestSuite):
         cls.vpc_info = None
         try:
             cls.vpc_info = create_vpc(osc_sdk=cls.a1_r1)
-        except Exception as error:
+        except:
             try:
                 cls.teardown_class()
             except:

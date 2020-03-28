@@ -28,7 +28,7 @@ class Test_TagResource(Kms):
                     cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_id, PendingWindowInDays=7)
                 except:
                     pass
-        except OscApiException as error:
+        except OscApiException:
             super(Test_TagResource, cls).teardown_class()
 
     def test_T3791_missing_key_id(self):

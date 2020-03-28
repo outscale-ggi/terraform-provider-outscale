@@ -5,7 +5,6 @@ from qa_common_tools.config import config_constants as constants
 from qa_common_tools.misc import assert_dry_run, assert_oapi_error
 from qa_tina_tools.tools.tina.wait_tools import wait_images_state
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.config import config_constants as constants
 
 
 class Test_DeleteImage(OscTestSuite):

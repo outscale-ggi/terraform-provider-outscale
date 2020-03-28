@@ -2,14 +2,13 @@ import datetime
 import pytest
 from qa_common_tools.config.configuration import Configuration
 from qa_common_tools.config import config_constants as constants
-, CENTOS7, DEFAULT_INSTANCE_TYPE
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_keypair, delete_subnet
 from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_common_tools.config.region import REGIONS_WITH_INTERNET
+from qa_common_tools.config.region import Feature
 
 
 class Test_internet_gateway(OscTestSuite):
@@ -31,7 +30,7 @@ class Test_internet_gateway(OscTestSuite):
         cls.rt_asso1_id = None
         cls.eip_allo_id = None
         try:
-            Instance_Type = cls.a1_r1._config.region.get_info(DEFAULT_INSTANCE_TYPE)
+            Instance_Type = cls.a1_r1._config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
             IP_Ingress = Configuration.get('cidr', 'allips')
             time_now = datetime.datetime.now()
             unique_id = time_now.strftime('%Y%m%d%H%M%S')
@@ -113,7 +112,7 @@ class Test_internet_gateway(OscTestSuite):
         self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst1_id)
         sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[PATH],
                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        if self.a1_r1.config.region.name in REGIONS_WITH_INTERNET:
+        if Feature.INTERNET in self.a1_r1.config.region.get_info(constants.FEATURES):
             target_ip = Configuration.get('ipaddress', 'dns_google')
         else:
             target_ip = '.'.join(self.eip.response.publicIp.split('.')[:-1]) + '.254'

@@ -1,6 +1,6 @@
 from qa_common_tools.misc import id_generator, assert_error
 import base64
-from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
+from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tests.USER.API.KMS.kms import Kms
 from qa_common_tools.test_base import known_error
 import pytest

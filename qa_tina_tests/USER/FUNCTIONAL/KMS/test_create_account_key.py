@@ -1,4 +1,4 @@
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from osc_common.exceptions.osc_exceptions import OscApiException
 import pytest
 from osc_sdk_pub.osc_api import disable_throttling

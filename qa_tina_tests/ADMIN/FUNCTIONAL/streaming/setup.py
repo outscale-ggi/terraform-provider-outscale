@@ -53,7 +53,7 @@ def setup_streaming_ressources(osc_sdk):
             osc_sdk.fcu.DetachVolume(VolumeId=vol_id)
             try:
                 wait_volumes_state(osc_sdk, [vol_id], 'available')
-            except AssertionError as error:
+            except AssertionError:
                 logger.debug('Retry detach...')
                 osc_sdk.fcu.DetachVolume(VolumeId=vol_id)
                 wait_volumes_state(osc_sdk, [vol_id], 'available')

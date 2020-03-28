@@ -3,7 +3,6 @@
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.misc import id_generator, assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
-from qa_common_tools.test_base import known_error
 
 
 class Test_CreateLoadBalancerPolicy(LoadBalancer):

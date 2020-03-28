@@ -6,7 +6,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_common_tools.ssh import SshTools
 from qa_common_tools.config.configuration import Configuration
 from qa_common_tools.config import config_constants as constants
-, FW_ADMIN_SUBNET, FW_KP
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, SUBNETS, SUBNET_ID, INSTANCE_ID_LIST, INTERNET_GATEWAY_ID, SECURITY_GROUP_ID
 from qa_tina_tools.tools.tina.info_keys import KEY_PAIR, PATH, INSTANCE_SET, VPC_ID
@@ -155,12 +154,12 @@ class Test_agent_fw_vpc(OscTestSuite):
 
         inst_ip = None
         for nic in ret.response.result:
-            if IPAddress(nic.ips[0].ip) in IPNetwork(self.a1_r1.config.region.get_info(FW_ADMIN_SUBNET)):
+            if IPAddress(nic.ips[0].ip) in IPNetwork(self.a1_r1.config.region.get_info(constants.FW_ADMIN_SUBNET)):
                 inst_ip = nic.ips[0].ip
         assert inst_ip
 
         sshclient = SshTools.check_connection_paramiko(inst_ip,
-                                                       os.path.expanduser(self.a1_r1.config.region.get_info(FW_KP)),
+                                                       os.path.expanduser(self.a1_r1.config.region.get_info(constants.FW_KP)),
                                                        username='root')
 
         SshTools.exec_command_paramiko_2(sshclient, "service osc-agent restart")

@@ -32,6 +32,7 @@ components:
           type: string
       type: object
     AccessKey:
+      description: AccessKey
       properties:
         AccessKeyId:
           description: AccessKey_AccessKeyId
@@ -49,6 +50,7 @@ components:
           type: string
       type: object
     AccessKeySecretKey:
+      description: AccessKeySecretKey
       properties:
         AccessKeyId:
           description: AccessKeySecretKey_AccessKeyId
@@ -295,39 +297,31 @@ components:
           type: array
       type: object
     ConsumptionEntry:
+      description: ConsumptionEntry
       properties:
         Category:
-          description: ReadConsumptionAccountResponse_Category
+          description: ConsumptionEntry_Category
           type: string
         FromDate:
-          description: ReadConsumptionAccountResponse_FromDate
+          description: ConsumptionEntry_FromDate
           type: string
         Operation:
-          description: ReadConsumptionAccountResponse_Operation
+          description: ConsumptionEntry_Operation
           type: string
         Service:
-          description: ReadConsumptionAccountResponse_Service
+          description: ConsumptionEntry_Service
           type: string
         Title:
-          description: ReadConsumptionAccountResponse_Title
+          description: ConsumptionEntry_Title
           type: string
         ToDate:
-          description: ReadConsumptionAccountResponse_ToDate
+          description: ConsumptionEntry_ToDate
           type: string
         Type:
-          description: ReadConsumptionAccountResponse_Type
+          description: ConsumptionEntry_Type
           type: string
         Value:
-          description: ReadConsumptionAccountResponse_Value
-          type: string
-      type: object
-    CreateAccessKeyRequest:
-      properties:
-        AccessKeyId:
-          description: CreateAccessKeyRequest_AccessKeyId
-          type: string
-        SecretKey:
-          description: CreateAccessKeyRequest_SecretKey
+          description: ConsumptionEntry_Value
           type: string
       type: object
     CreateAccessKeyResponse:
@@ -506,6 +500,9 @@ components:
         DryRun:
           description: CreateFlexibleGpuRequest_DryRun
           type: boolean
+        Generation:
+          description: CreateFlexibleGpuRequest_Generation
+          type: string
         ModelName:
           description: CreateFlexibleGpuRequest_ModelName
           type: string
@@ -1820,6 +1817,8 @@ components:
         Name:
           description: DeleteServerCertificateRequest_Name
           type: string
+      required:
+      - Name
       type: object
     DeleteServerCertificateResponse:
       properties:
@@ -2155,7 +2154,7 @@ components:
             type: string
           type: array
         States:
-          description: FiltersAccessKeys_State
+          description: FiltersAccessKeys_States
           items:
             type: string
           type: array
@@ -2943,6 +2942,13 @@ components:
             type: string
           type: array
       type: object
+    FiltersServerCertificate:
+      description: FiltersServerCertificate
+      properties:
+        Paths:
+          description: FiltersServerCertificate_Path
+          type: string
+      type: object
     FiltersService:
       description: FiltersService
       properties:
@@ -3168,7 +3174,8 @@ components:
         MemorySizes:
           description: FiltersVmType_MemorySizes
           items:
-            type: integer
+            format: float
+            type: number
           type: array
         VcoreCounts:
           description: FiltersVmType_VcoreCounts
@@ -3339,6 +3346,9 @@ components:
           type: boolean
         FlexibleGpuId:
           description: FlexibleGpu_FlexibleGpuId
+          type: string
+        Generation:
+          description: FlexibleGpu_Generation
           type: string
         ModelName:
           description: FlexibleGpu_ModelName
@@ -4578,6 +4588,7 @@ components:
     ReadAccountsResponse:
       properties:
         Accounts:
+          description: ReadAccountsResponse_Accounts
           items:
             $ref: '#/components/schemas/Account'
           type: array
@@ -4681,11 +4692,11 @@ components:
           description: ReadConsumptionAccountRequest_DryRun
           type: boolean
         FromDate:
-          description: ReadConsumptionAccountResponse_FromDate
+          description: ReadConsumptionAccountRequest_FromDate
           format: datetime
           type: string
         ToDate:
-          description: ReadConsumptionAccountResponse_ToDate
+          description: ReadConsumptionAccountRequest_ToDate
           format: datetime
           type: string
       required:
@@ -4883,7 +4894,7 @@ components:
     ReadLoadBalancerTagsRequest:
       properties:
         DryRun:
-          description: ReadListenerRulesRequest_DryRun
+          description: ReadLoadBalancerTagsRequest_DryRun
           type: boolean
         LoadBalancerNames:
           description: ReadLoadBalancerTagsRequest_LoadBalancerNames
@@ -5151,8 +5162,11 @@ components:
       type: object
     ReadSecretAccessKeyRequest:
       properties:
-        AccessKey:
+        AccessKeyId:
+          description: ReadSecretAccessKeyRequest_AccessKeyId
           type: string
+      required:
+      - AccessKeyId
       type: object
     ReadSecretAccessKeyResponse:
       properties:
@@ -5184,22 +5198,11 @@ components:
         DryRun:
           description: ReadServerCertificatesRequest_DryRun
           type: boolean
-        FirstResult:
-          type: integer
-        MaxResults:
-          type: integer
-        Path:
-          description: ReadServerCertificatesRequest_Path
-          type: string
+        Filters:
+          $ref: '#/components/schemas/FiltersServerCertificate'
       type: object
     ReadServerCertificatesResponse:
       properties:
-        HasMoreItems:
-          type: boolean
-        MaxResultsLimit:
-          type: integer
-        MaxResultsTruncated:
-          type: boolean
         ResponseContext:
           $ref: '#/components/schemas/ResponseContext'
         ServerCertificates:
@@ -5207,9 +5210,6 @@ components:
           items:
             $ref: '#/components/schemas/ServerCertificate'
           type: array
-        TotalItemCount:
-          nullable: true
-          type: integer
       type: object
     ReadSnapshotExportTasksRequest:
       properties:
@@ -6878,7 +6878,7 @@ info:
     url: https://opensource.org/licenses/BSD-3-Clause
   termsOfService: https://en.outscale.com/terms-of-service/
   title: 3DS OUTSCALE API
-  version: '0.18'
+  version: '1.0'
 openapi: 3.0.0
 paths:
   /AcceptNetPeering:
@@ -6946,10 +6946,7 @@ paths:
     post:
       operationId: CreateAccessKey
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateAccessKeyRequest'
+        content: {}
       responses:
         '200':
           content:

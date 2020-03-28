@@ -12,7 +12,6 @@ from qa_common_tools.config import OscConfig
 from osc_common.exceptions.osc_exceptions import OscApiException
 import time
 from qa_common_tools.error import error_type, load_errors
-from qa_tina_tools.tools.tina.delete_tools import terminate_instances
 from qa_common_tools.misc import id_generator
 import datetime
 

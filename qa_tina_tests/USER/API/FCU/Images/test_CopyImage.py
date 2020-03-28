@@ -1,10 +1,5 @@
 from qa_common_tools.test_base import OscTestSuite
 from qa_common_tools.misc import id_generator, assert_error
-from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_volumes, attach_volume, create_image
-from qa_tina_tests.USER.API.FCU.Images.test_DescribeImages import VOL_SIZE_1
-import time
-from qa_tina_tests.USER.API.FCU.Images.test_DescribeImageAttribute import DESCRIPTION
-from qa_tina_tools.tina.check_tools import get_snapshot_id_list
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_volumes
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.wait_tools import wait_images_state

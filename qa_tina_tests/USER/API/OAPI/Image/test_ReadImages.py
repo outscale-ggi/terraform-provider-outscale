@@ -8,7 +8,6 @@ from qa_common_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
-from qa_common_tools.config import config_constants as constants
 
 
 class Test_ReadImages(OscTestSuite):

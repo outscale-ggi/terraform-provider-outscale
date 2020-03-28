@@ -5,12 +5,12 @@ import string
 import time
 import pytest
 
-from osc_sdk_pub.default_config import DefaultPubConfig
 from osc_sdk_pub.osc_api import AuthMethod
 from osc_sdk_pub.osc_api.osc_icu_api import OscIcuApi
 from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite
 from qa_common_tools.account_tools import delete_account, create_account
+from osc_common.config.default_public_config import DefaultPubConfig
 
 
 @pytest.mark.region_cloudtrace

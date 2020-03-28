@@ -1,8 +1,6 @@
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from osc_common.exceptions.osc_exceptions import OscApiException
 import pytest
-import datetime
-import time
 
 
 @pytest.mark.region_kms
@@ -34,19 +32,24 @@ class Test_create_key(OscTestSuite):
 
     def verify_content(self, ret, description=None, key_usage='ENCRYPT_DECRYPT', origin='OKMS'):
         assert hasattr(ret, 'KeyMetadata')
-        assert ret.KeyMetadata.Origin == origin
         assert len(ret.KeyMetadata.KeyId) == 12 and ret.KeyMetadata.KeyId[:4] == 'cmk-'
         assert ret.KeyMetadata.Description == description
-        assert ret.KeyMetadata.DeletionDate is None
-        assert ret.KeyMetadata.KeyManager == 'CUSTOMER'
         assert ret.KeyMetadata.ExpirationModel is None
         assert ret.KeyMetadata.ValidTo is None
-        assert ret.KeyMetadata.Enabled is True
+        assert len(ret.KeyMetadata.AWSAccountId) == 12
+        assert ret.KeyMetadata.DeletionDate is None
         assert ret.KeyMetadata.KeyUsage == key_usage
-        assert ret.KeyMetadata.KeyState == 'Enabled'
+        assert ret.KeyMetadata.KeyManager == 'CUSTOMER'
         assert ret.KeyMetadata.CreationDate
         assert ret.KeyMetadata.Arn
-        assert len(ret.KeyMetadata.AWSAccountId) == 12
+        if origin == 'EXTERNAL':
+            assert ret.KeyMetadata.Origin == origin
+            assert ret.KeyMetadata.Enabled is False
+            assert ret.KeyMetadata.KeyState == 'PendingImport'
+        else:
+            assert ret.KeyMetadata.Origin == origin
+            assert ret.KeyMetadata.Enabled is True
+            assert ret.KeyMetadata.KeyState == 'Enabled'
 
     def test_T4518_create_key_with_valid_params(self):
         ret = self.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='EXTERNAL').response

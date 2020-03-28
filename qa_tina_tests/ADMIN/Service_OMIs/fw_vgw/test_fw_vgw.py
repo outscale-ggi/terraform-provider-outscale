@@ -4,7 +4,7 @@ import random
 import re
 import time
 import pytest
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state, wait_instance_service_state
 from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state

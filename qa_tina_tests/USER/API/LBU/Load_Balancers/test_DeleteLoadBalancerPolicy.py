@@ -1,4 +1,4 @@
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.misc import assert_error, id_generator

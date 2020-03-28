@@ -1,5 +1,5 @@
 from qa_common_tools.misc import assert_error
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from osc_common.exceptions.osc_exceptions import OscApiException
 
 DEVICE = '/dev/xvdc'

@@ -1,7 +1,6 @@
 """
     This module describe all test cases for describeImages
 """
-import time
 
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.config import config_constants as constants

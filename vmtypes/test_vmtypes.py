@@ -5,16 +5,11 @@ from qa_common_tools.config import config_constants as constants
 from qa_common_tools.config import OscConfig
 from qa_common_tools.osc_sdk import OscSdk
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, SUBNETS, SUBNET_ID, NONE, INSTANCE_SET, KEY_PAIR, PATH
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, SUBNETS, SUBNET_ID, INSTANCE_SET
 from pprint import pprint
-from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instances, delete_vpc
-from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs, cleanup_instances
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-import datetime
+from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
 from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
-from qa_common_tools.misc import assert_error
 from qa_common_tools.ssh import SshTools
-from qa_common_tools.config import config_constants as constants
 
 from vmtypes import INST_TYPE_MATRIX
 from osc_common.objects.osc_objects import OscObjectDict
@@ -27,14 +22,14 @@ LOGGING_LEVEL = logging.DEBUG
 def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
     tina_type = INST_TYPE_MATRIX[type_info.name]
     parts = tina_type[0].split('.')
-    family = parts[0]
+    # family = parts[0]
     core = int(parts[1].split('r')[0][1:])
     ram = int(parts[1].split('r')[1].split('p')[0][0:])
-    perf = int(parts[1].split('r')[1].split('p')[1][0:])
-    gpu_model = None
+    # perf = int(parts[1].split('r')[1].split('p')[1][0:])
+    # gpu_model = None
     gpu_number = 0
     if tina_type[1]:
-        gpu_model = tina_type[1][0]
+        # gpu_model = tina_type[1][0]
         gpu_number = tina_type[1][1]
 
     inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -49,7 +44,7 @@ def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
                                                    username=osc_sdk.config.region.get_info(constants.CENTOS_USER))
 
     cmd = 'sudo nproc'
-    out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+    _, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
     assert not status, "SSH command was not executed correctly on the remote host"
     out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
     assert len(set([int(out), core, inst.specs.core])) == 1, "Core values are not all equal, {} {} {}".format(int(out), core, inst.specs.core)

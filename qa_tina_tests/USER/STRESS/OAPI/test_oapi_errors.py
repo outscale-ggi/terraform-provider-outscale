@@ -1,4 +1,4 @@
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 import time
 from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
 from osc_sdk_pub.osc_api import disable_throttling
@@ -63,7 +63,7 @@ class Test_oapi_errors(OscTestSuite):
                 if net_id:
                     try:
                         call_number += 1
-                        self.a1_r1.fcu.DeleteInternetService(PublicIp=net_id, max_retry=0)
+                        self.a1_r1.oapi.DeleteInternetService(PublicIp=net_id, max_retry=0)
                     except Exception:
                         print("Could not release address.")
 
@@ -72,7 +72,4 @@ class Test_oapi_errors(OscTestSuite):
         print("call number = {}".format(call_number))
         print('time = {}'.format(end - start))
         errs.print_errors()
-        try:
-            errs.assert_errors()
-        except AssertionError:
-            known_error('GTW-1028', 'Unexpected errors occurred')
+        errs.assert_errors()

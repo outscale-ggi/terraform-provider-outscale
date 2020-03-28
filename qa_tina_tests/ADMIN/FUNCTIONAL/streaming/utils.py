@@ -47,7 +47,7 @@ def write_and_snap(osc_sdk, sshclient, inst_id, vol_id, f_num, device='/dev/xvdc
         osc_sdk.fcu.DetachVolume(VolumeId=vol_id)
         try:
             wait_volumes_state(osc_sdk, [vol_id], 'available')
-        except AssertionError as error:
+        except AssertionError:
             osc_sdk.fcu.DetachVolume(VolumeId=vol_id)
             wait_volumes_state(osc_sdk, [vol_id], 'available')
 
@@ -60,7 +60,7 @@ def write_and_snap(osc_sdk, sshclient, inst_id, vol_id, f_num, device='/dev/xvdc
         osc_sdk.fcu.DetachVolume(VolumeId=vol_id)
         try:
             wait_volumes_state(osc_sdk, [vol_id], 'available')
-        except AssertionError as error:
+        except AssertionError:
             osc_sdk.fcu.DetachVolume(VolumeId=vol_id)
             wait_volumes_state(osc_sdk, [vol_id], 'available')
 

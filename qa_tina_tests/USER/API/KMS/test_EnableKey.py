@@ -1,7 +1,6 @@
 from qa_common_tools.misc import assert_error
-from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
+from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tests.USER.API.KMS.kms import Kms
-from qa_common_tools.test_base import known_error
 import pytest
 
 
@@ -13,7 +12,7 @@ class Test_EnableKey(Kms):
         cls.known_error = False
         super(Test_EnableKey, cls).setup_class()
         try:
-            cls.key_id = cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='EXTERNAL').response.KeyMetadata.KeyId
+            cls.key_id = cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='OKMS').response.KeyMetadata.KeyId
         except Exception as error:
             try:
                 cls.teardown_class()

@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_common_tools.config import config_constants as constants
-from qa_common_tools.test_base import known_error
 
 
 def create_vms(ocs_sdk, image_id=None, state='running', VmType=None, **kwargs):

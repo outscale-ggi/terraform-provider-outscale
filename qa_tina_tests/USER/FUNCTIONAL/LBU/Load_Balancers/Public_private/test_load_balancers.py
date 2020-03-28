@@ -8,11 +8,9 @@ from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer, create_instances, create_vpc, create_security_group
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc, delete_security_group_old, delete_lbu
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH, SECURITY_GROUP_ID, SUBNETS, SUBNET_ID, VPC_ID, \
-    INSTANCE_ID_LIST
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH, SECURITY_GROUP_ID, SUBNETS, SUBNET_ID, VPC_ID, INSTANCE_ID_LIST
 from qa_common_tools.ssh import SshTools
-from qa_tina_tools.tina.setup_tools import start_http_server, \
-    install_udp_server
+from qa_tina_tools.tina.setup_tools import start_http_server, install_udp_server
 from qa_tina_tools.tina.check_tools import wait_health, dns_test
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 import socket
@@ -204,7 +202,7 @@ class Test_load_balancers(OscTestSuite):
                 start = time.time()
                 client_socket.sendto(message, addr)
                 try:
-                    data, server = client_socket.recvfrom(1024)
+                    data, _ = client_socket.recvfrom(1024)
                     end = time.time()
                     elapsed = end - start
                     print('{} {} {}'.format(data, pings, elapsed))

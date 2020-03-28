@@ -63,7 +63,7 @@ class Test_FCU(OscTestSuite):
         nb_ko = 0
         for _ in range(10):
             try:
-                ret = self.a1_r1.fcu.DescribeAddresses(max_retry=0)
+                self.a1_r1.fcu.DescribeAddresses(max_retry=0)
                 nb_ok += 1
             except OscApiException as error:
                 if error.status_code == 503:

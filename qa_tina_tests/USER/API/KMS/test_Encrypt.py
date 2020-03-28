@@ -75,7 +75,7 @@ class Test_Encrypt(Kms):
             self.a1_r1.kms.Encrypt(KeyId=self.key_metadata.KeyId, Plaintext=encoded_text)
             assert False, 'Call should not have been successful, plain text too long'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidParameterValueLength', "Length of parameter 'PlainText' is invalid: 4100. Expected: set([(1, 4096)]).")
+            assert_error(error, 400, 'InvalidParameterValueLength', "Length of parameter 'PlainText' is invalid: 4100. Expected: {(1, 4096)}.")
 
     def test_T3594_with_encryption_context(self):
         encoded_text = base64.b64encode(id_generator(size=128).encode('utf-8')).decode('utf-8')

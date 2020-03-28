@@ -16,8 +16,8 @@ class Test_verify_response(OscTestSuite):
         cls.default_type = 't2.small'
         super(Test_verify_response, cls).setup_class()
         try:
-            ret, cls.inst_info1 = create_vms(ocs_sdk=cls.a1_r1, state=None)
-            ret, cls.inst_info2 = create_vms(ocs_sdk=cls.a1_r1, state=None, VmType=cls.converted_type)
+            _, cls.inst_info1 = create_vms(ocs_sdk=cls.a1_r1, state=None)
+            _, cls.inst_info2 = create_vms(ocs_sdk=cls.a1_r1, state=None, VmType=cls.converted_type)
 
         except:
             try:

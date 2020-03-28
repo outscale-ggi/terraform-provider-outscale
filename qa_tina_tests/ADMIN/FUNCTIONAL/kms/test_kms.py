@@ -1,4 +1,4 @@
-from qa_common_tools.test_base import OscTestSuite
+from qa_common_tools.test_base import OscTestSuite, known_error
 import pytest
 
 
@@ -140,4 +140,8 @@ class Test_kms(OscTestSuite):
     def test_T3737_after_user_sync(self):
         self.a1_r1.intel.kms.user.sync(accounts=[self.account2_id])
         ret = self.a2_r1.kms.ListKeys()
+        if len(ret.response.Keys) == 0:
+            known_error('TINA-5545', 'user sync does not seem to create a master key on existing user.')
+        else:
+            assert False, 'Remove known error'
         assert len(ret.response.Keys) == 1

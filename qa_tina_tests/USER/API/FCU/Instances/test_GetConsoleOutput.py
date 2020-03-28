@@ -2,7 +2,6 @@ import pytest
 
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.test_base import OscTestSuite
-from qa_common_tools.test_base import known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -13,7 +12,6 @@ import re
 import time
 import base64
 import binascii
-import pytest
 TIMESTAMP_REGEX = r'(^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$)'
 
 

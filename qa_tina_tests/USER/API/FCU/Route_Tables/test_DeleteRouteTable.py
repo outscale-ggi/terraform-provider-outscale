@@ -1,6 +1,6 @@
 from qa_common_tools.config.configuration import Configuration
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_common_tools.misc import assert_error
 
 
@@ -46,7 +46,4 @@ class Test_DeleteRouteTable(OscTestSuite):
             self.a1_r1.fcu.DeleteRouteTable()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.status_code == 500 and error.message == 'Internal Error':
-                known_error('TINA-5474', 'Internal error ')
-            assert False, 'Remove known error'
             assert_error(error, 400, 'DependencyViolation', 'Resource has a dependent object')

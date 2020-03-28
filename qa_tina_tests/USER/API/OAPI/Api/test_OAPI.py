@@ -11,6 +11,7 @@ import json
 from qa_tina_tools.specs.oapi import OAPI_PATHS
 from qa_common_tools.misc import assert_error
 import datetime
+from qa_common_tools import misc
 
 
 class Test_OAPI(OscTestSuite):
@@ -62,6 +63,9 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadVolumes()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if error.status_code == 500 and error.message == 'InternalError':
+                known_error('GTW-1231', 'ReadVolumes without params and with invalid authentication returns an internal error')
+            assert False, 'Remove known error'
             assert_error(error, 401, "1", "AccessDenied")
         finally:
             self.a1_r1.config.sk = sk_bkp
@@ -111,8 +115,59 @@ class Test_OAPI(OscTestSuite):
             assert '/' + call in OAPI_PATHS
 
     def test_T4688_check_oapi_including_version(self):
-        batcmd = "curl -X POST https://api.{}.outscale.com/api/V0/ReadPublicIpRanges".format(self.a1_r1.config.region.name)
+        batcmd = "curl -X POST https://api.{}.outscale.com/api/V1/ReadPublicIpRanges".format(self.a1_r1.config.region.name)
         batcmd += " -d '{}'"
         result = subprocess.check_output(batcmd, shell=True)
         json_result = json.loads(result)
         assert 'Errors' not in json_result 
+
+    def test_T4772_check_param_encoding(self):
+        sg_ids = []
+        resp_tags = None
+        tag_key = 'key'
+        tag_value = '%2Fdev%2Fxvdb'
+        try:
+            resp = self.a1_r1.oapi.CreateSecurityGroup(SecurityGroupName=misc.id_generator(prefix='sg_name'), Description='desc').response
+            sg_ids.append(resp.SecurityGroup.SecurityGroupId)
+            resp = self.a1_r1.oapi.CreateSecurityGroup(
+                SecurityGroupName=misc.id_generator(prefix='sg_name'),
+                Description='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ._-:/()#,@[]+=&;{}!$').response
+            sg_ids.append(resp.SecurityGroup.SecurityGroupId)
+            
+            resp_tags = self.a1_r1.oapi.CreateTags(ResourceIds=sg_ids, Tags=[{'Key': tag_key, 'Value': tag_value}])
+            resp_read_tags = self.a1_r1.oapi.ReadTags().response
+            for tag in resp_read_tags.Tags:
+                if tag.ResourceId in sg_ids and tag.Key == 'key':
+                    assert tag.Value == tag_value
+        finally:
+            if resp_tags:
+                self.a1_r1.oapi.DeleteTags(ResourceIds=sg_ids, Tags=[{'Key': tag_key, 'Value': tag_value}])
+            for sg_id in sg_ids:
+                self.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=sg_id)
+
+    def test_T4782_check_param_encoding_with_get(self):
+        sg_ids = []
+        resp_tags = None
+        tag_key = 'key'
+        tag_value = '%2Fdev%2Fxvdb'
+        try:
+            resp = self.a1_r1.oapi.CreateSecurityGroup(SecurityGroupName=misc.id_generator(prefix='sg_name'), Description='desc').response
+            sg_ids.append(resp.SecurityGroup.SecurityGroupId)
+            resp = self.a1_r1.oapi.CreateSecurityGroup(
+                SecurityGroupName=misc.id_generator(prefix='sg_name'),
+                Description='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ._-:/()#,@[]+=&;{}!$').response
+            sg_ids.append(resp.SecurityGroup.SecurityGroupId)
+            
+            resp_tags = self.a1_r1.oapi.CreateTags(method='GET', ResourceIds=sg_ids, Tags=[{'Key': tag_key, 'Value': tag_value}])
+            assert False, 'Call should not have been successful'
+            resp_read_tags = self.a1_r1.oapi.ReadTags().response
+            for tag in resp_read_tags.Tags:
+                if tag.ResourceId in sg_ids and tag.Key == 'key':
+                    assert tag.Value == tag_value
+        except OscApiException as error:
+            assert_error(error, 405 , "2", "AccessDenied")
+        finally:
+            if resp_tags:
+                self.a1_r1.oapi.DeleteTags(ResourceIds=sg_ids, Tags=[{'Key': tag_key, 'Value': tag_value}])
+            for sg_id in sg_ids:
+                self.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=sg_id)

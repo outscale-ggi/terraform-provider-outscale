@@ -3,7 +3,6 @@
 
 import pytest
 from qa_common_tools.test_base import OscTestSuite
-import time
 
 
 @pytest.mark.region_admin

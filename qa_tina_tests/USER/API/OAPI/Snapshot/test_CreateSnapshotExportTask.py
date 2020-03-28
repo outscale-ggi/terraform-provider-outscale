@@ -1,4 +1,5 @@
 from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
+import pytest
 
 
 class Test_CreateSnapshotExportTask(Snapshot):
@@ -11,6 +12,7 @@ class Test_CreateSnapshotExportTask(Snapshot):
     def teardown_class(cls):
         super(Test_CreateSnapshotExportTask, cls).teardown_class()
 
+    @pytest.mark.region_osu
     def test_T4675_valid_param(self):
         snapshot = self.a1_r1.oapi.CreateSnapshot(VolumeId=self.volume_id1).response.Snapshot
         try:

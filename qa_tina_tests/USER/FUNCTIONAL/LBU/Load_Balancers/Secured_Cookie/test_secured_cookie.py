@@ -74,7 +74,7 @@ class Test_secured_cookie(OscTestSuite):
             wait_lbu_backend_state(self.a1_r1, lbu_name)
             ret = requests.get("https://{}/cookie".format(dns_name), verify=False)
             assert ret.headers['Set-Cookie'] == 'foo=bar'
-            ret1 = self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerName=lbu_name,
+            self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerName=lbu_name,
                                                            LoadBalancerAttributes={'AdditionalAttributes': [{
                                                                'Key': 'SecuredCookies', 'Value': True}]})
             time.sleep(30)

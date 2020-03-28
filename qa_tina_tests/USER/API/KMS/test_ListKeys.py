@@ -1,4 +1,4 @@
-from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
+from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tests.USER.API.KMS.kms import Kms
 from qa_common_tools.test_base import known_error
 import pytest
@@ -11,12 +11,13 @@ class Test_ListKeys(Kms):
 
     @classmethod
     def setup_class(cls):
+        cls.QUOTAS = {'cmk_limit': 102}
         cls.known_error = False
         cls.key_ids = []
         super(Test_ListKeys, cls).setup_class()
         try:
             for _ in range(cls.kms_num):
-                cls.key_ids.append(cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='EXTERNAL').response.KeyMetadata.KeyId)
+                cls.key_ids.append(cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='OKMS').response.KeyMetadata.KeyId)
         except:
             try:
                 cls.teardown_class()

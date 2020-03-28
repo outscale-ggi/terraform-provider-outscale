@@ -1,7 +1,7 @@
 import pytest
 from osc_common.exceptions import OscApiException
 from qa_common_tools.misc import assert_error
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, start_instances
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances, stop_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -82,6 +82,4 @@ class Test_pin_unpin_instance(OscTestSuite):
             self.a1_r1.intel.instance.pin(vmid=self.inst_id, target="in2-ucs1-pr-kvm-13")
             assert False, 'Call should not been successful'
         except OscApiException as error:
-            if error.status_code == 200 and error.message == "invalid-target":
-                known_error("TINA-5326", "The message is not explicit with pin instance")
-            assert False, 'Remove known error code'
+            assert_error(error, 200, 0, "invalid-target - Target: in2-ucs1-pr-kvm-13, PZ: in2b. Expected: in2")

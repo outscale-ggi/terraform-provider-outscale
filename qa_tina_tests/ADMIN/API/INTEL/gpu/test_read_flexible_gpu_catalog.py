@@ -1,5 +1,5 @@
 
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 
 
 class Test_read_flexible_gpu_catalog(OscTestSuite):

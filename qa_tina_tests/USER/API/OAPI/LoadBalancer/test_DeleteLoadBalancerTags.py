@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from qa_common_tools.misc import id_generator, assert_oapi_error, assert_dry_run, assert_error
+from qa_common_tools.misc import id_generator, assert_oapi_error, assert_dry_run
 from qa_common_tools.test_base import OscTestSuite, known_error
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
@@ -80,7 +80,7 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
     def test_T4718_incorrect_tag_key(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': ''}])
-            known_error('GTW-1130', 'Unexpected success, error expected')
+            known_error('GTW-1232', 'Unexpected success, error expected')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert False, 'Remove known error code'
@@ -209,14 +209,10 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
             self.setup_tags()
             resp = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
                                                           Tags=[{'Key': 'key1'}, {'Key': 'key1'}]).response
-            assert False, 'Remove known error code'
             check_oapi_response(resp, 'DeleteLoadBalancerTagsResponse')
             resp = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
             assert 'key1' not in [tag.Key for tag in resp.Tags]
             self.check_tags(4, 2)
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'DefaultError', 0)
-            known_error('GTW-1131', 'Unexpected DefaultError')
         finally:
             self.teardown_tags()
 

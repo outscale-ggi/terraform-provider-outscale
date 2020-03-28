@@ -7,6 +7,7 @@ from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.misc import assert_dry_run, assert_oapi_error
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_common_tools.config import config_constants as constants
 
 #     ReadFlexibleGpusRequest:
 #       properties:
@@ -70,9 +71,9 @@ class Test_ReadFlexibleGpus(OscTestSuite):
                 return
             if cls.max_fgpu - len(ret.response.result) < 3:
                 cls.single_account = True
-            cls.inst_info_1 = create_instances(cls.a1_r1, nb=2, inst_type='tinav3.c5r5')
+            cls.inst_info_1 = create_instances(cls.a1_r1, nb=2, inst_type=cls.a1_r1.config.region.get_info(constants.DEFAULT_GPU_INSTANCE_TYPE))
             if not cls.single_account:
-                cls.inst_info_2 = create_instances(cls.a2_r1, nb=2, inst_type='tinav3.c5r5')
+                cls.inst_info_2 = create_instances(cls.a2_r1, nb=2, inst_type=cls.a2_r1.config.region.get_info(constants.DEFAULT_GPU_INSTANCE_TYPE))
             cls.gpus_id_1 = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName='nvidia-k2',
                                                              SubregionName=cls.region_name_1).response.FlexibleGpu.FlexibleGpuId
             cls.gpus_id_2 = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName='nvidia-k2',

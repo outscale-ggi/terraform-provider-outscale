@@ -2,7 +2,7 @@ from qa_common_tools.config.configuration import Configuration
 from qa_common_tools.config import config_constants as constants
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.misc import id_generator, assert_error
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer, create_vpc_old
 from qa_tina_tools.tools.tina.delete_tools import delete_subnet, delete_vpc_old, delete_instances_old, delete_lbu
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state

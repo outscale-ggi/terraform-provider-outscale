@@ -1,10 +1,8 @@
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_vpc_endpoints_state, wait_vpcs_state
-from qa_common_tools.config.configuration import Configuration
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
-from qa_common_tools.misc import assert_error, assert_dry_run
-from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_common_tools.misc import assert_error
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, ROUTE_TABLE_ID
 

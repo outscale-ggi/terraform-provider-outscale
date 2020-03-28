@@ -2,14 +2,12 @@
 import pytest
 import datetime
 
-from qa_common_tools.test_base import OscTestSuite, known_error
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, \
-    wait_volumes_state, wait_snapshots_state
+from qa_common_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state, wait_snapshots_state
 from qa_common_tools.misc import assert_dry_run
 from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
 from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
 from qa_common_tools.config import config_constants as constants
-from osc_common.exceptions.osc_exceptions import OscApiException
 
 
 @pytest.mark.region_oapi

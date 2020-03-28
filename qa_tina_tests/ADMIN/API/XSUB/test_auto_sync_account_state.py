@@ -43,6 +43,7 @@ class Test_auto_sync_account_state(OscTestSuite):
             raise error
         finally:
             undeleted_users = []
+            errors = []
             for user in users:
                 try:
                     self.a1_r1.xsub.terminate_account(pid=user)
@@ -53,5 +54,6 @@ class Test_auto_sync_account_state(OscTestSuite):
                         principal={"accountPid": user}, forceRemoval="true")
                 except OscException as error:
                     undeleted_users.append(user)
+                    errors.append(error)
             if undeleted_users:
-                raise OscTestException("Could not delete user(s) (pid(s) = " + str(undeleted_users) + ").")
+                raise OscTestException("Could not delete user(s) (pid(s) = {}, error(s) = {})".format(undeleted_users, errors))

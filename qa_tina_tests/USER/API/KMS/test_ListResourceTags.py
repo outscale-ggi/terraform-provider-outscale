@@ -1,5 +1,5 @@
 from qa_common_tools.misc import assert_error
-from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
+from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tests.USER.API.KMS.kms import Kms
 import pytest
 
@@ -13,7 +13,7 @@ class Test_ListResourceTags(Kms):
         try:
             cls.key_id = cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='EXTERNAL').response.KeyMetadata.KeyId
             cls.a1_r1.kms.TagResource(KeyId=cls.key_id, Tags=[{'TagKey': 'key', 'TagValue': 'value'}])
-        except Exception as error:
+        except:
             try:
                 cls.teardown_class()
             except Exception:

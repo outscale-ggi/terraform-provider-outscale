@@ -158,6 +158,6 @@ class Test_CreateVpnConnection(OscTestSuite):
         try:
             assert not hasattr(ret, 'ClientGatewayConfiguration')
             known_error('GTW-1081', 'ClientGatewayConfiguration is not in the response')
-        except OscApiException as error:
+        except OscApiException:
             assert False, 'Remove known error'
 

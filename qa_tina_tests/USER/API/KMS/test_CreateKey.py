@@ -43,19 +43,26 @@ class Test_CreateKey(Kms):
 
     def verify_content(self, ret, description=None, key_usage='ENCRYPT_DECRYPT', origin='OKMS'):
         assert hasattr(ret, 'KeyMetadata')
-        assert ret.KeyMetadata.Origin == origin
         assert len(ret.KeyMetadata.KeyId) == 12 and ret.KeyMetadata.KeyId[:4] == 'cmk-'
         assert ret.KeyMetadata.Description == description
-        assert ret.KeyMetadata.DeletionDate is None
-        assert ret.KeyMetadata.KeyManager == 'CUSTOMER'
         assert ret.KeyMetadata.ExpirationModel is None
         assert ret.KeyMetadata.ValidTo is None
-        assert ret.KeyMetadata.Enabled is True
+        assert len(ret.KeyMetadata.AWSAccountId) == 12
+        assert ret.KeyMetadata.DeletionDate is None
         assert ret.KeyMetadata.KeyUsage == key_usage
-        assert ret.KeyMetadata.KeyState == 'Enabled'
+        assert ret.KeyMetadata.KeyManager == 'CUSTOMER'
         assert ret.KeyMetadata.CreationDate
         assert ret.KeyMetadata.Arn
-        assert len(ret.KeyMetadata.AWSAccountId) == 12
+        if origin == 'EXTERNAL':
+            assert ret.KeyMetadata.Origin == origin
+            assert ret.KeyMetadata.Enabled is False
+            assert ret.KeyMetadata.KeyState == 'PendingImport'
+        else:
+            assert ret.KeyMetadata.Origin == origin
+            assert ret.KeyMetadata.Enabled is True
+            assert ret.KeyMetadata.KeyState == 'Enabled'
+
+
 
     # parameters --> 'Description', 'KeyUsage', 'Origin'
     # Description --> length 0-8192
@@ -69,9 +76,6 @@ class Test_CreateKey(Kms):
 
     def test_T3246_valid_params(self):
         ret = self.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='EXTERNAL').response
-        if ret.KeyMetadata.KeyState == "Enabled":
-            known_error('TINA-5308', '[OKMS] Incorrect state for CreateKey')
-        assert False, 'Remove known error code'
         self.key_id = ret.KeyMetadata.KeyId
         self.verify_content(ret, description='description', origin='EXTERNAL')
 
@@ -82,7 +86,7 @@ class Test_CreateKey(Kms):
             self.key_id = ret.KeyMetadata.KeyId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidParameterValueLength', "Length of parameter 'Description' is invalid: 8193. Expected: set([(0, 8192)]).")
+            assert_error(error, 400, 'InvalidParameterValueLength', "Length of parameter 'Description' is invalid: 8193. Expected: {(0, 8192)}.")
 
     def test_T3248_invalid_key_usage(self):
         try:
@@ -98,7 +102,7 @@ class Test_CreateKey(Kms):
             self.key_id = ret.KeyMetadata.KeyId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidParameterValue', "Value of parameter 'Origin' is not valid: toto. Supported values: OKMS, EXTERNAL")
+            assert_error(error, 400, 'InvalidParameterValue', "Value of parameter 'Origin' is not valid: toto. Supported values: EXTERNAL, OKMS")
 
     def test_T4596_verify_default_key(self):
         ret = self.a1_r1.kms.ListKeys()

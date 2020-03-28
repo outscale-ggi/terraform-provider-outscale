@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
-from qa_common_tools.test_base import OscTestSuite, known_error
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state,\
-    wait_network_interfaces_state
+from qa_common_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.config import config_constants as constants
 from qa_common_tools.misc import assert_oapi_error, id_generator
@@ -227,9 +226,6 @@ class Test_CreateVms(OscTestSuite):
                                       UserData='abc')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.status_code == 500 and error.message == 'InternalError':
-                known_error('GTW-1147', 'Internal error after create vm with invalid user date')
-            assert False, 'remove known error'
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T3162_with_userdata_script_powershell(self):

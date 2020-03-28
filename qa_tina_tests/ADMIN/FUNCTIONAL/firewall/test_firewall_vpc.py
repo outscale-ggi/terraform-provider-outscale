@@ -7,7 +7,6 @@ from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, SUBNETS, KEY_PAIR, PATH, VPC_ID, INSTANCE_ID_LIST
 from qa_common_tools.config import config_constants as constants
-, FW_OWNER
 
 
 class Test_firewall_vpc(OscTestSuite):
@@ -66,8 +65,8 @@ class Test_firewall_vpc(OscTestSuite):
         ret = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=self.vpc_info[VPC_ID])
         inst_id = ret.response.result.master.vm
 
-        self.a1_r1.intel.instance.shutdown(owner=self.a1_r1.config.region.get_info(FW_OWNER), instance_ids=[inst_id], force=True)
-        self.a1_r1.intel.instance.terminate(owner=self.a1_r1.config.region.get_info(FW_OWNER), instance_ids=[inst_id])
+        self.a1_r1.intel.instance.shutdown(owner=self.a1_r1.config.region.get_info(constants.FW_OWNER), instance_ids=[inst_id], force=True)
+        self.a1_r1.intel.instance.terminate(owner=self.a1_r1.config.region.get_info(constants.FW_OWNER), instance_ids=[inst_id])
 
         # TODO: rm time.sleep
         import time
@@ -103,13 +102,13 @@ class Test_firewall_vpc(OscTestSuite):
         ret = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=self.vpc_info[VPC_ID])
         inst_id = ret.response.result.master.vm
 
-        self.a1_r1.intel.instance.shutdown(owner=self.a1_r1.config.region.get_info(FW_OWNER), instance_ids=[inst_id], force=True)
+        self.a1_r1.intel.instance.shutdown(owner=self.a1_r1.config.region.get_info(constants.FW_OWNER), instance_ids=[inst_id], force=True)
 
         # TODO: rm time.sleep
         import time
         time.sleep(15)
 
-        self.a1_r1.intel.instance.start(owner=self.a1_r1.config.region.get_info(FW_OWNER), instance_ids=[inst_id])
+        self.a1_r1.intel.instance.start(owner=self.a1_r1.config.region.get_info(constants.FW_OWNER), instance_ids=[inst_id])
 
         sshclient = SshTools.check_connection_paramiko(self.public_ip,
                                                        self.vpc_info[KEY_PAIR][PATH],

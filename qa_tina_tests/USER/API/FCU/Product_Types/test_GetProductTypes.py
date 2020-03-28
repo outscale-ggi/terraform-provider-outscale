@@ -152,7 +152,7 @@ class Test_GetProductTypes(OscTestSuite):
 
     def test_T4368_with_image_id_of_an_other_account_without_permission(self):
         try:
-            ret = self.a1_r1.fcu.GetProductTypes(ImageId=self.img_id_a2)
+            self.a1_r1.fcu.GetProductTypes(ImageId=self.img_id_a2)
         except OscApiException as error:
             assert_error(error, 400, 'InvalidAMIID.NotFound', 'The image ID does not exist: {}'.format(self.img_id_a2))
 

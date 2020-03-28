@@ -1,4 +1,4 @@
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.misc import assert_error
 
@@ -36,9 +36,6 @@ class Test_DeleteInternetGateway(OscTestSuite):
             self.a1_r1.fcu.DeleteInternetGateway()
             assert False, "Call should not be successful"
         except OscApiException as error:
-            if error.status_code == 500 and error.message == 'Internal Error':
-                known_error('TINA-5480', 'Internal error in DeleteInternetGateway')
-            assert False, 'Remove known error code'
             assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: GatewayID')
             
     def test_T3945_from_another_account(self):

@@ -1,6 +1,6 @@
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.misc import assert_error
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 

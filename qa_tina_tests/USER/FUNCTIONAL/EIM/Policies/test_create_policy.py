@@ -1,9 +1,8 @@
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.misc import assert_error, id_generator
+from qa_common_tools.misc import assert_error, id_generator, assert_oapi_error
 from qa_common_tools.osc_sdk import OscSdk
 from qa_common_tools.config import OscConfig
-import time
 import pytest
 
 
@@ -86,11 +85,9 @@ class Test_create_policy(OscTestSuite):
                 assert_error(error, 400, 'AccessDeniedException', None)
             try:
                 self.account_sdk.oapi.ReadVms()
-                known_error('PRODUCT-100', 'IAM')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove knwon error'
-                assert_error(error, 400, 'UnauthorizedOperation', None)
+                assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -134,11 +131,9 @@ class Test_create_policy(OscTestSuite):
                 assert_error(error, 400, 'AccessDeniedException', None)
             try:
                 self.account_sdk.oapi.ReadVms()
-                known_error('PRODUCT-100', 'IAM')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove knwon error'
-                assert_error(error, 400, 'UnauthorizedOperation', None)
+                assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -182,11 +177,9 @@ class Test_create_policy(OscTestSuite):
                 assert_error(error, 400, 'AccessDeniedException', None)
             try:
                 self.account_sdk.oapi.ReadVms()
-                known_error('PRODUCT-100', 'IAM')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove knwon error'
-                assert_error(error, 400, 'UnauthorizedOperation', None)
+                assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -231,11 +224,9 @@ class Test_create_policy(OscTestSuite):
                 assert_error(error, 400, 'AccessDenied', None)
             try:
                 self.account_sdk.oapi.ReadVms()
-                known_error('PRODUCT-100', 'IAM')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove knwon error'
-                assert_error(error, 400, 'UnauthorizedOperation', None)
+                assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -282,11 +273,9 @@ class Test_create_policy(OscTestSuite):
                 assert_error(error, 400, 'AccessDeniedException', None)
             try:
                 self.account_sdk.oapi.ReadVms()
-                known_error('PRODUCT-100', 'IAM')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove knwon error'
-                assert_error(error, 400, 'UnauthorizedOperation', None)
+                assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -328,11 +317,9 @@ class Test_create_policy(OscTestSuite):
                 assert_error(error, 400, 'AccessDeniedException', None)
             try:
                 self.account_sdk.oapi.ReadVms()
-                known_error('PRODUCT-100', 'IAM')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove knwon error'
-                assert_error(error, 400, 'UnauthorizedOperation', None)
+                assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -374,11 +361,9 @@ class Test_create_policy(OscTestSuite):
                 assert_error(error, 400, 'AccessDeniedException', None)
             try:
                 self.account_sdk.oapi.ReadVms()
-                known_error('PRODUCT-100', 'IAM')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove knwon error'
-                assert_error(error, 400, 'UnauthorizedOperation', None)
+                assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -423,10 +408,9 @@ class Test_create_policy(OscTestSuite):
                 assert_error(error, 400, 'AccessDeniedException', None)
             try:
                 self.account_sdk.oapi.ReadVms()
-                known_error('PRODUCT-100', 'IAM')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_error(error, 400, 'UnauthorizedOperation', None)
+                assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -470,10 +454,35 @@ class Test_create_policy(OscTestSuite):
                 assert_error(error, 400, 'AccessDeniedException', None)
             try:
                 self.account_sdk.oapi.ReadVms()
-                known_error('PRODUCT-100', 'IAM')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove knwon error'
+                assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
+        finally:
+            if attach_policy:
+                self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
+            if policy_response:
+                self.a1_r1.eim.DeletePolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn)
+
+
+    def test_T4811_with_oapi_policy(self):
+        PolicyName = id_generator(prefix='TestCreatePolicy')
+        attach_policy = None
+        policy_response = None
+        try:
+            policy_response = self.a1_r1.eim.CreatePolicy(
+                PolicyName=PolicyName,
+                PolicyDocument='{"Statement": [{"Action": ["api:*"], "Resource": ["*"], "Effect": "Allow"}]}')
+            attach_policy = self.a1_r1.eim.AttachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
+            self.account_sdk.oapi.ReadVms()
+            try:
+                self.account_sdk.fcu.DescribeDhcpOptions()
+                assert False, 'Call should not have been successful'
+            except OscApiException as error:
+                assert_error(error, 400, 'UnauthorizedOperation', None)
+            try:
+                self.account_sdk.fcu.DescribeInstanceTypes()
+                assert False, 'Call should not have been successful'
+            except OscApiException as error:
                 assert_error(error, 400, 'UnauthorizedOperation', None)
         finally:
             if attach_policy:

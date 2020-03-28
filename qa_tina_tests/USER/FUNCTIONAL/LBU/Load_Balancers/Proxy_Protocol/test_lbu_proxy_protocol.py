@@ -6,7 +6,6 @@ import requests
 
 from qa_common_tools.config.configuration import Configuration
 from qa_common_tools.config import config_constants as constants
-, MY_IP
 from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.check_tools import wait_lbu_backend_state
@@ -98,7 +97,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
             ret = requests.get("{}://{}/proxy_protocol".format(protocol, dns_name), verify=False)
             assert ret.status_code == 200
             expexted_text = []
-            for ip in self.a1_r1.config.region.get_info(MY_IP):
+            for ip in self.a1_r1.config.region.get_info(constants.MY_IP):
                 expexted_text.append("{} -> {}".format(ip.split('/')[0], lbu_ip))
             assert ret.text in expexted_text
         finally:

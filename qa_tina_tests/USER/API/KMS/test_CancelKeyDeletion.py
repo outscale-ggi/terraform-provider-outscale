@@ -1,4 +1,3 @@
-from qa_common_tools.test_base import known_error
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.misc import assert_error, id_generator
 from qa_tina_tests.USER.API.KMS.kms import Kms

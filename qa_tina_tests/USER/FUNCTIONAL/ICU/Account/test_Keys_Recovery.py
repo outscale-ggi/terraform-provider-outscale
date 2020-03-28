@@ -1,13 +1,13 @@
 from qa_common_tools.test_base import OscTestSuite
 from qa_common_tools.misc import id_generator, assert_error
 from qa_common_tools import misc
-from osc_sdk_pub.default_config import DefaultPubConfig
 from osc_sdk_pub.osc_api.osc_icu_api import OscIcuApi
 from osc_sdk_pub.osc_api import AuthMethod
 from osc_sdk_pub.osc_api.osc_pub_api import OscPubApi
 from osc_common.exceptions.osc_exceptions import OscApiException
 import pytest
 from qa_common_tools.account_tools import create_account, delete_account
+from osc_common.config.default_public_config import DefaultPubConfig
 
 
 class Test_Keys_Recovery(OscTestSuite):

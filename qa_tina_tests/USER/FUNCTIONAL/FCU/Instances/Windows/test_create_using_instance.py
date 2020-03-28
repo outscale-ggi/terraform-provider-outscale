@@ -7,13 +7,12 @@ from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools import user_data_windows
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_keypair, delete_subnet
 from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-import re
 from qa_tina_tools.tina.check_tools import check_data_from_console, check_winrm_access
 
 

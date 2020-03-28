@@ -157,7 +157,7 @@ class StreamingBase(OscTestSuite):
                     cls.a1_r1.fcu.DetachVolume(VolumeId=cls.vol_id)
                     try:
                         wait_volumes_state(cls.a1_r1, [cls.vol_id], 'available', nb_check=5)
-                    except AssertionError as error:
+                    except AssertionError:
                         cls.logger.debug("Retry detach...")
                         cls.a1_r1.fcu.DetachVolume(VolumeId=cls.vol_id)
                         wait_volumes_state(cls.a1_r1, [cls.vol_id], 'available', nb_check=5)
@@ -237,7 +237,7 @@ class StreamingBase(OscTestSuite):
                     self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_id_test)
                     try:
                         wait_volumes_state(self.a1_r1, [self.vol_id_test], 'available', nb_check=5)
-                    except AssertionError as error:
+                    except AssertionError:
                         self.logger.debug("Retry detach...")
                         self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_id_test)
                         wait_volumes_state(self.a1_r1, [self.vol_id_test], 'available', nb_check=5)

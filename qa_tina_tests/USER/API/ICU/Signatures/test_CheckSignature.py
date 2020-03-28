@@ -1,7 +1,5 @@
 
 import datetime
-import hashlib
-import hmac
 
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.test_base import OscTestSuite, known_error

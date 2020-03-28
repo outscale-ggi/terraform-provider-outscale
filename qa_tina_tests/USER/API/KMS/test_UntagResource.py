@@ -1,5 +1,5 @@
 from qa_common_tools.misc import assert_error
-from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
+from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tests.USER.API.KMS.kms import Kms
 import pytest
 from qa_common_tools.test_base import known_error
@@ -14,7 +14,7 @@ class Test_UntagResource(Kms):
         super(Test_UntagResource, cls).setup_class()
         try:
             cls.key_id = cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='EXTERNAL').response.KeyMetadata.KeyId
-        except Exception as error:
+        except:
             try:
                 cls.teardown_class()
             except Exception:

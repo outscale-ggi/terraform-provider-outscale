@@ -3,7 +3,6 @@ import pytest
 from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import known_error
 
 
 class Test_ReadSnapshots(Snapshot):

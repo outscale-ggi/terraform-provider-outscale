@@ -1,20 +1,13 @@
 from qa_common_tools.config import config_constants as constants
 
-from qa_common_tools.misc import id_generator
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_instances
-from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
+from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST, PATH, KEY_PAIR
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, SUBNETS, SUBNET_ID
-import base64
-import string
-import datetime
-import time
-
 
 
 class Test_MapPublicIpOnLaunch(OscTestSuite):
@@ -31,7 +24,7 @@ class Test_MapPublicIpOnLaunch(OscTestSuite):
 
 
 
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
             except  :
@@ -49,12 +42,12 @@ class Test_MapPublicIpOnLaunch(OscTestSuite):
             super(Test_MapPublicIpOnLaunch, cls).teardown_class()
 
     def test_T4383_with_valid_param(self):
-        modif = self.a1_r1.fcu.ModifySubnetAttribute(MapPublicIpOnLaunch={'Value': 'true'}, SubnetId=self.subnet_id)
+        self.a1_r1.fcu.ModifySubnetAttribute(MapPublicIpOnLaunch={'Value': 'true'}, SubnetId=self.subnet_id)
         self.instance_info = create_instances(self.a1_r1, subnet_id=self.subnet_id, state='ready')
         self.inst_id = self.instance_info[INSTANCE_ID_LIST][0]
         ret = self.a1_r1.fcu.DescribeInstances(InstanceId=self.inst_id)
         ip = ret.response.reservationSet[0].instancesSet[0].ipAddress
-        inst = self.instance_info[INSTANCE_SET][0]
+        self.instance_info[INSTANCE_SET][0]
         kp_info = self.instance_info[KEY_PAIR]
 
         connection = SshTools.check_connection_paramiko(ip, kp_info[PATH],

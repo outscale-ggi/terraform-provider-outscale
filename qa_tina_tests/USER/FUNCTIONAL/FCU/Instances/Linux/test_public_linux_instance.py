@@ -7,7 +7,6 @@ from qa_tina_tools.tina.info_keys import PATH
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.test_base import known_error
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.config.region import Feature
 from qa_common_tools.config import config_constants as constants
@@ -207,8 +206,6 @@ class Test_public_linux_instance(Test_linux_instance):
         placement = None
         if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
             placement = {'AvailabilityZone': 'cn-southeast-1b'}
-        if self.a1_r1.config.region.name == 'in-west-2':
-            known_error('TINA-5461', 'Instance with ephemeral stuck in pending state')
         try:
             inst_id, inst_public_ip = self.create_instance(Instance_Type='r3.large', BlockDeviceMapping=BlockDevice, placement=placement)
             if inst_id:

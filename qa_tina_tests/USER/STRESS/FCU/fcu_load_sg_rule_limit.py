@@ -1,16 +1,18 @@
+
 from multiprocessing import Queue, Process
+
 
 import argparse
 import logging
 
 
 import ssl
-from qa_common_tools.config import config_constants as constants
-from qa_common_tools.osc_sdk import OscSdk
-from qa_common_tools.config import OscConfig
-from osc_sdk_pub.osc_api import disable_throttling
 import time
+from osc_sdk_pub.osc_api import disable_throttling
+from qa_common_tools.config import config_constants as constants
 from random import randint
+from qa_common_tools.config import OscConfig
+from qa_common_tools.osc_sdk import OscSdk
 from qa_common_tools.misc import id_generator
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_security_groups
 
@@ -26,14 +28,14 @@ def create_SG_rule(osc_sdk, queue, group_id, num_sg_rules_per_process):
     ports = set([])
     for _ in range(num_sg_rules_per_process):
         try:
-            port = randint(1000,65000)
+            port = randint(1000, 8000)
             osc_sdk.fcu.AuthorizeSecurityGroupIngress(GroupId=group_id, IpProtocol='tcp', FromPort=port, ToPort=port)
             ports.add(port)
-        except:
+        except Exception:
             pass
 
     end = time.time()
-    result['ports'] = len(ports)
+    result['ports'] = ports
     result['duration'] = end - start
     queue.put(result)
 
@@ -65,9 +67,9 @@ if __name__ == '__main__':
     args_p.add_argument('-a', '--account', dest='account', action='store',
                         required=True, type=str, help='Set account used for the test')
     args_p.add_argument('-np', '--proc_num', dest='process_number', action='store',
-                        required=False, type=int, default=50, help='number of processes, default 50')
+                        required=False, type=int, default=10, help='number of processes, default 10')
     args_p.add_argument('-nr', '--num_rules', dest='num_sg_rules_per_process', action='store',
-                        required=False, type=int, default=100, help='number of read calls per process, default 20')
+                        required=False, type=int, default=20, help='number of read calls per process, default 20')
     args = args_p.parse_args()
 
     logger.info("Initialize environment")
@@ -75,8 +77,8 @@ if __name__ == '__main__':
     oscsdk = OscSdk(config=config)
     ret = oscsdk.icu.ReadQuotas()
     sg_rule_limit = ret.response.ReferenceQuota[1].Quotas[0].MaxQuotaValue
-    oscsdk.intel.user.update(username=config.account.account_id, 
-                      fields={'sg_rule_limit': args.process_number * args.num_sg_rules_per_process + 3})
+    oscsdk.intel.user.update(username=config.account.account_id,
+                             fields={'sg_rule_limit': args.process_number * args.num_sg_rules_per_process + 3})
     group_id = oscsdk.fcu.CreateSecurityGroup(GroupName=id_generator(prefix="test_SGload_"), GroupDescription='Description').response.groupId
     try:
 

@@ -51,7 +51,7 @@ class Test_ReadFlexibleGpuCatalog(OscTestSuite):
 
     def test_T4406_with_invalid_param(self):
         try:
-            ret = self.a1_r1.oapi.ReadFlexibleGpuCatalog(titi='toto')
+            self.a1_r1.oapi.ReadFlexibleGpuCatalog(titi='toto')
             assert False, "call should not be passed"
         except OscApiException as err:
             assert_error(err, 400, '3001', 'InvalidParameter')

@@ -2,8 +2,6 @@
 import re
 import pytest
 from qa_common_tools.config import config_constants as constants
-, UBUNTU_USER
-from qa_common_tools.config import config_constants as constants
 from qa_common_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
@@ -75,7 +73,7 @@ class Test_ntp(OscTestSuite):
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_info['ubuntu'][INSTANCE_ID_LIST][0]], state='ready')
         sshclient = SshTools.check_connection_paramiko(self.inst_info['ubuntu'][INSTANCE_SET][0]['ipAddress'],
                                                        self.inst_info['ubuntu'][KEY_PAIR][PATH],
-                                                       username=self.a1_r1.config.region.get_info(UBUNTU_USER))
+                                                       username=self.a1_r1.config.region.get_info(constants.UBUNTU_USER))
         cmd = "sudo cat /run/systemd/timesyncd.conf.d/01-dhclient.conf"
         SshTools.exec_command_paramiko_2(sshclient, "sudo dhclient -v", expected_status=-1)
         sleep(10)

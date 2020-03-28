@@ -2,7 +2,7 @@
 
 from osc_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.misc import assert_error
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 
 
 class Test_DescribeQuotas(OscTestSuite):
@@ -17,9 +17,10 @@ class Test_DescribeQuotas(OscTestSuite):
 
     def test_T3470_no_params(self):
         ret = self.a1_r1.fcu.DescribeQuotas()
+
         assert len(ret.response.referenceQuotaSet) >= 1
         assert ret.response.referenceQuotaSet[0].reference == 'global'
-        assert len(ret.response.referenceQuotaSet[0].quotaSet) == 43
+        assert len(ret.response.referenceQuotaSet[0].quotaSet) == 44
         for quota in ret.response.referenceQuotaSet[0].quotaSet:
             assert quota.ownerId == self.a1_r1.config.account.account_id
             assert quota.name
@@ -63,7 +64,7 @@ class Test_DescribeQuotas(OscTestSuite):
         ret = self.a1_r1.fcu.DescribeQuotas(Filter=[{'Name': 'reference', 'Value': ['global']}])
         assert len(ret.response.referenceQuotaSet) >= 1
         assert ret.response.referenceQuotaSet[0].reference == 'global'
-        assert len(ret.response.referenceQuotaSet[0].quotaSet) == 45
+        assert len(ret.response.referenceQuotaSet[0].quotaSet) == 46
 
     def test_T3476_with_filter_invalid_display_name(self):
         ret = self.a1_r1.fcu.DescribeQuotas(Filter=[{'Name': 'quota.display-name', 'Value': ['foo']}])

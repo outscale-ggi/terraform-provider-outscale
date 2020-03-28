@@ -107,32 +107,15 @@ class Test_CreateLoadBalancerTags(OscTestSuite):
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', 5030)
 
-    def test_T4699_incorrect_tag_key(self):
-        create_lbu_tags_resp = None
-        incorrect_key = id_generator(chars=string.ascii_lowercase, size=300)
-        try:
-            create_lbu_tags_resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
-                                                                          Tags=[{'Key': incorrect_key, 'Value': 'value'}]).response
-            known_error('GTW-1129', 'No error is for incorrect tag key value')
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            assert False, 'Remove known error'
-            assert_oapi_error(error, 400, '', 0)
-        finally:
-            if create_lbu_tags_resp:
-                self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': incorrect_key}])
-
     def test_T4700_incorrect_tag_value(self):
         create_lbu_tags_resp = None
         try:
             create_lbu_tags_resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
                                                                           Tags=[{'Value': id_generator(chars=string.ascii_lowercase, size=300),
                                                                                  'Key': 'key'}]).response
-            known_error('GTW-1129', 'No error is for incorrect tag value value')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert False, 'Remove known error'
-            assert_oapi_error(error, 400, '', 0)
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4106)
         finally:
             if create_lbu_tags_resp:
                 self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': 'key'}])
@@ -179,7 +162,7 @@ class Test_CreateLoadBalancerTags(OscTestSuite):
 
     def test_T4706_dry_run(self):
         dr_ret = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
-                                                        Tags=[{'Key': 'key', 'Value': 'value'}])
+                                                        Tags=[{'Key': 'key', 'Value': 'value'}], DryRun=True)
         assert_dry_run(dr_ret)
 
     def test_T4707_valid_params(self):
@@ -273,3 +256,30 @@ class Test_CreateLoadBalancerTags(OscTestSuite):
         finally:
             if resp:
                 self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': 'key1'}])
+
+    # test should be last as create functions and delete does not --> tag remains and further tests might fail
+    def test_T4699_incorrect_tag_key(self):
+        create_lbu_tags_resp = None
+        incorrect_key = id_generator(chars=string.ascii_lowercase, size=300)
+        try:
+            create_lbu_tags_resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
+                                                                          Tags=[{'Key': incorrect_key, 'Value': 'value'}]).response
+            known_error('GTW-1207', 'No error is for incorrect tag key value')
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert False, 'Remove known error'
+            assert_oapi_error(error, 400, '', 0)
+        finally:
+            read = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
+            if read.Tags and len(read.Tags) != 0:
+                try:
+                    self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': incorrect_key}])
+                except Exception as error:
+                    pass
+            if create_lbu_tags_resp:
+                try:
+                    self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': incorrect_key}])
+                except OscApiException as error:
+                    assert_oapi_error(error, 400, 'InvalidParameterValue', 4106)
+                    known_error('GTW-1207', 'No error is for incorrect tag key value')
+            assert False, 'Remove known error'

@@ -139,3 +139,23 @@ class Test_CreateFlexibleGpu(OscTestSuite):
     def test_T4189_dry_run(self):
         ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DryRun=True)
         assert_dry_run(ret)
+
+    def test_T4743_dry_run_false(self):
+        ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DryRun=False)
+        assert_dry_run(ret)
+
+    @pytest.mark.region_gpu
+    def test_T4898_with_generation(self):
+        resp = None
+        try:
+            resp = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation='v4').response
+            check_oapi_response(resp, 'CreateFlexibleGpuResponse')
+            assert not resp.FlexibleGpu.DeleteOnVmDeletion
+            assert resp.FlexibleGpu.Generation == 'v4'
+            assert resp.FlexibleGpu.ModelName == self.modelname
+            assert resp.FlexibleGpu.SubregionName == self.subregionname
+            assert resp.FlexibleGpu.State == 'allocated'
+            assert not hasattr(resp.FlexibleGpu, 'VmId')
+        finally:
+            if resp:
+                self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=resp.FlexibleGpu.FlexibleGpuId)

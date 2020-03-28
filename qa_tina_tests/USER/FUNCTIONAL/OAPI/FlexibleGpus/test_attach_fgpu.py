@@ -1,7 +1,7 @@
 import sys
 
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_common_tools.test_base import OscTestSuite
 from qa_common_tools.misc import assert_oapi_error
 from osc_common.exceptions.osc_exceptions import OscApiException
 
