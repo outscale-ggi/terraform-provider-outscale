@@ -37,12 +37,12 @@ class Test_virtiorng(OscTestSuite):
         connection = SshTools.check_connection_paramiko(inst['ipAddress'], kp_info[PATH],
                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         cmd = "cat /sys/devices/virtual/misc/hw_random/rng_available"
-        out, status, error = SshTools.exec_command_paramiko_2(connection, cmd)
+        out, _, _ = SshTools.exec_command_paramiko_2(connection, cmd)
         if out == "\r\n":
             known_error('TINA-5335', 'this new functionality virtio rng caused this regression')
         else:
             assert False, 'remove known error'
         assert 'virtio' in out
         cmd = "cat /sys/devices/virtual/misc/hw_random/rng_current"
-        out, status, error = SshTools.exec_command_paramiko_2(connection, cmd)
+        out, _, _ = SshTools.exec_command_paramiko_2(connection, cmd)
         assert 'virtio' in out
