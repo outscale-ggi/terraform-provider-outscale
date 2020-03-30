@@ -4,14 +4,13 @@ PROJECT_NAME = $$(basename $(ROOT_PATH))
 
 include $(ROOT_PATH)/Makefile.conf
 
-BUILD_VENV_PATH ?= "$$(pwd)/venv_build"
-DEV_VENV_PATH ?= "$$(pwd)/venv_dev"
+BUILD_VENV_PATH ?= "$(ROOT_PATH)/venv_build"
+DEV_VENV_PATH ?= "$(ROOT_PATH)/venv_dev"
 
-#PROJECT_DEPENDENCIES = qa_tina_tools
-#PYTHON_PATH = $$(STR="$$(pwd)"; for DEP in $(PROJECT_DEPENDENCIES); do STR=$$STR":$$(pwd)/"$$DEP; done; echo $$STR)
-#PYTHON_PATH = $$(STR="$$(pwd)"; for DEP in $(PROJECT_DEPENDENCIES); do STR=$$STR":"$$(ROOT_PATH=$(ROOT_PATH) make -C $(ROOT_PATH)/$$DEP python-path); done; echo $$STR)
-#python-path:
-#	@echo $(PYTHON_PATH)
+PYTHON_PATH = $$(STR="$(ROOT_PATH)"; for DEP in $(PROJECT_DEPENDENCIES); do STR=$$STR":$(ROOT_PATH)/"$$(echo $$DEP | awk -F/ '{print $$NF}'); done; echo $$STR)
+
+python-path:
+	@echo $(PYTHON_PATH)
 
 init:
 	@echo "Get dependencies from Git..."
