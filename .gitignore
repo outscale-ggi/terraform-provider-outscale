@@ -1,10 +1,10 @@
-osc_common
-osc_sdk_as
-osc_sdk_priv
-osc_sdk_pub
 qa_common_tools
 qa_tina_tools
 venv_build
 venv_dev
+qa_common_tools
+qa_tina_tools
+qa_test_tools
+qa_sdks
 /.project
 /.pydevproject
