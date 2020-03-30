@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# start all redwires: cat qa_tina/redwires.txt | xargs -t -i{} --process-slot-var=OSC_CPU -P <nb_cpu> ./qa_tina/start_redwire.sh <users_list> <az_name> {}
+# start all redwires: cat qa_tina_tests/redwires.txt | xargs -t -i{} --process-slot-var=OSC_CPU -P <nb_cpu> ./qa_tina_tests/start_redwire.sh <users_list> <az_name> {}
 
 if [ "$#" -ne 3 ]; then
     echo "Usage: ./$(basename $0) <users_list> <az_name> <test_ids>"
@@ -16,7 +16,7 @@ TEST_IDS=$(echo $3 | sed 's/ /_ or _/g;s/^/_/g;s/$/_/g')
 export OSC_AZS=$AZ
 export OSC_USERS=${USERS[$OSC_CPU]}
 
-pytest --disable-warnings -s -v --junit-xml=./details/$TEST_IDS_STR.xml -k "$TEST_IDS" ./qa_tina/USER/ 2> ./$TEST_IDS_STR.err > ./$TEST_IDS_STR.out
+pytest --disable-warnings -s -v --junit-xml=./details/$TEST_IDS_STR.xml -k "$TEST_IDS" ./qa_tina_tests/USER/ 2> ./$TEST_IDS_STR.err > ./$TEST_IDS_STR.out
 sed -i "s:<testsuites>::g" ./details/$TEST_IDS_STR.xml
 sed -i "s:</testsuites>::g" ./details/$TEST_IDS_STR.xml
 
