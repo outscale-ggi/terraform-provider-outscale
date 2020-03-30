@@ -3,15 +3,15 @@
 import re
 import pytest
 
-import osc_sdk_pub.osc_api as osc_api
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import OscTestSuite, known_error
+import qa_sdk_pub.osc_api as osc_api
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.test_base import OscTestSuite, known_error
 import subprocess
 import json
 from qa_tina_tools.specs.oapi import OAPI_PATHS
-from qa_common_tools.misc import assert_error
+from qa_test_tools.misc import assert_error
 import datetime
-from qa_common_tools import misc
+from qa_test_tools import misc
 
 
 class Test_OAPI(OscTestSuite):

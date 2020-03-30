@@ -1,8 +1,8 @@
 import pytest
 
-from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.misc import assert_dry_run
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.misc import assert_dry_run
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 
 

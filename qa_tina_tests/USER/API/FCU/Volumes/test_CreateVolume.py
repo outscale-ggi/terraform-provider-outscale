@@ -1,9 +1,9 @@
 # pylint: disable=missing-docstring
 import re
-from osc_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.constants import VOLUME_MAX_SIZE, VOLUME_SIZES, VOLUME_IOPS, MAX_IO1_RATIO
-from qa_common_tools.misc import assert_error
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.misc import assert_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 

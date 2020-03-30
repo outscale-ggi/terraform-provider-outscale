@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-deps = ['qa_tools', 'osc_sdk_as', 'osc_sdk_priv', 'osc_sdk_pub', 'osc_common']
+deps = ['qa_tools', 'osc_sdk_as', 'osc_sdk_priv', 'qa_sdk_pub', 'osc_common']
 packages = []
 pkg_dir = {}
 

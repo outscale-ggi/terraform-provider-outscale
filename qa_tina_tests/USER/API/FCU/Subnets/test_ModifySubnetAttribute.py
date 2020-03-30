@@ -1,10 +1,10 @@
 # pylint: disable=missing-docstring
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import OscTestSuite
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, SUBNETS, SUBNET_ID, INSTANCE_SET
-from qa_common_tools.misc import assert_error
+from qa_test_tools.misc import assert_error
 
 
 class Test_ModifySubnetAttribute(OscTestSuite):

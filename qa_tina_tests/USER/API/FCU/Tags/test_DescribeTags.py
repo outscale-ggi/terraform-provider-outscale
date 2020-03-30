@@ -5,7 +5,7 @@ Created on 8 aout 2017
 @author: EmanuelDias
 '''
 import datetime
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_customer_gateway
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state, wait_vpn_connections_state
 

@@ -2,9 +2,9 @@
     This module contains all test cases for describeImageAttribute
 """
 
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.misc import id_generator, assert_error
-from qa_common_tools.test_base import OscTestSuite
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import id_generator, assert_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.check_tools import get_snapshot_id_list
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_image, create_instances_old

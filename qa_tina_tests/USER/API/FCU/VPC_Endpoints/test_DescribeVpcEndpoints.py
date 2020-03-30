@@ -1,5 +1,5 @@
 
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.wait_tools import wait_vpc_endpoints_state
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, ROUTE_TABLE_ID

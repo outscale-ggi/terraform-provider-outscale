@@ -1,4 +1,4 @@
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state

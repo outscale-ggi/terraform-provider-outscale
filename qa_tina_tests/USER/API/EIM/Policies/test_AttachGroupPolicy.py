@@ -1,6 +1,6 @@
-from qa_common_tools.test_base import OscTestSuite
-from qa_common_tools.misc import id_generator, assert_error
-from osc_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.misc import id_generator, assert_error
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 class Test_AttachGroupPolicy(OscTestSuite):

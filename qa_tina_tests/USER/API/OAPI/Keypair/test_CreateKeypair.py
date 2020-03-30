@@ -2,9 +2,10 @@
 import random
 import string
 
-from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
-from qa_common_tools.misc import assert_oapi_error
-from qa_common_tools.test_base import OscTestSuite
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_test_tools.misc import assert_oapi_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import generate_key
 from qa_tina_tools.tina.info_keys import PUBLIC
 

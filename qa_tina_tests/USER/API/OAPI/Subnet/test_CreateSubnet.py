@@ -1,8 +1,8 @@
-from qa_common_tools.test_base import OscTestSuite
-from qa_common_tools.misc import assert_oapi_error, assert_dry_run
-from qa_common_tools.config.configuration import Configuration
+from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.config.configuration import Configuration
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
-from osc_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 class Test_CreateSubnet(OscTestSuite):

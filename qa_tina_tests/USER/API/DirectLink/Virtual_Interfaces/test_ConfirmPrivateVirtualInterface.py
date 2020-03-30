@@ -2,8 +2,8 @@
 # pylint: disable=missing-docstring
 
 import pytest
-from qa_common_tools.test_base import OscTestSuite
-from qa_common_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.misc import id_generator
 
 
 @pytest.mark.region_admin

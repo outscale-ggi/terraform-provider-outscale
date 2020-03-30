@@ -2,9 +2,9 @@ from multiprocessing import Queue, Process
 import argparse
 import logging
 import ssl
-from qa_common_tools.config import config_constants as constants
-from qa_common_tools.osc_sdk import OscSdk
-from qa_common_tools.config import OscConfig
+from qa_test_tools.config import config_constants as constants
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.config import OscConfig
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, SUBNETS, SUBNET_ID

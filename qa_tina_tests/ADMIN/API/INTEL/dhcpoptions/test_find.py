@@ -1,6 +1,6 @@
 
-from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_find(OscTestSuite):

@@ -1,6 +1,6 @@
-from osc_common.exceptions import OscApiException
-from qa_common_tools.misc import assert_error, assert_dry_run
-from qa_common_tools.test_base import OscTestSuite
+from qa_sdk_common.exceptions import OscApiException
+from qa_test_tools.misc import assert_error, assert_dry_run
+from qa_test_tools.test_base import OscTestSuite
 import pytest
 from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
 

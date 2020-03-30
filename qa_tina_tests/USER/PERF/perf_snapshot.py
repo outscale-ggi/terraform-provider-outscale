@@ -2,8 +2,8 @@ from datetime import datetime
 from threading import current_thread
 import time
 
-from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.config import config_constants as constants
+from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.config import config_constants as constants
 from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_common_tools.ssh import SshTools

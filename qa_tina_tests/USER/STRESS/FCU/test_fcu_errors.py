@@ -1,6 +1,7 @@
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 import time
-from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_common_tools.error import group_errors, error_type
 
 

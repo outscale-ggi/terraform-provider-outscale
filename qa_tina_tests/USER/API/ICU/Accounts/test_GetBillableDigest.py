@@ -3,12 +3,12 @@ from datetime import datetime, timedelta
 import pytest
 import pytz
 
-from qa_common_tools.config import OscConfig
+from qa_test_tools.config import OscConfig
 from qa_tina_tools import constants
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.osc_sdk import OscSdk
-from qa_common_tools.misc import assert_error
-from qa_common_tools.test_base import OscTestSuite
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.misc import assert_error
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_GetBillableDigest(OscTestSuite):

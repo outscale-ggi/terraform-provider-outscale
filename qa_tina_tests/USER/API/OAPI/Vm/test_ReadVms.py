@@ -1,11 +1,11 @@
 # -*- coding:utf-8 -*-
 import pytest
 
-from qa_common_tools.test_base import OscTestSuite
-from qa_common_tools.config import config_constants as constants
+from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.config import config_constants as constants
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response
-from qa_common_tools.misc import assert_dry_run
+from qa_test_tools.misc import assert_dry_run
 
 
 class Test_ReadVms(OscTestSuite):

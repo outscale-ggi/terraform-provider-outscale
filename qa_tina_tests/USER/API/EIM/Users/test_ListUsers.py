@@ -1,6 +1,6 @@
 from datetime import datetime
-from qa_common_tools.misc import id_generator
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
 
 NUM_USERS = 3
 

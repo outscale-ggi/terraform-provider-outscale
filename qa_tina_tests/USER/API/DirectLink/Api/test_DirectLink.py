@@ -3,13 +3,13 @@
 import re
 import pytest
 
-import osc_sdk_pub.osc_api as osc_api
-from osc_sdk_pub.osc_api import AuthMethod
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import OscTestSuite, known_error
-from qa_common_tools.misc import assert_error, id_generator
-from qa_common_tools.osc_sdk import OscSdk
-from qa_common_tools.config import OscConfig
+import qa_sdk_pub.osc_api as osc_api
+from qa_sdk_pub.osc_api import AuthMethod
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.misc import assert_error, id_generator
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.config import OscConfig
 
 
 class Test_DirectLink(OscTestSuite):

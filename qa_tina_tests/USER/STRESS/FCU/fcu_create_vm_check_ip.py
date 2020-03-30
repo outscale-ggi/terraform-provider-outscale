@@ -6,15 +6,16 @@ import logging
 
 
 import ssl
-from qa_common_tools.config import config_constants as constants
-from qa_common_tools.osc_sdk import OscSdk
-from qa_common_tools.config import OscConfig
-from osc_common.exceptions.osc_exceptions import OscApiException, OscTestException
+from qa_test_tools.config import config_constants as constants
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.config import OscConfig
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 import time
 from qa_common_tools.error import error_type, load_errors
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
 import multiprocessing
-from qa_common_tools.misc import id_generator
+from qa_test_tools.misc import id_generator
 
 ssl._create_default_https_context = ssl._create_unverified_context
 

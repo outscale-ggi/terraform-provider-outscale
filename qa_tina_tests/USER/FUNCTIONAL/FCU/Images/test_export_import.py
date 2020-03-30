@@ -1,14 +1,14 @@
 import pytest
 
-from qa_common_tools.misc import id_generator
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from string import ascii_lowercase
 from time import sleep
-from osc_common.exceptions.osc_exceptions import OscTestException
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_images_state
 
 

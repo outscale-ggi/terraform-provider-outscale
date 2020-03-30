@@ -2,8 +2,8 @@
 import pytest
 
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.misc import assert_oapi_error, assert_dry_run
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 
 
 class Test_UnlinkPrivateIps(Nic):

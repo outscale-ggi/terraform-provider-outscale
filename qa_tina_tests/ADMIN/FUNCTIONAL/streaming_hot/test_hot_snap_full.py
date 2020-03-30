@@ -2,8 +2,8 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.misc import assert_error
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_error
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming_hot.base import StreamingBaseHot
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import wait_streaming_state, assert_streaming_state
 

@@ -1,17 +1,17 @@
 import time
 import requests
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.config import config_constants as constants
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.config import config_constants as constants
 
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.check_tools import wait_lbu_backend_state
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer, create_self_signed_cert, create_instances
 from qa_tina_tools.tools.tina.info_keys import PATH, INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, SECURITY_GROUP_ID
 from qa_tina_tools.tina.setup_tools import start_test_http_server
 from qa_tina_tools.tools.tina.wait_tools import wait_load_balancer_state
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
-from qa_common_tools.misc import id_generator
+from qa_test_tools.misc import id_generator
 import os
 
 

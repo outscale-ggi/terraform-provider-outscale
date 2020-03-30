@@ -13,11 +13,11 @@ import sys
 from threading import Thread
 import time
 
-from qa_common_tools.config import OscConfig
-from qa_tina_tools.tools.influxdb import push_metrics
-from qa_tina_tools.tools.influxdb_config import OscInfluxdbConfig
+from qa_test_tools.config import OscConfig
+from qa_support_tools.influxdb.influxdb import push_metrics
+from qa_support_tools.influxdb.influxdb_config import OscInfluxdbConfig
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_instances, cleanup_volumes, cleanup_security_groups, cleanup_keypairs
-from qa_common_tools.osc_sdk import OscSdk
+from qa_sdks.osc_sdk import OscSdk
 
 
 LOGGING_LEVEL = logging.DEBUG

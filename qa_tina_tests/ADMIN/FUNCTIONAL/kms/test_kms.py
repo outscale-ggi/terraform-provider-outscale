@@ -1,4 +1,4 @@
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite, known_error
 import pytest
 
 

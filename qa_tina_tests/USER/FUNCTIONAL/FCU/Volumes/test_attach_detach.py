@@ -5,10 +5,10 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_instances_state
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances
 from qa_common_tools.ssh import SshTools
-from qa_common_tools.config import config_constants as constants
+from qa_test_tools.config import config_constants as constants
 
 from qa_tina_tools.tina.check_tools import format_mount_volume, umount_volume
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 import time
 
 

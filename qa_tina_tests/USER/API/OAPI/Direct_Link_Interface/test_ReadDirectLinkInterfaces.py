@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_ReadDirectLinkInterfaces(OscTestSuite):

@@ -1,10 +1,10 @@
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_volumes, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state, wait_instances_state
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, KEY_PAIR, INSTANCE_SET, PATH
 from qa_common_tools.ssh import SshTools
-from qa_common_tools.config import config_constants as constants
+from qa_test_tools.config import config_constants as constants
 
 
 DEVICE = '/dev/xvdc'

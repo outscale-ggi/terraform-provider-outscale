@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_security_group
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_security_group
 

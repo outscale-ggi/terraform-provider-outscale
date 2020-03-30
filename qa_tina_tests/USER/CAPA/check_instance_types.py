@@ -5,10 +5,10 @@ import datetime
 import json
 import os
 
-from qa_common_tools.config import OscConfig
-from qa_common_tools.config import config_constants as constants
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.osc_sdk import OscSdk
+from qa_test_tools.config import OscConfig
+from qa_test_tools.config import config_constants as constants
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdks.osc_sdk import OscSdk
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH

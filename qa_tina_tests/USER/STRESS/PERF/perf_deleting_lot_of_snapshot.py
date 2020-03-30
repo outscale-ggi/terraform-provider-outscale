@@ -22,12 +22,12 @@ import argparse
 import logging
 import ssl
 
-from osc_common.exceptions import OscApiException
-from qa_common_tools.misc import assert_error
+from qa_sdk_common.exceptions import OscApiException
+from qa_test_tools.misc import assert_error
 from qa_common_tools.ssh import SshTools
-from qa_common_tools.config import config_constants as constants
-from qa_common_tools.osc_sdk import OscSdk
-from qa_common_tools.config import OscConfig
+from qa_test_tools.config import config_constants as constants
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.config import OscConfig
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR, INSTANCE_SET

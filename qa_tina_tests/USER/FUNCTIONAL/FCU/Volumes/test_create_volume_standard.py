@@ -5,7 +5,7 @@ from qa_tina_tools.tools.tina.create_tools import create_volumes
 import pytest
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tina.info_keys import PATH
-from qa_common_tools.config import config_constants as constants
+from qa_test_tools.config import config_constants as constants
 
 import uuid
 

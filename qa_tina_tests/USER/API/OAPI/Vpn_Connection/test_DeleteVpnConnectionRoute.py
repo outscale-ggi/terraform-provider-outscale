@@ -1,9 +1,9 @@
 # -*- coding:utf-8 -*-
 # -*- coding:utf-8 -*-
 
-from osc_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tests.USER.API.OAPI.Vpn_Connection.VpnConnection import VpnConnection
-from qa_common_tools.misc import assert_oapi_error
+from qa_test_tools.misc import assert_oapi_error
 
 
 class Test_DeleteVpnConnectionRoute(VpnConnection):

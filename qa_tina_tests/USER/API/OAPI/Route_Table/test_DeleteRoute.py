@@ -1,13 +1,13 @@
 # -*- coding:utf-8 -*-
 import pytest
 
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, INTERNET_GATEWAY_ID
 from qa_tina_tests.USER.API.OAPI.Route_Table.RouteTable import validate_route_table
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.misc import assert_oapi_error, assert_dry_run
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 
 
 class Test_DeleteRoute(OscTestSuite):

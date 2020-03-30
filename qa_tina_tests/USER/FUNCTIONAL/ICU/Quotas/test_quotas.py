@@ -1,8 +1,8 @@
-from osc_common.exceptions import OscApiException
-from qa_common_tools.misc import id_generator
-from qa_common_tools.test_base import OscTestSuite
+from qa_sdk_common.exceptions import OscApiException
+from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
-from qa_common_tools.test_base import assert_code
+from qa_test_tools.test_base import assert_code
 
 
 class Test_quotas(OscTestSuite):

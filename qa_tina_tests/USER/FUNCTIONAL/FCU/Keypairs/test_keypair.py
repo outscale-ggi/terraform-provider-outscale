@@ -2,10 +2,10 @@
 import base64
 import pytest
 
-from qa_common_tools.config import config_constants as constants
+from qa_test_tools.config import config_constants as constants
 
-from qa_common_tools.misc import id_generator
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_keypair, generate_key
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_keypair, delete_file
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, NAME, PATH, PUBLIC, PRIVATE

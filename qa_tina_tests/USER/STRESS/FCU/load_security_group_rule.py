@@ -5,13 +5,13 @@ import logging
 
 
 import ssl
-from qa_common_tools.config import config_constants as constants
-from qa_common_tools.osc_sdk import OscSdk
-from qa_common_tools.config import OscConfig
-from osc_sdk_pub.osc_api import disable_throttling
+from qa_test_tools.config import config_constants as constants
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.config import OscConfig
+from qa_sdk_pub.osc_api import disable_throttling
 import time
 from random import randint
-from qa_common_tools.misc import id_generator
+from qa_test_tools.misc import id_generator
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_security_groups
 
 ssl._create_default_https_context = ssl._create_unverified_context

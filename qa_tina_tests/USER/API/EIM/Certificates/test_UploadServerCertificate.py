@@ -1,8 +1,8 @@
 import os
 
-from osc_common.exceptions import OscApiException
-from qa_common_tools.misc import id_generator
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_sdk_common.exceptions import OscApiException
+from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_self_signed_cert
 
 

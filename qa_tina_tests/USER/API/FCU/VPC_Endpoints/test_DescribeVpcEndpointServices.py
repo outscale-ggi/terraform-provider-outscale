@@ -1,6 +1,6 @@
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import OscTestSuite, known_error
-from qa_common_tools.misc import assert_error, assert_dry_run
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.misc import assert_error, assert_dry_run
 
 
 class Test_DescribeVpcEndpointServices(OscTestSuite):

@@ -1,7 +1,7 @@
 import pytest
 
-from qa_common_tools.config.configuration import Configuration
-from qa_common_tools.config import config_constants as constants
+from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.config import config_constants as constants
 
 from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_subnet

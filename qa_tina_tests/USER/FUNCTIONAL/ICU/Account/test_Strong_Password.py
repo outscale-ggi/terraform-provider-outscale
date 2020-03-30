@@ -1,12 +1,12 @@
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 import pytest
-from qa_common_tools import misc
-from qa_common_tools.misc import id_generator, assert_error
-from osc_common.config.default_public_config import DefaultPubConfig
-from osc_sdk_pub.osc_api.osc_icu_api import OscIcuApi
-from osc_sdk_pub.osc_api import AuthMethod
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.account_tools import create_account, delete_account
+from qa_test_tools import misc
+from qa_test_tools.misc import id_generator, assert_error
+from qa_sdk_common.config.default_public_config import DefaultPubConfig
+from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
+from qa_sdk_pub.osc_api import AuthMethod
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.account_tools import create_account, delete_account
 
 
 @pytest.mark.region_admin

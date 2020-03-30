@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
 import pytest
 
-from qa_common_tools.test_base import OscTestSuite
-from qa_common_tools.misc import assert_dry_run
+from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.misc import assert_dry_run
 
 
 class Test_ReadPublicIps(OscTestSuite):

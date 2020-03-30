@@ -1,8 +1,8 @@
-from qa_common_tools.config.configuration import Configuration
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import OscTestSuite, known_error, assert_code
+from qa_test_tools.config.configuration import Configuration
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.test_base import OscTestSuite, known_error, assert_code
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
-from qa_common_tools.misc import assert_error
+from qa_test_tools.misc import assert_error
 
 
 class Test_CreateDhcpOptions(OscTestSuite):

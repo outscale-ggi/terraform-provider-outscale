@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from osc_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tests.USER.PERF.perf_common import log_error
 
 

@@ -1,7 +1,7 @@
 
-from qa_common_tools.config import config_constants as constants
+from qa_test_tools.config import config_constants as constants
 
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_common_tools.error import OscSshError

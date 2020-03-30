@@ -1,8 +1,8 @@
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 import pytest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 import datetime
-from osc_common.exceptions.osc_exceptions import OscTestException
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 import time
 
 

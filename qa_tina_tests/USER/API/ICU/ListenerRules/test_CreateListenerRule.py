@@ -1,8 +1,8 @@
 import pytest
 
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.misc import id_generator, assert_error
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import id_generator, assert_error
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_lbu
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST

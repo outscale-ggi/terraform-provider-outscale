@@ -4,7 +4,7 @@ from datetime import datetime
 import re
 import time
 
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
@@ -16,8 +16,8 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
-from qa_common_tools.config import config_constants as constants
-from osc_common.exceptions.osc_exceptions import OscTestException
+from qa_test_tools.config import config_constants as constants
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 
 
 class Test_multi_vpn(OscTestSuite):

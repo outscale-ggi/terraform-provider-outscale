@@ -1,6 +1,6 @@
-from osc_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tests.USER.API.KMS.kms import Kms
-from qa_common_tools.test_base import known_error
+from qa_test_tools.test_base import known_error
 import pytest
 
 

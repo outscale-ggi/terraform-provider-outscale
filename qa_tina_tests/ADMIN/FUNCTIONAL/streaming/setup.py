@@ -3,13 +3,13 @@ from qa_tina_tools.tools.tina.create_tools import create_instances, create_volum
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH, INSTANCE_ID_LIST
-from qa_common_tools.config import config_constants as constants
+from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances
 import logging
 import urllib3
 import argparse
-from qa_common_tools.osc_sdk import OscSdk
-from qa_common_tools.config import OscConfig
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.config import OscConfig
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_all
 
 

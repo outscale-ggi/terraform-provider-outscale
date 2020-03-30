@@ -1,9 +1,9 @@
 # -*- coding:utf-8 -*-
 
-from qa_common_tools.misc import id_generator, assert_oapi_error
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.misc import id_generator, assert_oapi_error
+from qa_test_tools.test_base import OscTestSuite
 import pytest
-from osc_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
 
 

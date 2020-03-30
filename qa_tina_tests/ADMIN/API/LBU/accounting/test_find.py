@@ -2,8 +2,8 @@
 import datetime
 import pytest
 
-from qa_common_tools.test_base import OscTestSuite, known_error
-from qa_common_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.misc import id_generator
 from qa_tina_tools.tools.tina.wait_tools import wait_load_balancer_state
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 

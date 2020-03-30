@@ -6,11 +6,11 @@ import logging
 
 
 import ssl
-from qa_common_tools.config import config_constants as constants
-from qa_common_tools.osc_sdk import OscSdk
-from qa_common_tools.config import OscConfig
-from osc_common.exceptions.osc_exceptions import OscApiException
-from osc_sdk_pub.osc_api import disable_throttling
+from qa_test_tools.config import config_constants as constants
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.config import OscConfig
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_pub.osc_api import disable_throttling
 import time
 from qa_common_tools.error import error_type, load_errors
 

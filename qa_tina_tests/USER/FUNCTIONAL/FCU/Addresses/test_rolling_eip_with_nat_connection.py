@@ -1,7 +1,7 @@
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.oapi import create_Net, delete_Net
 from qa_tina_tools.tina import info_keys
-from qa_common_tools.config import config_constants as constants
+from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tina.setup_tools import start_http_server
 from qa_tina_tools.tina.wait import wait_Vms_state
 import requests

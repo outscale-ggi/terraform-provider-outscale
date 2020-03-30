@@ -1,10 +1,10 @@
-from qa_common_tools.misc import id_generator
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST, PATH, KEY_PAIR
 from qa_common_tools.ssh import SshTools
-from qa_common_tools.config import config_constants as constants
+from qa_test_tools.config import config_constants as constants
 import base64
 import string
 import datetime

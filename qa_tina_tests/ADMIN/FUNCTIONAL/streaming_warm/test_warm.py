@@ -3,9 +3,9 @@
 from time import sleep
 import pytest
 
-from osc_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
-from qa_common_tools.misc import assert_error
+from qa_test_tools.misc import assert_error
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state, wait_instances_state
 from qa_tina_tools.tools.tina.create_tools import create_volumes

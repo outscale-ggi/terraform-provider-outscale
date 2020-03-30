@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
 
-from qa_common_tools.test_base import OscTestSuite
-from qa_common_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.misc import id_generator
 
 NUM_GROUPS = 5
 

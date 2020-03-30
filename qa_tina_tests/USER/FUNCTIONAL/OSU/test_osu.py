@@ -4,9 +4,9 @@ import requests
 from string import ascii_lowercase
 
 from botocore.exceptions import ClientError
-from qa_common_tools.config import config_constants as constants
-from qa_common_tools.misc import id_generator
-from qa_common_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.config import config_constants as constants
+from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite, known_error
 
 
 @pytest.mark.region_osu

@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 import pytest
 
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.config import config_constants as constants
-from qa_common_tools.test_base import OscTestSuite
-from qa_common_tools.misc import assert_oapi_error
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.config import config_constants as constants
+from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.misc import assert_oapi_error
 
 
 class Test_UpdateImage(OscTestSuite):

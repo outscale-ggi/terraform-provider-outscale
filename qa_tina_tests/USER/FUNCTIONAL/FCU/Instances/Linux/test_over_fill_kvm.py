@@ -1,4 +1,4 @@
-from qa_common_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from multiprocessing import Process
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST

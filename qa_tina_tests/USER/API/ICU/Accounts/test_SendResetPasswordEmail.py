@@ -1,8 +1,8 @@
-from osc_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.test_base import OscTestSuite, known_error
-from osc_sdk_pub.osc_api import AuthMethod
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_sdk_pub.osc_api import AuthMethod
 from time import sleep
-from osc_sdk_pub import osc_api
+from qa_sdk_pub import osc_api
 
 
 class Test_SendResetPasswordEmail(OscTestSuite):

@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
-from qa_common_tools.test_base import OscTestSuite
-from qa_common_tools.config.configuration import Configuration
+from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.config.configuration import Configuration
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state, wait_vpn_gateways_state, wait_customer_gateways_state
 
 
