@@ -22,6 +22,9 @@ init:
 		else                                                                                \
 			pushd $$DEP_DIR; git checkout master; git pull; popd;                           \
 		fi;                                                                                 \
+		pushd $$DEP_DIR;                                                                    \
+		git checkout $$(grep $$(echo $$DEP | awk -F/ '{print $$NF}')= $(ROOT_PATH)/internal_deps.txt | cut -d '=' -f2); \
+		popd;                                                                               \
 	done
 
 # retro-compat...
@@ -63,18 +66,56 @@ init_ci: init_dev
 pylint: init_ci
 	@echo "Static code analysis..."
 	source $(DEV_VENV_PATH)/bin/activate;            \
-	pylint --rcfile=./pylint.conf $(PROJECT_MODULES)  \
+	export PYTHONPATH=$(PYTHON_PATH);                \
+	pylint --rcfile=./pylint.conf $(PROJECT_MODULES) \
 	deactivate;
 
 bandit: init_ci
 	@echo "Static code analysis..."
-	source $(DEV_VENV_PATH)/bin/activate;        \
-	bandit -r -l $(PROJECT_MODULES)  \
+	source $(DEV_VENV_PATH)/bin/activate; \
+	export PYTHONPATH=$(PYTHON_PATH);     \
+	bandit -r -l $(PROJECT_MODULES)       \
 	deactivate;
 	#bandit -s B101,B110 -r -l ./$(PROJECT_NAME)  \
 	#deactivate;
 
 ci: bandit pylint
+
+check-todo: init_test
+	@echo "Check TODO..."
+	source $(DEV_VENV_PATH)/bin/activate;                     \
+	export PYTHONPATH=$(PYTHON_PATH);                         \
+	pylint --rcfile=./pylint.conf -e fixme $(PROJECT_MODULES) \
+	deactivate;
+
+update-deps: init
+	@echo "update deps..."
+	echo "# Versionning informations" > $(ROOT_PATH)/internal_deps.txt;
+	for DEP in $(PROJECT_DEPENDENCIES); do                                                                                                                                     \
+		DEP_DIR=$(ROOT_PATH)/$$(echo $$DEP | awk -F/ '{print $$NF}');                                                                                                          \
+		pushd $$DEP_DIR;                                                                                                                                                       \
+		git checkout master;                                                                                                                                                   \
+		git pull;                                                                                                                                                              \
+		popd;                                                                                                                                                                  \
+		echo $$(echo $$DEP | awk -F/ '{print $$NF}')=$$(pushd $$DEP_DIR > /dev/null; git --no-pager log -1 --format='%H'; popd > /dev/null) >> $(ROOT_PATH)/internal_deps.txt; \
+	done
+
+update-req: init_dev
+	@echo "Update requirements"
+	source $(DEV_VENV_PATH)/bin/activate;                       \
+	for cur in $$(grep '==' ./requirements.txt); do             \
+		pkg_name=$$(echo $$cur | cut -d '=' -f1);               \
+		pip install $$pkg_name --upgrade;                       \
+		new=$$(pip freeze | grep $$pkg_name"=");                \
+		echo "$$cur ==> $$new";                                 \
+		if [ "$$(uname)" == "Darwin" ]; then                    \
+			sed -i '' 's/'$$cur'/'$$new'/g' ./requirements.txt; \
+		else                                                    \
+			sed -i 's/'$$cur'/'$$new'/g' ./requirements.txt;    \
+		fi;                                                     \
+	done;                                                       \
+	deactivate;
+
 
 #help:
 #	@echo ''
