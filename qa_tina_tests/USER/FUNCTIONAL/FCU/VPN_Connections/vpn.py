@@ -10,13 +10,12 @@ from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SECURITY_GROUP_ID, SUBNETS, KEY_PAIR, VPC_ID, PATH, INSTANCE_ID_LIST
-from qa_common_tools.ssh import SshTools
+from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_gateways_attachment_state
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
-from qa_common_tools.error import OscCommandError
 from qa_test_tools.config import config_constants as constants
 
 

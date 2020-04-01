@@ -12,7 +12,7 @@ from qa_test_tools.config import OscConfig
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub.osc_api import disable_throttling
 import time
-from qa_common_tools.error import error_type, load_errors
+from qa_test_tools.error import error_type, load_errors
 
 ssl._create_default_https_context = ssl._create_unverified_context
 

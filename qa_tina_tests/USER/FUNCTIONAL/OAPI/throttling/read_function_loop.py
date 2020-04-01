@@ -12,7 +12,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub.osc_api import disable_throttling
 import time
 from qa_test_tools import misc
-from qa_common_tools.error import error_type, load_errors
+from qa_test_tools.error import error_type, load_errors
 from qa_tina_tools.specs.oapi import OAPI_SPEC, COMPONENTS, SCHEMAS
 from qa_test_tools.account_tools import create_account
 

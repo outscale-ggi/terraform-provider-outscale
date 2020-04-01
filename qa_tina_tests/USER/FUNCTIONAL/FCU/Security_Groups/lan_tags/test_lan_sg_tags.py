@@ -5,12 +5,11 @@ from qa_tina_tools.tools.tina.info_keys import VPC_ID, INSTANCE_SET, SUBNETS, KE
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_common_tools.ssh import SshTools
+from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config.configuration import Configuration
 from time import sleep
 from qa_test_tools.config import config_constants as constants
 
-from qa_common_tools.error import OscCommandError
 
 
 class Test_lan_sg_tags(OscTestSuite):

@@ -11,7 +11,7 @@ from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import time
-from qa_common_tools.error import error_type, load_errors
+from qa_test_tools.error import error_type, load_errors
 from qa_test_tools.misc import id_generator
 import datetime
 
