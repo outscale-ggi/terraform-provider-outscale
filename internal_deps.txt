@@ -1,5 +1,5 @@
 # Versionning informations
-qa_tina_tools=4c04005739bc6a6a0e7ddb32cde4fd02bf671a8c
-qa_common_tools=5b974c221f7388e67ea4f2bd75ff1fffd8af3a71
-qa_test_tools=9b2709eba4c2623e734c06784629b8d878328238
-qa_sdks=d854d85bfdc2112daf80a5086824e69d7e8668e0
+qa_tina_tools=master
+qa_common_tools=master
+qa_test_tools=master
+qa_sdks=master
