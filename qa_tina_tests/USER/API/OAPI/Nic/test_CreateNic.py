@@ -72,7 +72,7 @@ class Test_CreateNic(Nic):
         # assert ret.LinkPublicIp is not None
         assert ret.State == 'available'
         assert ret.SubnetId == self.subnet_id1
-        assert ret.SubregionName == self.a1_r1._config.region.az_name
+        assert ret.SubregionName == self.a1_r1.config.region.az_name
         assert ret.Tags == []
 
     def test_T2633_with_description(self):

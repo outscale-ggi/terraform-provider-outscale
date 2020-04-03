@@ -20,7 +20,7 @@ class Test_DescribeSnapshotExportTasks(OscTestSuite):
         try:
             cls.logger.debug("Export 3 snapshots to OSU with account 1")
             # create volume
-            ret = cls.a1_r1.fcu.CreateVolume(AvailabilityZone=cls.a1_r1._config.region.az_name, Size='10')
+            ret = cls.a1_r1.fcu.CreateVolume(AvailabilityZone=cls.a1_r1.config.region.az_name, Size='10')
             vol_id = ret.response.volumeId
             wait_volumes_state(osc_sdk=cls.a1_r1, state='available', volume_id_list=[vol_id])
             # snapshot volume

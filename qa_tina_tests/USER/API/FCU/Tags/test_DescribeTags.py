@@ -19,7 +19,7 @@ class Test_DescribeTags(OscTestSuite):
         unique_id = time_now.strftime('%Y%m%d%H%M%S')
         cls.sg_name = 'sg_T111_{}'.format(unique_id)
         cls.dict_resources = {}
-        Instance_Type = cls.a1_r1._config.region.get_info('default_instance_type')
+        Instance_Type = cls.a1_r1.config.region.get_info('default_instance_type')
         key_name = 'test_describe_keys_{}'.format(unique_id)
         # todo: create test for vpc peering
         try:
@@ -31,7 +31,7 @@ class Test_DescribeTags(OscTestSuite):
             cls.kp = cls.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
             id_dict = 'kp0'
             cls.dict_resources[id_dict] = cls.kp.response.keyName
-            ret = cls.a1_r1.fcu.CreateVolume(AvailabilityZone=cls.a1_r1._config.region.az_name, Size=1, VolumeType='standard')
+            ret = cls.a1_r1.fcu.CreateVolume(AvailabilityZone=cls.a1_r1.config.region.az_name, Size=1, VolumeType='standard')
             id_dict = 'vol0'
             cls.dict_resources[id_dict] = ret.response.volumeId
             wait_volumes_state(cls.a1_r1, [cls.dict_resources['vol0']], state='available')
@@ -39,7 +39,7 @@ class Test_DescribeTags(OscTestSuite):
             id_dict = 'snap0'
             cls.dict_resources[id_dict] = ret.response.snapshotId
             # run instance
-            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region._conf['centos7'], MaxCount='1',
+            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region._conf['centos7'], MaxCount='1',
                                               MinCount='1', InstanceType=Instance_Type)
             id_dict = 'inst0'
             cls.dict_resources[id_dict] = inst.response.instancesSet[0].instanceId

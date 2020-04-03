@@ -90,7 +90,7 @@ class Test_ReadNics(Nic):
 #         assert nic.LinkPublicIp is not None
 #         assert nic.State == 'available'
 #         assert nic.SubnetId == self.subnet_id1
-#         assert nic.SubregionName == self.a1_r1._config.region.az_name
+#         assert nic.SubregionName == self.a1_r1.config.region.az_name
 #         assert nic.Tags == []
 
     def test_T2680_filters_nic_id1(self):
@@ -123,7 +123,7 @@ class Test_ReadNics(Nic):
 #         assert nic.LinkPublicIp is not None
 #         assert nic.State == 'available'
 #         assert nic.SubnetId == self.subnet_id1
-#         assert nic.SubregionName == self.a1_r1._config.region.az_name
+#         assert nic.SubregionName == self.a1_r1.config.region.az_name
 #         assert nic.Tags == []
 
     def test_T2681_filters_nic_ids_1_and_2(self):

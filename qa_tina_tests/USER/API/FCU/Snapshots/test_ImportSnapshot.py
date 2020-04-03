@@ -21,7 +21,7 @@ class Test_ImportSnapshot(OscTestSuite):
         cls.bucket_name = None
         try:
             # create volume
-            ret = cls.a1_r1.fcu.CreateVolume(AvailabilityZone=cls.a1_r1._config.region.az_name, Size='1')
+            ret = cls.a1_r1.fcu.CreateVolume(AvailabilityZone=cls.a1_r1.config.region.az_name, Size='1')
             cls.vol_id = ret.response.volumeId
             wait_volumes_state(osc_sdk=cls.a1_r1, state='available', volume_id_list=[cls.vol_id])
             # snapshot volume

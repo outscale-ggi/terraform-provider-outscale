@@ -161,7 +161,7 @@ class Test_DescribeImages(OscTestSuite):
             assert value == image.hypervisor
 
     def test_T833_filter_image_id(self):
-        value = self.a1_r1._config.region._conf[constants.CENTOS7]
+        value = self.a1_r1.config.region._conf[constants.CENTOS7]
         desc_filter = {"Name": "image-id", "Value": value}
         ret = self.a1_r1.fcu.DescribeImages(Filter=[desc_filter])
         for image in ret.response.imagesSet:
@@ -252,9 +252,9 @@ class Test_DescribeImages(OscTestSuite):
         assert ret.response.imagesSet[0].imageId == self.image1_id, ret.response.display()
 
     def test_T1370_valid_image_id_public_image(self):
-        ret = self.a1_r1.fcu.DescribeImages(ImageId=[self.a1_r1._config.region._conf[constants.CENTOS7]])
+        ret = self.a1_r1.fcu.DescribeImages(ImageId=[self.a1_r1.config.region._conf[constants.CENTOS7]])
         assert len(ret.response.imagesSet) == 1, ret.response.display()
-        assert ret.response.imagesSet[0].imageId == self.a1_r1._config.region._conf[constants.CENTOS7], ret.response.display()
+        assert ret.response.imagesSet[0].imageId == self.a1_r1.config.region._conf[constants.CENTOS7], ret.response.display()
 
     def test_T1371_valid_image_id_shared_image(self):
         ret = self.a2_r1.fcu.DescribeImages(ImageId=[self.image1_id])

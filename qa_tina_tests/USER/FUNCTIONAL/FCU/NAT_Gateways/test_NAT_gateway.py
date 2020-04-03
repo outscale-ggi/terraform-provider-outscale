@@ -40,7 +40,7 @@ class Test_NAT_gateway(OscTestSuite):
 
         try:
 
-            Instance_Type = cls.a1_r1._config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
+            Instance_Type = cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
 
             IP_Ingress = Configuration.get('cidr', 'allips')
             time_now = datetime.datetime.now()
@@ -110,7 +110,7 @@ class Test_NAT_gateway(OscTestSuite):
             cls.a1_r1.fcu.CreateRoute(DestinationCidrBlock=cls.all_ips, GatewayId=cls.igw_id, RouteTableId=cls.rtb1)
 
             # run instance
-            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region.get_info(constants.CENTOS7), MaxCount='1',
+            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS7), MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[info_keys.NAME],
                                               InstanceType=Instance_Type, SubnetId=cls.subnet1_id)
@@ -119,7 +119,7 @@ class Test_NAT_gateway(OscTestSuite):
             cls.inst1_local_addr = inst.response.instancesSet[0].privateIpAddress
 
             # run instance
-            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region.get_info(constants.CENTOS7), MaxCount='1',
+            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS7), MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[info_keys.NAME],
                                               InstanceType=Instance_Type, SubnetId=cls.subnet2_id)

@@ -15,7 +15,7 @@ class Test_DeleteKeyPair(OscTestSuite):
 
     def test_T937_with_used_keypair(self):
         self.a1_r1.fcu.CreateKeyPair(KeyName='key')
-        img = self.a1_r1._config.region.get_info(constants.CENTOS7)
+        img = self.a1_r1.config.region.get_info(constants.CENTOS7)
         ret = self.a1_r1.fcu.RunInstances(ImageId=img, KeyName='key', MinCount=1, MaxCount=1)
         instanceid = ret.response.instancesSet[0].instanceId
         wait_instances_state(self.conns[0], [instanceid], state='running', threshold=60, wait_time=5)

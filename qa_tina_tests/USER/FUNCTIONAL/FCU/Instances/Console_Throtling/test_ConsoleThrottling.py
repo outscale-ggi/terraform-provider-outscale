@@ -26,7 +26,7 @@ class Test_ConsoleThrottling(OscTestSuite):
         cls.public_ip_inst = None
         cls.inst_id = None
 
-        Instance_Type = cls.a1_r1._config.region.get_info('default_instance_type')
+        Instance_Type = cls.a1_r1.config.region.get_info('default_instance_type')
         cls.kp_info = None
         cls.sshclient = None
 
@@ -43,7 +43,7 @@ class Test_ConsoleThrottling(OscTestSuite):
             cls.kp = create_keypair(cls.a1_r1)
 
             # run instance
-            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region._conf['centos7'], MaxCount='1',
+            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region._conf['centos7'], MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=sg_id, KeyName=cls.kp.response.keyName,
                                               InstanceType=Instance_Type)

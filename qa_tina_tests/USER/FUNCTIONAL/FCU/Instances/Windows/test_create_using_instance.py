@@ -103,12 +103,12 @@ class Test_create_using_instance(OscTestSuite):
             cls.kp_info = create_keypair(cls.a1_r1)
 
             # run instance
-            inst_1 = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region._conf['windows_2016'], MaxCount='1',
+            inst_1 = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region._conf['windows_2016'], MaxCount='1',
                                                 MinCount='1',
                                                 SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[NAME],
                                                 InstanceType=instance_type, UserData=user_data)
 
-            inst_2 = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region._conf['windows_2016'], MaxCount='1',
+            inst_2 = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region._conf['windows_2016'], MaxCount='1',
                                                 MinCount='1',
                                                 SecurityGroupId=cls.sg_id1, KeyName=cls.kp_info[NAME],
                                                 UserData=user_data, SubnetId=cls.subnet1_id, InstanceType=instance_type)

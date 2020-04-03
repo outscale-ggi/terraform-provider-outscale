@@ -30,7 +30,7 @@ class Test_internet_gateway(OscTestSuite):
         cls.rt_asso1_id = None
         cls.eip_allo_id = None
         try:
-            Instance_Type = cls.a1_r1._config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
+            Instance_Type = cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
             IP_Ingress = Configuration.get('cidr', 'allips')
             time_now = datetime.datetime.now()
             unique_id = time_now.strftime('%Y%m%d%H%M%S')
@@ -60,7 +60,7 @@ class Test_internet_gateway(OscTestSuite):
             ret = cls.a1_r1.fcu.AssociateRouteTable(RouteTableId=cls.rtb1, SubnetId=cls.subnet1_id)
             cls.rt_asso1_id = ret.response.associationId
             # run instance
-            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1._config.region.get_info(constants.CENTOS7), MaxCount='1',
+            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS7), MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[NAME],
                                               InstanceType=Instance_Type, SubnetId=cls.subnet1_id)

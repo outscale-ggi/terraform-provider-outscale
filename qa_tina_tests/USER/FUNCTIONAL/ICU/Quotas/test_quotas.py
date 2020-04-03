@@ -83,7 +83,7 @@ class Test_quotas(OscTestSuite):
         vol_list = []
 
         while used < limit:
-            ret = self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1._config.region.az_name, Size='10')
+            ret = self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name, Size='10')
             vol_list.append(ret.response.volumeId)
             used += 1
         wait_volumes_state(osc_sdk=self.a1_r1, state='available', volume_id_list=vol_list, wait_time=4)
@@ -92,7 +92,7 @@ class Test_quotas(OscTestSuite):
         assert ret.response.ReferenceQuota[0].Quotas[0].UsedQuotaValue == limit
 
         try:
-            self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1._config.region.az_name, Size='10')
+            self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name, Size='10')
             assert False, "limit must be exceeded"
         except OscApiException as error:
             assert_code(error, 400)
