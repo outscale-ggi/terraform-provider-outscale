@@ -17,8 +17,8 @@ export OSC_AZS=$AZ
 export OSC_USERS=${USERS[$OSC_CPU]}
 
 pytest --disable-warnings -s -v --junit-xml=../details/$TEST_IDS_STR.xml -k "$TEST_IDS" ./qa_tina_tests/USER/ 2> ./$TEST_IDS_STR.err > ./$TEST_IDS_STR.out
-sed -i "s:<testsuites>::g" ./details/$TEST_IDS_STR.xml
-sed -i "s:</testsuites>::g" ./details/$TEST_IDS_STR.xml
+sed -i "s:<testsuites>::g" ../details/$TEST_IDS_STR.xml
+sed -i "s:</testsuites>::g" ../details/$TEST_IDS_STR.xml
 
 
 echo "======================================"
