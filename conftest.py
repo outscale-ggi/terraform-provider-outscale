@@ -9,7 +9,7 @@ def pytest_runtest_setup(item):
 
     # cur_region --> list supported feature
     cur_region = OscAZ(az_name=get_export_value('OSC_AZS').split(" ")[0])
-    cur_region_features = cur_region.get_info(constants.FEATURES)
+    cur_region_features = [feature.value for feature in cur_region.get_info(constants.FEATURES)]
     cur_region_features_tickets = []
     try:
         cur_region_features_tickets = cur_region.get_info(constants.FEATURES_TICKETS)
