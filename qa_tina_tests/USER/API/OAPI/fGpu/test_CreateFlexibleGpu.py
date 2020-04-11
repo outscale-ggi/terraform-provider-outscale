@@ -132,6 +132,8 @@ class Test_CreateFlexibleGpu(OscTestSuite):
             assert resp.FlexibleGpu.SubregionName == self.subregionname
             assert resp.FlexibleGpu.State == 'allocated'
             assert not hasattr(resp.FlexibleGpu, 'VmId')
+        except Exception as error:
+            raise error
         finally:
             if resp:
                 self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=resp.FlexibleGpu.FlexibleGpuId)

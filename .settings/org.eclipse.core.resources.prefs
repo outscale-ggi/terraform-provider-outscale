@@ -19,6 +19,7 @@ encoding//qa_tina_tests/USER/API/OAPI/Vm/test_CreateVms.py=utf-8
 encoding//qa_tina_tests/USER/API/OAPI/Vm/test_ReadVms.py=utf-8
 encoding//qa_tina_tests/USER/API/OAPI/Vm/test_ReadVmsState.py=utf-8
 encoding//qa_tina_tests/USER/API/OAPI/Vm/test_StartVms.py=utf-8
+encoding//qa_tina_tests/USER/API/OAPI/Vm/test_UpdateVm.py=utf-8
 encoding//qa_tina_tests/USER/API/OAPI/Volume/Volume.py=utf-8
 encoding//qa_tina_tests/USER/API/OAPI/Volume/test_ReadVolumes.py=utf-8
 encoding//qa_tina_tests/USER/API/OAPI/Vpn_Connection/test_CreateVpnConnection.py=utf-8

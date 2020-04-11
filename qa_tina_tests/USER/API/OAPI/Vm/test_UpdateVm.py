@@ -350,3 +350,16 @@ class Test_UpdateVm(OscTestSuite):
         finally:
             if public_ip:
                 self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
+
+    def test_T4899_base64_userdata(self):
+        userdata= """I2Nsb3VkLWNvbmZpZwpjbG91ZF9jb25maWdfbW9kdWxlczoKLSBydW5jbWQKCnJ1bmNtZDoKLSB0b
+        3VjaCAvdG1wL3FhLXZhbGlkLXRlcnJhZm9ybS11c2VyLWRhdGEtY2xvdWQtaW5pdAotIGVjaG8gImJsYWJsYSIgPj4gL2Rldi90dHlTMAo="""
+        try:
+            inst_info = create_instances(self.a1_r1)
+            inst_id = inst_info[INSTANCE_ID_LIST][0]
+            stop_instances(self.a1_r1, instance_id_list=[inst_id])
+            self.a1_r1.oapi.UpdateVm(UserData=userdata, VmId=inst_id)
+        except OscApiException as error:
+            raise error
+        finally:
+            terminate_instances(self.a1_r1, [inst_id])
