@@ -3,7 +3,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc_old
 
@@ -97,3 +97,11 @@ class Test_UpdateNet(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', 5065)
+
+    def test_T4903_with_default_dhcpoptions(self):
+        try:
+            self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId="default", NetId=self.vpc_id).response.Net
+            assert False, 'Remove known error code'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', "4104")
+            known_error("GTW-1230", "Cannot associate a Net to the default DHCP Otions set")
