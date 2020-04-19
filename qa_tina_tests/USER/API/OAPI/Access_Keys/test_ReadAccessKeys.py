@@ -17,28 +17,28 @@ class Test_ReadAccessKeys(OscTestSuite):
     def teardown_class(cls):
         super(Test_ReadAccessKeys, cls).teardown_class()
 
-    def test_T4827_check_throttling(self):
-        found_error = False
-        osc_api.disable_throttling()
-        key_id = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
-        try:
-            self.a1_r1.oapi.ReadAccessKeys(Filters={'AccessKeyIds': [key_id]}, max_retry=0)
-            for _ in range(3):
-                try:
-                    self.a1_r1.oapi.ReadAccessKeys(Filters={'AccessKeyIds': [key_id]}, max_retry=0)
-                except OscApiException as error:
-                    if error.status_code == 503:
-                        found_error = True
-                    else:
-                        raise error
-            if not found_error:
-                known_error('GTW-1188', 'Throttling per call for all users does not exist')
-            assert False, 'Remove known error'
-            assert found_error, "Throttling did not happen"
-        finally:
-            osc_api.enable_throttling()
-            sleep(30)
-            self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=key_id)
+#     def test_T4827_check_throttling(self):
+#         found_error = False
+#         osc_api.disable_throttling()
+#         key_id = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
+#         try:
+#             self.a1_r1.oapi.ReadAccessKeys(Filters={'AccessKeyIds': [key_id]}, max_retry=0)
+#             for _ in range(3):
+#                 try:
+#                     self.a1_r1.oapi.ReadAccessKeys(Filters={'AccessKeyIds': [key_id]}, max_retry=0)
+#                 except OscApiException as error:
+#                     if error.status_code == 503:
+#                         found_error = True
+#                     else:
+#                         raise error
+#             if not found_error:
+#                 known_error('GTW-1188', 'Throttling per call for all users does not exist')
+#             assert False, 'Remove known error'
+#             assert found_error, "Throttling did not happen"
+#         finally:
+#             osc_api.enable_throttling()
+#             sleep(30)
+#             self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=key_id)
 
     def test_T4828_without_params(self):
         ret_create = None
@@ -112,10 +112,21 @@ class Test_ReadAccessKeys(OscTestSuite):
         try:
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             ak = ret_create.response.AccessKey.AccessKeyId
-            self.a1_r1.oapi.ReadAccessKey(auth=AuthMethod.LoginPassword, AccessKeyId=ak)
+            self.a1_r1.oapi.ReadAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: AuthMethod.LoginPassword}, AccessKeyId=ak)
             assert False, 'remove known error'
         except Exception as error:
             known_error('GTW-1240', 'SDK implementation ')
+        finally:
+            if ret_create:
+                self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
+
+    def test_T4905_without_params_empty_string(self):
+        ret_create = None
+        try:
+            ret_create = self.a1_r1.oapi.CreateAccessKey()
+            ak = ret_create.response.AccessKey.AccessKeyId
+            resp_read = self.a1_r1.oapi.ReadAccessKeys(exec_data={osc_api.EXEC_DATA_FORCE_EMPTY_STRING: True}).response
+            check_oapi_response(resp_read, 'ReadAccessKeysResponse')
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
