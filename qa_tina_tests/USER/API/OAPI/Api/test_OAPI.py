@@ -169,14 +169,14 @@ class Test_OAPI(OscTestSuite):
             for sg_id in sg_ids:
                 self.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=sg_id)
 
-    def test_T0001_incorrect_sign(self):
+    def test_T4906_incorrect_sign(self):
         try:
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_SIGN: 'FOO'})
             assert False, 'Call should not have been successful'
         except OscException as error:
             assert error.message == 'Wrong sign method : only OSC/AWS supported.'
 
-    def test_T0002_incorrect_content_type(self):
+    def test_T4907_incorrect_content_type(self):
         try:
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_CONTENT_TYPE: 'application/toto'})
             known_error('GTW-1299', 'Call with incorrect content type should not be successful.')
