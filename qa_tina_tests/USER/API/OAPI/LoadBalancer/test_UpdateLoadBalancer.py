@@ -370,10 +370,6 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                 LoadBalancerName=self.lb_name, SubregionNames=[self.a2_r1.config.region.az_name],
             )
             self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=[self.policy_name_lb])
-            assert False, 'Remove known error code'
-        except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', 2000)
-            known_error('GTW-1151', 'Incorrect internal error')
         finally:
             if ret_create_lbu:
                 try:

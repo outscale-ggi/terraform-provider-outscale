@@ -88,7 +88,7 @@ class Test_CreateLoadBalancerTags(OscTestSuite):
                                                    Tags=[{'Key': '', 'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4069)
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4108)
 
     def test_T4697_empty_tag_value(self):
         create_lbu_tags_resp = None
@@ -264,11 +264,10 @@ class Test_CreateLoadBalancerTags(OscTestSuite):
         try:
             create_lbu_tags_resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
                                                                           Tags=[{'Key': incorrect_key, 'Value': 'value'}]).response
-            known_error('GTW-1207', 'No error is for incorrect tag key value')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert False, 'Remove known error'
-            assert_oapi_error(error, 400, '', 0)
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4106)
         finally:
             read = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
             if read.Tags and len(read.Tags) != 0:
@@ -277,9 +276,4 @@ class Test_CreateLoadBalancerTags(OscTestSuite):
                 except Exception as error:
                     pass
             if create_lbu_tags_resp:
-                try:
-                    self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': incorrect_key}])
-                except OscApiException as error:
-                    assert_oapi_error(error, 400, 'InvalidParameterValue', 4106)
-                    known_error('GTW-1207', 'No error is for incorrect tag key value')
-            assert False, 'Remove known error'
+                self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': incorrect_key}])

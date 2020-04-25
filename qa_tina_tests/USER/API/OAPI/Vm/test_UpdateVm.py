@@ -101,7 +101,7 @@ class Test_UpdateVm(OscTestSuite):
             self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], DeletionProtection='false')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T2132_BlockDeviceMapping(self):
         self.a1_r1.oapi.UpdateVm(
@@ -124,7 +124,7 @@ class Test_UpdateVm(OscTestSuite):
                                          {'Bsu': {'DeleteOnVmDeletion': 'false', "VolumeId": self.vol_ids[0]}}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T2134_BlockMappingDevice_missing_dot(self):
         try:

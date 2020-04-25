@@ -20,10 +20,10 @@ class Test_SendResetPasswordEmail(OscTestSuite):
         found_error = False
         osc_api.disable_throttling()
         try:
-            self.a1_r1.oapi.SendResetPasswordEmail(Email=self.a1_r1.config.account.login, max_retry=0)
+            self.a1_r1.oapi.SendResetPasswordEmail(Email=self.a1_r1.config.account.login, exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
             for _ in range(3):
                 try:
-                    self.a1_r1.oapi.SendResetPasswordEmail(Email=self.a1_r1.config.account.login, max_retry=0)
+                    self.a1_r1.oapi.SendResetPasswordEmail(Email=self.a1_r1.config.account.login, exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 except OscApiException as error:
                     if error.status_code == 503:
                         assert False, 'Remove known error code'
@@ -39,6 +39,6 @@ class Test_SendResetPasswordEmail(OscTestSuite):
 
     def test_T4767_non_authenticated(self):
         email = self.a2_r1.oapi.ReadAccounts().response.Accounts[0].Email
-        ret = self.a2_r1.oapi.SendResetPasswordEmail(authentication=False, Email=email)
+        ret = self.a2_r1.oapi.SendResetPasswordEmail(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Email=email)
         check_oapi_response(ret.response, 'SendResetPasswordEmailResponse')
 

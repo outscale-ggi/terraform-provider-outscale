@@ -4,7 +4,8 @@ import re
 import pytest
 
 import qa_sdk_pub.osc_api as osc_api
-from qa_sdk_pub.osc_api import AuthMethod
+from qa_sdk_pub.osc_api import AuthMethod, EXEC_DATA_METHOD,\
+    EXEC_DATA_AUTHENTICATION
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.test_base import OscTestSuite
 import time
@@ -34,7 +35,7 @@ class Test_ICU(OscTestSuite):
     def test_T3863_method_get(self):
         time.sleep(11)
         try:
-            self.a1_r1.icu.ListAccessKeys(method='GET')
+            self.a1_r1.icu.ListAccessKeys(exec_data={EXEC_DATA_METHOD: 'GET'})
             assert False, 'Call should have been successful'
         except OscApiException as error:
             assert error.status_code == 400
@@ -49,7 +50,7 @@ class Test_ICU(OscTestSuite):
     def test_T3865_without_authentication(self):
         time.sleep(11)
         try:
-            self.a1_r1.icu.ListAccessKeys(auth=AuthMethod.Empty)
+            self.a1_r1.icu.ListAccessKeys(exec_data={EXEC_DATA_AUTHENTICATION: AuthMethod.Empty})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert error.status_code == 400
