@@ -2,6 +2,7 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_sdk_pub import osc_api
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_test_tools import misc
+import pytest
 
 
 class Test_UpdateAccessKey(OscTestSuite):
@@ -14,24 +15,22 @@ class Test_UpdateAccessKey(OscTestSuite):
     def teardown_class(cls):
         super(Test_UpdateAccessKey, cls).teardown_class()
 
+    @pytest.mark.skip('obsolete for now, per account per call not supported : gateway-1188')
     def test_T4838_check_throttling(self):
         ak = None
         found_error = False
         osc_api.disable_throttling()
         try:
             ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
-            self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', max_retry=0)
+            self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
             for _ in range(3):
                 try:
-                    self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', max_retry=0)
+                    self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 except OscApiException as error:
                     if error.status_code == 503:
                         found_error = True
                     else:
                         raise error
-            if not found_error:
-                known_error('GTW-1188', 'Throttling per call for all users does not exist')
-            assert False, 'Remove known error'
             assert found_error, "Throttling did not happen"
         finally:
             osc_api.enable_throttling()

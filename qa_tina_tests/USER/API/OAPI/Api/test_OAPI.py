@@ -50,7 +50,7 @@ class Test_OAPI(OscTestSuite):
     @pytest.mark.tag_sec_confidentiality
     def test_T2226_without_authentication(self):
         try:
-            self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: False})
+            self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 401, "1", "AccessDenied")
@@ -182,7 +182,7 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_CONTENT_TYPE: 'application/toto'})
             known_error('GTW-1299', 'Call with incorrect content type should not be successful.')
             assert False, 'Call should not have been successful'
-        except OscException as error:
+        except OscApiException as error:
             assert False, 'Remove known error code'
             assert error.message == 'Wrong sign method : only OSC/AWS supported.'
 
@@ -203,7 +203,6 @@ class Test_OAPI(OscTestSuite):
         date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
         date_stamp = date_time.strftime('%Y%m%d')
         self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
-        assert False, 'Call should not have been successful'
 
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_stamp = date_time.strftime('%Y%m%d')

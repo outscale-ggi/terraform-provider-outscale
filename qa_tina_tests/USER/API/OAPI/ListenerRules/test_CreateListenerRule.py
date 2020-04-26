@@ -74,7 +74,7 @@ class Test_CreateListenerRule(OscTestSuite):
             ret_lr = self.a1_r1.oapi.CreateListenerRule(Listener=ld, ListenerRule=lrd, VmIds=inst_ids)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, status, code, msg)
+            misc.assert_api_error(error, status, msg, code)
         finally:
             if ret_lr:
                 self.a1_r1.oapi.DeleteListenerRule(RuleName=ret_lr.response.ListenerRule.ListenerRuleName)
@@ -88,7 +88,7 @@ class Test_CreateListenerRule(OscTestSuite):
                                                         VmIds=self.inst_id_list)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, 'InvalidParameterValue', 4110)
+            misc.assert_api_error(error, 400, 'InvalidParameterValue', 4110)
         finally:
             if ret_lr:
                 self.a1_r1.oapi.DeleteListenerRule(RuleName=ret_lr.response.ListenerRule.ListenerRuleName)
@@ -107,7 +107,7 @@ class Test_CreateListenerRule(OscTestSuite):
             ret_lr = self.a1_r1.oapi.CreateListenerRule(Listener=self.ld, ListenerRule=self.lrd)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '7000', 'MissingParameter')
+            misc.assert_api_error(error, 400, 'MissingParameter', 7000)
         finally:
             if ret_lr:
                 self.a1_r1.oapi.DeleteListenerRule(RuleName=ret_lr.response.ListenerRule.ListenerRuleName)
@@ -121,7 +121,7 @@ class Test_CreateListenerRule(OscTestSuite):
             ret_lr = self.a1_r1.oapi.CreateListenerRule(ListenerRule=self.lrd, VmIds=self.inst_info[info_keys.INSTANCE_ID_LIST])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '7000', 'MissingParameter')
+            misc.assert_api_error(error, 400, 'MissingParameter', 7000)
         finally:
             if ret_lr:
                 self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=ret_lr.response.ListenerRule.ListenerRuleName)
@@ -149,7 +149,7 @@ class Test_CreateListenerRule(OscTestSuite):
             ret_lr = self.a1_r1.oapi.CreateListenerRule(Listener=self.ld, VmIds=self.inst_info[info_keys.INSTANCE_ID_LIST])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '7000', 'MissingParameter')
+            misc.assert_api_error(error, 400, 'MissingParameter', 7000)
         finally:
             if ret_lr:
                 self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=ret_lr.response.ListenerRule.ListenerRuleName)
