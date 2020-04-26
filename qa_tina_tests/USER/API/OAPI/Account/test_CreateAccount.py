@@ -40,18 +40,12 @@ class Test_CreateAccount(OscTestSuite):
     def test_T4757_required_param_default_account(self):
         account_info = self.generate_params()
         ret = None
-        attr_found = False
         try:
             ret = self.a1_r1.oapi.CreateAccount(**account_info)
             check_oapi_response(ret.response, "CreateAccountResponse")
             for attr in account_info.keys():
                 if not hasattr(ret.response.Account, attr):
-                    continue
-                attr_found = True
-            if not attr_found:
-                known_error('GTW-1140', 'CreateAccount get output param other than AccountId')
-            else:
-                assert False, 'Remove known error'
+                    assert False, 'Could not find attribute {} in response'.format(attr)
         finally:
             if ret:
                 # delete account

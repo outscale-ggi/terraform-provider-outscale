@@ -12,7 +12,13 @@ def create_vms(ocs_sdk, image_id=None, state='running', VmType=None, **kwargs):
         ret_value = ocs_sdk.oapi.CreateVms(ImageId=image_id, **kwargs)
     vm_id_list = [vm.VmId for vm in ret_value.response.Vms]
     if state:
-        wait_instances_state(ocs_sdk, vm_id_list, state=state)
+        try:
+            wait_instances_state(ocs_sdk, vm_id_list, state=state)
+        except Exception as error:
+            ocs_sdk.oapi.StopVms(VmIds=vm_id_list, ForceStop=True)
+            ocs_sdk.oapi.DeleteVms(VmIds=vm_id_list)
+            wait_instances_state(ocs_sdk, vm_id_list, state='terminated')
+            raise error
     return ret_value, vm_id_list
 
 

@@ -88,10 +88,7 @@ class Test_CreateListenerRule(OscTestSuite):
                                                         VmIds=self.inst_id_list)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.status_code == 500 and error.message == 'InternalError' and error.error_code == '2000':
-                known_error('GTW-1182', 'invalid internal error')
-            assert False, 'remove known error'
-            misc.assert_error(error, 400, '', '')
+            misc.assert_error(error, 400, 'InvalidParameterValue', 4110)
         finally:
             if ret_lr:
                 self.a1_r1.oapi.DeleteListenerRule(RuleName=ret_lr.response.ListenerRule.ListenerRuleName)

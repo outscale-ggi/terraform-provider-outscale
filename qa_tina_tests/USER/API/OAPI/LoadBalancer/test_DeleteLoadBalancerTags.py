@@ -80,11 +80,9 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
     def test_T4718_incorrect_tag_key(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': ''}])
-            known_error('GTW-1232', 'Unexpected success, error expected')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert False, 'Remove known error code'
-            assert_oapi_error(error, 400, '', 0)
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4108)
 
     def test_T4719_unknown_load_balancer_names(self):
         try:

@@ -3,6 +3,7 @@ from qa_test_tools.misc import assert_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 import pytest
 from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_sdk_pub import osc_api
 
 #     ReadGpuCatalogRequest:
 #       properties:
@@ -61,7 +62,7 @@ class Test_ReadFlexibleGpuCatalog(OscTestSuite):
         assert_dry_run(ret)
 
     def test_T4676_without_authentication(self):
-        ret = self.a1_r1.oapi.ReadFlexibleGpuCatalog(authentication=False)
+        ret = self.a1_r1.oapi.ReadFlexibleGpuCatalog(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
         check_oapi_response(ret.response, 'ReadFlexibleGpuCatalogResponse')
         for cat_item in ret.response.FlexibleGpuCatalog:
             assert cat_item.ModelName

@@ -5,9 +5,10 @@ from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_tina_tools.tools.tina.create_tools import create_instances
-from qa_tina_tools.tools.tina.delete_tools import delete_instances
+from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state,\
+    wait_network_interfaces_state
 
 
 class Test_LinkNic(Nic):
@@ -44,31 +45,37 @@ class Test_LinkNic(Nic):
             if cls.nic_id:
                 try:
                     cls.a1_r1.oapi.DeleteNic(NicId=cls.nic_id)
+                    wait_network_interfaces_state(cls.a1_r1, [cls.nic_id], cleanup=True)
                 except:
                     pass
             if cls.nic_id2:
                 try:
                     cls.a1_r1.oapi.DeleteNic(NicId=cls.nic_id2)
+                    wait_network_interfaces_state(cls.a1_r1, [cls.nic_id2], cleanup=True)
                 except:
                     pass
             if cls.nic_id3:
                 try:
                     cls.a1_r1.oapi.DeleteNic(NicId=cls.nic_id3)
+                    wait_network_interfaces_state(cls.a1_r1, [cls.nic_id3], cleanup=True)
                 except:
                     pass
             if cls.nic_id4:
                 try:
                     cls.a1_r1.oapi.DeleteNic(NicId=cls.nic_id4)
+                    wait_network_interfaces_state(cls.a1_r1, [cls.nic_id4], cleanup=True)
                 except:
                     pass
             if cls.nic_id5:
                 try:
                     cls.a1_r1.oapi.DeleteNic(NicId=cls.nic_id5)
+                    wait_network_interfaces_state(cls.a1_r1, [cls.nic_id5], cleanup=True)
                 except:
                     pass
             if cls.nic_id6:
                 try:
                     cls.a1_r1.oapi.DeleteNic(NicId=cls.nic_id6)
+                    wait_network_interfaces_state(cls.a1_r1, [cls.nic_id6], cleanup=True)
                 except:
                     pass
             if cls.inst_info:

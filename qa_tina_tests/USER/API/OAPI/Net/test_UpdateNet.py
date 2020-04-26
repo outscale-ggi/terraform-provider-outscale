@@ -58,7 +58,7 @@ class Test_UpdateNet(OscTestSuite):
         try:
             self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId='tata', NetId=self.vpc_id)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
         try:
             self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId='dopt-12345678', NetId=self.vpc_id)
         except OscApiException as error:
@@ -99,9 +99,4 @@ class Test_UpdateNet(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidResource', 5065)
 
     def test_T4903_with_default_dhcpoptions(self):
-        try:
-            self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId="default", NetId=self.vpc_id).response.Net
-            assert False, 'Remove known error code'
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', "4104")
-            known_error("GTW-1230", "Cannot associate a Net to the default DHCP Otions set")
+        self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId="default", NetId=self.vpc_id)
