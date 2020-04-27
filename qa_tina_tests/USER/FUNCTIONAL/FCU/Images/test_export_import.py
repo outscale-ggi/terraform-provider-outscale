@@ -41,7 +41,7 @@ class Test_export_import(OscTestSuite):
 
     def verify_inst_img(self, inst_id, image_id):
         desc_inst = self.a1_r1.fcu.DescribeInstances(InstanceId=[inst_id]).response.reservationSet[0].instancesSet[0]
-        desc_img = self.fcu.DescribeImages(ImageId=[image_id]).response.imagesSet[0]
+        desc_img = self.a1_r1.fcu.DescribeImages(ImageId=[image_id]).response.imagesSet[0]
         # TODO do more assert stuff, for now just volumes
         assert len(desc_inst.blockDeviceMapping) == len(desc_img.blockDeviceMapping)
 
