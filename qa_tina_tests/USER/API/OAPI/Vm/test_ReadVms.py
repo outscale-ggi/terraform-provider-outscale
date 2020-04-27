@@ -94,7 +94,7 @@ class Test_ReadVms(OscTestSuite):
         # assert len(ret.response.Vms[0].SecurityGroups) == 1
         # assert ret.response.Vms[0].VmType == 't2.small' # TODO : is it different in 'in' and 'dv'(m1.small) ?
         assert not hasattr(ret.response.Vms[0], 'Nics')
-        assert len(ret.response.Vms[0].Nics) == 1
+        #assert len(ret.response.Vms[0].Nics) == 1
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3424_other_account(self):

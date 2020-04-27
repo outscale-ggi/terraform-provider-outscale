@@ -5,6 +5,7 @@ from qa_sdk_common.config.default_public_config import DefaultPubConfig
 from qa_sdk_pub.osc_api.osc_oapi_api import OscOApi
 from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_pub import osc_api
 
 
 class Test_ResetAccountPassword(OscTestSuite):
@@ -41,12 +42,12 @@ class Test_ResetAccountPassword(OscTestSuite):
             super(Test_ResetAccountPassword, self).teardown_method(method)
 
     def test_T4764_non_authenticated(self):
-        ret = self.oapi.ResetAccountPassword(authentication=False, Token=self.rettoken.response.passwordToken, Password=self.new_password)
+        ret = self.oapi.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=self.new_password)
         check_oapi_response(ret.response, 'ResetAccountPasswordResponse')
 
     def test_T4765_with_the_same_password(self):
         try:
-            self.oapi.ResetAccountPassword(authentication=False, Token=self.rettoken.response.passwordToken, Password=self.password)
+            self.oapi.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=self.password)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             misc.assert_error(error, 409, '9074', 'ResourceConflict')

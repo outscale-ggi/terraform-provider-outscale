@@ -94,3 +94,6 @@ class Test_CreateCustomerGateway(OscTestSuite):
             assert False, 'Call should not have been successful, invalid extra parameter'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue', 'Value for parameter ipAddress is a private address: 192.168.1.3')
+
+    def test_T4925_with_private_ip(self):
+        create_customer_gateway(self.a1_r1, bgp_asn=12, ip_address='169.1.1.1', typ='ipsec.1')

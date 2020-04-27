@@ -374,3 +374,72 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1['id'])
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', '3002')
+
+    def test_T4908_member_missing_security_identifier(self):
+        try:
+            self.a1_r1.oapi.CreateSecurityGroupRule(
+                Flow='Inbound',
+                Rules=[
+                    {
+                        'SecurityGroupsMembers': [{
+                            'AccountId': self.a1_r1.config.account.account_id
+                        }],
+                        'IpProtocol': 'tcp',
+                        'FromPortRange': 45,
+                        'ToPortRange': 7890,
+                        'IpRanges': ['10.0.0.12/32']}],
+                SecurityGroupId=self.sg1['id'])
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'MissingParameter', 7000)
+
+    def test_T4909_member_incorrect_security_group_name(self):
+        try:
+            self.a1_r1.oapi.CreateSecurityGroupRule(
+                Flow='Inbound',
+                Rules=[
+                    {
+                        'SecurityGroupsMembers': [{
+                            'AccountId': self.a1_r1.config.account.account_id,
+                            'SecurityGroupName': 'toto',
+                        }],
+                        'IpProtocol': 'tcp',
+                        'FromPortRange': 45,
+                        'ToPortRange': 7890,
+                        'IpRanges': ['10.0.0.12/32']}],
+                SecurityGroupId=self.sg1['id'])
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidResource', 5060)
+
+    def test_T4910_member_incorrect_security_group_id(self):
+        try:
+            self.a1_r1.oapi.CreateSecurityGroupRule(
+                Flow='Inbound',
+                Rules=[
+                    {
+                        'SecurityGroupsMembers': [{
+                            'AccountId': self.a1_r1.config.account.account_id,
+                            'SecurityGroupId': 'sg-12345678',
+                        }],
+                        'IpProtocol': 'tcp',
+                        'FromPortRange': 45,
+                        'ToPortRange': 7890,
+                        'IpRanges': ['10.0.0.12/32']}],
+                SecurityGroupId=self.sg1['id'])
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidResource', 5060)
+
+    def test_T4911_incorrect_group_id(self):
+        try:
+            self.a1_r1.oapi.CreateSecurityGroupRule(
+                Flow='Inbound',
+                IpProtocol='tcp',
+                FromPortRange=1234,
+                ToPortRange=1234,
+                IpRange='10.0.0.12/32',
+                SecurityGroupId='sg-12345678')
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidResource', 5020)

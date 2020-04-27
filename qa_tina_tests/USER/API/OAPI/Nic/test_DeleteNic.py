@@ -6,6 +6,7 @@ from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_test_tools.test_base import known_error
 
 
 class Test_DeleteNic(Nic):
@@ -71,6 +72,8 @@ class Test_DeleteNic(Nic):
             self.a2_r1.oapi.DeleteNic(NicId=self.nic_ids[0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            assert_oapi_error(error, 400, 'DefaultError', 0)
+            known_error('GTW-1307', 'Incorrect error code')
             assert_oapi_error(error, 400, 'InvalidResource', '5036')
 
     def test_T2646_valid_param(self):

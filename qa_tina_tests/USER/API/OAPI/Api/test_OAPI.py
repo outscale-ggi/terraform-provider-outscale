@@ -9,7 +9,7 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 import subprocess
 import json
 from qa_tina_tools.specs.oapi import OAPI_PATHS
-from qa_test_tools.misc import assert_error
+from qa_test_tools.misc import assert_error, assert_oapi_error
 import datetime
 from qa_test_tools import misc
 
@@ -50,7 +50,7 @@ class Test_OAPI(OscTestSuite):
     @pytest.mark.tag_sec_confidentiality
     def test_T2226_without_authentication(self):
         try:
-            self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: False})
+            self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 401, "1", "AccessDenied")
@@ -72,6 +72,7 @@ class Test_OAPI(OscTestSuite):
         # known_error('', 'Remove all AWS references in OAPI requests')
         pass
 
+    @pytest.mark.skip('obsolete for now, per account per call not supported : gateway-1188')
     @pytest.mark.tag_sec_availability
     def test_T2229_throttling(self):
         osc_api.disable_throttling()
@@ -181,6 +182,71 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_CONTENT_TYPE: 'application/toto'})
             known_error('GTW-1299', 'Call with incorrect content type should not be successful.')
             assert False, 'Call should not have been successful'
-        except OscException as error:
+        except OscApiException as error:
             assert False, 'Remove known error code'
             assert error.message == 'Wrong sign method : only OSC/AWS supported.'
+
+    def test_T4918_before_date_time_stamp(self):
+        try:
+            date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+            self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscException as error:
+            assert_oapi_error(error, 401, "AccessDenied", 1)
+            
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
+        date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+        self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+
+    def test_T4919_before_date_stamp(self):
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+    def test_T4920_before_stamps(self):
+        try:
+            date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+            date_stamp = date_time.strftime('%Y%m%d')
+            self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp, osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscException as error:
+            assert_oapi_error(error, 401, "AccessDenied", 1)
+
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
+        date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp, osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+
+    def test_T4921_incorrect_date_time_stamp(self):
+        try:
+            date_time_stamp = 'toto'
+            self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscException as error:
+            assert_oapi_error(error, 401, "AccessDenied", 1)
+
+    def test_T4922_incorrect_date_stamp(self):
+        date_stamp = 'toto'
+        self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+    def test_T4923_empty_date_time_stamp(self):
+        try:
+            date_time_stamp = ''
+            self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscException as error:
+            assert_oapi_error(error, 401, "AccessDenied", 1)
+
+    def test_T4924_empty_date_stamp(self):
+        try:
+            date_stamp = ''
+            self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+            assert False, 'Call should not have been successful'
+        except OscException as error:
+            assert_oapi_error(error, 401, "AccessDenied", 1)

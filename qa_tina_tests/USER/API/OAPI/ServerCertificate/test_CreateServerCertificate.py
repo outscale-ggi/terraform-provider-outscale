@@ -69,7 +69,7 @@ class Test_CreateServerCertificate(OscTestSuite):
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body="aaaaaaaaaa", PrivateKey=self.key).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', 3001)
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4124)
 
     def test_T4849_incorrect_body_type(self):
         try:
@@ -92,7 +92,7 @@ class Test_CreateServerCertificate(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if error.status_code == 400 and error.error_code == '3001' and error.message == 'InvalidParameter':
-                known_error('GTW-1243', 'Incorrect error message in CreateServerCertificate with invalid parameter value/type'
+                known_error('GTW-1305', 'Incorrect error message in CreateServerCertificate with invalid parameter value/type'
                                         'returns invalid parameter')
             assert False, 'remove known error'
             misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 3001)
@@ -116,11 +116,7 @@ class Test_CreateServerCertificate(OscTestSuite):
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey="aaaaaaaaaa").response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.status_code == 400 and error.error_code == '3001' and error.message == 'InvalidParameter':
-                known_error('GTW-1243', 'Incorrect error message in CreateServerCertificate with invalid parameter value/type'
-                                        'returns invalid parameter')
-            assert False, 'remove known error'
-            misc.assert_oapi_error(error, 400, '', '')
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4124)
 
     def test_T4855_incorrect_private_key_type(self):
         try:
@@ -144,10 +140,10 @@ class Test_CreateServerCertificate(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if error.status_code == 400 and error.error_code == '3001' and error.message == 'InvalidParameter':
-                known_error('GTW-1243', 'Incorrect error message in CreateServerCertificate with invalid parameter value/type'
+                known_error('GTW-1305', 'Incorrect error message in CreateServerCertificate with invalid parameter value/type'
                                         'returns invalid parameter')
             assert False, 'remove known error'
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4000)
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '')
 
     def test_T4859_with_incorrect_path_type(self):
         try:

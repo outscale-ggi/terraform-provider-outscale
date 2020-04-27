@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state,\
+    wait_security_groups_state
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, id_generator
@@ -15,12 +16,10 @@ class Test_CreateVms(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_CreateVms, cls).setup_class()
-        cls.info = None
 
     @classmethod
     def teardown_class(cls):
         super(Test_CreateVms, cls).teardown_class()
-        cls.info = None
 
     def setup_method(self, method):
         super(Test_CreateVms, self).setup_method(method)
@@ -276,16 +275,19 @@ class Test_CreateVms(OscTestSuite):
         # invalid id
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'abc-12345678'}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
         # malformed id
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-1234567'}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
         # unknown id
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678'}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidResource', '5036')
 
@@ -293,16 +295,19 @@ class Test_CreateVms(OscTestSuite):
         # invalid id
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'SubnetId': 'abc-12345678'}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
         # malformed id
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'SubnetId': 'subnet-1234567'}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
         # unknown id
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'SubnetId': 'subnet-12345678'}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidResource', '5057')
 
@@ -311,12 +316,14 @@ class Test_CreateVms(OscTestSuite):
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678',
                                                                  'SubnetId': 'subnet-12345678'}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         # provide nic id and security_group_ids
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678',
                                                                  'SecurityGroupIds': ['sg-12345678']}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         # provide nic id and private_ips
@@ -331,18 +338,21 @@ class Test_CreateVms(OscTestSuite):
                         'PrivateIp': '120.1.2.3'}]
                 }]
             )
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         # provide nic id and secondary_ip_count
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678',
                                                                  'SecondaryPrivateIpCount': 50}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         # provide nic id and delete_on_vm_deletion to True
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678',
                                                                  'DeleteOnVmDeletion': True}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         # too much primary ips
@@ -364,6 +374,7 @@ class Test_CreateVms(OscTestSuite):
                     ]
                 }]
             )
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
 
@@ -380,6 +391,7 @@ class Test_CreateVms(OscTestSuite):
                         'PrivateIp': 'hello_ips'}]
                 }]
             )
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
         # private ips not ipv4
@@ -394,6 +406,7 @@ class Test_CreateVms(OscTestSuite):
                         'PrivateIp': '120.1.2.3.5'}]
                 }]
             )
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
         # private ips not ipv4
@@ -408,6 +421,7 @@ class Test_CreateVms(OscTestSuite):
                         'PrivateIp': '120.1.2.3000'}]
                 }]
             )
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
 
@@ -487,30 +501,34 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_CreateVmsWithSubnet, cls).setup_class()
-        cls.info = None
-
-    @classmethod
-    def teardown_class(cls):
-        super(Test_CreateVmsWithSubnet, cls).teardown_class()
-        cls.info = None
-
-    def setup_method(self, method):
-        super(Test_CreateVmsWithSubnet, self).setup_method(method)
-        self.net_id = None
-        self.subnet_id = None
-        self.nic_id = None
-        self.vm_id_list = None
-        self.sg_id = None
+        cls.net_id = None
+        cls.subnet_id = None
         try:
-            self.net_id = self.a1_r1.oapi.CreateNet(IpRange='10.1.0.0/16').response.Net.NetId
-            self.subnet_id = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id,
-                                                          IpRange='10.1.0.0/24').response.Subnet.SubnetId
+            cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange='10.1.0.0/16').response.Net.NetId
+            cls.subnet_id = cls.a1_r1.oapi.CreateSubnet(NetId=cls.net_id,
+                                                        IpRange='10.1.0.0/24').response.Subnet.SubnetId
         except:
             try:
-                self.teardown_method(method)
+                cls.teardown_class()
             except:
                 pass
             raise
+
+    @classmethod
+    def teardown_class(cls):
+        try:
+            if cls.subnet_id:
+                cls.a1_r1.fcu.DeleteSubnet(SubnetId=cls.subnet_id)
+            if cls.net_id:
+                cls.a1_r1.fcu.DeleteVpc(VpcId=cls.net_id)
+        finally:
+            super(Test_CreateVmsWithSubnet, cls).teardown_class()
+
+    def setup_method(self, method):
+        super(Test_CreateVmsWithSubnet, self).setup_method(method)
+        self.nic_id = None
+        self.vm_id_list = None
+        self.sg_id = None
 
     def teardown_method(self, method):
         try:
@@ -520,12 +538,10 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
                 wait_instances_state(self.a1_r1, self.vm_id_list, state='terminated')
             if self.sg_id:
                 self.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=self.sg_id)
+                wait_security_groups_state(self.a1_r1, [self.sg_id], cleanup=True)
             if self.nic_id:
                 self.a1_r1.oapi.DeleteNic(NicId=self.nic_id)
-            if self.subnet_id:
-                self.a1_r1.fcu.DeleteSubnet(SubnetId=self.subnet_id)
-            if self.net_id:
-                self.a1_r1.fcu.DeleteVpc(VpcId=self.net_id)
+                wait_network_interfaces_state(self.a1_r1, [self.nic_id], cleanup=True)
         finally:
             super(Test_CreateVmsWithSubnet, self).teardown_method(method)
 
@@ -579,12 +595,14 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[
                 {'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['tata-12345678']}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
         # malformed id
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[
                 {'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['sg-1234567']}])
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
 
@@ -661,6 +679,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
                     'NicId': nic_id1,
                 }],
             )
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
         finally:
@@ -725,6 +744,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
                     }
                 ]
             )
+            assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidResource', '5022')
 
