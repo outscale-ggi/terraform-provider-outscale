@@ -266,7 +266,6 @@ class Test_CreateLoadBalancerTags(OscTestSuite):
                                                                           Tags=[{'Key': incorrect_key, 'Value': 'value'}]).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert False, 'Remove known error'
             assert_oapi_error(error, 400, 'InvalidParameterValue', 4106)
         finally:
             read = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
