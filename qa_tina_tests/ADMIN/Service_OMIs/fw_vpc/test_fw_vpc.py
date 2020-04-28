@@ -116,7 +116,7 @@ class Test_fw_vpc(OscTestSuite):
 
     def test_T1877_check_kernel(self):
         out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "uname -a")
-        pattern = re.compile(' 4.9.20 ')
+        pattern = re.compile(' 4.14.14 ')
         assert re.search(pattern, out)
 
     def test_T1926_check_cpu_generation(self):
