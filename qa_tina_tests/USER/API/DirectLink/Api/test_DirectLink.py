@@ -37,7 +37,7 @@ class Test_DirectLink(OscTestSuite):
 
     def test_T3847_method_get(self):
         try:
-            self.a1_r1.directlink.DescribeLocations(method='GET')
+            self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_METHOD: 'GET'})
             assert False, 'Call should have been successful'
         except OscApiException as error:
             assert error.status_code == 400
@@ -51,7 +51,7 @@ class Test_DirectLink(OscTestSuite):
     @pytest.mark.tag_sec_confidentiality
     def test_T3849_without_authentication(self):
         try:
-            self.a1_r1.directlink.DescribeLocations(auth=AuthMethod.Empty)
+            self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should have been successful'
         except OscApiException as error:
             assert_error(error, 401, "AuthFailure", "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
@@ -76,7 +76,7 @@ class Test_DirectLink(OscTestSuite):
         nb_ko = 0
         for _ in range(10):
             try:
-                self.a1_r1.directlink.DescribeLocations(max_retry=0)
+                self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 nb_ok += 1
             except OscApiException as error:
                 if error.status_code == 503:
@@ -125,9 +125,7 @@ class Test_DirectLink(OscTestSuite):
                 assert_error(error, 400, 'NotImplemented', None)
             try:
                 account_sdk.oapi.ReadVms()
-                known_error('No ticket', 'Waiting for product decision')
             except OscApiException as error:
-                assert False, 'Remove known error'
                 assert_error(error, 400, 'UnauthorizedOperation', None)
         finally:
             if attach_policy:
