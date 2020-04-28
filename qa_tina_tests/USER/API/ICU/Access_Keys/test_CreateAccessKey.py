@@ -3,7 +3,6 @@ import re
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_sdk_pub.osc_api import AuthMethod
 from time import sleep
 from qa_sdk_pub import osc_api
 
@@ -24,7 +23,7 @@ class Test_CreateAccessKey(OscTestSuite):
         ret_create = None
         try:
             tag = [{'Key': 'Name', 'Value': 'Marketplace'}]
-            ret_create = self.a1_r1.icu.CreateAccessKey(auth=AuthMethod.Empty, Tag=tag)
+            ret_create = self.a1_r1.icu.CreateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Tag=tag)
             ak = ret_create.response.accessKey.accessKeyId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -113,7 +112,7 @@ class Test_CreateAccessKey(OscTestSuite):
         try:
             ak = id_generator(size=20)
             sk = id_generator(size=40)
-            ret_create = self.a1_r1.icu.CreateAccessKey(auth=AuthMethod.AkSk)
+            ret_create = self.a1_r1.icu.CreateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk})
             assert ak == ret_create.response.accessKey.accessKeyId, "AccesskeyID created does not correspond AccesskeyID passed"
             assert sk == ret_create.response.accessKey.secretAccessKey, "SecrretAccesskey created does not correspond SecrretAccesskey passed"
         except AssertionError as error:
@@ -129,7 +128,7 @@ class Test_CreateAccessKey(OscTestSuite):
         try:
             ak = id_generator(size=20)
             sk = id_generator(size=40)
-            ret_create = self.a1_r1.icu.CreateAccessKey(auth=AuthMethod.LoginPassword)
+            ret_create = self.a1_r1.icu.CreateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
             assert ak == ret_create.response.accessKey.accessKeyId, "AccesskeyID created does not correspond AccesskeyID passed"
             assert sk == ret_create.response.accessKey.secretAccessKey, "SecrretAccesskey created does not correspond SecrretAccesskey passed"
         except AssertionError as error:
@@ -250,10 +249,10 @@ class Test_CreateAccessKey(OscTestSuite):
         key_id_list = []
         osc_api.disable_throttling()
         try:
-            key_id_list.append(self.a1_r1.icu.CreateAccessKey(max_retry=0).response.accessKey.accessKeyId)
+            key_id_list.append(self.a1_r1.icu.CreateAccessKey(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}).response.accessKey.accessKeyId)
             for _ in range(3):
                 try:
-                    key_id_list.append(self.a1_r1.icu.CreateAccessKey(max_retry=0).response.accessKey.accessKeyId)
+                    key_id_list.append(self.a1_r1.icu.CreateAccessKey(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}).response.accessKey.accessKeyId)
                 except OscApiException as error:
                     if error.status_code == 503:
                         found_error = True

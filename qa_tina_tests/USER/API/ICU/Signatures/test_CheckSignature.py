@@ -42,7 +42,7 @@ class Test_CheckSignature(OscTestSuite):
         self.a1_r1.icu.CheckSignature(**self.kwargs)
 
     def test_T3967_non_authenticated(self):
-        self.a1_r1.icu.CheckSignature(auth=AuthMethod.Empty, **self.kwargs)
+        self.a1_r1.icu.CheckSignature(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, **self.kwargs)
 
     def test_T3765_incorrect_string(self):
         kwargs = {

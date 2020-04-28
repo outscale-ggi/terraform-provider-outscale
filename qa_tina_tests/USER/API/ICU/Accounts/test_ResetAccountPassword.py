@@ -7,6 +7,7 @@ from qa_sdk_pub.osc_api import AuthMethod
 from qa_test_tools.account_tools import create_account, delete_account
 import string
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_pub import osc_api
 
 
 class Test_ResetAccountPassword(OscTestSuite):
@@ -43,11 +44,11 @@ class Test_ResetAccountPassword(OscTestSuite):
             super(Test_ResetAccountPassword, self).teardown_method(method)
 
     def test_T3962_non_authenticated(self):
-        self.icu.ResetAccountPassword(auth=AuthMethod.Empty, Token=self.rettoken.response.passwordToken, Password=self.new_password)
+        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=self.new_password)
 
     def test_T4671_with_the_same_password(self):
         try:
-            self.icu.ResetAccountPassword(auth=AuthMethod.Empty, Token=self.rettoken.response.passwordToken, Password=self.password)
+            self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=self.password)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, "PasswordPolicyViolation", 'Password must not match previous 10 password(s)')

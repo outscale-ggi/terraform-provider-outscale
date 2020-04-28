@@ -53,7 +53,7 @@ class Test_ReadQuotas(OscTestSuite):
                 'rtb_rule_limit': ('Route Limit', 'Maximum number of route rules per route table', 'VPC'),
                 'bypass_vpc_limit': ('Bypass VPC limit', 'Maximum number of firewall bypassing VPCs', 'VPC'),
                 'networklink_request_limit': ('Peering requests limit', 'Maximum number of peering connection in pending acceptance', 'VPC'),
-                'networklink_limit': ('Peering connection limit', 'Maximum number of available peering connections', 'VPC'),
+                'networklink_limit': ('Peering connection limit', 'Maximum number of available peering connections per VPC', 'VPC'),
                 'network_endpoint_limit': ('VPC Endpoint Limit', 'Maximum number of VPC endpoints', 'VPC'),
                 'nat_gateway_limit': ('Nat Gateway Limit', 'Maximum number of NAT gateways', 'VPC'),
                 # VPN
