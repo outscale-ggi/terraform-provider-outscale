@@ -14,10 +14,10 @@ from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 
 MODEL_NAME = 'nvidia-k2'
-DEFAULT_TYPE = 'tinav3.c4r8'
+DEFAULT_TYPE = 'tinav4.c4r8'
 CORE_NUM = 4
 RAM_NUM = 8
-GPU_TYPE = 'mv3.large'
+GPU_TYPE = 'tinav4.c2r8p3'
 GPU_TYPE_CORES = 2
 GPU_TYPE_RAMS = 8
 
