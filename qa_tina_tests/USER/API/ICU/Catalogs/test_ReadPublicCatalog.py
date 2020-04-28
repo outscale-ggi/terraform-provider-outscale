@@ -1,5 +1,5 @@
 from qa_test_tools.test_base import OscTestSuite
-from qa_sdk_pub.osc_api import AuthMethod
+from qa_sdk_pub import osc_api
 
 
 class Test_ReadPublicCatalog(OscTestSuite):
@@ -26,7 +26,7 @@ class Test_ReadPublicCatalog(OscTestSuite):
         assert hasattr(ret.response.Catalog.Entries[0], 'Value')
 
     def test_T1423_without_authent(self):
-        ret = self.a1_r1.icu.ReadPublicCatalog(auth=AuthMethod.Empty)
+        ret = self.a1_r1.icu.ReadPublicCatalog(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
         # Attributes
         assert len(ret.response.Catalog.Attributes) >= 1, 'Catalog attribute size is incorrect'
         assert hasattr(ret.response.Catalog.Attributes[0], 'Key')

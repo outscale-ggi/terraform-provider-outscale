@@ -103,7 +103,7 @@ class Test_DeleteAccessKey(OscTestSuite):
         try:
             ret_create = self.a1_r1.icu.CreateAccessKey()
             ak = ret_create.response.accessKey.accessKeyId
-            ret_delete = self.a1_r1.icu.DeleteAccessKey(auth=AuthMethod.AkSk, AccessKeyId=ak)
+            ret_delete = self.a1_r1.icu.DeleteAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk}, AccessKeyId=ak)
             assert ret_delete.response
         finally:
             if ret_create and not ret_delete:
@@ -117,7 +117,7 @@ class Test_DeleteAccessKey(OscTestSuite):
         try:
             ret_create = self.a1_r1.icu.CreateAccessKey()
             ak = ret_create.response.accessKey.accessKeyId
-            ret_delete = self.a1_r1.icu.DeleteAccessKey(auth=AuthMethod.LoginPassword, AccessKeyId=ak)
+            ret_delete = self.a1_r1.icu.DeleteAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=ak)
             assert ret_delete.response
         finally:
             if ret_create and not ret_delete:
@@ -149,7 +149,7 @@ class Test_DeleteAccessKey(OscTestSuite):
             key_id_list.append(self.a1_r1.icu.CreateAccessKey().response.accessKey.accessKeyId)
         for key_id in key_id_list:
             try:
-                self.a1_r1.icu.DeleteAccessKey(AccessKeyId=key_id, max_retry=0)
+                self.a1_r1.icu.DeleteAccessKey(AccessKeyId=key_id, exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
             except OscApiException as error:
                 if error.status_code == 503:
                     found_error = True

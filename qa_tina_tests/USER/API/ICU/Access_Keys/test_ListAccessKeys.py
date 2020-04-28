@@ -27,10 +27,10 @@ class Test_ListAccessKeys(OscTestSuite):
         sleep(11)
         found_error = False
         osc_api.disable_throttling()
-        self.a1_r1.icu.ListAccessKeys(max_retry=0)
+        self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
         for _ in range(3):
             try:
-                self.a1_r1.icu.ListAccessKeys(max_retry=0)
+                self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
             except OscApiException as error:
                 if error.status_code == 503:
                     found_error = True
@@ -42,19 +42,19 @@ class Test_ListAccessKeys(OscTestSuite):
     def test_T3968_non_authenticated(self):
         sleep(11)
         try:
-            self.a1_r1.icu.ListAccessKeys(auth=AuthMethod.Empty)
+            self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'IcuClientException', 'Field AuthenticationMethod is required')
 
     def test_T3978_with_method_ak_sk(self):
         sleep(11)
-        ret = self.a1_r1.icu.ListAccessKeys(auth=AuthMethod.AkSk)
+        ret = self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk})
         assert len(ret.response.accessKeys) >= 1
         # TODO: check returned attributes
 
     def test_T3979_with_method_login_password(self):
         sleep(11)
-        ret = self.a1_r1.icu.ListAccessKeys(auth=AuthMethod.LoginPassword)
+        ret = self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
         assert len(ret.response.accessKeys) >= 1
         # TODO: check returned attributes
