@@ -1,8 +1,4 @@
 
-from Crypto.Cipher import PKCS1_v1_5
-from Crypto.PublicKey import RSA
-import base64
-import pytest
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import create_tools, wait_tools, info_keys,\
     delete_tools
@@ -21,9 +17,9 @@ class Test_GetPasswordData(OscTestSuite):
         try:
             cls.kp_info_a1 = create_tools.create_keypair(cls.a1_r1)
             cls.kp_info_a2 = create_tools.create_keypair(cls.a2_r1)
-            cls.instance_info_a1 = create_tools.create_instances(cls.a1_r1, state=None, omi_id=cls.a1_r1._config.region._conf['windows_2016'],
+            cls.instance_info_a1 = create_tools.create_instances(cls.a1_r1, state=None, omi_id=cls.a1_r1.config.region._conf['windows_2016'],
                                                     inst_type='c4.large', key_name=cls.kp_info_a1[info_keys.NAME], nb=3)
-            cls.instance_info_a2 = create_tools.create_instances(cls.a2_r1, state=None, omi_id=cls.a2_r1._config.region._conf['windows_2016'],
+            cls.instance_info_a2 = create_tools.create_instances(cls.a2_r1, state=None, omi_id=cls.a2_r1.config.region._conf['windows_2016'],
                                                     inst_type='c4.large', key_name=cls.kp_info_a2[info_keys.NAME])
             wait_tools.wait_instances_state(cls.a1_r1, cls.instance_info_a1[info_keys.INSTANCE_ID_LIST], state='ready', threshold=150)
             wait_tools.wait_instances_state(cls.a2_r1, cls.instance_info_a2[info_keys.INSTANCE_ID_LIST], state='ready', threshold=150)

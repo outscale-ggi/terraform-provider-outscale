@@ -91,8 +91,10 @@ class Test_CreateCustomerGateway(OscTestSuite):
     def test_T4504_with_reserved_ip(self):
         try:
             create_customer_gateway(self.a1_r1, bgp_asn=12, ip_address='192.168.1.3', typ='ipsec.1')
+            known_error('TINA-5642', 'Create customer gateway with reserved ip_address should not have been successful')
             assert False, 'Call should not have been successful, invalid extra parameter'
         except OscApiException as error:
+            assert False, 'Remove known error'
             assert_error(error, 400, 'InvalidParameterValue', 'Value for parameter ipAddress is a private address: 192.168.1.3')
 
     def test_T4925_with_private_ip(self):
