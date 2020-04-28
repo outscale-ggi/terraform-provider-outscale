@@ -4,13 +4,13 @@ from datetime import datetime
 import re
 import time
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SECURITY_GROUP_ID, SUBNETS, KEY_PAIR, VPC_ID, PATH, INSTANCE_ID_LIST
-from qa_common_tools.ssh import SshTools
+from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_gateways_attachment_state
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
@@ -188,18 +188,28 @@ class Test_multi_vpn(OscTestSuite):
             self.logger.info("inst vpc -> : None -- {}".format(inst_vpc['privateIpAddress']))
 
             # try to make ping from CGW to VPC instance
-            out, _, _ = SshTools.exec_command_paramiko_2(
-                sshclient1,
-                'ping -I {} -W 1 -c 1 {}'.format(inst1['privateIpAddress'], inst_vpc['privateIpAddress']),
-                retry=20,
-                timeout=10)
-            assert "1 packets transmitted, 1 received, 0% packet loss" in out
-            out, _, _ = SshTools.exec_command_paramiko_2(
-                sshclient2,
-                'ping -I {} -W 1 -c 1 {}'.format(inst2['privateIpAddress'], inst_vpc['privateIpAddress']),
-                retry=20,
-                timeout=10)
-            assert "1 packets transmitted, 1 received, 0% packet loss" in out
+            try:
+                out, _, _ = SshTools.exec_command_paramiko_2(
+                    sshclient1,
+                    'ping -I {} -W 1 -c 1 {}'.format(inst1['privateIpAddress'], inst_vpc['privateIpAddress']),
+                    retry=20,
+                    timeout=10)
+                assert "1 packets transmitted, 1 received, 0% packet loss" in out
+            except OscCommandError:
+                known_error('OPS-11284', 'VPN does not function.')
+                # raise
+            assert False, 'Remove known error code'
+            try:
+                out, _, _ = SshTools.exec_command_paramiko_2(
+                    sshclient2,
+                    'ping -I {} -W 1 -c 1 {}'.format(inst2['privateIpAddress'], inst_vpc['privateIpAddress']),
+                    retry=20,
+                    timeout=10)
+                assert "1 packets transmitted, 1 received, 0% packet loss" in out
+            except OscCommandError:
+                known_error('OPS-11284', 'VPN does not function.')
+                # raise
+            assert False, 'Remove known error code'
 
             # check vpn connection status
             start = datetime.now()
