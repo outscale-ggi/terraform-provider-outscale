@@ -38,7 +38,7 @@ class Test_LBU(OscTestSuite):
     @pytest.mark.tag_sec_confidentiality
     def test_T3873_without_authentication(self):
         try:
-            self.a1_r1.lbu.DescribeLoadBalancers(auth=AuthMethod.Empty)
+            self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 401, "AuthFailure", "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
@@ -63,7 +63,7 @@ class Test_LBU(OscTestSuite):
         nb_ko = 0
         for _ in range(10):
             try:
-                self.a1_r1.lbu.DescribeLoadBalancers(max_retry=0)
+                self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 nb_ok += 1
             except OscApiException as error:
                 if error.status_code == 503:
