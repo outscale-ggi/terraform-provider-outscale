@@ -110,5 +110,5 @@ class Test_CreateVpcEndpoint(OscTestSuite):
                                                    RouteTableId=self.vpc_info[ROUTE_TABLE_ID])
             wait_vpc_endpoints_state(self.a1_r1, [ret.response.vpcEndpoint.vpcEndpointId], state='available')
         except OscApiException as err:
-            assert_error(err, 400, 'VPCEndpointAlreadyExists', "VPC endpoint already exists for ServiceName: com.outscale.{}.osu, RouteTablesIDs: {}"
+            assert_error(err, 400, 'VPCEndpointAlreadyExists', "VPC endpoint already exists for ServiceName: com.outscale.{}.api, RouteTablesIDs: {}"
                          .format(self.a1_r1.config.region.name, self.vpc_info[ROUTE_TABLE_ID]))
