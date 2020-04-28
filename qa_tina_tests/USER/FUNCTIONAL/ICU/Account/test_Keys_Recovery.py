@@ -2,12 +2,12 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools import misc
 from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
-from qa_sdk_pub.osc_api import AuthMethod
 from qa_sdk_pub.osc_api.osc_pub_api import OscPubApi
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import pytest
 from qa_test_tools.account_tools import create_account, delete_account
 from qa_sdk_common.config.default_public_config import DefaultPubConfig
+from qa_sdk_pub import osc_api
 
 
 class Test_Keys_Recovery(OscTestSuite):
@@ -32,7 +32,7 @@ class Test_Keys_Recovery(OscTestSuite):
             config = DefaultPubConfig(None, None, login=email, password=password, region_name=self.a1_r1.config.region.name)
             icu = OscIcuApi(service='icu', config=config)
             try:
-                icu.ResetAccountPassword(auth=AuthMethod.Empty, Token=rettoken.response.passwordToken, Password='toto')
+                icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=rettoken.response.passwordToken, Password='toto')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 assert_error(error, 400, 'PasswordPolicyViolation', 'Password strength score (0) is too low: at least 4 '
@@ -41,10 +41,10 @@ class Test_Keys_Recovery(OscTestSuite):
                                                                     'than "abc".. Suggestions: [Add another word or two.'
                                                                     ' Uncommon words are better.|Avoid repeated words and characters.]')
             new_password = id_generator(size=20)
-            icu.ResetAccountPassword(auth=AuthMethod.Empty, Token=rettoken.response.passwordToken, Password=new_password)
+            icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=rettoken.response.passwordToken, Password=new_password)
             config = DefaultPubConfig(None, None, login=email, password=new_password, region_name=self.a1_r1.config.region.name)
             icu = OscIcuApi(service='icu', config=config)
-            listkey = icu.ListAccessKeys(auth=AuthMethod.LoginPassword)
+            listkey = icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
             config = DefaultPubConfig(ak=listkey.response.accessKeys[0].accessKeyId, sk=listkey.response.accessKeys[0].secretAccessKey,
                                       region_name=self.a1_r1.config.region.name)
             fcu = OscPubApi(service='fcu', config=config)
