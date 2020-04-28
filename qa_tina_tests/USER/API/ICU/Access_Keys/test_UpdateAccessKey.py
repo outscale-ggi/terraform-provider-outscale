@@ -22,10 +22,10 @@ class Test_UpdateAccessKey(OscTestSuite):
         osc_api.disable_throttling()
         try:
             ak = self.a1_r1.icu.CreateAccessKey().response.accessKey.accessKeyId
-            self.a1_r1.icu.UpdateAccessKey(AccessKeyId=ak, Status='active', max_retry=0)
+            self.a1_r1.icu.UpdateAccessKey(AccessKeyId=ak, Status='active', exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
             for _ in range(3):
                 try:
-                    self.a1_r1.icu.UpdateAccessKey(AccessKeyId=ak, Status='active', max_retry=0)
+                    self.a1_r1.icu.UpdateAccessKey(AccessKeyId=ak, Status='active', exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 except OscApiException as error:
                     if error.status_code == 503:
                         found_error = True
@@ -51,7 +51,7 @@ class Test_UpdateAccessKey(OscTestSuite):
         sleep(30)
         try:
             ak = self.a1_r1.icu.CreateAccessKey().response.accessKey.accessKeyId
-            self.a1_r1.icu.UpdateAccessKey(auth=AuthMethod.AkSk, AccessKeyId=ak, Status='active')
+            self.a1_r1.icu.UpdateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk}, AccessKeyId=ak, Status='active')
         finally:
             if ak:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
@@ -61,7 +61,7 @@ class Test_UpdateAccessKey(OscTestSuite):
         sleep(30)
         try:
             ak = self.a1_r1.icu.CreateAccessKey().response.accessKey.accessKeyId
-            self.a1_r1.icu.UpdateAccessKey(auth=AuthMethod.LoginPassword, AccessKeyId=ak, Status='active')
+            self.a1_r1.icu.UpdateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=ak, Status='active')
         finally:
             if ak:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)

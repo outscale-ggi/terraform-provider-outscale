@@ -3,6 +3,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_test_tools.misc import assert_error
+from qa_sdk_pub import osc_api
 
 
 class Test_ReadCatalog(OscTestSuite):
@@ -40,7 +41,7 @@ class Test_ReadCatalog(OscTestSuite):
 
     def test_T1422_without_authent(self):
         try:
-            self.a1_r1.icu.ReadCatalog(auth=False)
+            self.a1_r1.icu.ReadCatalog(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Should not have succeeded'
         except OscApiException as error:
             assert_error(error, 401, 'AuthFailure', 'Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.')

@@ -2,6 +2,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.misc import assert_oapi_error
+import pytest
 
 
 class Test_CreateNetAccessPoint(OscTestSuite):
@@ -67,6 +68,7 @@ class Test_CreateNetAccessPoint(OscTestSuite):
         if net_id:
             self.a1_r1.oapi.DeleteNet(NetId=net_id)
 
+    @pytest.mark.region_osu
     def test_T3699_valid_params(self):
         net_id = self.a1_r1.oapi.CreateNet(IpRange='10.0.0.0/16').response.Net.NetId
         route_table_id = self.a1_r1.oapi.CreateRouteTable(NetId=net_id).response.RouteTable.RouteTableId

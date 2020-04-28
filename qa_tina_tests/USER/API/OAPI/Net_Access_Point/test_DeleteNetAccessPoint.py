@@ -5,6 +5,7 @@ from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.misc import assert_oapi_error
 
 
+@pytest.mark.region_osu
 class Test_DeleteNetAccessPoint(OscTestSuite):
 
     @classmethod
