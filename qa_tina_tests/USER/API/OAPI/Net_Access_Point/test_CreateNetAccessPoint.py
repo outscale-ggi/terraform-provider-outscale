@@ -68,7 +68,6 @@ class Test_CreateNetAccessPoint(OscTestSuite):
         if net_id:
             self.a1_r1.oapi.DeleteNet(NetId=net_id)
 
-    @pytest.mark.region_osu
     def test_T3699_valid_params(self):
         net_id = self.a1_r1.oapi.CreateNet(IpRange='10.0.0.0/16').response.Net.NetId
         route_table_id = self.a1_r1.oapi.CreateRouteTable(NetId=net_id).response.RouteTable.RouteTableId
@@ -76,7 +75,7 @@ class Test_CreateNetAccessPoint(OscTestSuite):
         try:
             net_access_point_id = self.a1_r1.oapi.CreateNetAccessPoint(
                 NetId=net_id,
-                ServiceName='com.outscale.{}.osu'.format(self.a1_r1.config.region.name),
+                ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
                 RouteTableIds=[route_table_id]).response.NetAccessPoint.NetAccessPointId
         finally:
             if net_access_point_id:
@@ -89,7 +88,7 @@ class Test_CreateNetAccessPoint(OscTestSuite):
     def test_T3700_dry_run(self):
         ret = self.a1_r1.oapi.CreateNetAccessPoint(
             NetId='vpc-12345795688',
-            ServiceName='com.outscale.{}.osu'.format(self.a1_r1.config.region.name),
+            ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
             RouteTableIds=['rtb-titi'],
             DryRun=True)
         assert_dry_run(ret)

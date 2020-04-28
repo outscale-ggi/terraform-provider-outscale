@@ -5,7 +5,6 @@ from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.misc import assert_oapi_error
 
 
-@pytest.mark.region_osu
 class Test_DeleteNetAccessPoint(OscTestSuite):
 
     @classmethod
@@ -18,7 +17,7 @@ class Test_DeleteNetAccessPoint(OscTestSuite):
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange='10.0.0.0/16').response.Net.NetId
             cls.route_table_id = cls.a1_r1.oapi.CreateRouteTable(NetId=cls.net_id).response.RouteTable.RouteTableId
             cls.net_ap_id = cls.a1_r1.oapi.CreateNetAccessPoint(NetId=cls.net_id,
-                                                                ServiceName='com.outscale.{}.osu'.format(cls.a1_r1.config.region.name),
+                                                                ServiceName='com.outscale.{}.api'.format(cls.a1_r1.config.region.name),
                                                                 RouteTableIds=[cls.route_table_id]).response.NetAccessPoint.NetAccessPointId
         except:
             try:
