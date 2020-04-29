@@ -84,4 +84,4 @@ class Test_UpdateKeyDescription(Kms):
             self.a1_r1.kms.UpdateKeyDescription(KeyId=self.key_id, Description=description)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidParameterValueLength', "Length of parameter 'Description' is invalid: 10000. Expected: set([(0, 8192)]).")
+            assert_error(error, 400, 'InvalidParameterValueLength', "Length of parameter 'Description' is invalid: 10000. Expected: {(0, 8192)}.")
