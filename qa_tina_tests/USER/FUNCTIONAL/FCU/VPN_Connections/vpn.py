@@ -4,7 +4,7 @@ from datetime import datetime
 import re
 import time
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
@@ -152,7 +152,9 @@ class Vpn(OscTestSuite):
                     timeout=10)
                 assert "1 packets transmitted, 1 received, 0% packet loss" in out
             except OscCommandError:
-                raise
+                known_error('OPS-11284', 'VPN does not function.')
+                # raise
+            assert False, 'Remove known error code'
 
             # check vpn connection status
             start = datetime.now()

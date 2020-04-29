@@ -7,7 +7,7 @@ from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools import user_data_windows
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_keypair, delete_subnet
@@ -158,8 +158,12 @@ class Test_create_using_instance(OscTestSuite):
 
     @pytest.mark.tag_redwire
     def test_T65_create_using_public_instance(self):
-        wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_1_id], state='ready', threshold=150)
-
+        try:
+            wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_1_id], state='ready', threshold=150)
+        except:
+            known_error('OPS-11280', 'Error starting windows instance')
+        assert False, 'Remove known error code'
+        
         # get public IP
         time.sleep(5)  # this is needed to avoid request exceeded on prod
         describe_res = self.a1_r1.fcu.DescribeInstances(Filter=[{'Name': 'instance-id', 'Value': [self.inst_1_id]}])
@@ -177,8 +181,11 @@ class Test_create_using_instance(OscTestSuite):
 
     @pytest.mark.tag_redwire
     def test_T122_create_using_private_instance_VPC(self):
-
-        wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_2_id], state='ready', threshold=150)
+        try:
+            wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_2_id], state='ready', threshold=150)
+        except:
+            known_error('OPS-11280', 'Error starting windows instance')
+        assert False, 'Remove known error code'
 
         self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst_2_id)
         inst_2_pub_IP = self.eip.response.publicIp

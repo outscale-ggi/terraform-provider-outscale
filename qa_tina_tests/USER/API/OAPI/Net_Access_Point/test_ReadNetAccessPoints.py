@@ -5,7 +5,6 @@ from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.tools.tina.wait_tools import wait_vpc_endpoints_state
 
 
-@pytest.mark.region_osu
 class Test_ReadNetAccessPoints(OscTestSuite):
 
     @classmethod
@@ -14,7 +13,7 @@ class Test_ReadNetAccessPoints(OscTestSuite):
         cls.net_id = None
         cls.route_table_id = None
         cls.net_ap_id = None
-        cls.service_name = 'com.outscale.{}.osu'.format(cls.a1_r1.config.region.name)
+        cls.service_name = 'com.outscale.{}.api'.format(cls.a1_r1.config.region.name)
         try:
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange='10.0.0.0/16').response.Net.NetId
             cls.net_id2 = cls.a1_r1.oapi.CreateNet(IpRange='10.0.0.0/16').response.Net.NetId

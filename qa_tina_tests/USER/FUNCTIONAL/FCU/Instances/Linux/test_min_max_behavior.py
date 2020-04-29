@@ -7,6 +7,7 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 
 
 def evaluate_server(server):
@@ -41,14 +42,14 @@ class Test_min_max_behavior(OscTestSuite):
         for server in ret.response.result:
             if server.state != 'READY':
                 continue
-            if not hasattr(server.tags, 'instancetype'):
-                continue
-            if '*' not in server.tags.instancetype.split(','):
+            if server.cpu_generation != 3:
                 continue
             current_eval = evaluate_server(server)
             if current_eval < best_eval:
                 kvm_selected = server
                 best_eval = current_eval
+        if not kvm_selected:
+            raise OscTestException('Could not find suitable kvm')
         userdata = """-----BEGIN OUTSCALE SECTION-----
                    pin={}
                    -----END OUTSCALE SECTION-----""".format(kvm_selected.name)

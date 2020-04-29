@@ -1,7 +1,6 @@
 
-from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina import create_tools, wait_tools, info_keys,\
-    delete_tools
+from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_tina_tools.tools.tina import create_tools, wait_tools, info_keys, delete_tools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 
@@ -23,12 +22,14 @@ class Test_GetPasswordData(OscTestSuite):
                                                     inst_type='c4.large', key_name=cls.kp_info_a2[info_keys.NAME])
             wait_tools.wait_instances_state(cls.a1_r1, cls.instance_info_a1[info_keys.INSTANCE_ID_LIST], state='ready', threshold=150)
             wait_tools.wait_instances_state(cls.a2_r1, cls.instance_info_a2[info_keys.INSTANCE_ID_LIST], state='ready', threshold=150)
+            assert False, 'Remove known error code'
         except Exception as error:
             try:
                 cls.teardown_class()
             except:
                 pass
-            raise error
+            known_error('OPS-11280', 'Error starting windows instance')
+            #raise error
 
     @classmethod
     def teardown_class(cls):
