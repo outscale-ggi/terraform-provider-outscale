@@ -33,7 +33,7 @@ class Test_KMS(OscTestSuite):
 
     def test_T3884_method_get(self):
         try:
-            self.a1_r1.kms.ListKeys(method='GET')
+            self.a1_r1.kms.ListKeys(exec_data={osc_api.EXEC_DATA_METHOD: 'GET'})
             assert False, 'Call should have been successful'
         except OscApiException as error:
             assert error.status_code == 400
