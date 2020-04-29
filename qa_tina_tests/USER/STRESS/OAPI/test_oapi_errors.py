@@ -1,3 +1,4 @@
+from qa_sdk_pub import osc_api
 from qa_test_tools.test_base import OscTestSuite
 import time
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -29,7 +30,7 @@ class Test_oapi_errors(OscTestSuite):
             net_id = None
             try:
                 call_number += 1
-                ret = self.a1_r1.oapi.CreateInternetService(max_retry=0)
+                ret = self.a1_r1.oapi.CreateInternetService(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 net_id = ret.response.InternetService.InternetServiceId
             except OscApiException as error:
                 errs.handle_api_exception(error, error_type.Create)
@@ -39,7 +40,7 @@ class Test_oapi_errors(OscTestSuite):
                 try:
                     if not net_id:
                         call_number += 1
-                        ret = self.a1_r1.oapi.ReadInternetServices(max_retry=0).response.InternetServices
+                        ret = self.a1_r1.oapi.ReadInternetServices(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}).response.InternetServices
                         if ret and len(ret) == 1:
                             net_id = ret[0].InternetServiceId
                 except Exception:
@@ -47,7 +48,7 @@ class Test_oapi_errors(OscTestSuite):
                 if net_id:
                     try:
                         call_number += 1
-                        self.a1_r1.oapi.DeleteInternetService(InternetServiceId=net_id, max_retry=0)
+                        self.a1_r1.oapi.DeleteInternetService(InternetServiceId=net_id, exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                         net_id = None
                     except OscApiException as error:
                         errs.handle_api_exception(error, error_type.Delete)
@@ -56,7 +57,7 @@ class Test_oapi_errors(OscTestSuite):
                     finally:
                         try:
                             call_number += 1
-                            ret = self.a1_r1.oapi.ReadInternetServices(max_retry=0).response.InternetServices
+                            ret = self.a1_r1.oapi.ReadInternetServices(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}).response.InternetServices
                             if not ret:
                                 net_id = None
                         except Exception:
@@ -64,7 +65,7 @@ class Test_oapi_errors(OscTestSuite):
                 if net_id:
                     try:
                         call_number += 1
-                        self.a1_r1.oapi.DeleteInternetService(PublicIp=net_id, max_retry=0)
+                        self.a1_r1.oapi.DeleteInternetService(PublicIp=net_id, exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                     except Exception:
                         print("Could not release address.")
 

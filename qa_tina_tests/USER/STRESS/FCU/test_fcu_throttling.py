@@ -25,7 +25,7 @@ class Test_fcu_throttling(OscTestSuite):
         osc_api.disable_throttling()
         for _ in range(500):
             try:
-                self.a1_r1.fcu.DescribeAddresses(max_retry=0)
+                self.a1_r1.fcu.DescribeAddresses(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 tmp_time = time.time()
                 if last_success:
                     min_dist_success = min(min_dist_success, tmp_time-last_success)
@@ -48,7 +48,7 @@ class Test_fcu_throttling(OscTestSuite):
         osc_api.disable_throttling()
         for _ in range(FRONT_NUM + 1):
             try:
-                self.a1_r1.fcu.DescribeAddresses(max_retry=0)
+                self.a1_r1.fcu.DescribeAddresses(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
             except OscApiException as error:
                 if hasattr(error, 'status_code') and error.status_code == 503:
                     has_throttling_error = True
@@ -61,7 +61,7 @@ class Test_fcu_throttling(OscTestSuite):
         osc_api.disable_throttling()
         for i in range(FRONT_NUM + 1):
             try:
-                self.a1_r1.fcu.DescribeAddresses(max_retry=0, PublicIp='192.168.1.{}'.format(i))
+                self.a1_r1.fcu.DescribeAddresses(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}, PublicIp='192.168.1.{}'.format(i))
             except OscApiException as error:
                 if hasattr(error, 'status_code') and error.status_code == 503:
                     has_throttling_error = True
