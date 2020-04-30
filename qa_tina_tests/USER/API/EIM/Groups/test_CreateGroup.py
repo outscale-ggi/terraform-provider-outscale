@@ -61,7 +61,7 @@ class Test_CreateGroup(OscTestSuite):
                 assert False, "Creategroup must fail with invalid groupName"
             except OscApiException as error:
                 if error.status_code == 500 and error.message == 'Internal Error':
-                    known_error('TINA-5474', 'EIM CreateGroup: Internal error when using a colon in group name')
+                    known_error('TINA-5530', 'EIM CreateGroup: Internal error when using a colon in group name')
                 assert_error(error, 400, "ValidationError",
                              "Invalid IdauthGroup: [name: must contain only alphanumeric characters and/or +=,.@-_ characters]")
         assert False, 'Remove known error code'
