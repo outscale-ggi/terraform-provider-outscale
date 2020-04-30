@@ -11,7 +11,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_lbu
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, PATH, KEY_PAIR, SECURITY_GROUP_ID
 from qa_test_tools.config import config_constants as constants
 
-class Test_CreateListenerRule(OscTestSuite):
+class Test_listenerrules(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
@@ -21,7 +21,7 @@ class Test_CreateListenerRule(OscTestSuite):
         cls.ret_reg = None
         cls.rule_name = id_generator(prefix='rn-')
         cls.inst_id_list = []
-        super(Test_CreateListenerRule, cls).setup_class()
+        super(Test_listenerrules, cls).setup_class()
         try:
             cls.lbu_resp = create_load_balancer(cls.a1_r1, cls.lb_name, listeners=[{'InstancePort': 80,
                                                                                     'InstanceProtocol': 'HTTP',
@@ -62,7 +62,7 @@ class Test_CreateListenerRule(OscTestSuite):
             if cls.lbu_resp:
                 delete_lbu(cls.a1_r1, lbu_name=cls.lb_name)
         finally:
-            super(Test_CreateListenerRule, cls).teardown_class()
+            super(Test_listenerrules, cls).teardown_class()
 
     def test_T4926_forward(self):
         if self.a1_r1.config.account.login.startswith('qa'):
