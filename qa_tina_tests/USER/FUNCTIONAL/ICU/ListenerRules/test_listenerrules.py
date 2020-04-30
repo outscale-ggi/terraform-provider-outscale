@@ -29,7 +29,6 @@ class Test_listenerrules(OscTestSuite):
                                                                                     'LoadBalancerPort': 80}],
                                                 availability_zones=[cls.a1_r1.config.region.az_name])
             cls.inst_info = create_instances(cls.a1_r1, nb=4)
-            print("kaka")
             cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.inst_info[SECURITY_GROUP_ID],
                                                         IpProtocol='tcp',
                                                         FromPort=80, ToPort=80,
