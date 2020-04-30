@@ -7,7 +7,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_keypa
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, NAME, PATH, \
     INSTANCE_ID_LIST
 from qa_common_tools.ssh import SshTools
-from qa_tina_tools.tools.tina import wait_tools
 
 
 class Test_instance_metadata(OscTestSuite):
@@ -53,14 +52,10 @@ class Test_instance_metadata(OscTestSuite):
     def test_T1771_tags_access(self):
         out, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/')
         keys = out.split()
-        try:
-            assert len(keys) == 3
-            assert 'key1' in keys
-            assert 'key2' in keys
-            assert 'key3' in keys
-        except AssertionError:
-            known_error('TINA-5647', 'Tags not available in metadata right away')
-        assert False, 'Remove known error code'
+        assert len(keys) == 3
+        assert 'key1' in keys
+        assert 'key2' in keys
+        assert 'key3' in keys
 
     def test_T1772_latest_metadata_access(self):
         out, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/latest/meta-data/')
@@ -70,13 +65,9 @@ class Test_instance_metadata(OscTestSuite):
         out1, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/key1')
         out2, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/key2')
         out3, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/key3')
-        try:
-            assert out1.strip() == 'value1'
-            assert out2.strip() == 'value2'
-            assert out3.strip() == ''
-        except AssertionError:
-            known_error('TINA-5647', 'Tags not available in metadata right away')
-        assert False, 'Remove known error code'
+        assert out1.strip() == 'value1'
+        assert out2.strip() == 'value2'
+        assert out3.strip() == ''
 
     def test_T1780_metadata_access(self):
         out, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/')
