@@ -151,10 +151,8 @@ class Vpn(OscTestSuite):
                     retry=20,
                     timeout=10)
                 assert "1 packets transmitted, 1 received, 0% packet loss" in out
-            except OscCommandError:
-                known_error('OPS-11284', 'VPN does not function.')
-                # raise
-            assert False, 'Remove known error code'
+            except OscCommandError as error:
+                raise error
 
             # check vpn connection status
             start = datetime.now()
