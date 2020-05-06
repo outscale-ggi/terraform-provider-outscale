@@ -28,8 +28,7 @@ class Test_GetPasswordData(OscTestSuite):
                 cls.teardown_class()
             except:
                 pass
-            known_error('OPS-11280', 'Error starting windows instance')
-            #raise error
+            raise error
 
     @classmethod
     def teardown_class(cls):
