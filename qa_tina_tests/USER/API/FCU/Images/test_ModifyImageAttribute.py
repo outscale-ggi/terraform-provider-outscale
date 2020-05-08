@@ -262,7 +262,8 @@ class Test_ModifyImageAttribute(OscTestSuite):
             assert resp.productCodes == DESCRIPTION + 'new'
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_error(err, 400, 'InvalidProductInfo', 'The product codes are not valid: 2, 1')
+            assert_error(err, 400, 'InvalidProductInfo', None)
+            assert err.message in ['The product codes are not valid: 2, 1', 'The product codes are not valid: 1, 2'], 'Incorrect error message'
         finally:
             if ret:
                 # todo reset initial product code(s)
