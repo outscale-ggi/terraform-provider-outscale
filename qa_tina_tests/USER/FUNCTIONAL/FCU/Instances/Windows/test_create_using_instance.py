@@ -158,11 +158,8 @@ class Test_create_using_instance(OscTestSuite):
 
     @pytest.mark.tag_redwire
     def test_T65_create_using_public_instance(self):
-        try:
-            wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_1_id], state='ready', threshold=150)
-        except:
-            known_error('OPS-11280', 'Error starting windows instance')
-        assert False, 'Remove known error code'
+
+        wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_1_id], state='ready', threshold=150)
         
         # get public IP
         time.sleep(5)  # this is needed to avoid request exceeded on prod
@@ -181,11 +178,8 @@ class Test_create_using_instance(OscTestSuite):
 
     @pytest.mark.tag_redwire
     def test_T122_create_using_private_instance_VPC(self):
-        try:
-            wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_2_id], state='ready', threshold=150)
-        except:
-            known_error('OPS-11280', 'Error starting windows instance')
-        assert False, 'Remove known error code'
+
+        wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_2_id], state='ready', threshold=150)
 
         self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst_2_id)
         inst_2_pub_IP = self.eip.response.publicIp

@@ -11,8 +11,8 @@ from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_common_tools.ssh import SshTools
 import base64
 
-NUM_PER_TRY = 10
-NUM_TRY = 10
+# NUM_PER_TRY = 10
+# NUM_TRY = 10
 
 
 class Test_public_inter_sg(OscTestSuite):
@@ -25,7 +25,7 @@ class Test_public_inter_sg(OscTestSuite):
         cls.inst2_id = None
         cls.sg1_id = None
         cls.sg2_id = None
-        cls.QUOTAS = {'vm_limit': NUM_PER_TRY * NUM_TRY + 1}
+        # cls.QUOTAS = {'vm_limit': NUM_PER_TRY * NUM_TRY + 1}
         super(Test_public_inter_sg, cls).setup_class()
         try:
             cls.kp_info = create_keypair(cls.a1_r1)
@@ -39,7 +39,7 @@ class Test_public_inter_sg(OscTestSuite):
                                                         ToPort=22, CidrIp=Configuration.get('cidr', 'allips'))
             subnets = cls.a1_r1.intel.subnet.describe(filters={'network': 'vpc-00000000'})
             if subnets.response.result.count < 2:
-                cls.logger.inofo("Test can not be executed")
+                cls.logger.info("Test can not be executed")
             userdata = """-----BEGIN OUTSCALE SECTION-----
             tags.osc.internal.private-subnet-id-force={}
             -----END OUTSCALE SECTION-----""".format(subnets.response.result.results[0].id)
@@ -88,6 +88,8 @@ class Test_public_inter_sg(OscTestSuite):
             assert "1 packets transmitted, 1 received, 0% packet loss" in out
             out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, 'ping -c 1 -W 1 {}'.format(self.inst2.privateIpAddress), retry=10)
             assert "1 packets transmitted, 1 received, 0% packet loss" in out
+        except Exception as error:
+            raise error
         finally:
             self.a1_r1.fcu.RevokeSecurityGroupIngress(GroupId=self.sg2_id, IpProtocol='icmp',
                                                       FromPort=-1, ToPort=-1, CidrIp=self.inst1.ipAddress + '/32')
@@ -105,6 +107,8 @@ class Test_public_inter_sg(OscTestSuite):
                                                          retry=10, expected_status=-1)
             # assert "1 packets transmitted, 1 received, 0% packet loss" in out
             assert "1 packets transmitted, 0 received, 100% packet loss" in out
+        except Exception as error:
+            raise error
         finally:
             self.a1_r1.fcu.RevokeSecurityGroupIngress(GroupId=self.sg2_id, IpProtocol='icmp',
                                                       FromPort=-1, ToPort=-1, CidrIp=self.inst1.privateIpAddress + '/32')
