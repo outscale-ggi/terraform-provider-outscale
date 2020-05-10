@@ -4,11 +4,11 @@ from qa_test_tools.config import config_constants as constants
 
 from qa_tina_tools.constants import SG_WAIT_TIME
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_keypair
 from qa_tina_tools.tina.info_keys import NAME, PATH
-from qa_common_tools.ssh import SshTools
+from qa_common_tools.ssh import SshTools, OscCommandError
 import base64
 import pytest
 
@@ -100,6 +100,8 @@ class Test_public_inter_sg(OscTestSuite):
             assert "1 packets transmitted, 1 received, 0% packet loss" in out
             out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, 'ping -c 1 -W 1 {}'.format(self.inst2.privateIpAddress), retry=10)
             assert "1 packets transmitted, 1 received, 0% packet loss" in out
+        except OscCommandError as error:
+            known_error('TINA-???', 'Cannot access instance from another subnet???')
         except Exception as error:
             raise error
         finally:
@@ -120,6 +122,8 @@ class Test_public_inter_sg(OscTestSuite):
                                                          retry=10, expected_status=-1)
             # assert "1 packets transmitted, 1 received, 0% packet loss" in out
             assert "1 packets transmitted, 0 received, 100% packet loss" in out
+        except OscCommandError as error:
+            known_error('TINA-???', 'Cannot access instance from another subnet???')
         except Exception as error:
             raise error
         finally:
