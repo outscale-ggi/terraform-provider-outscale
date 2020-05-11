@@ -43,14 +43,18 @@ class Test_public_inter_sg(OscTestSuite):
             subnets = cls.a1_r1.intel.subnet.describe(filters={'network': 'vpc-00000000', 'az': cls.a1_r1.config.region.az_name})
             if subnets.response.result.count < 2:
                 cls.logger.info("Test can not be executed")
+                cls.missing = True
+                return
+            sg_id = 1
             for subnet in subnets.response.result.results:
                 try:
                     userdata = """-----BEGIN OUTSCALE SECTION-----
                     tags.osc.internal.private-subnet-id-force={}
                     -----END OUTSCALE SECTION-----""".format(subnet.id)
-                    ret, _ = create_instances_old(cls.a1_r1, security_group_id_list=[cls.sg1_id], key_name=cls.kp_info[NAME],
+                    ret, _ = create_instances_old(cls.a1_r1, security_group_id_list=[getattr(cls, 'sg{}_id'.format(sg_id))], key_name=cls.kp_info[NAME],
                                                   user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'), state='running')
                     cls.instances.append(ret.response.reservationSet[0].instancesSet[0])
+                    sg_id += 1
                     if len(cls.instances) > 1:
                         break
                 except Exception as error:
@@ -64,7 +68,6 @@ class Test_public_inter_sg(OscTestSuite):
             cls.inst2 = cls.instances[1]
             cls.sshclient = SshTools.check_connection_paramiko(cls.inst1.ipAddress, cls.kp_info[PATH],
                                                                username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
-
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -100,8 +103,6 @@ class Test_public_inter_sg(OscTestSuite):
             assert "1 packets transmitted, 1 received, 0% packet loss" in out
             out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, 'ping -c 1 -W 1 {}'.format(self.inst2.privateIpAddress), retry=10)
             assert "1 packets transmitted, 1 received, 0% packet loss" in out
-        except OscCommandError as error:
-            known_error('TINA-???', 'Cannot access instance from another subnet???')
         except Exception as error:
             raise error
         finally:
@@ -122,8 +123,6 @@ class Test_public_inter_sg(OscTestSuite):
                                                          retry=10, expected_status=-1)
             # assert "1 packets transmitted, 1 received, 0% packet loss" in out
             assert "1 packets transmitted, 0 received, 100% packet loss" in out
-        except OscCommandError as error:
-            known_error('TINA-???', 'Cannot access instance from another subnet???')
         except Exception as error:
             raise error
         finally:
