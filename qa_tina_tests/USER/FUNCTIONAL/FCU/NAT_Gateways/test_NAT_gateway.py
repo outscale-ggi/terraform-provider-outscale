@@ -8,6 +8,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_k
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina import info_keys
+from qa_test_tools.config.region import Feature
 
 
 class Test_NAT_gateway(OscTestSuite):
@@ -221,7 +222,7 @@ class Test_NAT_gateway(OscTestSuite):
                                                                         username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                                         retry=4, timeout=10)
 
-            if 'internet' in [feature.value for feature in self.a1_r1.config.region.get_info(constants.FEATURES)]:
+            if Feature.INTERNET in self.a1_r1.config.region.get_info(constants.FEATURES):
                 target_ip = Configuration.get('ipaddress', 'dns_google')
             else:
                 target_ip = '.'.join(self.eip2.response.publicIp.split('.')[:-1]) + '.254'
