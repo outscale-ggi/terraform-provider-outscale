@@ -221,7 +221,7 @@ class Test_NAT_gateway(OscTestSuite):
                                                                         username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                                         retry=4, timeout=10)
 
-            if 'internet' in self.a1_r1.config.region.get_info(constants.FEATURES):
+            if 'internet' in [feature.value for feature in self.a1_r1.config.region.get_info(constants.FEATURES)]:
                 target_ip = Configuration.get('ipaddress', 'dns_google')
             else:
                 target_ip = '.'.join(self.eip2.response.publicIp.split('.')[:-1]) + '.254'
