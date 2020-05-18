@@ -10,7 +10,7 @@ from qa_tina_tools.tools.tina.create_tools import create_certificate_files
 
 # other solution, embed call characteristics in calls, expected result can be computed, instead of being 
 API_CALLS = ['directlink.DescribeLocations',  # with AkSk
-             'eim.ListAccessKeys',   # with AkSk
+             'eim.ListAccessKeys',  # with AkSk
              'icu.ReadPublicCatalog',  # without authent
              'icu.ListAccessKeys',  # with LoginPassword
              'icu.ReadQuotas',  # with AkSk
@@ -42,7 +42,6 @@ CONF_CA_CA = [{CA_COND: 'ca_path1'}, {CA_COND: 'ca_path2'}]
 CONF_CN_CN = [{CN_COND: 'cn1'}, {CN_COND: 'cn2'}]
 CONF_CA_CN = [{CA_COND: 'ca_path'}, {CN_COND: 'cn'}]
 
-
 PASS = 0
 FAIL = 1
 ERROR = 2
@@ -55,10 +54,12 @@ def put_configuration(osc_sdk, config):
 # method creating the rules related to the configuration
 # it erases any existing rules (a configuration containing these rules is returned)
 def setup_api_access_rules(conf):
+
     # get current configuration
     # set new configuration
     # return previous configuration
     def _setup_api_access_rules(f):
+
         def wrapper(self, *args):
             if conf:
                 put_configuration(self.a1_r1, conf)
@@ -67,8 +68,11 @@ def setup_api_access_rules(conf):
                 print('actual   results for conf {} -> {}'.format(conf, actual))
                 print('expected results for conf {} -> {}'.format(conf, expected))
                 raise OscTestException('Unexpected result')
+
         return wrapper
+
     return _setup_api_access_rules
+
 
 @pytest.mark.region_admin
 class Test_api_access(OscTestSuite):
@@ -102,12 +106,25 @@ class Test_api_access(OscTestSuite):
         finally:
             super(Test_api_access, cls).teardown_class()
  
-#     def setup_method(self, method):
-#         OscTestSuite.setup_method(self, method)
-# 
-#     def teardown_method(self, method):
-#         OscTestSuite.teardown_method(self, method)
-    
+    def setup_method(self, method):
+        super(Test_api_access, self).setup_method(method)
+        try:
+            ret = self.a1_r1.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(account_id=self.a1_r1.config.region.get_info(constants.AS_IDAUTH_ID),
+                                                                                {"accountPids": [self.account_pid]})
+        except:
+            try:
+                self.teardown_method(method)
+            except:
+                pass
+            raise
+     
+    def teardown_method(self, method):
+        try:
+            ret = self.a1_r1.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(account_id=self.a1_r1.config.region.get_info(constants.AS_IDAUTH_ID),
+                                                                                {"accountPids": [self.account_pid]})
+        finally:
+            super(Test_api_access, self).teardown_method(method)
+
     def make_calls(self, exec_data, expected_results):
         # make all calls, store results and verify against expected results
         results = []
