@@ -35,7 +35,7 @@ class Test_ModifyVpcEndpoint(OscTestSuite):
     def setup_method(self, method):
         try:
             ret1 = self.a1_r1.fcu.CreateVpcEndpoint(VpcId=self.vpc_info[VPC_ID],
-                                                  ServiceName='com.outscale.{}.osu'.format(self.a1_r1.config.region.name),
+                                                  ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
                                                   RouteTableId=self.vpc_info[ROUTE_TABLE_ID])
             self.vpcendpointid1 = ret1.response.vpcEndpoint.vpcEndpointId
             wait_vpc_endpoints_state(self.a1_r1, [self.vpcendpointid1], state='available')

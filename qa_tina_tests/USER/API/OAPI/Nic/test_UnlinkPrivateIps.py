@@ -4,6 +4,7 @@ import pytest
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.test_base import known_error
 
 
 class Test_UnlinkPrivateIps(Nic):
@@ -111,4 +112,6 @@ class Test_UnlinkPrivateIps(Nic):
             self.a2_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=['10.0.1.37'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            assert_oapi_error(error, 400, 'DefaultError', 0)
+            known_error('GTW-1307', 'Incorrect error code')
             assert_oapi_error(error, 400, 'InvalidResource', '5036')

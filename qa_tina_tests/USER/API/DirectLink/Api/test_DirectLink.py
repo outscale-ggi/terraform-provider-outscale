@@ -4,10 +4,9 @@ import re
 import pytest
 
 import qa_sdk_pub.osc_api as osc_api
-from qa_sdk_pub.osc_api import AuthMethod
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_test_tools.misc import assert_error, id_generator
+from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools import misc
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
 
@@ -33,11 +32,11 @@ class Test_DirectLink(OscTestSuite):
             self.a1_r1.directlink.DescribeLocations(foo='bar')
             assert False, 'Call should have been successful'
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Operation doesn't expect any parameters")
+            misc.assert_error(error, 400, "DirectConnectClientException", "Operation doesn't expect any parameters")
 
     def test_T3847_method_get(self):
         try:
-            self.a1_r1.directlink.DescribeLocations(method='GET')
+            self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_METHOD: 'GET'})
             assert False, 'Call should have been successful'
         except OscApiException as error:
             assert error.status_code == 400
@@ -51,10 +50,10 @@ class Test_DirectLink(OscTestSuite):
     @pytest.mark.tag_sec_confidentiality
     def test_T3849_without_authentication(self):
         try:
-            self.a1_r1.directlink.DescribeLocations(auth=AuthMethod.Empty)
+            self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should have been successful'
         except OscApiException as error:
-            assert_error(error, 401, "AuthFailure", "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
+            misc.assert_error(error, 401, "AuthFailure", "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3850_invalid_authentication(self):
@@ -64,7 +63,7 @@ class Test_DirectLink(OscTestSuite):
             self.a1_r1.directlink.DescribeLocations()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 403, "SignatureDoesNotMatch", "The request signature we calculated does not match the signature you provided. " + \
+            misc.assert_error(error, 403, "SignatureDoesNotMatch", "The request signature we calculated does not match the signature you provided. " + \
                                     "Check your AWS Secret Access Key and signing method. Consult the service documentation for details.")
         finally:
             self.a1_r1.config.sk = sk_bkp
@@ -76,7 +75,7 @@ class Test_DirectLink(OscTestSuite):
         nb_ko = 0
         for _ in range(10):
             try:
-                self.a1_r1.directlink.DescribeLocations(max_retry=0)
+                self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 nb_ok += 1
             except OscApiException as error:
                 if error.status_code == 503:
@@ -88,8 +87,8 @@ class Test_DirectLink(OscTestSuite):
         assert nb_ko != 0
 
     def test_T4577_with_eim_user(self):
-        UserName = id_generator(prefix='T4577')
-        PolicyName = id_generator(prefix='T4577')
+        UserName = misc.id_generator(prefix='T4577')
+        PolicyName = misc.id_generator(prefix='T4577')
         account_sdk = None
         attach_policy = None
         user_info = None
@@ -110,25 +109,23 @@ class Test_DirectLink(OscTestSuite):
             try:
                 account_sdk.fcu.DescribeDhcpOptions()
             except OscApiException as error:
-                assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
             try:
                 account_sdk.eim.ListAccessKeys()
             except OscApiException as error:
-                assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied', None)
             try:
                 account_sdk.lbu.DescribeLoadBalancers()
             except OscApiException as error:
-                assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied', None)
             try:
                 account_sdk.icu.ReadCatalog()
             except OscApiException as error:
-                assert_error(error, 400, 'NotImplemented', None)
+                misc.assert_error(error, 400, 'NotImplemented', None)
             try:
                 account_sdk.oapi.ReadVms()
-                known_error('No ticket', 'Waiting for product decision')
             except OscApiException as error:
-                assert False, 'Remove known error'
-                assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 401, '4', 'AccessDenied')
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=UserName)

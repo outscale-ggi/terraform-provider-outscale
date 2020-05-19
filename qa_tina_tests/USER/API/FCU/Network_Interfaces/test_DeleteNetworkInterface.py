@@ -1,7 +1,7 @@
 from qa_test_tools.config.configuration import Configuration
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import  assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tina.info_keys import SUBNETS, SUBNET_ID
 from qa_tina_tools.tools.tina.create_tools import create_vpc
@@ -81,6 +81,8 @@ class Test_DeleteNetworkInterface(OscTestSuite):
             self.network_interface_id = None
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
+            assert_error(error, 500, 'InternalError', 'Internal Error')
+            known_error('TINA-5644', 'DeleteNetworkInterface with an other account returns an Internal error')
             assert_error(error, 400, "InvalidNetworkInterfaceID.NotFound", "The networkInterface ID '{}' does not exist".format(self.network_interface_id))
     
     def test_T4041_non_existent_network_interface_id(self):

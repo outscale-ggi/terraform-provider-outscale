@@ -29,12 +29,15 @@ class Test_osu(OscTestSuite):
             #cls.logger.debug(ret.response.display())
 
             cls.bucket_name = id_generator(prefix="bucket-", chars=ascii_lowercase)
+            cls.public_bucket_name = id_generator(prefix="public-bucket-", chars=ascii_lowercase)
             cls.key_name = id_generator(prefix="key_", chars=ascii_lowercase)
             cls.data = id_generator(prefix="data_", chars=ascii_lowercase)
             cls.known_error = False
             try:
                 cls.a1_r1.osu.create_bucket(Bucket=cls.bucket_name)
                 cls.a1_r1.osu.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
+                cls.a1_r1.osu.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
+                cls.a1_r1.osu.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
             except ClientError as error:
                 if cls.a1_r1.config.region.name in ['us-west-1', 'us-east-2']:
                     cls.known_error = True
@@ -85,8 +88,10 @@ class Test_osu(OscTestSuite):
         assert ret.content.decode() == self.data
 
     def test_T184_read_key_in_bucket(self):
-        d = self.a1_r1.osu.get_object(Bucket=self.bucket_name, Key=self.key_name)['Body']
-        assert d.read().decode() == self.data
+        ret = self.a1_r1.osu.get_object(Bucket=self.bucket_name, Key=self.key_name)['Body']
+        assert ret.read().decode() == self.data
 
-    # def test_T000_(self):
-    #    pass
+    def test_T4904_verify_display_name(self):
+        res = self.a1_r1.osu.list_objects(Bucket=self.public_bucket_name)
+        # verify that display name is account id
+        assert res.Contents[0].Owner.DisplayName == res.Contents[0].Owner.ID

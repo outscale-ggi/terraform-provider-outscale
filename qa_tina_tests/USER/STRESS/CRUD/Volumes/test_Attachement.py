@@ -83,7 +83,6 @@ class Test_Attachement(OscTestSuite):
             self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_id)
             ret = wait_volumes_state(self.a1_r1, [self.vol_id], 'available', nb_check=5)
             self.logger.debug(ret.response.display())
-            known_error('TINA-4961', "volume blocked in detaching")
 
     def test_T3690_multi_attach_detach_with_same_device_name(self):
         device = '/dev/xvdb'

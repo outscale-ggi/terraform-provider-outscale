@@ -1,9 +1,9 @@
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
-from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_tina_tools.tools.tina.delete_tools import terminate_instances
+from qa_test_tools import misc
+from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina import delete_tools
 from qa_test_tools.config import config_constants as constants
 
 
@@ -26,29 +26,27 @@ class Test_create_vm(OscTestSuite):
             vm_id = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7)).response.Vms[0].VmId
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            assert_error(error, 400, '10001', 'InsufficientCapacity')
+            misc.assert_error(error, 400, '10001', 'InsufficientCapacity')
         finally:
             if group:
                 self.a1_r1.intel.hardware.set_account_bindings(account=self.users[0], groups=[group])
             if vm_id:
-                terminate_instances(self.a1_r1, [vm_id])
+                delete_tools.terminate_instances(self.a1_r1, [vm_id])
 
     def test_T4691_create_twice_with_same_token(self):
         vm_id = None
         vm_id_bis = None
+        token = misc.id_generator('token')
         try:
             vm_id = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
-                                              ClientToken='test_T4691').response.Vms[0].VmId
+                                              ClientToken=token).response.Vms[0].VmId
             try:
                 vm_id_bis = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
-                                                      ClientToken='test_T4691').response.Vms[0].VmId
+                                                      ClientToken=token).response.Vms[0].VmId
             except OscApiException as error:
-                if error.status_code == 400 and error.message == 'DefaultError':
-                    known_error("GTW-1144", "Incorrect error message in CreateVms")
-                assert False, 'Remove known error code'
-                assert_error(error, 400, '', '')
+                misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4119)
             finally:
                 if vm_id_bis:
-                    terminate_instances(self.a1_r1, [vm_id_bis])
+                    delete_tools.terminate_instances(self.a1_r1, [vm_id_bis])
         finally:
-            terminate_instances(self.a1_r1, [vm_id])
+            delete_tools.terminate_instances(self.a1_r1, [vm_id])

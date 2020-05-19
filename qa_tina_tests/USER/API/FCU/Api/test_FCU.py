@@ -1,6 +1,8 @@
 # pylint: disable=missing-docstring
 
 import re
+import time
+
 import pytest
 
 import qa_sdk_pub.osc_api as osc_api
@@ -38,7 +40,7 @@ class Test_FCU(OscTestSuite):
     @pytest.mark.tag_sec_confidentiality
     def test_T3838_without_authentication(self):
         try:
-            self.a1_r1.fcu.DescribeVolumes(auth=AuthMethod.Empty)
+            self.a1_r1.fcu.DescribeVolumes(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 401, "AuthFailure", "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
@@ -63,7 +65,7 @@ class Test_FCU(OscTestSuite):
         nb_ko = 0
         for _ in range(10):
             try:
-                self.a1_r1.fcu.DescribeAddresses(max_retry=0)
+                self.a1_r1.fcu.DescribeAddresses(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 nb_ok += 1
             except OscApiException as error:
                 if error.status_code == 503:

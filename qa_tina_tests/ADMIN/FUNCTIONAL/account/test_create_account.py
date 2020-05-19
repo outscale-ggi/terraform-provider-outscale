@@ -21,7 +21,7 @@ class Test_create_account(OscTestSuite):
     def test_T4526_create_many_accounts(self):
         #disable_throttling()
         errs = load_errors()
-        osc_sdk_as = OscSdkAs(self.a1_r1.config.region.get_info(constants.AS_IDAUTH_ID), self.a1_r1.config.region.name)
+        osc_sdk_as = OscSdkAs(service='identauth', config=self.a1_r1.config)
         for _ in range(20):
             pid = None
             try:
@@ -43,7 +43,8 @@ class Test_create_account(OscTestSuite):
                     self.a1_r1.xsub.terminate_account(pid=pid)
                     self.a1_r1.intel.user.delete(username=pid)
                     self.a1_r1.intel.user.gc(username=pid)
-                    osc_sdk_as.identauth.IdauthAccountAdmin.deleteAccount(principal={"accountPid": pid}, forceRemoval="true")
+                    osc_sdk_as.IdauthAccountAdmin.deleteAccount(account_id=self.a1_r1.config.
+                        region.get_info(constants.AS_IDAUTH_ID), principal={"accountPid": pid}, forceRemoval="true")
                 except OscApiException as error:
                     errs.handle_api_exception(error, error_type.Delete)
                 except Exception as error:

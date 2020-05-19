@@ -18,12 +18,12 @@ class Test_DescribeVpcEndpoints(OscTestSuite):
         try:
             cls.vpc_info = create_vpc(osc_sdk=cls.a1_r1, nb_subnet=0, igw=False)
             ret1 = cls.a1_r1.fcu.CreateVpcEndpoint(VpcId=cls.vpc_info[VPC_ID],
-                                                  ServiceName='com.outscale.{}.osu'.format(cls.a1_r1.config.region.name),
+                                                  ServiceName='com.outscale.{}.api'.format(cls.a1_r1.config.region.name),
                                                   RouteTableId=cls.vpc_info[ROUTE_TABLE_ID])
             cls.vpcendpointid1 = ret1.response.vpcEndpoint.vpcEndpointId
             cls.vpc_info2 = create_vpc(osc_sdk=cls.a1_r1, nb_subnet=0, igw=False)
             ret2 = cls.a1_r1.fcu.CreateVpcEndpoint(VpcId=cls.vpc_info2[VPC_ID],
-                                                  ServiceName='com.outscale.{}.osu'.format(cls.a1_r1.config.region.name),
+                                                  ServiceName='com.outscale.{}.api'.format(cls.a1_r1.config.region.name),
                                                   RouteTableId=cls.vpc_info2[ROUTE_TABLE_ID])
             cls.vpcendpointid2 = ret2.response.vpcEndpoint.vpcEndpointId
             wait_vpc_endpoints_state(cls.a1_r1, [cls.vpcendpointid1, cls.vpcendpointid2], state='available')
@@ -56,7 +56,7 @@ class Test_DescribeVpcEndpoints(OscTestSuite):
         ret = self.a1_r1.fcu.DescribeVpcEndpoints(VpcEndpointId=self.vpcendpointid1)
         assert len(ret.response.vpcEndpointSet) == 1
         assert self.vpcendpointid1 == ret.response.vpcEndpointSet[0].vpcEndpointId
-        assert ret.response.vpcEndpointSet[0].serviceName == 'com.outscale.{}.osu'.format(self.a1_r1.config.region.name)
+        assert ret.response.vpcEndpointSet[0].serviceName == 'com.outscale.{}.api'.format(self.a1_r1.config.region.name)
         assert ret.response.vpcEndpointSet[0].state == 'available'
         assert ret.response.vpcEndpointSet[0].vpcId == self.vpc_info[VPC_ID]
         assert ret.response.vpcEndpointSet[0].routeTableIdSet[0] == self.vpc_info[ROUTE_TABLE_ID]
@@ -66,7 +66,7 @@ class Test_DescribeVpcEndpoints(OscTestSuite):
         assert len(ret.response.vpcEndpointSet) == 2
 
     def test_T4475_filter_servicename(self):
-        ret = self.a1_r1.fcu.DescribeVpcEndpoints(Filter=[{'Name':'service-name', 'Value':'com.outscale.{}.osu'.format(self.a1_r1.config.region.name)}])
+        ret = self.a1_r1.fcu.DescribeVpcEndpoints(Filter=[{'Name':'service-name', 'Value':'com.outscale.{}.api'.format(self.a1_r1.config.region.name)}])
         assert len(ret.response.vpcEndpointSet) == 2
 
     def test_T4476_filter_invalid_servicename(self):
@@ -81,7 +81,7 @@ class Test_DescribeVpcEndpoints(OscTestSuite):
         ret = self.a1_r1.fcu.DescribeVpcEndpoints(Filter=[{'Name':'vpc-endpoint-id', 'Value':self.vpcendpointid1}])
         assert len(ret.response.vpcEndpointSet) == 1
         assert self.vpcendpointid1 == ret.response.vpcEndpointSet[0].vpcEndpointId
-        assert ret.response.vpcEndpointSet[0].serviceName == 'com.outscale.{}.osu'.format(self.a1_r1.config.region.name)
+        assert ret.response.vpcEndpointSet[0].serviceName == 'com.outscale.{}.api'.format(self.a1_r1.config.region.name)
         assert ret.response.vpcEndpointSet[0].state == 'available'
         assert ret.response.vpcEndpointSet[0].vpcId == self.vpc_info[VPC_ID]
         assert ret.response.vpcEndpointSet[0].routeTableIdSet[0] == self.vpc_info[ROUTE_TABLE_ID]

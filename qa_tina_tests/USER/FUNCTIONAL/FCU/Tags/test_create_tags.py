@@ -38,7 +38,7 @@ class Test_create_tags(OscTestSuite):
             cls.snapshot_id = ret.response.snapshotId
             wait_snapshots_state(osc_sdk=cls.a1_r1, snapshot_id_list=[cls.snapshot_id], state='completed')
 
-            ret = cls.a1_r1.fcu.CreateVpcEndpoint(VpcId=cls.vpc_info1[VPC_ID], ServiceName='com.outscale.{}.osu'.format(cls.a1_r1.config.region.name),
+            ret = cls.a1_r1.fcu.CreateVpcEndpoint(VpcId=cls.vpc_info1[VPC_ID], ServiceName='com.outscale.{}.api'.format(cls.a1_r1.config.region.name),
                                                   RouteTableId=cls.vpc_info1[ROUTE_TABLE_ID])
             cls.vpc_endpoint_id = ret.response.vpcEndpoint.vpcEndpointId
         except:

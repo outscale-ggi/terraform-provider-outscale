@@ -74,7 +74,7 @@ class Test_CreateNetAccessPoint(OscTestSuite):
         try:
             net_access_point_id = self.a1_r1.oapi.CreateNetAccessPoint(
                 NetId=net_id,
-                ServiceName='com.outscale.{}.osu'.format(self.a1_r1.config.region.name),
+                ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
                 RouteTableIds=[route_table_id]).response.NetAccessPoint.NetAccessPointId
         finally:
             if net_access_point_id:
@@ -87,7 +87,7 @@ class Test_CreateNetAccessPoint(OscTestSuite):
     def test_T3700_dry_run(self):
         ret = self.a1_r1.oapi.CreateNetAccessPoint(
             NetId='vpc-12345795688',
-            ServiceName='com.outscale.{}.osu'.format(self.a1_r1.config.region.name),
+            ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
             RouteTableIds=['rtb-titi'],
             DryRun=True)
         assert_dry_run(ret)

@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-
+from qa_sdk_pub import osc_api
 from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
@@ -30,7 +30,7 @@ class Test_DescribeRegions(OscTestSuite):
         self.verify_response(ret)
 
     def test_T3380_no_authorization(self):
-        ret = self.a1_r1.fcu.DescribeRegions(auth=AuthMethod.Empty).response
+        ret = self.a1_r1.fcu.DescribeRegions(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}).response
         self.verify_response(ret)
 
     # RegionName, Filter --> region-name, endpoint

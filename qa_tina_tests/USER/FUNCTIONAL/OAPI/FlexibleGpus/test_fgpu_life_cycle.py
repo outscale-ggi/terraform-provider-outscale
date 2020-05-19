@@ -14,12 +14,12 @@ from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 
 MODEL_NAME = 'nvidia-k2'
-DEFAULT_TYPE = 'tinav3.c4r8'
+DEFAULT_TYPE = 'tinav4.c4r8'
 CORE_NUM = 4
 RAM_NUM = 8
-GPU_TYPE = 'mv3.large'
-GPU_TYPE_CORES = 2
-GPU_TYPE_RAMS = 8
+GPU_TYPE = 'og4.xlarge'
+GPU_TYPE_CORES = 8
+GPU_TYPE_RAMS = 61
 
 
 def check_gpu_instance(osc_sdk, inst_id, ip_address, key_path, user_name, logger, total_gpu, vcores, memory_ram):

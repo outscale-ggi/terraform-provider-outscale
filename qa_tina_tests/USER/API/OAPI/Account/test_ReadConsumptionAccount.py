@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
 
 import pytz
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
+from qa_test_tools.misc import assert_oapi_error
 
 
 
@@ -36,6 +37,8 @@ class Test_ReadConsumptionAccount(OscTestSuite):
             ret = self.a1_r1.oapi.ReadConsumptionAccount(FromDate=self.start_date.isoformat(), ToDate=end_date.isoformat())
             check_oapi_response(ret.response, 'ReadConsumptionAccountResponse')
         except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', 2000)
+            known_error('GTW-1319', 'Incorrect internal error')
             if error.status_code == 400 and error.error_code == 'InvalidParameter' and \
                     error.message == 'The information for requested dates is not yet available.':
                 return

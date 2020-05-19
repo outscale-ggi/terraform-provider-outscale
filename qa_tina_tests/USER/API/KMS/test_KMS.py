@@ -33,7 +33,7 @@ class Test_KMS(OscTestSuite):
 
     def test_T3884_method_get(self):
         try:
-            self.a1_r1.kms.ListKeys(method='GET')
+            self.a1_r1.kms.ListKeys(exec_data={osc_api.EXEC_DATA_METHOD: 'GET'})
             assert False, 'Call should have been successful'
         except OscApiException as error:
             assert error.status_code == 400
@@ -47,7 +47,7 @@ class Test_KMS(OscTestSuite):
     @pytest.mark.tag_sec_confidentiality
     def test_T3886_without_authentication(self):
         try:
-            self.a1_r1.kms.ListKeys(auth=AuthMethod.Empty)
+            self.a1_r1.kms.ListKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 401, "AuthFailure",
