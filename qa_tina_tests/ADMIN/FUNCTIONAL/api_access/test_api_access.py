@@ -94,11 +94,16 @@ class Test_api_access(OscTestSuite):
             cls.osc_sdk = OscSdk(config=OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret, account_id=cls.account_pid))
             # create certificates
             # TODO create certificates root folder if necessary
-            cls.certfiles = create_certificate_files(root='/tmp/cert',
+            cls.certfiles = create_certificate_files(root='/tmp/',
                                                 casubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale.qa',
                                                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN))
             # TODO upload CA on AS (cls.cerfiles[0])
+            ret = cls.a1_r1.identauth.IdauthAccount.uploadCaCertificate(account_id=cls.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID),
+            principal= { "accountPid": cls.account_pid }, name="test", description= "test", body= open(cls.certfiles[0]).read())
             # osc_sdk.idenauth ...
+            print(ret.response.display())
+            ret = cls.osc_sdk.identauth.IdauthAccount.listApiAccessRules()
+            print(ret.response.display())
         except Exception as error:
             try:
                 cls.teardown_class()
