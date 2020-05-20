@@ -74,7 +74,7 @@ class Test_KMS(OscTestSuite):
         start = time.time()
         for _ in range(10):
             try:
-                self.a1_r1.kms.ListKeys(max_retry=0)
+                self.a1_r1.kms.ListKeys(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 nb_ok += 1
             except OscApiException as error:
                 if error.status_code == 503:
