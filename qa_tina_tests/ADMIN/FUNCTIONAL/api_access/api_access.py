@@ -11,6 +11,8 @@ import os
 from enum import Enum
 from qa_tina_tools.tools.as_.wait_tools import wait_task_state
 from qa_sdk_pub import osc_api
+from qa_test_tools import misc
+import string
 
 
 # other solution, embed call characteristics in calls, expected result can be computed, instead of being 
@@ -188,9 +190,14 @@ class Api_Access(OscTestSuite):
                 root='/tmp/certfiles_ca3cn1',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
 
-            cls.account_pid, account_info = create_account(cls.a1_r1)
+            email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='api_access').lower())
+            password = misc.id_generator(size=20, chars=string.digits+string.ascii_letters)
+            account_info = {'city': 'Saint_Cloud', 'company_name': 'Outscale', 'country': 'France',
+                            'email_address': email, 'firstname': 'Test_user', 'lastname': 'Test_Last_name',
+                            'password': password, 'zipcode': '92210'}
+            cls.account_pid = create_account(cls.a1_r1, account_info=account_info)
             keys = cls.a1_r1.intel.accesskey.find_by_user(owner=cls.account_pid).response.result[0]
-            cls.osc_sdk = OscSdk(config=OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret, account_id=cls.account_pid, login=account_info['email_address'], password=account_info['password']))
+            cls.osc_sdk = OscSdk(config=OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret, account_id=cls.account_pid, login=email, password=password))
 
             ret = cls.a1_r1.identauth.IdauthAccount.uploadCaCertificate(account_id=cls.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), name="ca1files", description= "ca1files",
                                                                         principal= { "accountPid": cls.account_pid, "userPath": 'userpath1' }, body= open(cls.ca1files[1]).read())
