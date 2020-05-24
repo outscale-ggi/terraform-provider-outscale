@@ -166,28 +166,28 @@ class Api_Access(OscTestSuite):
 #                     os.system("rm -rf {}".format(path))
 #                 os.mkdir(path)
             
-            cls.ca1files = create_tools.create_caCertificate_file(root='.', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
-            cls.ca2files = create_tools.create_caCertificate_file(root='.', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale2.com"')
-            cls.ca3files = create_tools.create_caCertificate_file(root='.', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale3.com"')
+            cls.ca1files = create_tools.create_caCertificate_file(root='.', cakey='ca1.key', cacrt='ca1.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
+            cls.ca2files = create_tools.create_caCertificate_file(root='.', cakey='ca2.key', cacrt='ca2.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale2.com"')
+            cls.ca3files = create_tools.create_caCertificate_file(root='.', cakey='ca3.key', cacrt='ca3.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale3.com"')
 
             cls.certfiles_ca1cn1 = create_tools.create_clientCertificate_files(
                 cls.ca1files[0], cls.ca1files[1],
-                root='.',
+                root='.', clientkey = 'ca1cn1.key', clientcsr='ca1cn1.csr', clientcrt='ca1cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
 
             cls.certfiles_ca2cn1 = create_tools.create_clientCertificate_files(
                 cls.ca2files[0], cls.ca2files[1],
-                root='.',
+                root='.', clientkey = 'ca2cn1.key', clientcsr='ca2cn1.csr', clientcrt='ca2cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
 
             cls.certfiles_ca1cn2 = create_tools.create_clientCertificate_files(
                 cls.ca1files[0], cls.ca1files[1],
-                root='.',
+                root='.', clientkey = 'ca1cn2.key', clientcsr='ca1cn2.csr', clientcrt='ca1cn2.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN2))
 
             cls.certfiles_ca3cn1 = create_tools.create_clientCertificate_files(
                 cls.ca3files[0], cls.ca3files[1],
-                root='.',
+                root='.', clientkey = 'ca3cn1.key', clientcsr='ca3cn1.csr', clientcrt='ca3cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
 
             email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='api_access').lower())
@@ -258,6 +258,7 @@ class Api_Access(OscTestSuite):
         try:
 #             for path in TMP_FILE_LOCATIONS:
 #                 os.system("rm -rf {}".format(path))
+# TODO delete files
             if cls.account_pid:
                 delete_account(cls.a1_r1, cls.account_pid)
         finally:
