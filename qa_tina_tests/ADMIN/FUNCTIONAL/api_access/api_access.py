@@ -69,7 +69,7 @@ AK_SK_PASS_LIST = [PASS, KNOWN, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, 
 
 CLIENT_CERT_CN1 = 'client.qa1'
 CLIENT_CERT_CN2 = 'client.qa2'
-TMP_FILE_LOCATIONS = ['ca1files', 'ca2files', 'ca3files', 'certfiles_ca1cn1', 'certfiles_ca2cn1', 'certfiles_ca1cn2', 'certfiles_ca3cn1']
+# TMP_FILE_LOCATIONS = ['ca1files', 'ca2files', 'ca3files', 'certfiles_ca1cn1', 'certfiles_ca2cn1', 'certfiles_ca1cn2', 'certfiles_ca3cn1']
 DEFAULT_ACCESS_RULE = {IP_COND: ['0.0.0.0/0'], DESC: 'default_api_access_rule'}
 IP_DESC = 'default_ip_access_rule'
 
@@ -161,33 +161,33 @@ class Api_Access(OscTestSuite):
         cls.account_pid = None
         try:
             # create certificates
-            for path in TMP_FILE_LOCATIONS:
-                if os.path.exists(path):
-                    os.system("rm -rf {}".format(path))
-                os.mkdir(path)
+#             for path in TMP_FILE_LOCATIONS:
+#                 if os.path.exists(path):
+#                     os.system("rm -rf {}".format(path))
+#                 os.mkdir(path)
             
-            cls.ca1files = create_tools.create_caCertificate_file(root='ca1files', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
-            cls.ca2files = create_tools.create_caCertificate_file(root='ca2files', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale2.com"')
-            cls.ca3files = create_tools.create_caCertificate_file(root='ca3files', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale3.com"')
+            cls.ca1files = create_tools.create_caCertificate_file(root='.', cakey='ca1.key', cacrt='ca1.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
+            cls.ca2files = create_tools.create_caCertificate_file(root='.', cakey='ca2.key', cacrt='ca2.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale2.com"')
+            cls.ca3files = create_tools.create_caCertificate_file(root='.', cakey='ca3.key', cacrt='ca3.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale3.com"')
 
             cls.certfiles_ca1cn1 = create_tools.create_clientCertificate_files(
                 cls.ca1files[0], cls.ca1files[1],
-                root='certfiles_ca1cn1',
+                root='.', clientkey = 'ca1cn1.key', clientcsr='ca1cn1.csr', clientcrt='ca1cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
 
             cls.certfiles_ca2cn1 = create_tools.create_clientCertificate_files(
                 cls.ca2files[0], cls.ca2files[1],
-                root='certfiles_ca2cn1',
+                root='.', clientkey = 'ca2cn1.key', clientcsr='ca2cn1.csr', clientcrt='ca2cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
 
             cls.certfiles_ca1cn2 = create_tools.create_clientCertificate_files(
                 cls.ca1files[0], cls.ca1files[1],
-                root='certfiles_ca1cn2',
+                root='.', clientkey = 'ca1cn2.key', clientcsr='ca1cn2.csr', clientcrt='ca1cn2.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN2))
 
             cls.certfiles_ca3cn1 = create_tools.create_clientCertificate_files(
                 cls.ca3files[0], cls.ca3files[1],
-                root='certfiles_ca3cn1',
+                root='.', clientkey = 'ca3cn1.key', clientcsr='ca3cn1.csr', clientcrt='ca3cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
 
             email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='api_access').lower())
@@ -256,8 +256,9 @@ class Api_Access(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
-            for path in TMP_FILE_LOCATIONS:
-                os.system("rm -rf {}".format(path))
+#             for path in TMP_FILE_LOCATIONS:
+#                 os.system("rm -rf {}".format(path))
+# TODO delete files
             if cls.account_pid:
                 delete_account(cls.a1_r1, cls.account_pid)
         finally:
