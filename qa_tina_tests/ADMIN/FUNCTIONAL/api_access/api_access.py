@@ -69,7 +69,7 @@ AK_SK_PASS_LIST = [PASS, KNOWN, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, 
 
 CLIENT_CERT_CN1 = 'client.qa1'
 CLIENT_CERT_CN2 = 'client.qa2'
-TMP_FILE_LOCATIONS = ['/tmp/ca1files', '/tmp/ca2files', '/tmp/ca3files', '/tmp/certfiles_ca1cn1', '/tmp/certfiles_ca2cn1', '/tmp/certfiles_ca1cn2', '/tmp/certfiles_ca3cn1']
+TMP_FILE_LOCATIONS = ['ca1files', 'ca2files', 'ca3files', 'certfiles_ca1cn1', 'certfiles_ca2cn1', 'certfiles_ca1cn2', 'certfiles_ca3cn1']
 DEFAULT_ACCESS_RULE = {IP_COND: ['0.0.0.0/0'], DESC: 'default_api_access_rule'}
 IP_DESC = 'default_ip_access_rule'
 
@@ -166,28 +166,28 @@ class Api_Access(OscTestSuite):
                     os.system("rm -rf {}".format(path))
                 os.mkdir(path)
             
-            cls.ca1files = create_tools.create_caCertificate_file(root='/tmp/ca1files', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
-            cls.ca2files = create_tools.create_caCertificate_file(root='/tmp/ca2files', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale2.com"')
-            cls.ca3files = create_tools.create_caCertificate_file(root='/tmp/ca3files', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale3.com"')
+            cls.ca1files = create_tools.create_caCertificate_file(root='ca1files', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
+            cls.ca2files = create_tools.create_caCertificate_file(root='ca2files', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale2.com"')
+            cls.ca3files = create_tools.create_caCertificate_file(root='ca3files', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale3.com"')
 
             cls.certfiles_ca1cn1 = create_tools.create_clientCertificate_files(
                 cls.ca1files[0], cls.ca1files[1],
-                root='/tmp/certfiles_ca1cn1',
+                root='certfiles_ca1cn1',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
 
             cls.certfiles_ca2cn1 = create_tools.create_clientCertificate_files(
                 cls.ca2files[0], cls.ca2files[1],
-                root='/tmp/certfiles_ca2cn1',
+                root='certfiles_ca2cn1',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
 
             cls.certfiles_ca1cn2 = create_tools.create_clientCertificate_files(
                 cls.ca1files[0], cls.ca1files[1],
-                root='/tmp/certfiles_ca1cn2',
+                root='certfiles_ca1cn2',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN2))
 
             cls.certfiles_ca3cn1 = create_tools.create_clientCertificate_files(
                 cls.ca3files[0], cls.ca3files[1],
-                root='/tmp/certfiles_ca3cn1',
+                root='certfiles_ca3cn1',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
 
             email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='api_access').lower())
