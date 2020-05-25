@@ -37,6 +37,9 @@ class Test_CreateKeyPair(OscTestSuite):
             ret = self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
             assert False, "Non-ascii code should not be accepted"
         except OscApiException as error:
+            if error.status_code != 400:
+                known_error('TINA-5696', '404 or 502 error')
+            assert False, 'Remove known error'
             assert_error(error, 400, 'InvalidParameterValue',
                          "Parameter 'KeyName' is invalid: èàé. Constraints: Only ASCII characters, max length 255")
         finally:

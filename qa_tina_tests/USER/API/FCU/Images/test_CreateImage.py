@@ -1,4 +1,4 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.wait_tools import wait_images_state, wait_instances_state
@@ -85,6 +85,9 @@ class Test_CreateImage(OscTestSuite):
         try:
             img_id = self.a1_r1.fcu.CreateImage(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Name=name).response.imageId
         except OscApiException as err:
+            if err.status_code != 400:
+                known_error('TINA-5696', '404 or 502 error')
+            assert False, 'Remove known error'
             assert_error(err, 400, 'InvalidAMIName.Malformed', 'AMI name received: é!àçè. Constraints: [a-zA-Z0-9_ ()/.-], length: (3, 128)')
         finally:
             if img_id:
