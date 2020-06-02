@@ -152,12 +152,7 @@ def perf_simple_snapshot(oscsdk, logger, queue, args):
                 result['simple_snap_delete'] = time_snap
             if attached:
                 oscsdk.fcu.DetachVolume(VolumeId=vol)
-                #try:
                 wait_volumes_state(oscsdk, [vol], 'available', nb_check=5)
-                #except AssertionError:
-                #    # retry... known_error OPS-8198
-                #    oscsdk.fcu.DetachVolume(VolumeId=vol)
-                #    wait_volumes_state(oscsdk, [vol], 'available')
             if vol:
                 oscsdk.fcu.DeleteVolume(VolumeId=vol)
                 wait_volumes_state(osc_sdk=oscsdk, cleanup=True, volume_id_list=[vol])
