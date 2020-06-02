@@ -39,10 +39,7 @@ class Test_osu(OscTestSuite):
                 cls.a1_r1.osu.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
                 cls.a1_r1.osu.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
             except ClientError as error:
-                if cls.a1_r1.config.region.name in ['us-west-1', 'us-east-2']:
-                    cls.known_error = True
-                else:
-                    raise error
+                raise error
             # b_list = cls.a1_r1.osu.conn.list_buckets()['Buckets']
             # for b in b_list:
             #    cls.logger.debug(b['Name'])
@@ -76,11 +73,6 @@ class Test_osu(OscTestSuite):
     @pytest.mark.region_osu
     @pytest.mark.tag_redwire
     def test_T183_generated_url(self):
-        if self.a1_r1.config.region.name in ['us-west-1', 'us-east-2']:
-            if self.known_error:
-                known_error('OPS-8714', 'Accounts not synchronize on OSU')
-            else:
-                assert False, 'Remove known error code'
         params = {'Bucket': self.bucket_name, 'Key': self.key_name}
         url = self.a1_r1.osu.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
         ret = requests.get(url=url, verify=self.a1_r1.config.region.get_info(constants.VALIDATE_CERTS))
