@@ -54,7 +54,7 @@ class Test_CopyAccount(OscTestSuite):
             # TODO assert ret.... == ??? (check accoutn on r2... ?)
         except OscApiException as error:
             if error.status_code == 500 and error.message == "InternalError":
-                known_error("TINA-5053", "CopyAccount fail with 'InternalError'")
+                known_error("TINA-5699", "CopyAccount fail with 'InternalError'")
             assert False, "Remove known error"
         finally:
             if pid:
@@ -68,6 +68,6 @@ class Test_CopyAccount(OscTestSuite):
             self.a1_r1.icu.CopyAccount(DestinationRegion=self.a1_r2.config.region.name, profile='foo')
         except OscApiException as error:
             if error.status_code == 500 and error.message == "InternalError":
-                assert known_error("TINA-5053", "CopyAccount fail with 'InternalError'")
+                assert known_error("TINA-5699", "CopyAccount fail with 'InternalError'")
             else:
                 assert False, "Remove known error"
