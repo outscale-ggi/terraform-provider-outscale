@@ -17,7 +17,7 @@ class Test_CreateKeyPair(OscTestSuite):
             self.a1_r1.fcu.CreateKeyPair()
             assert False, "Creating key pair without key name should not have succeeded"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)
                 assert not error.message
                 known_error('GTW-1356', 'Missing error message')
@@ -29,7 +29,7 @@ class Test_CreateKeyPair(OscTestSuite):
             self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
             assert False, "Creating key pair with key name longer than 255 should not have succeeded"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'InvalidParameterValue', None)
                 assert not error.message
                 known_error('GTW-1356', 'Missing error message')
@@ -42,11 +42,11 @@ class Test_CreateKeyPair(OscTestSuite):
         ret = None
         try:
             ret = self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 known_error('GTW-1356', 'Missing error')
             assert False, "Non-ascii code should not be accepted"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert False, 'Remove known error'
             if error.status_code != 400:
                 known_error('TINA-5696', '404 or 502 error')
@@ -64,7 +64,7 @@ class Test_CreateKeyPair(OscTestSuite):
             self.a1_r1.fcu.CreateKeyPair(KeyName='test_T1802')
             assert False, "Call should not have been successful, key with same name exists"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 409, 'InvalidKeyPair.Duplicate', None)
                 assert not error.message
                 known_error('GTW-1356', 'Missing error message')
@@ -78,7 +78,7 @@ class Test_CreateKeyPair(OscTestSuite):
         ret = None
         try:
             ret = self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 known_error('GTW-1356', 'Missing error')
             assert False, "Only white space code should not be accepted"
         except OscApiException as error:
