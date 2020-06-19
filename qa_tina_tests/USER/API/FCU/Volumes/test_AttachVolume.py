@@ -64,8 +64,8 @@ class Test_AttachVolume(OscTestSuite):
             if get_export_value('OSC_USE_GATEWAY', False):
                 assert_error(error, 400, 'DefaultError', None)
                 assert not error.message
-                known_error('GTW-1369', 'Unexpected DefaultError in detach')
-            raise error
+            else:
+                raise error
         finally:
             OscTestSuite.teardown_method(self, method)
 
