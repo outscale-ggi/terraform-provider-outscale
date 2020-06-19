@@ -40,7 +40,7 @@ class Test_DeleteKeyPair(OscTestSuite):
             pytest.fail("Deleting key pair with invalid key name should not have succeeded")
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'MissingParameter', None)
+                assert_error(error, 400, 'InvalidKeyPair.NotFound', None)
                 assert not error.message
                 known_error('GTW-1357', 'Missing error message')
             assert_error(error, 400, 'InvalidKeyPair.NotFound', 'The key pair does not exist: tydyt')
@@ -51,7 +51,7 @@ class Test_DeleteKeyPair(OscTestSuite):
             self.a1_r1.fcu.DeleteKeyPair(KeyName='tiuyttrgt')
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'MissingParameter', None)
+                assert_error(error, 400, 'InvalidKeyPair.NotFound', None)
                 assert not error.message
                 known_error('GTW-1357', 'Missing error message')
             assert_error(error, 400, 'InvalidKeyPair.NotFound', 'The key pair does not exist: tiuyttrgt')
