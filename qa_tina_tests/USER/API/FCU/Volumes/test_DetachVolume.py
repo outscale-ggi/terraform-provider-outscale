@@ -1,4 +1,4 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, get_export_value, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -98,6 +98,10 @@ class Test_DetachVolume(OscTestSuite):
             self.rslt_detach_standard = self.a1_r1.fcu.DetachVolume(VolumeId="vol-aaaaaaaa", InstanceId=self.inst_info[INSTANCE_ID_LIST][0])
             assert False, "Call should not be successful"
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                assert_error(error, 400, 'InvalidVolume.NotFound', None)
+                assert not error.message
+                known_error('GTW-1370', 'Missing error message')
             assert_error(error, 400, 'InvalidVolume.NotFound', "The volume 'vol-aaaaaaaa' does not exist.")
             
     def test_T1253_non_attached_volume_id(self):
@@ -108,5 +112,9 @@ class Test_DetachVolume(OscTestSuite):
                                                                     InstanceId=self.inst_info[INSTANCE_ID_LIST][0])
             assert False, "Call should not be successful"
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                assert_error(error, 409, 'InvalidState', None)
+                assert not error.message
+                known_error('GTW-1370', 'Incorrect error code and status, missing error message')
             assert_error(error, 400, "InvalidVolumeState",
                          "The volume is not in a valid state for this operation: {}. State: available".format(self.standard_volume_ids[0]))
