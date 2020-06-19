@@ -85,7 +85,7 @@ class Test_ImportKeyPair(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'MissingParameter', None)
+                assert_error(error, 400, 'InvalidParameterValue', None)
                 assert not error.message
                 known_error('GTW-1358', 'Missing error message')
             assert_error(error, 400, 'InvalidParameterValue', None)
@@ -101,7 +101,7 @@ class Test_ImportKeyPair(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'MissingParameter', None)
+                assert_error(error, 400, 'InvalidKeyPair.Format', None)
                 known_error('GTW-1358', 'Missing error message')
             assert_error(error, 400, 'InvalidKeyPair.Format', 'Invalid DER encoded key material')
 
@@ -115,7 +115,7 @@ class Test_ImportKeyPair(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'InternalError', None)
+                assert_error(error, 500, 'InternalError', None)
                 known_error('GTW-1358', 'Unexpected internal error')
             assert_error(error, 400, 'InvalidKeyPair.Format', 'Invalid DER encoded key material')
 

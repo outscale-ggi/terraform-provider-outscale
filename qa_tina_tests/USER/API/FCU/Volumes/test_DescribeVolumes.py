@@ -48,7 +48,7 @@ class Test_DescribeVolumes(OscTestSuite):
                 assert vol.tagSet is None
                 assert vol.snapshotId is None
                 assert vol.size == str(VOLUME_SIZES[vol.volumeType]['min_size'])
-        except AssertionError as error:
+        except AttributeError as error:
             if get_export_value('OSC_USE_GATEWAY', False):
                 known_error('GTW-1368', 'Missing snapshot id in response')
             raise error

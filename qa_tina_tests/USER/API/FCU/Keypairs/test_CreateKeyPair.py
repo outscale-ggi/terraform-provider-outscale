@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
+    OscSdkException
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error, get_export_value
 
@@ -93,6 +94,10 @@ class Test_CreateKeyPair(OscTestSuite):
         key_name = ''.join(chr(i) for i in range(32, 127))
         try:
             ret = self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
+        except OscSdkException as error:
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
+                known_error('GTW-1356', 'Cannot read response, incorrect content type')
+            raise error
         except Exception as error:
             raise error
         finally:
@@ -110,6 +115,10 @@ class Test_CreateKeyPair(OscTestSuite):
         key_name = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678._-:/()#,@[]+=&;{}!$*"
         try:
             ret = self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
+        except OscSdkException as error:
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
+                known_error('GTW-1356', 'Cannot read response, incorrect content type')
+            raise error
         except Exception as error:
             raise error
         finally:

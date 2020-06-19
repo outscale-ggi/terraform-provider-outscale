@@ -250,7 +250,6 @@ class Test_CreateVolume(OscTestSuite):
                                                                         +"operation."
         except OscSdkException as error:
             if get_export_value('OSC_USE_GATEWAY', False):
-                assert error.message == 'Missing request id in response'
                 known_error('GTW-1366', 'Missing request id in response')
             raise error
         except OscApiException as error:
@@ -321,7 +320,7 @@ class Test_CreateVolume(OscTestSuite):
             assert False, 'Create Volume was not supposed to succeed'
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'MissingParameter', None)
+                assert_error(error, 400, 'InvalidParameterValue', None)
                 assert not error.message
                 known_error('GTW-1366', 'Missing error message')
             assert error.status_code == 400
