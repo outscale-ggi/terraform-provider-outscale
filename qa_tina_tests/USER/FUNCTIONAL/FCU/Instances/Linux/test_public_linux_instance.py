@@ -50,6 +50,13 @@ class Test_public_linux_instance(Test_linux_instance):
                 self.logger.info(out)
                 # check ping google DNS
                 assert not status, "Instance not connected to internet"
+
+                if Feature.INTERNET in self.a1_r1.config.region.get_info(constants.FEATURES):
+                    cmd = "ping google.com -c 1"
+                    out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+                    self.logger.info(out)
+                    assert not status, "Instance could not resolve google.com"
+
         finally:
             if inst_id:
                 delete_instances_old(self.a1_r1, [inst_id])
