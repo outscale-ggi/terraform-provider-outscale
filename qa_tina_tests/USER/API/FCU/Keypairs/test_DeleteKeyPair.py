@@ -28,7 +28,7 @@ class Test_DeleteKeyPair(OscTestSuite):
             self.a1_r1.fcu.DeleteKeyPair()
             pytest.fail("Deleting key pair wiout key name should not have succeeded")
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)
                 assert not error.message
                 known_error('GTW-1357', 'Missing error message')
@@ -39,7 +39,7 @@ class Test_DeleteKeyPair(OscTestSuite):
             self.a1_r1.fcu.DeleteKeyPair(KeyName='tydyt')
             pytest.fail("Deleting key pair with invalid key name should not have succeeded")
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)
                 assert not error.message
                 known_error('GTW-1357', 'Missing error message')
@@ -50,7 +50,7 @@ class Test_DeleteKeyPair(OscTestSuite):
             self.a2_r1.fcu.CreateKeyPair(KeyName='tiuyttrgt')
             self.a1_r1.fcu.DeleteKeyPair(KeyName='tiuyttrgt')
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)
                 assert not error.message
                 known_error('GTW-1357', 'Missing error message')

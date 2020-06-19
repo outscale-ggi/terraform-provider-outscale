@@ -45,7 +45,7 @@ class Test_ImportKeyPair(OscTestSuite):
             self.a1_r1.fcu.ImportKeyPair(PublicKeyMaterial=base64.b64encode(self.pk_material.encode('utf-8')).decode('utf-8'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)
                 known_error('GTW-1358', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: Name')
@@ -59,7 +59,7 @@ class Test_ImportKeyPair(OscTestSuite):
                 pass
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)
                 known_error('GTW-1358', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: PublicKeyMaterial')
@@ -69,7 +69,7 @@ class Test_ImportKeyPair(OscTestSuite):
             self.a1_r1.fcu.ImportKeyPair()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)
                 known_error('GTW-1358', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: PublicKeyMaterial')
@@ -84,7 +84,7 @@ class Test_ImportKeyPair(OscTestSuite):
                 pass
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)
                 assert not error.message
                 known_error('GTW-1358', 'Missing error message')
@@ -100,7 +100,7 @@ class Test_ImportKeyPair(OscTestSuite):
                 pass
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)
                 known_error('GTW-1358', 'Missing error message')
             assert_error(error, 400, 'InvalidKeyPair.Format', 'Invalid DER encoded key material')
@@ -114,7 +114,7 @@ class Test_ImportKeyPair(OscTestSuite):
                 pass
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'InternalError', None)
                 known_error('GTW-1358', 'Unexpected internal error')
             assert_error(error, 400, 'InvalidKeyPair.Format', 'Invalid DER encoded key material')

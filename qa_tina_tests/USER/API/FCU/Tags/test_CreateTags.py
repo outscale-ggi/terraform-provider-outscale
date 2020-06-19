@@ -47,7 +47,7 @@ class Test_CreateTags(OscTestSuite):
             assert resp[0].value == 'value1'
             assert resp[0].key == 'None'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'InvalidParameterValue', None)
                 assert not error.message
                 known_error('GTW-1359', 'Should not fail')
@@ -68,7 +68,7 @@ class Test_CreateTags(OscTestSuite):
             assert resp[0].resourceType == 'volume'
             assert resp[0].value is None
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)
                 assert not error.message
                 known_error('GTW-1359', 'Missing error message')
@@ -82,7 +82,7 @@ class Test_CreateTags(OscTestSuite):
             self.a1_r1.fcu.CreateTags(ResourceId=self.vol_id_list, Tag=[{'Value': 'value1'}])
             self.a1_r1.fcu.DeleteTags(ResourceId=self.vol_id_list, Tag=[{'Value': 'value1'}])
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'InvalidParameterValue', None)
                 assert not error.message
                 known_error('GTW-1359', 'Missing error message')
@@ -103,7 +103,7 @@ class Test_CreateTags(OscTestSuite):
             self.a1_r1.fcu.CreateTags(ResourceId=self.vol_id_list, Tag=['Key', 'key_value'])
             assert False, "Call shouln't be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', None):
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)
                 assert not error.message
                 known_error('GTW-1358', 'Missing error message, unexpected code')
