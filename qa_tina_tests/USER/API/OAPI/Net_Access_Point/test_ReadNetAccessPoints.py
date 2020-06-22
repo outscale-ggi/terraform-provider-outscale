@@ -1,5 +1,5 @@
 import pytest
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.tools.tina.wait_tools import wait_vpc_endpoints_state
@@ -13,15 +13,16 @@ class Test_ReadNetAccessPoints(OscTestSuite):
         cls.net_id = None
         cls.route_table_id = None
         cls.net_ap_id = None
-        cls.service_name = 'com.outscale.{}.api'.format(cls.a1_r1.config.region.name)
+        cls.service_name1 = 'com.outscale.{}.api'.format(cls.a1_r1.config.region.name)
+        cls.service_name2 = 'com.outscale.{}.kms'.format(cls.a1_r1.config.region.name)
         try:
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange='10.0.0.0/16').response.Net.NetId
             cls.net_id2 = cls.a1_r1.oapi.CreateNet(IpRange='10.0.0.0/16').response.Net.NetId
             cls.route_table_id = cls.a1_r1.oapi.CreateRouteTable(NetId=cls.net_id).response.RouteTable.RouteTableId
             cls.route_table_id2 = cls.a1_r1.oapi.CreateRouteTable(NetId=cls.net_id2).response.RouteTable.RouteTableId
-            cls.net_ap_id = cls.a1_r1.oapi.CreateNetAccessPoint(NetId=cls.net_id, ServiceName=cls.service_name,
+            cls.net_ap_id = cls.a1_r1.oapi.CreateNetAccessPoint(NetId=cls.net_id, ServiceName=cls.service_name1,
                                                                 RouteTableIds=[cls.route_table_id]).response.NetAccessPoint.NetAccessPointId
-            cls.net_ap_id2 = cls.a1_r1.oapi.CreateNetAccessPoint(NetId=cls.net_id2, ServiceName=cls.service_name,
+            cls.net_ap_id2 = cls.a1_r1.oapi.CreateNetAccessPoint(NetId=cls.net_id2, ServiceName=cls.service_name2,
                                                                  RouteTableIds=[cls.route_table_id2]).response.NetAccessPoint.NetAccessPointId
             wait_vpc_endpoints_state(cls.a1_r1, [cls.net_ap_id, cls.net_ap_id2], 'available')
             cls.a1_r1.oapi.CreateTags(ResourceIds=[cls.net_ap_id], Tags=[{'Key': 'foo', 'Value': 'bar'}])
@@ -58,14 +59,14 @@ class Test_ReadNetAccessPoints(OscTestSuite):
         ret = self.a1_r1.oapi.ReadNetAccessPoints(Filters={'NetIds': [self.net_id]})
         assert len(ret.response.NetAccessPoints) == 1
         assert ret.response.NetAccessPoints[0].NetId == self.net_id
-        assert ret.response.NetAccessPoints[0].ServiceName == self.service_name
+        assert ret.response.NetAccessPoints[0].ServiceName == self.service_name1
         assert self.route_table_id in ret.response.NetAccessPoints[0].RouteTableIds
 
     def test_T3729_filter_net_ap_id(self):
         ret = self.a1_r1.oapi.ReadNetAccessPoints(Filters={'NetAccessPointIds': [self.net_ap_id]})
         assert len(ret.response.NetAccessPoints) == 1
         assert ret.response.NetAccessPoints[0].NetId == self.net_id
-        assert ret.response.NetAccessPoints[0].ServiceName == self.service_name
+        assert ret.response.NetAccessPoints[0].ServiceName == self.service_name1
         assert self.route_table_id in ret.response.NetAccessPoints[0].RouteTableIds
         assert len(ret.response.NetAccessPoints[0].Tags) == 1
 
@@ -105,8 +106,11 @@ class Test_ReadNetAccessPoints(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T3807_filter_servicenames(self):
-        ret = self.a1_r1.oapi.ReadNetAccessPoints(Filters={'ServiceNames': [self.service_name]})
-        assert len(ret.response.NetAccessPoints) == 2
+        ret = self.a1_r1.oapi.ReadNetAccessPoints(Filters={'ServiceNames': ['com.outscale.in-west-2.kms']})
+        if len(ret.response.NetAccessPoints) != 1:
+            known_error("GTW-1351", "Incorrect result with ReadNetAccessPoints filters")
+        assert False, "Remove known error code"
+        assert len(ret.response.NetAccessPoints) == 1
 
     def test_T3808_filter_states(self):
         wait_vpc_endpoints_state(self.a1_r1, [self.net_ap_id, self.net_ap_id2], state='available')

@@ -71,15 +71,25 @@ class Test_CreateNetAccessPoint(OscTestSuite):
     def test_T3699_valid_params(self):
         net_id = self.a1_r1.oapi.CreateNet(IpRange='10.0.0.0/16').response.Net.NetId
         route_table_id = self.a1_r1.oapi.CreateRouteTable(NetId=net_id).response.RouteTable.RouteTableId
-        net_access_point_id = None
+        net_access_point_ids = []
+        services = ['fcu', 'lbu', 'eim', 'icu', 'directlink', 'api', 'kms']
         try:
-            net_access_point_id = self.a1_r1.oapi.CreateNetAccessPoint(
-                NetId=net_id,
-                ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
-                RouteTableIds=[route_table_id]).response.NetAccessPoint.NetAccessPointId
+            for service in services:
+                ret = self.a1_r1.oapi.CreateNetAccessPoint(
+                    NetId=net_id,
+                    ServiceName='com.outscale.{}.{}'.format(self.a1_r1.config.region.name, service),
+                    RouteTableIds=[route_table_id])
+                assert ret.response.NetAccessPoint.NetAccessPointId
+                assert ret.response.NetAccessPoint.NetId
+                assert ret.response.NetAccessPoint.RouteTableIds
+                assert (ret.response.NetAccessPoint.ServiceName).endswith(service)
+                assert ret.response.NetAccessPoint.State
+                assert hasattr(ret.response.NetAccessPoint, 'Tags')
+                net_access_point_ids.append(ret.response.NetAccessPoint.NetAccessPointId)
         finally:
-            if net_access_point_id:
-                self.a1_r1.oapi.DeleteNetAccessPoint(NetAccessPointId=net_access_point_id)
+            if net_access_point_ids:
+                for net_access_point_id in net_access_point_ids:
+                    self.a1_r1.oapi.DeleteNetAccessPoint(NetAccessPointId=net_access_point_id)
             if route_table_id:
                 self.a1_r1.oapi.DeleteRouteTable(RouteTableId=route_table_id)
             if net_id:

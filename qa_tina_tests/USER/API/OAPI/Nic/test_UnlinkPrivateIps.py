@@ -112,6 +112,4 @@ class Test_UnlinkPrivateIps(Nic):
             self.a2_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=['10.0.1.37'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'DefaultError', 0)
-            known_error('GTW-1307', 'Incorrect error code')
-            assert_oapi_error(error, 400, 'InvalidResource', '5036')
+            assert_oapi_error(error, 400, 'InvalidResource', '5077')
