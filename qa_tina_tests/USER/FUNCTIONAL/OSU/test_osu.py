@@ -32,14 +32,10 @@ class Test_osu(OscTestSuite):
             cls.public_bucket_name = id_generator(prefix="public-bucket-", chars=ascii_lowercase)
             cls.key_name = id_generator(prefix="key_", chars=ascii_lowercase)
             cls.data = id_generator(prefix="data_", chars=ascii_lowercase)
-            cls.known_error = False
-            try:
-                cls.a1_r1.osu.create_bucket(Bucket=cls.bucket_name)
-                cls.a1_r1.osu.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
-                cls.a1_r1.osu.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
-                cls.a1_r1.osu.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
-            except ClientError as error:
-                raise error
+            cls.a1_r1.osu.create_bucket(Bucket=cls.bucket_name)
+            cls.a1_r1.osu.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
+            cls.a1_r1.osu.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
+            cls.a1_r1.osu.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
             # b_list = cls.a1_r1.osu.conn.list_buckets()['Buckets']
             # for b in b_list:
             #    cls.logger.debug(b['Name'])
