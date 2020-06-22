@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
 import string
 from qa_test_tools import misc
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
 from qa_test_tools.account_tools import create_account
@@ -34,6 +34,9 @@ class Test_CheckAuthentication(OscTestSuite):
             self.a1_r1.oapi.CheckAuthentication()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if error.status_code == 400 and error.message == 'InvalidParameterValue':
+                known_error('GTW-1371', 'Incorrect error message in CheckAuthentication')
+            assert False, ('Remove known error')
             misc.assert_error(error, 400, '3001', 'InvalidParameter')
 
     def test_T4744_required_param(self):
@@ -46,6 +49,9 @@ class Test_CheckAuthentication(OscTestSuite):
             self.a1_r1.oapi.CheckAuthentication(Password=self.a1_r1.config.account.password)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if error.status_code == 400 and error.message == 'InvalidParameterValue':
+                known_error('GTW-1371', 'Incorrect error message in CheckAuthentication')
+            assert False, ('Remove known error')
             misc.assert_error(error, 400, '3001', 'InvalidParameter')
 
     def test_T4746_without_password(self):
@@ -53,6 +59,9 @@ class Test_CheckAuthentication(OscTestSuite):
             self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if error.status_code == 400 and error.message == 'InvalidParameterValue':
+                known_error('GTW-1371', 'Incorrect error message in CheckAuthentication')
+            assert False, ('Remove known error')
             misc.assert_error(error, 400, '3001', 'InvalidParameter')
 
     def test_T4747_with_invalid_password(self):

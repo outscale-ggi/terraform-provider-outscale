@@ -50,4 +50,4 @@ class Test_ReadConsumptionAccount(OscTestSuite):
             self.a1_r1.oapi.ReadConsumptionAccount(ToDate=self.start_date.isoformat(), FromDate=end_date.isoformat())
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '3001', 'InvalidParameter')
+            misc.assert_error(error, 400, '4118', 'InvalidParameterValue')

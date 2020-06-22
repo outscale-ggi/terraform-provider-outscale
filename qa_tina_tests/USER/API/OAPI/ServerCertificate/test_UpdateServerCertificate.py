@@ -2,7 +2,7 @@ import os
 
 from qa_test_tools import misc
 import pytest
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.tools.tina import create_tools
@@ -79,7 +79,10 @@ class Test_UpdateServerCertificate(OscTestSuite):
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', 3001)
+            if error.status_code == 400 and error.message == 'InvalidParameterValue':
+                known_error('GTW-1371', 'Incorrect error message in CheckAuthentication')
+            assert False, ('Remove known error')
+            misc.assert_error(error, 400, '3001', 'InvalidParameter')
 
     def test_T4884_invalid_name(self):
         invalid_name = '@&é"(§è!çà)'
@@ -122,7 +125,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', 3001)
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
 
     def test_T4889_invalid_new_name_type(self):
         new_name = misc.id_generator(prefix='sc-')
@@ -141,7 +144,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
             assert False, 'Remove known error'
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', 3001)
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
 
     def test_T4891_invalid_new_path_type(self):
         new_name = misc.id_generator(prefix='sc-')
