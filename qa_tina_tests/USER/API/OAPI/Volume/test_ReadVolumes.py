@@ -29,7 +29,7 @@ class Test_ReadVolumes(OscTestSuite):
             wait_snapshots_state(cls.a1_r1, [cls.snap_id], state='completed')
             cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(SnapshotId=cls.snap_id, SubregionName=cls.azs[0]).response.Volume.VolumeId)
             image_id = cls.a1_r1.config.region.get_info(constants.CENTOS7)
-            cls.vms = cls.a1_r1.oapi.CreateVms(ImageId=image_id).response.Vms
+            cls.vms = cls.a1_r1.oapi.CreateVms(ImageId=image_id, VmType=cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)).response.Vms
             wait_instances_state(cls.a1_r1, [cls.vms[0].VmId], state='running')
         except Exception:
             try:
