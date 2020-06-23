@@ -60,9 +60,8 @@ class Test_osu(OscTestSuite):
     def teardown_class(cls):
         try:
             cls.logger.debug("Remove data and bucket")
-            if not cls.known_error:
-                cls.a1_r1.osu.delete_object(Bucket=cls.bucket_name, Key=cls.key_name)
-                cls.a1_r1.osu.delete_bucket(Bucket=cls.bucket_name)
+            cls.a1_r1.osu.delete_object(Bucket=cls.bucket_name, Key=cls.key_name)
+            cls.a1_r1.osu.delete_bucket(Bucket=cls.bucket_name)
         finally:
             super(Test_osu, cls).teardown_class()
 
