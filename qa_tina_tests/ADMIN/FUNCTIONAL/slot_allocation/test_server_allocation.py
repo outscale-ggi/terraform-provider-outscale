@@ -10,7 +10,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 
 METADATA_PACEMENT = 'curl http://169.254.169.254/latest/meta-data/placement/'
-
+INSTANCE_TYPE = 'tinav3.c1r1p1'
 
 class Test_server_allocation(OscTestSuite):
 
@@ -26,7 +26,7 @@ class Test_server_allocation(OscTestSuite):
             -----END OUTSCALE SECTION-----"""
         cls.userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
-            cls.inst_info = create_instances(cls.a1_r1, state='ready', user_data=cls.userdata)
+            cls.inst_info = create_instances(cls.a1_r1, state='ready', user_data=cls.userdata, inst_type=INSTANCE_TYPE)
             connection = SshTools.check_connection_paramiko(cls.inst_info[INSTANCE_SET][0]['ipAddress'], cls.inst_info[KEY_PAIR][PATH],
                                                             cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
             cls.server, _, _ = SshTools.exec_command_paramiko_2(connection, METADATA_PACEMENT + 'server')
@@ -65,7 +65,7 @@ class Test_server_allocation(OscTestSuite):
             -----END OUTSCALE SECTION-----"""
         userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
-            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata)
+            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
             self.check_placement(self.cluster, self.server, inst_info, True, True)
         finally:
             if inst_info:
@@ -78,7 +78,7 @@ class Test_server_allocation(OscTestSuite):
             -----END OUTSCALE SECTION-----"""
         userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
-            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata)
+            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
             self.check_placement(self.cluster, self.server, inst_info, False, None)
         finally:
             if inst_info:
@@ -91,7 +91,7 @@ class Test_server_allocation(OscTestSuite):
             -----END OUTSCALE SECTION-----"""
         userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
-            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata)
+            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
             self.check_placement(self.cluster, self.server, inst_info, None, True)
         finally:
             if inst_info:
@@ -104,7 +104,7 @@ class Test_server_allocation(OscTestSuite):
             -----END OUTSCALE SECTION-----"""
         userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
-            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata)
+            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
             self.check_placement(self.cluster, self.server, inst_info, None, False)
         finally:
             if inst_info:
@@ -118,7 +118,7 @@ class Test_server_allocation(OscTestSuite):
             -----END OUTSCALE SECTION-----"""
         userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
-            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata)
+            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
             self.check_placement(self.cluster, self.server, inst_info, False, None)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -135,7 +135,7 @@ class Test_server_allocation(OscTestSuite):
             -----END OUTSCALE SECTION-----"""
         userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
-            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata)
+            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
             self.check_placement(self.cluster, self.server, inst_info, None, False)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -152,7 +152,7 @@ class Test_server_allocation(OscTestSuite):
             -----END OUTSCALE SECTION-----"""
         userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
-            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata)
+            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
             self.check_placement(self.cluster, self.server, inst_info, True, True)
         finally:
             if inst_info:
@@ -166,7 +166,7 @@ class Test_server_allocation(OscTestSuite):
             -----END OUTSCALE SECTION-----"""
         userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
-            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata)
+            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
             self.check_placement(self.cluster, self.server, inst_info, True, False)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -183,7 +183,7 @@ class Test_server_allocation(OscTestSuite):
             -----END OUTSCALE SECTION-----"""
         userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
-            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata)
+            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
             self.check_placement(self.cluster, self.server, inst_info, False, True)
         finally:
             if inst_info:
@@ -197,7 +197,7 @@ class Test_server_allocation(OscTestSuite):
             -----END OUTSCALE SECTION-----"""
         userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
-            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata)
+            inst_info = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
             self.check_placement(self.cluster, self.server, inst_info, False, False)
         finally:
             if inst_info:
@@ -211,9 +211,9 @@ class Test_server_allocation(OscTestSuite):
 #             -----END OUTSCALE SECTION-----"""
 #         userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
 #         try:
-#             inst_info1 = create_instances(self.a1_r1, state='ready', user_data=userdata)
+#             inst_info1 = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
 #             cluster, server = self.check_placement(self.cluster, self.server, inst_info1, False, None)
-#             inst_info2 = create_instances(self.a1_r1, state='ready', user_data=userdata)
+#             inst_info2 = create_instances(self.a1_r1, state='ready', user_data=userdata, inst_type=INSTANCE_TYPE)
 #             self.check_placement(self.cluster, self.server, inst_info2, False, None)
 #             self.check_placement(cluster, server, inst_info2, False, None)
 #         finally:
