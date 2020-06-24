@@ -6,7 +6,7 @@ from string import ascii_lowercase
 from botocore.exceptions import ClientError
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 
 
 @pytest.mark.region_osu
@@ -32,14 +32,10 @@ class Test_osu(OscTestSuite):
             cls.public_bucket_name = id_generator(prefix="publicbucket", chars=ascii_lowercase)
             cls.key_name = id_generator(prefix="key_", chars=ascii_lowercase)
             cls.data = id_generator(prefix="data_", chars=ascii_lowercase)
-            cls.known_error = False
-            try:
-                cls.a1_r1.osu.create_bucket(Bucket=cls.bucket_name)
-                cls.a1_r1.osu.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
-                cls.a1_r1.osu.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
-                cls.a1_r1.osu.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
-            except ClientError as error:
-                raise error
+            cls.a1_r1.osu.create_bucket(Bucket=cls.bucket_name)
+            cls.a1_r1.osu.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
+            cls.a1_r1.osu.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
+            cls.a1_r1.osu.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
             # b_list = cls.a1_r1.osu.conn.list_buckets()['Buckets']
             # for b in b_list:
             #    cls.logger.debug(b['Name'])
@@ -64,9 +60,8 @@ class Test_osu(OscTestSuite):
     def teardown_class(cls):
         try:
             cls.logger.debug("Remove data and bucket")
-            if not cls.known_error:
-                cls.a1_r1.osu.delete_object(Bucket=cls.bucket_name, Key=cls.key_name)
-                cls.a1_r1.osu.delete_bucket(Bucket=cls.bucket_name)
+            cls.a1_r1.osu.delete_object(Bucket=cls.bucket_name, Key=cls.key_name)
+            cls.a1_r1.osu.delete_bucket(Bucket=cls.bucket_name)
         finally:
             super(Test_osu, cls).teardown_class()
 
@@ -86,4 +81,4 @@ class Test_osu(OscTestSuite):
     def test_T4904_verify_display_name(self):
         res = self.a1_r1.osu.list_objects(Bucket=self.public_bucket_name)
         # verify that display name is account id
-        assert res.Contents[0].Owner.DisplayName == res.Contents[0].Owner.ID
+        assert res['Contents'][0]['Owner']['DisplayName'] == res['Contents'][0]['Owner']['ID']

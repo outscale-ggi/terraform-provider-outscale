@@ -1,5 +1,5 @@
 import pytest
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_test_tools import misc
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
@@ -383,8 +383,10 @@ class Test_create_policy(OscTestSuite):
             assert ret.status_code == 200
             try:
                 self.account_sdk.fcu.DescribeDhcpOptions()
+                known_error('TINA-5762', 'Unexpected success as call has not been accepted')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
+                assert False, 'Remove known error'
                 misc.assert_error(error, 400, 'UnauthorizedOperation', None)
             try:
                 self.account_sdk.eim.ListAccessKeys()
@@ -429,8 +431,10 @@ class Test_create_policy(OscTestSuite):
             self.account_sdk.fcu.DescribeDhcpOptions()
             try:
                 self.account_sdk.fcu.DescribeInstanceTypes()
+                known_error('TINA-5762', 'Unexpected success as call has not been accepted')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
+                assert False, 'Remove known error'
                 misc.assert_error(error, 400, 'UnauthorizedOperation', None)
             try:
                 self.account_sdk.eim.ListAccessKeys()

@@ -16,6 +16,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 import socket
 import time
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+import requests
 
 
 class Test_load_balancers(OscTestSuite):
@@ -47,7 +48,6 @@ class Test_load_balancers(OscTestSuite):
         ci_info = None
         try:
             ret_lb = create_load_balancer(self.a1_r1, lb_name)
-            # dns_name = ret_lb.response.CreateLoadBalancerResult.DNSName
             health_check = {'HealthyThreshold': 2, 'Interval': 20, 'Target': 'HTTP:80/index.html', 'Timeout': 10, 'UnhealthyThreshold': 2}
             self.a1_r1.lbu.ConfigureHealthCheck(LoadBalancerName=lb_name, HealthCheck=health_check)
             ci_info = create_instances(self.a1_r1, 2, state='ready')
@@ -68,14 +68,6 @@ class Test_load_balancers(OscTestSuite):
             self.a1_r1.lbu.SetLoadBalancerPoliciesOfListener(LoadBalancerName=lb_name, LoadBalancerPort=80, PolicyNames=['policyname'])
             wait_health(self.a1_r1, lb_name, insts, 'InService')
             dns_test(self.a1_r1, ret_lb.response.CreateLoadBalancerResult.DNSName, withsession=True, check_cookies=True)
-            # self.a1_r1.lbu.SetLoadBalancerPoliciesOfListener(LoadBalancerName=lb_name , LoadBalancerPort = 80, PolicyNames=[])
-#             self.a1_r1.lbu.CreateAppCookieStickinessPolicy(LoadBalancerName=lb_name, PolicyName='my-app-cookie-policy', CookieName=lb_name)
-#             self.a1_r1.lbu.SetLoadBalancerPoliciesOfListener(LoadBalancerName=lb_name , LoadBalancerPort = 80, PolicyNames=['my-app-cookie-policy'])
-#             self.wait_health(lb_name, insts, 'InService')
-#             ret = requests.get("http://{}/cookie".format(dns_name), verify=False)
-#             ret = self.a1_r1.lbu.DescribeLoadBalancers()
-#             self.dns_test(ret_lb.response.CreateLoadBalancerResult.DNSName, withsession = False)
-
             # for debug purposes
         except Exception as error:
             self.logger.exception(str(error))
@@ -215,3 +207,38 @@ class Test_load_balancers(OscTestSuite):
             raise err
         finally:
             delete_instances(self.a1_r1, inst_info)
+
+    def test_T5056_public_lbu_with_AppCookieStickinessPolicy(self):
+
+        lb_name = id_generator(prefix='lb-')
+        ret_lb = None
+        ci_info = None
+        try:
+            ret_lb = create_load_balancer(self.a1_r1, lb_name)
+            dns_name = ret_lb.response.CreateLoadBalancerResult.DNSName
+            health_check = {'HealthyThreshold': 2, 'Interval': 20, 'Target': 'HTTP:80/index.html', 'Timeout': 10, 'UnhealthyThreshold': 2}
+            self.a1_r1.lbu.ConfigureHealthCheck(LoadBalancerName=lb_name, HealthCheck=health_check)
+            ci_info = create_instances(self.a1_r1, 2, state='ready')
+            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=ci_info[SECURITY_GROUP_ID], IpProtocol='tcp',
+                                                         FromPort=80, ToPort=80, CidrIp=Configuration.get('cidr', 'allips'))
+            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=ci_info[SECURITY_GROUP_ID], IpProtocol='tcp',
+                                                         FromPort=443, ToPort=443, CidrIp=Configuration.get('cidr', 'allips'))
+            insts = ci_info[INSTANCE_SET][0]
+            start_http_server(insts['ipAddress'], ci_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+                              text='ins{}'.format(insts['instanceId']))
+            insts=[{'InstanceId': insts['instanceId']}]
+            self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=lb_name, Instances=insts)
+            wait_health(self.a1_r1, lb_name, insts, 'InService')
+            dns_test(self.a1_r1, ret_lb.response.CreateLoadBalancerResult.DNSName)            
+            self.a1_r1.lbu.CreateAppCookieStickinessPolicy(LoadBalancerName=lb_name, PolicyName='my-app-cookie-policy', CookieName=lb_name)
+            self.a1_r1.lbu.SetLoadBalancerPoliciesOfListener(LoadBalancerName=lb_name , LoadBalancerPort = 80, PolicyNames=['my-app-cookie-policy'])
+            wait_health(self.a1_r1, lb_name, insts, 'InService')
+            dns_test(self.a1_r1, dns_name=ret_lb.response.CreateLoadBalancerResult.DNSName)
+        except Exception as error:
+            self.logger.exception(str(error))
+            raise error
+        finally:
+            if ci_info:
+                delete_instances(self.a1_r1, ci_info)
+            if ret_lb:
+                delete_lbu(self.a1_r1, lbu_name=lb_name)

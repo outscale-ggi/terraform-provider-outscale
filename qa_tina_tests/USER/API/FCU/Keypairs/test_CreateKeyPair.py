@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
+    OscSdkException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite, known_error, get_export_value
 
 
 class Test_CreateKeyPair(OscTestSuite):
@@ -16,8 +17,11 @@ class Test_CreateKeyPair(OscTestSuite):
         try:
             self.a1_r1.fcu.CreateKeyPair()
             assert False, "Creating key pair without key name should not have succeeded"
-
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
+                assert_error(error, 400, 'MissingParameter', None)
+                assert not error.message
+                known_error('GTW-1356', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: Name')
 
     def test_T931_with_invalid_keyname(self):
@@ -26,6 +30,10 @@ class Test_CreateKeyPair(OscTestSuite):
             self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
             assert False, "Creating key pair with key name longer than 255 should not have succeeded"
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
+                assert_error(error, 400, 'InvalidParameterValue', None)
+                assert not error.message
+                known_error('GTW-1356', 'Missing error message')
             assert_error(error, 400, 'InvalidParameterValue',
                          "Parameter 'KeyName' is invalid: {}. Constraints: Only ASCII characters, max length 255".format(key_name))
 
@@ -35,8 +43,12 @@ class Test_CreateKeyPair(OscTestSuite):
         ret = None
         try:
             ret = self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
+                known_error('GTW-1356', 'Missing error')
             assert False, "Non-ascii code should not be accepted"
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
+                assert False, 'Remove known error'
             if error.status_code != 400:
                 known_error('TINA-5696', '404 or 502 error')
             assert False, 'Remove known error'
@@ -53,6 +65,10 @@ class Test_CreateKeyPair(OscTestSuite):
             self.a1_r1.fcu.CreateKeyPair(KeyName='test_T1802')
             assert False, "Call should not have been successful, key with same name exists"
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
+                assert_error(error, 409, 'InvalidKeyPair.Duplicate', None)
+                assert not error.message
+                known_error('GTW-1356', 'Missing error message')
             assert_error(error, 400, 'InvalidKeyPair.Duplicate', 'The key pair already exists: test_T1802')
         finally:
             if ret:
@@ -63,6 +79,8 @@ class Test_CreateKeyPair(OscTestSuite):
         ret = None
         try:
             ret = self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
+                known_error('GTW-1356', 'Missing error')
             assert False, "Only white space code should not be accepted"
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue',
@@ -76,6 +94,12 @@ class Test_CreateKeyPair(OscTestSuite):
         key_name = ''.join(chr(i) for i in range(32, 127))
         try:
             ret = self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
+        except OscSdkException as error:
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
+                known_error('GTW-1356', 'Cannot read response, incorrect content type')
+            raise error
+        except Exception as error:
+            raise error
         finally:
             if ret:
                 try:
@@ -91,6 +115,12 @@ class Test_CreateKeyPair(OscTestSuite):
         key_name = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678._-:/()#,@[]+=&;{}!$*"
         try:
             ret = self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
+        except OscSdkException as error:
+            if get_export_value('OSC_USE_GATEWAY', default_value=False):
+                known_error('GTW-1356', 'Cannot read response, incorrect content type')
+            raise error
+        except Exception as error:
+            raise error
         finally:
             if ret:
                 self.a1_r1.fcu.DeleteKeyPair(KeyName=key_name)

@@ -2,8 +2,9 @@
 import re
 
 from qa_tina_tools.constants import VOLUME_SIZES, VOLUME_IOPS
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
+    OscSdkException
+from qa_test_tools.test_base import OscTestSuite, get_export_value, known_error
 from qa_tina_tools.tools.tina.create_tools import create_volumes, create_instances_old
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances_old 
 
@@ -33,19 +34,24 @@ class Test_DescribeVolumes(OscTestSuite):
     def test_T1234_without_params(self):
         ret = self.a1_r1.fcu.DescribeVolumes()
         pattern = re.compile(r'^vol-[0-9a-f]{8}$')
-        for vol in ret.response.volumeSet:
-            assert vol.status == 'available'
-            assert vol.availabilityZone == self.a1_r1.config.region.az_name
-            assert vol.volumeType in list(VOLUME_SIZES.keys())
-            assert re.match(pattern, vol.volumeId)
-            if vol.volumeType in list(VOLUME_IOPS.keys()):
-                assert vol.iops == str(VOLUME_IOPS[vol.volumeType]['min_iops'])
-            elif vol.volumeType == 'gp2':
-                assert vol.iops == str(max(int(vol.size) * 3, 100))
-            assert vol.attachmentSet is None
-            assert vol.tagSet is None
-            assert vol.snapshotId is None
-            assert vol.size == str(VOLUME_SIZES[vol.volumeType]['min_size'])
+        try:
+            for vol in ret.response.volumeSet:
+                assert vol.status == 'available'
+                assert vol.availabilityZone == self.a1_r1.config.region.az_name
+                assert vol.volumeType in list(VOLUME_SIZES.keys())
+                assert re.match(pattern, vol.volumeId)
+                if vol.volumeType in list(VOLUME_IOPS.keys()):
+                    assert vol.iops == str(VOLUME_IOPS[vol.volumeType]['min_iops'])
+                elif vol.volumeType == 'gp2':
+                    assert vol.iops == str(max(int(vol.size) * 3, 100))
+                assert vol.attachmentSet is None
+                assert vol.tagSet is None
+                assert vol.snapshotId is None
+                assert vol.size == str(VOLUME_SIZES[vol.volumeType]['min_size'])
+        except AttributeError as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                known_error('GTW-1368', 'Missing snapshot id in response')
+            raise error
         assert len(ret.response.volumeSet) == len(VOLUME_SIZES), "The Number of volumes does not match"
 
     def test_T1237_with_filter_size(self):
@@ -57,15 +63,24 @@ class Test_DescribeVolumes(OscTestSuite):
             if value['min_size'] == filtered_size:
                 nb_expected_vol += 1
                 expected_type_list.append(key)
-        for vol in ret.response.volumeSet:
-            assert vol.volumeType in expected_type_list
-            assert vol.size == str(filtered_size)
+        try:
+            for vol in ret.response.volumeSet:
+                assert vol.volumeType in expected_type_list
+                assert vol.size == str(filtered_size)
+        except AssertionError as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                known_error('GTW-1368', 'Filtering does not function')
+            raise error
         assert len(ret.response.volumeSet) == nb_expected_vol, "The Number of volumes does not match"
 
     def test_T1238_dry_run(self):
         try:
             self.a1_r1.fcu.DescribeVolumes(DryRun='true')
             assert False, 'DryRun should have failed'
+        except OscSdkException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                known_error('GTW-1368', 'DryRun response is incorrect, missing request id')
+            raise error
         except OscApiException as error:
             assert error.status_code == 400
             assert error.error_code == 'DryRunOperation'
@@ -88,6 +103,10 @@ class Test_DescribeVolumes(OscTestSuite):
                 assert vol.status == 'available'
                 assert vol.attachmentSet is None
             assert len(ret.response.volumeSet) == len(VOLUME_SIZES), "The Number of volumes does not match"
+        except AssertionError as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                known_error('GTW-1368', 'Filtering does not function')
+            raise error
         finally:
             if inst_id:
                 delete_instances_old(osc_sdk=self.a1_r1, instance_id_list=[inst_id])

@@ -2,6 +2,8 @@
 # -*- coding:utf-8 -*-
 
 from qa_tina_tests.USER.API.OAPI.Vpn_Connection.VpnConnection import VpnConnection, validate_vpn_connection
+from qa_test_tools.test_base import known_error
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 class Test_ReadVpnConnections(VpnConnection):
@@ -23,8 +25,24 @@ class Test_ReadVpnConnections(VpnConnection):
         super(Test_ReadVpnConnections, cls).teardown_class()
 
     def test_T3363_empty_filters(self):
-        assert len(self.a1_r1.oapi.ReadVpnConnections().response.VpnConnections) == 2
+        ret = self.a1_r1.oapi.ReadVpnConnections()
+        assert len(ret.response.VpnConnections) == 2
+        VpnConnections1 = ret.response.VpnConnections[0]
+        assert VpnConnections1.ClientGatewayId
+        assert VpnConnections1.ConnectionType
+        assert VpnConnections1.Routes
+        assert VpnConnections1.State
+        assert VpnConnections1.StaticRoutesOnly
+        assert hasattr(VpnConnections1, "Tags")
+        assert VpnConnections1.VirtualGatewayId
+        assert VpnConnections1.VpnConnectionId
+        try:
+            assert not hasattr(VpnConnections1, 'ClientGatewayConfiguration')
+            known_error('GTW-1081', 'ClientGatewayConfiguration is not in the response')
+        except OscApiException:
+            assert False, 'Remove known error'
 
+        
     def test_T3364_filters_bgp_asns(self):
         assert len(self.a1_r1.oapi.ReadVpnConnections(Filters={'BgpAsns': [self.bgp_asn]}).response.VpnConnections) == 1
 
