@@ -45,7 +45,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
 
     def setup_method(self, method):
         super(Test_CreateSnapshotExportTask, self).setup_method(method)
-        self.bucket_name = id_generator(prefix='snap_', chars=ascii_lowercase)
+        self.bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
         try:
             pass
         except:

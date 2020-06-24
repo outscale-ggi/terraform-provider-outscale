@@ -14,7 +14,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 
-NUM_EXPORT_TASK = 3
+NUM_EXPORT_TASK = 1
 
 
 class Test_CreateImageExportTask(OscTestSuite):
@@ -26,6 +26,7 @@ class Test_CreateImageExportTask(OscTestSuite):
     def setup_class(cls):
         cls.QUOTAS = {'image_export_limit': NUM_EXPORT_TASK}
         cls.image_id = None
+        cls.image_id2 = None
         cls.inst_info = None
         super(Test_CreateImageExportTask, cls).setup_class()
         try:
@@ -35,8 +36,11 @@ class Test_CreateImageExportTask(OscTestSuite):
             wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=cls.inst_info[INSTANCE_ID_LIST][0:1], state='stopped')
             ret = cls.a1_r1.fcu.CreateImage(InstanceId=cls.inst_info[INSTANCE_ID_LIST][0], Name=id_generator(prefix='OMI_Test_image_exporttask_'))
             cls.image_id = ret.response.imageId
-            wait_images_state(osc_sdk=cls.a1_r1, image_id_list=[cls.image_id], state='available')
+            ret = cls.a1_r1.fcu.CreateImage(InstanceId=cls.inst_info[INSTANCE_ID_LIST][0], Name=id_generator(prefix='OMI_Test_image_exporttask_'))
+            cls.image_id2 = ret.response.imageId
+            wait_images_state(osc_sdk=cls.a1_r1, image_id_list=[cls.image_id,cls.image_id2], state='available')
             cls.a1_r1.fcu.ModifyImageAttribute(ImageId=cls.image_id, LaunchPermission={'Add': [{'UserId': cls.a2_r1.config.account.account_id}]})
+            cls.a1_r1.fcu.ModifyImageAttribute(ImageId=cls.image_id2, LaunchPermission={'Add': [{'UserId': cls.a2_r1.config.account.account_id}]})
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -49,6 +53,8 @@ class Test_CreateImageExportTask(OscTestSuite):
         try:
             if cls.image_id:
                 cls.a1_r1.fcu.DeregisterImage(ImageId=cls.image_id)
+            if cls.image_id2:
+                cls.a1_r1.fcu.DeregisterImage(ImageId=cls.image_id2)
             if cls.inst_info:
                 delete_instances(cls.a1_r1, cls.inst_info)
         finally:
@@ -93,12 +99,8 @@ class Test_CreateImageExportTask(OscTestSuite):
     # TODO: add valid tests (need OSU)
     @pytest.mark.region_osu
     def test_T3304_too_many_export_tasks(self):
-        for i in range(NUM_EXPORT_TASK):
-            self.a1_r1.fcu.CreateImageExportTask(ImageId=self.image_id, ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test{}'.format(i)})
         try:
-            self.a1_r1.fcu.CreateImageExportTask(ImageId=self.image_id, ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test{}'.format(i)})
-            assert False, 'Call should not have been successful'
+            self.a1_r1.fcu.CreateImageExportTask(ImageId=self.image_id, ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test1'})
+            self.a1_r1.fcu.CreateImageExportTask(ImageId=self.image_id2, ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test2'})
         except OscApiException as error:
-            assert_error(error, 400, '', 'The limit has exceeded: {}.Limit for Image Exports has already reached.'.format(NUM_EXPORT_TASK))
-            known_error('TINA-5280', 'Incorrect error message')
-            assert_error(error, 400, '', '')
+            assert_error(error, 400, 'PendingImageLimitExceeded', 'The limit has exceeded: {}.Limit for Image Exports has been reached.'.format(NUM_EXPORT_TASK))
