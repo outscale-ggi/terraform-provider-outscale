@@ -28,8 +28,8 @@ class Test_osu(OscTestSuite):
             #ret=cls.a1_r1.icu.ListAccessKeys()
             #cls.logger.debug(ret.response.display())
 
-            cls.bucket_name = id_generator(prefix="bucket-", chars=ascii_lowercase)
-            cls.public_bucket_name = id_generator(prefix="public-bucket-", chars=ascii_lowercase)
+            cls.bucket_name = id_generator(prefix="bucket", chars=ascii_lowercase)
+            cls.public_bucket_name = id_generator(prefix="publicbucket", chars=ascii_lowercase)
             cls.key_name = id_generator(prefix="key_", chars=ascii_lowercase)
             cls.data = id_generator(prefix="data_", chars=ascii_lowercase)
             cls.known_error = False
