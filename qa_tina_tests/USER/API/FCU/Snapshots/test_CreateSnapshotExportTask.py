@@ -64,6 +64,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         finally:
             super(Test_CreateSnapshotExportTask, self).teardown_method(method)
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     def test_T1019_valid_parameters(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
@@ -114,6 +115,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
             assert_error(error, 400, 'InvalidSnapshot.NotFound',
                          'The Snapshot ID does not exist: {}, for account: {}'.format(self.snap_id, self.a2_r1.config.account.account_id))
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     def test_T3890_with_shared_snapshot_id(self):
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
@@ -159,6 +161,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue', "Value of parameter 'OsuBucket' must be lowercase. Received: FOO")
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     def test_T3891_with_existing_osu_bucket(self):
         self.a1_r1.osu.create_bucket(Bucket=self.bucket_name)
@@ -175,6 +178,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         assert False, "Remove known error"
         assert '{}.qcow2.gz'.format(task_id) == k_list[0]['Key']
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     def test_T3892_with_osu_key(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
@@ -191,6 +195,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         # OsuKey not supported by Tina
         assert '{}.qcow2.gz'.format(task_id) == k_list[0]['Key']
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     def test_T3893_with_osu_prefix(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
@@ -207,6 +212,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         assert False, "Remove known error"
         assert 'osu_prefix-{}.qcow2.gz'.format(task_id) == k_list[0]['Key']
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     def test_T3894_with_ak_sk(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
@@ -234,6 +240,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
             assert_error(error, 400, 'InvalidSnapshot.NotFound',
                          'The Snapshot ID does not exist: foo, for account: {}'.format(self.a1_r1.config.account.account_id))
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     def test_T3896_with_invalid_ak_sk(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',

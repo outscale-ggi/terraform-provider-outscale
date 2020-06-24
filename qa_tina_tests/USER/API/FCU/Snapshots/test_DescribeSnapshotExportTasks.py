@@ -7,6 +7,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshot_export_tasks_state
 
 
+@pytest.mark.region_synchro_osu
 @pytest.mark.region_osu
 class Test_DescribeSnapshotExportTasks(OscTestSuite):
 

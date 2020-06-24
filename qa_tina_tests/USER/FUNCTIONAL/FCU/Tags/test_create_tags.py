@@ -103,6 +103,7 @@ class Test_create_tags(OscTestSuite):
     def test_T1103_vpc(self):
         self.create_tag(self.vpc_info1[VPC_ID])
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     def test_T4144_image_export_task(self):
         ret = self.a1_r1.fcu.CreateImageExportTask(ImageId=self.image_id,
@@ -110,6 +111,7 @@ class Test_create_tags(OscTestSuite):
         task_id = ret.response.imageExportTask.imageExportTaskId
         self.create_tag(task_id)
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     def test_T4145_snapshot_export_task(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snapshot_id,
