@@ -101,6 +101,7 @@ class Test_fw_vgw(OscTestSuite):
         assert SshTools.check_service(self.sshclient, 'salt-minion')
 
     def test_T1899_check_nginx(self):
+        pytest.skip('nginx not available anymore')
         assert SshTools.check_service(self.sshclient, 'nginx')
 
     def test_T1905_check_racoon(self):
