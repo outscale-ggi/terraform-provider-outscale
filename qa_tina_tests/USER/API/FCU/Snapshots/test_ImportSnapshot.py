@@ -29,7 +29,7 @@ class Test_ImportSnapshot(OscTestSuite):
             cls.snap_id = ret.response.snapshotId
             wait_snapshots_state(osc_sdk=cls.a1_r1, state='completed', snapshot_id_list=[cls.snap_id])
             # export snapshot
-            cls.bucket_name = id_generator(prefix='snap_', chars=ascii_lowercase)
+            cls.bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
             for e in cls.supported_snap_types:
                 ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=cls.snap_id,
                                                              ExportToOsu={'DiskImageFormat': e, 'OsuBucket': cls.bucket_name})
