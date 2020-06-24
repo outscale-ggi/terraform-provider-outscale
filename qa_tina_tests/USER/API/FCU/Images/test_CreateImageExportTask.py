@@ -92,6 +92,7 @@ class Test_CreateImageExportTask(OscTestSuite):
             assert_error(error, 400, 'OperationNotPermitted', 'Public or shared images cannot be exported')
 
     # TODO: add valid tests (need OSU)
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     def test_T3304_too_many_export_tasks(self):
         for i in range(NUM_IMAGES):

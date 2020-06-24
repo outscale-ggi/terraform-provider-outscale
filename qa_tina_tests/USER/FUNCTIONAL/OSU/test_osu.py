@@ -9,6 +9,7 @@ from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
 
 
+@pytest.mark.region_synchro_osu
 @pytest.mark.region_osu
 class Test_osu(OscTestSuite):
 
@@ -65,6 +66,7 @@ class Test_osu(OscTestSuite):
         finally:
             super(Test_osu, cls).teardown_class()
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     @pytest.mark.tag_redwire
     def test_T183_generated_url(self):
