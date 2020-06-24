@@ -306,6 +306,7 @@ class Test_CreateImage(OscTestSuite):
         assert ret.StateComment is not None
         assert ret.Tags == []
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     def test_T2319_from_manifest_valid_osu_location(self):
         ret = self.a1_r1.oapi.CreateImage(ImageName=self.ami_name,
