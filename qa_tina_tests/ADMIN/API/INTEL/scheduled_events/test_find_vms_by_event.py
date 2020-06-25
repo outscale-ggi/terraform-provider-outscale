@@ -27,14 +27,22 @@ class Test_find_vms_by_event(OscTestSuite):
 
 
     def test_T210_with_correct_params(self):
+        kvm_selected = None
         start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
             days=1)
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(
             days=2)
-        PINKVM = 'in2-ucs1-pr-kvm-2'
-        ret = self.a1_r1.intel.scheduled_events.create(event_type='hardware-change', resource_type='server',
-                                                       targets=[PINKVM], start_date=str(start_date), end_date=str(end_date),
-                                                       description='test')
+        hardware_groups = self.a1_r1.intel.hardware.get_account_bindings(account=self.a1_r1.config.account.account_id). \
+            response.result
+        ret = self.a1_r1.intel.slot.find_server_resources(min_core=15, min_memory=15 * pow(1024, 3), pz='in2',
+                                                          hw_groups=hardware_groups)
+        for server in ret.response.result:
+            if server.state == 'READY':
+                kvm_selected = server.name
+                break
+        self.a1_r1.intel.scheduled_events.create(event_type='hardware-change', resource_type='server',
+                                                 targets=[kvm_selected], start_date=str(start_date), end_date=str(end_date),
+                                                 description='test')
         ret = self.a1_r1.intel.scheduled_events.find()
         event_id = ret.response.result[0].id
         ret = self.a1_r1.intel.scheduled_events.find_vms_by_event(event_id=event_id)

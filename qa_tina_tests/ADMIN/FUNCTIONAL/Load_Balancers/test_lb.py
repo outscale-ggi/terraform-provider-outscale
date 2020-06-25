@@ -41,7 +41,7 @@ class Test_lb(OscTestSuite):
             ret = self.a1_r1.intel.tag.find(resource=ret.response.result[0].vm, key='osc.fcu.eip.auto-attach')
             eip_values.append(ret.response.result[0].value)
             delete_lbu(self.a1_r1, lbu_name=lb_name)
-        ret = self.a1_r1.intel.address.describe(owner='761392738989')
+        ret = self.a1_r1.intel.address.describe(owner=self.a1_r1.intel.user.get_details(username='ows.elb@outscale.com').response.result.username)
         for i in ret.response.result.results:
             ips.append(i.ip)
         for eip in eip_values:
