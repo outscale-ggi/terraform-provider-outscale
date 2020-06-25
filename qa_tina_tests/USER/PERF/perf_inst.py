@@ -147,7 +147,7 @@ def perf_inst_exec(oscsdk, logger, queue, args, os):
                         if output and 'login' in output:
                             prompt_inst_time = (datetime.now() - start_run_inst_time).total_seconds()
                             result['inst_ready'] = prompt_inst_time
-                time.sleep(0.5)
+                time.sleep(0.75)
             wait_instances_state(oscsdk, [inst_list[1].instanceId, inst_list[2].instanceId], state='ready', threshold=60, wait_time=10)
         except Exception as error:
             log_error(logger, error, "Unexpected error while creating test instance", result)
