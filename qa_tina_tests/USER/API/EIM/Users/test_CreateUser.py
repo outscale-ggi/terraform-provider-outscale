@@ -53,7 +53,7 @@ class Test_CreateUser(OscTestSuite):
             assert False, "CreateUser must fail with invalid UserName"
         except OscApiException as error:
             assert_error(error, 400, "ValidationError", "Invalid IdauthUser: [name: size must be between 1 and 64]")
-        char_list = "!\"#$%&'()*/:;<>?[\\]^`{|}~"
+        char_list = "!\"#$%&'()*/;<>?[\\]^`{|}~:"
         for char in char_list:
             try:
                 user_name = id_generator(prefix='user_{}_'.format(char))
@@ -61,12 +61,13 @@ class Test_CreateUser(OscTestSuite):
                 self.user_list.append(user_name)
                 assert False, "CreateUser must fail with invalid UserName"
             except OscApiException as error:
-                if error.status_code == 500 and error.message == 'Internal Error':
-                    known_error('TINA-5530', 'EIM CreateGroup: Internal error when using a colon in group name')
-                assert_error(error, 400, "ValidationError",
-                             "Invalid IdauthUser: [name: must contain only alphanumeric characters and/or +=,.@-_ characters]")
+                if char == ':':
+                    assert_error(error, 400, "ValidationError", 'Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: Invalid composite name part]')
+                    known_error('TINA-5761', 'Unexpected error message')
+                else:
+                    assert_error(error, 400, "ValidationError",
+                                 "Invalid IdauthUser: [name: must contain only alphanumeric characters and/or +=,.@-_ characters]")
         assert False, 'Remove known error code'
-        known_error("TINA-4045", "Wrong error message")
 
     def test_T1430_with_path(self):
         user_name = id_generator(prefix='user_')
@@ -96,12 +97,10 @@ class Test_CreateUser(OscTestSuite):
                 self.user_list.append(user_name)
                 assert False, "CreateUser must fail with invalid Path {}".format(path)
             except OscApiException as error:
-                if error.status_code == 500 and error.message == 'Internal Error':
-                    known_error('TINA-5530', 'EIM CreateGroup: Internal error when using a colon in group name')
                 assert_error(error, 400, "ValidationError",
                             "Invalid IdauthUser: [path: must begin and end with / and contain only alphanumeric characters " \
                             +"and/or /_ characters]")
-        char_list = "!\"#$%&'()*+,-.:;<=>?@[\\]^`{|}~"
+        char_list = "!\"#$%&'()*+,-.;<=>?@[\\]^`{|}~:"
         for char in char_list:
             try:
                 user_name = id_generator(prefix='user_')
@@ -110,13 +109,21 @@ class Test_CreateUser(OscTestSuite):
                 self.user_list.append(user_name)
                 assert False, "CreateUser must fail with invalid Path {}".format(path)
             except OscApiException as error:
-                if error.status_code == 500 and error.message == 'Internal Error':
-                    known_error('TINA-5530', 'EIM CreateGroup: Internal error when using a colon in group name')
-                assert_error(error, 400, "ValidationError",
+                if char == ':':
+                    assert_error(error, 400, "ValidationError", 'Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: Invalid composite name part]')
+                    known_error('TINA-5761', 'Unexpected error message')
+                else:
+                    assert_error(error, 400, "ValidationError",
                              "Invalid IdauthUser: [path: must begin and end with / and contain only alphanumeric characters " \
                              +"and/or /_ characters]")
         assert False, 'Remove known error code'
-        known_error("TINA-4045", "Wrong error message")
+#                 if error.status_code == 500 and error.message == 'Internal Error':
+#                     known_error('TINA-5530', 'EIM CreateGroup: Internal error when using a colon in group name')
+#                 assert_error(error, 400, "ValidationError",
+#                              "Invalid IdauthUser: [path: must begin and end with / and contain only alphanumeric characters " \
+#                              +"and/or /_ characters]")
+#         assert False, 'Remove known error code'
+#         known_error("TINA-4045", "Wrong error message")
 
     def test_T3659_with_existing_user_name(self):
         user_name = id_generator(prefix='user_')

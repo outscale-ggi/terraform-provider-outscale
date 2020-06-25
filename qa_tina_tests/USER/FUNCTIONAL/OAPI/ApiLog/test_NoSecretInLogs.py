@@ -79,6 +79,7 @@ class Test_NoSecretInLogs(OscTestSuite):
             if pid:
                 delete_account(self.a1_r1, pid)
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     @pytest.mark.tag_sec_confidentiality
     def test_T4323_check_no_sk_in_CreateSnapshotExportTask_logs(self):
@@ -91,6 +92,7 @@ class Test_NoSecretInLogs(OscTestSuite):
         # TODO: check
         assert False, "Not Implemented"
 
+    @pytest.mark.region_synchro_osu
     @pytest.mark.region_osu
     @pytest.mark.tag_sec_confidentiality
     def test_T4324_check_no_sk_in_CreateImageExportTask_logs(self):

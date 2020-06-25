@@ -15,6 +15,7 @@ from pprint import pprint
 CALL_NUMBER = 50
 
 
+@pytest.mark.region_synchro_osu
 @pytest.mark.region_osu
 class Test_create_snapshot_export_task(OscTestSuite):
 
