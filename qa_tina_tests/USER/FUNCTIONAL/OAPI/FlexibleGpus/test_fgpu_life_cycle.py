@@ -82,8 +82,8 @@ class Test_fgpu_life_cycle(OscTestSuite):
         self.ret_link = None
         self.ret_unlink = None
         self.dovd = False
-        # ret = self.a1_r1.intel.pci.find(state='in-use')
-        # self.num_gpus = len(ret.response.result) if ret.response.result else 0
+        ret = self.a1_r1.intel.pci.find(state='in-use')
+        self.num_gpus = len(ret.response.result) if ret.response.result else 0
 
     def teardown_method(self, method):
         try:
