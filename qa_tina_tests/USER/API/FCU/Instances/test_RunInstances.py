@@ -146,11 +146,11 @@ private_only=true
         assert len(responses_describe.response.reservationSet) == 1
         terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
 
-    def test_T5031_with_invalid_token(self):
+    def test_T5031_with_invalid_type_token(self):
         try:
-            token = -1
-            ret = self.a1_r1.fcu.RunInstances(ClientToken=token, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
-                                              MaxCount=1, MinCount=1)
+            token = ['151475']
+            self.a1_r1.fcu.RunInstances(ClientToken=token, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+                                        MaxCount=1, MinCount=1)
             assert False, 'Cal should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, ' ', ' ')
+            assert_error(error, 400, 'InvalidParameterType', "Value of parameter \'Token\' must be of type: str. Received: {\'1\': \'151475\'}")

@@ -12,10 +12,11 @@ class Test_DetachVolume(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.inst_info = None
+        cls.vol_detached = False
         super(Test_DetachVolume, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1, nb=2)
-            _, cls.standard_volume_ids = create_volumes(cls.a1_r1)
+            _, cls.standard_volume_ids = create_volumes(cls.a1_r1, count=2)
             _, cls.gp2_volume_ids = create_volumes(cls.a1_r1, volume_type='gp2')
             _, cls.io1_volume_ids = create_volumes(cls.a1_r1, volume_type='io1', iops=150)
             wait_volumes_state(cls.a1_r1, cls.standard_volume_ids, 'available')
@@ -23,6 +24,9 @@ class Test_DetachVolume(OscTestSuite):
             wait_volumes_state(cls.a1_r1, cls.standard_volume_ids, 'available')
             cls.rslt_attach_standard = cls.a1_r1.fcu.AttachVolume(VolumeId=cls.standard_volume_ids[0], InstanceId=cls.inst_info[INSTANCE_ID_LIST][0],
                                                                   Device="/dev/xvdb")
+            cls.a1_r1.fcu.AttachVolume(VolumeId=cls.standard_volume_ids[1],
+                                       InstanceId=cls.inst_info[INSTANCE_ID_LIST][0],
+                                       Device="/dev/xvde")
             cls.rslt_attach_gp2 = cls.a1_r1.fcu.AttachVolume(VolumeId=cls.gp2_volume_ids[0], InstanceId=cls.inst_info[INSTANCE_ID_LIST][0],
                                                              Device="/dev/xvdc")
             cls.rslt_attach_io1 = cls.a1_r1.fcu.AttachVolume(VolumeId=cls.io1_volume_ids[0], InstanceId=cls.inst_info[INSTANCE_ID_LIST][0],
@@ -40,6 +44,11 @@ class Test_DetachVolume(OscTestSuite):
             if cls.inst_info:
                 delete_instances(cls.a1_r1, cls.inst_info)
                 cls.a1_r1.fcu.DeleteVolume(VolumeId=cls.standard_volume_ids[0])
+                if not cls.vol_detached:
+                    cls.a1_r1.fcu.DetachVolume(VolumeId=cls.standard_volume_ids[1],
+                                               InstanceId=cls.inst_info[INSTANCE_ID_LIST][0])
+                    wait_volumes_state(cls.a1_r1, volume_id_list=cls.standard_volume_ids, state="available")
+                cls.a1_r1.fcu.DeleteVolume(VolumeId=cls.standard_volume_ids[1])
                 cls.a1_r1.fcu.DeleteVolume(VolumeId=cls.gp2_volume_ids[0])
                 cls.a1_r1.fcu.DeleteVolume(VolumeId=cls.io1_volume_ids[0])
         finally:
@@ -121,8 +130,11 @@ class Test_DetachVolume(OscTestSuite):
 
     def test_T5028_from_an_other_instance(self):
         try:
-            self.a1_r1.fcu.DetachVolume(VolumeId=self.standard_volume_ids[0],
+            self.a1_r1.fcu.DetachVolume(VolumeId=self.standard_volume_ids[1],
                                         InstanceId=self.inst_info[INSTANCE_ID_LIST][1])
+            self.__class__.vol_detached = True
+            known_error('TINA-5765', 'Detach volume from an other instance succeed')
             assert False, "Call should not be successful"
         except OscApiException as error:
+            assert False, 'Remove known error'
             assert_error(error, 400, " ", " ")
