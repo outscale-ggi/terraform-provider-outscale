@@ -136,7 +136,7 @@ class Test_ImportSnapshot(OscTestSuite):
         snap_id = None
         key = None
         try:
-            bucket_name = id_generator(prefix='t1056_', chars=ascii_lowercase)
+            bucket_name = id_generator(prefix='t1056', chars=ascii_lowercase)
             # create snapshot export task
             ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id,
                                                           ExportToOsu={'DiskImageFormat': self.supported_snap_types[0], 'OsuBucket': bucket_name})
