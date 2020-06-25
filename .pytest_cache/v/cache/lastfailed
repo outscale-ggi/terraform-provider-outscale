@@ -1,6 +1,0 @@
-{
-  "qa_tina_tests/USER/API/ICU/Catalogs/test_ReadCatalog.py::Test_ReadCatalog::()::test_T1331_with_authent": true,
-  "qa_tina_tests/USER/API/ICU/Catalogs/test_ReadCatalog.py::Test_ReadCatalog::()::test_T1422_without_authent": true,
-  "qa_tina_tests/USER/API/OAPI/fGpu/test_CreateFlexibleGpu.py::Test_CreateFlexibleGpu::()::test_T4188_valid_params": true,
-  "qa_tina_tests/USER/API/OAPI/fGpu/test_CreateFlexibleGpu.py::Test_CreateFlexibleGpu::test_T4188_valid_params": true
-}

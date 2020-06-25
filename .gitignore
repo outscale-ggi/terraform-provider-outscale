@@ -1,8 +1,9 @@
-qa_common_tools
-qa_tina_tools
+*.pyc
+/.pytest_cache/
 venv_build
 venv_dev
 qa_common_tools
+qa_support_tools
 qa_tina_tools
 qa_test_tools
 qa_sdks
