@@ -36,11 +36,7 @@ class Test_ReadVpnConnections(VpnConnection):
         assert hasattr(VpnConnections1, "Tags")
         assert VpnConnections1.VirtualGatewayId
         assert VpnConnections1.VpnConnectionId
-        try:
-            assert not hasattr(VpnConnections1, 'ClientGatewayConfiguration')
-            known_error('GTW-1081', 'ClientGatewayConfiguration is not in the response')
-        except OscApiException:
-            assert False, 'Remove known error'
+        assert VpnConnections1.ClientGatewayConfiguration
 
         
     def test_T3364_filters_bgp_asns(self):
