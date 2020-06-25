@@ -3612,7 +3612,9 @@ components:
       properties:
         Generations:
           description: FlexibleGpuCatalog_Generations
-          type: string
+          items:
+            type: string
+          type: array
         MaxCpu:
           description: FlexibleGpuCatalog_MaxCpu
           type: integer
