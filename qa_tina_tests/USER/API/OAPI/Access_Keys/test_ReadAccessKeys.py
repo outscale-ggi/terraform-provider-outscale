@@ -5,6 +5,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkExcep
 from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
 from qa_test_tools import misc
 import pytest
+from qa_test_tools.misc import assert_dry_run
 
 
 class Test_ReadAccessKeys(OscTestSuite):
@@ -128,3 +129,7 @@ class Test_ReadAccessKeys(OscTestSuite):
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
+
+    def test_T5061_with_DryRun(self):
+        ret_create = self.a1_r1.oapi.ReadAccessKeys(DryRun=True)
+        assert_dry_run(ret_create)
