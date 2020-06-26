@@ -24,6 +24,12 @@ class Test_butterfly_vpc(OscTestSuite):
             raise error    
         finally:
             if inst_info:
-                delete_instances(self.a1_r1, inst_info)
+                try:
+                    delete_instances(self.a1_r1, inst_info)
+                except:
+                    pass
             if vpc_info:
-                delete_vpc(self.a1_r1, vpc_info)
+                try:
+                    delete_vpc(self.a1_r1, vpc_info)
+                except:
+                    pass
