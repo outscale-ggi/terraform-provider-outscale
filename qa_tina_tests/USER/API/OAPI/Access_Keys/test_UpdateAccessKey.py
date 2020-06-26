@@ -3,6 +3,7 @@ from qa_sdk_pub import osc_api
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_test_tools import misc
 import pytest
+from qa_test_tools.misc import assert_dry_run
 
 
 class Test_UpdateAccessKey(OscTestSuite):
@@ -99,6 +100,15 @@ class Test_UpdateAccessKey(OscTestSuite):
             assert False, 'remove known error'
         except OscSdkException as error:
             known_error('GTW-1240', 'SDK implementation ')
+        finally:
+            if ak:
+                self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
+
+    def test_T5063_with_dry_run(self):
+        try:
+            ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
+            ret = self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', DryRun = True)
+            assert_dry_run(ret)
         finally:
             if ak:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)

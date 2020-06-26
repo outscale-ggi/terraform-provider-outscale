@@ -100,3 +100,9 @@ class Test_ReadNets(OscTestSuite):
     def test_T3450_other_account_with_filter(self):
         ret = self.a2_r1.oapi.ReadNets(Filters={'NetIds': self.net_id_list}).response.Nets
         assert not ret
+
+    def test_T5062_with_is_default_Tags(self):
+        ret = self.a1_r1.oapi.ReadNets(Filters={'IsDefault': False}).response
+        assert len(ret.Nets) == 3
+        ret = self.a1_r1.oapi.ReadNets(Filters={'IsDefault': True}).response
+        assert len(ret.Nets) == 0

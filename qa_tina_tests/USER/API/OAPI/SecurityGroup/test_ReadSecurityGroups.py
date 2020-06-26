@@ -262,3 +262,13 @@ class Test_ReadSecurityGroups(SecurityGroup):
         filters = {'SecurityGroupIds': [self.sg3['id']]}
         ret = self.a2_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
         assert not ret
+
+    def test_T5064_with_NetIds_filters(self):
+        filters = {'NetIds': [self.vpc['vpc_id']]}
+        ret = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
+        assert len(ret) == 3
+
+        filters = {'NetIds': ['vpc-123456789']}
+        ret = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
+        assert len(ret) == 0
+        
