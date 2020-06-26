@@ -119,7 +119,6 @@ class Test_fgpu_life_cycle(Fgpu_life_cycle):
         assert len(ret.response.FlexibleGpus) >= 2
 
     def test_T4414_with_tina_2fgpu_update_type_to_aws_1fgpu(self):
-        fgpus = []
         try:
             ret = self.a1_r1.intel.pci.find_gpu_reservations()
             if self.max_fgpu - len(ret.response.result) < 2:
@@ -130,10 +129,8 @@ class Test_fgpu_life_cycle(Fgpu_life_cycle):
             vm_id = self.inst_info[INSTANCE_ID_LIST][0]
             ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=fgpu_life_cycle.MODEL_NAME, SubregionName=self.a1_r1.config.region.az_name)
             fgpu_id1 = ret.response.FlexibleGpu.FlexibleGpuId
-            fgpus.append(fgpu_id1)
             ret1 = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=fgpu_life_cycle.MODEL_NAME, SubregionName=self.a1_r1.config.region.az_name)
             fgpu_id2 = ret1.response.FlexibleGpu.FlexibleGpuId
-            fgpus.append(fgpu_id2)
             self.a1_r1.oapi.LinkFlexibleGpu(VmId=vm_id, FlexibleGpuId=fgpu_id1)
             self.a1_r1.oapi.LinkFlexibleGpu(VmId=vm_id, FlexibleGpuId=fgpu_id2)
             stop_instances(self.a1_r1, [vm_id])
@@ -142,12 +139,16 @@ class Test_fgpu_life_cycle(Fgpu_life_cycle):
             self.a1_r1.oapi.UpdateVm(VmId=vm_id, VmType=fgpu_life_cycle.GPU_TYPE)
             ret = self.a1_r1.oapi.ReadFlexibleGpus()
             assert len(ret.response.FlexibleGpus) >= 1
+        except Exception as error:
+            raise error
         finally:
+            fgpus = self.a1_r1.oapi.ReadFlexibleGpus().response.FlexibleGpus
             for fgpu in fgpus:
-                self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=fgpu)
-                wait_flexible_gpu_state(self.a1_r1, [fgpu], state='allocated')
-                self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=fgpu)
-                wait_flexible_gpu_state(self.a1_r1, [fgpu], cleanup=True)
+                if fgpu.State != 'allocated':
+                    self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=fgpu.FlexibleGpuId)
+                    wait_flexible_gpu_state(self.a1_r1, [fgpu.FlexibleGpuId], state='allocated')
+                self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=fgpu.FlexibleGpuId)
+                wait_flexible_gpu_state(self.a1_r1, [fgpu.FlexibleGpuId], cleanup=True)
 
     def test_T4415_with_aws_1fgpu_and_update_type_to_tina(self):
         ret = self.a1_r1.oapi.ReadFlexibleGpus()
