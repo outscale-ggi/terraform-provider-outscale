@@ -79,28 +79,28 @@ class Test_DetachVolume(OscTestSuite):
 
     def test_T1252_valid_param_standard(self):
         self.rslt_detach_standard = self.a1_r1.fcu.DetachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0])
-        wait_volumes_state(self.a1_r1, volume_id_list=self.standard_volume_ids, state="available")
+        wait_volumes_state(self.a1_r1, volume_id_list=[self.standard_volume_ids[0]], state="available")
 
     def test_T3958_valid_param_gp2(self):
         self.rslt_detach_gp2 = self.a1_r1.fcu.DetachVolume(VolumeId=self.gp2_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0])
-        wait_volumes_state(self.a1_r1, volume_id_list=self.gp2_volume_ids, state="available")
+        wait_volumes_state(self.a1_r1, volume_id_list=[self.gp2_volume_ids[0]], state="available")
 
     def test_T3959_valid_param_io1(self):
         self.rslt_detach_io1 = self.a1_r1.fcu.DetachVolume(VolumeId=self.io1_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0])
-        wait_volumes_state(self.a1_r1, volume_id_list=self.io1_volume_ids, state="available")
+        wait_volumes_state(self.a1_r1, volume_id_list=[self.io1_volume_ids[0]], state="available")
 
     def test_T1255_option_force_standard(self):
         self.rslt_detach_standard = self.a1_r1.fcu.DetachVolume(VolumeId=self.standard_volume_ids[0],
                                                               InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Force=True)
-        wait_volumes_state(self.a1_r1, volume_id_list=self.standard_volume_ids, state="available")
+        wait_volumes_state(self.a1_r1, volume_id_list=[self.standard_volume_ids[0]], state="available")
 
     def test_T3960_option_force_gp2(self):
         self.rslt_detach_gp2 = self.a1_r1.fcu.DetachVolume(VolumeId=self.gp2_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Force=True)
-        wait_volumes_state(self.a1_r1, volume_id_list=self.gp2_volume_ids, state="available")
+        wait_volumes_state(self.a1_r1, volume_id_list=[self.gp2_volume_ids[0]], state="available")
 
     def test_T3961_option_force_io1(self):
         self.rslt_detach_io1 = self.a1_r1.fcu.DetachVolume(VolumeId=self.io1_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Force=True)
-        wait_volumes_state(self.a1_r1, volume_id_list=self.io1_volume_ids, state="available")
+        wait_volumes_state(self.a1_r1, volume_id_list=[self.io1_volume_ids[0]], state="available")
 
     def test_T1254_non_existing_volume_id(self):
         try:
