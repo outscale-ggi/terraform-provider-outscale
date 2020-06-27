@@ -32,7 +32,7 @@ class Test_DescribeKeyPairs(OscTestSuite):
         assert len(ret.response.keySet) == 3
         # TODO: check response content
 
-    def test_TXXX_with_keyname_dict(self):
+    def test_T5069_with_keyname_dict(self):
         has_known_error = False
         try:
             self.a1_r1.fcu.DescribeKeyPairs(KeyName={'toto': self.kp_list[0]['name']})
@@ -48,7 +48,7 @@ class Test_DescribeKeyPairs(OscTestSuite):
                 assert False, 'Remove known error code'
             assert_error(error, 400, None, None)
 
-    def test_TXXX_with_keyname_string(self):
+    def test_T5070_with_keyname_string(self):
         try:
             self.a1_r1.fcu.DescribeKeyPairs(KeyName=self.kp_list[0]['name'])
             if not os.getenv('OSC_USE_GATEWAY', None):
