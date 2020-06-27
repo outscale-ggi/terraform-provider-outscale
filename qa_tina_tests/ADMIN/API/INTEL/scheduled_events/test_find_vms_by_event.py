@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 import pytz
+from qa_test_tools.misc import assert_error
 
 
 class Test_find_vms_by_event(OscTestSuite):
@@ -40,11 +41,19 @@ class Test_find_vms_by_event(OscTestSuite):
             if server.state == 'READY':
                 kvm_selected = server.name
                 break
-        self.a1_r1.intel.scheduled_events.create(event_type='hardware-change', resource_type='server',
-                                                 targets=[kvm_selected], start_date=str(start_date), end_date=str(end_date),
-                                                 description='test')
-        ret = self.a1_r1.intel.scheduled_events.find()
-        event_id = ret.response.result[0].id
-        ret = self.a1_r1.intel.scheduled_events.find_vms_by_event(event_id=event_id)
-        assert len(ret.response.result) > 0
-        self.a1_r1.intel.scheduled_events.finish(event_id=event_id)
+        event_id = None
+        try:
+            ret_event = self.a1_r1.intel.scheduled_events.create(event_type='hardware-change', resource_type='server',
+                                                     targets=[kvm_selected], start_date=str(start_date), end_date=str(end_date),
+                                                     description='test')
+            event_id = ret_event.response.result.id
+            # ret = self.a1_r1.intel.scheduled_events.find()
+            # event_id = ret.response.result[0].id
+            ret = self.a1_r1.intel.scheduled_events.find_vms_by_event(event_id=event_id)
+            assert len(ret.response.result) > 0
+        except Exception as error:
+            assert_error(error, 200, -32603, 'Internal error.')
+            known_error('TINA-5768', 'Unexpected internal error')
+        finally:
+            if event_id:
+                self.a1_r1.intel.scheduled_events.finish(event_id=event_id)
