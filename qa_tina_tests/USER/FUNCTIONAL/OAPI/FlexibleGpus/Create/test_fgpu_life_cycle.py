@@ -7,6 +7,10 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instanc
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
+from qa_tina_tools.tina import oapi, info_keys, wait
+from qa_test_tools.config import config_constants as constants
+from qa_common_tools.ssh import SshTools
+from qa_test_tools.test_base import known_error
 
 class Test_fgpu_life_cycle(Fgpu_life_cycle):
 
@@ -173,3 +177,61 @@ class Test_fgpu_life_cycle(Fgpu_life_cycle):
         self.a1_r1.oapi.UpdateVm(VmId=self.vm_id, VmType='tinav4.c2r4')
         ret = self.a1_r1.oapi.ReadFlexibleGpus()
         assert len(ret.response.FlexibleGpus) == num_fgpu + 1
+
+    def test_T5030_with_tina_1fgpu_update_type_to_other_tina_type_with_different_genaration(self):
+        try:
+            ret = self.a1_r1.intel.pci.find_gpu_reservations()
+            if self.max_fgpu - len(ret.response.result) < 2:
+                pytest.skip("not enough capacity on fgpu")
+            ret = self.a1_r1.oapi.ReadFlexibleGpus()
+            num_fgpu = len(ret.response.FlexibleGpus)
+            self.init_test(4)
+            ret = self.a1_r1.oapi.ReadFlexibleGpus()
+            assert len(ret.response.FlexibleGpus) == num_fgpu + 1
+            self.a1_r1.oapi.UpdateVm(VmId=self.vm_id, VmType='tinav3.c2r4')
+        except OscApiException as error:
+            assert_error(error, 409, '9072', 'ResourceConflict')
+
+    def test_T5058_link_fgpu_to_starting_stopped_vm(self):
+        vm_info = None
+        gpu_id = None
+        gpu_linked = False
+        try:
+            vm_info = oapi.create_Vms(self.a1_r1, state='stopped', vm_type=self.a1_r1.config.region.get_info(
+                                                         constants.DEFAULT_GPU_INSTANCE_TYPE))
+            kp_path = vm_info[info_keys.KEY_PAIR][info_keys.PATH]
+            gpu_id = self.a1_r1.oapi.CreateFlexibleGpu(
+                ModelName=self.a1_r1.config.region.get_info(constants.DEFAULT_GPU_MODEL_NAME),
+                SubregionName=self.a1_r1.config.region.az_name). \
+                response.FlexibleGpu.FlexibleGpuId
+            wait.wait_FlexibleGpus_state(self.a1_r1, [gpu_id], state='allocated')
+            self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=gpu_id,
+                                            VmId=vm_info[info_keys.VM_IDS][0])
+            wait.wait_FlexibleGpus_state(self.a1_r1, [gpu_id], state='attached')
+            gpu_linked = True
+            oapi.start_Vms(self.a1_r1, [vm_info[info_keys.VM_IDS][0]])
+            wait.wait_Vms_state(self.a1_r1, [vm_info[info_keys.VM_IDS][0]], state='ready')
+            vm_ip = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [vm_info[info_keys.VM_IDS][0]]}).response.Vms[0].PublicIp
+            sshclient = SshTools.check_connection_paramiko(vm_ip, kp_path,
+                                                           username=self.a1_r1.config.region.get_info(
+                                                               constants.CENTOS_USER))
+            cmd = 'sudo yum install pciutils -y'
+            _, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+            assert not status, "SSH command was not executed correctly on the remote host"
+            cmd = 'sudo lspci | grep -c NVIDIA '
+            out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            assert not status, "SSH command was not executed correctly on the remote host"
+            assert out == "1\r\n"
+            assert False, 'Remove known error'
+        except Exception:
+            known_error('TINA-5375', 'fGPU not found in VM'),
+        finally:
+            if gpu_linked:
+                oapi.stop_Vms(self.a1_r1, [vm_info[info_keys.VM_IDS][0]])
+                self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=gpu_id)
+                wait.wait_FlexibleGpus_state(self.a1_r1, [gpu_id], state='allocated')
+            if gpu_id:
+                self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=gpu_id)
+                wait.wait_FlexibleGpus_state(self.a1_r1, [gpu_id], cleanup=True)
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
