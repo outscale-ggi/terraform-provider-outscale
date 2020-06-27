@@ -117,7 +117,7 @@ class Test_ReadRouteTables(OscTestSuite):
 
     def test_T5066_LinkRouteTableMain_filters(self):
         ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableMain': False})
-        assert len(ret.response.RouteTables) == 0
+        assert len(ret.response.RouteTables) == 1
         assert ret.response.RouteTables[0].RouteTableId == self.ret_create.response.routeTable.routeTableId
         
         ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableMain': True})
