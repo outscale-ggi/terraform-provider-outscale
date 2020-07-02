@@ -2,7 +2,7 @@ import pytest
 
 from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.misc import assert_dry_run
-from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 @pytest.mark.region_synchro_osu

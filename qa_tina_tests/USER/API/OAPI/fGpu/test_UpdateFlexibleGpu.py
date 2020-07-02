@@ -13,7 +13,7 @@ from qa_test_tools.test_base import OscTestSuite
 #         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
 #       type: object
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
-from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_tina_tools.specs.check_tools import check_oapi_response
 
 DEFAULT_GPU_ID = "fgpu-12345678"
 DEFAULT_MODEL_NAME = "nvidia-k2"
