@@ -6,7 +6,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state, wait_snapshots_state
 from qa_test_tools.misc import assert_dry_run
 from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
-from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_test_tools.config import config_constants as constants
 
 

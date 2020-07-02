@@ -2,7 +2,7 @@
 from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
-from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import validate_sg
 
 

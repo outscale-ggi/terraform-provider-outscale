@@ -3,7 +3,7 @@ from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from datetime import datetime, timedelta
 import time
-from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_tina_tools.specs.check_tools import check_oapi_response
 import pytest
 
 
