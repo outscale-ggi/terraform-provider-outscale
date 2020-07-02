@@ -4,7 +4,7 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_tina_tools.specs.check_tools import check_oapi_response
 import pytest
 
 #     UnlinkFlexibleGpuRequest:

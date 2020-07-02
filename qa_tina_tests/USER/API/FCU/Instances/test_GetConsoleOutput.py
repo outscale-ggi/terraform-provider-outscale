@@ -44,7 +44,7 @@ class Test_GetConsoleOutput(OscTestSuite):
         finally:
             super(Test_GetConsoleOutput, cls).teardown_class()
 
-    def check_response(self, ret, inst_id):
+    def check_response_output(self, ret, inst_id):
         assert ret.response.output
         try:
             base64.b64decode(ret.response.output)
@@ -62,7 +62,7 @@ class Test_GetConsoleOutput(OscTestSuite):
             if ret.response.output:
                 break
             time.sleep(3)
-        self.check_response(ret, inst_id)
+        self.check_response_output(ret, inst_id)
 
     def test_T4359_with_incorrect_id(self):
         try:
@@ -90,10 +90,10 @@ class Test_GetConsoleOutput(OscTestSuite):
         inst_id = self.instance_info_a1[INSTANCE_ID_LIST][1]
         terminate_instances(self.a1_r1, [inst_id])
         ret = self.a1_r1.fcu.GetConsoleOutput(InstanceId=inst_id)
-        self.check_response(ret, inst_id)
+        self.check_response_output(ret, inst_id)
 
     def test_T4355_with_stopped_instance(self):
         inst_id = self.instance_info_a1[INSTANCE_ID_LIST][2]
         stop_instances(self.a1_r1, [inst_id])
         ret = self.a1_r1.fcu.GetConsoleOutput(InstanceId=inst_id)
-        self.check_response(ret, inst_id)
+        self.check_response_output(ret, inst_id)

@@ -5,7 +5,7 @@ from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
-from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tools.tools.tina.wait_tools import wait_network_interfaces_state
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
