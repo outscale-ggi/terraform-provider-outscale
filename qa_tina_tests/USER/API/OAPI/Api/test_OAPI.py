@@ -8,15 +8,21 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscExceptio
 from qa_test_tools.test_base import OscTestSuite, known_error
 import subprocess
 import json
-from qa_tina_tools.specs.oapi import OAPI_PATHS
 from qa_test_tools.misc import assert_error, assert_oapi_error
 import datetime
 from qa_test_tools import misc
+from qa_tina_tools.specs.check_tools import get_documentation, DOCUMENTATIONS,\
+    PATHS
 
 MIN_OVERTIME=4
 
 
 class Test_OAPI(OscTestSuite):
+    
+    @classmethod
+    def setup_class(cls):
+        super(Test_OAPI, cls).setup_class()
+        get_documentation('oapi')
 
     @pytest.mark.tag_sec_traceability
     def test_T2221_check_request_id(self):
@@ -110,9 +116,9 @@ class Test_OAPI(OscTestSuite):
         result = subprocess.check_output(batcmd, shell=True)
         result2 = json.loads(result)
         assert 'Version' in result2 and result1['Versions'][0] == "v" + result2['Version'][0]
-        assert len(OAPI_PATHS) == len(result2['Calls'])
+        assert len(DOCUMENTATIONS['oapi'][PATHS]) == len(result2['Calls'])
         for call in result2['Calls']:
-            assert '/' + call in OAPI_PATHS
+            assert '/' + call in DOCUMENTATIONS['oapi'][PATHS]
  
     def test_T4688_check_oapi_including_version(self):
         batcmd = "curl -X POST https://api.{}.outscale.com/api/V1/ReadPublicIpRanges".format(self.a1_r1.config.region.name)
