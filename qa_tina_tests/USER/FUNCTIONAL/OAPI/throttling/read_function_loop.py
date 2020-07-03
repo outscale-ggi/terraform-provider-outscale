@@ -13,8 +13,8 @@ from qa_sdk_pub.osc_api import disable_throttling
 import time
 from qa_test_tools import misc
 from qa_test_tools.error import error_type, load_errors
-from qa_tina_tools.specs.oapi import OAPI_SPEC, COMPONENTS, SCHEMAS
 from qa_test_tools.account_tools import create_account
+from qa_tina_tools.specs.check_tools import get_documentation, DOCUMENTATIONS, SCHEMAS
 
 
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -98,7 +98,8 @@ if __name__ == '__main__':
     osc_sdk_as = OscSdkAs(config.region.get_info(constants.AS_IDAUTH_ID), config.region.name)
     account_sdk = None
 
-    OAPI_SCHEMAS = OAPI_SPEC[COMPONENTS][SCHEMAS]
+    get_documentation('opai')
+    OAPI_SCHEMAS = DOCUMENTATIONS['oapi'][SCHEMAS]
     api_read = []
     pids = []
     for i, j in OAPI_SCHEMAS.items():
