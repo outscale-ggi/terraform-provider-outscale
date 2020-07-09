@@ -76,13 +76,13 @@ class Test_LinkNic(Nic):
     def test_T2659_link_too_many_nics_on_same_vm(self):
         vm_ids = [self.vpc_inst_info[INSTANCE_ID_LIST][1]]
         wait_instances_state(self.a1_r1, vm_ids, state='running')
-        for i in range(2):
+        for i in range(7):
             self.nic_link_ids.append(self.a1_r1.oapi.LinkNic(DeviceNumber=i+1, VmId=vm_ids[0], NicId=self.nic_ids[10+i]).response.LinkNicId)
         try:
-            self.nic_link_ids.append(self.a1_r1.oapi.LinkNic(DeviceNumber=3, VmId=vm_ids[0], NicId=self.nic_ids[17]).response.LinkNicId)
+            self.nic_link_ids.append(self.a1_r1.oapi.LinkNic(DeviceNumber=9, VmId=vm_ids[0], NicId=self.nic_ids[17]).response.LinkNicId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'TooManyResources (QuotaExceded)', '10015')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T2660_link_on_same_device_number(self):
         vm_ids = [self.vpc_inst_info[INSTANCE_ID_LIST][2]]

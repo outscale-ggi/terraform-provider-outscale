@@ -9,6 +9,11 @@ from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response, create_vms
 import random
 import string
 import base64
+import zlib
+from qa_tina_tools.tina.oapi import delete_Vms
+from qa_common_tools.ssh import SshTools
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET
+from qa_tina_tools.tina.info_keys import KEY_PAIR, PATH
 
 
 class Test_CreateVms(OscTestSuite):
@@ -16,6 +21,9 @@ class Test_CreateVms(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_CreateVms, cls).setup_class()
+        cls.user_data = '''#!/usr/bin/bash
+echo "yes" > /tmp/userdata.txt
+'''
 
     @classmethod
     def teardown_class(cls):
@@ -34,6 +42,17 @@ class Test_CreateVms(OscTestSuite):
                 wait_instances_state(self.a1_r1, self.info, state='terminated')
         finally:
             super(Test_CreateVms, self).teardown_method(method)
+    def check_user_data(self, inst_info, gzip=False, decode=True):
+        sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
+                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        out, _, _ = SshTools.exec_command_paramiko_2(sshclient, 'curl http://169.254.169.254/latest/user-data', decode=decode)
+        if gzip:
+            self.logger.debug(zlib.decompress(out))
+            out = zlib.decompress(out).decode('utf-8')
+        assert out.replace("\r\n", "\n") == self.user_data
+        if not gzip:
+            out, _, _ = SshTools.exec_command_paramiko_2(sshclient, 'cat /tmp/userdata.txt')
+            assert out.startswith('yes')
 
     def test_T2937_missing_param(self):
         try:
@@ -495,6 +514,15 @@ class Test_CreateVms(OscTestSuite):
         wait_instances_state(self.a1_r1, self.info, state='terminated')
         self.info = None
 
+    def test_T5072_userdata_base64_gzip(self):
+        inst_info = None
+        try:
+            inst_info = create_vms(ocs_sdk=self.a1_r1, state='ready',
+                                         UserData=base64.b64encode(zlib.compress(self.user_data.encode('utf-8'))).decode('utf-8'))
+            self.check_user_data(inst_info, gzip=True, decode=False)
+        finally:
+            if inst_info:
+                delete_Vms(self.a1_r1, inst_info)
 
 class Test_CreateVmsWithSubnet(OscTestSuite):
 
@@ -628,8 +656,9 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
                                                       IpRange='10.1.1.0/24').response.Subnet.SubnetId
             self.nic_id = self.a1_r1.oapi.CreateNic(SubnetId=self.subnet_id).response.Nic.NicId
             nic_id2 = self.a1_r1.oapi.CreateNic(SubnetId=subnet_id2).response.Nic.NicId
+            nic_id2 = self.a1_r1.oapi.CreateNic(SubnetId=subnet_id2).response.Nic.NicId
             ret, self.vm_id_list = create_vms(
-                ocs_sdk=self.a1_r1,
+                ocs_sdk=self.a1_r1, VmType='tinav4.c2r4p1', 
                 Nics=[{'DeviceNumber': 0, 'NicId': self.nic_id}, {'DeviceNumber': 1, 'NicId': nic_id2}]
             )
             validate_vm_response(

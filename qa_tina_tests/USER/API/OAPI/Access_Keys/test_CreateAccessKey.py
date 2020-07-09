@@ -39,6 +39,7 @@ class Test_CreateAccessKey(OscTestSuite):
         try:
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             check_oapi_response(ret_create.response, 'CreateAccessKeyResponse')
+            assert hasattr(ret_create.response.AccessKey, "ExpirationDate")
             ak = ret_create.response.AccessKey.AccessKeyId
             sk = ret_create.response.AccessKey.SecretKey
             assert re.search(r"([A-Z0-9]{20})", ak), "AK format is not correct"
