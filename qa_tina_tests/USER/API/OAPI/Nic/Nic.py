@@ -2,6 +2,7 @@
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_security_group
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_security_group
+from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 
 
 class Nic(OscTestSuite):
@@ -33,6 +34,6 @@ class Nic(OscTestSuite):
             if cls.firewall_id1:
                 delete_security_group(cls.a1_r1, cls.firewall_id1)
             if cls.vpc1_info:
-                delete_vpc(cls.a1_r1, cls.vpc1_info, threshold=90)
+                cleanup_vpcs(cls.a1_r1, cls.vpc_id1, threshold=90)
         finally:
             super(Nic, cls).teardown_class()
