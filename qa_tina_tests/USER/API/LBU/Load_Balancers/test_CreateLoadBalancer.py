@@ -368,3 +368,12 @@ class Test_CreateLoadBalancer(OscTestSuite):
             assert_error(err, 400, 'ValidationError', 'Loadbalancer name must contain only alphanumeric characters '
                                                       'or hyphens')
 
+    def test_T5074_with_long_name(self):
+        try:
+            name = id_generator(prefix='lbu-', size=33)
+            create_load_balancer(self.a1_r1, name,
+                                 listeners=[{'InstancePort': '80', 'LoadBalancerPort': '80', 'Protocol': 'HTTP'}],
+                                 availability_zones=[self.a1_r1.config.region.az_name])
+            assert False, "Call should not have been successful"
+        except OscApiException as err:
+            assert_error(err, 400, '', '')
