@@ -90,3 +90,17 @@ class Test_Encrypt(Kms):
             assert False, 'Call should not have been successful, incorrect key owner'
         except OscApiException as error:
             assert_error(error, 400, 'NotFoundException', 'The customer master key does not exist: {}'.format(self.key_metadata.KeyId))
+
+    def test_T5088_with_standard_special_characters(self):
+        text = "Th!$ !$ @ text w!th $pec!@£ ch@r@cter$!"
+        encoded_text = base64.b64encode(text.encode('utf-8')).decode('utf-8')
+        ret = self.a1_r1.kms.Encrypt(KeyId=self.key_metadata.KeyId, Plaintext=encoded_text)
+        assert ret.response.CiphertextBlob
+        assert ret.response.KeyId in self.key_metadata.Arn
+
+    def test_T5087_with_special_characters(self):
+        text = "test123ù"
+        encoded_text = base64.b64encode(text.encode('utf-8')).decode('utf-8')
+        ret = self.a1_r1.kms.Encrypt(KeyId=self.key_metadata.KeyId, Plaintext=encoded_text)
+        assert ret.response.CiphertextBlob
+        assert ret.response.KeyId in self.key_metadata.Arn
