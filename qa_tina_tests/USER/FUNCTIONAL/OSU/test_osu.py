@@ -9,7 +9,8 @@ from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
 
 
-@pytest.mark.region_osu
+
+
 class Test_osu(OscTestSuite):
 
     @classmethod
@@ -28,18 +29,14 @@ class Test_osu(OscTestSuite):
             #ret=cls.a1_r1.icu.ListAccessKeys()
             #cls.logger.debug(ret.response.display())
 
-            cls.bucket_name = id_generator(prefix="bucket-", chars=ascii_lowercase)
-            cls.public_bucket_name = id_generator(prefix="public-bucket-", chars=ascii_lowercase)
+            cls.bucket_name = id_generator(prefix="bucket", chars=ascii_lowercase)
+            cls.public_bucket_name = id_generator(prefix="publicbucket", chars=ascii_lowercase)
             cls.key_name = id_generator(prefix="key_", chars=ascii_lowercase)
             cls.data = id_generator(prefix="data_", chars=ascii_lowercase)
-            cls.known_error = False
-            try:
-                cls.a1_r1.osu.create_bucket(Bucket=cls.bucket_name)
-                cls.a1_r1.osu.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
-                cls.a1_r1.osu.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
-                cls.a1_r1.osu.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
-            except ClientError as error:
-                raise error
+            cls.a1_r1.osu.create_bucket(Bucket=cls.bucket_name)
+            cls.a1_r1.osu.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
+            cls.a1_r1.osu.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
+            cls.a1_r1.osu.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
             # b_list = cls.a1_r1.osu.conn.list_buckets()['Buckets']
             # for b in b_list:
             #    cls.logger.debug(b['Name'])
@@ -64,13 +61,12 @@ class Test_osu(OscTestSuite):
     def teardown_class(cls):
         try:
             cls.logger.debug("Remove data and bucket")
-            if not cls.known_error:
-                cls.a1_r1.osu.delete_object(Bucket=cls.bucket_name, Key=cls.key_name)
-                cls.a1_r1.osu.delete_bucket(Bucket=cls.bucket_name)
+            cls.a1_r1.osu.delete_object(Bucket=cls.bucket_name, Key=cls.key_name)
+            cls.a1_r1.osu.delete_bucket(Bucket=cls.bucket_name)
         finally:
             super(Test_osu, cls).teardown_class()
 
-    @pytest.mark.region_osu
+
     @pytest.mark.tag_redwire
     def test_T183_generated_url(self):
         params = {'Bucket': self.bucket_name, 'Key': self.key_name}

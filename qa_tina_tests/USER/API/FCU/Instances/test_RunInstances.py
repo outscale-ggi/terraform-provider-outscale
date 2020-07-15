@@ -1,4 +1,5 @@
 import base64
+import uuid
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.test_base import OscTestSuite
@@ -131,3 +132,25 @@ private_only=true
         finally:
             if vpc_info:
                 delete_vpc(self.a1_r1, vpc_info)
+
+    def test_T5029_with_the_same_token(self):
+        token = str(uuid.uuid4())
+        ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+                                          InstanceType='t2.nano', MaxCount=1, MinCount=1,
+                                          ClientToken=token)
+        ret1 = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+                                           InstanceType='t2.nano', MaxCount=1, MinCount=1,
+                                           ClientToken=token)
+
+        responses_describe = self.a1_r1.fcu.DescribeInstances(InstanceId=[ret.response.instancesSet[0].instanceId, ret1.response.instancesSet[0].instanceId])
+        assert len(responses_describe.response.reservationSet) == 1
+        terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5031_with_invalid_type_token(self):
+        try:
+            token = ['151475']
+            self.a1_r1.fcu.RunInstances(ClientToken=token, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+                                        MaxCount=1, MinCount=1)
+            assert False, 'Cal should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidParameterType', "Value of parameter \'Token\' must be of type: str. Received: {\'1\': \'151475\'}")

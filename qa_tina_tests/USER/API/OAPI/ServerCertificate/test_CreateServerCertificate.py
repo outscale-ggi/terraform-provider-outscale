@@ -5,9 +5,9 @@ from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina import create_tools
 import os
-from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-# from qa_tools.specs.oapi.check_tools import check_oapi_response
+# from qa_tools.specs.check_tools import check_oapi_response
 # from osc_common.exceptions.osc_exceptions import OscApiException
 
 
@@ -91,11 +91,7 @@ class Test_CreateServerCertificate(OscTestSuite):
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.status_code == 400 and error.error_code == '3001' and error.message == 'InvalidParameter':
-                known_error('GTW-1305', 'Incorrect error message in CreateServerCertificate with invalid parameter value/type'
-                                        'returns invalid parameter')
-            assert False, 'remove known error'
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 3001)
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
 
     def test_T4852_incorrect_name_type(self):
         try:
@@ -139,11 +135,7 @@ class Test_CreateServerCertificate(OscTestSuite):
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key, Path='/toto').response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.status_code == 400 and error.error_code == '3001' and error.message == 'InvalidParameter':
-                known_error('GTW-1305', 'Incorrect error message in CreateServerCertificate with invalid parameter value/type'
-                                        'returns invalid parameter')
-            assert False, 'remove known error'
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '')
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
 
     def test_T4859_with_incorrect_path_type(self):
         try:

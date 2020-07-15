@@ -195,7 +195,7 @@ def perf_snapshot(oscsdk, logger, queue, args):
                     if status_snap in stop_states:
                         break
                     prev_state = status_snap
-                    time.sleep(0.5)
+                    time.sleep(0.75)
                 #if snapId:
                 #    logger.debug("Terminate snapshot")
 

@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import pytest
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, INTERNET_GATEWAY_ID, VPC_ID
@@ -13,11 +13,17 @@ class Test_ReadRouteTables(OscTestSuite):
         super(Test_ReadRouteTables, cls).setup_class()
         cls.vpc_info = None
         cls.rtb2 = None
+        cls.rtb2 = None
+        cls.ret_create = None
         try:
             cls.vpc_info = create_vpc(cls.a1_r1, nb_subnet=1, igw=True, default_rtb=True)
             cls.cidr_destination = '100.0.0.0/24'
-            cls.a1_r1.oapi.CreateRoute(DestinationIpRange=cls.cidr_destination, RouteTableId=cls.vpc_info[ROUTE_TABLE_ID],
+            cls.rtb1 = cls.a1_r1.oapi.CreateRoute(DestinationIpRange=cls.cidr_destination, RouteTableId=cls.vpc_info[ROUTE_TABLE_ID],
                                        GatewayId=cls.vpc_info[INTERNET_GATEWAY_ID])
+            cls.rtb2 = cls.a1_r1.oapi.CreateRoute(DestinationIpRange=cls.cidr_destination, RouteTableId=cls.vpc_info[ROUTE_TABLE_ID],
+                                       GatewayId=cls.vpc_info[INTERNET_GATEWAY_ID])
+            cls.ret_create = cls.a1_r1.fcu.CreateRouteTable(VpcId=cls.vpc_info[VPC_ID])
+
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -30,6 +36,8 @@ class Test_ReadRouteTables(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
+            if cls.ret_create:
+                cls.a1_r1.fcu.DeleteRouteTable(RouteTableId=cls.ret_create.response.routeTable.routeTableId)
             if cls.vpc_info:
                 delete_vpc(cls.a1_r1, cls.vpc_info)
         finally:
@@ -101,3 +109,18 @@ class Test_ReadRouteTables(OscTestSuite):
                                                    VirtualGatewayId=vgw_id, Enable=False)
             self.a1_r1.oapi.UnlinkVirtualGateway(VirtualGatewayId=vgw_id, NetId=self.vpc_info[VPC_ID])
             self.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=vgw_id)
+
+    def test_T5065_LinkRouteTableIds_filters(self):
+        ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableIds': [self.vpc_info[ROUTE_TABLE_ID]]})
+        assert len(ret.response.RouteTables) == 1
+        assert ret.response.RouteTables[0].RouteTableId == self.vpc_info[ROUTE_TABLE_ID]
+
+    def test_T5066_LinkRouteTableMain_filters(self):
+        ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableMain': False})
+        assert len(ret.response.RouteTables) == 1
+        assert ret.response.RouteTables[0].RouteTableId == self.ret_create.response.routeTable.routeTableId
+        
+        ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableMain': True})
+        assert len(ret.response.RouteTables) == 1
+        assert ret.response.RouteTables[0].RouteTableId == self.vpc_info[ROUTE_TABLE_ID]
+

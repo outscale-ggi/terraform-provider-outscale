@@ -5,6 +5,7 @@ from qa_test_tools.misc import id_generator, assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
 import pytest
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
+from qa_test_tools.test_base import known_error
 
 
 class Test_CreateLoadBalancer(LoadBalancer):
@@ -54,6 +55,22 @@ class Test_CreateLoadBalancer(LoadBalancer):
             assert False, "Call should not have been successful, request must contain valid LoadBalancerName"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4036')
+
+        char_list = "!\"#$%&'()*/:;<>?[\\]^`{|}~"
+        for char in char_list:
+            ret = None
+            try:
+                group_name = id_generator(prefix='group_{}_'.format(char))
+                ret = self.a1_r1.oapi.CreateLoadBalancer(
+                    Listeners=[{'BackendPort': 80, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80}],
+                    LoadBalancerName=group_name, SubregionNames=[self.a1_r1.config.region.az_name])
+                assert False, "Creategroup must fail with invalid groupName"
+            except OscApiException as error:
+                assert_oapi_error(error, 400, 'InvalidParameterValue', '4036')
+            finally:
+                if ret:
+                    self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=group_name)
+
 
     def test_T2582_with_empty_listener(self):
         try:
@@ -159,7 +176,19 @@ class Test_CreateLoadBalancer(LoadBalancer):
             assert False, "Call should not have been successful, request must contain valid security group param"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
-
+        try:
+            name = id_generator(prefix='lbu-')
+            self.a1_r1.oapi.CreateLoadBalancer(
+                Listeners=[{"BackendPort": 65535, "BackendProtocol":"HTTP", 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                LoadBalancerName=name, Subnets=[self.subnet_id],
+            )
+            self.lb_names.append(name)
+            assert False, "Call should not have been successful, request must contain valid security group param"
+        except OscApiException as error:
+            if error.status_code == 400 and error.message == 'InvalidParameter':
+                known_error("GTW-1170", '"InvalidParameter" Response when trying to create Load Balancer')
+            assert False, "Remove known error code"
+            
     def test_T2586_with_invalid_load_balancer_type(self):
         try:
             name = id_generator(prefix='lbu-')

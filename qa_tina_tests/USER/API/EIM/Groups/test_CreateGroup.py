@@ -52,20 +52,21 @@ class Test_CreateGroup(OscTestSuite):
             assert False, "CreateGroup must fail with invalid GroupName"
         except OscApiException as error:
             assert_error(error, 400, "ValidationError", "Invalid IdauthGroup: [name: size must be between 1 and 128]")
-        char_list = "!\"#$%&'()*/:;<>?[\\]^`{|}~"
+        char_list = "!\"#$%&'()*/;<>?[\\]^`{|}~:"
         for char in char_list:
             try:
                 group_name = id_generator(prefix='group_{}_'.format(char))
                 self.a1_r1.eim.CreateGroup(GroupName=group_name)
                 self.group_list.append(group_name)
-                assert False, "Creategroup must fail with invalid groupName"
+                assert False, "CreateGroup must fail with invalid groupName"
             except OscApiException as error:
-                if error.status_code == 500 and error.message == 'Internal Error':
-                    known_error('TINA-5530', 'EIM CreateGroup: Internal error when using a colon in group name')
-                assert_error(error, 400, "ValidationError",
-                             "Invalid IdauthGroup: [name: must contain only alphanumeric characters and/or +=,.@-_ characters]")
+                if char == ':':
+                    assert_error(error, 400, "ValidationError", 'Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: Invalid composite name part]')
+                    known_error('TINA-5761', 'Unexpected error message')
+                else:
+                    assert_error(error, 400, "ValidationError",
+                                 "Invalid IdauthGroup: [name: must contain only alphanumeric characters and/or +=,.@-_ characters]")
         assert False, 'Remove known error code'
-        known_error("TINA-4045", "Wrong error message")
 
     def test_T1459_with_path(self):
         group_name = id_generator(prefix='user_')

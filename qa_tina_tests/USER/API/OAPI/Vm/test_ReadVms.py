@@ -1,11 +1,12 @@
 # -*- coding:utf-8 -*-
 import pytest
 
+from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response
-from qa_test_tools.misc import assert_dry_run
+from qa_test_tools.misc import assert_dry_run, assert_error
 
 
 class Test_ReadVms(OscTestSuite):
@@ -110,3 +111,10 @@ class Test_ReadVms(OscTestSuite):
         self.a1_r1.oapi.CreateTags(ResourceIds=[self.vm_ids[1]], Tags=[{'Key': 'key', 'Value': 'value'}])
         ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[1]]})
         assert hasattr(ret.response.Vms[0], 'Tags')
+
+    def test_T5075_with_state_filter(self):
+        try:
+            self.a1_r1.oapi.ReadVms(Filters={"VmStates": ['running']})
+            assert False, 'call should not have been successful'
+        except OscApiException as err:
+            assert_error(err, 400, '', '')

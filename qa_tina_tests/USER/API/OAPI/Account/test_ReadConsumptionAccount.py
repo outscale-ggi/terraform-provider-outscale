@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytz
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.misc import assert_oapi_error
@@ -50,4 +50,4 @@ class Test_ReadConsumptionAccount(OscTestSuite):
             self.a1_r1.oapi.ReadConsumptionAccount(ToDate=self.start_date.isoformat(), FromDate=end_date.isoformat())
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '3001', 'InvalidParameter')
+            misc.assert_error(error, 400, '4118', 'InvalidParameterValue')

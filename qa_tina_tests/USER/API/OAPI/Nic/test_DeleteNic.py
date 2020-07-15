@@ -72,9 +72,7 @@ class Test_DeleteNic(Nic):
             self.a2_r1.oapi.DeleteNic(NicId=self.nic_ids[0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'DefaultError', 0)
-            known_error('GTW-1307', 'Incorrect error code')
-            assert_oapi_error(error, 400, 'InvalidResource', '5036')
+            assert_oapi_error(error, 400, 'InvalidResource', '5077')
 
     def test_T2646_valid_param(self):
         self.a1_r1.oapi.DeleteNic(NicId=self.nic_ids[0])

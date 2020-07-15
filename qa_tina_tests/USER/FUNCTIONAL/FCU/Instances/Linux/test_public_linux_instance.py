@@ -50,6 +50,13 @@ class Test_public_linux_instance(Test_linux_instance):
                 self.logger.info(out)
                 # check ping google DNS
                 assert not status, "Instance not connected to internet"
+
+                if Feature.INTERNET in self.a1_r1.config.region.get_info(constants.FEATURES):
+                    cmd = "ping google.com -c 1"
+                    out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+                    self.logger.info(out)
+                    assert not status, "Instance could not resolve google.com"
+
         finally:
             if inst_id:
                 delete_instances_old(self.a1_r1, [inst_id])
@@ -57,9 +64,12 @@ class Test_public_linux_instance(Test_linux_instance):
     @pytest.mark.tag_redwire
     @pytest.mark.region_gpu
     def test_T98_create_use_linux_GPU_instance(self):
+        Instance_Type='mv3.large'
+        if self.a1_r1.config.region.name in ['cn-southeast-1']:
+            Instance_Type = 'og4.xlarge'
         inst_id = None
         try:
-            inst_id, inst_public_ip = self.create_instance(Instance_Type='mv3.large')
+            inst_id, inst_public_ip = self.create_instance(Instance_Type=Instance_Type)
             if inst_id:
                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
                                                                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))

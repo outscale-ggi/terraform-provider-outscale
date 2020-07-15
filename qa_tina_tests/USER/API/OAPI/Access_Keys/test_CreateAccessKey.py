@@ -2,11 +2,13 @@ import re
 
 from time import sleep
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
+    OscSdkException
 from qa_test_tools import misc
-from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_pub import osc_api
 import pytest
+from qa_test_tools.misc import assert_dry_run
 
 
 class Test_CreateAccessKey(OscTestSuite):
@@ -37,6 +39,7 @@ class Test_CreateAccessKey(OscTestSuite):
         try:
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             check_oapi_response(ret_create.response, 'CreateAccessKeyResponse')
+            assert hasattr(ret_create.response.AccessKey, "ExpirationDate")
             ak = ret_create.response.AccessKey.AccessKeyId
             sk = ret_create.response.AccessKey.SecretKey
             assert re.search(r"([A-Z0-9]{20})", ak), "AK format is not correct"
@@ -83,3 +86,12 @@ class Test_CreateAccessKey(OscTestSuite):
                 if key_id != key_id_list[0]:
                     sleep(30)
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=key_id)
+
+    def test_T5060_with_DryRun(self):
+        try:
+            ret_create = self.a1_r1.oapi.CreateAccessKey(DryRun=True)
+            assert_dry_run(ret_create)
+        except OscApiException as err:
+            if err.status_code == 400 and err.error_code == '3000':
+                known_error('GTW-1381', 'Incorrect result when calling CreateAccessKey with DryRun')
+            assert False, 'Remove known error'

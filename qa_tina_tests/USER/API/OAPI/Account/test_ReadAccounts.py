@@ -1,5 +1,5 @@
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.specs.oapi.check_tools import check_oapi_response
+from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_ReadAccounts(OscTestSuite):

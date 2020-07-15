@@ -1,9 +1,10 @@
 # pylint: disable=missing-docstring
 import re
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
+    OscSdkException
 from qa_tina_tools.constants import VOLUME_MAX_SIZE, VOLUME_SIZES, VOLUME_IOPS, MAX_IO1_RATIO
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, get_export_value, known_error
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 
@@ -78,11 +79,19 @@ class Test_CreateVolume(OscTestSuite):
             if check_iop:
                 min_iops = VOLUME_IOPS[kwargs['VolumeType']]['min_iops']
                 max_iops = VOLUME_IOPS[kwargs['VolumeType']]['max_iops']
-                assert error.message == 'Invalid IOPS, min_iops: {}, max_iops: {}'.format(min_iops, max_iops)
+                if get_export_value('OSC_USE_GATEWAY', False) and not error.message:
+                    good_exception_raise = True
+                    known_error('GTW-1366', 'Missing error message')
+                else:
+                    assert error.message == 'Invalid IOPS, min_iops: {}, max_iops: {}'.format(min_iops, max_iops)
             else:
                 min_size = VOLUME_SIZES[kwargs['VolumeType']]['min_size']
                 max_size = VOLUME_SIZES[kwargs['VolumeType']]['max_size']
-                assert error.message == "Volume size must be between '{}' and '{}'".format(min_size, max_size)
+                if get_export_value('OSC_USE_GATEWAY', False) and not error.message:
+                    good_exception_raise = True
+                    known_error('GTW-1366', 'Missing error message')
+                else:
+                    assert error.message == "Volume size must be between '{}' and '{}'".format(min_size, max_size)
             good_exception_raise = True
         finally:
             if vol_id:
@@ -96,137 +105,142 @@ class Test_CreateVolume(OscTestSuite):
 
     def test_T695_standard(self):
         self._create_volume_type(VolumeType='standard', Size=VOLUME_SIZES['standard']['min_size'] + 1)
-
+   
     def test_T696_standard_min_size(self):
         self._create_tests_on_volume_size_value(VolumeType='standard', Size=VOLUME_SIZES['standard']['min_size'])
-
+   
     def test_T698_standard_max_size(self):
         self._create_tests_on_volume_size_value(VolumeType='standard', Size=VOLUME_MAX_SIZE)
-
+   
     def test_T699_standard_out_of_range_max_size(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_MAX_SIZE, VolumeType='standard', Size=VOLUME_MAX_SIZE + 1)
-
+    
     def test_T700_io1(self):
         self._create_volume_type(VolumeType='io1', Iops=VOLUME_IOPS['io1']['min_iops'] + 1,
                                  Size=VOLUME_SIZES['io1']['min_size'] + 1)
-
+    
     def test_T701_io1_min_iops(self):
         self._create_tests_on_volume_size_value(check_iop=True, VolumeType='io1', Iops=VOLUME_IOPS['io1']['min_iops'],
                                                 Size=VOLUME_SIZES['io1']['min_size'] + 1)
-
+    
     def test_T702_io1_out_of_range_min_iops(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['min_iops'], check_iop=True, VolumeType='io1',
                                                 Iops=VOLUME_IOPS['io1']['min_iops'] - 1,
                                                 Size=VOLUME_SIZES['io1']['min_size'] + 1)
-
+    
     def test_T703_io1_max_iops(self):
         self._create_tests_on_volume_size_value(check_iop=True, VolumeType='io1', Iops=VOLUME_IOPS['io1']['max_iops'],
                                                 Size=VOLUME_SIZES['io1']['max_size'])
-
+    
     def test_T704_io1_out_of_range_max_iops(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['max_iops'], check_iop=True, VolumeType='io1',
                                                 Iops=VOLUME_IOPS['io1']['max_iops'] + 1,
                                                 Size='500')
-
+    
     def test_T705_io1_min_size(self):
         self._create_tests_on_volume_size_value(VolumeType='io1', Size=VOLUME_SIZES['io1']['min_size'],
                                                 Iops=VOLUME_IOPS['io1']['min_iops'])
-
+    
     def test_T706_io1_out_of_range_min_size(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_SIZES['io1']['min_size'], VolumeType='io1',
                                                 Size=VOLUME_SIZES['io1']['min_size'] - 1,
                                                 Iops=VOLUME_IOPS['io1']['min_iops'])
-
+    
     def test_T707_io1_max_size(self):
         self._create_tests_on_volume_size_value(VolumeType='io1', Size=VOLUME_MAX_SIZE, Iops=VOLUME_IOPS['io1']['min_iops'])
-
+    
     def test_T708_io1_out_of_range_max_size(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_MAX_SIZE, VolumeType='io1', Size=VOLUME_MAX_SIZE + 1,
                                                 Iops=VOLUME_IOPS['io1']['min_iops'])
-
+     
     def test_T709_gp2(self):
         self._create_volume_type(VolumeType='gp2', Size=VOLUME_SIZES['gp2']['min_size'] + 1)
-
+    
     def test_T710_gp2_min_size(self):
         self._create_tests_on_volume_size_value(VolumeType='gp2', Size=VOLUME_SIZES['gp2']['min_size'])
-
+    
     def test_T712_gp2_max_size(self):
         self._create_tests_on_volume_size_value(VolumeType='gp2', Size=VOLUME_MAX_SIZE)
-
+    
     def test_T713_gp2_out_of_range_max_size(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_MAX_SIZE, VolumeType='gp2', Size=VOLUME_MAX_SIZE + 1)
-
+     
     def test_T714_st1(self):
         self._create_volume_type(VolumeType='st1', Size=VOLUME_SIZES['st1']['min_size'] + 1)
-
+    
     def test_T715_st1_min_size(self):
         self._create_tests_on_volume_size_value(VolumeType='st1', Size=VOLUME_SIZES['st1']['min_size'])
-
+    
     def test_T716_st1_out_of_range_min_size(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_SIZES['st1']['min_size'], VolumeType='st1',
                                                 Size=VOLUME_SIZES['st1']['min_size'] - 1)
-
+     
     def test_T717_st1_max_size(self):
         self._create_tests_on_volume_size_value(VolumeType='st1', Size=VOLUME_MAX_SIZE)
-
+    
     def test_T718_st1_out_of_range_max_size(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_MAX_SIZE, VolumeType='st1', Size=VOLUME_MAX_SIZE + 1)
-
+    
     def test_T719_sc1(self):
         self._create_volume_type(VolumeType='sc1', Size=VOLUME_SIZES['sc1']['min_size'] + 1)
-
+    
     def test_T720_sc1_min_size(self):
         self._create_tests_on_volume_size_value(VolumeType='sc1', Size=VOLUME_SIZES['sc1']['min_size'])
-
+    
     def test_T721_sc1_out_of_range_min_size(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_SIZES['sc1']['min_size'], VolumeType='sc1',
                                                 Size=VOLUME_SIZES['sc1']['min_size'] - 1)
-
+     
     def test_T722_sc1_max_size(self):
         self._create_tests_on_volume_size_value(VolumeType='sc1', Size=VOLUME_MAX_SIZE)
-
+    
     def test_T723_sc1_out_of_range_max_size(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_MAX_SIZE, VolumeType='sc1', Size=VOLUME_MAX_SIZE + 1)
-
+     
     def test_T1306_os1(self):
         self._create_volume_type(VolumeType='os1', Size=VOLUME_SIZES['os1']['min_size'] + 1, Iops=VOLUME_IOPS['os1']['min_iops'] + 1)
-
+    
     def test_T1307_os1_min_size(self):
         self._create_tests_on_volume_size_value(VolumeType='os1', Size=VOLUME_SIZES['os1']['min_size'], Iops=VOLUME_IOPS['os1']['min_iops'] + 1)
-
+    
     def test_T1308_os1_out_of_range_min_size(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_SIZES['os1']['min_size'], VolumeType='os1',
                                                 Size=VOLUME_SIZES['os1']['min_size'] - 1, Iops=VOLUME_IOPS['os1']['min_iops'] + 1)
-
+     
     def test_T1309_os1_max_size(self):
         self._create_tests_on_volume_size_value(VolumeType='os1', Size=VOLUME_MAX_SIZE, Iops=VOLUME_IOPS['os1']['min_iops'] + 1)
-
+    
     def test_T1310_os1_out_of_range_max_size(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_MAX_SIZE, VolumeType='os1', Size=VOLUME_MAX_SIZE + 1,
                                                 Iops=VOLUME_IOPS['os1']['min_iops'] + 1)
-
+    
     def test_T1311_os1_min_iops(self):
         self._create_tests_on_volume_size_value(check_iop=True, VolumeType='os1', Iops=VOLUME_IOPS['os1']['min_iops'],
                                                 Size=VOLUME_SIZES['os1']['min_size'] + 1)
-
+    
     def test_T1312_os1_out_of_range_min_iops(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_IOPS['os1']['min_iops'], check_iop=True, VolumeType='os1',
                                                 Iops=VOLUME_IOPS['os1']['min_iops'] - 1, Size=VOLUME_SIZES['os1']['min_size'] + 1)
-
+    
     def test_T1313_os1_max_iops(self):
         self._create_tests_on_volume_size_value(check_iop=True, VolumeType='os1', Iops=VOLUME_IOPS['os1']['max_iops'],
                                                 Size=VOLUME_SIZES['os1']['max_size'])
-
+    
     def test_T1314_os1_out_of_range_max_iops(self):
         self._create_tests_on_volume_size_value(threshold=VOLUME_IOPS['os1']['max_iops'], check_iop=True, VolumeType='os1',
                                                 Iops=VOLUME_IOPS['os1']['max_iops'] + 1, Size='500')
-
+    
     def test_T724_no_param(self):
         try:
             self.a1_r1.fcu.CreateVolume()
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                assert_error(error, 400, 'MissingParameter', None)
+                assert not error.message
+                known_error('GTW-1366', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: zone')
-
+   
     def test_T725_dry_run(self):
         try:
             ret = self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name, Size=666, DryRun='true')
@@ -234,49 +248,70 @@ class Test_CreateVolume(OscTestSuite):
                                                                         +"error with the tag: DryRunOpertion, " \
                                                                         +" and should block the volume's creation " \
                                                                         +"operation."
+        except OscSdkException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                known_error('GTW-1366', 'Missing request id in response')
+            raise error
         except OscApiException as error:
             assert error.status_code == 400
             assert error.error_code == 'DryRunOperation'
-
+   
     def test_T726_without_az(self):
         try:
             self.a1_r1.fcu.CreateVolume(Size=666)
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                assert_error(error, 400, 'MissingParameter', None)
+                assert not error.message
+                known_error('GTW-1366', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: zone')
-
+    
     def test_T727_with_valid_snap_id(self):
         self._create_volume_type(VolumeType='standard', Size="10", SnapshotId=self.snap_id)
-
+    
     def test_T1611_with_valid_snap_id_too_small(self):
         try:
             self._create_volume_type(VolumeType='standard', Size="1", SnapshotId=self.snap_id)
-            assert False
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                assert_error(error, 400, 'DefaultError', None)
+                assert not error.message
+                known_error('GTW-1366', 'Unexpected default error')
             assert_error(error, 400, 'InvalidParameterValue', 
                          'SnapshotId and VolumeSize are specified and are incompatible. {} size (10 GiB) must be less than VolumeSize value (1 GiB)'
                          .format(self.snap_id))
-
+    
     def test_T728_with_invalid_snap_id(self):
         try:
             self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name, VolumeType='standard',
                                         Size='1', SnapshotId="snap-12345678")
             assert False, 'Should not have been successful'
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                assert_error(error, 400, 'InvalidResource', None)
+                assert not error.message
+                known_error('GTW-1366', 'Incorrect error code, missing error message')
             assert_error(error, 400, 'InvalidSnapshot.NotFound',
                          'The Snapshot ID does not exist: snap-12345678, for account: {}'.format(self.a1_r1.config.account.account_id))
- 
+     
     def test_T729_from_other_account_snap_id(self):
         try:
             self.a2_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name, VolumeType='standard', Size='1', SnapshotId=self.snap_id)
             assert False, 'Should not have been successful'
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                assert_error(error, 400, 'InvalidResource', None)
+                assert not error.message
+                known_error('GTW-1366', 'Incorrect error code, missing error message')
             assert_error(error, 400, 'InvalidSnapshot.NotFound',
                          'The Snapshot ID does not exist: {}, for account: {}'.format(self.snap_id, self.a2_r1.config.account.account_id))
-
+    
     def test_T4589_io1_max_iops_ratio(self):
         self._create_volume_type(VolumeType='io1', Iops=int(((VOLUME_SIZES['io1']['min_size']) * MAX_IO1_RATIO)),
                                  Size=VOLUME_SIZES['io1']['min_size'])
-
+   
     def test_T4590_io1_out_of_range_iops_ratio(self):
         try:
             self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name,
@@ -284,13 +319,17 @@ class Test_CreateVolume(OscTestSuite):
                                         Iops=int(((VOLUME_SIZES['io1']['min_size']) * MAX_IO1_RATIO))+1)
             assert False, 'Create Volume was not supposed to succeed'
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                assert_error(error, 400, 'InvalidParameterValue', None)
+                assert not error.message
+                known_error('GTW-1366', 'Missing error message')
             assert error.status_code == 400
             assert error.error_code == 'InvalidParameterValue'
             msg = 'Iops to volume size ratio is too high: {}. Maximum is: {}.'.format(
                 (((VOLUME_SIZES['io1']['min_size']) * MAX_IO1_RATIO)+1)/VOLUME_SIZES['io1']['min_size'], MAX_IO1_RATIO)
             assert error.message == msg
-
-
+   
+   
     def test_T730_with_invalid_iops_ratio(self):
         try:
             self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name,
@@ -298,17 +337,25 @@ class Test_CreateVolume(OscTestSuite):
                                         Iops=VOLUME_IOPS['io1']['max_iops'])
             assert False, 'Create Volume was not supposed to succeed'
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                assert_error(error, 400, 'InvalidParameterValue', None)
+                assert not error.message
+                known_error('GTW-1366', 'Missing error message')
             assert error.status_code == 400
             assert error.error_code == 'InvalidParameterValue'
             ratio = round(VOLUME_IOPS['io1']['max_iops'] / VOLUME_SIZES['io1']['min_size'], 1)
             msg = 'Iops to volume size ratio is too high: {}. Maximum is: {}.'.format(ratio, MAX_IO1_RATIO)
             assert error.message == msg
- 
+     
     def test_T2170_with_invalid_volume_type(self):
         try:
             self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name, Size=10, VolumeType='foo')
             assert False, 'Create Volume was not supposed to succeed'
         except OscApiException as error:
+            if get_export_value('OSC_USE_GATEWAY', False):
+                assert_error(error, 400, 'InvalidParameterValue', None)
+                assert not error.message
+                known_error('GTW-1366', 'Missing error message')
             assert_error(error, 400, 'InvalidParameterValue',
                          "Value of parameter \'VolumeType\' is not valid: foo. Supported values: gp2, io1, os1, sc1, "
                          "st1, standard")
