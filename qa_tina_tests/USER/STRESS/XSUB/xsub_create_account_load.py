@@ -13,13 +13,14 @@ import string
 from qa_sdk_priv.osc_api.osc_priv_api import OscPrivApi
 from qa_sdk_as import OscSdkAs
 from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.account_tools import create_account
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
 LOGGING_LEVEL = logging.DEBUG
 
 
-def create_account(config, queue, args):
+def my_create_account(config, queue, args):
     result = {'status': 'OK'}
     disable_throttling()
     start = time.time()
@@ -27,7 +28,7 @@ def create_account(config, queue, args):
     errs = load_errors()
     xsub = OscPrivApi(service='xsub', config=config)
     intel = OscPrivApi(service='intel', config=config)
-    osc_sdk_as = OscSdkAs(config.region.get_info(constants.AS_IDAUTH_ID), config.region.name)
+    osc_sdk_as = OscSdkAs('identauth', config)
 
     for _ in range(args.num_create_per_process):
         pid = None
@@ -89,9 +90,9 @@ if __name__ == '__main__':
     args_p.add_argument('-a', '--account', dest='account', action='store',
                         required=True, type=str, help='Set account used for the test')
     args_p.add_argument('-np', '--proc_num', dest='process_number', action='store',
-                        required=False, type=int, default=40, help='number of processes, default 10')
+                        required=False, type=int, default=1, help='number of processes, default 10')
     args_p.add_argument('-nc', '--num_create', dest='num_create_per_process', action='store',
-                        required=False, type=int, default=100, help='number of read calls per process, default 500')
+                        required=False, type=int, default=1, help='number of read calls per process, default 500')
     args = args_p.parse_args()
 
     logger.info("Initialize environment")
@@ -106,7 +107,7 @@ if __name__ == '__main__':
         i = 0
         logger.info("Start workers")
         for i in range(args.process_number):
-            p = Process(name="load-{}".format(i), target=create_account, args=[config, QUEUE, args])
+            p = Process(name="load-{}".format(i), target=my_create_account, args=[config, QUEUE, args])
             processes.append(p)
 
         start = time.time()
