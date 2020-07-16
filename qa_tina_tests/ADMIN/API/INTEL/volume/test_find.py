@@ -37,4 +37,4 @@ class Test_find(OscTestSuite):
         vol_ids = [vol.id for vol in resp.result.results]
         assert len(vol_ids) == VOLUME_NUMBER
         assert(sorted(vol_ids) == vol_ids)
-        assert(sorted(self.vols_ids) == sorted(vol_ids))
+        assert(sorted(self.vol_ids) == sorted(vol_ids))
