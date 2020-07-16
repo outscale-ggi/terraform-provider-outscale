@@ -12,12 +12,12 @@ class Test_delete_recursive(OscTestSuite):
     def setup_class(cls):
         cls.QUOTAS = {'vpnc_limit': 1}
         super(Test_delete_recursive, cls).setup_class()
-        cls.cgw_id1 = None
+        cls.cgw_id = None
         cls.vgw_id = None
         try:
             res = cls.a1_r1.fcu.CreateCustomerGateway(BgpAsn=65000, IpAddress=get_random_public_ip(), Type='ipsec.1')
-            cls.cgw_id1 = res.response.customerGateway.customerGatewayId
-            wait_customer_gateways_state(cls.a1_r1, [cls.cgw_id1], state='available')
+            cls.cgw_id = res.response.customerGateway.customerGatewayId
+            wait_customer_gateways_state(cls.a1_r1, [cls.cgw_id], state='available')
             res = cls.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1')
             cls.vgw_id = res.response.vpnGateway.vpnGatewayId
             wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='available')
@@ -31,12 +31,15 @@ class Test_delete_recursive(OscTestSuite):
 
     @classmethod
     def teardown_class(cls):
-        super(Test_delete_recursive, cls).teardown_class()
+        try:
+            pass
+        finally:
+            super(Test_delete_recursive, cls).teardown_class()
 
     def test_T5073_recursive_true(self):
         vpn_connection_id = None
         try:
-            res = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw_id1, Type='ipsec.1', VpnGatewayId=self.vgw_id,
+            res = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw_id, Type='ipsec.1', VpnGatewayId=self.vgw_id,
                                                      Options={'StaticRoutesOnly': True})
             vpn_connection_id = res.response.vpnConnection.vpnConnectionId
         finally:
