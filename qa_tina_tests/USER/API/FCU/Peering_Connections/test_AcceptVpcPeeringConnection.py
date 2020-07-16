@@ -5,7 +5,7 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_test_tools.misc import assert_error
 from qa_tina_tools.tools.tina.object import Peering
 from qa_tina_tools.tools.tina.create_tools import create_peering
-from qa_tina_tools.tools.tina.create_tools import delete_peering
+from qa_tina_tools.tools.tina.delete_tools import delete_peering
 from qa_tina_tools.tina.info_keys import PEERING
 
 
