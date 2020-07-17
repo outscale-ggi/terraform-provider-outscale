@@ -44,7 +44,7 @@ class Test_DeleteKeypair(OscTestSuite):
             self.a2_r1.oapi.DeleteKeypair(KeypairName=kp_info[NAME])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5071')
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4032')
         finally:
             if kp_info:
                 delete_keypair(self.a1_r1, kp_info)
