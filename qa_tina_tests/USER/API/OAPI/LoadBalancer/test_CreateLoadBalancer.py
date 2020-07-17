@@ -45,7 +45,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid LoadBalancerName"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4036')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4106')
         try:
             name = 'lbu_-1'
             self.a1_r1.oapi.CreateLoadBalancer(
@@ -176,18 +176,18 @@ class Test_CreateLoadBalancer(LoadBalancer):
             assert False, "Call should not have been successful, request must contain valid security group param"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
-        try:
-            name = id_generator(prefix='lbu-')
-            self.a1_r1.oapi.CreateLoadBalancer(
-                Listeners=[{"BackendPort": 65535, "BackendProtocol":"HTTP", 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                LoadBalancerName=name, Subnets=[self.subnet_id],
-            )
-            self.lb_names.append(name)
-            assert False, "Call should not have been successful, request must contain valid security group param"
-        except OscApiException as error:
-            if error.status_code == 400 and error.message == 'InvalidParameter':
-                known_error("GTW-1170", '"InvalidParameter" Response when trying to create Load Balancer')
-            assert False, "Remove known error code"
+
+        name = id_generator(prefix='lbu-')
+        self.a1_r1.oapi.CreateLoadBalancer(
+            Listeners=[{"BackendPort": 65535, "BackendProtocol":"HTTP", 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+            LoadBalancerName=name, Subnets=[self.subnet_id],
+        )
+        self.lb_names.append(name)
+
+
+
+
+
             
     def test_T2586_with_invalid_load_balancer_type(self):
         try:
@@ -288,7 +288,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
                 Listeners=[
                     {'BackendPort': 1, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 25,
                      'BackendProtocol': 'HTTP'}],
-                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name],
+                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name]
             ).response.LoadBalancer
             validate_load_balancer_global_form(
                 ret,
@@ -302,7 +302,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             ret = self.a1_r1.oapi.CreateLoadBalancer(
                 Listeners=[{'BackendPort': 1, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1,
                             'BackendProtocol': 'TCP'}],
-                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name],
+                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name]
             ).response.LoadBalancer
             validate_load_balancer_global_form(
                 ret,
@@ -316,7 +316,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             ret = self.a1_r1.oapi.CreateLoadBalancer(
                 Listeners=[{'BackendPort': 1, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1023,
                             'BackendProtocol': 'TCP'}],
-                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name],
+                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name]
             ).response.LoadBalancer
             validate_load_balancer_global_form(
                 ret,
@@ -330,7 +330,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             ret = self.a1_r1.oapi.CreateLoadBalancer(
                 Listeners=[{'BackendPort': 80, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1024,
                             'BackendProtocol': 'TCP'}],
-                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name],
+                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name]
             ).response.LoadBalancer
             validate_load_balancer_global_form(
                 ret,
@@ -383,7 +383,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
         ret = self.a1_r1.oapi.CreateLoadBalancer(
             Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
             LoadBalancerName=name, LoadBalancerType='internet-facing', SecurityGroups=[self.sg_id],
-            Subnets=[self.subnet_id],
+            Subnets=[self.subnet_id]
         ).response.LoadBalancer
         self.lb_names.append(name)
         validate_load_balancer_global_form(
@@ -456,16 +456,12 @@ class Test_CreateLoadBalancer(LoadBalancer):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4036')
 
     def test_T2598_private_internal_without_security_group(self):
-        try:
-            name = id_generator(prefix='lbu-')
-            self.a1_r1.oapi.CreateLoadBalancer(
-                Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                LoadBalancerName=name, LoadBalancerType='internal', Subnets=[self.subnet_id],
-            )
-            self.lb_names.append(name)
-            assert False, "Call should not have been successful, missing security group for private internal lbu"
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
+        name = id_generator(prefix='lbu-')
+        self.a1_r1.oapi.CreateLoadBalancer(
+            Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+            LoadBalancerName=name, LoadBalancerType='internal', Subnets=[self.subnet_id],
+        )
+        self.lb_names.append(name)
 
     def test_T2599_private_internal_with_security_group(self):
         name = id_generator(prefix='lbu-')
@@ -484,16 +480,16 @@ class Test_CreateLoadBalancer(LoadBalancer):
         )
 
     def test_T2600_private_without_security_group(self):
-        try:
-            name = id_generator(prefix='lbu-')
-            self.a1_r1.oapi.CreateLoadBalancer(
-                Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                LoadBalancerName=name, Subnets=[self.subnet_id],
-            )
-            self.lb_names.append(name)
-            assert False, "Call should not have been successful, missing security group for private internet lbu"
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
+
+        name = id_generator(prefix='lbu-')
+        self.a1_r1.oapi.CreateLoadBalancer(
+            Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+            LoadBalancerName=name, Subnets=[self.subnet_id],
+        )
+        self.lb_names.append(name)
+
+
+
 
     def test_T2601_private_with_security_group(self):
         name = id_generator(prefix='lbu-')
@@ -519,7 +515,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, public can't have security group"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4095')
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
 
     def test_T4159_public_other_sub_region(self):
         if not hasattr(self, 'a1_r2'):

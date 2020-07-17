@@ -53,11 +53,20 @@ class Test_CreateLoadBalancer(OscTestSuite):
     def teardown_class(cls):
         try:
             if cls.lb_name:
-                delete_lbu(cls.a1_r1, cls.lb_name)
+                try:
+                    delete_lbu(cls.a1_r1, cls.lb_name)
+                except:
+                    pass
             if cls.sg_id_3:
-                cls.a1_r1.fcu.DeleteSecurityGroup(GroupId=cls.sg_id_3)
+                try:
+                    cls.a1_r1.fcu.DeleteSecurityGroup(GroupId=cls.sg_id_3)
+                except:
+                    pass
             if cls.vpc_id:
-                cleanup_vpcs(cls.a1_r1, vpc_id_list=[cls.vpc_id], force=True)
+                try:
+                    cleanup_vpcs(cls.a1_r1, vpc_id_list=[cls.vpc_id], force=True)
+                except:
+                    pass
         except Exception as error:
             raise error
         finally:
@@ -160,7 +169,7 @@ class Test_CreateLoadBalancer(OscTestSuite):
                                               AvailabilityZones=[self.a1_r1.config.region.az_name])
             assert False, "Call should not have been successful, request must contain valid LoadBalancer name"
         except OscApiException as err:
-            assert_error(err, 400, 'ValidationError', 'Loadbalancer name must contain only alphanumeric characters or hyphens')
+            assert_error(err, 400, 'ValidationError', "Length of parameter 'LoadBalancerName' is invalid: 40. Expected: set([(1, 32)]).")
         try:
             self.a1_r1.lbu.CreateLoadBalancer(Listeners=[{'InstancePort': 80, 'Protocol': 'HTTP', 'LoadBalancerPort': 80}],
                                               LoadBalancerName='lbu_-1', AvailabilityZones=[self.a1_r1.config.region.az_name])
@@ -376,4 +385,4 @@ class Test_CreateLoadBalancer(OscTestSuite):
                                  availability_zones=[self.a1_r1.config.region.az_name])
             assert False, "Call should not have been successful"
         except OscApiException as err:
-            assert_error(err, 400, '', '')
+            assert_error(err, 400, 'ValidationError', "Length of parameter 'LoadBalancerName' is invalid: 37. Expected: set([(1, 32)]).")
