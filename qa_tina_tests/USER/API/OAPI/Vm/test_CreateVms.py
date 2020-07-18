@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state,\
     wait_security_groups_state
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -233,10 +233,15 @@ echo "yes" > /tmp/userdata.txt
         userdata = """-----BEGIN OUTSCALE SECTION-----
             private_only=true
             -----END OUTSCALE SECTION-----"""
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                    UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
-        validate_vm_response(ret.response.Vms[0],
-                             expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        try:
+            ret, self.info = create_vms(ocs_sdk=self.a1_r1,
+                                        UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            assert False, 'Remove known error code'
+            validate_vm_response(ret.response.Vms[0],
+                                 expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            known_error('GTW-1422', 'Unexpected error')
 
     def test_T3161_with_invalid_userdata(self):
         try:
@@ -250,19 +255,29 @@ echo "yes" > /tmp/userdata.txt
         userdata = """# autoexecutepowershellnopasswd
             Write-Host 'Hello, World!'
             # autoexecutepowershellnopasswd"""
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                    UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
-        validate_vm_response(ret.response.Vms[0],
-                             expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        try:
+            ret, self.info = create_vms(ocs_sdk=self.a1_r1,
+                                        UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            assert False, 'Remove known error code'
+            validate_vm_response(ret.response.Vms[0],
+                                 expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            known_error('GTW-1422', 'Unexpected error')
 
     def test_T3163_with_userdata_attract_server(self):
         userdata = """-----BEGIN OUTSCALE SECTION-----
             tags.osc.fcu.attract_server=front80
             -----END OUTSCALE SECTION-----"""
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                    UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
-        validate_vm_response(ret.response.Vms[0],
-                             expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        try:
+            ret, self.info = create_vms(ocs_sdk=self.a1_r1,
+                                        UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            assert False, 'Remove known error code'
+            validate_vm_response(ret.response.Vms[0],
+                                 expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            known_error('GTW-1422', 'Unexpected error')
 
     def test_T3164_with_userdata_auto_attach(self):
         public_ip = None
@@ -273,12 +288,16 @@ echo "yes" > /tmp/userdata.txt
             -----END OUTSCALE SECTION-----""".format(public_ip)
             ret, self.info = create_vms(ocs_sdk=self.a1_r1,
                                         UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            assert False, 'Remove known error code'
             validate_vm_response(ret.response.Vms[0],
                                  expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
             ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [ret.response.Vms[0].VmId]})
             validate_vm_response(ret.response.Vms[0],
                                  expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8'),
                                               'PublicIp': public_ip})
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            known_error('GTW-1422', 'Unexpected error')
         finally:
             if public_ip:
                 self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
@@ -519,7 +538,11 @@ echo "yes" > /tmp/userdata.txt
         try:
             inst_info = create_vms(ocs_sdk=self.a1_r1, state='ready',
                                          UserData=base64.b64encode(zlib.compress(self.user_data.encode('utf-8'))).decode('utf-8'))
+            assert False, 'Remove known error code'
             self.check_user_data(inst_info, gzip=True, decode=False)
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            known_error('GTW-1422', 'Unexpected error')
         finally:
             if inst_info:
                 delete_Vms(self.a1_r1, inst_info)
@@ -1004,7 +1027,12 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         userdata = """# autoexecutepowershellnopasswd
             Write-Host '{}'
             # autoexecutepowershellnopasswd""".format(msg)
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                    UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
-        validate_vm_response(ret.response.Vms[0],
-                             expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        try:
+            ret, self.info = create_vms(ocs_sdk=self.a1_r1,
+                                        UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            assert False, 'Remove known error code'
+            validate_vm_response(ret.response.Vms[0],
+                                 expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            known_error('GTW-1422', 'Unexpected error')
