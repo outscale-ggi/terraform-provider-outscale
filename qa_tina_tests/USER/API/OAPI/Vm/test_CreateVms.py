@@ -674,11 +674,12 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         )
 
     def test_T4401_with_two_valid_nic_id(self):
+        nic_id2 = None
+        subnet_id2 = None
         try:
             subnet_id2 = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id,
                                                       IpRange='10.1.1.0/24').response.Subnet.SubnetId
             self.nic_id = self.a1_r1.oapi.CreateNic(SubnetId=self.subnet_id).response.Nic.NicId
-            nic_id2 = self.a1_r1.oapi.CreateNic(SubnetId=subnet_id2).response.Nic.NicId
             nic_id2 = self.a1_r1.oapi.CreateNic(SubnetId=subnet_id2).response.Nic.NicId
             ret, self.vm_id_list = create_vms(
                 ocs_sdk=self.a1_r1, VmType='tinav4.c2r4p1', 
@@ -707,33 +708,23 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
                 self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id2)
 
     def test_T4402_with_incorrect_device_number(self):
+        nic_id1 = None
+        subnet_id1 = None
         try:
             self.nic_id = self.a1_r1.oapi.CreateNic(SubnetId=self.subnet_id).response.Nic.NicId
-
+    
             subnet_id1 = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id,
                                                       IpRange='10.1.1.0/24').response.Subnet.SubnetId
             nic_id1 = self.a1_r1.oapi.CreateNic(SubnetId=subnet_id1).response.Nic.NicId
 
-            ret, self.vm_id_list = create_vms(
-                ocs_sdk=self.a1_r1,
-                Nics=[{'DeviceNumber': 0, 'NicId': self.nic_id}, {'DeviceNumber': 8, 'NicId': nic_id1}])
-            validate_vm_response(
-                ret.response.Vms[0],
-                nic=[{
-                    'LinkNic': {
-                        'DeviceNumber': 0,
-                    },
-                    'NicId': self.nic_id,
-                }, {
-                    'LinkNic': {
-                        'DeviceNumber': 1,
-                    },
-                    'NicId': nic_id1,
-                }],
-            )
-            assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            try:
+                _, self.vm_id_list = create_vms(
+                    ocs_sdk=self.a1_r1,
+                    Nics=[{'DeviceNumber': 0, 'NicId': self.nic_id}, {'DeviceNumber': 8, 'NicId': nic_id1}])
+                assert False, 'Call should not have been successful'
+            except OscApiException as err:
+                assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+
         finally:
             if nic_id1:
                 self.a1_r1.oapi.DeleteNic(NicId=nic_id1)
