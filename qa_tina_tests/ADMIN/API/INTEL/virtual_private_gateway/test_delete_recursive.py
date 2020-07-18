@@ -47,7 +47,7 @@ class Test_delete_recursive(OscTestSuite):
             resp = self.a1_r1.fcu.DescribeVpcs(VpcId=[vpc_id]).response
             if resp.vpcSet:
                 try:
-                    self.a1_r1.fcu.DeleteVpc(VpcId=[vpc_id])    
+                    self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)    
                 except:
                     pass
             resp = self.a1_r1.fcu.DescribeVpnConnections(VpnConnectionId=[vpn_conn_id]).response
