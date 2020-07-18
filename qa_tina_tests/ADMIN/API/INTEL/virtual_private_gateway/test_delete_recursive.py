@@ -32,12 +32,21 @@ class Test_delete_recursive(OscTestSuite):
                                                              Options={'StaticRoutesOnly': True}).response.vpnConnection.vpnConnectionId
 
             self.a1_r1.intel.vpn.virtual_private_gateway.delete(owner=self.a1_r1.config.account.account_id, vpg_id=vgw_id, recursive=True)
-            wait_vpn_connections_state(self.a1_r1, vpn_connection_id_list=[vpn_conn_id], state="deleted", wait_time=5, threshold=40)
             vpn_conn_id = None
             vgw_id = None
         except Exception as error:
             raise error
         finally:
+            if vpn_conn_id:
+                try:
+                    self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_conn_id)
+                except:
+                    pass
+            if vgw_id:
+                try:
+                    self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
+                except:
+                    pass
             resp = self.a1_r1.fcu.DescribeCustomerGateways(CustomerGatewayId=[cgw_id]).response
             if resp.customerGatewaySet:
                 try:
@@ -50,7 +59,7 @@ class Test_delete_recursive(OscTestSuite):
                     self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)    
                 except:
                     pass
-            resp = self.a1_r1.fcu.DescribeVpnConnections(VpnConnectionId=[vpn_conn_id]).response
+            resp = self.a1_r1.fcu.DescribeVpnConnections().response
             assert not resp.vpnConnectionSet
-            resp = self.a1_r1.fcu.DescribeVpnGateways(VpnGatewayId=[vgw_id]).response
+            resp = self.a1_r1.fcu.DescribeVpnGateways().response
             assert not resp.vpnGatewaySet
