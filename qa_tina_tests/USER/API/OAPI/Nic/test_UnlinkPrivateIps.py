@@ -31,7 +31,7 @@ class Test_UnlinkPrivateIps(Nic):
             super(Test_UnlinkPrivateIps, self).teardown_method(method)
 
     def test_T2703_with_multiple_ips(self):
-        assert self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=['10.0.1.35', '10.0.1.36', '10.0.1.37', '10.0.1.38'])
+        self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=['10.0.1.35', '10.0.1.36', '10.0.1.37', '10.0.1.38'])
 
     def test_T2692_with_empty_param(self):
         try:

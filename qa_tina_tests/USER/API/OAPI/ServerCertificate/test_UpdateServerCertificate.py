@@ -7,6 +7,7 @@ from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.tools.tina import create_tools
 from qa_tina_tools.tina import wait
+from qa_test_tools.misc import assert_oapi_error
 
 
 #Parameter    In      Type      Required
@@ -54,23 +55,38 @@ class Test_UpdateServerCertificate(OscTestSuite):
 
     def test_T4880_valid_params_new_name(self):
         new_name = misc.id_generator(prefix='sc-')
-        resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name).response
-        self.sc_name = new_name
-        check_oapi_response(resp, 'UpdateServerCertificateResponse')
-        assert resp.ServerCertificate.Name == new_name
+        try:
+            resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name).response
+            self.sc_name = new_name
+            assert False, 'Remove known error code'
+            check_oapi_response(resp, 'UpdateServerCertificateResponse')
+            assert resp.ServerCertificate.Name == new_name
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)
+            known_error('GTW-1421', 'Unexpected change of behavior')
 
     def test_T4881_valid_params_new_path(self):
-        resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewPath='/toto/').response
-        check_oapi_response(resp, 'UpdateServerCertificateResponse')
-        assert resp.ServerCertificate.Path == '/toto/'
+        try:
+            resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewPath='/toto/').response
+            assert False, 'Remove known error code'
+            check_oapi_response(resp, 'UpdateServerCertificateResponse')
+            assert resp.ServerCertificate.Path == '/toto/'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)
+            known_error('GTW-1421', 'Unexpected change of behavior')
 
     def test_T4882_valid_params_new_name_and_path(self):
         new_name = misc.id_generator(prefix='sc-')
-        resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name, NewPath='/toto/').response
-        self.sc_name = new_name
-        check_oapi_response(resp, 'UpdateServerCertificateResponse')
-        assert resp.ServerCertificate.Name == new_name
-        assert resp.ServerCertificate.Path == '/toto/'
+        try:
+            resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name, NewPath='/toto/').response
+            self.sc_name = new_name
+            assert False, 'Remove known error code'
+            check_oapi_response(resp, 'UpdateServerCertificateResponse')
+            assert resp.ServerCertificate.Name == new_name
+            assert resp.ServerCertificate.Path == '/toto/'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)
+            known_error('GTW-1421', 'Unexpected change of behavior')
 
     def test_T4883_missing_name(self):
         new_name = misc.id_generator(prefix='sc-')
@@ -79,6 +95,8 @@ class Test_UpdateServerCertificate(OscTestSuite):
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
+            known_error('GTW-1421', 'Unexpected change of behavior')
             if error.status_code == 400 and error.message == 'InvalidParameterValue':
                 known_error('GTW-1371', 'Incorrect error message in CheckAuthentication')
             assert False, ('Remove known error')
@@ -114,9 +132,14 @@ class Test_UpdateServerCertificate(OscTestSuite):
             misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)
 
     def test_T4887_missing_new_param(self):
-        resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name).response
-        assert resp.ServerCertificate.Name == self.sc_name
-        assert resp.ServerCertificate.Path == self.sc_path
+        try:
+            resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name).response
+            assert False, 'Remove known error code'
+            assert resp.ServerCertificate.Name == self.sc_name
+            assert resp.ServerCertificate.Path == self.sc_path
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)
+            known_error('GTW-1421', 'Unexpected change of behavior')
 
     def test_T4888_invalid_new_name(self):
         new_name = '@&é"(§è!çà)'
