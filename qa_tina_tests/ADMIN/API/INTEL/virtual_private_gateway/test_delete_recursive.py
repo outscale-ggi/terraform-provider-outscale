@@ -1,7 +1,9 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import get_random_public_ip
 from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_gateways_state, wait_vpn_connections_state, wait_vpn_gateways_attachment_state
 from _curses import error
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_error
 
 
 class Test_delete_recursive(OscTestSuite):
@@ -59,7 +61,12 @@ class Test_delete_recursive(OscTestSuite):
                     self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)    
                 except:
                     pass
-            resp = self.a1_r1.fcu.DescribeVpnConnections().response
-            assert not resp.vpnConnectionSet
+            try:
+                resp = self.a1_r1.fcu.DescribeVpnConnections().response
+                assert False, 'Remove known error code'
+                assert not resp.vpnConnectionSet
+            except OscApiException as error:
+                assert_error(error, 500, 'InternalError', 'Internal Error')
+                known_error('TINA-5791', 'Unexpected internal error')
             resp = self.a1_r1.fcu.DescribeVpnGateways().response
             assert not resp.vpnGatewaySet
