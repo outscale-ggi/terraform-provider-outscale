@@ -79,7 +79,7 @@ class Test_ReadKeypairs(OscTestSuite):
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', '3001')
 
-    def test_T5097_with_tagskey_filter(self):
+    def test_T5096_with_tagskey_filter(self):
         try:
             self.a1_r1.oapi.ReadKeypairs(Filters={"TagKeys": ['key_pair']}).response.Keypairs
             assert False, 'Call should fail'
