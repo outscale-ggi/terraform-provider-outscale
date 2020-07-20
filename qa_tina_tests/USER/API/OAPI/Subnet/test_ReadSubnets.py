@@ -186,5 +186,6 @@ class Test_ReadSubnets(OscTestSuite):
             self.a1_r1.oapi.ReadSubnets(Filters={"Tags": 'sub=sub_value'})
             assert False, 'Call should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'TOBECHECKED', 'TOBECHECKED')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            
         
