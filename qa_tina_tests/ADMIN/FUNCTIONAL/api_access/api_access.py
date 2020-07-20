@@ -64,9 +64,6 @@ FAIL = 1
 ERROR = 2
 KNOWN = 3
 
-AK_SK_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL]
-AK_SK_PASS_LIST = [PASS, KNOWN, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS]
-
 CLIENT_CERT_CN1 = 'client.qa1'
 CLIENT_CERT_CN2 = 'client.qa2'
 # TMP_FILE_LOCATIONS = ['ca1files', 'ca2files', 'ca3files', 'certfiles_ca1cn1', 'certfiles_ca2cn1', 'certfiles_ca1cn2', 'certfiles_ca3cn1']
@@ -271,8 +268,8 @@ class Api_Access(OscTestSuite):
         for i in range(len(API_CALLS)):
             api_call = API_CALLS[i]
             try:
-                if api_call.startswith('icu.') and expected_results[i] == 1 and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.AkSk:
-                    expected_results[i] = PASS
+                # if api_call.startswith('icu.') and expected_results[i] == 1 and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.AkSk:
+                #     expected_results[i] = PASS
                 if api_call.startswith('oapi.') and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.LoginPassword:
                     expected_results[i] = KNOWN
                 func = self.osc_sdk
