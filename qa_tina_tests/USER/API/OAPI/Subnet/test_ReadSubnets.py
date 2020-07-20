@@ -91,7 +91,7 @@ class Test_ReadSubnets(OscTestSuite):
 
     def test_T2934_filters_net_id(self):
         resp = self.a1_r1.oapi.ReadSubnets(Filters={"NetIds": [self.net_id]}).response.Subnets
-        assert len(resp) == 2
+        assert len(resp) == NUM_SUBNETS
         for sub in resp:
             assert hasattr(sub, 'Tags'), 'Tags does not exist in the response'
             assert hasattr(sub, 'SubnetId'), 'SubnetId does not exist in the response'
@@ -103,7 +103,7 @@ class Test_ReadSubnets(OscTestSuite):
 
     def test_T2935_filters_state(self):
         resp = self.a1_r1.oapi.ReadSubnets(Filters={"States": ['available']}).response.Subnets
-        assert len(resp) == 2
+        assert len(resp) == NUM_SUBNETS
         for sub in resp:
             assert hasattr(sub, 'Tags'), 'Tags does not exist in the response'
             assert hasattr(sub, 'SubnetId'), 'SubnetId does not exist in the response'
@@ -115,7 +115,7 @@ class Test_ReadSubnets(OscTestSuite):
 
     def test_T2936_filters_subregion_name(self):
         resp = self.a1_r1.oapi.ReadSubnets(Filters={"SubregionNames": [self.azs[0]]}).response.Subnets
-        assert len(resp) == 2
+        assert len(resp) == NUM_SUBNETS
         for sub in resp:
             assert hasattr(sub, 'Tags'), 'Tags does not exist in the response'
             assert hasattr(sub, 'SubnetId'), 'SubnetId does not exist in the response'
@@ -127,7 +127,7 @@ class Test_ReadSubnets(OscTestSuite):
 
     def test_T3001_filters_available_ips(self):
         resp = self.a1_r1.oapi.ReadSubnets(Filters={"AvailableIpsCounts": [251]}).response.Subnets
-        assert len(resp) == 2
+        assert len(resp) == NUM_SUBNETS
         for sub in resp:
             assert hasattr(sub, 'Tags'), 'Tags does not exist in the response'
             assert hasattr(sub, 'SubnetId'), 'SubnetId does not exist in the response'
