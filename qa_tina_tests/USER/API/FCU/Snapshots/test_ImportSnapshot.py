@@ -82,7 +82,7 @@ class Test_ImportSnapshot(OscTestSuite):
             self.a1_r1.fcu.ImportSnapshot(snapshotSize=1, snapshotLocation='foo', description='This is a snapshot test')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: snapshotLocation')
+            assert_error(error, 400, 'InvalidURLFormat', 'Only HTTP or HTTPs URL are accepted: foo')
 
     def test_T1055_with_invalid_url_expired(self):
         try:
