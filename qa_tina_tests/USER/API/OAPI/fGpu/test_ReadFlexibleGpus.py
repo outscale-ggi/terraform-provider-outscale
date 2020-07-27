@@ -1,4 +1,4 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
 import pytest
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
@@ -269,3 +269,26 @@ class Test_ReadFlexibleGpus(OscTestSuite):
             pytest.skip("not enough capacity on fgpu")
         res = self.a1_r1.oapi.ReadFlexibleGpus(DryRun=True)
         assert_dry_run(res)
+
+    def test_T5098_filters_with_generations_filters(self):
+        if self.insufficient_capacity:
+            pytest.skip("not enough capacity on fgpu")
+        try:
+            res = self.a1_r1.oapi.ReadFlexibleGpus(Filters={'Generations': ['v4']})
+            assert len(res.response.FlexibleGpus) == 2
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+
+    def test_T5099_with_invalid_generations_filters(self):
+        if self.insufficient_capacity:
+            pytest.skip("not enough capacity on fgpu")
+        res = self.a1_r1.oapi.ReadFlexibleGpus(Filters={'Generations': ['toto']}).response.FlexibleGpus
+        assert len(res) == 0
+
+    def test_T5100_with_incorrect_generations_filters(self):
+        if self.insufficient_capacity:
+            pytest.skip("not enough capacity on fgpu")
+        try:
+            self.a1_r1.oapi.ReadFlexibleGpus(Filters={'Generations': 'v4'}).response.FlexibleGpus
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
