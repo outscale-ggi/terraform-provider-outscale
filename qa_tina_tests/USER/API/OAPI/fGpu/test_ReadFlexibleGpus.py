@@ -1,4 +1,4 @@
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 import pytest
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
@@ -270,14 +270,11 @@ class Test_ReadFlexibleGpus(OscTestSuite):
         res = self.a1_r1.oapi.ReadFlexibleGpus(DryRun=True)
         assert_dry_run(res)
 
-    def test_T5098_filters_with_generations_filters(self):
+    def test_T5098_with_generations_filters(self):
         if self.insufficient_capacity:
             pytest.skip("not enough capacity on fgpu")
-        try:
-            res = self.a1_r1.oapi.ReadFlexibleGpus(Filters={'Generations': ['v4']})
-            assert len(res.response.FlexibleGpus) == 2
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+        res = self.a1_r1.oapi.ReadFlexibleGpus(Filters={'Generations': ['v4']}).response.FlexibleGpus
+        assert len(res) == 2
 
     def test_T5099_with_invalid_generations_filters(self):
         if self.insufficient_capacity:
@@ -285,10 +282,18 @@ class Test_ReadFlexibleGpus(OscTestSuite):
         res = self.a1_r1.oapi.ReadFlexibleGpus(Filters={'Generations': ['toto']}).response.FlexibleGpus
         assert len(res) == 0
 
-    def test_T5100_with_incorrect_generations_filters(self):
+    def test_T5100_with_incorrect_generations_type_filters(self):
         if self.insufficient_capacity:
             pytest.skip("not enough capacity on fgpu")
         try:
             self.a1_r1.oapi.ReadFlexibleGpus(Filters={'Generations': 'v4'}).response.FlexibleGpus
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
+    @pytest.mark.tag_sec_confidentiality
+    def test_T5101_with_other_account_generations_filters(self):
+        if self.insufficient_capacity:
+            pytest.skip("not enough capacity on fgpu")
+        if not self.single_account:
+            res = self.a2_r1.oapi.ReadFlexibleGpus(Filters={'Generations': ['v4']}).response.FlexibleGpus
+            assert len(res) == 1
