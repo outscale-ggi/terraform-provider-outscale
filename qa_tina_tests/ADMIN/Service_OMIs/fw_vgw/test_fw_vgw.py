@@ -106,7 +106,7 @@ class Test_fw_vgw(OscTestSuite):
         assert SshTools.check_service(self.sshclient, 'nginx')
 
     def test_T1905_check_racoon(self):
-        assert SshTools.check_service(self.sshclient, 'strongswan')
+        assert SshTools.check_service(self.sshclient, 'strongswan', pattern_str='.* is running')
 
     def test_T1900_check_zebra(self):
         assert SshTools.check_service(self.sshclient, 'zebra')
