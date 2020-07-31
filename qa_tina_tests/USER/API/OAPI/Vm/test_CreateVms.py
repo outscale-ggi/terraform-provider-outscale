@@ -520,6 +520,10 @@ echo "yes" > /tmp/userdata.txt
             inst_info = create_vms(ocs_sdk=self.a1_r1, state='ready',
                                          UserData=base64.b64encode(zlib.compress(self.user_data.encode('utf-8'))).decode('utf-8'))
             self.check_user_data(inst_info, gzip=True, decode=False)
+        except OscApiException as err:
+            if err.status_code == 400 and err.message == 'InvalidParameterValue':
+                known_error('TINA-5827', 'bug when creating a vm with user_data gzip')
+            assert False, 'Remove known error code'
         finally:
             if inst_info:
                 delete_Vms(self.a1_r1, inst_info)
