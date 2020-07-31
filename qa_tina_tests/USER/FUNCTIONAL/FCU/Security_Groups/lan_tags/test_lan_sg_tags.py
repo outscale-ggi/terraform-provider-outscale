@@ -200,10 +200,6 @@ class Test_lan_sg_tags(OscTestSuite):
             stop_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']])
             start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='running')
             self.multi_check_ping(info, False)
-            assert False, 'Remove known error'
-        except:
-            known_error('TINA-5549', 'Cannot connect with ssh on private vms with sg tags in vpc with sg tags '
-                                     'after restart vms')
         finally:
             if ret1:
                 self.delete_tag(insts[0]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
@@ -221,10 +217,6 @@ class Test_lan_sg_tags(OscTestSuite):
             stop_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']])
             start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='running')
             self.multi_check_ping(info, False)
-            assert False, 'Remove known error'
-        except:
-            known_error('TINA-5549', 'Cannot connect with ssh on private vms with sg tags in vpc with sg tags '
-                                     'after restart vms')
         finally:
             if ret1:
                 self.delete_tag(insts[0]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')

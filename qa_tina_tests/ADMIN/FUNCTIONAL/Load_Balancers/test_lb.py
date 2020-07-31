@@ -36,7 +36,7 @@ class Test_lb(OscTestSuite):
                 LoadBalancerName=lb_name, SubregionNames=[self.a1_r1.config.region.az_name],
             )
             lb_names.append(lb_name)
-            time.sleep(5)
+            time.sleep(20)
             ret = self.a1_r1.intel.netimpl.firewall.find_firewalls(filters={'resource': ret.response.LoadBalancer.DnsName.split('.')[0]})
             ret = self.a1_r1.intel.tag.find(resource=ret.response.result[0].vm, key='osc.fcu.eip.auto-attach')
             eip_values.append(ret.response.result[0].value)
