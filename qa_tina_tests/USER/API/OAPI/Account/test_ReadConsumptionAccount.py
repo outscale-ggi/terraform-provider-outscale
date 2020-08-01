@@ -5,7 +5,6 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
-from qa_test_tools.misc import assert_oapi_error
 
 
 
@@ -36,13 +35,9 @@ class Test_ReadConsumptionAccount(OscTestSuite):
         try:
             ret = self.a1_r1.oapi.ReadConsumptionAccount(FromDate=self.start_date.isoformat(), ToDate=end_date.isoformat())
             check_oapi_response(ret.response, 'ReadConsumptionAccountResponse')
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', 2000)
-            known_error('GTW-1319', 'Incorrect internal error')
-            if error.status_code == 400 and error.error_code == 'InvalidParameter' and \
-                    error.message == 'The information for requested dates is not yet available.':
-                return
-            raise error
+            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3005')
 
     def test_T4763_incorrect_dates(self):
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=3)
@@ -50,4 +45,4 @@ class Test_ReadConsumptionAccount(OscTestSuite):
             self.a1_r1.oapi.ReadConsumptionAccount(ToDate=self.start_date.isoformat(), FromDate=end_date.isoformat())
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '4118', 'InvalidParameterValue')
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
