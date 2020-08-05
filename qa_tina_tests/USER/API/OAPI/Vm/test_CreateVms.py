@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state,\
     wait_security_groups_state
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -10,9 +10,8 @@ import random
 import string
 import base64
 import zlib
-from qa_tina_tools.tina.oapi import delete_Vms
+from qa_tina_tools.tina.oapi import delete_Vms, create_Vms
 from qa_common_tools.ssh import SshTools
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET
 from qa_tina_tools.tina.info_keys import KEY_PAIR, PATH
 
 
@@ -42,8 +41,8 @@ echo "yes" > /tmp/userdata.txt
                 wait_instances_state(self.a1_r1, self.info, state='terminated')
         finally:
             super(Test_CreateVms, self).teardown_method(method)
-    def check_user_data(self, inst_info, gzip=False, decode=True):
-        sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
+    def check_user_data(self, vm_info, gzip=False, decode=True):
+        sshclient = SshTools.check_connection_paramiko(vm_info['vms'][0]['PublicIp'], vm_info[KEY_PAIR][PATH],
                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         out, _, _ = SshTools.exec_command_paramiko_2(sshclient, 'curl http://169.254.169.254/latest/user-data', decode=decode)
         if gzip:
@@ -515,18 +514,15 @@ echo "yes" > /tmp/userdata.txt
         self.info = None
 
     def test_T5072_userdata_base64_gzip(self):
-        inst_info = None
+        vm_info = None
+        user_data=base64.b64encode(zlib.compress(self.user_data.encode('utf-8'))).decode('utf-8')
         try:
-            inst_info = create_vms(ocs_sdk=self.a1_r1, state='ready',
-                                         UserData=base64.b64encode(zlib.compress(self.user_data.encode('utf-8'))).decode('utf-8'))
-            self.check_user_data(inst_info, gzip=True, decode=False)
-        except OscApiException as err:
-            if err.status_code == 400 and err.message == 'InvalidParameterValue':
-                known_error('TINA-5827', 'bug when creating a vm with user_data gzip')
-            assert False, 'Remove known error code'
+            vm_info = create_Vms(osc_sdk=self.a1_r1, state='ready',
+                                         user_data=user_data)
+            self.check_user_data(vm_info, gzip=True, decode=False)
         finally:
-            if inst_info:
-                delete_Vms(self.a1_r1, inst_info)
+            if vm_info:
+                delete_Vms(self.a1_r1, vm_info)
 
 class Test_CreateVmsWithSubnet(OscTestSuite):
 
