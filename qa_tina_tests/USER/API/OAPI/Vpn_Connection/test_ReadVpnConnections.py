@@ -1,13 +1,16 @@
 # -*- coding:utf-8 -*-
 # -*- coding:utf-8 -*-
 from qa_test_tools.misc import assert_oapi_error
-from qa_tina_tests.USER.API.OAPI.Vpn_Connection.VpnConnection import VpnConnection, validate_vpn_connection
-from qa_test_tools.test_base import known_error
+from qa_tina_tests.USER.API.OAPI.Vpn_Connection.VpnConnection import \
+    VpnConnection, validate_vpn_connection
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state, wait_vpn_gateways_state, \
     wait_customer_gateways_state
 
 NUM_VPN_CONN = 3
+
+
 class Test_ReadVpnConnections(VpnConnection):
 
     @classmethod
@@ -21,7 +24,8 @@ class Test_ReadVpnConnections(VpnConnection):
 
             for i in range(NUM_VPN_CONN):
                 # Virtual Gateway
-                cls.vgw_ids.append(cls.a1_r1.oapi.CreateVirtualGateway(ConnectionType='ipsec.1').response.VirtualGateway.VirtualGatewayId)
+                cls.vgw_ids.append(cls.a1_r1.oapi.CreateVirtualGateway(ConnectionType='ipsec.1')
+                                   .response.VirtualGateway.VirtualGatewayId)
 
                 cls.cgw_ids.append(cls.a1_r1.oapi.CreateClientGateway(
                     BgpAsn=cls.bgp_asn + 2 + i, PublicIp=cls.cgw_ip,
@@ -58,25 +62,15 @@ class Test_ReadVpnConnections(VpnConnection):
                     cls.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=vgw_id)
                     wait_vpn_gateways_state(cls.a1_r1, [vgw_id], state='deleted')
 
-                #wait_vpn_connections_state(cls.a1_r1, cls.vpn_ids, state='deleted', wait_time=5, threshold=60)
+                # wait_vpn_connections_state(cls.a1_r1, cls.vpn_ids, state='deleted', wait_time=5, threshold=60)
         finally:
             super(Test_ReadVpnConnections, cls).teardown_class()
 
     def test_T3363_empty_filters(self):
         ret = self.a1_r1.oapi.ReadVpnConnections()
         assert len(ret.response.VpnConnections) == 2 + NUM_VPN_CONN
-        VpnConnections1 = ret.response.VpnConnections[0]
-        assert VpnConnections1.ClientGatewayId
-        assert VpnConnections1.ConnectionType
-        assert VpnConnections1.Routes
-        assert VpnConnections1.State
-        assert VpnConnections1.StaticRoutesOnly
-        assert hasattr(VpnConnections1, "Tags")
-        assert VpnConnections1.VirtualGatewayId
-        assert VpnConnections1.VpnConnectionId
-        assert VpnConnections1.ClientGatewayConfiguration
+        check_oapi_response(ret.response, "ReadVpnConnectionsReponse")
 
-        
     def test_T3364_filters_bgp_asns(self):
         assert len(self.a1_r1.oapi.ReadVpnConnections(Filters={'BgpAsns': [self.bgp_asn]}).response.VpnConnections) == 1
 
@@ -122,7 +116,8 @@ class Test_ReadVpnConnections(VpnConnection):
             validate_vpn_connection(vpn, expected_vpn={'StaticRoutesOnly': False})
 
     def test_T3373_filters_connection_types_invalid(self):
-        assert len(self.a1_r1.oapi.ReadVpnConnections(Filters={'ConnectionTypes': ['tata']}).response.VpnConnections) == 0
+        assert len(
+            self.a1_r1.oapi.ReadVpnConnections(Filters={'ConnectionTypes': ['tata']}).response.VpnConnections) == 0
 
     def test_T3374_filters_connection_types_ipsec1(self):
         ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'ConnectionTypes': ['ipsec.1']}).response.VpnConnections
@@ -131,7 +126,8 @@ class Test_ReadVpnConnections(VpnConnection):
             validate_vpn_connection(vpn, expected_vpn={'ConnectionType': 'ipsec.1'})
 
     def test_T3580_filters_route_destination_ip_ranges(self):
-        ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': ['172.13.1.4/24']}).response.VpnConnections
+        ret = self.a1_r1.oapi.ReadVpnConnections(
+            Filters={'RouteDestinationIpRanges': ['172.13.1.4/24']}).response.VpnConnections
         assert len(ret) > 0
         for vpn in ret:
             validate_vpn_connection(vpn, routes=[{'DestinationIpRange': '172.13.1.4/24', 'State': 'available'}])
@@ -159,7 +155,8 @@ class Test_ReadVpnConnections(VpnConnection):
         assert len(ret) == 2
 
     def test_T5118_filters_invalid_tags(self):
-        ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"Tags": ['incorrect_vpn=incorrect_vpn_value']}).response.VpnConnections
+        ret = self.a1_r1.oapi.ReadVpnConnections(
+            Filters={"Tags": ['incorrect_vpn=incorrect_vpn_value']}).response.VpnConnections
         assert len(ret) == 0
 
     def test_T5119_filters_incorrect_tags_type(self):
