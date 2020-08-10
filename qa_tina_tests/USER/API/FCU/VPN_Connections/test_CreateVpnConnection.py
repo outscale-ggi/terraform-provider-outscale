@@ -1,9 +1,10 @@
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import get_random_public_ip
-from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_gateways_state, wait_vpn_connections_state
+from qa_tina_tools.tools.tina import wait_tools
 from _curses import error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
+from qa_tina_tools.tina import wait
 
 
 class Test_CreateVpnConnection(OscTestSuite):
@@ -17,10 +18,10 @@ class Test_CreateVpnConnection(OscTestSuite):
         try:
             res = cls.a1_r1.fcu.CreateCustomerGateway(BgpAsn=65000, IpAddress=get_random_public_ip(), Type='ipsec.1')
             cls.cgw_id1 = res.response.customerGateway.customerGatewayId
-            wait_customer_gateways_state(cls.a1_r1, [cls.cgw_id1], state='available')
+            wait_tools.wait_customer_gateways_state(cls.a1_r1, [cls.cgw_id1], state='available')
             res = cls.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1')
             cls.vgw_id = res.response.vpnGateway.vpnGatewayId
-            wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='available')
+            wait_tools.wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='available')
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -33,13 +34,13 @@ class Test_CreateVpnConnection(OscTestSuite):
     def teardown_class(cls):
         try:
             if cls.vgw_id:
-                wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='available')
+                wait_tools.wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='available')
                 cls.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=cls.vgw_id)
-                wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='deleted')
+                wait_tools.wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='deleted')
             if cls.cgw_id1:
-                wait_customer_gateways_state(cls.a1_r1, [cls.cgw_id1], state='available')
+                wait_tools.wait_customer_gateways_state(cls.a1_r1, [cls.cgw_id1], state='available')
                 cls.a1_r1.fcu.DeleteCustomerGateway(CustomerGatewayId=cls.cgw_id1)
-                wait_customer_gateways_state(cls.a1_r1, [cls.cgw_id1], state='deleted')
+                wait_tools.wait_customer_gateways_state(cls.a1_r1, [cls.cgw_id1], state='deleted')
         finally:
             super(Test_CreateVpnConnection, cls).teardown_class()
 
@@ -52,7 +53,7 @@ class Test_CreateVpnConnection(OscTestSuite):
         finally:
             if vpn_connection_id:
                 self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_connection_id)
-                wait_vpn_connections_state(self.a1_r1, [vpn_connection_id], state='deleted')
+                wait.wait_VpnConnections_state(self.a1_r1, [vpn_connection_id], state='deleted', cleanup=True)
 
     def test_T4143_missing_type(self):
         vpn_connection_id = None
@@ -65,7 +66,7 @@ class Test_CreateVpnConnection(OscTestSuite):
         finally:
             if vpn_connection_id:
                 self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_connection_id)
-                wait_vpn_connections_state(self.a1_r1, [vpn_connection_id], state='deleted')
+                wait.wait_VpnConnections_state(self.a1_r1, [vpn_connection_id], state='deleted', cleanup=True)
 
     def test_T4146_missing_vpn_gateway_id(self):
         vpn_connection_id = None
@@ -78,7 +79,7 @@ class Test_CreateVpnConnection(OscTestSuite):
         finally:
             if vpn_connection_id:
                 self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_connection_id)
-                wait_vpn_connections_state(self.a1_r1, [vpn_connection_id], state='deleted')
+                wait.wait_VpnConnections_state(self.a1_r1, [vpn_connection_id], state='deleted', cleanup=True)
 
     def test_T4148_missing_customer_gateway_id(self):
         vpn_connection_id = None
@@ -91,7 +92,7 @@ class Test_CreateVpnConnection(OscTestSuite):
         finally:
             if vpn_connection_id:
                 self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_connection_id)
-                wait_vpn_connections_state(self.a1_r1, [vpn_connection_id], state='deleted')
+                wait.wait_VpnConnections_state(self.a1_r1, [vpn_connection_id], state='deleted', cleanup=True)
 
     def test_T3578_check_vpnc_per_vpng(self):
         vpn_connection_id = None
@@ -119,10 +120,10 @@ class Test_CreateVpnConnection(OscTestSuite):
         finally:
             if vpn2_id:
                 ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn2_id)
-                wait_vpn_connections_state(self.a1_r1, [vpn2_id], state='deleted')
+                wait.wait_VpnConnections_state(self.a1_r1, [vpn2_id], state='deleted', cleanup=True)
             if cgw2_id:
                 self.a1_r1.fcu.DeleteCustomerGateway(CustomerGatewayId=cgw2_id)
-                wait_customer_gateways_state(self.a1_r1, [cgw2_id], state='deleted')
+                wait_tools.wait_customer_gateways_state(self.a1_r1, [cgw2_id], state='deleted')
             if vpn_connection_id:
                 self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_connection_id)
-                wait_vpn_connections_state(self.a1_r1, [vpn_connection_id], state='deleted')
+                wait.wait_VpnConnections_state(self.a1_r1, [vpn_connection_id], state='deleted', cleanup=True)
