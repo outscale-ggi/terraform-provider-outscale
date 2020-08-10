@@ -4,7 +4,7 @@ from qa_tina_tests.USER.API.OAPI.Vpn_Connection.VpnConnection import validate_vp
 from qa_test_tools.misc import  assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_test_tools.config.configuration import Configuration
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
+from qa_tina_tools.tina import wait
 
 
 class Test_CreateVpnConnection(OscTestSuite):
@@ -36,7 +36,7 @@ class Test_CreateVpnConnection(OscTestSuite):
         try:
             if cls.vpn_id:
                 cls.a1_r1.oapi.DeleteVpnConnection(VpnConnectionId=cls.vpn_id)
-                wait_vpn_connections_state(cls.a1_r1, [cls.vpn_id], state='deleted')
+                wait.wait_VpnConnections_state(cls.a1_r1, [cls.vpn_id], state='deleted', cleanup=True)
         except:
             pass
         try:
@@ -59,7 +59,7 @@ class Test_CreateVpnConnection(OscTestSuite):
         try:
             if self.vpn_id:
                 self.a1_r1.oapi.DeleteVpnConnection(VpnConnectionId=self.vpn_id)
-                wait_vpn_connections_state(self.a1_r1, [self.vpn_id], state='deleted')
+                wait.wait_VpnConnections_state(self.a1_r1, [self.vpn_id], state='deleted', cleanup=True)
         finally:
             super(Test_CreateVpnConnection, self).teardown_method(method)
 
