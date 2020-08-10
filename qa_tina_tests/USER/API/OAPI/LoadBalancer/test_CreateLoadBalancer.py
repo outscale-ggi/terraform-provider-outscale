@@ -184,11 +184,6 @@ class Test_CreateLoadBalancer(LoadBalancer):
         )
         self.lb_names.append(name)
 
-
-
-
-
-            
     def test_T2586_with_invalid_load_balancer_type(self):
         try:
             name = id_generator(prefix='lbu-')

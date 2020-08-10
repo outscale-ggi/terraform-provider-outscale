@@ -5,8 +5,9 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_customer_gateways
 from qa_tina_tools.tools.tina.create_tools import create_customer_gateway
-from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_connections_state
+from qa_tina_tools.tools.tina import wait_tools
 from qa_test_tools.misc import assert_error
+from qa_tina_tools.tina import wait
 
 
 class Test_DeleteCustomerGateway(OscTestSuite):
@@ -26,7 +27,7 @@ class Test_DeleteCustomerGateway(OscTestSuite):
             self.gateway_id_list = []
             for i in range(2):
                 ret = create_customer_gateway(self.conns[i], bgp_asn=12, ip_address=self.cgw_ip, typ='ipsec.1')
-                wait_customer_gateways_state(self.conns[i], [ret.response.customerGateway.customerGatewayId], state='available')
+                wait_tools.wait_customer_gateways_state(self.conns[i], [ret.response.customerGateway.customerGatewayId], state='available')
                 assert ret.response.customerGateway.bgpAsn == '12'
                 assert ret.response.customerGateway.ipAddress == self.cgw_ip
                 assert ret.response.customerGateway.state == 'available'
@@ -72,7 +73,7 @@ class Test_DeleteCustomerGateway(OscTestSuite):
 
     def test_T772_valid_cgw_id(self):
         self.conns[0].fcu.DeleteCustomerGateway(CustomerGatewayId=self.gateway_id_list[0]['id'])
-        wait_customer_gateways_state(self.conns[0], [self.gateway_id_list[0]['id']], state='deleted')
+        wait_tools.wait_customer_gateways_state(self.conns[0], [self.gateway_id_list[0]['id']], state='deleted')
 
     def test_T773_another_account_cgw_id(self):
         try:
@@ -84,7 +85,7 @@ class Test_DeleteCustomerGateway(OscTestSuite):
 
     def test_T774_deleted_cgw_id(self):
         self.conns[0].fcu.DeleteCustomerGateway(CustomerGatewayId=self.gateway_id_list[0]['id'])
-        wait_customer_gateways_state(self.conns[0], [self.gateway_id_list[0]['id']], state='deleted')
+        wait_tools.wait_customer_gateways_state(self.conns[0], [self.gateway_id_list[0]['id']], state='deleted')
         self.conns[0].fcu.DeleteCustomerGateway(CustomerGatewayId=self.gateway_id_list[0]['id'])
 
     def test_T1388_with_existing_vpn_connection(self):
@@ -103,6 +104,6 @@ class Test_DeleteCustomerGateway(OscTestSuite):
         finally:
             if vpn_id:
                 self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_id)
-                wait_vpn_connections_state(self.a1_r1, vpn_connection_id_list=[vpn_id], state="deleted", wait_time=5, threshold=40)
+                wait.wait_VpnConnections_state(self.a1_r1, vpn_connection_id_list=[vpn_id], state="deleted", wait_time=5, threshold=40, cleanup=True)
             if vgw_id:
                 self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
