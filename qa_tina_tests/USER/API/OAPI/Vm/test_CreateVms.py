@@ -506,6 +506,9 @@ echo "yes" > /tmp/userdata.txt
         try:
             ret, self.info = create_vms(ocs_sdk=self.a1_r1, BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 4, 'VolumeType': ''}}])
 
+            assert False, 'Call should not have been successful, remove known error'
+            assert len(self.info) == 1
+
             for vm in ret.response.Vms:
                 validate_vm_response(
                     vm,
@@ -518,8 +521,14 @@ echo "yes" > /tmp/userdata.txt
                         },
                     }]
                 )
-            assert False, 'Call should not have been successful, remove known error'
-            assert len(self.info) == 1
+            ret_volumes = self.a1_r1.oapi.ReadVolumes(
+                Filters={'VolumeIds': [bdm.Bsu.VolumeId for bdm in ret.response.Vms[0].BlockDeviceMappings]})
+            found = False
+            for vol in ret_volumes.response.Volumes:
+                if vol.LinkedVolumes and len(vol.LinkedVolumes) == 1 and vol.LinkedVolumes[0].DeviceName == '/dev/sdb' and vol.VolumeType == 'standard':
+                    found = True
+                    break
+            assert found, 'Could not find the attached volume'
 
         except OscApiException as error:
             if error.status_code == 500 and error.error_code == 'InternalError':
