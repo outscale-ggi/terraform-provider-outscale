@@ -502,6 +502,29 @@ echo "yes" > /tmp/userdata.txt
                 }]
             )
 
+    def test_T5120_with_bdm_with_empty_volume_type(self):
+        try:
+            ret, self.info = create_vms(ocs_sdk=self.a1_r1, BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 4, 'VolumeType': ''}}])
+
+            for vm in ret.response.Vms:
+                validate_vm_response(
+                    vm,
+                    bdm=[{
+                        'DeviceName': '/dev/sdb',
+                        'Bsu': {
+                            'DeleteOnVmDeletion': True,
+                            'State': 'attaching',
+                            'VolumeId': 'vol-',
+                        },
+                    }]
+                )
+            assert False, 'Call should not have been successful, remove known error'
+            assert len(self.info) == 1
+
+        except OscApiException as error:
+            if error.status_code == 500 and error.error_code == 'InternalError':
+                known_error('TINA-5724', 'Internal error message when creating a VM with empty "volume_type" in BlockDeviceMappings block')
+
     def test_T4157_vm_as_stopped(self):
         ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None, BootOnCreation=False)
         validate_vm_response(ret.response.Vms[0], expected_vm={'VmInitiatedShutdownBehavior': 'stop'})
