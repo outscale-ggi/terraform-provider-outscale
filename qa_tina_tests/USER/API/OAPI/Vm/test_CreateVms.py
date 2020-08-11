@@ -521,6 +521,7 @@ echo "yes" > /tmp/userdata.txt
                         },
                     }]
                 )
+
             ret_volumes = self.a1_r1.oapi.ReadVolumes(
                 Filters={'VolumeIds': [bdm.Bsu.VolumeId for bdm in ret.response.Vms[0].BlockDeviceMappings]})
             found = False
@@ -529,7 +530,6 @@ echo "yes" > /tmp/userdata.txt
                     found = True
                     break
             assert found, 'Could not find the attached volume'
-
         except OscApiException as error:
             if error.status_code == 500 and error.error_code == 'InternalError':
                 known_error('TINA-5724', 'Internal error message when creating a VM with empty "volume_type" in BlockDeviceMappings block')
