@@ -89,8 +89,7 @@ class Test_modify_pin_state(OscTestSuite):
 
         new_kvm_name = self.a1_r1.intel.instance.find(id=inst_id).response.result[0].servers[0].server
 
-        if not new_kvm_name:
-            known_error('TINA-5616', 'Modifiying pin in user data is not taken into account at restart')
+        assert new_kvm_name
 
     def test_T5123_with_auto(self):
 
@@ -108,5 +107,4 @@ class Test_modify_pin_state(OscTestSuite):
 
         new_kvm_name = self.a1_r1.intel.instance.find(id=inst_id).response.result[0].servers[0].server
 
-        if not new_kvm_name:
-            known_error('TINA-5616', 'Modifiying pin in user data is not taken into account at restart')
+        assert new_kvm_name
