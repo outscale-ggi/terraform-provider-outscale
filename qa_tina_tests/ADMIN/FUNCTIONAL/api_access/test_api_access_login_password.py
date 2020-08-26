@@ -2,7 +2,7 @@ from qa_sdk_pub import osc_api
 import pytest
 from qa_tina_tests.ADMIN.FUNCTIONAL.api_access.api_access import ConfName, setup_api_access_rules, PASS, FAIL, Api_Access
 
-LOGIN_PASSWORD_FAIL_LIST = [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL]
+LOGIN_PASSWORD_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL]
 LOGIN_PASSWORD_PASS_LIST = [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, PASS, PASS, FAIL]
 
 
@@ -39,7 +39,7 @@ class Test_api_access_login_password(Api_Access):
     def test_T4963_login_password_CONF_CA_NEY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
                                 osc_api.EXEC_DATA_CERTIFICATE: [self.certfiles_ca2cn1[2], self.certfiles_ca2cn1[1]]},
-                               [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, PASS, FAIL, FAIL])
+                               LOGIN_PASSWORD_FAIL_LIST)
 
     @setup_api_access_rules(ConfName.CaCn)
     def test_T4964_login_password_CONF_CACN_YYY(self):
@@ -51,7 +51,7 @@ class Test_api_access_login_password(Api_Access):
     def test_T4965_login_password_CONF_CACN_YNY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
                                 osc_api.EXEC_DATA_CERTIFICATE: [self.certfiles_ca1cn2[2], self.certfiles_ca1cn2[1]]},
-                               [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, PASS, FAIL, FAIL])
+                               LOGIN_PASSWORD_FAIL_LIST)
 
     @setup_api_access_rules(ConfName.IpOKCa)
     def test_T4966_login_password_CONF_IPOKCA_YEY(self):

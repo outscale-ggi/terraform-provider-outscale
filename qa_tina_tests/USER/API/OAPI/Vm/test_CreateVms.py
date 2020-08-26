@@ -10,9 +10,8 @@ import random
 import string
 import base64
 import zlib
-from qa_tina_tools.tina.oapi import delete_Vms
+from qa_tina_tools.tina.oapi import delete_Vms, create_Vms
 from qa_common_tools.ssh import SshTools
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET
 from qa_tina_tools.tina.info_keys import KEY_PAIR, PATH
 
 
@@ -42,8 +41,8 @@ echo "yes" > /tmp/userdata.txt
                 wait_instances_state(self.a1_r1, self.info, state='terminated')
         finally:
             super(Test_CreateVms, self).teardown_method(method)
-    def check_user_data(self, inst_info, gzip=False, decode=True):
-        sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
+    def check_user_data(self, vm_info, gzip=False, decode=True):
+        sshclient = SshTools.check_connection_paramiko(vm_info['vms'][0]['PublicIp'], vm_info[KEY_PAIR][PATH],
                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         out, _, _ = SshTools.exec_command_paramiko_2(sshclient, 'curl http://169.254.169.254/latest/user-data', decode=decode)
         if gzip:
@@ -502,6 +501,38 @@ echo "yes" > /tmp/userdata.txt
                 }]
             )
 
+    def test_T5120_with_bdm_with_empty_volume_type(self):
+        try:
+            ret, self.info = create_vms(ocs_sdk=self.a1_r1, BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 4, 'VolumeType': ''}}])
+
+            assert False, 'Call should not have been successful, remove known error'
+            assert len(self.info) == 1
+
+            for vm in ret.response.Vms:
+                validate_vm_response(
+                    vm,
+                    bdm=[{
+                        'DeviceName': '/dev/sdb',
+                        'Bsu': {
+                            'DeleteOnVmDeletion': True,
+                            'State': 'attaching',
+                            'VolumeId': 'vol-',
+                        },
+                    }]
+                )
+
+            ret_volumes = self.a1_r1.oapi.ReadVolumes(
+                Filters={'VolumeIds': [bdm.Bsu.VolumeId for bdm in ret.response.Vms[0].BlockDeviceMappings]})
+            found = False
+            for vol in ret_volumes.response.Volumes:
+                if vol.LinkedVolumes and len(vol.LinkedVolumes) == 1 and vol.LinkedVolumes[0].DeviceName == '/dev/sdb' and vol.VolumeType == 'standard':
+                    found = True
+                    break
+            assert found, 'Could not find the attached volume'
+        except OscApiException as error:
+            if error.status_code == 500 and error.error_code == 'InternalError':
+                known_error('TINA-5724', 'Internal error message when creating a VM with empty "volume_type" in BlockDeviceMappings block')
+
     def test_T4157_vm_as_stopped(self):
         ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None, BootOnCreation=False)
         validate_vm_response(ret.response.Vms[0], expected_vm={'VmInitiatedShutdownBehavior': 'stop'})
@@ -515,14 +546,15 @@ echo "yes" > /tmp/userdata.txt
         self.info = None
 
     def test_T5072_userdata_base64_gzip(self):
-        inst_info = None
+        vm_info = None
+        user_data=base64.b64encode(zlib.compress(self.user_data.encode('utf-8'))).decode('utf-8')
         try:
-            inst_info = create_vms(ocs_sdk=self.a1_r1, state='ready',
-                                         UserData=base64.b64encode(zlib.compress(self.user_data.encode('utf-8'))).decode('utf-8'))
-            self.check_user_data(inst_info, gzip=True, decode=False)
+            vm_info = create_Vms(osc_sdk=self.a1_r1, state='ready',
+                                         user_data=user_data)
+            self.check_user_data(vm_info, gzip=True, decode=False)
         finally:
-            if inst_info:
-                delete_Vms(self.a1_r1, inst_info)
+            if vm_info:
+                delete_Vms(self.a1_r1, vm_info)
 
 class Test_CreateVmsWithSubnet(OscTestSuite):
 
@@ -651,11 +683,12 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         )
 
     def test_T4401_with_two_valid_nic_id(self):
+        nic_id2 = None
+        subnet_id2 = None
         try:
             subnet_id2 = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id,
                                                       IpRange='10.1.1.0/24').response.Subnet.SubnetId
             self.nic_id = self.a1_r1.oapi.CreateNic(SubnetId=self.subnet_id).response.Nic.NicId
-            nic_id2 = self.a1_r1.oapi.CreateNic(SubnetId=subnet_id2).response.Nic.NicId
             nic_id2 = self.a1_r1.oapi.CreateNic(SubnetId=subnet_id2).response.Nic.NicId
             ret, self.vm_id_list = create_vms(
                 ocs_sdk=self.a1_r1, VmType='tinav4.c2r4p1', 
@@ -684,33 +717,23 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
                 self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id2)
 
     def test_T4402_with_incorrect_device_number(self):
+        nic_id1 = None
+        subnet_id1 = None
         try:
             self.nic_id = self.a1_r1.oapi.CreateNic(SubnetId=self.subnet_id).response.Nic.NicId
-
+    
             subnet_id1 = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id,
                                                       IpRange='10.1.1.0/24').response.Subnet.SubnetId
             nic_id1 = self.a1_r1.oapi.CreateNic(SubnetId=subnet_id1).response.Nic.NicId
 
-            ret, self.vm_id_list = create_vms(
-                ocs_sdk=self.a1_r1,
-                Nics=[{'DeviceNumber': 0, 'NicId': self.nic_id}, {'DeviceNumber': 8, 'NicId': nic_id1}])
-            validate_vm_response(
-                ret.response.Vms[0],
-                nic=[{
-                    'LinkNic': {
-                        'DeviceNumber': 0,
-                    },
-                    'NicId': self.nic_id,
-                }, {
-                    'LinkNic': {
-                        'DeviceNumber': 1,
-                    },
-                    'NicId': nic_id1,
-                }],
-            )
-            assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            try:
+                _, self.vm_id_list = create_vms(
+                    ocs_sdk=self.a1_r1,
+                    Nics=[{'DeviceNumber': 0, 'NicId': self.nic_id}, {'DeviceNumber': 8, 'NicId': nic_id1}])
+                assert False, 'Call should not have been successful'
+            except OscApiException as err:
+                assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+
         finally:
             if nic_id1:
                 self.a1_r1.oapi.DeleteNic(NicId=nic_id1)

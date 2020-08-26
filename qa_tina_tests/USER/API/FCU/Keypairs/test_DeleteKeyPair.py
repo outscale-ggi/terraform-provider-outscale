@@ -43,6 +43,8 @@ class Test_DeleteKeyPair(OscTestSuite):
                 assert_error(error, 400, 'InvalidKeyPair.NotFound', None)
                 assert not error.message
                 known_error('GTW-1357', 'Missing error message')
+            assert_error(error, 400, 'InvalidKeyPair.Format', 'Invalid DER encoded key material')
+            known_error('TINA-5789', 'Incorrect error message')
             assert_error(error, 400, 'InvalidKeyPair.NotFound', 'The key pair does not exist: tydyt')
 
     def test_T936_with_keyname_from_another_account(self):
@@ -54,6 +56,8 @@ class Test_DeleteKeyPair(OscTestSuite):
                 assert_error(error, 400, 'InvalidKeyPair.NotFound', None)
                 assert not error.message
                 known_error('GTW-1357', 'Missing error message')
+            assert_error(error, 400, 'InvalidKeyPair.Format', 'Invalid DER encoded key material')
+            known_error('TINA-5789', 'Incorrect error message')
             assert_error(error, 400, 'InvalidKeyPair.NotFound', 'The key pair does not exist: tiuyttrgt')
         finally:
             self.a2_r1.fcu.DeleteKeyPair(KeyName='tiuyttrgt')

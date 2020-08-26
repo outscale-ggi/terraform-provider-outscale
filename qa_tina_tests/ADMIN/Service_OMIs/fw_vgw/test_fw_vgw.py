@@ -13,6 +13,7 @@ from qa_test_tools.config import config_constants as constants
 from netaddr import IPNetwork, IPAddress
 
 
+@pytest.mark.region_admin
 class Test_fw_vgw(OscTestSuite):
 
     @classmethod
@@ -105,7 +106,7 @@ class Test_fw_vgw(OscTestSuite):
         assert SshTools.check_service(self.sshclient, 'nginx')
 
     def test_T1905_check_racoon(self):
-        assert SshTools.check_service(self.sshclient, 'racoon')
+        assert SshTools.check_service(self.sshclient, 'strongswan', pattern_str='.* is running')
 
     def test_T1900_check_zebra(self):
         assert SshTools.check_service(self.sshclient, 'zebra')

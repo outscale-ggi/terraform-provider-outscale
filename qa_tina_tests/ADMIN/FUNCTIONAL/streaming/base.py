@@ -23,6 +23,7 @@ class StreamingBase(OscTestSuite):
     rebase_enabled = False
     snap_attached = True
     inst_type = 'c4.large'
+    inst_az = 'a'
     vol_type = 'standard'
     iops = None
     base_snap_id = 10
@@ -72,14 +73,18 @@ class StreamingBase(OscTestSuite):
             #    cls.rebase_enabled = False
             # create inst
             if cls.qemu_version == '2.12':
-                cls.inst_info = create_instances(cls.a1_r1, state='running', inst_type=cls.inst_type)
+                cls.inst_info = create_instances(cls.a1_r1, state='running', inst_type=cls.inst_type,
+                                                 az='{}{}'.format(cls.a1_r1.config.region.name, cls.inst_az))
             else:
-                cls.inst_info = create_instances(cls.a1_r1, state='running', inst_type=cls.inst_type, dedicated=True)
+                cls.inst_info = create_instances(cls.a1_r1, state='running', inst_type=cls.inst_type, dedicated=True,
+                                                 az='{}{}'.format(cls.a1_r1.config.region.name, cls.inst_az))
 
             if cls.inst_running:
-                cls.inst_running_info = create_instances(cls.a1_r1, state='running', inst_type=cls.inst_type)
+                cls.inst_running_info = create_instances(cls.a1_r1, state='running', inst_type=cls.inst_type,
+                                                         az='{}{}'.format(cls.a1_r1.config.region.name, cls.inst_az))
             if cls.inst_stopped:
-                cls.inst_stopped_info = create_instances(cls.a1_r1, state=None, inst_type=cls.inst_type)
+                cls.inst_stopped_info = create_instances(cls.a1_r1, state=None, inst_type=cls.inst_type,
+                                                         az='{}{}'.format(cls.a1_r1.config.region.name, cls.inst_az))
 
             wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=cls.inst_info[INSTANCE_ID_LIST], state='ready')
 
@@ -142,7 +147,7 @@ class StreamingBase(OscTestSuite):
         try:
             # create vol v1
             _, [self.vol_1_id] = create_volumes(self.a1_r1, snapshot_id=self.ref_snap_id, size=self.v_size, volume_type=self.vol_type,
-                                                iops=self.iops)
+                                                iops=self.iops, availability_zone='{}{}'.format(self.a1_r1.config.region.name, self.inst_az))
             wait_volumes_state(self.a1_r1, [self.vol_1_id], 'available')
             for i in range(self.new_snap_count):
                 snap_id = write_and_snap(osc_sdk=self.a1_r1, sshclient=self.sshclient, inst_id=self.inst_info[INSTANCE_ID_LIST][0],
@@ -152,7 +157,8 @@ class StreamingBase(OscTestSuite):
                     if i == self.branch_id:
                         # create v2 from last v1 snap
                         _, [self.vol_2_id] = create_volumes(self.a1_r1, snapshot_id=self.vol_1_snap_list[-1], size=self.v_size,
-                                                            volume_type=self.vol_type, iops=self.iops)
+                                                            volume_type=self.vol_type, iops=self.iops,
+                                                            availability_zone='{}{}'.format(self.a1_r1.config.region.name, self.inst_az))
                     elif i > self.branch_id:
                         snap_id = write_and_snap(osc_sdk=self.a1_r1, sshclient=self.sshclient, inst_id=self.inst_info[INSTANCE_ID_LIST][0],
                                                  vol_id=self.vol_2_id, f_num=i+self.base_snap_id, w_size=self.w_size, snap_name="S{}_from_V2".format(i),

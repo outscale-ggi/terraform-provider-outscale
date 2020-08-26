@@ -81,8 +81,6 @@ class Test_DeleteNetworkInterface(OscTestSuite):
             self.network_interface_id = None
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
-            assert_error(error, 500, 'InternalError', 'Internal Error')
-            known_error('TINA-5644', 'DeleteNetworkInterface with an other account returns an Internal error')
             assert_error(error, 400, "InvalidNetworkInterfaceID.NotFound", "The networkInterface ID '{}' does not exist".format(self.network_interface_id))
     
     def test_T4041_non_existent_network_interface_id(self):

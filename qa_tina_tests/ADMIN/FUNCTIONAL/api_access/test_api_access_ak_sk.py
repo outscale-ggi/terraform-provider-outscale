@@ -39,7 +39,7 @@ class Test_api_access_ak_sk(Api_Access):
     def test_T4931_ak_sk_CONF_CA_NEY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
                                 osc_api.EXEC_DATA_CERTIFICATE: [self.certfiles_ca2cn1[2], self.certfiles_ca2cn1[1]]},
-                               [FAIL, FAIL, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL])
+                               AK_SK_FAIL_LIST)
  
     @setup_api_access_rules(ConfName.CaCn)
     def test_T4932_ak_sk_CONF_CACN_YYY(self):
@@ -51,7 +51,7 @@ class Test_api_access_ak_sk(Api_Access):
     def test_T4933_ak_sk_CONF_CACN_YNY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
                                 osc_api.EXEC_DATA_CERTIFICATE: [self.certfiles_ca1cn2[2], self.certfiles_ca1cn2[1]]},
-                                [FAIL, FAIL, PASS, PASS, PASS, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL])
+                                AK_SK_FAIL_LIST)
  
     @setup_api_access_rules(ConfName.IpOKCa)
     def test_T4934_ak_sk_CONF_IPOKCA_YEY(self):

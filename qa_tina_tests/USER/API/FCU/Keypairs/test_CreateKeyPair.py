@@ -102,13 +102,7 @@ class Test_CreateKeyPair(OscTestSuite):
             raise error
         finally:
             if ret:
-                try:
-                    self.a1_r1.fcu.DeleteKeyPair(KeyName=key_name)
-                    assert False, 'Remove known error code'
-                except OscApiException as error:
-                    if error.error_code == 'InvalidKeyPair.NotFound':
-                        known_error('TINA-4509', 'Could not delete created key')
-                    raise error
+                self.a1_r1.fcu.DeleteKeyPair(KeyName=key_name)
 
     def test_T1947_some_valid_chars(self):
         ret = None
