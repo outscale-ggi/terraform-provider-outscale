@@ -5,12 +5,11 @@ import re
 import time
 import pytest
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state, wait_instance_service_state
-from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
+from qa_tina_tools.tools.tina import wait_tools
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from netaddr import IPNetwork, IPAddress
+from qa_tina_tools.tina import wait
 
 
 @pytest.mark.region_admin
@@ -39,7 +38,7 @@ class Test_fw_vgw(OscTestSuite):
 
             ret = cls.a1_r1.intel.netimpl.firewall.get_firewalls(resource=cls.vgw_id)
             inst_id = ret.response.result.master.vm
-            wait_instance_service_state(cls.a1_r1, [inst_id], state='ready')
+            wait_tools.wait_instance_service_state(cls.a1_r1, [inst_id], state='ready')
             ret = cls.a1_r1.intel.nic.find(filters={'vm': inst_id})
 
             inst_ip = None
@@ -65,13 +64,13 @@ class Test_fw_vgw(OscTestSuite):
         try:
             if cls.vpn_id:
                 cls.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=cls.vpn_id)
-                wait_vpn_connections_state(cls.a1_r1, [cls.vpn_id], state='deleted')
+                wait.wait_VpnConnections_state(cls.a1_r1, [cls.vpn_id], state='deleted', cleanup=True)
             if cls.vgw_id:
                 cls.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=cls.vgw_id)
-                wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='deleted')
+                wait_tools.wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='deleted')
             if cls.cgw_id:
                 cls.a1_r1.fcu.DeleteCustomerGateway(CustomerGatewayId=cls.cgw_id)
-                wait_customer_gateways_state(cls.a1_r1, [cls.cgw_id], state='deleted')
+                wait_tools.wait_customer_gateways_state(cls.a1_r1, [cls.cgw_id], state='deleted')
         finally:
             super(Test_fw_vgw, cls).teardown_class()
 
