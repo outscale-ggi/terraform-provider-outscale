@@ -11,6 +11,8 @@ class Test_add_permissions(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_add_permissions, cls).setup_class()
+        cls.inst_id = None
+        cls.image_id = None
 
         cls.inst_info = create_instances(cls.a1_r1)
         cls.inst_id = cls.inst_info[info_keys.INSTANCE_ID_LIST][0]
@@ -31,11 +33,16 @@ class Test_add_permissions(OscTestSuite):
     def test_T5124_with_str_type_for_users(self):
         try:
             self.a1_r1.intel.image.add_permissions(owner=self.a1_r1.config.account.account_id, image=self.image_id, users='toto')
-            assert False, 'Call should Fail, unvalid type parameter'
+            assert False, 'Call should Fail, invalid type parameter'
 
         except OscApiException as error:
             assert_code(error, 200, "invalid-parameter-type - Value of parameter 'Users' must be of type: list." \
                                     " \n 'Received: [arg0.users]'")
+
+    def test_T5124_with_valid_type_for_users(self):
+        actual_user = owner=self.a1_r1.config.account.account_id
+        self.a1_r1.intel.image.add_permissions(owner=self.a1_r1.config.account.account_id, image=self.image_id, users=[actual_user])
+        assert True
 
 
 
