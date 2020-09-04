@@ -39,7 +39,7 @@ class Test_add_permissions(OscTestSuite):
             assert_code(error, 200, "invalid-parameter-type - Value of parameter 'Users' must be of type: list." \
                                     " \n 'Received: [arg0.users]'")
 
-    def test_T5124_with_valid_type_for_users(self):
+    def test_T5125_with_valid_type_for_users(self):
         actual_user = owner=self.a1_r1.config.account.account_id
         self.a1_r1.intel.image.add_permissions(owner=self.a1_r1.config.account.account_id, image=self.image_id, users=[actual_user])
         assert True
