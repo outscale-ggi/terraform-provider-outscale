@@ -2,9 +2,10 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, VPC_ID
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
-from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_gateways_state, wait_vpn_connections_state, wait_vpn_gateways_attachment_state
+from qa_tina_tools.tools.tina import wait_tools
 from qa_test_tools.misc import assert_dry_run, assert_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_tina_tools.tina import wait
 
 NUM_VPN_CONNS = 3
 
@@ -51,17 +52,17 @@ class Test_DescribeVpnConnections(OscTestSuite):
             # delete all created resources in setup
             for vpn_conn_id in cls.vpn_connection_ids:
                 cls.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_conn_id)
-                wait_vpn_connections_state(cls.a1_r1, [vpn_conn_id], state='deleted')
+                wait.wait_VpnConnections_state(cls.a1_r1, [vpn_conn_id], state='deleted', cleanup=True)
             if cls.vgw_id:
                 if cls.ret_attach:
                     cls.a1_r1.fcu.DetachVpnGateway(VpcId=cls.vpc_info[VPC_ID], VpnGatewayId=cls.vgw_id)
-                    wait_vpn_gateways_attachment_state(cls.a1_r1, [cls.vgw_id], 'detached')
+                    wait_tools.wait_vpn_gateways_attachment_state(cls.a1_r1, [cls.vgw_id], 'detached')
                 cls.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=cls.vgw_id)
-                wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='deleted')
+                wait_tools.wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='deleted')
             if cls.cgw_ids:
                 for cgw_id in cls.cgw_ids:
                     cls.a1_r1.fcu.DeleteCustomerGateway(CustomerGatewayId=cgw_id)
-                wait_customer_gateways_state(cls.a1_r1, cls.cgw_ids, state='deleted')
+                wait_tools.wait_customer_gateways_state(cls.a1_r1, cls.cgw_ids, state='deleted')
             if cls.vpc_info:
                 delete_vpc(cls.a1_r1, cls.vpc_info)
             if cls.inst_cgw_info:
