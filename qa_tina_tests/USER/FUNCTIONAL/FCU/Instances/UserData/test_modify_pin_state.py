@@ -2,7 +2,7 @@ import base64
 import pytest
 
 from qa_test_tools.exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instances
 from qa_tina_tools.tools.tina import info_keys, wait_tools
@@ -13,11 +13,9 @@ class Test_modify_pin_state(OscTestSuite):
 
     def setup_method(self, method):
         super(Test_modify_pin_state, self).setup_method(method)
-
         self.info = None
 
         try:
-
             self.info = create_instances(self.a1_r1, state='running')
             self.server_name = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response.result[0].servers[0].server
             self.cluster_pz = self.a1_r1.intel.hardware.get_details(device=self.server_name).response.result.cluster_pz
@@ -68,15 +66,11 @@ class Test_modify_pin_state(OscTestSuite):
 
         new_kvm_name = self.a1_r1.intel.instance.find(id=inst_id).response.result[0].servers[0].server
 
-        if kvm_selected != new_kvm_name:
-            known_error('TINA-5616', 'Modifiying pin in user data is not taken into account at restart')
-
-        assert False, 'Remove the known error code'
+        assert kvm_selected == new_kvm_name
 
     def test_T5122_with_empty_server(self):
 
         inst_id = self.info[info_keys.INSTANCE_ID_LIST][0]
-        initial_kvm = self.server_name
 
         user_data = '-----BEGIN OUTSCALE SECTION-----\npin=\n-----END OUTSCALE SECTION-----'
         user_data = base64.b64encode(user_data.encode('utf-8')).decode('utf-8')
@@ -94,7 +88,6 @@ class Test_modify_pin_state(OscTestSuite):
     def test_T5123_with_auto(self):
 
         inst_id = self.info[info_keys.INSTANCE_ID_LIST][0]
-        initial_kvm = self.server_name
 
         user_data = '-----BEGIN OUTSCALE SECTION-----\npin={}\n-----END OUTSCALE SECTION-----'.format('auto')
         user_data = base64.b64encode(user_data.encode('utf-8')).decode('utf-8')
