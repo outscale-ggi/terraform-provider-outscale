@@ -261,7 +261,10 @@ class Api_Access(OscTestSuite):
     def teardown_class(cls):
         try:
             for tmp_file_path in cls.tmp_file_paths:
-                os.remove(tmp_file_path)
+                try:
+                    os.remove(tmp_file_path)
+                except:
+                    pass
             if cls.account_pid:
                 delete_account(cls.a1_r1, cls.account_pid)
         finally:
