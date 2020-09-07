@@ -1,7 +1,7 @@
 import pytest
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances, start_instances
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances, stop_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -82,4 +82,6 @@ class Test_pin_unpin_instance(OscTestSuite):
             self.a1_r1.intel.instance.pin(vmid=self.inst_id, target="in2-ucs1-pr-kvm-13")
             assert False, 'Call should not been successful'
         except OscApiException as error:
+            assert_error(error, 200, 0, 'invalid-target - Target: in2-ucs1-pr-kvm-13, PZ: {target.cluster.pz_name}. Expected: {reqs["pz"]}')
+            known_error('TINA-5897', 'UnExpected error message after a intel.instance.pin call')
             assert_error(error, 200, 0, "invalid-target - Target: in2-ucs1-pr-kvm-13, PZ: in2b. Expected: in2")
