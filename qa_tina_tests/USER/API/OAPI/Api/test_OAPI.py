@@ -188,7 +188,7 @@ class Test_OAPI(OscTestSuite):
     def test_T4907_incorrect_content_type(self):
         try:
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_CONTENT_TYPE: 'application/toto'})
-            known_error('GTW-1299', 'Call with incorrect content type should not be successful.')
+            known_error('GTW-1439', 'Call with incorrect content type should not be successful.')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert False, 'Remove known error code'

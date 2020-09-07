@@ -173,14 +173,8 @@ class Test_create_using_instance(OscTestSuite):
 
         self.logger.info("ip : {0}".format(inst_1_pub_IP))
         self.logger.info("Login Administrator / password {0}".format(password))
-        try:
-            check_data_from_console(self.a1_r1, self.inst_1_id)
-            if self.a1_r1.config.region.name == 'in-west-1':
-                raise ValueError('remove known error code')
-        except AssertionError:
-            if self.a1_r1.config.region.name == 'in-west-1':
-                known_error('OPS-11590', 'Licensing error')
-            raise
+            
+        check_data_from_console(self.a1_r1, self.inst_1_id)
         check_winrm_access(inst_1_pub_IP, password)
 
     @pytest.mark.tag_redwire
