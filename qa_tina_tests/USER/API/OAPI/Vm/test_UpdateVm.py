@@ -318,7 +318,6 @@ class Test_UpdateVm(OscTestSuite):
     def test_T3542_other_account(self):
         try:
             self.a2_r1.oapi.UpdateVm(VmId=self.vm_ids[1], VmType='m4.xlarge')
-            assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5063')
 
