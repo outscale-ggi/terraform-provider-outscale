@@ -8,7 +8,7 @@ from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state, wait_vpn_gateways_state, \
     wait_customer_gateways_state
 
-NUM_VPN_CONN = 1
+NUM_VPN_CONN = 3
 
 
 class Test_ReadVpnConnections(VpnConnection):
