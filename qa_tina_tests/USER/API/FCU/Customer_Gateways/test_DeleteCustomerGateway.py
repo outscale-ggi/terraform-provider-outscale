@@ -104,6 +104,6 @@ class Test_DeleteCustomerGateway(OscTestSuite):
         finally:
             if vpn_id:
                 self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_id)
-                wait.wait_VpnConnections_state(self.a1_r1, vpn_connection_id_list=[vpn_id], state="deleted", wait_time=5, threshold=40, cleanup=True)
+                wait.wait_VpnConnections_state(self.a1_r1, vpn_connection_ids=[vpn_id], state="deleted", wait_time=5, threshold=40, cleanup=True)
             if vgw_id:
                 self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
