@@ -32,12 +32,8 @@ class Test_ReadConsumptionAccount(OscTestSuite):
 
     def test_T4762_correct_dates(self):
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=3)
-        try:
-            ret = self.a1_r1.oapi.ReadConsumptionAccount(FromDate=self.start_date.isoformat(), ToDate=end_date.isoformat())
-            check_oapi_response(ret.response, 'ReadConsumptionAccountResponse')
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3005')
+        ret = self.a1_r1.oapi.ReadConsumptionAccount(FromDate=self.start_date.isoformat(), ToDate=end_date.isoformat())
+        check_oapi_response(ret.response, 'ReadConsumptionAccountResponse')
 
     def test_T4763_incorrect_dates(self):
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=3)
