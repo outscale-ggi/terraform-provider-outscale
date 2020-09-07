@@ -8,7 +8,7 @@ from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state, wait_vpn_gateways_state, \
     wait_customer_gateways_state
 
-NUM_VPN_CONN = 3
+NUM_VPN_CONN = 1
 
 
 class Test_ReadVpnConnections(VpnConnection):
@@ -36,8 +36,10 @@ class Test_ReadVpnConnections(VpnConnection):
                     StaticRoutesOnly=False).response.VpnConnection.VpnConnectionId)
 
             cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[0:1], Tags=[{'Key': 'vpn_key', 'Value': 'vpn_value'}])
-            cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[1:2], Tags=[{'Key': 'vpn_key1', 'Value': 'vpn_value'}])
-            cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[2:3], Tags=[{'Key': 'vpn_key', 'Value': 'vpn_value1'}])
+            if NUM_VPN_CONN > 1:
+                cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[1:2], Tags=[{'Key': 'vpn_key1', 'Value': 'vpn_value'}])
+            if NUM_VPN_CONN > 2:
+                cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[2:3], Tags=[{'Key': 'vpn_key', 'Value': 'vpn_value1'}])
 
         except:
             try:
@@ -69,7 +71,7 @@ class Test_ReadVpnConnections(VpnConnection):
     def test_T3363_empty_filters(self):
         ret = self.a1_r1.oapi.ReadVpnConnections()
         assert len(ret.response.VpnConnections) == 2 + NUM_VPN_CONN
-        check_oapi_response(ret.response, "ReadVpnConnectionsReponse")
+        check_oapi_response(ret.response, "ReadVpnConnectionsResponse")
 
     def test_T3364_filters_bgp_asns(self):
         assert len(self.a1_r1.oapi.ReadVpnConnections(Filters={'BgpAsns': [self.bgp_asn]}).response.VpnConnections) == 1
