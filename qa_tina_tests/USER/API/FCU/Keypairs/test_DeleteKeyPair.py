@@ -61,3 +61,11 @@ class Test_DeleteKeyPair(OscTestSuite):
             assert_error(error, 400, 'InvalidKeyPair.NotFound', 'The key pair does not exist: tiuyttrgt')
         finally:
             self.a2_r1.fcu.DeleteKeyPair(KeyName='tiuyttrgt')
+
+    def test_T5126_delete_key_twice(self):
+        self.a1_r1.fcu.CreateKeyPair(KeyName='tiuyttrgt2')
+        self.a1_r1.fcu.DeleteKeyPair(KeyName='tiuyttrgt2')
+        try:
+            self.a1_r1.fcu.DeleteKeyPair(KeyName='tiuyttrgt2')
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidKeyPair.NotFound', 'The key pair does not exist: tiuyttrgt2')
