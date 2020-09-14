@@ -94,21 +94,23 @@ class Test_UnlinkVolume(OscTestSuite):
 
     
     @pytest.mark.region_admin
-    def test_TXXXX_with_force_unlink_false(self):
+    def test_T5129_with_force_unlink_false(self):
         try:
-            # tina.intel.api.volume.mark_as_error(session, owner, volume_id)
-            self.a1_r1.oapi.UnlinkVolume(VolumeId=self.vol_id, ForceUnlink=True)
-            assert False, 'Remove known error'
+            self.a1_r1.oapi.UnlinkVolume(VolumeId=self.vol_id, ForceUnlink=False)
+            #assert False, 'Remove known error' 
+            wait_volumes_state(self.a1_r1, [self.vol_id], state='available')
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
             known_error('GTW-1457', 'Parameter not accepted, due to parameter change in tina.')
+        except Exception as error:
+            raise error
 
     @pytest.mark.region_admin
-    def test_TXXXX_with_force_unlink_true(self):
+    def test_T5130_with_force_unlink_true(self):
         try:
-            # tina.intel.api.volume.mark_as_error(session, owner, volume_id)
-            self.a1_r1.oapi.UnlinkVolume(VolumeId=self.vol_id, ForceUnlink=False)
-            assert False, 'Remove known error'
+            self.a1_r1.oapi.UnlinkVolume(VolumeId=self.vol_id, ForceUnlink=True)
+            #assert False, 'Remove known error'
+            wait_volumes_state(self.a1_r1, [self.vol_id], state='available')
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
             known_error('GTW-1457', 'Parameter not accepted, due to parameter change in tina.')

@@ -15,6 +15,7 @@ from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tina import wait
+from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 
 
 class Vpn(OscTestSuite):
@@ -83,6 +84,7 @@ class Vpn(OscTestSuite):
                                                  VpnGatewayId=self.vgw_id,
                                                  Options={'StaticRoutesOnly': static})
         vpn_id = ret.response.vpnConnection.vpnConnectionId
+        wait_vpn_connections_state(self.a1_r1, [vpn_id], state='available')
         vpn_cfg = ret.response.vpnConnection.customerGatewayConfiguration
         match = re.search('<vpn_gateway><tunnel_outside_address><ip_address>(.+?)</ip_address>', vpn_cfg)
         vgw_ip = match.group(1)
