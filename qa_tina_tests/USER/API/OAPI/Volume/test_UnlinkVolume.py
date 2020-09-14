@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import pytest
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -91,3 +91,26 @@ class Test_UnlinkVolume(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5064')
+
+    
+    @pytest.mark.region_admin
+    def test_T5129_with_force_unlink_false(self):
+        try:
+            self.a1_r1.oapi.UnlinkVolume(VolumeId=self.vol_id, ForceUnlink=False)
+            #assert False, 'Remove known error' 
+            wait_volumes_state(self.a1_r1, [self.vol_id], state='available')
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
+            known_error('GTW-1457', 'Parameter not accepted, due to parameter change in tina.')
+        except Exception as error:
+            raise error
+
+    @pytest.mark.region_admin
+    def test_T5130_with_force_unlink_true(self):
+        try:
+            self.a1_r1.oapi.UnlinkVolume(VolumeId=self.vol_id, ForceUnlink=True)
+            #assert False, 'Remove known error'
+            wait_volumes_state(self.a1_r1, [self.vol_id], state='available')
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
+            known_error('GTW-1457', 'Parameter not accepted, due to parameter change in tina.')
