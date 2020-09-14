@@ -323,3 +323,10 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, "InvalidParameterType", "Value of parameter 'UserData' must be of type: dict. Received: {}".format(user_data))
+
+    def test_T5127_with_other_account(self):
+        try:
+            self.a2_r1.fcu.ModifyInstanceAttribute(InstanceId=self.stopped_id, InstanceType={'Value': 'tinav2.c4r16p2'})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "InvalidInstanceID.NotFound", "The instance IDs do not exist: {}".format(self.stopped_id))
