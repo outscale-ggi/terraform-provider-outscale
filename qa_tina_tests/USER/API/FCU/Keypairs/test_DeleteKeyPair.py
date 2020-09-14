@@ -67,5 +67,6 @@ class Test_DeleteKeyPair(OscTestSuite):
         self.a1_r1.fcu.DeleteKeyPair(KeyName='tiuyttrgt2')
         try:
             self.a1_r1.fcu.DeleteKeyPair(KeyName='tiuyttrgt2')
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidKeyPair.NotFound', 'The key pair does not exist: tiuyttrgt2')
