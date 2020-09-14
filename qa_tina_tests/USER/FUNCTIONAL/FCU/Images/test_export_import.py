@@ -52,7 +52,7 @@ class Test_export_import(OscTestSuite):
         vol_id_list = None
         ret_attach = None
         bucket = None
-        bucket_name = id_generator(prefix="bucket_", chars=ascii_lowercase)
+        bucket_name = id_generator(prefix="bucket", chars=ascii_lowercase)
         inst_info = None
         try:
             inst_id = self.inst_info[INSTANCE_ID_LIST][0]
