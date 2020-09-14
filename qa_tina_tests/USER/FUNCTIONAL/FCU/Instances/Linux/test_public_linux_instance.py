@@ -235,7 +235,7 @@ class Test_public_linux_instance(Test_linux_instance):
         device_name = '/dev/xvdc'
         # size = 128
         size = 32
-        BlockDevice = [{'DeviceName': device_name, 'VirtualName': 'ephemeral1'}]
+        BlockDevice = [{'DeviceName': device_name, 'VirtualName': 'ephemeral0'}]
         placement = None
         if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
             placement = {'AvailabilityZone': 'cn-southeast-1b'}
