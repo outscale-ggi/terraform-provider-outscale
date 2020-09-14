@@ -35,6 +35,7 @@ class Test_fw_vgw(OscTestSuite):
                                                     VpnGatewayId=cls.vgw_id,
                                                     Options={'StaticRoutesOnly': True})
             cls.vpn_id = ret.response.vpnConnection.vpnConnectionId
+            wait_tools.wait_vpn_connections_state(cls.a1_r1, [cls.vpn_id], state='available')
 
             ret = cls.a1_r1.intel.netimpl.firewall.get_firewalls(resource=cls.vgw_id)
             inst_id = ret.response.result.master.vm
