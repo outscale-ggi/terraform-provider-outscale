@@ -1,4 +1,5 @@
 import pytest
+from qa_test_tools.test_base import known_error
 
 from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
 from qa_tina_tools.tina.check_tools import check_volume
@@ -212,7 +213,7 @@ class Test_public_linux_instance(Test_linux_instance):
         device_name = '/dev/xvdc'
         # size = 128
         size = 32
-        BlockDevice = [{'DeviceName': device_name, 'VirtualName': 'ephemeral0'}]
+        BlockDevice = [{'DeviceName': device_name, 'VirtualName': 'ephemeral1'}]
         placement = None
         if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
             placement = {'AvailabilityZone': 'cn-southeast-1b'}
@@ -223,6 +224,32 @@ class Test_public_linux_instance(Test_linux_instance):
                                                                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 check_volume(sshclient, device_name, size, with_format=False)
         except OscApiException as error:
+            raise error
+        finally:
+            if inst_id:
+                delete_instances_old(self.a1_r1, [inst_id])
+
+    @pytest.mark.region_ephemeral
+    def test_T5131_create_instance_linux_ephemeral1(self):
+        inst_id = None
+        device_name = '/dev/xvdc'
+        # size = 128
+        size = 32
+        BlockDevice = [{'DeviceName': device_name, 'VirtualName': 'ephemeral1'}]
+        placement = None
+        if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
+            placement = {'AvailabilityZone': 'cn-southeast-1b'}
+        try:
+            inst_id, inst_public_ip = self.create_instance(Instance_Type='r3.large', BlockDeviceMapping=BlockDevice,
+                                                           placement=placement)
+            if inst_id:
+                sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                                                               username=self.a1_r1.config.region.get_info(
+                                                                   constants.CENTOS_USER))
+                check_volume(sshclient, device_name, size, with_format=False)
+                assert False, 'remove known error'
+        except OscApiException as error:
+            known_error('TINA-5905', 'ephemeral different than ephemeral0 bug')
             raise error
         finally:
             if inst_id:

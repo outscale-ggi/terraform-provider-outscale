@@ -6,6 +6,8 @@ import logging
 
 
 import ssl
+
+from qa_sdk_pub import osc_api
 from qa_test_tools.config import config_constants as constants
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
@@ -55,7 +57,7 @@ def wait_vm_ip_address(osc_sdk, vm_id, max_wait=60, sleep_duration=2):
     start = time.time()
     while time.time() - start < max_wait:
         ret = osc_sdk.oapi.ReadVms(Filters={'VmIds': [vm_id]}).response.Vms[0]
-        if ret.State not in ['stopped', 'terminated']:
+        if ret.State in ['stopped', 'terminated']:
             break
         if hasattr(ret, 'PublicIp') and ret.State not in ['pending', 'shutting-down']:
             ip_parts = ret.PublicIp.split('.')
@@ -73,7 +75,8 @@ def test_Create_Vm(osc_sdk, queue, args, shared_vm_ips, index):
     for num_call in range(args.num_call_per_process):
         try:
             vm_id = None
-            vm_id = osc_sdk.oapi.CreateVms(ImageId=osc_sdk.config.region.get_info(constants.CENTOS7), VmType='t2.nano', max_retry=0).response.Vms[0].VmId
+            vm_id = osc_sdk.oapi.CreateVms(ImageId=osc_sdk.config.region.get_info(constants.CENTOS7), VmType='t2.nano',
+                                           exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}).response.Vms[0].VmId
             num_created += 1
             try:
                 encoded_ip = wait_vm_ip_address(osc_sdk, vm_id)
