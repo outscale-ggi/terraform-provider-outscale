@@ -80,8 +80,4 @@ class Test_osu(OscTestSuite):
 
     def test_T4904_verify_display_name(self):
         res = self.a1_r1.osu.list_objects(Bucket=self.public_bucket_name)
-        # verify that display name is account id
-        if res['Contents'][0]['Owner']['DisplayName'] == self.a1_r1.config.account.account_id and res['Contents'][0]['Owner']['ID'] != self.a1_r1.config.account.account_id:
-            known_error('TINA-5800', 'Unexpected output for owner id')
-        assert False, 'Remove known error code'
-        assert res['Contents'][0]['Owner']['DisplayName'] == res['Contents'][0]['Owner']['ID'] == self.a1_r1.config.account.account_id
+        assert res['Contents'][0]['Owner']['DisplayName'] == self.a1_r1.config.account.account_id
