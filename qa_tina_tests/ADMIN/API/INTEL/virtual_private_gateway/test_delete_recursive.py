@@ -5,6 +5,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wa
 from _curses import error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
+from qa_tina_tools.tina.wait import wait_VpnConnections_state
 
 
 class Test_delete_recursive(OscTestSuite):
@@ -36,6 +37,7 @@ class Test_delete_recursive(OscTestSuite):
             wait_vpn_connections_state(self.a1_r1, [vpn_conn_id], state='available')
 
             self.a1_r1.intel.vpn.virtual_private_gateway.delete(owner=self.a1_r1.config.account.account_id, vpg_id=vgw_id, recursive=True)
+            wait_VpnConnections_state(self.a1_r1, [vpn_conn_id], state='deleted')
             vpn_conn_id = None
             vgw_id = None
         except Exception as error:
@@ -44,6 +46,7 @@ class Test_delete_recursive(OscTestSuite):
             if vpn_conn_id:
                 try:
                     self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_conn_id)
+                    wait_VpnConnections_state(self.a1_r1, [vpn_conn_id], 'deleted')
                 except:
                     pass
             if vgw_id:
@@ -63,12 +66,9 @@ class Test_delete_recursive(OscTestSuite):
                     self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)    
                 except:
                     pass
-            try:
-                resp = self.a1_r1.fcu.DescribeVpnConnections().response
-                assert False, 'Remove known error code'
-                assert not resp.vpnConnectionSet
-            except OscApiException as error:
-                assert_error(error, 500, 'InternalError', 'Internal Error')
-                known_error('TINA-5791', 'Unexpected internal error')
+            resp = self.a1_r1.fcu.DescribeVpnConnections().response
+            states = set([v.state for v in resp.vpnConnectionSet])
+            assert not resp.vpnConnectionSet or (len(states) == 1 and states.pop() == 'deleted')
             resp = self.a1_r1.fcu.DescribeVpnGateways().response
-            assert not resp.vpnGatewaySet
+            states = set([v.state for v in resp.vpnGatewaySet])
+            assert not resp.vpnGatewaySet or (len(states) == 1 and states.pop() == 'deleted')
