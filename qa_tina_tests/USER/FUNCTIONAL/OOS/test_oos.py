@@ -54,18 +54,18 @@ class Test_oos(OscTestSuite):
 
 
     @pytest.mark.tag_redwire
-    def test_T183_generated_url(self):
+    def test_T5132_generated_url(self):
         params = {'Bucket': self.bucket_name, 'Key': self.key_name}
         url = self.a1_r1.oos.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
         ret = requests.get(url=url, verify=self.a1_r1.config.region.get_info(constants.VALIDATE_CERTS))
         assert ret.status_code == 200
         assert ret.content.decode() == self.data
 
-    def test_T184_read_key_in_bucket(self):
+    def test_T5133_read_key_in_bucket(self):
         ret = self.a1_r1.oos.get_object(Bucket=self.bucket_name, Key=self.key_name)['Body']
         assert ret.read().decode() == self.data
 
-    def test_T4904_verify_display_name(self):
+    def test_T5134_verify_display_name(self):
         res = self.a1_r1.oos.list_objects(Bucket=self.public_bucket_name)
         # verify that display name is account id
         if res['Contents'][0]['Owner']['DisplayName'] == self.a1_r1.config.account.account_id and res['Contents'][0]['Owner']['ID'] != self.a1_r1.config.account.account_id:
