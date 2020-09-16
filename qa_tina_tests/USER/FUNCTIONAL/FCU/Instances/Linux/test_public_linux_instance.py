@@ -5,7 +5,7 @@ from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Tes
 from qa_tina_tools.tina.check_tools import check_volume
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old
 from qa_tina_tools.tina.info_keys import PATH
-from qa_common_tools.ssh import SshTools
+from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_test_tools.config.configuration import Configuration
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -248,8 +248,9 @@ class Test_public_linux_instance(Test_linux_instance):
                                                                    constants.CENTOS_USER))
                 check_volume(sshclient, device_name, size, with_format=False)
                 assert False, 'remove known error'
-        except OscApiException as error:
-            known_error('TINA-5905', 'ephemeral different than ephemeral0 bug')
+        except OscCommandError as error:
+            if error.msg.startswith('Could not execute command : sudo mount /dev/xvdc /mnt/volume_'):
+                known_error('TINA-5905', 'ephemeral different than ephemeral0 bug')
             raise error
         finally:
             if inst_id:
