@@ -39,8 +39,6 @@ class Test_LoadBalancer(OscTestSuite):
                 resp = create_load_balancer(self.a1_r1, name + str(i))
                 create_sucess += 1
             except OscApiException as error:
-                if error.error_code == 'InternalError' and error.status_code == 500:
-                    known_error('TINA-4742', 'Unexpected internal error')
                 create_errors += 1
             except OscException as error:
                 create_errors += 1
@@ -76,8 +74,6 @@ class Test_LoadBalancer(OscTestSuite):
                 create_sucess += 1
             except OscApiException as error:
                 self.a1_r1.oapi.ReadLoadBalancers(Filters={'LoadBalancerNames': [name]})
-                if error.error_code == 'InternalError' and error.status_code == 500:
-                    known_error('TINA-4742', 'Unexpected internal error')
                 create_errors += 1
             finally:
                 try:
