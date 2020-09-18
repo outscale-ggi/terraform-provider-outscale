@@ -184,6 +184,7 @@ class Test_ImportSnapshot(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: snapshotSize')
 
+    @pytest.mark.region_osu
     def test_T1050_with_valid_params(self):
         try:
             snap_id = None
