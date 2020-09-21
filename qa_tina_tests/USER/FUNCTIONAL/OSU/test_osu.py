@@ -65,7 +65,7 @@ class Test_osu(OscTestSuite):
         finally:
             super(Test_osu, cls).teardown_class()
 
-
+    @pytest.mark.region_osu
     @pytest.mark.tag_redwire
     def test_T183_generated_url(self):
         params = {'Bucket': self.bucket_name, 'Key': self.key_name}
