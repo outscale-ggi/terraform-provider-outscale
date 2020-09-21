@@ -12,7 +12,6 @@ from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_images_state
 
 
-@pytest.mark.region_synchro_osu
 @pytest.mark.region_osu
 class Test_export_import(OscTestSuite):
 
