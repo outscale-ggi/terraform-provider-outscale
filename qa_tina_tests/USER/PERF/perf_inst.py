@@ -93,8 +93,7 @@ def perf_inst_exec(oscsdk, logger, queue, args, os):
             wait_security_groups_state(oscsdk, [sg])
 
             logger.debug("Allow SSH in SG")
-            oscsdk.fcu.AuthorizeSecurityGroupIngress(GroupId=sg, FromPort='22', ToPort='22', IpProtocol='tcp',
-                                                     CidrIp=Configuration.get('cidr', 'allips'))
+            oscsdk.fcu.AuthorizeSecurityGroupIngress(GroupId=sg, FromPort='22', ToPort='22', IpProtocol='tcp', CidrIp=Configuration.get('cidr', 'allips'))
         except Exception as error:
             log_error(logger, error, "Unexpected error while creating security group", result)
 

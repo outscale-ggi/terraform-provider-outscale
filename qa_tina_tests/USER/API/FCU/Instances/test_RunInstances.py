@@ -135,9 +135,8 @@ private_only=true
 
     def test_T5029_with_the_same_token(self):
         token = str(uuid.uuid4())
-        ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
-                                          InstanceType='t2.nano', MaxCount=1, MinCount=1,
-                                          ClientToken=token)
+        ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7), InstanceType='t2.nano', MaxCount=1, MinCount=1,
+                                          ClientToken=token, NetworkInterface=[])
         ret1 = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
                                            InstanceType='t2.nano', MaxCount=1, MinCount=1,
                                            ClientToken=token)
