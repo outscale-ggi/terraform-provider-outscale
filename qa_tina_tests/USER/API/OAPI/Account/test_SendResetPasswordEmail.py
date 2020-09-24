@@ -40,10 +40,5 @@ class Test_SendResetPasswordEmail(OscTestSuite):
 
     def test_T4767_non_authenticated(self):
         email = self.a2_r1.oapi.ReadAccounts().response.Accounts[0].Email
-        try:
-            ret = self.a2_r1.oapi.SendResetPasswordEmail(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Email=email)
-            assert False, 'Remove known error'
-            check_oapi_response(ret.response, 'SendResetPasswordEmailResponse')
-        except OscApiException as error:
-            misc.assert_error(error, 401, '1', 'AccessDenied')
-            known_error('GTW-1419', 'Could not make call without authentication')
+        ret = self.a2_r1.oapi.SendResetPasswordEmail(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Email=email)
+        check_oapi_response(ret.response, 'SendResetPasswordEmailResponse')
