@@ -82,6 +82,4 @@ class Test_pin_unpin_instance(OscTestSuite):
             self.a1_r1.intel.instance.pin(vmid=self.inst_id, target="in2-ucs1-pr-kvm-13")
             assert False, 'Call should not been successful'
         except OscApiException as error:
-            assert_error(error, 200, 0, 'invalid-target - Target: in2-ucs1-pr-kvm-13, PZ: {target.cluster.pz_name}. Expected: {reqs["pz"]}')
-            known_error('TINA-5897', 'UnExpected error message after a intel.instance.pin call')
             assert_error(error, 200, 0, "invalid-target - Target: in2-ucs1-pr-kvm-13, PZ: in2b. Expected: in2")
