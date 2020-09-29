@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
 
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tests.USER.API.OAPI.Client_Gateway.ClientGateway import validate_client_gateway
+from qa_tina_tests.USER.API.OAPI.ClientGateway.ClientGateway import validate_client_gateway
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 
 

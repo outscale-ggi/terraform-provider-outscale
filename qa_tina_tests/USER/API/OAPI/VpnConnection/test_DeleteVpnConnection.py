@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tests.USER.API.OAPI.Vpn_Connection.VpnConnection import VpnConnection
+from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import VpnConnection
 from qa_test_tools.misc import assert_oapi_error
 
 
