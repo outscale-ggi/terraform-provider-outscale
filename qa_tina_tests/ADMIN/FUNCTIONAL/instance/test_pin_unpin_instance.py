@@ -82,8 +82,4 @@ class Test_pin_unpin_instance(OscTestSuite):
             self.a1_r1.intel.instance.pin(vmid=self.inst_id, target="in2-ucs1-pr-kvm-13")
             assert False, 'Call should not been successful'
         except OscApiException as error:
-<<<<<<< Upstream, based on origin/TINA-2.5.13
             assert_error(error, 200, 0, "invalid-target - Target: in2-ucs1-pr-kvm-13, PZ: in2b. Expected: in2")
-=======
-            assert_error(error, 200, 0, "invalid-target - Target: in2-ucs1-pr-kvm-13, PZ: in2b. Expected: in2")
->>>>>>> e696deb corrections
