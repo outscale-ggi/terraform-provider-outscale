@@ -2,7 +2,8 @@
 
 from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.config.configuration import Configuration
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state, wait_vpn_gateways_state, wait_customer_gateways_state
+from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state, wait_customer_gateways_state
+from qa_tina_tools.tina import wait
 
 
 def validate_vpn_connection(vpn, **kwargs):
@@ -68,13 +69,13 @@ class VpnConnection(OscTestSuite):
         try:
             if cls.vpn_id:
                 cls.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=cls.vpn_id)
-                wait_vpn_connections_state(cls.a1_r1, [cls.vpn_id], state='deleted', wait_time=5, threshold=60)
+                wait.wait_VpnConnections_state(cls.a1_r1, [cls.vpn_id], cleanup=True, state='deleted', wait_time=5, threshold=60)
         except Exception as err:
             error.append(err)
         try:
             if cls.vpn_id2:
                 cls.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=cls.vpn_id2)
-                wait_vpn_connections_state(cls.a1_r1, [cls.vpn_id2], state='deleted', wait_time=5, threshold=60)
+                wait.wait_VpnConnections_state(cls.a1_r1, [cls.vpn_id2], cleanup=True, state='deleted', wait_time=5, threshold=60)
         except Exception as err:
             error.append(err)
         try:

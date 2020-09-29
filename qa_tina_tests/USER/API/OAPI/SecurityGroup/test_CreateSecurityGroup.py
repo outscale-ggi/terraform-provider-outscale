@@ -50,3 +50,11 @@ class Test_CreateSecurityGroup(OscTestSuite):
         self.id = ret.response.SecurityGroup.SecurityGroupId
         check_oapi_response(ret.response, 'CreateSecurityGroupResponse')
         validate_sg(ret.response.SecurityGroup, expected_sg={'Description': 'test_desc', 'SecurityGroupName': 'test_name'})
+
+    def test_T5135_with_incorrect_type_name(self):
+        try:
+            ret = self.a1_r1.oapi.CreateSecurityGroup(Description="test_desc", SecurityGroupName=["test", "name"])
+            self.id = ret.response.SecurityGroupId
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')

@@ -42,11 +42,9 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
             alloc_info = self.a1_r1.directlink.AllocatePrivateVirtualInterface(
                 connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=newPrivateVirtualInterfaceAllocation,
                 ownerAccount=self.a1_r1.config.account.account_id)
-            # hack because in2 does not have a real direct link
-            if self.a1_r1.config.region.name != 'in-west-2':
-                ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=self.vgw_id,
-                                                                           virtualInterfaceId=alloc_info.response.virtualInterfaceId)
-                assert ret.response.virtualInterfaceState == 'pending'
+            ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=self.vgw_id,
+                                                                       virtualInterfaceId=alloc_info.response.virtualInterfaceId)
+            assert ret.response.virtualInterfaceState == 'pending'
         finally:
             if alloc_info:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=alloc_info.response.virtualInterfaceId)

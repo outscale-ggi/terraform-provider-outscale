@@ -61,10 +61,7 @@ class Test_Decrypt(Kms):
             self.a1_r1.kms.Decrypt(CiphertextBlob='11111111')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.status_code == 500 and error.message == 'Internal Error':
-                known_error('TINA-5353', 'KMS Decrypt with incorrect CiphertextBlob type')
-            assert False, 'Remove known error code'
-            assert_error(error, 400, '', '')
+            assert_error(error, 400, 'InvalidCiphertextException', 'Cryptographic operation failed in cipher operation')
 
     def test_T3613_with_encryption_context(self):
         ret = self.a1_r1.kms.Decrypt(CiphertextBlob=self.encrypt_data2.CiphertextBlob, EncryptionContext={'name': 'value'})

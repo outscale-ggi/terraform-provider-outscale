@@ -4,20 +4,19 @@ from datetime import datetime
 import re
 import time
 
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SECURITY_GROUP_ID, SUBNETS, KEY_PAIR, VPC_ID, PATH, INSTANCE_ID_LIST
 from qa_common_tools.ssh import SshTools, OscCommandError
-from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_gateways_attachment_state
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state
+from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_tina_tools.tina import wait
+from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 
 
 class Test_multi_vpn(OscTestSuite):
@@ -69,13 +68,13 @@ class Test_multi_vpn(OscTestSuite):
                 delete_vpc(self.a1_r1, self.vpc_info)
             if self.vgw_id:
                 self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=self.vgw_id)
-                wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='deleted')
+                wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='deleted')
             if self.cgw1_id:
                 self.a1_r1.fcu.DeleteCustomerGateway(CustomerGatewayId=self.cgw1_id)
-                wait_customer_gateways_state(self.a1_r1, [self.cgw1_id], state='deleted')
+                wait_tools.wait_customer_gateways_state(self.a1_r1, [self.cgw1_id], state='deleted')
             if self.cgw2_id:
                 self.a1_r1.fcu.DeleteCustomerGateway(CustomerGatewayId=self.cgw2_id)
-                wait_customer_gateways_state(self.a1_r1, [self.cgw2_id], state='deleted')
+                wait_tools.wait_customer_gateways_state(self.a1_r1, [self.cgw2_id], state='deleted')
             if self.inst_cgw1_info:
                 delete_instances(self.a1_r1, self.inst_cgw1_info)
             if self.inst_cgw2_info:
@@ -96,6 +95,7 @@ class Test_multi_vpn(OscTestSuite):
                                                  VpnGatewayId=self.vgw_id,
                                                  Options={'StaticRoutesOnly': static})
         vpn1_id = ret.response.vpnConnection.vpnConnectionId
+        wait_vpn_connections_state(self.a1_r1, [vpn1_id], state='available')
         vpn_cfg = ret.response.vpnConnection.customerGatewayConfiguration
         match = re.search('<vpn_gateway><tunnel_outside_address><ip_address>(.+?)</ip_address>', vpn_cfg)
         vgw1_ip = match.group(1)
@@ -107,6 +107,7 @@ class Test_multi_vpn(OscTestSuite):
                                                  VpnGatewayId=self.vgw_id,
                                                  Options={'StaticRoutesOnly': static})
         vpn2_id = ret.response.vpnConnection.vpnConnectionId
+        wait_vpn_connections_state(self.a1_r1, [vpn2_id], state='available')
         vpn_cfg = ret.response.vpnConnection.customerGatewayConfiguration
         match = re.search('<vpn_gateway><tunnel_outside_address><ip_address>(.+?)</ip_address>', vpn_cfg)
         vgw2_ip = match.group(1)
@@ -162,8 +163,8 @@ class Test_multi_vpn(OscTestSuite):
                                                      RouteTableId=rtb_id)
 
             # wait CGW state == ready before making configuration
-            wait_instances_state(self.a1_r1, [self.inst_cgw1_info[INSTANCE_ID_LIST][0]], state='ready')
-            wait_instances_state(self.a1_r1, [self.inst_cgw2_info[INSTANCE_ID_LIST][0]], state='ready')
+            wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw1_info[INSTANCE_ID_LIST][0]], state='ready')
+            wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw2_info[INSTANCE_ID_LIST][0]], state='ready')
 
             sshclient1 = SshTools.check_connection_paramiko(self.inst_cgw1_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw1_info[KEY_PAIR][PATH],
                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
@@ -176,7 +177,7 @@ class Test_multi_vpn(OscTestSuite):
                                    self.inst_cgw2_info, vgw2_ip, psk2_key, static, vpn2_id, index=1)
 
             # wait vpc instance state == ready before try to make ping
-            wait_instances_state(self.a1_r1,
+            wait_tools.wait_instances_state(self.a1_r1,
                                  [self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0]],
                                  state='ready')
 
@@ -236,10 +237,10 @@ class Test_multi_vpn(OscTestSuite):
             # delete VPN connection
             ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn1_id)
             ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn2_id)
-            wait_vpn_connections_state(self.a1_r1, [vpn1_id, vpn2_id], state='deleted')
+            wait.wait_VpnConnections_state(self.a1_r1, [vpn1_id, vpn2_id], state='deleted', cleanup=True)
 
             self.a1_r1.fcu.DetachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
-            wait_vpn_gateways_attachment_state(self.a1_r1, [self.vgw_id], 'detached')
+            wait_tools.wait_vpn_gateways_attachment_state(self.a1_r1, [self.vgw_id], 'detached')
 
     def test_T1948_test_vpn_static(self):
         self.exec_test_vpn(static=False, default_rtb=True)

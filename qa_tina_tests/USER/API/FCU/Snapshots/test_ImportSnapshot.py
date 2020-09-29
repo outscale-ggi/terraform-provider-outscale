@@ -7,7 +7,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state, wait_snapshot_export_tasks_state
 
 
-
+@pytest.mark.region_osu
 class Test_ImportSnapshot(OscTestSuite):
 
     @classmethod
@@ -184,6 +184,7 @@ class Test_ImportSnapshot(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: snapshotSize')
 
+    @pytest.mark.region_osu
     def test_T1050_with_valid_params(self):
         try:
             snap_id = None

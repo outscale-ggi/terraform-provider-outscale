@@ -22,7 +22,8 @@ from qa_sdks.osc_sdk import OscSdk
 
 LOGGING_LEVEL = logging.DEBUG
 
-PERF_TYPES = ['perf_snapshot', 'perf_describe', 'perf_volume', 'perf_sg', 'perf_inst', 'perf_inst_windows', 'perf_simple_snapshot']
+PERF_TYPES = ['perf_oos', 'perf_osu', 'perf_snapshot', 'perf_describe', 'perf_volume', 'perf_sg', 'perf_inst', 'perf_inst_windows',
+              'perf_simple_snapshot']
 
 if __name__ == '__main__':
 

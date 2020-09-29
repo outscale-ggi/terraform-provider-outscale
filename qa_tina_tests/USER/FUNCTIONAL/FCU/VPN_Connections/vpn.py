@@ -11,12 +11,11 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SECURITY_GROUP_ID, SUBNETS, KEY_PAIR, VPC_ID, PATH, INSTANCE_ID_LIST
 from qa_common_tools.ssh import SshTools, OscCommandError
-from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_gateways_attachment_state
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state
+from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
 from qa_test_tools.config import config_constants as constants
+from qa_tina_tools.tina import wait
+from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 
 
 class Vpn(OscTestSuite):
@@ -61,10 +60,10 @@ class Vpn(OscTestSuite):
             # delete all created ressources in setup
             if self.vgw_id:
                 self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=self.vgw_id)
-                wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='deleted')
+                wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='deleted')
             if self.cgw_id:
                 self.a1_r1.fcu.DeleteCustomerGateway(CustomerGatewayId=self.cgw_id)
-                wait_customer_gateways_state(self.a1_r1, [self.cgw_id], state='deleted')
+                wait_tools.wait_customer_gateways_state(self.a1_r1, [self.cgw_id], state='deleted')
             if self.vpc_info:
                 delete_vpc(self.a1_r1, self.vpc_info)
             if self.inst_cgw_info:
@@ -85,6 +84,7 @@ class Vpn(OscTestSuite):
                                                  VpnGatewayId=self.vgw_id,
                                                  Options={'StaticRoutesOnly': static})
         vpn_id = ret.response.vpnConnection.vpnConnectionId
+        wait_vpn_connections_state(self.a1_r1, [vpn_id], state='available')
         vpn_cfg = ret.response.vpnConnection.customerGatewayConfiguration
         match = re.search('<vpn_gateway><tunnel_outside_address><ip_address>(.+?)</ip_address>', vpn_cfg)
         vgw_ip = match.group(1)
@@ -123,7 +123,7 @@ class Vpn(OscTestSuite):
                                                      RouteTableId=rtb_id)
 
             # wait CGW state == ready before making configuration
-            wait_instances_state(self.a1_r1, [self.inst_cgw_info[INSTANCE_ID_LIST][0]], state='ready')
+            wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw_info[INSTANCE_ID_LIST][0]], state='ready')
 
             sshclient = SshTools.check_connection_paramiko(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
@@ -132,7 +132,7 @@ class Vpn(OscTestSuite):
                                    self.inst_cgw_info, vgw_ip, psk_key, static, vpn_id)
 
             # wait vpc instance state == ready before try to make ping
-            wait_instances_state(self.a1_r1,
+            wait_tools.wait_instances_state(self.a1_r1,
                                  [self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0]],
                                  state='ready')
 
@@ -175,7 +175,7 @@ class Vpn(OscTestSuite):
         finally:
             # delete VPN connection
             ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_id)
-            wait_vpn_connections_state(self.a1_r1, [vpn_id], state='deleted')
+            wait.wait_VpnConnections_state(self.a1_r1, [vpn_id], state='deleted', cleanup=True)
 
             self.a1_r1.fcu.DetachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
-            wait_vpn_gateways_attachment_state(self.a1_r1, [self.vgw_id], 'detached')
+            wait_tools.wait_vpn_gateways_attachment_state(self.a1_r1, [self.vgw_id], 'detached')

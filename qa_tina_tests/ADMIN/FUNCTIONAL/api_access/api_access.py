@@ -7,12 +7,12 @@ from qa_test_tools.config import OscConfig
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_tina_tools.tools.tina import create_tools
 from qa_test_tools.config import config_constants
-import os
 from enum import Enum
 from qa_tina_tools.tools.as_.wait_tools import wait_task_state
 from qa_sdk_pub import osc_api
 from qa_test_tools import misc
 import string
+import os
 
 
 # other solution, embed call characteristics in calls, expected result can be computed, instead of being 
@@ -66,7 +66,6 @@ KNOWN = 3
 
 CLIENT_CERT_CN1 = 'client.qa1'
 CLIENT_CERT_CN2 = 'client.qa2'
-# TMP_FILE_LOCATIONS = ['ca1files', 'ca2files', 'ca3files', 'certfiles_ca1cn1', 'certfiles_ca2cn1', 'certfiles_ca1cn2', 'certfiles_ca3cn1']
 DEFAULT_ACCESS_RULE = {IP_COND: ['0.0.0.0/0'], DESC: 'default_api_access_rule'}
 IP_DESC = 'default_ip_access_rule'
 
@@ -156,6 +155,7 @@ class Api_Access(OscTestSuite):
     def setup_class(cls):
         super(Api_Access, cls).setup_class()
         cls.account_pid = None
+        cls.tmp_file_paths = []
         try:
             # create certificates
 #             for path in TMP_FILE_LOCATIONS:
@@ -164,28 +164,35 @@ class Api_Access(OscTestSuite):
 #                 os.mkdir(path)
             
             cls.ca1files = create_tools.create_caCertificate_file(root='.', cakey='ca1.key', cacrt='ca1.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
+            cls.tmp_file_paths.extend(cls.ca1files)
             cls.ca2files = create_tools.create_caCertificate_file(root='.', cakey='ca2.key', cacrt='ca2.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale2.com"')
+            cls.tmp_file_paths.extend(cls.ca2files)
             cls.ca3files = create_tools.create_caCertificate_file(root='.', cakey='ca3.key', cacrt='ca3.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale3.com"')
+            cls.tmp_file_paths.extend(cls.ca3files)
 
             cls.certfiles_ca1cn1 = create_tools.create_clientCertificate_files(
                 cls.ca1files[0], cls.ca1files[1],
                 root='.', clientkey = 'ca1cn1.key', clientcsr='ca1cn1.csr', clientcrt='ca1cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
+            cls.tmp_file_paths.extend(cls.certfiles_ca1cn1)
 
             cls.certfiles_ca2cn1 = create_tools.create_clientCertificate_files(
                 cls.ca2files[0], cls.ca2files[1],
                 root='.', clientkey = 'ca2cn1.key', clientcsr='ca2cn1.csr', clientcrt='ca2cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
+            cls.tmp_file_paths.extend(cls.certfiles_ca2cn1)
 
             cls.certfiles_ca1cn2 = create_tools.create_clientCertificate_files(
                 cls.ca1files[0], cls.ca1files[1],
                 root='.', clientkey = 'ca1cn2.key', clientcsr='ca1cn2.csr', clientcrt='ca1cn2.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN2))
+            cls.tmp_file_paths.extend(cls.certfiles_ca1cn2)
 
             cls.certfiles_ca3cn1 = create_tools.create_clientCertificate_files(
                 cls.ca3files[0], cls.ca3files[1],
                 root='.', clientkey = 'ca3cn1.key', clientcsr='ca3cn1.csr', clientcrt='ca3cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
+            cls.tmp_file_paths.extend(cls.certfiles_ca3cn1)
 
             email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='api_access').lower())
             password = misc.id_generator(size=20, chars=string.digits+string.ascii_letters)
@@ -253,9 +260,11 @@ class Api_Access(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
-#             for path in TMP_FILE_LOCATIONS:
-#                 os.system("rm -rf {}".format(path))
-# TODO delete files
+            for tmp_file_path in cls.tmp_file_paths:
+                try:
+                    os.remove(tmp_file_path)
+                except:
+                    pass
             if cls.account_pid:
                 delete_account(cls.a1_r1, cls.account_pid)
         finally:

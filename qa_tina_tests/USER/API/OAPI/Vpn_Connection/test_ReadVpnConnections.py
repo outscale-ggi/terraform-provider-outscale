@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 # -*- coding:utf-8 -*-
 from qa_test_tools.misc import assert_oapi_error
+from qa_test_tools.test_base import known_error
 from qa_tina_tests.USER.API.OAPI.Vpn_Connection.VpnConnection import \
     VpnConnection, validate_vpn_connection
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -36,8 +37,10 @@ class Test_ReadVpnConnections(VpnConnection):
                     StaticRoutesOnly=False).response.VpnConnection.VpnConnectionId)
 
             cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[0:1], Tags=[{'Key': 'vpn_key', 'Value': 'vpn_value'}])
-            cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[1:2], Tags=[{'Key': 'vpn_key1', 'Value': 'vpn_value'}])
-            cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[2:3], Tags=[{'Key': 'vpn_key', 'Value': 'vpn_value1'}])
+            if NUM_VPN_CONN > 1:
+                cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[1:2], Tags=[{'Key': 'vpn_key1', 'Value': 'vpn_value'}])
+            if NUM_VPN_CONN > 2:
+                cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[2:3], Tags=[{'Key': 'vpn_key', 'Value': 'vpn_value1'}])
 
         except:
             try:
@@ -69,7 +72,7 @@ class Test_ReadVpnConnections(VpnConnection):
     def test_T3363_empty_filters(self):
         ret = self.a1_r1.oapi.ReadVpnConnections()
         assert len(ret.response.VpnConnections) == 2 + NUM_VPN_CONN
-        check_oapi_response(ret.response, "ReadVpnConnectionsReponse")
+        check_oapi_response(ret.response, "ReadVpnConnectionsResponse")
 
     def test_T3364_filters_bgp_asns(self):
         assert len(self.a1_r1.oapi.ReadVpnConnections(Filters={'BgpAsns': [self.bgp_asn]}).response.VpnConnections) == 1
@@ -131,6 +134,34 @@ class Test_ReadVpnConnections(VpnConnection):
         assert len(ret) > 0
         for vpn in ret:
             validate_vpn_connection(vpn, routes=[{'DestinationIpRange': '172.13.1.4/24', 'State': 'available'}])
+
+    def test_T5137_filters_route_destination_ip_ranges_invalid_type(self):
+        try:
+            self.a1_r1.oapi.ReadVpnConnections(
+            Filters={'RouteDestinationIpRanges': False}).response.VpnConnections
+            assert False, 'Call should fail'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
+    def test_T5138_filters_route_destination_ip_ranges_invalid_value(self):
+        try:
+            self.a1_r1.oapi.ReadVpnConnections(
+                Filters={'RouteDestinationIpRanges': ['foo']}).response.VpnConnections
+            assert False
+        except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', '2000')
+            known_error('GTW-1346', 'Incorrect error message')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
+    def test_T5139_filters_route_destination_ip_ranges_invalid_range(self):
+        try:
+            self.a1_r1.oapi.ReadVpnConnections(
+                Filters={'RouteDestinationIpRanges': ['10.0.0.0/']}).response.VpnConnections
+            assert False
+        except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', '2000')
+            known_error('GTW-1346', 'Incorrect error message')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T3581_filters_virtual_gateway_ids_id1(self):
         ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'VirtualGatewayIds': [self.vg_id]}).response.VpnConnections

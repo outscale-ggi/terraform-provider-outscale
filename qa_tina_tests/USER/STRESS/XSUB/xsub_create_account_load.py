@@ -90,9 +90,9 @@ if __name__ == '__main__':
     args_p.add_argument('-a', '--account', dest='account', action='store',
                         required=True, type=str, help='Set account used for the test')
     args_p.add_argument('-np', '--proc_num', dest='process_number', action='store',
-                        required=False, type=int, default=1, help='number of processes, default 10')
+                        required=False, type=int, default=10, help='number of processes, default 10')
     args_p.add_argument('-nc', '--num_create', dest='num_create_per_process', action='store',
-                        required=False, type=int, default=1, help='number of read calls per process, default 500')
+                        required=False, type=int, default=500, help='number of read calls per process, default 500')
     args = args_p.parse_args()
 
     logger.info("Initialize environment")
