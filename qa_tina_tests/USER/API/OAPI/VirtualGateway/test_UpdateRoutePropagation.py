@@ -5,7 +5,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, VPC_ID
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state
-from qa_tina_tests.USER.API.OAPI.Route_Table.RouteTable import validate_route_table
+from qa_tina_tests.USER.API.OAPI.RouteTable.RouteTable import validate_route_table
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 

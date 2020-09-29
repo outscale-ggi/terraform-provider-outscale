@@ -2,12 +2,10 @@
 # -*- coding:utf-8 -*-
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import known_error
-from qa_tina_tests.USER.API.OAPI.Vpn_Connection.VpnConnection import \
-    VpnConnection, validate_vpn_connection
+from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import VpnConnection, validate_vpn_connection
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.specs.check_tools import check_oapi_response
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state, wait_vpn_gateways_state, \
-    wait_customer_gateways_state
+from qa_tina_tools.tools.tina import wait_tools
 
 NUM_VPN_CONN = 3
 
@@ -55,15 +53,15 @@ class Test_ReadVpnConnections(VpnConnection):
             if cls.vpn_ids:
                 for vpn_id in cls.vpn_ids:
                     cls.a1_r1.oapi.DeleteVpnConnection(VpnConnectionId=vpn_id)
-                    wait_vpn_connections_state(cls.a1_r1, [vpn_id], state='deleted', wait_time=5, threshold=60)
+                    wait_tools.wait_vpn_connections_state(cls.a1_r1, [vpn_id], state='deleted', wait_time=5, threshold=60)
             if cls.cgw_ids:
                 for cgw_id in cls.cgw_ids:
                     cls.a1_r1.oapi.DeleteClientGateway(ClientGatewayId=cgw_id)
-                    wait_customer_gateways_state(cls.a1_r1, [cgw_id], state='deleted')
+                    wait_tools.wait_customer_gateways_state(cls.a1_r1, [cgw_id], state='deleted')
             if cls.vgw_ids:
                 for vgw_id in cls.vgw_ids:
                     cls.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=vgw_id)
-                    wait_vpn_gateways_state(cls.a1_r1, [vgw_id], state='deleted')
+                    wait_tools.wait_vpn_gateways_state(cls.a1_r1, [vgw_id], state='deleted')
 
                 # wait_vpn_connections_state(cls.a1_r1, cls.vpn_ids, state='deleted', wait_time=5, threshold=60)
         finally:
