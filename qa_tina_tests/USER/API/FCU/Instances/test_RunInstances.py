@@ -135,11 +135,10 @@ private_only=true
 
     def test_T5029_with_the_same_token(self):
         token = str(uuid.uuid4())
-        ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7), InstanceType='t2.nano', MaxCount=1, MinCount=1,
-                                          ClientToken=token, NetworkInterface=[])
+        ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+                                          InstanceType='t2.nano', MaxCount=1, MinCount=1, ClientToken=token)
         ret1 = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
-                                           InstanceType='t2.nano', MaxCount=1, MinCount=1,
-                                           ClientToken=token)
+                                           InstanceType='t2.nano', MaxCount=1, MinCount=1, ClientToken=token)
 
         responses_describe = self.a1_r1.fcu.DescribeInstances(InstanceId=[ret.response.instancesSet[0].instanceId, ret1.response.instancesSet[0].instanceId])
         assert len(responses_describe.response.reservationSet) == 1
