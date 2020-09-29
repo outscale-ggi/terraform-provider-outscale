@@ -89,10 +89,5 @@ class Test_CreateAccessKey(OscTestSuite):
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=key_id)
 
     def test_T5060_with_DryRun(self):
-        try:
-            ret_create = self.a1_r1.oapi.CreateAccessKey(DryRun=True)
-            assert_dry_run(ret_create)
-        except OscApiException as err:
-            if err.status_code == 400 and err.error_code == '3000':
-                known_error('GTW-1381', 'Incorrect result when calling CreateAccessKey with DryRun')
-            assert False, 'Remove known error'
+        ret_create = self.a1_r1.oapi.CreateAccessKey(DryRun=True)
+        assert_dry_run(ret_create)
