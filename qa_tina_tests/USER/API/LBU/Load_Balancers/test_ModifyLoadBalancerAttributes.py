@@ -1,10 +1,12 @@
 # pylint: disable=missing-docstring
 
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+import pytest
+from string import ascii_lowercase
 
 
 class Test_ModifyLoadBalancerAttributes(OscTestSuite):
@@ -63,6 +65,27 @@ class Test_ModifyLoadBalancerAttributes(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'ValidationError', 'The request must contain the parameter LoadBalancerAttributes')
+
+    @pytest.mark.region_osu
+    def test_T5136_valid_access_log(self):
+        ret_create_bucket = None
+        bucket_name = id_generator(prefix="bucket", chars=ascii_lowercase)
+        try:
+            ret_create_bucket = self.a1_r1.osu.create_bucket(Bucket=bucket_name)
+            
+            access_log = {'S3BucketName': 'test', 'S3BucketPrefix': 'prefix', 'EmitInterval': 5, 'Enabled': True}
+            self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerAttributes={'AccessLog': access_log}, LoadBalancerName=self.lb_name)
+            ret = self.a1_r1.lbu.DescribeLoadBalancerAttributes(LoadBalancerName=self.lb_name)
+            assert ret.response.DescribeLoadBalancerAttributesResult.LoadBalancerAttributes.AccessLog.Enabled == 'true'
+            assert ret.response.DescribeLoadBalancerAttributesResult.LoadBalancerAttributes.AccessLog.S3BucketName == 'test'
+            assert ret.response.DescribeLoadBalancerAttributesResult.LoadBalancerAttributes.AccessLog.S3BucketPrefix == 'prefix'
+            assert ret.response.DescribeLoadBalancerAttributesResult.LoadBalancerAttributes.AccessLog.EmitInterval == '5'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidConfigurationRequest', 'Bucket is unavailable for access log')
+            known_error('TINA-5939', 'Cannot change access log with bucket')
+        finally:
+            if ret_create_bucket:
+                self.a1_r1.osu.delete_bucket(Bucket=bucket_name)
 
     #def test_T0003_with_access_log(self):
     #    self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerName=self.lb_name,

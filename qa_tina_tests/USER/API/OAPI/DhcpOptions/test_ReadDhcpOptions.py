@@ -5,6 +5,7 @@ from qa_test_tools.test_base import OscTestSuite, get_export_value
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
 from qa_tina_tests.USER.API.OAPI.DhcpOptions.DhcpOptions import validate_dhcp_options
 from qa_test_tools.misc import assert_dry_run
+from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_ReadDhcpOptions(OscTestSuite):
@@ -52,7 +53,9 @@ class Test_ReadDhcpOptions(OscTestSuite):
             super(Test_ReadDhcpOptions, cls).teardown_class()
 
     def test_T2882_no_param(self):
-        ret = self.a1_r1.oapi.ReadDhcpOptions().response.DhcpOptionsSets
+        ret = self.a1_r1.oapi.ReadDhcpOptions().response
+        check_oapi_response(ret, 'ReadDhcpOptionsResponse')
+        ret = ret.DhcpOptionsSets
         # 4 DHCP options created and 1 per defaut
         assert len(ret) >= 4, ' The amount of DHCP options displayed, does not match the amount expected'
         for dhcp in ret:
