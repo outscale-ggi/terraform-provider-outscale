@@ -71,7 +71,7 @@ class Vpn(OscTestSuite):
         finally:
             super(Vpn, self).teardown_method(method)
 
-    def exec_test_vpn(self, static, default_rtb=True):
+    def exec_test_vpn(self, static, racoon, default_rtb=True):
 
         # initialize a VPC with 1 subnet, 1 instance and an igw
         self.vpc_info = create_vpc(osc_sdk=self.a1_r1, nb_instance=1, default_rtb=default_rtb)
@@ -129,7 +129,7 @@ class Vpn(OscTestSuite):
                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             setup_customer_gateway(self.a1_r1, sshclient, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
-                                   self.inst_cgw_info, vgw_ip, psk_key, static, vpn_id)
+                                   self.inst_cgw_info, vgw_ip, psk_key, static, vpn_id,racoon, 0, self.vgw_id)
 
             # wait vpc instance state == ready before try to make ping
             wait_tools.wait_instances_state(self.a1_r1,
