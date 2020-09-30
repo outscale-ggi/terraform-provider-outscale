@@ -6,6 +6,8 @@ from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, 
 import pytest
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
 from qa_test_tools.test_base import known_error
+from qa_tina_tools.tools.tina.create_tools import create_vpc
+from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 
 
 class Test_CreateLoadBalancer(LoadBalancer):
@@ -387,6 +389,31 @@ class Test_CreateLoadBalancer(LoadBalancer):
             name=name,
         )
 
+    def test_T5145_without_igw(self):
+        new_vpc = None
+        try:
+            name = id_generator(prefix='lbu-')
+            new_vpc = create_vpc(self.a1_r1, az=self.a1_r1.config.region.az_name, igw=False)
+            ret = self.a1_r1.oapi.CreateLoadBalancer(
+                Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                LoadBalancerName=name, LoadBalancerType='internet-facing', SecurityGroups=[self.sg_id],
+                Subnets=[new_vpc['subnets'][0]['subnet_id']]
+            ).response.LoadBalancer
+            self.logger.debug(ret.display())
+            self.lb_names.append(name)
+            validate_load_balancer_global_form(
+                ret,
+                lb_type='internet-facing',
+                name=name,
+            )
+        except OscApiException as error:
+            if error.status_code == 500 and error.message == "InternalError":
+                known_error("GTW-1440", "Internal error when creating an 'internet-facing' load balancer in a subnet without IGW")
+            assert False, "Remove known error"
+        finally:
+            if new_vpc:
+                delete_vpc(self.a1_r1, new_vpc)
+
     def test_T2594_with_all_param_valid(self):
         name = id_generator(prefix='lbu-')
         ret = self.a1_r1.oapi.CreateLoadBalancer(
@@ -540,7 +567,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             assert_oapi_error(error, 400, '', '')
 
     def test_T4738_multi_lbu_same_name_diff_users(self):
-        ret_create_lbu1 = None 
+        ret_create_lbu1 = None
         ret_create_lbu2 = None
         name = id_generator(prefix='lbu-')
         try:
@@ -552,8 +579,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             ret_create_lbu2 = self.a1_r1.oapi.CreateLoadBalancer(
                 Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
                            {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
-                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name],
-        )
+                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name],)
         finally:
             if ret_create_lbu1:
                 try:
