@@ -5,6 +5,7 @@ import pytest
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 
 
+@pytest.mark.region_osu
 class Test_CreateSnapshotExportTask(Snapshot):
 
     @classmethod
