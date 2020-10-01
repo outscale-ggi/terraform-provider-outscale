@@ -9,7 +9,11 @@ from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina import info_keys
 from qa_test_tools.config.region import Feature
+import time
 
+
+RETRY = 5
+TIMEOUT = 5
 
 class Test_NAT_gateway(OscTestSuite):
     """
@@ -222,14 +226,21 @@ class Test_NAT_gateway(OscTestSuite):
                                                                         username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                                         retry=4, timeout=10)
 
+            target_ips = None
             if Feature.INTERNET in self.a1_r1.config.region.get_info(constants.FEATURES):
-                target_ip = Configuration.get('ipaddress', 'dns_google')
+                target_ips = Configuration.get('ipaddress', 'dns_addresses').split(',')
             else:
-                target_ip = '.'.join(self.eip2.response.publicIp.split('.')[:-1]) + '.254'
-            cmd = "sudo ping " + target_ip + " -c 1"
-            out, status, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, cmd)
-            self.logger.info(out)
-            assert not status, "Subnet that is connected to the NAT gateway {} seems not to be connected to the internet".format(nwg_id)
+                target_ips = ['.'.join(self.eip2.response.publicIp.split('.')[:-1]) + '.254']
+            success = False
+            for _ in range(RETRY):
+                for target_ip in target_ips:
+                    out, status, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, "sudo ping {} -c 1".format(target_ip), retry=0)
+                    self.logger.info(out)
+                    if not status:
+                        success = True
+                        break
+                    time.sleep(TIMEOUT)
+            assert success, "Subnet that is connected to the NAT gateway {} seems not to be connected to the internet".format(nwg_id)
 
         finally:
             if nwg_id:
