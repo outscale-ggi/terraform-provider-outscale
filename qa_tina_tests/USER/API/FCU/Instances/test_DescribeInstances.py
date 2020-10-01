@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -58,3 +58,13 @@ class Test_DescribeInstances(OscTestSuite):
     def test_T3273_with_other_account_with_filter(self):
         ret = self.a2_r1.fcu.DescribeInstances(Filter=[{'Name': 'instance-id', 'Value': [self.instance_info_a1[INSTANCE_ID_LIST][0]]}])
         assert not ret.response.reservationSet
+
+    def test_T5146_with_existing_and_not_existing_instances(self):
+        try:
+            ret = self.a1_r1.fcu.DescribeInstances(InstanceId=[self.instance_info_a1[INSTANCE_ID_LIST][0], 'i-1b5240d7']).response
+            assert len(ret.reservationSet) == 1
+        except OscApiException as error:
+            if 'Internal Error' in error.message:
+                known_error('TINA-5701',
+                            "internal error message when calling DescribeInstances with a combination of existing/non-existing ids")
+            assert False, 'Remove known error code'
