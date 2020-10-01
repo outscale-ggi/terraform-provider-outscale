@@ -9,4 +9,7 @@ class Test_vpn_static(Vpn):
 
     @pytest.mark.tag_redwire
     def test_T125_test_vpn_static(self):
-        self.exec_test_vpn(static=True, default_rtb=True)
+        self.exec_test_vpn(static=True, racoon=True, default_rtb=True)
+
+    def test_T5140_test_vpn_static_strongswan(self):
+        self.exec_test_vpn(static=True, racoon=False, default_rtb=True)

@@ -61,6 +61,9 @@ def validate_load_balancer_global_form(lb, **kwargs):
         for k, v in hc.items():
             assert getattr(lb.HealthCheck, k) == v, ('In HealthCheck, {} is different of expected value {} for key {}'
                                                      .format(getattr(lb.HealthCheck, k), v, k))
+        for attr in lb.HealthCheck.__dict__:
+            if not attr.startswith('_'):
+                assert attr in hc, 'In HealthCheck, {} has not been validated'.format(attr)
     assert hasattr(lb, 'Listeners')
     lsts = kwargs.get('lst', [])
     for lst in lsts:

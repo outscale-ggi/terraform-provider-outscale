@@ -1,12 +1,11 @@
 # -*- coding:utf-8 -*-
 # -*- coding:utf-8 -*-
 from qa_test_tools.misc import assert_oapi_error
-from qa_tina_tests.USER.API.OAPI.Vpn_Connection.VpnConnection import \
-    VpnConnection, validate_vpn_connection
+from qa_test_tools.test_base import known_error
+from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import VpnConnection, validate_vpn_connection
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.specs.check_tools import check_oapi_response
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state, wait_vpn_gateways_state, \
-    wait_customer_gateways_state
+from qa_tina_tools.tools.tina import wait_tools
 
 NUM_VPN_CONN = 3
 
@@ -54,15 +53,15 @@ class Test_ReadVpnConnections(VpnConnection):
             if cls.vpn_ids:
                 for vpn_id in cls.vpn_ids:
                     cls.a1_r1.oapi.DeleteVpnConnection(VpnConnectionId=vpn_id)
-                    wait_vpn_connections_state(cls.a1_r1, [vpn_id], state='deleted', wait_time=5, threshold=60)
+                    wait_tools.wait_vpn_connections_state(cls.a1_r1, [vpn_id], state='deleted', wait_time=5, threshold=60)
             if cls.cgw_ids:
                 for cgw_id in cls.cgw_ids:
                     cls.a1_r1.oapi.DeleteClientGateway(ClientGatewayId=cgw_id)
-                    wait_customer_gateways_state(cls.a1_r1, [cgw_id], state='deleted')
+                    wait_tools.wait_customer_gateways_state(cls.a1_r1, [cgw_id], state='deleted')
             if cls.vgw_ids:
                 for vgw_id in cls.vgw_ids:
                     cls.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=vgw_id)
-                    wait_vpn_gateways_state(cls.a1_r1, [vgw_id], state='deleted')
+                    wait_tools.wait_vpn_gateways_state(cls.a1_r1, [vgw_id], state='deleted')
 
                 # wait_vpn_connections_state(cls.a1_r1, cls.vpn_ids, state='deleted', wait_time=5, threshold=60)
         finally:
@@ -133,6 +132,34 @@ class Test_ReadVpnConnections(VpnConnection):
         assert len(ret) > 0
         for vpn in ret:
             validate_vpn_connection(vpn, routes=[{'DestinationIpRange': '172.13.1.4/24', 'State': 'available'}])
+
+    def test_T5137_filters_route_destination_ip_ranges_invalid_type(self):
+        try:
+            self.a1_r1.oapi.ReadVpnConnections(
+            Filters={'RouteDestinationIpRanges': False}).response.VpnConnections
+            assert False, 'Call should fail'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
+    def test_T5138_filters_route_destination_ip_ranges_invalid_value(self):
+        try:
+            self.a1_r1.oapi.ReadVpnConnections(
+                Filters={'RouteDestinationIpRanges': ['foo']}).response.VpnConnections
+            assert False
+        except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', '2000')
+            known_error('GTW-1346', 'Incorrect error message')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
+    def test_T5139_filters_route_destination_ip_ranges_invalid_range(self):
+        try:
+            self.a1_r1.oapi.ReadVpnConnections(
+                Filters={'RouteDestinationIpRanges': ['10.0.0.0/']}).response.VpnConnections
+            assert False
+        except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', '2000')
+            known_error('GTW-1346', 'Incorrect error message')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T3581_filters_virtual_gateway_ids_id1(self):
         ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'VirtualGatewayIds': [self.vg_id]}).response.VpnConnections

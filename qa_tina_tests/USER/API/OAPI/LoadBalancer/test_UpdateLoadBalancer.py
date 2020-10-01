@@ -342,6 +342,20 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                                                  HealthCheck={
                                                      'CheckInterval': 15,
                                                      'HealthyThreshold': 7,
+                                                     'Port': 80,
+                                                     'Protocol': 'HTTPS',
+                                                     'Timeout': 15,
+                                                     'UnhealthyThreshold': 3,
+                                                 }).response.LoadBalancer
+        validate_load_balancer_global_form(
+            ret,
+            hc={'CheckInterval': 15, 'HealthyThreshold': 7, 'Port': 80, 'Protocol': 'HTTPS',
+                'Timeout': 15, 'UnhealthyThreshold': 3, 'Path': '/'}
+        )
+        ret = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name,
+                                                 HealthCheck={
+                                                     'CheckInterval': 15,
+                                                     'HealthyThreshold': 7,
                                                      'Path': '/',
                                                      'Port': 80,
                                                      'Protocol': 'HTTPS',
