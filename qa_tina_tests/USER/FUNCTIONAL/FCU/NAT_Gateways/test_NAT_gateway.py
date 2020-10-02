@@ -5,7 +5,7 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_keypair, delete_subnet
-from qa_common_tools.ssh import SshTools
+from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina import info_keys
 from qa_test_tools.config.region import Feature
@@ -13,7 +13,7 @@ import time
 
 
 RETRY = 5
-TIMEOUT = 5
+TIMEOUT = 2
 
 class Test_NAT_gateway(OscTestSuite):
     """
@@ -234,12 +234,17 @@ class Test_NAT_gateway(OscTestSuite):
             success = False
             for _ in range(RETRY):
                 for target_ip in target_ips:
-                    out, status, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, "sudo ping {} -c 1".format(target_ip), retry=0)
-                    self.logger.info(out)
-                    if not status:
-                        success = True
-                        break
-                    time.sleep(TIMEOUT)
+                    try:
+                        out, status, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, "sudo ping {} -c 1".format(target_ip), retry=0)
+                        self.logger.info(out)
+                        if not status:
+                            success = True
+                            break
+                    except OscCommandError:
+                        pass
+                if success:
+                    break
+                time.sleep(TIMEOUT)
             assert success, "Subnet that is connected to the NAT gateway {} seems not to be connected to the internet".format(nwg_id)
 
         finally:
