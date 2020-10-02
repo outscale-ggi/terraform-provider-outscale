@@ -13,7 +13,7 @@ import time
 
 
 RETRY = 5
-TIMEOUT = 5
+TIMEOUT = 2
 
 class Test_NAT_gateway(OscTestSuite):
     """
@@ -239,7 +239,9 @@ class Test_NAT_gateway(OscTestSuite):
                     if not status:
                         success = True
                         break
-                    time.sleep(TIMEOUT)
+                if success:
+                    break
+                time.sleep(TIMEOUT)
             assert success, "Subnet that is connected to the NAT gateway {} seems not to be connected to the internet".format(nwg_id)
 
         finally:
