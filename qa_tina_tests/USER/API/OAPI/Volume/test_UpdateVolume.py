@@ -27,10 +27,10 @@ class Test_UpdateVolume(OscTestSuite):
         try:
             self.vol = self.a1_r1.oapi.CreateVolume(VolumeType='standard', Size=2,
                                                     SubregionName=self.azs[0]).response.Volume
-        except:
+        except Exception:
             try:
                 self.teardown_class()
-            except:
+            except Exception:
                 pass
             raise
 
