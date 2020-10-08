@@ -3,6 +3,8 @@ import pytest
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
+
 
 def compare_validate_volumes(before_volume, after_volume, **kwargs):
     for kwarg in kwargs:
@@ -27,6 +29,7 @@ class Test_UpdateVolume(OscTestSuite):
         try:
             self.vol = self.a1_r1.oapi.CreateVolume(VolumeType='standard', Size=2,
                                                     SubregionName=self.azs[0]).response.Volume
+            wait_volumes_state(self.a1_r1, self.vol.VolumeId, state='available')
         except:
             try:
                 self.teardown_class()
@@ -47,6 +50,10 @@ class Test_UpdateVolume(OscTestSuite):
 
     def test_TXXX_valid_params_dry_run(self):
         resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5, DryRun=True)
+        assert_dry_run(resp)
+
+    def test_TXXX_dry_run_false(self):
+        resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5, DryRun=False)
         assert_dry_run(resp)
 
     def test_TXXX_without_params(self):
@@ -98,7 +105,7 @@ class Test_UpdateVolume(OscTestSuite):
     @pytest.mark.tag_sec_confidentiality
     def test_TXXX_from_another_account(self):
         try:
-            resp = self.a2_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5).response.Volume
-            assert len(resp) == 0
-        except:
-            pass
+            self.a2_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidResource', '5064')
