@@ -1,8 +1,9 @@
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import assert_oapi_error, assert_dry_run, assert_error
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 
@@ -46,6 +47,7 @@ class Test_UpdateVolume(OscTestSuite):
 
     def test_T5232_valid_params(self):
         resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5).response
+        check_oapi_response(resp.response, 'UpdateVolumeResponse')
         compare_validate_volumes(self.vol, resp.Volume, Size=5)
 
     def test_T5233_without_params(self):
@@ -59,20 +61,37 @@ class Test_UpdateVolume(OscTestSuite):
         resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5, DryRun=True)
         assert_dry_run(resp)
 
-    def test_T5235_with_dry_run_false(self):
-        resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5, DryRun=False)
-        assert_dry_run(resp)
-
-    def test_T5236_without_size_volume(self):
-        resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId).response.Volume
-        compare_validate_volumes(self.vol, resp.Volume)
-
     def test_T5237_without_volume_id(self):
         try:
             self.a1_r1.oapi.UpdateVolume(Size=5)
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
+
+    def test_T5235_with_unknown_volume_id(self):
+        try:
+            self.a1_r1.oapi.UpdateVolume(VolumeId='vol-12345678', Size=5)
+            assert False
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidVolume.NotFound', "The volume 'vol-12345678' does not exist.")
+
+    def test_T5240_with_invalid_volume_id_type(self):
+        try:
+            self.a1_r1.oapi.UpdateVolume(VolumeId=[self.vol.VolumeId], Size=5)
+            assert False
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
+    def test_T5239_with_invalid_vol_id(self):
+        try:
+            self.a1_r1.oapi.UpdateVolume(VolumeId='foo', Size=5)
+            assert False
+        except OscApiException as error:
+            assert_error(error, 400, '4120', 'InvalidParameterValue')
+
+    def test_T5236_without_size_volume(self):
+        resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId).response.Volume
+        compare_validate_volumes(self.vol, resp.Volume)
 
     def test_T5238_with_invalid_size(self):
         try:
@@ -81,21 +100,28 @@ class Test_UpdateVolume(OscTestSuite):
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
-    def test_T5239_with_invalid_vol_id(self):
+    def test_T5243_with_invalid_size_type(self):
         try:
-            self.a1_r1.oapi.UpdateVolume(VolumeId='foo', Size=5)
+            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=[5])
             assert False
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
-    def test_T5240_with_size_max(self):
+    def test_T5244_with_too_big(self):
         try:
-            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=20000)
+            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=10000000000)
             assert False
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
-    def test_T5241_with_size_min(self):
+    def test_T5245_with_too_small(self):
+        try:
+            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=0)
+            assert False
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+
+    def test_T5241_with_lower_size(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=1)
             assert False
