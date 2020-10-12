@@ -303,3 +303,10 @@ class Test_OAPI(OscTestSuite):
         self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
                                                       osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
                                                       osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+
+    def test_TXXX_method_options(self):
+        try:
+            self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_METHOD: 'OPTIONS'})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 405 , "2", "AccessDenied")
