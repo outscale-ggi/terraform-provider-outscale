@@ -116,5 +116,5 @@ class Test_UpdateVolume(OscTestSuite):
                                                    DeviceName='/dev/xvdc')
         wait_volumes_state(self.a1_r1, [self.vol_id], state='in-use')
         md5sum = write_on_device(sshclient=self.sshclient, device=self.device, folder=self.volume_mount, f_num=1,
-                                 size=10**3, with_md5sum=self.with_md5sum, with_fio=self.with_fio)
+                                 size=10**9, with_md5sum=self.with_md5sum, with_fio=self.with_fio)
         assert md5sum
