@@ -117,16 +117,7 @@ class StreamingBaseHot(StreamingBase):
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.inst_running_info[INSTANCE_ID_LIST], state='ready')
         ret = get_streaming_operation(osc_sdk=self.a1_r1, res_id=resource_id, logger=self.logger)
         if ret.response.result and ret.response.result[0].state == 'interrupted':
-            try:
-                ret = self.a1_r1.intel.streaming.start_all() # TODO: Why ??? TINA-4808 ???
-                self.logger.debug(ret.response.display())
-            except OscApiException as err:
-                if err.status_code == 504:
-                    self.logger.debug("streaming.start_all TIMEOUT...")
-                    time.sleep(60)
-                else:
-                    raise err
-            assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
+            wait_streaming_state(self.a1_r1, resource_id, 'started', logger=self.logger)
         wait_streaming_state(self.a1_r1, resource_id, cleanup=True, logger=self.logger)
 
     def delete_snap(self, resource_id, snap_id):
