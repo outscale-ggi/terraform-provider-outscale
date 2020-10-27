@@ -74,7 +74,6 @@ class Test_ListAccessKeys(OscTestSuite):
         ret = self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk})
         assert len(ret.response.accessKeys) >= 1
         # TODO: check returned attributes
-        assert  ret
 
     def test_T3979_with_method_login_password(self):
         sleep(11)
