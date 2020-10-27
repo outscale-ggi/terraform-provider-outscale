@@ -1,0 +1,80 @@
+from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.misc import id_generator, assert_error, assert_dry_run
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+import pytest
+from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
+from qa_tina_tools.specs.check_tools import check_oapi_response
+
+
+@pytest.mark.region_kms
+class Test_CreateMasterKey(OKMS):
+
+    @classmethod
+    def setup_class(cls):
+        super(Test_CreateMasterKey, cls).setup_class()
+        try:
+            pass
+        except Exception as error:
+            try:
+                cls.teardown_class()
+            except Exception:
+                pass
+            raise error
+
+    @classmethod
+    def teardown_class(cls):
+        try:
+            pass
+        finally:
+            super(Test_CreateMasterKey, cls).teardown_class()
+
+    def setup_method(self, method):
+        OKMS.setup_method(self, method)
+        self.key_id = None
+
+    def teardown_method(self, method):
+        try:
+            if self.key_id:
+                try:
+                    self.a1_r1.oapi.DeleteMasterKey(KeyId=self.key_id, DaysUntilDeletion=7)
+                except:
+                    pass
+        finally:
+            OscTestSuite.teardown_method(self, method)
+
+    def verify_content(self, ret, description=None):
+        assert hasattr(ret, 'MasterKey')
+        assert len(ret.MasterKey.MasterKeyId) == 12 and ret.MasterKey.MasterKeyId[:4] == 'cmk-'
+        assert ret.MasterKey.Description == description
+        assert ret.MasterKey.DeletionDate is None
+        assert ret.MasterKey.CreationDate
+        assert ret.MasterKey.State == 'Enabled'
+
+    # parameters --> 'Description', 'DryRun'
+    # Description --> String : length 0-8192
+    # DryRun --> Boolean
+
+    def test_T5147_no_params(self):
+        resp = self.a1_r1.oapi.CreateMasterKey().response
+        self.key_id = resp.MasterKey.MasterKeyId
+        self.verify_content(resp)
+
+    def test_T5148_valid_params(self):
+        resp = self.a1_r1.oapi.CreateMasterKey(Description='description').response
+        self.key_id = resp.MasterKey.MasterKeyId
+        self.verify_content(resp, description='description')
+        check_oapi_response(resp, 'CreateMasterKeyResponse')
+
+    def test_T5149_invalid_desc_length(self):
+        description = id_generator(size=8193)
+        try:
+            ret = self.a1_r1.oapi.CreateMasterKey(Description=description).response
+            self.key_id = ret.MasterKey.MasterKeyId
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidParameterValueLength', "Length of parameter 'Description' is invalid: 8193. Expected: {(0, 8192)}.")
+
+    def test_T5150_dry_run(self):
+        ret = self.a1_r1.oapi.CreateMasterKey(DryRun=True)
+        assert_dry_run(ret)        
+        
