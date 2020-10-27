@@ -61,10 +61,8 @@ class Test_DescribeInstances(OscTestSuite):
 
     def test_T5146_with_existing_and_not_existing_instances(self):
         try:
-            ret = self.a1_r1.fcu.DescribeInstances(InstanceId=[self.instance_info_a1[INSTANCE_ID_LIST][0], 'i-1b5240d7']).response
-            assert len(ret.reservationSet) == 1
+            self.a1_r1.fcu.DescribeInstances(InstanceId=[self.instance_info_a1[INSTANCE_ID_LIST][0], 'i-1b5240d7'])
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if 'Internal Error' in error.message:
-                known_error('TINA-5701',
-                            "internal error message when calling DescribeInstances with a combination of existing/non-existing ids")
-            assert False, 'Remove known error code'
+            assert_error(error, 400, 'InvalidInstanceID.NotFound',
+                         'The Instance ID does not exist: i-1b5240d7, for account: {}'.format(self.a1_r1.config.account.account_id))
