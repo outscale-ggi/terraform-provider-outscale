@@ -3,6 +3,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_sdk_pub.osc_api import AuthMethod
 from time import sleep
+import datetime
 from qa_sdk_pub import osc_api
 
 
@@ -23,6 +24,27 @@ class Test_ListAccessKeys(OscTestSuite):
 
     # TODO: add more tests
 
+    def test_T5265_check_expiration_date(self):
+        try:
+            ak_id = None
+            exp_date_found = False
+            today = datetime.date.today()
+            expiration_date = datetime.date(today.year, today.month + 1, today.day)
+            expiration_date = expiration_date.strftime("%Y-%m-%d")
+            ret = self.a1_r1.oapi.CreateAccessKey(ExpirationDate=expiration_date)
+            ak_id = ret.response.AccessKey.AccessKeyId
+            ret = self.a1_r1.icu.ListAccessKeys()
+            assert len(ret.response.accessKeys) >= 1
+            for ak in ret.response.accessKeys:
+                if ak.accessKeyId == ak_id:
+                    assert expiration_date in ak.expirationDate
+                    exp_date_found = True
+                    break
+            if not exp_date_found:
+                assert False, "response should contain a not null expirationDate "
+        finally:
+            if ak_id:
+                self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak_id)
     def test_T3775_check_throttling(self):
         sleep(11)
         found_error = False
@@ -52,6 +74,7 @@ class Test_ListAccessKeys(OscTestSuite):
         ret = self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk})
         assert len(ret.response.accessKeys) >= 1
         # TODO: check returned attributes
+        assert  ret
 
     def test_T3979_with_method_login_password(self):
         sleep(11)
