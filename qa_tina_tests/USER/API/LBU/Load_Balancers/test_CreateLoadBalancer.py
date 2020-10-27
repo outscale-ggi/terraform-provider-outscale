@@ -110,7 +110,7 @@ class Test_CreateLoadBalancer(OscTestSuite):
                                               LoadBalancerName='lbu1', AvailabilityZones=['in-west-2a', 'toto'])
             assert False, "Call should not have been successful, request must contain valid availabilityZone"
         except OscApiException as err:
-            assert_error(err, 400, 'NotImplemented', 'Attaching a load balancer to multiple availability zones is not yet implemented')
+            assert_error(err, 400, 'NotImplemented', 'Attaching load balancer to multiple availability zones is not yet implemented')
 
     def test_T746_with_valid_listener(self):
         name = id_generator(prefix='lbu-')
