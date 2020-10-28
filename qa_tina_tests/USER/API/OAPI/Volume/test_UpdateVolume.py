@@ -19,6 +19,7 @@ class Test_UpdateVolume(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_UpdateVolume, cls).setup_class()
+        cls.vol = None
 
     @classmethod
     def teardown_class(cls):
@@ -26,11 +27,10 @@ class Test_UpdateVolume(OscTestSuite):
 
     def setup_method(self, method):
         super(Test_UpdateVolume, self).setup_method(method)
-        self.vol = None
         try:
             self.vol = self.a1_r1.oapi.CreateVolume(VolumeType='standard', Size=2,
                                                     SubregionName=self.azs[0]).response.Volume
-            wait_volumes_state(self.a1_r1, self.vol.VolumeId, state='available')
+            wait_volumes_state(self.a1_r1, [self.vol.VolumeId], state='available')
         except:
             try:
                 self.teardown_class()
@@ -47,7 +47,7 @@ class Test_UpdateVolume(OscTestSuite):
 
     def test_T5232_valid_params(self):
         resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5).response
-        check_oapi_response(resp.response, 'UpdateVolumeResponse')
+        check_oapi_response(resp, 'UpdateVolumeResponse')
         compare_validate_volumes(self.vol, resp.Volume, Size=5)
 
     def test_T5233_without_params(self):
@@ -73,7 +73,7 @@ class Test_UpdateVolume(OscTestSuite):
             self.a1_r1.oapi.UpdateVolume(VolumeId='vol-12345678', Size=5)
             assert False
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidVolume.NotFound', "The volume 'vol-12345678' does not exist.")
+            assert_error(error, 400, '5064', 'InvalidResource')
 
     def test_T5240_with_invalid_volume_id_type(self):
         try:
@@ -87,11 +87,13 @@ class Test_UpdateVolume(OscTestSuite):
             self.a1_r1.oapi.UpdateVolume(VolumeId='foo', Size=5)
             assert False
         except OscApiException as error:
-            assert_error(error, 400, '4120', 'InvalidParameterValue')
+            assert_error(error, 400, '4104', 'InvalidParameterValue')
 
     def test_T5236_without_size_volume(self):
-        resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId).response.Volume
-        compare_validate_volumes(self.vol, resp.Volume)
+        try:
+            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId)
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T5238_with_invalid_size(self):
         try:
@@ -105,28 +107,26 @@ class Test_UpdateVolume(OscTestSuite):
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=[5])
             assert False
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5244_with_too_big(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=10000000000)
-            assert False
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T5245_with_too_small(self):
-        try:
-            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=0)
-            assert False
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+        self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=0)
+        print("s")
+
 
     def test_T5241_with_lower_size(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=1)
             assert False
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T5242_from_another_account(self):
