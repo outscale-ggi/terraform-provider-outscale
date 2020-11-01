@@ -86,6 +86,7 @@ class Test_create_image_from_snapshot(OscTestSuite):
     def test_T5246_create_image_from_snapshot_without_product_type(self):
         ret_ri = None
         ret_cs = None
+        vol_id = None
         try:
             ret = self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name, Size='1')
             vol_id = ret.response.volumeId
