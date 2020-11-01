@@ -25,6 +25,7 @@ class Test_ListAccessKeys(OscTestSuite):
     # TODO: add more tests
 
     def test_T5265_check_expiration_date(self):
+        sleep(11)
         try:
             ak_id = None
             exp_date_found = False
