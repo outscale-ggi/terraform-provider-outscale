@@ -19,7 +19,7 @@ class Test_ReadMasterKeys(OKMS):
         cls.key_ids = []
         super(Test_ReadMasterKeys, cls).setup_class()
         try:
-            for i in range(cls.kms_num):
+            for i in range(cls.key_num):
                 cls.key_ids.append(cls.a1_r1.oapi.CreateMasterKey(Description='description{}'.format(i)).response.MasterKey.MasterKeyId)
             for i in range(cls.disabled_num):
                 cls.a1_r1.oapi.UpdateMasterKey(MasterKeyId=cls.key_ids[i], Enabled=False)
@@ -46,8 +46,7 @@ class Test_ReadMasterKeys(OKMS):
     def test_T5196_no_params(self):
         resp = self.a1_r1.oapi.ReadMasterKeys().response
         check_oapi_response(resp, 'ReadMasterKeysResponse')
-        assert len(resp.MasterKeys) == self.key_num
-        assert set()
+        assert len(resp.MasterKeys) == self.key_num + 1
 
     def test_T5197_with_filter_description(self):
         descriptions = ['description0', 'description2']
@@ -62,13 +61,13 @@ class Test_ReadMasterKeys(OKMS):
         assert set([key.MasterKeyId for key in ret.response.MasterKeys]) == set(keyids)
 
     def test_T5199_with_filter_states(self):
-        states = ['Enabled', 'Deleted']
+        states = ['disabled', 'pending/deletion']
         ret = self.a1_r1.oapi.ReadMasterKeys(Filters={'States': states})
         assert len(ret.response.MasterKeys) == self.disabled_num + self.deleted_num
         assert set([key.State for key in ret.response.MasterKeys]) == set(states)
 
     def test_T5200_with_filter_two_criteria(self):
-        states = ['Enabled', 'Deleted']
+        states = ['disabled', 'pending/deletion']
         descriptions = ['description0', 'description2']
         ret = self.a1_r1.oapi.ReadMasterKeys(Filters={'States': states, 'Descriptions': descriptions})
         assert len(ret.response.MasterKeys) == 2
@@ -78,13 +77,13 @@ class Test_ReadMasterKeys(OKMS):
         try:
             self.a1_r1.oapi.ReadMasterKeys(Filters={'foo': 'bar'})
         except OscApiException as error:
-            assert_oapi_error(error, '', '', '')
+            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
 
     def test_T5202_with_invalid_filter_type(self):
         try:
             self.a1_r1.oapi.ReadMasterKeys(Filters='foobar')
         except OscApiException as error:
-            assert_oapi_error(error, '', '', '')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5203_dry_run(self):
         ret = self.a1_r1.oapi.ReadMasterKeys(DryRun=True)

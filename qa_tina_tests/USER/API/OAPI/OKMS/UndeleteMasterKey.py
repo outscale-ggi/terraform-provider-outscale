@@ -1,5 +1,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_error, id_generator, assert_dry_run
+from qa_test_tools.misc import id_generator, assert_dry_run,\
+    assert_oapi_error
 import pytest
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
 from qa_tina_tools.specs.check_tools import check_oapi_response
@@ -46,22 +47,22 @@ class Test_UndeleteMasterKey(OKMS):
     # DryRun --> Boolean
 
     def mysetup(self):
-        key_id = self.a1_r1.oapi.CreateMasterKey().response.KeyMetadata.KeyId
+        key_id = self.a1_r1.oapi.CreateMasterKey().response.MasterKey.MasterKeyId
         self.a1_r1.oapi.DeleteMasterKey(MasterKeyId=key_id, DaysUntilDeletion=7)
         return key_id
 
     def test_T5212_valid_params(self):
         self.key_id = self.mysetup()
         ret = self.a1_r1.oapi.UndeleteMasterKey(MasterKeyId=self.key_id)
-        assert ret.response.KeyId == self.key_id
-        check_oapi_response(ret.response, 'UndeleteMaskeyResponse')
+        assert ret.response.MasterKey.MasterKeyId == self.key_id
+        check_oapi_response(ret.response, 'UndeleteMasterKeyResponse')
 
     def test_T5213_no_params(self):
         try:
             self.a1_r1.oapi.UndeleteMasterKey()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, '', '')
+            assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T5214_invalid_key_id(self):
         key_id = id_generator(size=2049)
@@ -69,7 +70,7 @@ class Test_UndeleteMasterKey(OKMS):
             self.a1_r1.oapi.UndeleteMasterKey(MasterKeyId=key_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, '', None)
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
 
     def test_T5215_unexisting_key_id(self):
         key_id = 'toto'
@@ -77,7 +78,7 @@ class Test_UndeleteMasterKey(OKMS):
             self.a1_r1.oapi.UndeleteMasterKey(MasterKeyId=key_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'NotFoundException', 'The customer master key does not exist: toto')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
 
     def test_T5216_dry_run(self):
         ret = self.a1_r1.oapi.CreateMasterKey(DryRun=True)
@@ -90,4 +91,4 @@ class Test_UndeleteMasterKey(OKMS):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             self.key_id = None
-            assert_error(error, 400, '', '')
+            assert_oapi_error(error, 400, 'InvalidResource', '5078')
