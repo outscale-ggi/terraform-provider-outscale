@@ -214,7 +214,7 @@ class Test_CreateVolume(OscTestSuite):
             self.snap_id = ret_snap.SnapshotId
             ret_vol2 = self.a1_r1.oapi.CreateVolume(SnapshotId=self.snap_id, SubregionName=self.azs[0], Size=1).response.Volume
         except OscApiException as error:
-            assert_oapi_error(error, 400, ' ', ' ')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4125)
         finally:
             if self.snap_id:
                 self.a1_r1.oapi.DeleteSnapshot(SnapshotId=self.snap_id)
