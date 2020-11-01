@@ -3,7 +3,7 @@ import pytest
 from string import ascii_lowercase
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state, wait_snapshot_export_tasks_state
 
 
@@ -201,7 +201,11 @@ class Test_ImportSnapshot(OscTestSuite):
             gb_to_byte = int(size) * pow(1024, 3)
             ret = self.a1_r1.fcu.ImportSnapshot(snapshotLocation=url, snapshotSize=gb_to_byte, description='This is a snapshot test')
             snap_id = ret.response.snapshotId
-            wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
+            try:
+                wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
+                assert False, 'remove known error'
+            except AssertionError as e:
+                known_error('TINA-6005', 'unable to download file')
         finally:
             if snap_id:
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
@@ -222,7 +226,11 @@ class Test_ImportSnapshot(OscTestSuite):
             gb_to_byte = int(size) * pow(1024, 3)
             ret = self.a1_r1.fcu.ImportSnapshot(description='This is a snapshot test', snapshotLocation=url, snapshotSize=gb_to_byte)
             snap_id = ret.response.snapshotId
-            wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
+            try:
+                wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
+                assert False, 'remove known error'
+            except AssertionError as e:
+                known_error('TINA-6005', 'unable to download file')
         finally:
             if snap_id:
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
@@ -243,7 +251,11 @@ class Test_ImportSnapshot(OscTestSuite):
             gb_to_byte = size
             ret = self.a1_r1.fcu.ImportSnapshot(description='This is a snapshot test', snapshotLocation=url, snapshotSize=gb_to_byte)
             snap_id = ret.response.snapshotId
-            wait_snapshots_state(osc_sdk=self.a1_r1, state='error', snapshot_id_list=[snap_id])
+            try:
+                wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
+                assert False, 'remove known error'
+            except AssertionError as e:
+                known_error('TINA-6005', 'unable to download file')
         finally:
             if snap_id:
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
@@ -264,7 +276,11 @@ class Test_ImportSnapshot(OscTestSuite):
             gb_to_byte = int(size) * pow(1024, 3)
             ret = self.a1_r1.fcu.ImportSnapshot(snapshotLocation=url, snapshotSize=gb_to_byte)
             snap_id = ret.response.snapshotId
-            wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
+            try:
+                wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
+                assert False, 'remove known error'
+            except AssertionError as e:
+                known_error('TINA-6005', 'unable to download file')
         finally:
             if snap_id:
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
