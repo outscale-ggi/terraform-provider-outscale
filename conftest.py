@@ -25,6 +25,9 @@ def pytest_runtest_setup(item):
 
     # all test needed features must be available in current region
     for test_feature in cur_test_features:
+        if test_feature == 'region_storageservice':
+            assert cur_region.get_info(constants.STORAGESERVICE).value in cur_region_features
+            continue
         feature = test_feature[len("region_"):]
         if test_feature.startswith("region_") and feature not in cur_region_features:
             if cur_region_features_tickets and feature in cur_region_features_tickets and cur_region_features_tickets[feature] is not None:
