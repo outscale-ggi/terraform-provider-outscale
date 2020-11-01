@@ -1,5 +1,6 @@
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_test_tools.misc import id_generator, assert_error, assert_dry_run
+from qa_test_tools.misc import id_generator, assert_error, assert_dry_run,\
+    assert_oapi_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import pytest
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
@@ -45,10 +46,10 @@ class Test_CreateMasterKey(OKMS):
     def verify_content(self, ret, description=None):
         assert hasattr(ret, 'MasterKey')
         assert len(ret.MasterKey.MasterKeyId) == 12 and ret.MasterKey.MasterKeyId[:4] == 'cmk-'
-        assert ret.MasterKey.Description == description
-        assert ret.MasterKey.DeletionDate is None
+        assert not description or ret.MasterKey.Description == description
+        assert not hasattr(ret.MasterKey, 'DeletionDate')
         assert ret.MasterKey.CreationDate
-        assert ret.MasterKey.State == 'Enabled'
+        assert ret.MasterKey.State == 'enabled'
 
     # parameters --> 'Description', 'DryRun'
     # Description --> String : length 0-8192
@@ -72,7 +73,7 @@ class Test_CreateMasterKey(OKMS):
             self.key_id = ret.MasterKey.MasterKeyId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidParameterValueLength', "Length of parameter 'Description' is invalid: 8193. Expected: {(0, 8192)}.")
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4106')
 
     def test_T5150_dry_run(self):
         ret = self.a1_r1.oapi.CreateMasterKey(DryRun=True)

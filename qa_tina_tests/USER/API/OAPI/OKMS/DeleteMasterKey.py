@@ -1,5 +1,6 @@
 from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools.misc import assert_error, id_generator, assert_dry_run
+from qa_test_tools.misc import id_generator, assert_dry_run,\
+    assert_oapi_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import pytest
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
@@ -58,7 +59,7 @@ class Test_DeleteMasterKey(OKMS):
             self.a1_r1.oapi.DeleteMasterKey(DaysUntilDeletion=7)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'KMSClientException', 'Field KeyId is required')
+            assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T5162_missing_pending_window(self):
         self.key_id = self.mysetup()
@@ -69,8 +70,7 @@ class Test_DeleteMasterKey(OKMS):
             self.a1_r1.oapi.DeleteMasterKey(MasterKeyId='toto', DaysUntilDeletion=7)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'NotFoundException', 'The customer master key does not exist: toto')
-            # assert_error(error, 400, 'NotFoundException', 'The customer master key does not exist: toto')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
 
     def test_T5164_too_long_key_id(self):
         key_id = id_generator(size=2049)
@@ -78,8 +78,7 @@ class Test_DeleteMasterKey(OKMS):
             self.a1_r1.oapi.DeleteMasterKey(MasterKeyId=key_id, DaysUntilDeletion=7)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'NotFoundException', 'The customer master key does not exist: {}'.format(key_id))
-            # assert_error(error, 400, 'NotFoundException', None)
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
 
     def test_T5165_too_small_pending_window(self):
         self.key_id = self.mysetup()
@@ -87,7 +86,7 @@ class Test_DeleteMasterKey(OKMS):
             self.a1_r1.oapi.DeleteMasterKey(MasterKeyId=self.key_id, DaysUntilDeletion=6)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidParameterValue', 'Pending window must be between 7 and 30 days.')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T5166_too_big_pending_window(self):
         self.key_id = self.mysetup()
@@ -95,7 +94,7 @@ class Test_DeleteMasterKey(OKMS):
             self.a1_r1.oapi.DeleteMasterKey(MasterKeyId=self.key_id, DaysUntilDeletion=31)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidParameterValue', 'Pending window must be between 7 and 30 days.')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T5167_twice_with_window_change(self):
         self.key_id = self.mysetup(do_delete=True)
@@ -103,7 +102,7 @@ class Test_DeleteMasterKey(OKMS):
             self.a1_r1.oapi.DeleteMasterKey(MasterKeyId=self.key_id, DaysUntilDeletion=15)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'KMSInvalidStateException', 'Invalid state to perform this action: {}. State: pending/deletion'.format(self.key_id))
+            assert_oapi_error(error, 409, 'InvalidState', '6010')
 
     def test_T5168_dry_run(self):
         self.key_id = self.mysetup()
