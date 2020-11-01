@@ -7,7 +7,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state, wait_snapshot_export_tasks_state
 
 
-@pytest.mark.region_osu
+@pytest.mark.region_storageservice
 class Test_ImportSnapshot(OscTestSuite):
 
     @classmethod
@@ -47,11 +47,11 @@ class Test_ImportSnapshot(OscTestSuite):
     def teardown_class(cls):
         try:
             if cls.bucket_name:
-                k_list = cls.a1_r1.osu.list_objects(Bucket=cls.bucket_name)
+                k_list = cls.a1_r1.storageservice.list_objects(Bucket=cls.bucket_name)
                 if 'Contents' in list(k_list.keys()):
                     for k in k_list['Contents']:
-                        cls.a1_r1.osu.delete_object(Bucket=cls.bucket_name, Key=k['Key'])
-                cls.a1_r1.osu.delete_bucket(Bucket=cls.bucket_name)
+                        cls.a1_r1.storageservice.delete_object(Bucket=cls.bucket_name, Key=k['Key'])
+                cls.a1_r1.storageservice.delete_bucket(Bucket=cls.bucket_name)
             if cls.snap_id:
                 # remove snapshot
                 cls.a1_r1.fcu.DeleteSnapshot(SnapshotId=cls.snap_id)
@@ -88,13 +88,13 @@ class Test_ImportSnapshot(OscTestSuite):
         try:
             snap_id = None
             key = None
-            k_list = self.a1_r1.osu.list_objects(Bucket=self.bucket_name)
+            k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
             else:
-                assert False, "Key not found on OSU"
+                assert False, "Key not found on storageservice"
             params = {'Bucket': self.bucket_name, 'Key': key}
-            url = self.a1_r1.osu.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=1)
+            url = self.a1_r1.storageservice.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=1)
             ret = self.a1_r1.fcu.DescribeSnapshots(SnapshotId=[self.snap_id])
             size = ret.response.snapshotSet[0].volumeSize
             gb_to_byte = int(size) * pow(1024, 3)
@@ -111,13 +111,13 @@ class Test_ImportSnapshot(OscTestSuite):
         try:
             snap_id = None
             key = None
-            k_list = self.a1_r1.osu.list_objects(Bucket=self.bucket_name)
+            k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
             else:
-                assert False, "Key not found on OSU"
+                assert False, "Key not found on storageservice"
             params = {'Bucket': self.bucket_name, 'Key': key}
-            url = self.a1_r1.osu.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
+            url = self.a1_r1.storageservice.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
             invalid_url = url[:-1]
             ret = self.a1_r1.fcu.DescribeSnapshots(SnapshotId=[self.snap_id])
             size = ret.response.snapshotSet[0].volumeSize
@@ -142,16 +142,16 @@ class Test_ImportSnapshot(OscTestSuite):
             task_id = ret.response.snapshotExportTask.snapshotExportTaskId
             # wait completion export task
             wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
-            k_list = self.a1_r1.osu.list_objects(Bucket=bucket_name)
+            k_list = self.a1_r1.storageservice.list_objects(Bucket=bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
             else:
-                assert False, "Key not found on OSU"
+                assert False, "Key not found on storageservice"
             params = {'Bucket': bucket_name, 'Key': key}
-            url = self.a1_r1.osu.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
+            url = self.a1_r1.storageservice.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
             for k in k_list['Contents']:
-                self.a1_r1.osu.delete_object(Bucket=bucket_name, Key=k['Key'])
-            self.a1_r1.osu.delete_bucket(Bucket=bucket_name)
+                self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=k['Key'])
+            self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
             bucket_name = None
             ret = self.a1_r1.fcu.DescribeSnapshots(SnapshotId=[self.snap_id])
             size = ret.response.snapshotSet[0].volumeSize
@@ -163,39 +163,39 @@ class Test_ImportSnapshot(OscTestSuite):
             if snap_id:
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
             if bucket_name:
-                k_list = self.a1_r1.osu.list_objects(Bucket=bucket_name)
+                k_list = self.a1_r1.storageservice.list_objects(Bucket=bucket_name)
                 if 'Contents' in list(k_list.keys()):
                     for k in k_list['Contents']:
-                        self.a1_r1.osu.delete_object(Bucket=bucket_name, Key=k['Key'])
-                self.a1_r1.osu.delete_bucket(Bucket=bucket_name)
+                        self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=k['Key'])
+                self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
 
     def test_T1057_without_snapshot_size(self):
         try:
             key = None
-            k_list = self.a1_r1.osu.list_objects(Bucket=self.bucket_name)
+            k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
             else:
-                assert False, "Key not found on OSU"
+                assert False, "Key not found on storageservice"
             params = {'Bucket': self.bucket_name, 'Key': key}
-            url = self.a1_r1.osu.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
+            url = self.a1_r1.storageservice.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
             self.a1_r1.fcu.ImportSnapshot(description='This is a snapshot test', snapshotLocation=url)
             assert False, 'ImportSnapshot should have failed'
         except OscApiException as error:
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: snapshotSize')
 
-    @pytest.mark.region_osu
+
     def test_T1050_with_valid_params(self):
         try:
             snap_id = None
             key = None
-            k_list = self.a1_r1.osu.list_objects(Bucket=self.bucket_name)
+            k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
             else:
-                assert False, "Key not found on OSU"
+                assert False, "Key not found on storageservice"
             params = {'Bucket': self.bucket_name, 'Key': key}
-            url = self.a1_r1.osu.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
+            url = self.a1_r1.storageservice.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
             ret = self.a1_r1.fcu.DescribeSnapshots(SnapshotId=[self.snap_id])
             size = ret.response.snapshotSet[0].volumeSize
             gb_to_byte = int(size) * pow(1024, 3)
@@ -210,13 +210,13 @@ class Test_ImportSnapshot(OscTestSuite):
         try:
             snap_id = None
             key = None
-            k_list = self.a1_r1.osu.list_objects(Bucket=self.bucket_name)
+            k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
             else:
-                assert False, "Key not found on OSU"
+                assert False, "Key not found on storageservice"
             params = {'Bucket': self.bucket_name, 'Key': key}
-            url = self.a1_r1.osu.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
+            url = self.a1_r1.storageservice.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
             ret = self.a1_r1.fcu.DescribeSnapshots(SnapshotId=[self.snap_id])
             size = ret.response.snapshotSet[0].volumeSize
             gb_to_byte = int(size) * pow(1024, 3)
@@ -231,13 +231,13 @@ class Test_ImportSnapshot(OscTestSuite):
         try:
             snap_id = None
             key = None
-            k_list = self.a1_r1.osu.list_objects(Bucket=self.bucket_name)
+            k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
             else:
-                assert False, "Key not found on OSU"
+                assert False, "Key not found on storageservice"
             params = {'Bucket': self.bucket_name, 'Key': key}
-            url = self.a1_r1.osu.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
+            url = self.a1_r1.storageservice.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
             ret = self.a1_r1.fcu.DescribeSnapshots(SnapshotId=[self.snap_id])
             size = ret.response.snapshotSet[0].volumeSize
             gb_to_byte = size
@@ -252,13 +252,13 @@ class Test_ImportSnapshot(OscTestSuite):
         try:
             snap_id = None
             key = None
-            k_list = self.a1_r1.osu.list_objects(Bucket=self.bucket_name)
+            k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
             else:
-                assert False, "Key not found on OSU"
+                assert False, "Key not found on storageservice"
             params = {'Bucket': self.bucket_name, 'Key': key}
-            url = self.a1_r1.osu.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
+            url = self.a1_r1.storageservice.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
             ret = self.a1_r1.fcu.DescribeSnapshots(SnapshotId=[self.snap_id])
             size = ret.response.snapshotSet[0].volumeSize
             gb_to_byte = int(size) * pow(1024, 3)
