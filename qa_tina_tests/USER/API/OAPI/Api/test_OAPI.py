@@ -304,9 +304,9 @@ class Test_OAPI(OscTestSuite):
                                                       osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
                                                       osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
 
-    def test_TXXX_method_options(self):
-        try:
-            self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_METHOD: 'OPTIONS'})
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            assert_error(error, 405 , "2", "AccessDenied")
+    def test_T5321_method_options(self):
+        ret = self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_METHOD: 'OPTIONS'})
+        assert ret.status_code == 204
+        assert ret.headers['Access-Control-Allow-Methods'] == 'OPTIONS,POST'
+        assert ret.headers['Access-Control-Allow-Origin'] == '*'
+        assert ret.headers['Access-Control-Max-Age'] == '86400'
