@@ -15,7 +15,7 @@ class Test_CreateSnapshotExportTask(Snapshot):
     def teardown_class(cls):
         super(Test_CreateSnapshotExportTask, cls).teardown_class()
 
-    @pytest.mark.region_osu
+    @pytest.mark.region_storageservice
     def test_T4675_valid_param(self):
         snapshot_id = self.a1_r1.oapi.CreateSnapshot(VolumeId=self.volume_id1).response.Snapshot.SnapshotId
         wait_snapshots_state(self.a1_r1, [snapshot_id], state='completed')

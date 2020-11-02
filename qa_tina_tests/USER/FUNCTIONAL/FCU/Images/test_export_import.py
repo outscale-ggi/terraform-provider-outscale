@@ -1,7 +1,8 @@
 import pytest
+from qa_sdk_common.exceptions import OscApiException
 
-from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.misc import id_generator, assert_error
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
@@ -12,7 +13,7 @@ from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_images_state
 
 
-@pytest.mark.region_osu
+@pytest.mark.region_storageservice
 class Test_export_import(OscTestSuite):
 
     @classmethod
@@ -68,7 +69,7 @@ class Test_export_import(OscTestSuite):
             self.verify_inst_img(inst_id, image_id)
 
             # create bucket
-            bucket = self.a1_r1.osu.create_bucket(Bucket=bucket_name)
+            bucket = self.a1_r1.storageservice.create_bucket(Bucket=bucket_name)
             # export image
             ret_export = self.a1_r1.fcu.CreateImageExportTask(ImageId=image_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                              'OsuBucket': bucket_name}).response.imageExportTask
@@ -83,7 +84,12 @@ class Test_export_import(OscTestSuite):
                 raise OscTestException("Export task did not reach 'completed' state")
 
             # import image
-            ret = self.a1_r1.fcu.RegisterImage(ImageLocation=ret.response.imageExportTaskSet[0].exportToOsu.osuManifestUrl)
+            try:
+                ret = self.a1_r1.fcu.RegisterImage(ImageLocation=ret.response.imageExportTaskSet[0].exportToOsu.osuManifestUrl)
+                assert False, 'remove known error'
+            except OscApiException as error:
+                assert_error(error, 500, 'InternalError', 'Internal Error')
+                known_error('TINA-6007', 'ssl error')
             imp_image_id = ret.response.imageId
             wait_images_state(self.a1_r1, [imp_image_id], state='available')
             # create instance
@@ -102,11 +108,11 @@ class Test_export_import(OscTestSuite):
                 cleanup_images(self.a1_r1, image_id_list=[imp_image_id], force=True)
             if bucket:
                 try:
-                    ret = self.a1_r1.osu.list_objects_v2(Bucket=bucket_name)
+                    ret = self.a1_r1.storageservice.list_objects_v2(Bucket=bucket_name)
                     if 'Contents' in ret:
                         for obj in ret['Contents']:
-                            self.a1_r1.osu.delete_object(Bucket=bucket_name, Key=obj['Key'])
-                    self.a1_r1.osu.delete_bucket(Bucket=bucket_name)
+                            self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=obj['Key'])
+                    self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
                 except Exception as error:
                     pass
             if image_id:
