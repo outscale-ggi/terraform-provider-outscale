@@ -124,9 +124,14 @@ class Test_UpdateVolume(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T5245_with_too_small(self):
-        ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=0)
-        if ret.status_code == 200:
-            known_error("TINA-5996", "UpdateVolume success with a size 0, waiting for product decision")
+        try:
+            ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=0)
+            if ret.status_code == 200:
+                known_error("TINA-5996", "UpdateVolume success with a size 0, waiting for product decision")
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert False, 'Remove known error'
+            assert_oapi_error(error, 400, '', '')
 
     def test_T5241_with_lower_size(self):
         try:
