@@ -75,6 +75,7 @@ class Test_UpdateVolume(OscTestSuite):
             pytest.fail("An unexpected error happened : " + str(error))
 
     def test_check_data_before(self):
+        vol_size = 5
         try:
             test_file = "test_volumes.txt"
             text_to_check = uuid.uuid4().hex
@@ -85,7 +86,7 @@ class Test_UpdateVolume(OscTestSuite):
             wait_volumes_state(self.a1_r1, [self.vol_id], state='available')
             self.is_attached = False
 
-            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Size=5)
+            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Size=vol_size)
             wait_volumes_state(self.a1_r1, [self.vol_id], state='available')
 
             self.ret_link = self.a1_r1.oapi.LinkVolume(VolumeId=self.vol_id, VmId=self.inst_info[INSTANCE_ID_LIST][0],
@@ -103,18 +104,26 @@ class Test_UpdateVolume(OscTestSuite):
             pytest.fail("An unexpected error happened : " + str(error))
 
     def test_real_volume_size(self):
+        vol_size = 5
         umount_volume(self.sshclient, self.volume_mount)
 
         self.a1_r1.oapi.UnlinkVolume(VolumeId=self.vol_id)
         wait_volumes_state(self.a1_r1, [self.vol_id], state='available')
         self.is_attached = False
 
-        self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Size=5)
+        self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Size=vol_size)
         wait_volumes_state(self.a1_r1, [self.vol_id], state='available')
         self.ret_link = self.a1_r1.oapi.LinkVolume(VolumeId=self.vol_id, VmId=self.inst_info[INSTANCE_ID_LIST][0],
                                                    DeviceName='/dev/xvdc')
         wait_volumes_state(self.a1_r1, [self.vol_id], state='in-use')
         self.is_attached = True
+
+        #check volume before mount with disk
+
+        cmd = "sudo fdisk -l /dev/sda | grep 'dev/sda'"
+        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+        size_detected = int(out.split(",")[1][1:11])
+        assert vol_size * 2**30 == size_detected
 
         cmd = 'sudo mount -o nouuid {} {}'.format(self.device, self.volume_mount)
         SshTools.exec_command_paramiko_2(self.sshclient, cmd)
@@ -122,6 +131,12 @@ class Test_UpdateVolume(OscTestSuite):
         # extend volume
         cmd = 'sudo xfs_growfs {}'.format(self.volume_mount)
         SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+
+        # check volume after mount and extending with disk
+        cmd = 'sudo df -h {} | grep /dev/sda'.format(self.volume_mount)
+        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+        size_detected = int(out.split()[1][0])
+        assert vol_size == size_detected
 
         # write file
         cmd = 'sudo openssl rand -out {}/data_x.txt -base64 $(({} * 2**20 * 3/4))'.format(self.volume_mount, 10**9)
