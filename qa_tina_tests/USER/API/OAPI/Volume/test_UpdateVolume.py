@@ -50,12 +50,15 @@ class Test_UpdateVolume(OscTestSuite):
             super(Test_UpdateVolume, self).teardown_method(method)
 
     def test_T5232_valid_params(self):
-        resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5).response
-        #wait_volumes_state(self.a1_r1, [self.vol.VolumeId], state='completed')
-        check_oapi_response(resp, 'UpdateVolumeResponse')
-        if resp.Volume.Size != 5:
-            known_error("TINA-5994", "waiting for product decision")
-        compare_validate_volumes(self.vol, resp.Volume, Size=5)
+        try:
+            resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5).response
+            check_oapi_response(resp, 'UpdateVolumeResponse')
+            if resp.Volume.Size != 5:
+                known_error("TINA-5994", "waiting for product decision")
+            compare_validate_volumes(self.vol, resp.Volume, Size=5)
+        except OscApiException:
+            assert False, 'Remove known error'
+
 
     def test_T5233_without_params(self):
         try:
