@@ -107,7 +107,7 @@ class Test_UpdateVolume(OscTestSuite):
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size='foo')
             assert False
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5243_with_invalid_size_type(self):
         try:
