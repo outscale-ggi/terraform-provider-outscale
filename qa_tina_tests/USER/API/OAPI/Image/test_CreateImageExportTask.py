@@ -101,8 +101,7 @@ class Test_CreateImageExportTask(OscTestSuite):
 
     # TODO: add valid tests (need OSU)
 
-    @pytest.mark.region_synchro_osu
-    @pytest.mark.region_osu
+    @pytest.mark.region_storageservice
     def test_T2833_with_valid_params(self):
         bucket_name = id_generator(prefix='bn').lower()
         resp = self.a1_r1.oapi.CreateImageExportTask(ImageId=self.image_id,
