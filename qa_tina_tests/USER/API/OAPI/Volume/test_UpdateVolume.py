@@ -24,9 +24,6 @@ class Test_UpdateVolume(OscTestSuite):
     def setup_class(cls):
         super(Test_UpdateVolume, cls).setup_class()
         cls.vol = None
-        cls.inst_info = None
-        cls.ret_link = None
-        cls.is_attached = None
 
     @classmethod
     def teardown_class(cls):
@@ -34,7 +31,6 @@ class Test_UpdateVolume(OscTestSuite):
 
     def setup_method(self, method):
         super(Test_UpdateVolume, self).setup_method(method)
-        self.ret_link = None
         try:
             self.vol = self.a1_r1.oapi.CreateVolume(VolumeType='standard', Size=2,
                                                     SubregionName=self.azs[0]).response.Volume
@@ -48,13 +44,8 @@ class Test_UpdateVolume(OscTestSuite):
 
     def teardown_method(self, method):
         try:
-            if self.is_attached:
-                self.a1_r1.oapi.UnlinkVolume(VolumeId=self.vol.VolumeId)
-                wait_volumes_state(self.a1_r1, [self.vol.VolumeId], state='available')
             if self.vol:
                 self.a1_r1.oapi.DeleteVolume(VolumeId=self.vol.VolumeId)
-            if self.inst_info:
-                delete_instances(self.a1_r1, self.inst_info)
         finally:
             super(Test_UpdateVolume, self).teardown_method(method)
 
@@ -149,15 +140,25 @@ class Test_UpdateVolume(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidResource', '5064')
 
     def test_T5322_with_attached_instance(self):
+        is_attached = False
+        inst_info = None
         try:
             vm_type = self.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
-            self.inst_info = create_instances(self.a1_r1, state='running', inst_type=vm_type)
-            self.ret_link = self.a1_r1.oapi.LinkVolume(VolumeId=self.vol.VolumeId, VmId=self.inst_info[INSTANCE_ID_LIST][0],
-                                                       DeviceName='/dev/xvdc')
+            inst_info = create_instances(self.a1_r1, state='running', inst_type=vm_type)
+            self.a1_r1.oapi.LinkVolume(VolumeId=self.vol.VolumeId, VmId=inst_info[INSTANCE_ID_LIST][0],
+                                       DeviceName='/dev/xvdc')
             wait_volumes_state(self.a1_r1, [self.vol.VolumeId], state='in-use')
-            self.is_attached = True
+            is_attached = True
 
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5)
             assert False, 'Call should not have been successful'
+
         except OscApiException as error:
             assert_oapi_error(error, 409, 'InvalidState', '6003')
+
+        finally:
+            if is_attached:
+                self.a1_r1.oapi.UnlinkVolume(VolumeId=self.vol.VolumeId)
+                wait_volumes_state(self.a1_r1, [self.vol.VolumeId], state='available')
+            if inst_info:
+                delete_instances(self.a1_r1, inst_info)
