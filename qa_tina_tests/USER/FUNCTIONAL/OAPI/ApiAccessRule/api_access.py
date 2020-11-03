@@ -95,10 +95,20 @@ def put_configuration(self, access_rules):
     for access_rule in access_rules:
         if not has_ip_rule:
             access_rule[IP_COND] = ['0.0.0.0/0']
-        osc_sdk.oapi.CreateApiAccessRule(CaIds=access_rule[CA_COND] if CA_COND in access_rule else None,
-                                         Cns=access_rule[CN_COND] if CN_COND in access_rule else None,
-                                         Description=access_rule[DESC],
-                                         IpRanges=access_rule[IP_COND] )
+#         osc_sdk.oapi.CreateApiAccessRule(CaIds=access_rule[CA_COND] if CA_COND in access_rule else None,
+#                                          Cns=access_rule[CN_COND] if CN_COND in access_rule else None,
+#                                          Description=access_rule[DESC],
+#                                          IpRanges=access_rule[IP_COND] )
+        kwargs={}
+        if CA_COND in access_rule:
+            kwargs['CaIds'] = access_rule[CA_COND]
+        if CN_COND in access_rule:
+            kwargs['Cns'] = access_rule[CN_COND]
+        if IP_COND in access_rule:
+            kwargs['IpRanges'] = access_rule[IP_COND]
+        if DESC in access_rule:
+            kwargs['Description'] = access_rule[DESC]
+        osc_sdk.oapi.CreateApiAccessRule(**kwargs)
         #osc_sdk.identauth.IdauthAccount.createApiAccessRule(
         #    account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
         #    principal= {"accountPid": osc_sdk.config.account.account_id}, accessRule=access_rule)
@@ -107,7 +117,7 @@ def put_configuration(self, access_rules):
     ret = osc_sdk.oapi.ReadApiAccessRules()
     for rule in ret.response.ApiAccessRules:
         if rule.Description != description:
-            osc_sdk.DeleteApiAccessRule(ApiAccessRuleId=rule.ApiAccessRuleId)
+            osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=rule.ApiAccessRuleId)
     #ret = osc_sdk.identauth.IdauthAccount.listApiAccessRules()
     # print(ret.response.display())
     #for item in ret.response.items:
@@ -212,9 +222,9 @@ class Api_Access(OscTestSuite):
             keys = cls.a1_r1.intel.accesskey.find_by_user(owner=cls.account_pid).response.result[0]
             cls.osc_sdk = OscSdk(config=OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret, account_id=cls.account_pid, login=email, password=password))
 
-            cls.ca1_pid = cls.a1_r1.oapi.CreateCa(CaPem=open(cls.ca1files[1]).read(), Description="ca1files").response.Ca.CaId
-            cls.ca2_pid = cls.a1_r1.oapi.CreateCa(CaPem=open(cls.ca2files[1]).read(), Description="ca2files").response.Ca.CaId
-            cls.ca3_pid = cls.a1_r1.oapi.CreateCa(CaPem=open(cls.ca3files[1]).read(), Description="ca3files").response.Ca.CaId
+            cls.ca1_pid = cls.osc_sdk.oapi.CreateCa(CaPem=open(cls.ca1files[1]).read(), Description="ca1files").response.Ca.CaId
+            cls.ca2_pid = cls.osc_sdk.oapi.CreateCa(CaPem=open(cls.ca2files[1]).read(), Description="ca2files").response.Ca.CaId
+            cls.ca3_pid = cls.osc_sdk.oapi.CreateCa(CaPem=open(cls.ca3files[1]).read(), Description="ca3files").response.Ca.CaId
             
 #             ret = cls.a1_r1.identauth.IdauthAccount.uploadCaCertificate(account_id=cls.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), name="ca1files", description= "ca1files",
 #                                                                         principal= { "accountPid": cls.account_pid, "userPath": 'userpath1' }, body= open(cls.ca1files[1]).read())
