@@ -73,4 +73,4 @@ class Test_CancelKeyDeletion(Kms):
             self.a1_r1.kms.CancelKeyDeletion(KeyId=key_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidCustomerMasterKeyID.Malformed', 'The customer master key does not exist: toto')
+            assert_error(error, 400, 'InvalidCustomerMasterKeyID.Malformed', 'Invalid ID received: toto. Expected format: cmk-')

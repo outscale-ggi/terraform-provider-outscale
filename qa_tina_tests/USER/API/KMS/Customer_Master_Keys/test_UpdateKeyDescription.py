@@ -55,7 +55,7 @@ class Test_UpdateKeyDescription(Kms):
             self.a1_r1.kms.UpdateKeyDescription(KeyId='titi', toto='titi', Description='test')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidCustomerMasterKeyID.Malformed', 'The customer master key does not exist: titi')
+            assert_error(error, 400, 'InvalidCustomerMasterKeyID.Malformed', 'Invalid ID received: titi. Expected format: cmk-')
 
     def test_T3638_other_account(self):
         try:
