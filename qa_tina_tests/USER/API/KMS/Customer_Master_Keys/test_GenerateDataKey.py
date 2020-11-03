@@ -55,7 +55,7 @@ class Test_GenerateDataKey(Kms):
             self.a1_r1.kms.GenerateDataKey(KeyId='foobar', KeySpec='AES_128')
             assert False, 'Call should not have been successful, invalid key id'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidCustomerMasterKeyID.Malformed', 'The customer master key does not exist: foobar')
+            assert_error(error, 400, 'InvalidCustomerMasterKeyID.Malformed', 'Invalid ID received: foobar. Expected format: cmk-')
 
     def test_T3627_missing_key_id_with_keyspec(self):
         try:
