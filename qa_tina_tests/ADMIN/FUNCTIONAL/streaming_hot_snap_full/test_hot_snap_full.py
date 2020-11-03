@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 # pylint: disable=missing-docstring
+import time
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -75,6 +76,7 @@ class Test_hot_snap_full(StreamingBaseHot):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
         self.delete_snap(resource_id=self.vol_1_snap_list[-1], snap_id=self.vol_1_snap_list[-1])
         self.check_no_stream()
+        time.sleep(60) # Why ?
         #self.vol_1_snap_list.remove(self.vol_1_snap_list[-1])
 
     def test_T4217_hot_snap_full_and_stream_twice(self):
