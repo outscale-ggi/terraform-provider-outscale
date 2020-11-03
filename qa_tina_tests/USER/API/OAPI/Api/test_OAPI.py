@@ -109,8 +109,6 @@ class Test_OAPI(OscTestSuite):
         self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_SIGN: 'AWS'})
  
     def test_T4170_check_oapi_features(self):
-        a = []
-        b = []
         batcmd = "curl -X POST https://api.{}.outscale.com/api".format(self.a1_r1.config.region.name)
         result = subprocess.check_output(batcmd, shell=True)
         result1 = json.loads(result)
@@ -119,12 +117,6 @@ class Test_OAPI(OscTestSuite):
         result = subprocess.check_output(batcmd, shell=True)
         result2 = json.loads(result)
         assert 'Version' in result2 and result1['Versions'][0] == "v" + result2['Version'][0]
-        for i in DOCUMENTATIONS['oapi'][self.oapi_version[self.a1_r1.config.region.name]][PATHS]:
-            a.append(i)
-        for j in result2['Calls']:
-            b.append('/'+j)
-        res = [value for value in a if value not in b]
-        print(res)
         assert len(DOCUMENTATIONS['oapi'][self.oapi_version[self.a1_r1.config.region.name]][PATHS]) == len(result2['Calls'])
         for call in result2['Calls']:
             assert '/' + call in DOCUMENTATIONS['oapi'][self.oapi_version[self.a1_r1.config.region.name]][PATHS]
