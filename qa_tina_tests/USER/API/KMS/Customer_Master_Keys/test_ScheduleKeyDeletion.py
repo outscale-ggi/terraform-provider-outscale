@@ -69,8 +69,7 @@ class Test_ScheduleKeyDeletion(Kms):
             self.a1_r1.kms.ScheduleKeyDeletion(KeyId='toto', PendingWindowInDays=7)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'NotFoundException', 'The customer master key does not exist: toto')
-            # assert_error(error, 400, 'NotFoundException', 'The customer master key does not exist: toto')
+            assert_error(error, 400, 'InvalidCustomerMasterKeyID.Malformed', 'The customer master key does not exist: toto')
 
     def test_T3254_too_long_key_id(self):
         key_id = id_generator(size=2049)
@@ -78,8 +77,7 @@ class Test_ScheduleKeyDeletion(Kms):
             self.a1_r1.kms.ScheduleKeyDeletion(KeyId=key_id, PendingWindowInDays=7)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'NotFoundException', 'The customer master key does not exist: {}'.format(key_id))
-            # assert_error(error, 400, 'NotFoundException', None)
+            assert_error(error, 400, 'InvalidCustomerMasterKeyID.Malformed', 'The customer master key does not exist: {}'.format(key_id))
 
     def test_T3255_too_small_pending_window(self):
         self.key_id = self.mysetup(no_delete=True)
