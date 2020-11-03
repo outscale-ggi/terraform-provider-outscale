@@ -46,7 +46,7 @@ class Test_EnableKey(Kms):
             self.a1_r1.kms.EnableKey(KeyId='cmk-titi')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'NotFoundException', 'The customer master key does not exist: cmk-titi')
+            assert_error(error, 400, 'InvalidCustomerMasterKeyID.Malformed', 'The customer master key does not exist: cmk-titi')
 
     def test_T3622_other_account(self):
         try:
