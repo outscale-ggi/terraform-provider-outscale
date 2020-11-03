@@ -82,7 +82,7 @@ class Test_multi_vpn(OscTestSuite):
         finally:
             super(Test_multi_vpn, self).teardown_method(method)
 
-    def exec_test_vpn(self, static, default_rtb=True):
+    def exec_test_vpn(self, static, racoon, default_rtb=True):
 
         # initialize a VPC with 1 subnet, 1 instance and an igw
         self.vpc_info = create_vpc(osc_sdk=self.a1_r1, nb_instance=1, default_rtb=default_rtb)
@@ -172,9 +172,9 @@ class Test_multi_vpn(OscTestSuite):
                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             setup_customer_gateway(self.a1_r1, sshclient1, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
-                                   self.inst_cgw1_info, vgw1_ip, psk1_key, static, vpn1_id)
+                                   self.inst_cgw1_info, vgw1_ip, psk1_key, static, vpn1_id,racoon=racoon)
             setup_customer_gateway(self.a1_r1, sshclient2, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
-                                   self.inst_cgw2_info, vgw2_ip, psk2_key, static, vpn2_id, index=1)
+                                   self.inst_cgw2_info, vgw2_ip, psk2_key, static, vpn2_id, index=1, racoon=racoon)
 
             # wait vpc instance state == ready before try to make ping
             wait_tools.wait_instances_state(self.a1_r1,
@@ -243,4 +243,7 @@ class Test_multi_vpn(OscTestSuite):
             wait_tools.wait_vpn_gateways_attachment_state(self.a1_r1, [self.vgw_id], 'detached')
 
     def test_T1948_test_vpn_static(self):
-        self.exec_test_vpn(static=False, default_rtb=True)
+        self.exec_test_vpn(static=False, racoon= True, default_rtb=True)
+
+    def test_T5143_test_vpn_static_strongswan(self):
+        self.exec_test_vpn(static=False, racoon= False, default_rtb=True)

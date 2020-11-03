@@ -150,35 +150,22 @@ class Test_ReadSubnets(OscTestSuite):
         assert not resp.Subnets
 
     def test_T5090_with_tags_filter(self):
-        resp = self.a1_r1.oapi.ReadSubnets(Filters={"Tags": ['sub=sub_value']}).response
-        if len(resp.Subnets) == NUM_SUBNETS:
-            known_error('GTW-1420', 'TagFilter on ReadSubnets call not working')
-        assert False, 'Remove the known error code'
+        resp = self.a1_r1.oapi.ReadSubnets(Filters={"Tags": ['sub_key=sub_value']}).response
         assert len(resp.Subnets) == 1
         check_tags(resp.Subnets, 'sub_key', 'sub_value')
 
     def test_T5091_with_tagkeys_filter(self):
         resp = self.a1_r1.oapi.ReadSubnets(Filters={"TagKeys": ['sub_key']}).response
-        if len(resp.Subnets) == NUM_SUBNETS:
-            known_error('GTW-1420', 'TagFilter on ReadSubnets call not working')
-        assert False, 'Remove the known error code'
         assert len(resp.Subnets) == 1
         check_tags(resp.Subnets, 'sub_key', None)
 
-
     def test_T5092_with_tagvalues_filter(self):
         resp = self.a1_r1.oapi.ReadSubnets(Filters={"TagValues": ['sub_value']}).response
-        if len(resp.Subnets) == NUM_SUBNETS:
-            known_error('GTW-1420', 'TagFilter on ReadSubnets call not working')
-        assert False, 'Remove the known error code'
         assert len(resp.Subnets) == 1
         check_tags(resp.Subnets, None, 'sub_value')
 
     def test_T5093_with_invalid_tags_filter(self):
         resp = self.a1_r1.oapi.ReadSubnets(Filters={"Tags": ['incorrect_sub=incorrect_sub_value']}).response
-        if len(resp.Subnets) == NUM_SUBNETS:
-            known_error('GTW-1420', 'TagFilter on ReadSubnets call not working')
-        assert False, 'Remove the known error code'
         assert len(resp.Subnets) == 0
 
     def test_T5094_with_incorrect_tags_filter(self):
@@ -187,5 +174,3 @@ class Test_ReadSubnets(OscTestSuite):
             assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
-            
-        

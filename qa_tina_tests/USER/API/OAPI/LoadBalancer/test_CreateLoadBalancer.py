@@ -394,22 +394,12 @@ class Test_CreateLoadBalancer(LoadBalancer):
         try:
             name = id_generator(prefix='lbu-')
             new_vpc = create_vpc(self.a1_r1, az=self.a1_r1.config.region.az_name, igw=False)
-            ret = self.a1_r1.oapi.CreateLoadBalancer(
+            self.a1_r1.oapi.CreateLoadBalancer(
                 Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
                 LoadBalancerName=name, LoadBalancerType='internet-facing', SecurityGroups=[self.sg_id],
-                Subnets=[new_vpc['subnets'][0]['subnet_id']]
-            ).response.LoadBalancer
-            self.logger.debug(ret.display())
-            self.lb_names.append(name)
-            validate_load_balancer_global_form(
-                ret,
-                lb_type='internet-facing',
-                name=name,
-            )
+                Subnets=[new_vpc['subnets'][0]['subnet_id']])
         except OscApiException as error:
-            if error.status_code == 500 and error.message == "InternalError":
-                known_error("GTW-1440", "Internal error when creating an 'internet-facing' load balancer in a subnet without IGW")
-            assert False, "Remove known error"
+            assert_oapi_error(error, 424, "DependencyProblem", '1003')
         finally:
             if new_vpc:
                 delete_vpc(self.a1_r1, new_vpc)

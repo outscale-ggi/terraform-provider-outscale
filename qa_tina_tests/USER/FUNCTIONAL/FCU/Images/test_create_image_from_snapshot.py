@@ -9,7 +9,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH, INSTANCE_ID_LIST
 from qa_common_tools.ssh import SshTools
-from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
+from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state
 
 
 class Test_create_image_from_snapshot(OscTestSuite):
@@ -35,7 +35,7 @@ class Test_create_image_from_snapshot(OscTestSuite):
             super(Test_create_image_from_snapshot, cls).teardown_class()
 
     @pytest.mark.tag_redwire
-    def test_T1572_create_use_image(self):
+    def test_T1572_create_image_from_snapshot(self):
         ci1_info = None
         ci2_info = None
         ret_ri = None
@@ -81,3 +81,43 @@ class Test_create_image_from_snapshot(OscTestSuite):
                     cleanup_images(self.a1_r1, image_id_list=[ret_ri.response.imageId], force=True)
                 except:
                     pass
+
+    @pytest.mark.region_admin
+    def test_T5246_create_image_from_snapshot_without_product_type(self):
+        ret_ri = None
+        ret_cs = None
+        vol_id = None
+        try:
+            ret = self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name, Size='1')
+            vol_id = ret.response.volumeId
+            wait_volumes_state(osc_sdk=self.a1_r1, state='available', volume_id_list=[vol_id])
+            # snapshot volume
+            ret_cs = self.a1_r1.fcu.CreateSnapshot(VolumeId=vol_id)
+            wait_snapshots_state(self.a1_r1, [ret_cs.response.snapshotId], 'completed')
+            ret = self.a1_r1.fcu.GetProductType(SnapshotId=ret_cs.response.snapshotId)
+            assert ret.response.productTypeId == '0001'
+            self.a1_r1.intel.product.set(resource=ret_cs.response.snapshotId, product_ids=[])
+            ret = self.a1_r1.fcu.GetProductType(SnapshotId=ret_cs.response.snapshotId)
+            assert not ret.response.productTypeId
+            # create omi from snapshot
+            image_name = id_generator(prefix='img_')
+            ret_ri = self.a1_r1.fcu.RegisterImage(
+                BlockDeviceMapping=[{'Ebs': {'SnapshotId': ret_cs.response.snapshotId},
+                                     'DeviceName': '/dev/sda1'}], Name=image_name,
+                RootDeviceName='/dev/sda1', Architecture='x86_64')
+            ret = self.a1_r1.fcu.GetProductType(ImageId=ret_ri.response.imageId)
+            assert ret.response.productTypeId == '0001'
+        finally:
+            if ret_ri:
+                try:
+                    cleanup_images(self.a1_r1, image_id_list=[ret_ri.response.imageId], force=True)
+                except:
+                    pass
+            if ret_cs.response.snapshotId:
+                # remove snapshot
+                self.a1_r1.fcu.DeleteSnapshot(SnapshotId=ret_cs.response.snapshotId)
+                wait_snapshots_state(osc_sdk=self.a1_r1, cleanup=True, snapshot_id_list=[ret_cs.response.snapshotId])
+            if vol_id:
+                # remove volume
+                self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)
+                wait_volumes_state(osc_sdk=self.a1_r1, cleanup=True, volume_id_list=[vol_id])

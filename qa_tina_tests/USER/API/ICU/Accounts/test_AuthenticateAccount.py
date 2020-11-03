@@ -110,3 +110,35 @@ class Test_AuthenticateAccount(OscTestSuite):
             assert_error(error, 401, 'FrozenAccount', 'The account is frozen.')
         finally:
             self.delete_account(account_info)
+
+    def test_T5266_with_web_access_locked(self):
+        account_id = None
+        login = 'qa+{}@outscale.com'.format(id_generator(prefix='test_signIn_'))
+        password = id_generator(prefix='passwd_')
+        admin_id = self.a1_r1.config.region.get_info(constants.AS_IDAUTH_ID)
+        try:
+            ret = self.a1_r1.identauth.IdauthAccountAdmin.createAccount(account_id=admin_id,
+                                                                        accountEmail=login)
+
+            account_id = ret.response.account.pid
+            ret = self.a1_r1.identauth.IdauthAccount.createSignInProfile(account_id=account_id,
+                                                                         profileName='portal',
+                                                                         password=password,
+                                                                         passwordHashed=False
+                                                                         )
+            ret = self.a1_r1.identauth.IdauthAuthentication.signIn(login=login, password=password,
+                                                                   profileName='portal')
+            assert ret.response.principal.accountPid == account_id
+            ret = self.a1_r1.identauth.IdauthAccountAdmin.updateAccount(account_id=admin_id,
+                                                                        principal={"accountPid": account_id},
+                                                                        newLockWeb=True)
+            self.a1_r1.identauth__admin.IdauthAdmin.invalidateCache(account_id=admin_id)
+            self.a1_r1.icu.AuthenticateAccount(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
+                                               Login=login, Password=password)
+        except OscApiException as error:
+            assert_error(error, 400, 'AccessDeniedException', 'User is not allowed to access via this interface.')
+        finally:
+            if account_id:
+                self.a1_r1.identauth.IdauthAccountAdmin.deleteAccount(account_id=admin_id,
+                                                                      principal={"accountPid": account_id},
+                                                                      forceRemoval="true")

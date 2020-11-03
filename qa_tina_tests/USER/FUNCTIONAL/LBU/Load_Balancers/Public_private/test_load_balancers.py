@@ -110,6 +110,8 @@ class Test_load_balancers(OscTestSuite):
             # check output file for http response status (regex)
             sshclient = SshTools.check_connection_paramiko(eips[2].publicIp, vpc_info[KEY_PAIR][PATH],
                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            SshTools.exec_command_paramiko_2(sshclient, "sudo yum install -y bind-utils", eof_time_out=300)
+            SshTools.exec_command_paramiko_2(sshclient, "nslookup {}".format(ret_lb.DNSName), retry=6, timeout=10)
             SshTools.exec_command_paramiko_2(sshclient, "sudo curl -v -o /tmp/out.html {} &> /tmp/out.log".format(ret_lb.DNSName))
             SshTools.exec_command_paramiko_2(sshclient, "sudo grep '< HTTP/1.* 200 OK' /tmp/out.log")
 

@@ -46,48 +46,49 @@ class Test_create_policy(OscTestSuite):
             super(Test_create_policy, self).teardown_method(method)
 
     def test_T4573_with_ext_fcu_policy(self):
-        PolicyName = misc.id_generator(prefix='TestCreatePolicy')
+        tmp = misc.id_generator(prefix='TestCreatePolicy')
         attach_policy = None
         policy_response = None
         try:
             policy_response = self.a1_r1.eim.CreatePolicy(
-                PolicyName=PolicyName, PolicyDocument='{"Statement": [{"Action": ["fcuext:*"], "Resource": ["*"], "Effect": "Allow"}]}')
+                PolicyName=tmp, PolicyDocument='{"Statement": [{"Action": ["fcuext:*"], "Resource": ["*"], "Effect": "Allow"}]}')
+            PolicyName = tmp
             attach_policy = self.a1_r1.eim.AttachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
             try:
                 self.account_sdk.fcu.DescribeInstanceTypes()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation', 'User: {} is not authorized to perform: ec2:DescribeInstanceTypes'.format(self.UserName))
             try:
                 self.account_sdk.fcu.DescribeDhcpOptions()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation', 'User: {} is not authorized to perform: ec2:DescribeDhcpOptions'.format(self.UserName))
             try:
                 self.account_sdk.eim.ListAccessKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied', 'User: {} is not authorized to perform: iam:ListAccessKeys'.format(self.UserName))
             try:
                 self.account_sdk.lbu.DescribeLoadBalancers()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied', 'User: {} is not authorized to perform: ElasticLoadBalancing:DescribeLoadBalancers'.format(self.UserName))
             try:
                 self.account_sdk.icu.ReadCatalog()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'NotImplemented', None)
+                misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
             try:
                 self.account_sdk.kms.ListKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
+                misc.assert_error(error, 400, 'AccessDeniedException', 'User: {} is not authorized to perform: kms:ListKeys'.format(self.UserName))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
+                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -108,32 +109,32 @@ class Test_create_policy(OscTestSuite):
                 self.account_sdk.fcu.DescribeDhcpOptions()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation', 'User: {} is not authorized to perform: ec2:DescribeDhcpOptions'.format(self.UserName))
             try:
                 self.account_sdk.eim.ListAccessKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied', 'User: {} is not authorized to perform: iam:ListAccessKeys'.format(self.UserName))
             try:
                 self.account_sdk.lbu.DescribeLoadBalancers()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied', 'User: {} is not authorized to perform: ElasticLoadBalancing:DescribeLoadBalancers'.format(self.UserName))
             try:
                 self.account_sdk.icu.ReadCatalog()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'NotImplemented', None)
+                misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
             try:
                 self.account_sdk.kms.ListKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
+                misc.assert_error(error, 400, 'AccessDeniedException', 'User: {} is not authorized to perform: kms:ListKeys'.format(self.UserName))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
+                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -154,32 +155,37 @@ class Test_create_policy(OscTestSuite):
                 self.account_sdk.fcu.DescribeDhcpOptions()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:DescribeDhcpOptions'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.eim.ListAccessKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied',
+                                  'User: {} is not authorized to perform: iam:ListAccessKeys'.format(self.UserName))
             try:
                 self.account_sdk.directlink.DescribeLocations()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: directconnect:DescribeLocations'.format(self.UserName))
             try:
                 self.account_sdk.icu.ReadCatalog()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'NotImplemented', None)
+                misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
             try:
                 self.account_sdk.kms.ListKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.UserName))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
+                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -201,32 +207,39 @@ class Test_create_policy(OscTestSuite):
                 self.account_sdk.fcu.DescribeDhcpOptions()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:DescribeDhcpOptions'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.eim.ListAccessKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
-            try:
-                self.account_sdk.directlink.DescribeLocations()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
-            try:
-                self.account_sdk.icu.ReadCatalog()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'NotImplemented', None)
+                misc.assert_error(error, 400, 'AccessDenied',
+                                  'User: {} is not authorized to perform: iam:ListAccessKeys'.format(self.UserName))
             try:
                 self.account_sdk.lbu.DescribeLoadBalancers()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied',
+                                  'User: {} is not authorized to perform: ElasticLoadBalancing:DescribeLoadBalancers'.format(
+                                      self.UserName))
+            try:
+                self.account_sdk.icu.ReadCatalog()
+                assert False, 'Call should not have been successful'
+            except OscApiException as error:
+                misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
+            try:
+                self.account_sdk.directlink.DescribeLocations()
+                assert False, 'Call should not have been successful'
+            except OscApiException as error:
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: directconnect:DescribeLocations'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
+                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -245,37 +258,44 @@ class Test_create_policy(OscTestSuite):
                 self.account_sdk.fcu.DescribeInstanceTypes()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:DescribeInstanceTypes'.format(self.UserName))
             try:
                 self.account_sdk.fcu.DescribeDhcpOptions()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:DescribeDhcpOptions'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.eim.ListAccessKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied',
+                                  'User: {} is not authorized to perform: iam:ListAccessKeys'.format(self.UserName))
             try:
-                self.account_sdk.lbu.DescribeLoadBalancers()
+                self.account_sdk.directlink.DescribeLocations()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: directconnect:DescribeLocations'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.icu.ReadCatalog()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'NotImplemented', None)
+                misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
             try:
                 self.account_sdk.kms.ListKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.UserName))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
+                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -294,32 +314,38 @@ class Test_create_policy(OscTestSuite):
                 self.account_sdk.fcu.DescribeDhcpOptions()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:DescribeDhcpOptions'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.eim.ListAccessKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied',
+                                  'User: {} is not authorized to perform: iam:ListAccessKeys'.format(self.UserName))
             try:
-                self.account_sdk.lbu.DescribeLoadBalancers()
+                self.account_sdk.directlink.DescribeLocations()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: directconnect:DescribeLocations'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.icu.ReadCatalog()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'NotImplemented', None)
+                misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
             try:
                 self.account_sdk.kms.ListKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.UserName))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
+                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -338,32 +364,38 @@ class Test_create_policy(OscTestSuite):
                 self.account_sdk.fcu.DescribeDhcpOptions()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:DescribeDhcpOptions'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.eim.ListAccessKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied',
+                                  'User: {} is not authorized to perform: iam:ListAccessKeys'.format(self.UserName))
             try:
-                self.account_sdk.lbu.DescribeLoadBalancers()
+                self.account_sdk.directlink.DescribeLocations()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: directconnect:DescribeLocations'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.icu.ReadCatalog()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'NotImplemented', None)
+                misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
             try:
                 self.account_sdk.kms.ListKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.UserName))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
+                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -479,35 +511,42 @@ class Test_create_policy(OscTestSuite):
             attach_policy = self.a1_r1.eim.AttachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
             self.account_sdk.oapi.ReadVms()
             try:
-                self.account_sdk.fcu.DescribeDhcpOptions()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
-            try:
                 self.account_sdk.fcu.DescribeInstanceTypes()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:DescribeInstanceTypes'.format(self.UserName))
+            try:
+                self.account_sdk.fcu.DescribeDhcpOptions()
+                assert False, 'Call should not have been successful'
+            except OscApiException as error:
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:DescribeDhcpOptions'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.eim.ListAccessKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied',
+                                  'User: {} is not authorized to perform: iam:ListAccessKeys'.format(self.UserName))
             try:
-                self.account_sdk.lbu.DescribeLoadBalancers()
+                self.account_sdk.directlink.DescribeLocations()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: directconnect:DescribeLocations'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.icu.ReadCatalog()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'NotImplemented', None)
+                misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
             try:
                 self.account_sdk.kms.ListKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.UserName))
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
@@ -525,35 +564,43 @@ class Test_create_policy(OscTestSuite):
             attach_policy = self.a1_r1.eim.AttachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
             self.account_sdk.oapi.ReadVms()
             try:
-                self.account_sdk.fcu.DescribeDhcpOptions()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
-            try:
                 self.account_sdk.fcu.DescribeInstanceTypes()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation', None)
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:DescribeInstanceTypes'.format(
+                                      self.UserName))
+            try:
+                self.account_sdk.fcu.DescribeDhcpOptions()
+                assert False, 'Call should not have been successful'
+            except OscApiException as error:
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:DescribeDhcpOptions'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.eim.ListAccessKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDenied',
+                                  'User: {} is not authorized to perform: iam:ListAccessKeys'.format(self.UserName))
             try:
-                self.account_sdk.lbu.DescribeLoadBalancers()
+                self.account_sdk.directlink.DescribeLocations()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: directconnect:DescribeLocations'.format(
+                                      self.UserName))
             try:
                 self.account_sdk.icu.ReadCatalog()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'NotImplemented', None)
+                misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
             try:
                 self.account_sdk.kms.ListKeys()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
+                misc.assert_error(error, 400, 'AccessDeniedException',
+                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.UserName))
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)

@@ -303,3 +303,10 @@ class Test_OAPI(OscTestSuite):
         self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
                                                       osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
                                                       osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+
+    def test_T5321_method_options(self):
+        ret = self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_METHOD: 'OPTIONS'})
+        assert ret.status_code == 204
+        assert ret.headers['Access-Control-Allow-Methods'] == 'OPTIONS,POST'
+        assert ret.headers['Access-Control-Allow-Origin'] == '*'
+        assert ret.headers['Access-Control-Max-Age'] == '86400'
