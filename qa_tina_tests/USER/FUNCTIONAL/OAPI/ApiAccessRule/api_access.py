@@ -95,43 +95,44 @@ def put_configuration(self, access_rules):
     for access_rule in access_rules:
         if not has_ip_rule:
             access_rule[IP_COND] = ['0.0.0.0/0']
-#         osc_sdk.oapi.CreateApiAccessRule(CaIds=access_rule[CA_COND] if CA_COND in access_rule else None,
-#                                          Cns=access_rule[CN_COND] if CN_COND in access_rule else None,
-#                                          Description=access_rule[DESC],
-#                                          IpRanges=access_rule[IP_COND] )
-        kwargs={}
-        if CA_COND in access_rule:
-            kwargs['CaIds'] = access_rule[CA_COND]
-        if CN_COND in access_rule:
-            kwargs['Cns'] = access_rule[CN_COND]
-        if IP_COND in access_rule:
-            kwargs['IpRanges'] = access_rule[IP_COND]
-        if DESC in access_rule:
-            kwargs['Description'] = access_rule[DESC]
-        osc_sdk.oapi.CreateApiAccessRule(**kwargs)
-        #osc_sdk.identauth.IdauthAccount.createApiAccessRule(
-        #    account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
-        #    principal= {"accountPid": osc_sdk.config.account.account_id}, accessRule=access_rule)
+
+#         kwargs={}
+#         if CA_COND in access_rule:
+#             kwargs['CaIds'] = access_rule[CA_COND]
+#         if CN_COND in access_rule:
+#             kwargs['Cns'] = access_rule[CN_COND]
+#         if IP_COND in access_rule:
+#             kwargs['IpRanges'] = access_rule[IP_COND]
+#         if DESC in access_rule:
+#             kwargs['Description'] = access_rule[DESC]
+#         osc_sdk.oapi.CreateApiAccessRule(**kwargs)
+
+        osc_sdk.identauth.IdauthAccount.createApiAccessRule(
+            account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+            principal= {"accountPid": osc_sdk.config.account.account_id}, accessRule=access_rule)
      
     # delete older rules 
-    ret = osc_sdk.oapi.ReadApiAccessRules()
-    for rule in ret.response.ApiAccessRules:
-        if rule.Description != description:
-            osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=rule.ApiAccessRuleId)
-    #ret = osc_sdk.identauth.IdauthAccount.listApiAccessRules()
-    # print(ret.response.display())
-    #for item in ret.response.items:
-    #    if item.description != description:
-    #        osc_sdk.identauth.IdauthAccount.deleteApiAccessRule(
-    #            account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
-    #            principal={"accountPid":self.account_pid}, accessRulePid=item.pid)
+#     ret = osc_sdk.oapi.ReadApiAccessRules()
+#     for rule in ret.response.ApiAccessRules:
+#         if rule.Description != description:
+#             osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=rule.ApiAccessRuleId)
+    ret = osc_sdk.identauth.IdauthAccount.listApiAccessRules()
+    print(ret.response.display())
+    for item in ret.response.items:
+        if item.description != description:
+            osc_sdk.identauth.IdauthAccount.deleteApiAccessRule(
+                account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                principal={"accountPid":self.account_pid}, accessRulePid=item.pid)
 
-    osc_sdk.identauth__admin.IdauthAdmin.invalidateCache(account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID))
+    try:
+        osc_sdk.identauth__admin.IdauthAdmin.invalidateCache(account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID))
+    except Exception as error:
+        print('toto')
 
     try:
         print('new api rules:')
-        ret = osc_sdk.oapi.ReadApiAccessRules()
-        #ret = osc_sdk.identauth.IdauthAccount.listApiAccessRules()
+        #ret = osc_sdk.oapi.ReadApiAccessRules()
+        ret = osc_sdk.identauth.IdauthAccount.listApiAccessRules()
         print(ret.response.display())
     except Exception as error:
         print('Could not list rules for conf {}'.format([rule for rule in access_rules if rule[DESC] == description]))
@@ -156,12 +157,13 @@ def setup_api_access_rules(confkey):
                         print('{} -> {}'.format(API_CALLS[i], errors[i]))
                     raise OscTestException('Unexpected result')
             finally:
-                ret = self.a1_r1.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), accountPids= [self.account_pid])
-                try:
-                    wait_task_state(osc_sdk=self.a1_r1, state='COMPLETED', task_handle=ret.response.handle)
-                except:
-                    raise OscTestException('Could not reset api rules in time.')
-                self.a1_r1.identauth__admin.IdauthAdmin.invalidateCache(account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID))
+                # reset if necessary
+                if 'IpKO' in confkey.value:
+                    ret = self.a1_r1.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), accountPids= [self.account_pid])
+                    try:
+                        wait_task_state(osc_sdk=self.a1_r1, state='COMPLETED', task_handle=ret.response.handle)
+                    except:
+                        raise OscTestException('Could not reset api rules in time.')
 
         return wrapper
 
