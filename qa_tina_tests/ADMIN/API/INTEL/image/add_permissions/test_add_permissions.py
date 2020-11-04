@@ -43,8 +43,3 @@ class Test_add_permissions(OscTestSuite):
         actual_user = owner=self.a1_r1.config.account.account_id
         self.a1_r1.intel.image.add_permissions(owner=self.a1_r1.config.account.account_id, image=self.image_id, users=[actual_user])
         assert True
-
-
-
-
-
