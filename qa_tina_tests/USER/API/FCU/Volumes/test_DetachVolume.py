@@ -133,7 +133,7 @@ class Test_DetachVolume(OscTestSuite):
             self.a1_r1.fcu.DetachVolume(VolumeId=self.standard_volume_ids[1],
                                         InstanceId=self.inst_info[INSTANCE_ID_LIST][1])
             self.__class__.vol_detached = True
-            known_error('TINA-5765', 'Detach volume from an other instance succeed')
+            known_error('TINA-6010', 'Detach volume from an other instance succeed')
             assert False, "Call should not be successful"
         except OscApiException as error:
             assert False, 'Remove known error'

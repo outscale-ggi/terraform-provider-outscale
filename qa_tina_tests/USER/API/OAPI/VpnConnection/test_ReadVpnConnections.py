@@ -148,7 +148,7 @@ class Test_ReadVpnConnections(VpnConnection):
             assert False
         except OscApiException as error:
             assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('GTW-1346', 'Incorrect error message')
+            known_error('GTW-1559', 'Incorrect error message')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5139_filters_route_destination_ip_ranges_invalid_range(self):
@@ -158,7 +158,7 @@ class Test_ReadVpnConnections(VpnConnection):
             assert False
         except OscApiException as error:
             assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('GTW-1346', 'Incorrect error message')
+            known_error('GTW-1559', 'Incorrect error message')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T3581_filters_virtual_gateway_ids_id1(self):
