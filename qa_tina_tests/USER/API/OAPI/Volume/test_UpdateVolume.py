@@ -59,7 +59,6 @@ class Test_UpdateVolume(OscTestSuite):
         except OscApiException:
             assert False, 'Remove known error'
 
-
     def test_T5233_without_params(self):
         try:
             self.a1_r1.oapi.UpdateVolume()
@@ -104,6 +103,7 @@ class Test_UpdateVolume(OscTestSuite):
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId)
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
+
 
     def test_T5238_with_invalid_size(self):
         try:
