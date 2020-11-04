@@ -126,8 +126,8 @@ def put_configuration(self, access_rules):
     #            account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
     #            principal={"accountPid":self.account_pid}, accessRulePid=item.pid)
 
-    #osc_sdk.identauth__admin.IdauthAdmin.invalidateCache(account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID))
-    
+    osc_sdk.identauth__admin.IdauthAdmin.invalidateCache(account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID))
+
     try:
         print('new api rules:')
         ret = osc_sdk.oapi.ReadApiAccessRules()
@@ -156,13 +156,12 @@ def setup_api_access_rules(confkey):
                         print('{} -> {}'.format(API_CALLS[i], errors[i]))
                     raise OscTestException('Unexpected result')
             finally:
-                # reset if necessary
-                if 'IpKO' in confkey.value:
-                    ret = self.a1_r1.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), accountPids= [self.account_pid])
-                    try:
-                        wait_task_state(osc_sdk=self.a1_r1, state='COMPLETED', task_handle=ret.response.handle)
-                    except:
-                        raise OscTestException('Could not reset api rules in time.')
+                ret = self.a1_r1.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), accountPids= [self.account_pid])
+                try:
+                    wait_task_state(osc_sdk=self.a1_r1, state='COMPLETED', task_handle=ret.response.handle)
+                except:
+                    raise OscTestException('Could not reset api rules in time.')
+                self.a1_r1.identauth__admin.IdauthAdmin.invalidateCache(account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID))
 
         return wrapper
 
