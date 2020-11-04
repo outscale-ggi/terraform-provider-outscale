@@ -74,7 +74,7 @@ class Test_UpdateVolume(OscTestSuite):
             self.logger.exception(error)
             pytest.fail("An unexpected error happened : " + str(error))
 
-    def test_check_data_before(self):
+    def test_T5324_check_data_before(self):
         vol_size = 5
         try:
             test_file = "test_volumes.txt"
@@ -103,7 +103,7 @@ class Test_UpdateVolume(OscTestSuite):
             self.logger.exception(error)
             pytest.fail("An unexpected error happened : " + str(error))
 
-    def test_real_volume_size(self):
+    def test_T5325_real_volume_size(self):
         vol_size = 5
         umount_volume(self.sshclient, self.volume_mount)
 
