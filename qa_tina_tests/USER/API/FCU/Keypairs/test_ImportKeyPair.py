@@ -84,12 +84,8 @@ class Test_ImportKeyPair(OscTestSuite):
                 pass
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1358', 'Missing error message')
-            assert_error(error, 400, 'InvalidParameterValue', None)
-            assert error.message
+            assert_error(error, 400, 'InvalidParameterValue',
+                         "Parameter 'KeyName' is invalid: {}. Constraints: Only ASCII characters, max length 255".format(name))
 
     def test_T1595_with_incorrect_material(self):
         try:
