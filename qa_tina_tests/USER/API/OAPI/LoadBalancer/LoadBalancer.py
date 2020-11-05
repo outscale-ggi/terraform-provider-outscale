@@ -1,7 +1,8 @@
 # -*- coding:utf-8 -*-
 
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina.create_tools import create_vpc
+from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
+from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_test_tools.misc import id_generator
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, SUBNETS, SUBNET_ID
@@ -119,12 +120,14 @@ class LoadBalancer(OscTestSuite):
         cls.sg_name = None
         cls.sg_id_2 = None
         cls.sg_id_3 = None
+        cls.inst_info = None
         super(LoadBalancer, cls).setup_class()
         try:
             cls.vpc_info = create_vpc(cls.a1_r1, az=cls.a1_r1.config.region.az_name, nb_subnet=2)
             cls.vpc_id = cls.vpc_info[VPC_ID]
             cls.subnet_id = cls.vpc_info[SUBNETS][0][SUBNET_ID]
             cls.subnet_id2 = cls.vpc_info[SUBNETS][1][SUBNET_ID]
+            cls.inst_info = create_instances(cls.a1_r1, subnet_id=cls.subnet_id)
             sg_name = id_generator(prefix='sg_name')
             ret = cls.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test', GroupName=sg_name, VpcId=cls.vpc_id)
             cls.sg_id = ret.response.groupId
@@ -157,6 +160,11 @@ class LoadBalancer(OscTestSuite):
         try:
             if cls.sg_id_3:
                 cls.a1_r1.fcu.DeleteSecurityGroup(GroupId=cls.sg_id_3)
+        except:
+            pass
+        try:
+            if cls.inst_info:
+                delete_instances(cls.a1_r1, cls.inst_info)
         except:
             pass
         try:

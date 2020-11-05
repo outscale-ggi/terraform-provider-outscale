@@ -19,8 +19,8 @@ class Test_LinkNic(Nic):
         cls.nic_ids = []
         cls.inst_info = None
         try:
-            cls.vpc_inst_info = create_instances(cls.a1_r1, 7, state=None, subnet_id=cls.subnet_id1, sg_id_list=[cls.firewall_id1])
-            cls.inst_info = create_instances(cls.a1_r1, 6, state=None)
+            cls.vpc_inst_info = create_instances(cls.a1_r1, 7, subnet_id=cls.subnet_id1, sg_id_list=[cls.firewall_id1])
+            cls.inst_info = create_instances(cls.a1_r1, 6)
             for _ in range(20):
                 cls.nic_ids.append(cls.a1_r1.oapi.CreateNic(SubnetId=cls.subnet_id1).response.Nic.NicId)
         except:
@@ -39,7 +39,7 @@ class Test_LinkNic(Nic):
                     wait_network_interfaces_state(cls.a1_r1, [nic_id], cleanup=True)
                 except:
                     pass
-                
+
             if cls.inst_info:
                 try:
                     delete_instances(cls.a1_r1, cls.inst_info)
