@@ -30,10 +30,6 @@ class Test_CreateKeyPair(OscTestSuite):
             self.a1_r1.fcu.CreateKeyPair(KeyName=key_name)
             assert False, "Creating key pair with key name longer than 255 should not have succeeded"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1356', 'Missing error message')
             assert_error(error, 400, 'InvalidParameterValue',
                          "Parameter 'KeyName' is invalid: {}. Constraints: Only ASCII characters, max length 255".format(key_name))
 
@@ -66,8 +62,7 @@ class Test_CreateKeyPair(OscTestSuite):
             assert False, "Call should not have been successful, key with same name exists"
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 409, 'InvalidKeyPair.Duplicate', None)
-                assert not error.message
+                assert_error(error, 409, 'InvalidKeyPair.Duplicate', 'The key pair already exists: test_T1802')
                 known_error('GTW-1356', 'Missing error message')
             assert_error(error, 400, 'InvalidKeyPair.Duplicate', 'The key pair already exists: test_T1802')
         finally:
