@@ -1,3 +1,5 @@
+from qa_tina_tools.specs.check_tools import check_oapi_response
+
 from qa_test_tools.test_base import known_error
 
 from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
@@ -21,10 +23,7 @@ class Test_CreateSnapshotExportTask(Snapshot):
         wait_snapshots_state(self.a1_r1, [snapshot_id], state='completed')
         try:
             ret = self.a1_r1.oapi.CreateSnapshotExportTask(SnapshotId=snapshot_id, OsuExport={'DiskImageFormat': 'qcow2', 'OsuBucket':'snap-569'})
-            if not hasattr(ret.response, 'SnapshotExportTask'):
-                known_error('GTW-1488', 'CreateSnapshotExportTask does not return SnapshotExportTask in response')
-            else:
-                assert False, 'Remove known error'
+            check_oapi_response(ret.response, 'CreateSnapshotExportTaskResponse')
         finally:
             if snapshot_id:
                 self.a1_r1.oapi.DeleteSnapshot(SnapshotId=snapshot_id)
