@@ -177,10 +177,7 @@ class Test_ReadLoadBalancers(LoadBalancer):
             assert ret[0].LoadBalancerStickyCookiePolicies[0].PolicyName == policy_name_lb
             assert ret[0].LoadBalancerStickyCookiePolicies[1].PolicyName == policy_name_lb2
         finally:
-            try:
-                if lb_policy:
-                    self.a1_r1.oapi.DeleteLoadBalancerPolicy(PolicyName=policy_name_lb)
-                if lb_policy2:
-                    self.a1_r1.oapi.DeleteLoadBalancerPolicy(PolicyName=policy_name_lb2)
-            finally:
-                pass
+            if lb_policy:
+                self.a1_r1.oapi.DeleteLoadBalancerPolicy(PolicyName=policy_name_lb)
+            if lb_policy2:
+                self.a1_r1.oapi.DeleteLoadBalancerPolicy(PolicyName=policy_name_lb2)
