@@ -45,7 +45,7 @@ class Test_UpdateCa(OscTestSuite):
     @pytest.mark.tag_sec_confidentiality
     def test_T5320_with_other_account(self):
         try:
-            self.a1_r2.oapi.UpdateCa(CaId=self.ca_id, Description='test update')
+            self.a2_r1.oapi.UpdateCa(CaId=self.ca_id, Description='test update')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4122')

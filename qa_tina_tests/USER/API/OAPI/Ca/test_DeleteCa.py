@@ -51,6 +51,6 @@ class Test_DeleteCa(OscTestSuite):
 
     def test_T5308_valid_params(self):
         ret = self.a1_r1.oapi.DeleteCa(CaId=self.ca_id)
-        self.ca_id = None
+        self.__class__.ca_id = None
         check_oapi_response(ret.response, 'DeleteCaResponse')
 
