@@ -13,7 +13,7 @@ class ApiAccessRule(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(ApiAccessRule, cls).setup_class()
-        cls.account_id = None
+        cls.account_pid = None
         cls.tmp_file_paths = []
         cls.ca_ids = []
         try:
