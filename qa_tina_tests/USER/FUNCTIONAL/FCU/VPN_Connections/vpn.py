@@ -151,11 +151,7 @@ class Vpn(OscTestSuite):
                     retry=20,
                     timeout=10)
                 assert "1 packets transmitted, 1 received, 0% packet loss" in out
-                if self.a1_r1.config.region_name == 'top-west-1':
-                    assert False, 'Remove known error'
             except OscCommandError as error:
-                if self.a1_r1.config.region_name == 'top-west-1':
-                    known_error('OPS-11350', 'VPN issue on TOP1')
                 raise error
 
             # check vpn connection status
