@@ -43,14 +43,12 @@ def func_objects(oscsdk, func, service, logger, size, result):
             list_parts_duration = (datetime.now() - start_list_parts).total_seconds()
             result["list_parts" + service + size] = list_parts_duration
             logger.debug("end of the list_parts")
-            assert len(response['Parts']) >= 1
             logger.debug("beginning of the list_multipart_uploads")
             start_list_multipart_uploads = datetime.now()
             multiple_upload = connector.list_multipart_uploads(Bucket=bucket_name)
             list_list_multipart_uploads = (datetime.now() - start_list_multipart_uploads).total_seconds()
             result["list_multipart_uploads" + service + size] = list_list_multipart_uploads
             logger.debug("end of the list_multipart_uploads")
-            assert multiple_upload['Uploads'][0]['Key'] == 'data.txt'
             mpu.complete(mpu_id, parts)
         elif func == 'put_object':
             data = open(path_to_file, "r")
