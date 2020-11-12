@@ -5,6 +5,7 @@ from string import ascii_lowercase
 from qa_test_tools import misc
 from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tina import oos
+import gc
 
 
 def func_objects(oscsdk, func, service, logger, size, result):
@@ -39,13 +40,13 @@ def func_objects(oscsdk, func, service, logger, size, result):
             logger.debug("end of the multipart_upload")
             logger.debug("beginning of the list_parts")
             start_list_parts = datetime.now()
-            response = connector.list_parts(Bucket=bucket_name, Key='data.txt', UploadId=mpu_id)
+            connector.list_parts(Bucket=bucket_name, Key='data.txt', UploadId=mpu_id)
             list_parts_duration = (datetime.now() - start_list_parts).total_seconds()
             result["list_parts" + service + size] = list_parts_duration
             logger.debug("end of the list_parts")
             logger.debug("beginning of the list_multipart_uploads")
             start_list_multipart_uploads = datetime.now()
-            multiple_upload = connector.list_multipart_uploads(Bucket=bucket_name)
+            connector.list_multipart_uploads(Bucket=bucket_name)
             list_list_multipart_uploads = (datetime.now() - start_list_multipart_uploads).total_seconds()
             result["list_multipart_uploads" + service + size] = list_list_multipart_uploads
             logger.debug("end of the list_multipart_uploads")
@@ -96,6 +97,9 @@ def perf_objects(oscsdk, logger, queue, args):
     func_objects(oscsdk=oscsdk, func='multipart_upload', service='oos', logger=logger, size='2000m', result=result)
     func_objects(oscsdk=oscsdk, func='multipart_upload', service='oos', logger=logger, size='5g', result=result)
     func_objects(oscsdk=oscsdk, func='multipart_upload', service='oos', logger=logger, size='10g', result=result)
+    logger.debug(gc.get_count())
+    gc.collect()
+    logger.debug(gc.get_count())
     func_objects(oscsdk=oscsdk, func='put_object', service='oos', logger=logger, size='100m', result=result)
     func_objects(oscsdk=oscsdk, func='put_object', service='oos', logger=logger, size='500m', result=result)
     func_objects(oscsdk=oscsdk, func='put_object', service='oos', logger=logger, size='1g', result=result)
