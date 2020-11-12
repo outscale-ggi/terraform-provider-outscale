@@ -10,7 +10,7 @@ from qa_tina_tools.tina import oos
 def func_objects(oscsdk, func, service, logger, size, result):
     connector = getattr(oscsdk, service)
     bucket_name = None
-    md5s = []
+    upload_done = False
     try:
         tmp = misc.id_generator(prefix="bucket", chars=ascii_lowercase)
         connector.create_bucket(Bucket=tmp)
@@ -34,6 +34,7 @@ def func_objects(oscsdk, func, service, logger, size, result):
             start_upload = datetime.now()
             parts = mpu.upload(mpu_id)
             upload_duration = (datetime.now() - start_upload).total_seconds()
+            upload_done = True
             result["multipart_upload" + service + size] = upload_duration
             logger.debug("end of the multipart_upload")
             logger.debug("beginning of the list_parts")
@@ -57,6 +58,7 @@ def func_objects(oscsdk, func, service, logger, size, result):
             start_put_object = datetime.now()
             connector.put_object(Bucket=bucket_name, Key='data.txt', Body=str.encode(data.read()))
             put_object_duration = (datetime.now() - start_put_object).total_seconds()
+            upload_done = True
             result["put_object" + service + size] = put_object_duration
             logger.debug("end of the put_object")
             logger.debug("beginning of the get_object")
@@ -70,7 +72,16 @@ def func_objects(oscsdk, func, service, logger, size, result):
         log_error(logger, error, "Unexpected error while executing %s".format("bucket_operations"), result)
     finally:
         errors = []
-        connector.delete_object(Bucket=bucket_name, Key='data.txt')
+        if os.path.isfile(path_to_file):
+            try:
+                os.remove(path_to_file)
+            except Exception as error:
+                errors.append(error)
+        if upload_done:
+            try:
+                connector.delete_object(Bucket=bucket_name, Key='data.txt')
+            except Exception as error:
+                errors.append(error)
         if bucket_name:
             try:
                 connector.delete_bucket(Bucket=bucket_name)
