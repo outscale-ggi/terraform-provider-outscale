@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 from string import ascii_lowercase
@@ -38,19 +37,19 @@ def func_objects(oscsdk, func, service, logger, size, result):
             upload_duration = (datetime.now() - start_upload).total_seconds()
             upload_done = True
             result["multipart_upload" + service + size] = upload_duration
-            logger.debug("end of the multipart_upload")
+            logger.debug("end of the multipart_upload"+size)
             logger.debug("beginning of the list_parts"+size)
             start_list_parts = datetime.now()
             connector.list_parts(Bucket=bucket_name, Key='data.txt', UploadId=mpu_id)
             list_parts_duration = (datetime.now() - start_list_parts).total_seconds()
             result["list_parts" + service + size] = list_parts_duration
-            logger.debug("end of the list_parts")
-            logger.debug("beginning of the list_multipart_uploads")
+            logger.debug("end of the list_parts"+size)
+            logger.debug("beginning of the list_multipart_uploads"+size)
             start_list_multipart_uploads = datetime.now()
             connector.list_multipart_uploads(Bucket=bucket_name)
             list_list_multipart_uploads = (datetime.now() - start_list_multipart_uploads).total_seconds()
             result["list_multipart_uploads" + service + size] = list_list_multipart_uploads
-            logger.debug("end of the list_multipart_uploads")
+            logger.debug("end of the list_multipart_uploads"+size)
             mpu.complete(mpu_id, parts)
         elif func == 'put_object':
             data = open(path_to_file, "r")
@@ -60,7 +59,7 @@ def func_objects(oscsdk, func, service, logger, size, result):
             put_object_duration = (datetime.now() - start_put_object).total_seconds()
             upload_done = True
             result["put_object" + service + size] = put_object_duration
-            logger.debug("end of the put_object")
+            logger.debug("end of the put_object"+size)
             logger.debug("beginning of the get_object"+size)
             start_get_object = datetime.now()
             connector.get_object(Bucket=bucket_name, Key='data.txt')
