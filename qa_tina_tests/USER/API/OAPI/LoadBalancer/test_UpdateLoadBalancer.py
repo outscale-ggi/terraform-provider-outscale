@@ -14,25 +14,20 @@ class Test_UpdateLoadBalancer(LoadBalancer):
     def setup_class(cls):
         super(Test_UpdateLoadBalancer, cls).setup_class()
         cls.lb_name = None
-        cls.setup_error = False
         try:
             cls.lb_name = id_generator(prefix='lbu-')
-            try:
-                cls.a1_r1.oapi.CreateLoadBalancer(
-                    Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
-                               {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
-                    LoadBalancerName=cls.lb_name, SubregionNames=[cls.a1_r1.config.region.az_name],
-                )
-                cls.policy_name_app = id_generator(prefix='policy-')
-                cls.a1_r1.oapi.CreateLoadBalancerPolicy(
-                    LoadBalancerName=cls.lb_name, PolicyName=cls.policy_name_app, PolicyType='app',
-                    CookieName=id_generator(prefix='cookie-'))
-                cls.policy_name_lb = id_generator(prefix='policy-')
-                cls.a1_r1.oapi.CreateLoadBalancerPolicy(
-                    LoadBalancerName=cls.lb_name, PolicyName=cls.policy_name_lb, PolicyType='load_balancer')
-            except OscApiException as err:
-                assert_oapi_error(err, 404, 'InvalidAction', 12000)
-                cls.setup_error = True
+            cls.a1_r1.oapi.CreateLoadBalancer(
+                Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
+                           {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
+                LoadBalancerName=cls.lb_name, SubregionNames=[cls.a1_r1.config.region.az_name],
+            )
+            cls.policy_name_app = id_generator(prefix='policy-')
+            cls.a1_r1.oapi.CreateLoadBalancerPolicy(
+                LoadBalancerName=cls.lb_name, PolicyName=cls.policy_name_app, PolicyType='app',
+                CookieName=id_generator(prefix='cookie-'))
+            cls.policy_name_lb = id_generator(prefix='policy-')
+            cls.a1_r1.oapi.CreateLoadBalancerPolicy(
+                LoadBalancerName=cls.lb_name, PolicyName=cls.policy_name_lb, PolicyType='load_balancer')
         except:
             try:
                 cls.teardown_class()
@@ -138,8 +133,17 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             assert_oapi_error(error, 409, 'ResourceConflict', '9056')
 
     def test_T2856_lb_policy_http(self):
-        self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
-                                           PolicyNames=[self.policy_name_lb])
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
+                                           PolicyNames=[self.policy_name_lb]).response.LoadBalancer
+        validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': [self.policy_name_lb]}])
+
+    def test_T5328_empty_policies(self):
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=[]).response.LoadBalancer
+        validate_load_balancer_global_form(lb)
+        for listener in lb.Listeners:
+            if listener.LoadBalancerPort == 80:
+                assert not hasattr(listener, 'PolicyNames')
+                break
 
     def test_T2857_lb_policy_tcp(self):
         try:
