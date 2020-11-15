@@ -55,7 +55,8 @@ def func_objects(oscsdk, func, service, logger, size, result):
             data = open(path_to_file, "r")
             logger.debug("beginning of the put_object"+size)
             start_put_object = datetime.now()
-            connector.put_object(Bucket=bucket_name, Key='data.txt', Body=str.encode(data.read()))
+            body = str.encode(data.read())
+            connector.put_object(Bucket=bucket_name, Key='data.txt', Body=body)
             put_object_duration = (datetime.now() - start_put_object).total_seconds()
             upload_done = True
             result["put_object" + service + size] = put_object_duration
