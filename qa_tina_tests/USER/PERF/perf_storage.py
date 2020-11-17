@@ -58,9 +58,12 @@ def perf_storage(oscsdk, service, logger, queue, args):
             for bucket_name in bucket_names:
                 logger.debug("%s : %d/%d", "delete_bucket", num + 1, retry)
                 start_desc = datetime.now()
-                connector.delete_bucket(Bucket=bucket_name)
-                durations.append((datetime.now() - start_desc).total_seconds())
-                num += 1
+                try:
+                    connector.delete_bucket(Bucket=bucket_name)
+                    durations.append((datetime.now() - start_desc).total_seconds())
+                    num += 1
+                except Exception as error:
+                    log_error(logger, error, "Unexpected error while executing %s".format("delete_bucket"), result)
             result["delete_bucket"+service] = numpy.array(durations).mean()
 
     queue.put(result.copy())
