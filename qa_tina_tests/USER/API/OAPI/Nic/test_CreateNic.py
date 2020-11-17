@@ -2,6 +2,7 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
+from qa_test_tools.test_base import known_error
 
 
 class Test_CreateNic(Nic):
@@ -109,10 +110,27 @@ class Test_CreateNic(Nic):
         assert ret.PrivateIps[0].PrivateDnsName is not None
         # assert ret.PrivateIps[0].LinkPublicIp is not None
 
+    def test_T5329_with_private_ips_missing_ip(self):
+        try:
+            self.nic_id = self.a1_r1.oapi.CreateNic(PrivateIps=[{'IsPrimary': True}], SubnetId=self.subnet_id1).response.Nic.NicId
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', '2000')
+            known_error('GTW-1517', 'Incorrect internal error')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+
+    def test_T5330_with_private_ips_missing_is_primary(self):
+        try:
+            self.nic_id = self.a1_r1.oapi.CreateNic(PrivateIps=[{'PrivateIp': '10.0.1.20'}], SubnetId=self.subnet_id1).response.Nic.NicId
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', '2000')
+            known_error('GTW-1517', 'Incorrect internal error')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+
     def test_T2638_with_private_ips_invalid_ip1(self):
         try:
-            self.a1_r1.oapi.CreateNic(PrivateIps=[{'IsPrimary': True, 'PrivateIp': 'tata'}],
-                                      SubnetId=self.subnet_id1)
+            self.nic_id = self.a1_r1.oapi.CreateNic(PrivateIps=[{'IsPrimary': True, 'PrivateIp': 'tata'}], SubnetId=self.subnet_id1).response.Nic.NicId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
