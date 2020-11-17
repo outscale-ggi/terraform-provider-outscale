@@ -21,13 +21,15 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                            {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
                 LoadBalancerName=cls.lb_name, SubregionNames=[cls.a1_r1.config.region.az_name],
             )
-            cls.policy_name_app = id_generator(prefix='policy-')
-            cls.a1_r1.oapi.CreateLoadBalancerPolicy(
-                LoadBalancerName=cls.lb_name, PolicyName=cls.policy_name_app, PolicyType='app',
-                CookieName=id_generator(prefix='cookie-'))
-            cls.policy_name_lb = id_generator(prefix='policy-')
-            cls.a1_r1.oapi.CreateLoadBalancerPolicy(
-                LoadBalancerName=cls.lb_name, PolicyName=cls.policy_name_lb, PolicyType='load_balancer')
+            cls.policy_name_app = []
+            cls.policy_name_lb = []
+            for _ in range(3):
+                name = id_generator(prefix='policy-')
+                cls.policy_name_app.append(name)
+                cls.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=cls.lb_name, PolicyName=name, PolicyType='app', CookieName=id_generator(prefix='cookie-'))
+                name = id_generator(prefix='policy-')
+                cls.policy_name_lb.append(name)
+                cls.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=cls.lb_name, PolicyName=name, PolicyType='load_balancer')
         except:
             try:
                 cls.teardown_class()
@@ -118,41 +120,78 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             assert False, "call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', '3002')
-
-    def test_T2854_app_policy_http(self):
-        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
-                                                PolicyNames=[self.policy_name_app]).response.LoadBalancer
-        validate_load_balancer_global_form(lb)
-
-    def test_T2855_app_policy_tcp(self):
-        try:
-            self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=1080,
-                                               PolicyNames=[self.policy_name_lb])
-            assert False, "call should not have been successful"
-        except OscApiException as error:
-            assert_oapi_error(error, 409, 'ResourceConflict', '9056')
-
-    def test_T2856_lb_policy_http(self):
-        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
-                                           PolicyNames=[self.policy_name_lb]).response.LoadBalancer
-        validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': [self.policy_name_lb]}])
-
-    def test_T5328_empty_policies(self):
-        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=[]).response.LoadBalancer
+ 
+    def empty_policies(self, port):
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=port, PolicyNames=[]).response.LoadBalancer
         validate_load_balancer_global_form(lb)
         for listener in lb.Listeners:
-            if listener.LoadBalancerPort == 80:
+            if listener.LoadBalancerPort == port:
                 assert not hasattr(listener, 'PolicyNames')
                 break
-
-    def test_T2857_lb_policy_tcp(self):
+         
+    # http - app : 0 -> 1 -> 0
+    def test_T5331_http_app_single_policy(self):
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_app[0:1]).response.LoadBalancer
+        validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app[0:1]}])
+        self.empty_policies(80)
+ 
+    # http - app : 0 -> n -> 0
+    def test_T5332_http_app_policy_multi(self):
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_app).response.LoadBalancer
+        validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app}])
+        self.empty_policies(80)
+ 
+    # http - app : 0 -> n1 -> n2 -> 0
+    def test_T5333_http_app_policy_mixed(self):
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_app[0:2]).response.LoadBalancer
+        validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app[0:2]}])
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_app[1:3]).response.LoadBalancer
+        validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app[1:3]}])
+        self.empty_policies(80)
+ 
+    # http - lb : 0 -> 1 -> 0
+    def test_T5334_http_lb_policy_single(self):
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb[0:1]).response.LoadBalancer
+        validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb[0:1]}])
+        self.empty_policies(80)
+ 
+    # http - lb : 0 -> n -> 0
+    def test_T5335_http_lb_policy_multi(self):
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb).response.LoadBalancer
+        validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb}])
+        self.empty_policies(80)
+ 
+    # http - lb : 0 -> n1 -> n2 -> 0
+    def test_T5336_http_lb_policy_mixed(self):
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb[0:2]).response.LoadBalancer
+        validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb[0:2]}])
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb[1:3]).response.LoadBalancer
+        validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb[1:3]}])
+        self.empty_policies(80)
+ 
+    # http - lb, app
+    def test_T5337_http_app_lb_same_listener(self):
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb[0:1]).response.LoadBalancer
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_app[0:1]).response.LoadBalancer
+        validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': [self.policy_name_app[0:1], self.policy_name_app[0:1]]}])
+        self.empty_policies(80)
+ 
+    # ftp - lb : 0 -> n
+    def test_T5338_ftp_lb_policy(self):
         try:
-            self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=1080,
-                                               PolicyNames=[self.policy_name_lb])
+            self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=1080, PolicyNames=self.policy_name_lb)
             assert False, "call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 409, 'ResourceConflict', '9056')
-
+     
+    # ftp - app : 0 -> n
+    def test_T5339_ftp_app_policy(self):
+        try:
+            self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=1080, PolicyNames=self.policy_name_app)
+            assert False, "call should not have been successful"
+        except OscApiException as error:
+            assert_oapi_error(error, 409, 'ResourceConflict', '9056')
+     
     def test_T2858_access_log_invalid_interval(self):
         try:
             self.a1_r1.oapi.UpdateLoadBalancer(
@@ -167,7 +206,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             assert False, "call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
-
+ 
     def test_T2859_access_log_missing_is_enabled(self):
         try:
             self.a1_r1.oapi.UpdateLoadBalancer(
@@ -181,7 +220,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             assert False, "call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4088')
-
+ 
     # def test_valid_access_log(self):
     #     ## This test need osu_bucket
     #     self.a1_r1.oapi.UpdateLoadBalancer(
@@ -193,7 +232,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
     #         },
     #         LoadBalancerName=self.lb_name,
     #     )
-
+ 
     def test_T2860_with_invalid_server_certificate_id(self):
         try:
             self.a1_r1.oapi.UpdateLoadBalancer(
@@ -203,7 +242,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             assert False, "call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5070')
-
+ 
     def test_T3145_invalid_lb_name(self):
         try:
             self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName='tata',
@@ -218,14 +257,14 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             assert False, "call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5030')
-
+ 
     def test_T3146_empty_health_check(self):
         try:
             self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, HealthCheck={})
             assert False, "call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
-
+ 
     def test_T3147_invalid_health_check(self):
         try:
             self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name,
@@ -282,7 +321,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             assert False, "call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4095')
-
+ 
     def test_T2627_valid_health_check(self):
         ret = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name,
                                                  HealthCheck={
@@ -371,14 +410,14 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             hc={'CheckInterval': 15, 'HealthyThreshold': 7, 'Path': '/', 'Port': 80, 'Protocol': 'HTTPS',
                 'Timeout': 15, 'UnhealthyThreshold': 3}
         )
-
+ 
     @pytest.mark.tag_sec_confidentiality
     def test_T3468_other_account(self):
         try:
-            self.a2_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=[self.policy_name_lb])
+            self.a2_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb[0:1])
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', 5030)
-
+ 
     def test_T4678_multi_lbu_same_name_diff_users(self):
         ret_create_lbu = None
         try:
@@ -387,7 +426,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                            {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
                 LoadBalancerName=self.lb_name, SubregionNames=[self.a2_r1.config.region.az_name],
             )
-            self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=[self.policy_name_lb])
+            self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb)
         finally:
             if ret_create_lbu:
                 try:
