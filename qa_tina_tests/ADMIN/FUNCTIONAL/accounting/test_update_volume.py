@@ -16,7 +16,7 @@ class Test_update_volume(OscTestSuite):
     def teardown_class(cls):
         super(Test_update_volume, cls).teardown_class()
 
-    def test_TXXX_billing_update_volume_io1(self):
+    def test_T5341_billing_update_volume_io1(self):
         is_deleted = False
         dates = []
         initial_size = 5
