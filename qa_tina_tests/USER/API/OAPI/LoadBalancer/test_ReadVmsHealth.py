@@ -52,6 +52,7 @@ class Test_ReadVmsHealth(OscTestSuite):
 
     def test_T2945_valid_params(self):
         resp = self.a1_r1.oapi.ReadVmsHealth(LoadBalancerName=self.lbu_name).response
+        assert len(resp.BackendVmHealth) == 2
         check_oapi_response(resp, 'ReadVmsHealthResponse')
 
 

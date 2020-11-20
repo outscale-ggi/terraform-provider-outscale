@@ -83,7 +83,11 @@ def get_md5sum(osc_sdk, sshclient, inst_id, vol_id, device='/dev/xvdc', folder='
     SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
 
     osc_sdk.fcu.DetachVolume(VolumeId=vol_id)
-    wait_volumes_state(osc_sdk, [vol_id], 'available')
+    try:
+        wait_volumes_state(osc_sdk, [vol_id], 'available')
+    except AssertionError:
+        osc_sdk.fcu.DetachVolume(VolumeId=vol_id)
+        wait_volumes_state(osc_sdk, [vol_id], 'available')
 
     return md5sum
 

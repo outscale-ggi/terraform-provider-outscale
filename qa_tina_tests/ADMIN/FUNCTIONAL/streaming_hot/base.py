@@ -125,6 +125,6 @@ class StreamingBaseHot(StreamingBase):
         self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
         wait_snapshots_state(osc_sdk=self.a1_r1, cleanup=True, snapshot_id_list=[snap_id])
         self.vol_1_snap_list.remove(snap_id)
-        assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
+        #assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
         wait_streaming_state(self.a1_r1, resource_id, cleanup=True, logger=self.logger)
 

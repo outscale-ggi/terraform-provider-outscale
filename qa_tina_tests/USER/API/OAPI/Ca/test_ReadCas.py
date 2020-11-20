@@ -3,11 +3,11 @@ from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
 from qa_test_tools.misc import assert_dry_run
 
 
-class Test_ReadCa(OscTestSuite):
+class Test_ReadCas(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_ReadCa, cls).setup_class()
+        super(Test_ReadCas, cls).setup_class()
         cls.tmp_file_paths = None
         cls.ca1 = cls.ca2 = cls.ca3 = None
         cls.ca1files = cls.ca2files = None
@@ -28,7 +28,7 @@ class Test_ReadCa(OscTestSuite):
             if cls.ca2:
                 cls.a2_r1.oapi.DeleteCa(CaId=cls.ca2.response.Ca.CaId)
         finally:
-            super(Test_ReadCa, cls).teardown_class()
+            super(Test_ReadCas, cls).teardown_class()
 
     def test_T5309_without_params(self):
         resp = self.a1_r1.oapi.ReadCas().response

@@ -99,23 +99,23 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
 
     def test_T5287_update_cns(self):
         self.my_setup()
-        resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Cns=[create_tools.CLIENT_CERT_CN1]).response
+        resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1]).response
         check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
         try:
-            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, Cns=[create_tools.CLIENT_CERT_CN1])
+            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1])
             assert False, 'Remove known error code'
         except AttributeError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5288_update_description(self):
         self.my_setup()
-        resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Description='NewDescription').response
-        check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
         try:
-            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, Description='NewDescription')
+            resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Description='NewDescription', IpRanges=["1.1.1.1/32", "2.2.2.2/32"]).response
+            check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
+            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, Description='NewDescription', IpRanges=["1.1.1.1/32", "2.2.2.2/32"])
             assert False, 'Remove known error code'
         except AttributeError:
-            known_error('GTW-1544', 'Missing elements in response.')
+            known_error('GTW-1544', 'Could not update description')
 
     def test_T5289_update_ip_ranges(self):
         self.my_setup()
@@ -195,7 +195,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
     def test_T5298_other_account(self):
         self.my_setup()
         try:
-            self.a1_r1.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Description='NewDescription').response
+            self.a2_r1.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Description='NewDescription').response
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')

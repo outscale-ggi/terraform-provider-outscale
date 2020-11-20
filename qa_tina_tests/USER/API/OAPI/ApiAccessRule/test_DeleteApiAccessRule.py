@@ -63,7 +63,7 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
     def test_T5263_other_account(self):
         self.my_setup()
         try:
-            self.a1_r1.oapi.DeleteApiAccessRule(ApiAccessRuleId=self.api_access_rule_id).response
+            self.a2_r1.oapi.DeleteApiAccessRule(ApiAccessRuleId=self.api_access_rule_id).response
             self.api_access_rule_id = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
