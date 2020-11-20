@@ -16,16 +16,19 @@ class Test_update_volume(OscTestSuite):
     def teardown_class(cls):
         super(Test_update_volume, cls).teardown_class()
 
-    def test_TXXX_billing_update_volume(self):
+    def test_TXXX_billing_update_volume_io1(self):
         is_deleted = False
         dates = []
+        initial_size = 5
+        update_size = 10
+        iops = 1000
         try:
-            self.vol = self.a1_r1.oapi.CreateVolume(VolumeType='standard', Size=2,
-                                                    SubregionName=self.azs[0]).response.Volume
+            self.vol = self.a1_r1.oapi.CreateVolume(Size=initial_size, SubregionName=self.azs[0],
+                                                    Iops=iops, VolumeType='io1').response.Volume
             dates.append(datetime.datetime.now())
             wait_volumes_state(self.a1_r1, [self.vol.VolumeId], state='available')
 
-            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5)
+            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=update_size)
             dates.append(datetime.datetime.now())
             wait_volumes_state(self.a1_r1, [self.vol.VolumeId], state='available')
 
@@ -37,28 +40,34 @@ class Test_update_volume(OscTestSuite):
             user_name = self.a1_r1.config.account.account_id
             ret = self.a1_r1.intel.accounting.find(owner=[user_name], operation='CreateVolume', limit=6,
                                                    instance=self.vol.VolumeId).response.result.results
-            #assert len(ret) == 3
+            assert len(ret) == 6
             i = 0
+            j = 0
             for r in ret:
                 assert r.is_correlated is True
                 assert r.operation == 'CreateVolume'
-                assert r.type == 'BSU:VolumeUsage:standard'
+                assert (r.type == 'BSU:VolumeIOPS:io1' if i in [1, 5] else r.type == 'BSU:VolumeUsage:io1')
                 assert r.instance == self.vol.VolumeId
+                assert r.created.dt.strftime("%Y-%m-%d %H:%M:%S") <= \
+                       (dates[j]+datetime.timedelta(seconds=2)).strftime("%Y-%m-%d %H:%M:%S")
 
-                if hasattr(r, 'value'):
-                    if i == 1:
-                        assert int(r.value) == 5 * 2 ** 30
-                        assert r.created.dt.strftime("%Y-%m-%d %H:%M:%S") == dates[i].strftime("%Y-%m-%d %H:%M:%S")
-                    if i == 3:
-                        assert int(r.value) == 2 * 2 ** 30
-                        assert r.created.dt.strftime("%Y-%m-%d %H:%M:%S") == dates[0].strftime("%Y-%m-%d %H:%M:%S")
-                if i in [0, 2]:
-                    assert(r.closing) is True
-                    assert(r.is_last) is True
-                if i in [1, 3]:
+                if i in [0, 1, 3]:
                     assert(r.closing) is False
                     assert(r.is_last) is False
+                    if hasattr(r, 'value'):
+                        if i == 0:
+                            assert int(r.value) == initial_size * 2 ** 30
+                        elif i == 1:
+                            assert int(r.value) == iops
+                        else:
+                            assert int(r.value) == update_size * 2 ** 30
+                else:
+                    assert(r.closing) is True
+                    assert(r.is_last) is True
+
                 i = i+1
+                j = (i-j)-1
         finally:
             if not is_deleted:
-                self.a1_r1.oapi.DeleteVolume(VolumeId=self.vol.VolumeId)
+                if self.vol:
+                    self.a1_r1.oapi.DeleteVolume(VolumeId=self.vol.VolumeId)
