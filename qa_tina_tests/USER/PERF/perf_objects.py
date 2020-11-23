@@ -4,7 +4,7 @@ from string import ascii_lowercase
 
 from qa_test_tools import misc
 from qa_tina_tests.USER.PERF.perf_common import log_error
-from qa_tina_tools.tina import oos
+from qa_tina_tools.tina import storage
 
 
 def func_objects(oscsdk, func, service, logger, size, result):
@@ -18,10 +18,11 @@ def func_objects(oscsdk, func, service, logger, size, result):
         bucket_name = tmp
         if os.sys.platform != 'darwin':
             size = size.upper()
-        path_to_file = oos.write_big_data(size, 'data.txt')
+        path_to_file = storage.write_big_data(size, 'data.txt')
         if func == 'multipart_upload':
-            mpu = oos.s3multipartupload(
+            mpu = storage.s3multipartupload(
                 oscsdk,
+                service,
                 bucket_name,
                 'data.txt',
                 path_to_file)
@@ -86,18 +87,3 @@ def func_objects(oscsdk, func, service, logger, size, result):
                 connector.delete_bucket(Bucket=bucket_name)
             except Exception as error:
                 errors.append(error)
-
-
-def perf_objects(oscsdk, logger, queue, args):
-    result = {'status': 'OK'}
-    func_objects(oscsdk=oscsdk, func='multipart_upload', service='oos', logger=logger, size='100m', result=result)
-    func_objects(oscsdk=oscsdk, func='multipart_upload', service='oos', logger=logger, size='500m', result=result)
-    func_objects(oscsdk=oscsdk, func='multipart_upload', service='oos', logger=logger, size='1g', result=result)
-    func_objects(oscsdk=oscsdk, func='multipart_upload', service='oos', logger=logger, size='2000m', result=result)
-    func_objects(oscsdk=oscsdk, func='multipart_upload', service='oos', logger=logger, size='5g', result=result)
-    func_objects(oscsdk=oscsdk, func='multipart_upload', service='oos', logger=logger, size='10g', result=result)
-    func_objects(oscsdk=oscsdk, func='put_object', service='oos', logger=logger, size='100m', result=result)
-    func_objects(oscsdk=oscsdk, func='put_object', service='oos', logger=logger, size='500m', result=result)
-    func_objects(oscsdk=oscsdk, func='put_object', service='oos', logger=logger, size='1g', result=result)
-    func_objects(oscsdk=oscsdk, func='put_object', service='oos', logger=logger, size='2g', result=result)
-    queue.put(result.copy())

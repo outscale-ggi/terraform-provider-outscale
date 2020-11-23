@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from string import ascii_lowercase
 
@@ -17,7 +18,7 @@ def perf_storage(oscsdk, service, logger, queue, args):
         durations = []
         for num in range(retry):
             logger.debug("%s : %d/%d", "create_bucket", num + 1, retry)
-            tmp = misc.id_generator(prefix="bucket", chars=ascii_lowercase)
+            tmp = misc.id_generator(prefix="bucket", size=10, chars=ascii_lowercase)
             start_desc = datetime.now()
             ret = connector.create_bucket(Bucket=tmp)
             durations.append((datetime.now() - start_desc).total_seconds())
@@ -56,17 +57,14 @@ def perf_storage(oscsdk, service, logger, queue, args):
             num = 0
             durations = []
             for bucket_name in bucket_names:
-                ret = connector.list_buckets()
-                list_buckets = [v['Name'] for v in ret['Buckets']]
-                if bucket_name in list_buckets:
-                    logger.debug("%s : %d/%d", "delete_bucket", num + 1, retry)
-                    start_desc = datetime.now()
-                    try:
-                        connector.delete_bucket(Bucket=bucket_name)
-                        durations.append((datetime.now() - start_desc).total_seconds())
-                        num += 1
-                    except Exception as error:
-                        log_error(logger, error, "Unexpected error while executing %s".format("delete_bucket"), result)
+                logger.debug("%s : %d/%d", "delete_bucket", num + 1, retry)
+                start_desc = datetime.now()
+                try:
+                    connector.delete_bucket(Bucket=bucket_name)
+                    durations.append((datetime.now() - start_desc).total_seconds())
+                    num += 1
+                except Exception as error:
+                    log_error(logger, error, "Unexpected error while executing %s".format("delete_bucket"), result)
             result["delete_bucket"+service] = numpy.array(durations).mean()
 
     queue.put(result.copy())
