@@ -9,6 +9,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub.osc_api import disable_throttling
 import time
 from qa_test_tools.error import error_type, load_errors
+from qa_sdk_pub import osc_api
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -25,7 +26,7 @@ def test_Create_Read_Delete(osc_sdk, queue, args):
         net_id = None
         try:
             call_number += 1
-            ret = osc_sdk.oapi.CreateInternetService(max_retry=0, DryRun=args.dry_run)
+            ret = osc_sdk.oapi.CreateInternetService(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}, DryRun=args.dry_run)
             if args.dry_run:
                 net_id = 'igw-12345678'
             else:
@@ -37,7 +38,7 @@ def test_Create_Read_Delete(osc_sdk, queue, args):
         if net_id:
             try:
                 call_number += 1
-                ret = osc_sdk.oapi.ReadInternetServices(Filters={'InternetServiceIds': [net_id]}, max_retry=0, DryRun=args.dry_run)
+                ret = osc_sdk.oapi.ReadInternetServices(Filters={'InternetServiceIds': [net_id]}, exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}, DryRun=args.dry_run)
                 if not args.dry_run:
                     ret = ret.response.InternetServices
                 if not ret:
@@ -49,7 +50,7 @@ def test_Create_Read_Delete(osc_sdk, queue, args):
         if net_id:
             try:
                 call_number += 1
-                osc_sdk.oapi.DeleteInternetService(InternetServiceId=net_id, max_retry=0, DryRun=args.dry_run)
+                osc_sdk.oapi.DeleteInternetService(InternetServiceId=net_id, exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}, DryRun=args.dry_run)
                 net_id = None
             except OscApiException as error:
                 errs.handle_api_exception(error, error_type.Delete)
@@ -89,7 +90,7 @@ if __name__ == '__main__':
     args_p.add_argument('-a', '--account', dest='account', action='store',
                         required=True, type=str, help='Set account used for the test')
     args_p.add_argument('-np', '--proc_num', dest='process_number', action='store',
-                        required=False, type=int, default=80, help='number of processes, default 10')
+                        required=False, type=int, default=25, help='number of processes, default 10')
     args_p.add_argument('-nr', '--num_read', dest='num_read_per_process', action='store',
                         required=False, type=int, default=200, help='number of read calls per process, default 500')
     args_p.add_argument('-dr', '--dry_run', dest='dry_run', action='store',

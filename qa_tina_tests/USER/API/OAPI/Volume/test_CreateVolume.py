@@ -204,6 +204,22 @@ class Test_CreateVolume(OscTestSuite):
             if self.snap_id:
                 self.a1_r1.oapi.DeleteSnapshot(SnapshotId=self.snap_id)
 
+    def test_T5231_valid_from_snapshot_id_of_volume_standard_with_an_inferior_size(self):
+        self.snap_id = None
+        try:
+            ret = self.a1_r1.oapi.CreateVolume(VolumeType='standard', SubregionName=self.azs[0], Size=2).response.Volume
+            self.vol_ids.append(ret.VolumeId)
+            wait_volumes_state(self.a1_r1, [ret.VolumeId], state='available')
+            ret_snap = self.a1_r1.oapi.CreateSnapshot(VolumeId=ret.VolumeId).response.Snapshot
+            self.snap_id = ret_snap.SnapshotId
+            ret_vol2 = self.a1_r1.oapi.CreateVolume(SnapshotId=self.snap_id, SubregionName=self.azs[0], Size=1).response.Volume
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4125)
+        finally:
+            if self.snap_id:
+                self.a1_r1.oapi.DeleteSnapshot(SnapshotId=self.snap_id)
+
+
     def test_T2962_valid_from_snapshot_id_of_volume_gp2(self):
         self.snap_id = None
         try:

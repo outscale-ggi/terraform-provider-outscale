@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -58,3 +58,11 @@ class Test_DescribeInstances(OscTestSuite):
     def test_T3273_with_other_account_with_filter(self):
         ret = self.a2_r1.fcu.DescribeInstances(Filter=[{'Name': 'instance-id', 'Value': [self.instance_info_a1[INSTANCE_ID_LIST][0]]}])
         assert not ret.response.reservationSet
+
+    def test_T5146_with_existing_and_not_existing_instances(self):
+        try:
+            self.a1_r1.fcu.DescribeInstances(InstanceId=[self.instance_info_a1[INSTANCE_ID_LIST][0], 'i-1b5240d7'])
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidInstanceID.NotFound',
+                         'The Instance ID does not exist: i-1b5240d7, for account: {}'.format(self.a1_r1.config.account.account_id))

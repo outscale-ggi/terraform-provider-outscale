@@ -20,7 +20,7 @@ class Test_butterfly_vpc(OscTestSuite):
             except:
                 pass
             if message and message.startswith('Threshold reach for wait_instances_state'):
-                known_error('TINA-5758', 'Instance did not reach running state')
+                known_error('TINA-6012', 'Instance did not reach running state')
             raise error    
         finally:
             if inst_info:

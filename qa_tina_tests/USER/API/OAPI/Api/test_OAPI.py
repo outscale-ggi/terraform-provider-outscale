@@ -22,7 +22,8 @@ class Test_OAPI(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_OAPI, cls).setup_class()
-        get_documentation('oapi')
+        version = get_documentation('oapi')
+        assert version == cls.oapi_version[cls.a1_r1.config.region.name]
 
     @pytest.mark.tag_sec_traceability
     def test_T2221_check_request_id(self):
@@ -116,9 +117,9 @@ class Test_OAPI(OscTestSuite):
         result = subprocess.check_output(batcmd, shell=True)
         result2 = json.loads(result)
         assert 'Version' in result2 and result1['Versions'][0] == "v" + result2['Version'][0]
-        assert len(DOCUMENTATIONS['oapi'][PATHS]) == len(result2['Calls'])
+        assert len(DOCUMENTATIONS['oapi'][self.oapi_version[self.a1_r1.config.region.name]][PATHS]) == len(result2['Calls'])
         for call in result2['Calls']:
-            assert '/' + call in DOCUMENTATIONS['oapi'][PATHS]
+            assert '/' + call in DOCUMENTATIONS['oapi'][self.oapi_version[self.a1_r1.config.region.name]][PATHS]
  
     def test_T4688_check_oapi_including_version(self):
         batcmd = "curl -X POST https://api.{}.outscale.com/api/V1/ReadPublicIpRanges".format(self.a1_r1.config.region.name)
@@ -303,3 +304,10 @@ class Test_OAPI(OscTestSuite):
         self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
                                                       osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
                                                       osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+
+    def test_T5321_method_options(self):
+        ret = self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_METHOD: 'OPTIONS'})
+        assert ret.status_code == 204
+        assert ret.headers['Access-Control-Allow-Methods'] == 'OPTIONS,POST'
+        assert ret.headers['Access-Control-Allow-Origin'] == '*'
+        assert ret.headers['Access-Control-Max-Age'] == '86400'

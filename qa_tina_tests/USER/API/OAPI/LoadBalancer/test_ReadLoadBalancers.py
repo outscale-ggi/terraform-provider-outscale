@@ -2,6 +2,7 @@
 import pytest
 
 from qa_test_tools.misc import id_generator
+
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
 
 
@@ -153,3 +154,30 @@ class Test_ReadLoadBalancers(LoadBalancer):
         ret = self.a2_r1.oapi.ReadLoadBalancers(Filters={'LoadBalancerNames': [self.lb_names_a2[0]]}).response.LoadBalancers
         assert len(ret) == 1
         assert ret[0].DnsName == self.lb_dnsnames_a2[0]
+
+    def test_T5326_after_update_policy(self):
+        lb_policy = None
+        lb_policy2 = None
+        policy_name_lb = None
+        policy_name_lb2 = None
+        try:
+            policy_name_lb = id_generator(prefix='policy-')
+            policy_name_lb2 = id_generator(prefix='policy-')
+            lb_policy = self.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=self.lb_names_a1[0],PolicyName=policy_name_lb,PolicyType="load_balancer")
+            lb_policy2 = self.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=self.lb_names_a1[0],PolicyName=policy_name_lb2,PolicyType="load_balancer")
+
+            self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_names_a1[0], PolicyNames=[policy_name_lb2],
+                                               LoadBalancerPort=80)
+            ret = self.a1_r1.oapi.ReadLoadBalancers(Filters={'LoadBalancerNames': [self.lb_names_a1[0]]}).response.LoadBalancers
+
+            assert len(ret[0].Listeners) == 1
+            assert ret[0].Listeners[0].PolicyNames[0] == policy_name_lb2
+
+            assert len(ret[0].LoadBalancerStickyCookiePolicies) == 2
+            assert ret[0].LoadBalancerStickyCookiePolicies[0].PolicyName == policy_name_lb
+            assert ret[0].LoadBalancerStickyCookiePolicies[1].PolicyName == policy_name_lb2
+        finally:
+            if lb_policy:
+                self.a1_r1.oapi.DeleteLoadBalancerPolicy(LoadBalancerName=self.lb_names_a1[0], PolicyName=policy_name_lb)
+            if lb_policy2:
+                self.a1_r1.oapi.DeleteLoadBalancerPolicy(LoadBalancerName=self.lb_names_a1[0], PolicyName=policy_name_lb2)
