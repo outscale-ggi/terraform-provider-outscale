@@ -45,7 +45,7 @@ class Test_DeleteVpnGateway(OscTestSuite):
             self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vp_id)
             assert False, "call should not have been successful, bad parameter"
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidVpnGatewayID.NotFound', "The VpnGatewayId '{}' does not exist".
+            assert_error(error, 400, 'InvalidVpnGatewayID.Malformed', "Invalid ID received: {}".
                          format(str(vp_id)))
 
     def test_T4382_with_valid_id(self):
