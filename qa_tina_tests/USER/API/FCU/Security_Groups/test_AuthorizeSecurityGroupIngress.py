@@ -64,6 +64,9 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=group_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if error.error_code == "MissingParameter" and error.message == "Parameter cannot be empty: Authorizations":
+                known_error("TINA-6047", "Incorrect error returned by AuthorizeSecurityGroupIngress")
+            assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidGroup.NotFound', "The security group '{}' does not exist.".format(group_id))
 
     def test_T580_invalid_group_id_incorrect_format(self):
@@ -76,6 +79,9 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if error.error_code == "MissingParameter" and error.message == "Parameter cannot be empty: Authorizations":
+                known_error("TINA-6047", "Incorrect error returned by AuthorizeSecurityGroupIngress")
+            assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidGroup.NotFound', "The security group '" + sg_id + "' does not exist.")
         finally:
             self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg_name)
@@ -123,6 +129,9 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
             sg2_id = ret.response.groupId
             ret = self.a2_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg2_id, SourceSecurityGroupOwnerId=self.a1_r1.config.account.account_id)
         except OscApiException as error:
+            if error.error_code == "MissingParameter" and error.message == "Parameter cannot be empty: Authorizations":
+                known_error("TINA-6047", "Incorrect error returned by AuthorizeSecurityGroupIngress")
+            assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidPermission.Malformed', 'IpProtocol, IpPermissions or SourceSecurityGroupName is missing')
         finally:
             self.a2_r1.fcu.DeleteSecurityGroup(GroupName=sg2_name)
@@ -143,6 +152,9 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                                                          CidrIp=Configuration.get('cidr', 'allips'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if error.error_code == "MissingParameter" and error.message == "Parameter cannot be empty: Authorizations":
+                known_error("TINA-6047", "Incorrect error returned by AuthorizeSecurityGroupIngress")
+            assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidPermission.Malformed', "IpProtocol, IpPermissions or SourceSecurityGroupName is missing")
 
     def test_T3046_private_no_ip_protocol_param(self):
@@ -151,6 +163,9 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                                                          CidrIp=Configuration.get('cidr', 'allips'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if error.error_code == "MissingParameter" and error.message == "Parameter cannot be empty: Authorizations":
+                known_error("TINA-6047", "Incorrect error returned by AuthorizeSecurityGroupIngress")
+            assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidPermission.Malformed', "IpProtocol, IpPermissions or SourceSecurityGroupName is missing")
 
     def test_T2987_valid_group_name(self):

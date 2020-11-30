@@ -113,10 +113,6 @@ class Test_create_image_from_snapshot(OscTestSuite):
                     cleanup_images(self.a1_r1, image_id_list=[ret_ri.response.imageId], force=True)
                 except:
                     pass
-            if ret_cs.response.snapshotId:
-                # remove snapshot
-                self.a1_r1.fcu.DeleteSnapshot(SnapshotId=ret_cs.response.snapshotId)
-                wait_snapshots_state(osc_sdk=self.a1_r1, cleanup=True, snapshot_id_list=[ret_cs.response.snapshotId])
             if vol_id:
                 # remove volume
                 self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)
