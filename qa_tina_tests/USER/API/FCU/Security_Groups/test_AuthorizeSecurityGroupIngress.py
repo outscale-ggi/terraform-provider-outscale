@@ -65,9 +65,6 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                                                          CidrIp=Configuration.get('cidr', 'allips'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.error_code == "MissingParameter" and error.message == "Parameter cannot be empty: Authorizations":
-                known_error("TINA-6047", "Incorrect error returned by AuthorizeSecurityGroupIngress")
-            assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidGroup.NotFound', "The security group '{}' does not exist.".format(group_id))
 
     def test_T580_invalid_group_id_incorrect_format(self):
@@ -81,9 +78,6 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                                                          CidrIp=Configuration.get('cidr', 'allips'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.error_code == "MissingParameter" and error.message == "Parameter cannot be empty: Authorizations":
-                known_error("TINA-6047", "Incorrect error returned by AuthorizeSecurityGroupIngress")
-            assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidGroup.NotFound', "The security group '" + sg_id + "' does not exist.")
         finally:
             self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg_name)
@@ -170,7 +164,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
             assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidPermission.Malformed', "IpProtocol, IpPermissions or SourceSecurityGroupName is missing")
 
-    def test_TXXX_public_integer_ip_protocol_param(self):
+    def test_T5345_public_integer_ip_protocol_param(self):
         try:
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=self.publicGroupId, IpProtocol='45',
                                                          CidrIp=Configuration.get('cidr', 'allips'))
@@ -178,7 +172,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'InvalidPermission.Malformed', 'Unsupported IP protocol "45"  - supported: [tcp, udp, icmp]')
 
-    def test_TXXX_private_integer_ip_protocol_param(self):
+    def test_T5346_private_integer_ip_protocol_param(self):
         self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=self.privateGroupId, IpProtocol='45',
                                                         CidrIp=Configuration.get('cidr', 'allips'))
 
