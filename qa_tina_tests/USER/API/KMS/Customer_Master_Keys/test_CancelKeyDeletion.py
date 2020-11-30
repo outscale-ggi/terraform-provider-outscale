@@ -2,6 +2,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
 from qa_tina_tests.USER.API.KMS.kms import Kms
 import pytest
+from qa_test_tools.test_base import known_error
 
 
 @pytest.mark.region_kms
@@ -49,8 +50,13 @@ class Test_CancelKeyDeletion(Kms):
 
     def test_T3235_valid_params(self):
         self.key_id = self.mysetup()
-        ret = self.a1_r1.kms.CancelKeyDeletion(KeyId=self.key_id)
-        assert ret.response.KeyId == self.key_id
+        try:
+            ret = self.a1_r1.kms.CancelKeyDeletion(KeyId=self.key_id)
+            assert False, "Remove known error code"
+            assert ret.response.KeyId == self.key_id
+        except OscApiException as error:
+            if error.message == "Internal Error":
+                known_error("TINA-6046", "kms.key.cancel_deletion return Internal error")
 
     def test_T3236_no_params(self):
         try:

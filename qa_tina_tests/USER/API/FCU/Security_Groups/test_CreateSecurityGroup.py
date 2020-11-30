@@ -302,7 +302,7 @@ class Test_CreateSecurityGroup(OscTestSuite):
             assert False, 'Security group invalid vpc id should have failed.'
         except OscApiException as error:
             assert error.status_code == 400
-            assert error.error_code == 'InvalidVpcID.NotFound'
+            assert error.error_code == 'InvalidVpcID.Malformed'
 
 #     def test_T000_non_ascii_characters_public_sg(self):
 #         pytest.skip('non testable')
@@ -332,7 +332,7 @@ class Test_CreateSecurityGroup(OscTestSuite):
             assert False, 'Security group invalid vpc id should have failed.'
         except OscApiException as error:
             assert error.status_code == 400
-            assert error.error_code == 'InvalidVpcID.NotFound'
+            assert error.error_code == 'InvalidVpcID.Malformed'
         finally:
             if vpc_id:
                 try:

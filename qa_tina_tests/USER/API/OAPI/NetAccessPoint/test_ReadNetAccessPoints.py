@@ -107,9 +107,6 @@ class Test_ReadNetAccessPoints(OscTestSuite):
 
     def test_T3807_filter_servicenames(self):
         ret = self.a1_r1.oapi.ReadNetAccessPoints(Filters={'ServiceNames': ['com.outscale.in-west-2.kms']})
-        if len(ret.response.NetAccessPoints) != 1:
-            known_error("GTW-1351", "Incorrect result with ReadNetAccessPoints filters")
-        assert False, "Remove known error code"
         assert len(ret.response.NetAccessPoints) == 1
 
     def test_T3808_filter_states(self):

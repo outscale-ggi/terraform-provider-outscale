@@ -116,17 +116,14 @@ class Test_CreateNic(Nic):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('GTW-1517', 'Incorrect internal error')
+            known_error('TINA-6048', 'Incorrect internal error')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T5330_with_private_ips_missing_is_primary(self):
-        try:
-            self.nic_id = self.a1_r1.oapi.CreateNic(PrivateIps=[{'PrivateIp': '10.0.1.20'}], SubnetId=self.subnet_id1).response.Nic.NicId
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('GTW-1517', 'Incorrect internal error')
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+        ret = self.a1_r1.oapi.CreateNic(PrivateIps=[{'PrivateIp': '10.0.1.20'}], SubnetId=self.subnet_id1)
+        self.nic_id = ret.response.Nic.NicId
+        assert ret.response.Nic.PrivateIps[1].IsPrimary == False
+        assert ret.response.Nic.PrivateIps[1].PrivateIp == '10.0.1.20'
 
     def test_T2638_with_private_ips_invalid_ip1(self):
         try:
