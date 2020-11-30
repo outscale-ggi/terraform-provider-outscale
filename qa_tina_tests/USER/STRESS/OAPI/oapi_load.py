@@ -90,9 +90,9 @@ if __name__ == '__main__':
     args_p.add_argument('-a', '--account', dest='account', action='store',
                         required=True, type=str, help='Set account used for the test')
     args_p.add_argument('-np', '--proc_num', dest='process_number', action='store',
-                        required=False, type=int, default=25, help='number of processes, default 10')
+                        required=False, type=int, default=40, help='number of processes, default 10')
     args_p.add_argument('-nr', '--num_read', dest='num_read_per_process', action='store',
-                        required=False, type=int, default=200, help='number of read calls per process, default 500')
+                        required=False, type=int, default=500, help='number of read calls per process, default 500')
     args_p.add_argument('-dr', '--dry_run', dest='dry_run', action='store',
                         required=False, type=bool, default=False, help='uses the dry run mode if set')
     args = args_p.parse_args()
