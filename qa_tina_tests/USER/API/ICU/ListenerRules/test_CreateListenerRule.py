@@ -307,3 +307,7 @@ class Test_CreateListenerRule(OscTestSuite):
     def test_T1848_incorrect_content_lrd_rulename(self):
         self.check_error(400, 'IcuClientException', "Invalid type, ListenerRuleDescription.RuleName must be a string",
                          lrd={'RuleName': 12345, 'Priority': 100, 'HostPattern': '*.com'})
+
+    def test_T5344_forbid_wildcard(self):
+        self.check_error(400, 'InvalidParameterValue', "Invalid Path Pattern received: \'*\' Single wildcard is not allowed",
+                         lrd={'RuleName': id_generator(prefix='rn-'), 'Priority': 100, 'PathPattern': "*"})

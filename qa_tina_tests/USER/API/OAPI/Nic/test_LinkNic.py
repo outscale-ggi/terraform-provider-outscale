@@ -70,7 +70,9 @@ class Test_LinkNic(Nic):
     def test_T2658_valid_case(self):
         vm_ids = [self.vpc_inst_info[INSTANCE_ID_LIST][0]]
         wait_instances_state(self.a1_r1, vm_ids, state='running')
-        self.nic_link_ids.append(self.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId=vm_ids[0], NicId=self.nic_ids[0]).response.LinkNicId)
+        ret = self.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId=vm_ids[0], NicId=self.nic_ids[0])
+        assert ret.response.ResponseContext
+        self.nic_link_ids.append(ret.response.LinkNicId)
         assert self.nic_link_ids[-1].startswith('eni-attach-')
 
     def test_T2659_link_too_many_nics_on_same_vm(self):
