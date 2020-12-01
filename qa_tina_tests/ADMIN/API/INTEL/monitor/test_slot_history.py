@@ -12,7 +12,7 @@ class Test_get_slot_history(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_get_slot_history, cls).setup_class()
-        cls.start_date = (datetime.utcnow() - timedelta(days=1)).isoformat().split('.')[0]
+        cls.start_date = (datetime.utcnow() - timedelta(days=10)).isoformat().split('.')[0]
         cls.end_date = datetime.utcnow().isoformat().split('.')[0]
 
     def test_T5348_without_args(self):
