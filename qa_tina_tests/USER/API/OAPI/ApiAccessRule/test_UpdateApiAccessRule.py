@@ -53,8 +53,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule)
-            assert False, 'Remove known error code'
-        except AttributeError:
+        except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5283_two_same(self):
