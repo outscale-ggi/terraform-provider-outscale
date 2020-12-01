@@ -79,7 +79,8 @@ class Test_UnlinkNic(Nic):
         nic_link_id = self.a1_r1.fcu.AttachNetworkInterface(DeviceIndex='1', InstanceId=self.vm_ids[0],
                                                             NetworkInterfaceId=nic_id).response.attachmentId
         wait_network_interfaces_state(osc_sdk=self.a1_r1, network_interface_id_list=[nic_id], state='in-use')
-        self.a1_r1.oapi.UnlinkNic(LinkNicId=nic_link_id)
+        ret = self.a1_r1.oapi.UnlinkNic(LinkNicId=nic_link_id)
+        assert ret.response.ResponseContext
 
     def test_T3492_dry_run(self):
         nic_link_id = None

@@ -106,4 +106,5 @@ class Test_CreateImageExportTask(OscTestSuite):
         bucket_name = id_generator(prefix='bn').lower()
         resp = self.a1_r1.oapi.CreateImageExportTask(ImageId=self.image_id,
                                                      OsuExport={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name}).response
+        assert resp.ImageExportTask
         check_oapi_response(resp, 'CreateImageExportTaskResponse')
