@@ -12,8 +12,8 @@ class Test_ReadConsumptionAccount(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_ReadConsumptionAccount, cls).setup_class()
-        cls.start_date = (datetime.utcnow() - timedelta(days=10)).isoformat().split('.')[0]
-        cls.end_date = (datetime.utcnow() - timedelta(days=3)).isoformat().split('.')[0]
+        cls.start_date = (datetime.utcnow() - timedelta(weeks=20)).isoformat().split('T')[0]
+        cls.end_date = (datetime.utcnow() - timedelta(weeks=10)).isoformat().split('T')[0]
         try:
             pass
         except Exception as error:
