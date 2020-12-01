@@ -4,6 +4,7 @@ from qa_test_tools.misc import id_generator, assert_dry_run,\
 import pytest
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
 from qa_tina_tools.specs.check_tools import check_oapi_response
+from qa_test_tools.test_base import known_error
 
 
 @pytest.mark.region_kms
@@ -52,10 +53,16 @@ class Test_UndeleteMasterKey(OKMS):
         return key_id
 
     def test_T5212_valid_params(self):
-        self.key_id = self.mysetup()
-        ret = self.a1_r1.oapi.UndeleteMasterKey(MasterKeyId=self.key_id)
-        assert ret.response.MasterKey.MasterKeyId == self.key_id
-        check_oapi_response(ret.response, 'UndeleteMasterKeyResponse')
+        try:
+            self.key_id = self.mysetup()
+            ret = self.a1_r1.oapi.UndeleteMasterKey(MasterKeyId=self.key_id)
+            assert False, "Remove known error code"
+            assert ret.response.MasterKey.MasterKeyId == self.key_id
+            check_oapi_response(ret.response, 'UndeleteMasterKeyResponse')
+        except OscApiException as error:
+            if error.message == "InternalError":
+                known_error("TINA-6046", "kms.key.cancel_deletion return Internal error")
+            assert_oapi_error(error, 400, '', '')
 
     def test_T5213_no_params(self):
         try:
