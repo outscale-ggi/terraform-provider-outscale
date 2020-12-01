@@ -63,7 +63,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule)
             assert False, 'Remove known error code'
-        except AttributeError:
+        except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5284_one_same_one_diff(self):
@@ -73,7 +73,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, Description='descriptionbis')
             assert False, 'Remove known error code'
-        except AttributeError:
+        except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5285_one_diff_one_same(self):
@@ -83,7 +83,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, CaIds=self.ca_ids[0:1])
             assert False, 'Remove known error code'
-        except AttributeError:
+        except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
         
     def test_T5286_update_ca_ids(self):
@@ -93,7 +93,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, CaIds=self.ca_ids[0:1])
             assert False, 'Remove known error code'
-        except AttributeError:
+        except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5287_update_cns(self):
@@ -103,7 +103,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1])
             assert False, 'Remove known error code'
-        except AttributeError:
+        except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5288_update_description(self):
@@ -113,7 +113,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
             check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, Description='NewDescription', IpRanges=["1.1.1.1/32", "2.2.2.2/32"])
             assert False, 'Remove known error code'
-        except AttributeError:
+        except AssertionError:
             known_error('GTW-1544', 'Could not update description')
 
     def test_T5289_update_ip_ranges(self):
@@ -123,7 +123,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, IpRanges=["1.1.1.1/32"])
             assert False, 'Remove known error code'
-        except AttributeError:
+        except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5290_all_items(self):
