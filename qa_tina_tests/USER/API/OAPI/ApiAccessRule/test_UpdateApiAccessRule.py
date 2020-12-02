@@ -104,11 +104,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1])
             raise OscApiException
-<<<<<<< HEAD
-        except AssertionError:
-=======
         except AttributeError:
->>>>>>> branch 'TKA_DEV' of https://gitlab.outscale.internal/qa-produit/tests/qa_tina_tests.git
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5288_update_description(self):
