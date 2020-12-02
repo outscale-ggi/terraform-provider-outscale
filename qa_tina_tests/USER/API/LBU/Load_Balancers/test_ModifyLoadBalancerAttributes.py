@@ -13,7 +13,7 @@ class Test_ModifyLoadBalancerAttributes(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        #cls.vpc_id = None
+        # cls.vpc_id = None
         cls.lb_name = None
         try:
             super(Test_ModifyLoadBalancerAttributes, cls).setup_class()
@@ -66,14 +66,14 @@ class Test_ModifyLoadBalancerAttributes(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'ValidationError', 'The request must contain the parameter LoadBalancerAttributes')
 
-    @pytest.mark.region_osu
+    @pytest.mark.region_storageservice
     def test_T5136_valid_access_log(self):
         ret_create_bucket = None
         bucket_name = id_generator(prefix="bucket", chars=ascii_lowercase)
         try:
-            ret_create_bucket = self.a1_r1.osu.create_bucket(Bucket=bucket_name)
+            ret_create_bucket = self.a1_r1.storageservice.create_bucket(Bucket=bucket_name)
             
-            access_log = {'S3BucketName': 'test', 'S3BucketPrefix': 'prefix', 'EmitInterval': 5, 'Enabled': True}
+            access_log = {'S3BucketName': bucket_name, 'S3BucketPrefix': 'prefix', 'EmitInterval': 5, 'Enabled': True}
             self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerAttributes={'AccessLog': access_log}, LoadBalancerName=self.lb_name)
             ret = self.a1_r1.lbu.DescribeLoadBalancerAttributes(LoadBalancerName=self.lb_name)
             assert ret.response.DescribeLoadBalancerAttributesResult.LoadBalancerAttributes.AccessLog.Enabled == 'true'
@@ -85,7 +85,7 @@ class Test_ModifyLoadBalancerAttributes(OscTestSuite):
             known_error('TINA-5939', 'Cannot change access log with bucket')
         finally:
             if ret_create_bucket:
-                self.a1_r1.osu.delete_bucket(Bucket=bucket_name)
+                self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
 
     #def test_T0003_with_access_log(self):
     #    self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerName=self.lb_name,
