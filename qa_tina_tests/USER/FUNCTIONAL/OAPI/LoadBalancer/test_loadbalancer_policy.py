@@ -8,18 +8,18 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 
 
-class Test_load_balancer_policy(OscTestSuite):
+class Test_loadbalancer_policy(OscTestSuite):
 
     @classmethod
     def setup_class(cls, ):
-        super(Test_load_balancer_policy, cls).setup_class()
+        super(Test_loadbalancer_policy, cls).setup_class()
 
     @classmethod
     def teardown_class(cls):
         try:
             pass
         finally:
-            super(Test_load_balancer_policy, cls).teardown_class()
+            super(Test_loadbalancer_policy, cls).teardown_class()
 
     def test_T5343_lbu_policy(self):
         try:
