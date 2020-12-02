@@ -7,11 +7,11 @@ from qa_test_tools.exceptions.test_exceptions import OscTestException
 
 
 @pytest.mark.region_qa
-class Test_get_slot_history(OscTestSuite):
+class Test_slot_history(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_get_slot_history, cls).setup_class()
+        super(Test_slot_history, cls).setup_class()
         cls.start_date = (datetime.utcnow() - timedelta(days=10)).isoformat().split('.')[0]
         cls.end_date = datetime.utcnow().isoformat().split('.')[0]
 
