@@ -143,7 +143,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             self.empty_policies(80)
             assert False, 'Remove known error'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'ResourceConflict', '9034')
+            assert_oapi_error(error, 409, 'ResourceConflict', '9034')
             known_error('GTW-1616', 'Could not update with more than one policy.')
  
     # http - app : 0 -> n1 -> n2 -> 0
@@ -156,7 +156,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             self.empty_policies(80)
             assert False, 'Remove known error'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'ResourceConflict', '9034')
+            assert_oapi_error(error, 409, 'ResourceConflict', '9034')
             known_error('GTW-1616', 'Could not update with more than one policy.')
  
     # http - lb : 0 -> 1 -> 0
@@ -173,7 +173,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             self.empty_policies(80)
             assert False, 'Remove known error'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'ResourceConflict', '9034')
+            assert_oapi_error(error, 409, 'ResourceConflict', '9034')
             known_error('GTW-1616', 'Could not update with more than one policy.')
  
     # http - lb : 0 -> n1 -> n2 -> 0
@@ -186,7 +186,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             self.empty_policies(80)
             assert False, 'Remove known error'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'ResourceConflict', '9034')
+            assert_oapi_error(error, 409, 'ResourceConflict', '9034')
             known_error('GTW-1616', 'Could not update with more than one policy.')
  
     # http - lb, app
@@ -197,7 +197,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             self.empty_policies(80)
             assert False, 'Remove known error'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'ResourceConflict', '9034')
+            assert_oapi_error(error, 409, 'ResourceConflict', '9034')
             known_error('GTW-1616', 'Could not update with more than one policy.')
  
     # ftp - lb : 0 -> n
