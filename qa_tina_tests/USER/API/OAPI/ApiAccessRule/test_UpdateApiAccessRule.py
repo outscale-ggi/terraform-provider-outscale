@@ -53,8 +53,8 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule)
-            assert False, 'Remove known error code'
-        except AttributeError:
+            raise OscApiException
+        except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5283_two_same(self):
@@ -63,7 +63,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule)
-            assert False, 'Remove known error code'
+            raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
@@ -73,7 +73,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, Description='descriptionbis')
-            assert False, 'Remove known error code'
+            raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
@@ -83,7 +83,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, CaIds=self.ca_ids[0:1])
-            assert False, 'Remove known error code'
+            raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
         
@@ -93,7 +93,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, CaIds=self.ca_ids[0:1])
-            assert False, 'Remove known error code'
+            raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
@@ -103,7 +103,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1])
-            assert False, 'Remove known error code'
+            raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
@@ -113,7 +113,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
             resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Description='NewDescription', IpRanges=["1.1.1.1/32", "2.2.2.2/32"]).response
             check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, Description='NewDescription', IpRanges=["1.1.1.1/32", "2.2.2.2/32"])
-            assert False, 'Remove known error code'
+            raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Could not update description')
 
@@ -123,7 +123,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
         check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
         try:
             compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, IpRanges=["1.1.1.1/32"])
-            assert False, 'Remove known error code'
+            raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
