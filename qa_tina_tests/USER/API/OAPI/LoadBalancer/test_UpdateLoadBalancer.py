@@ -121,7 +121,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', '3002')
  
-    def empty_policies(self, port):
+    def test_T5328_empty_policies(self, port):
         lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=port, PolicyNames=[]).response.LoadBalancer
         validate_load_balancer_global_form(lb)
         for listener in lb.Listeners:
