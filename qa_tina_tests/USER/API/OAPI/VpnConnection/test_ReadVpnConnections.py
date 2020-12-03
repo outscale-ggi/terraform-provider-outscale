@@ -146,16 +146,16 @@ class Test_ReadVpnConnections(VpnConnection):
             assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('TINA-6013', 'Incorrect error message')
+            known_error('GTW-1620', 'Incorrect error message')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5139_filters_route_destination_ip_ranges_invalid_range(self):
         try:
-            self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': ['10.0.0.0/']}).response.VpnConnections
+            self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': ['10.0.0.0/'],'VpnConnectionIds': [self.vpn_id]}).response.VpnConnections
             assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('TINA-6013', 'Incorrect error message')
+            known_error('GTW-1620', 'Incorrect error message')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T3581_filters_virtual_gateway_ids_id1(self):

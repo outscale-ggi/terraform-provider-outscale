@@ -77,13 +77,16 @@ class Test_ModifyLoadBalancerAttributes(OscTestSuite):
             self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerAttributes={'AccessLog': access_log}, LoadBalancerName=self.lb_name)
             ret = self.a1_r1.lbu.DescribeLoadBalancerAttributes(LoadBalancerName=self.lb_name)
             assert ret.response.DescribeLoadBalancerAttributesResult.LoadBalancerAttributes.AccessLog.Enabled == 'true'
-            assert ret.response.DescribeLoadBalancerAttributesResult.LoadBalancerAttributes.AccessLog.S3BucketName == 'test'
+            assert ret.response.DescribeLoadBalancerAttributesResult.LoadBalancerAttributes.AccessLog.S3BucketName == bucket_name
             assert ret.response.DescribeLoadBalancerAttributesResult.LoadBalancerAttributes.AccessLog.S3BucketPrefix == 'prefix'
             assert ret.response.DescribeLoadBalancerAttributesResult.LoadBalancerAttributes.AccessLog.EmitInterval == '5'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidConfigurationRequest', 'Bucket is unavailable for access log')
-            known_error('TINA-5939', 'Cannot change access log with bucket')
+            raise error
         finally:
+            ret = self.a1_r1.oos.list_objects(Bucket=bucket_name)
+            if 'Contents' in list(ret.keys()):
+                for j in ret['Contents']:
+                    self.a1_r1.oos.delete_object(Bucket=bucket_name, Key=j['Key'])
             if ret_create_bucket:
                 self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
 
