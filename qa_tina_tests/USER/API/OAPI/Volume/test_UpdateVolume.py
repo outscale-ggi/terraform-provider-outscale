@@ -9,6 +9,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
+import time
 
 
 def compare_validate_volumes(before_volume, after_volume, **kwargs):
@@ -50,14 +51,15 @@ class Test_UpdateVolume(OscTestSuite):
             super(Test_UpdateVolume, self).teardown_method(method)
 
     def test_T5232_valid_params(self):
-        try:
-            resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5).response
-            check_oapi_response(resp, 'UpdateVolumeResponse')
-            if resp.Volume.Size != 5:
-                known_error("TINA-5994", "waiting for product decision")
-            compare_validate_volumes(self.vol, resp.Volume, Size=5)
-        except OscApiException:
-            assert False, 'Remove known error'
+        resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5).response
+        check_oapi_response(resp, 'UpdateVolumeResponse')
+        for _ in range(10):
+            resp = self.a1_r1.oapi.ReadVolumes(Filters={'VolumeIds': [resp.Volume.VolumeId]}).response
+            if resp.Volumes[0].Size == 5:
+                break
+            time.sleep(2)
+        assert resp.Volumes[0].Size == 5
+        compare_validate_volumes(self.vol, resp.Volumes[0], Size=5, State='available')
 
     def test_T5233_without_params(self):
         try:
