@@ -53,6 +53,9 @@ class Test_UpdateVolume(OscTestSuite):
     def test_T5232_valid_params(self):
         resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5).response
         check_oapi_response(resp, 'UpdateVolumeResponse')
+        if resp.Volume.Size != 5:
+            known_error('PRODUCT-282', 'Waiting product decision on this.')
+        assert False, 'Remove known error'
         for _ in range(10):
             resp = self.a1_r1.oapi.ReadVolumes(Filters={'VolumeIds': [resp.Volume.VolumeId]}).response
             if resp.Volumes[0].Size == 5:
