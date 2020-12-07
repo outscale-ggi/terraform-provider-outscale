@@ -2,7 +2,6 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
-from qa_tina_tools.specs.check_tools import check_oapi_response
 import pytest
 
 
@@ -52,5 +51,5 @@ class Test_DeleteCa(OscTestSuite):
     def test_T5308_valid_params(self):
         ret = self.a1_r1.oapi.DeleteCa(CaId=self.ca_id)
         self.__class__.ca_id = None
-        check_oapi_response(ret.response, 'DeleteCaResponse')
+        ret.check_response()
 

@@ -1,4 +1,3 @@
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_test_tools.misc import compare_validate_objects, assert_dry_run,\
     assert_oapi_error
 from qa_tina_tools.tools.tina import create_tools
@@ -49,60 +48,60 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
 
     def test_T5282_same_ca_ids(self):
         self.my_setup()
-        resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids).response
-        check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
+        ret = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids)
+        ret.check_response()
         try:
-            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule)
+            compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule)
             raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5283_two_same(self):
         self.my_setup()
-        resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids, Description='description').response
-        check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
+        ret = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids, Description='description')
+        ret.check_response()
         try:
-            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule)
+            compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule)
             raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5284_one_same_one_diff(self):
         self.my_setup()
-        resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids, Description='descriptionbis').response
-        check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
+        ret = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids, Description='descriptionbis')
+        ret.check_response()
         try:
-            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, Description='descriptionbis')
+            compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule, Description='descriptionbis')
             raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5285_one_diff_one_same(self):
         self.my_setup()
-        resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids[0:1], Description='description').response
-        check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
+        ret = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids[0:1], Description='description')
+        ret.check_response()
         try:
-            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, CaIds=self.ca_ids[0:1])
+            compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule, CaIds=self.ca_ids[0:1])
             raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
         
     def test_T5286_update_ca_ids(self):
         self.my_setup()
-        resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids[0:1]).response
-        check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
+        ret = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids[0:1])
+        ret.check_response()
         try:
-            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, CaIds=self.ca_ids[0:1])
+            compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule, CaIds=self.ca_ids[0:1])
             raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5287_update_cns(self):
         self.my_setup()
-        resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1]).response
-        check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
+        ret = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1])
+        ret.check_response()
         try:
-            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1])
+            compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule, CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1])
             raise OscApiException
         except AttributeError:
             known_error('GTW-1544', 'Missing elements in response.')
@@ -110,32 +109,32 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
     def test_T5288_update_description(self):
         self.my_setup()
         try:
-            resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Description='NewDescription', IpRanges=["1.1.1.1/32", "2.2.2.2/32"]).response
-            check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
-            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, Description='NewDescription', IpRanges=["1.1.1.1/32", "2.2.2.2/32"])
+            ret = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Description='NewDescription', IpRanges=["1.1.1.1/32", "2.2.2.2/32"])
+            ret.check_response()
+            compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule, Description='NewDescription', IpRanges=["1.1.1.1/32", "2.2.2.2/32"])
             raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Could not update description')
 
     def test_T5289_update_ip_ranges(self):
         self.my_setup()
-        resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, IpRanges=["1.1.1.1/32"]).response
-        check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
+        ret = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, IpRanges=["1.1.1.1/32"])
+        ret.check_response()
         try:
-            compare_validate_objects(self.api_access_rule, resp.ApiAccessRule, IpRanges=["1.1.1.1/32"])
+            compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule, IpRanges=["1.1.1.1/32"])
             raise OscApiException
         except AssertionError:
             known_error('GTW-1544', 'Missing elements in response.')
 
     def test_T5290_all_items(self):
         self.my_setup()
-        resp = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId,
-                                                   CaIds=self.ca_ids[0:1],
-                                                   Cns=[create_tools.CLIENT_CERT_CN1],
-                                                   Description='NewDescription',
-                                                   IpRanges=["1.1.1.1/32"]).response
-        check_oapi_response(resp, 'UpdateApiAccessRuleResponse')
-        compare_validate_objects(self.api_access_rule, resp.ApiAccessRule,
+        ret = self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId,
+                                                     CaIds=self.ca_ids[0:1],
+                                                     Cns=[create_tools.CLIENT_CERT_CN1],
+                                                     Description='NewDescription',
+                                                     IpRanges=["1.1.1.1/32"])
+        ret.check_response()
+        compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule,
                                  CaIds=self.ca_ids[0:1], 
                                  Cns=[create_tools.CLIENT_CERT_CN1],
                                  Description='NewDescription',

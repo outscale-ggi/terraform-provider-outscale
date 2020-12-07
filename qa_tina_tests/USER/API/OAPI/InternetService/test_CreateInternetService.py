@@ -1,7 +1,6 @@
 from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.tools.tina.wait_tools import wait_internet_gateways_state
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_CreateInternetService(OscTestSuite):
@@ -18,7 +17,7 @@ class Test_CreateInternetService(OscTestSuite):
         net_id = None
         try:
             ret = self.a1_r1.oapi.CreateInternetService()
-            check_oapi_response(ret.response, 'CreateInternetServiceResponse')
+            ret.check_response()
             net_id = ret.response.InternetService.InternetServiceId
             wait_internet_gateways_state(self.a1_r1, [net_id], state='available')
         finally:

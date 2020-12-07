@@ -2,7 +2,6 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools import misc
 from qa_tina_tools.tools.tina import create_tools, info_keys, delete_tools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_DeleteListenerRule(OscTestSuite):
@@ -63,5 +62,5 @@ class Test_DeleteListenerRule(OscTestSuite):
             misc.assert_error(error, 400, '7000', 'MissingParameter')
 
     def test_T4801_with_valid_param(self):
-        resp = self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=self.rname).response
-        check_oapi_response(resp, 'DeleteListenerRuleResponse')
+        ret = self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=self.rname)
+        ret.check_response()

@@ -2,7 +2,6 @@
 from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_CreatePublicIp(OscTestSuite):
@@ -19,12 +18,12 @@ class Test_CreatePublicIp(OscTestSuite):
             super(Test_CreatePublicIp, self).teardown_method(method)
 
     def test_T2006_without_param(self):
-        ret = self.a1_r1.oapi.CreatePublicIp().response
-        check_oapi_response(ret, 'CreatePublicIpResponse')
-        self.ip = ret.PublicIp.PublicIp
-        assert hasattr(ret.PublicIp, 'PublicIp')
-        assert hasattr(ret.PublicIp, 'PublicIpId')
-        assert ret.PublicIp.PublicIpId.startswith('eipalloc')
+        ret = self.a1_r1.oapi.CreatePublicIp()
+        ret.check_response()
+        self.ip = ret.response.PublicIp.PublicIp
+        assert hasattr(ret.response.PublicIp, 'PublicIp')
+        assert hasattr(ret.response.PublicIp, 'PublicIpId')
+        assert ret.response.PublicIp.PublicIpId.startswith('eipalloc')
 
     def test_T2010_with_invalid_param(self):
         try:

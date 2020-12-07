@@ -2,7 +2,6 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_tina_tools.specs.check_tools import check_oapi_response
 import pytest
 
 
@@ -34,9 +33,9 @@ class Test_UpdateCa(OscTestSuite):
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T5318_required_params(self):
-        resp = self.a1_r1.oapi.UpdateCa(CaId=self.ca_id, Description='test update').response
-        check_oapi_response(resp, 'UpdateCaResponse')
-        assert resp.Ca.Description == 'test update'
+        ret = self.a1_r1.oapi.UpdateCa(CaId=self.ca_id, Description='test update')
+        ret.check_response()
+        assert ret.response.Ca.Description == 'test update'
 
     def test_T5319_With_DryRun(self):
         ret = self.a1_r1.oapi.UpdateCa(CaId=self.ca_id, Description='test update', DryRun=True)

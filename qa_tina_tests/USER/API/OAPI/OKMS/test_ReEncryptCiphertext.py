@@ -1,9 +1,5 @@
-from qa_test_tools.misc import id_generator, assert_error, assert_dry_run
-import base64
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import pytest
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 @pytest.mark.region_kms
@@ -56,10 +52,10 @@ class Test_ReEncryptCiphertext(OKMS):
 #             OKMS.teardown_method(self, method)       
 # 
 #     def test_T5205_valid_params(self):
-#         resp = self.a1_r1.oapi.ReEncryptCiphertext(NewMasterKeyId=self.master_key_id, OriginalCiphertext=self.cipher_text, OriginalEncryptionContext=self.orig_encryption_context).response
-#         check_oapi_response(resp, 'ReEncryptCiphertextResponse')
-#         assert resp.Ciphertext
-#         assert resp.OriginalMasterKeyId == self.master_key_id
+#         resp = self.a1_r1.oapi.ReEncryptCiphertext(NewMasterKeyId=self.master_key_id, OriginalCiphertext=self.cipher_text, OriginalEncryptionContext=self.orig_encryption_context)
+#         ret.check_response()
+#         assert ret.response.Ciphertext
+#         assert ret.response.OriginalMasterKeyId == self.master_key_id
 # 
 #     def test_T5206_missing_new_key_id(self):
 #         try:

@@ -4,7 +4,6 @@ from qa_test_tools.misc import id_generator, assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
 import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_ReadLoadBalancerTags(OscTestSuite):
@@ -87,13 +86,13 @@ class Test_ReadLoadBalancerTags(OscTestSuite):
 
     @pytest.mark.tag_sec_confidentiality
     def test_T4734_valid_params(self):
-        resp = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
-        check_oapi_response(resp, 'ReadLoadBalancerTagsResponse')
-        assert resp.Tags and len(resp.Tags) == 3
+        ret = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName])
+        ret.check_response()
+        assert ret.response.Tags and len(ret.response.Tags) == 3
 
     @pytest.mark.tag_sec_confidentiality
     def test_T4735_multi_load_balancer_names(self):
-        resp = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
-                                                                       self.ret_lbu_a1[1].LoadBalancerName]).response
-        check_oapi_response(resp, 'ReadLoadBalancerTagsResponse')
-        assert resp.Tags and len(resp.Tags) == 5
+        ret = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
+                                                                       self.ret_lbu_a1[1].LoadBalancerName])
+        ret.check_response()
+        assert ret.response.Tags and len(ret.response.Tags) == 5

@@ -1,4 +1,3 @@
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_tina_tools.tools.tina import create_tools
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
@@ -39,13 +38,13 @@ class Test_CreateApiAccessRule(ApiAccessRule):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
 
     def test_T5248_all_params(self):
-        resp = self.osc_sdk.oapi.CreateApiAccessRule(Description='description', CaIds=self.ca_ids,
-                                                   Cns=[create_tools.CLIENT_CERT_CN1, create_tools.CLIENT_CERT_CN2], IpRanges=["1.1.1.1/32", "2.2.2.2/32"]).response
-        check_oapi_response(resp, 'CreateApiAccessRuleResponse')
+        ret = self.osc_sdk.oapi.CreateApiAccessRule(Description='description', CaIds=self.ca_ids,
+                                                   Cns=[create_tools.CLIENT_CERT_CN1, create_tools.CLIENT_CERT_CN2], IpRanges=["1.1.1.1/32", "2.2.2.2/32"])
+        ret.check_response()
 
     def test_T5249_only_ca_ids(self):
-        resp = self.osc_sdk.oapi.CreateApiAccessRule(Description='description', CaIds=self.ca_ids).response
-        check_oapi_response(resp, 'CreateApiAccessRuleResponse')
+        ret = self.osc_sdk.oapi.CreateApiAccessRule(Description='description', CaIds=self.ca_ids)
+        ret.check_response()
 
     def test_T5250_only_cns(self):
         try:
@@ -54,8 +53,8 @@ class Test_CreateApiAccessRule(ApiAccessRule):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
 
     def test_T5251_only_ip_ranges(self):
-        resp = self.osc_sdk.oapi.CreateApiAccessRule(Description='description', IpRanges=["1.1.1.1/32", "2.2.2.2/32"]).response
-        check_oapi_response(resp, 'CreateApiAccessRuleResponse')
+        ret = self.osc_sdk.oapi.CreateApiAccessRule(Description='description', IpRanges=["1.1.1.1/32", "2.2.2.2/32"])
+        ret.check_response()
 
     def test_T5252_incorrect_description(self):
         try:

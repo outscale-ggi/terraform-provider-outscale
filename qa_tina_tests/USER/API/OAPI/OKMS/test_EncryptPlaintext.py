@@ -1,10 +1,9 @@
-from qa_test_tools.misc import id_generator, assert_error, assert_dry_run,\
+from qa_test_tools.misc import id_generator, assert_dry_run,\
     assert_oapi_error
 import base64
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import pytest
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 @pytest.mark.region_kms
@@ -36,9 +35,9 @@ class Test_EncryptPlaintext(OKMS):
 
     def test_T5169_valid_params(self):
         encoded_text = base64.b64encode(id_generator(size=128).encode('utf-8')).decode('utf-8')
-        resp = self.a1_r1.oapi.EncryptPlaintext(MasterKeyId=self.master_key.MasterKeyId, Plaintext=encoded_text).response
-        check_oapi_response(resp, 'EncryptPlaintextResponse')
-        assert resp.Ciphertext
+        ret = self.a1_r1.oapi.EncryptPlaintext(MasterKeyId=self.master_key.MasterKeyId, Plaintext=encoded_text)
+        ret.check_response()
+        assert ret.response.Ciphertext
 
     def test_T5170_missing_key_id(self):
         try:

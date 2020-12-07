@@ -1,7 +1,6 @@
 from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_tina_tools.specs.check_tools import check_oapi_response
 import pytest
 
 #     DeleteFlexibleGpuRequest:
@@ -85,7 +84,7 @@ class Test_DeleteFlexibleGpu(OscTestSuite):
             fg_id = ret.response.FlexibleGpu.FlexibleGpuId
             ret = self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=fg_id)
             fg_id = None
-            check_oapi_response(ret.response, 'DeleteFlexibleGpuResponse')
+            ret.check_response()
         finally:
             if fg_id:
                 self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=fg_id)

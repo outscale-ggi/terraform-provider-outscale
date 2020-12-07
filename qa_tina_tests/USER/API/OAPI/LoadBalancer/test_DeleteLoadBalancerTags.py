@@ -1,9 +1,8 @@
 # -*- coding:utf-8 -*-
 
 from qa_test_tools.misc import id_generator, assert_oapi_error, assert_dry_run
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_DeleteLoadBalancerTags(OscTestSuite):
@@ -141,8 +140,8 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
     def test_T4724_valid_params(self):
         try:
             self.setup_tags()
-            resp = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': 'key1'}]).response
-            check_oapi_response(resp, 'DeleteLoadBalancerTagsResponse')
+            ret = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': 'key1'}])
+            ret.check_response()
             resp = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
             assert 'key1' not in [tag.Key for tag in resp.Tags]
             self.check_tags(4, 2)
@@ -152,10 +151,10 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
     def test_T4725_multi_load_balancer_names(self):
         try:
             self.setup_tags()
-            resp = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
+            ret = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
                                                                              self.ret_lbu_a1[1].LoadBalancerName],
-                                                          Tags=[{'Key': 'key1'}]).response
-            check_oapi_response(resp, 'DeleteLoadBalancerTagsResponse')
+                                                          Tags=[{'Key': 'key1'}])
+            ret.check_response()
             resp = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
                                                                            self.ret_lbu_a1[1].LoadBalancerName]).response
             assert 'key1' not in [tag.Key for tag in resp.Tags]
@@ -166,9 +165,9 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
     def test_T4726_multi_tags(self):
         try:
             self.setup_tags()
-            resp = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
-                                                          Tags=[{'Key': 'key1'}, {'Key': 'key3'}]).response
-            check_oapi_response(resp, 'DeleteLoadBalancerTagsResponse')
+            ret = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
+                                                          Tags=[{'Key': 'key1'}, {'Key': 'key3'}])
+            ret.check_response()
             resp = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
             assert 'key1' not in [tag.Key for tag in resp.Tags] and 'key3' not in [tag.Key for tag in resp.Tags]
             self.check_tags(3, 2)
@@ -178,10 +177,10 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
     def test_T4727_multi_load_balancer_names_multi_tags(self):
         try:
             self.setup_tags()
-            resp = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
+            ret = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
                                                                              self.ret_lbu_a1[1].LoadBalancerName],
-                                                          Tags=[{'Key': 'key1'}, {'Key': 'key3'}]).response
-            check_oapi_response(resp, 'DeleteLoadBalancerTagsResponse')
+                                                          Tags=[{'Key': 'key1'}, {'Key': 'key3'}])
+            ret.check_response()
             resp = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
                                                                            self.ret_lbu_a1[1].LoadBalancerName]).response
             assert 'key1' not in [tag.Key for tag in resp.Tags] and 'key3' not in [tag.Key for tag in resp.Tags]
@@ -192,10 +191,10 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
     def test_T4728_duplicate_load_balancer_name(self):
         try:
             self.setup_tags()
-            resp = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
+            ret = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
                                                                              self.ret_lbu_a1[0].LoadBalancerName],
-                                                          Tags=[{'Key': 'key1'}]).response
-            check_oapi_response(resp, 'DeleteLoadBalancerTagsResponse')
+                                                          Tags=[{'Key': 'key1'}])
+            ret.check_response()
             resp = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
             assert 'key1' not in [tag.Key for tag in resp.Tags]
             self.check_tags(4, 2)
@@ -205,9 +204,9 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
     def test_T4729_duplicate_key(self):
         try:
             self.setup_tags()
-            resp = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
-                                                          Tags=[{'Key': 'key1'}, {'Key': 'key1'}]).response
-            check_oapi_response(resp, 'DeleteLoadBalancerTagsResponse')
+            ret = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
+                                                          Tags=[{'Key': 'key1'}, {'Key': 'key1'}])
+            ret.check_response()
             resp = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
             assert 'key1' not in [tag.Key for tag in resp.Tags]
             self.check_tags(4, 2)
@@ -217,8 +216,8 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
     def test_T4736_unknown_tag_key(self):
         try:
             self.setup_tags()
-            resp = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': 'key5'}]).response
-            check_oapi_response(resp, 'DeleteLoadBalancerTagsResponse')
+            ret = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': 'key5'}])
+            ret.check_response()
             self.check_tags(5, 2)
         finally:
             self.teardown_tags()

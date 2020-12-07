@@ -2,8 +2,7 @@ import os
 
 from qa_test_tools import misc
 import pytest
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_tina_tools.specs.check_tools import check_oapi_response
+from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.tools.tina import create_tools
 from qa_tina_tools.tina import wait
@@ -55,23 +54,23 @@ class Test_UpdateServerCertificate(OscTestSuite):
 
     def test_T4880_valid_params_new_name(self):
         new_name = misc.id_generator(prefix='sc-')
-        resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name).response
+        ret = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name)
         self.sc_name = new_name
-        check_oapi_response(resp, 'UpdateServerCertificateResponse')
-        assert resp.ServerCertificate.Name == new_name
+        ret.check_response()
+        assert ret.response.ServerCertificate.Name == new_name
 
     def test_T4881_valid_params_new_path(self):
-        resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewPath='/toto/').response
-        check_oapi_response(resp, 'UpdateServerCertificateResponse')
-        assert resp.ServerCertificate.Path == '/toto/'
+        ret = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewPath='/toto/')
+        ret.check_response()
+        assert ret.response.ServerCertificate.Path == '/toto/'
 
     def test_T4882_valid_params_new_name_and_path(self):
         new_name = misc.id_generator(prefix='sc-')
-        resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name, NewPath='/toto/').response
+        ret = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name, NewPath='/toto/')
         self.sc_name = new_name
-        check_oapi_response(resp, 'UpdateServerCertificateResponse')
-        assert resp.ServerCertificate.Name == new_name
-        assert resp.ServerCertificate.Path == '/toto/'
+        ret.check_response()
+        assert ret.response.ServerCertificate.Name == new_name
+        assert ret.response.ServerCertificate.Path == '/toto/'
 
     def test_T4883_missing_name(self):
         new_name = misc.id_generator(prefix='sc-')

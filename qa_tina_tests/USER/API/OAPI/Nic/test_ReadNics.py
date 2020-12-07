@@ -5,7 +5,6 @@ from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tools.tools.tina.wait_tools import wait_network_interfaces_state
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
@@ -59,8 +58,8 @@ class Test_ReadNics(Nic):
             super(Test_ReadNics, cls).teardown_class()
 
     def test_T2679_empty_filters(self):
-        resp = self.a1_r1.oapi.ReadNics().response
-        check_oapi_response(resp, 'ReadNicsResponse')
+        ret = self.a1_r1.oapi.ReadNics()
+        ret.check_response()
 #         assert len(ret) == 4
 #         nic = next((x for x in ret if x.NicId == self.nic_id), None)
 #         assert nic.AccountId == self.a1_r1.config.account.account_id
@@ -94,8 +93,8 @@ class Test_ReadNics(Nic):
 #         assert nic.Tags == []
 
     def test_T2680_filters_nic_id1(self):
-        resp = self.a1_r1.oapi.ReadNics(Filters={'NicIds': [self.nic_id]}).response
-        check_oapi_response(resp, 'ReadNicsResponse')
+        ret = self.a1_r1.oapi.ReadNics(Filters={'NicIds': [self.nic_id]})
+        ret.check_response()
 #         assert len(ret) == 1
 #         nic = ret[0]
 #         assert nic.NicId.startswith('eni-')

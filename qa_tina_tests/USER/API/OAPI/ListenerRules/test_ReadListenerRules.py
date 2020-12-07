@@ -1,7 +1,6 @@
 from qa_test_tools import misc
 from qa_tina_tools.tools.tina import create_tools, info_keys, delete_tools
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_ReadListenerRules(OscTestSuite):
@@ -58,6 +57,5 @@ class Test_ReadListenerRules(OscTestSuite):
         assert len(ret.response.ListenerRules) > 0
 
     def test_T4804_with_valid_param(self):
-        resp = self.a1_r1.oapi.ReadListenerRules(Filters={'ListenerRuleNames': [self.rname]}).response
-        assert len(resp.ListenerRules) == 1
-        check_oapi_response(resp, 'ReadListenerRulesResponse')
+        ret = self.a1_r1.oapi.ReadListenerRules(Filters={'ListenerRuleNames': [self.rname]})
+        ret.check_response()

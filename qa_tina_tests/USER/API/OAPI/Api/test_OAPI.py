@@ -11,7 +11,7 @@ import json
 from qa_test_tools.misc import assert_error, assert_oapi_error
 import datetime
 from qa_test_tools import misc
-from qa_tina_tools.specs.check_tools import get_documentation, DOCUMENTATIONS,\
+from tools.specs.check_tools import get_documentation, DOCUMENTATIONS,\
     PATHS
 
 MIN_OVERTIME=4
@@ -22,14 +22,14 @@ class Test_OAPI(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_OAPI, cls).setup_class()
-        version = get_documentation('oapi')
-        assert version == cls.oapi_version[cls.a1_r1.config.region.name]
+        cls.version = get_documentation('oapi')
 
     @pytest.mark.tag_sec_traceability
     def test_T2221_check_request_id(self):
-        ret = self.a1_r1.oapi.ReadVolumes()
+        ret = self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_GET_VERSION: True})
         assert re.search("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", ret.response.ResponseContext.RequestId)
- 
+        assert self.version == ret.version
+
     def test_T2222_invalid_call(self):
         try:
             self.a1_r1.oapi.foo()
@@ -117,9 +117,9 @@ class Test_OAPI(OscTestSuite):
         result = subprocess.check_output(batcmd, shell=True)
         result2 = json.loads(result)
         assert 'Version' in result2 and result1['Versions'][0] == "v" + result2['Version'][0]
-        assert len(DOCUMENTATIONS['oapi'][self.oapi_version[self.a1_r1.config.region.name]][PATHS]) == len(result2['Calls'])
+        assert len(DOCUMENTATIONS['oapi'][self.version][PATHS]) == len(result2['Calls'])
         for call in result2['Calls']:
-            assert '/' + call in DOCUMENTATIONS['oapi'][self.oapi_version[self.a1_r1.config.region.name]][PATHS]
+            assert '/' + call in DOCUMENTATIONS['oapi'][self.version][PATHS]
  
     def test_T4688_check_oapi_including_version(self):
         batcmd = "curl -X POST https://api.{}.outscale.com/api/V1/ReadPublicIpRanges".format(self.a1_r1.config.region.name)

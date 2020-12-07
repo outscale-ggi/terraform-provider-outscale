@@ -2,7 +2,6 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools import misc
 from qa_tina_tools.tools.tina import create_tools, info_keys, delete_tools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_UpdateListenerRule(OscTestSuite):
@@ -65,9 +64,9 @@ class Test_UpdateListenerRule(OscTestSuite):
             misc.assert_error(error, 400,  '7000', 'MissingParameter')
 
     def test_T4807_with_valid_HostPattern(self):
-        resp = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, HostPattern="*.abc.?.abc.*.com").response
-        self.rname = resp.ListenerRule.ListenerRuleName
-        check_oapi_response(resp, 'UpdateListenerRuleResponse')
+        ret = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, HostPattern="*.abc.?.abc.*.com")
+        self.rname = ret.response.ListenerRule.ListenerRuleName
+        ret.check_response()
 
     def test_T4808_with_invalid_HostPattern(self):
         try:
@@ -77,8 +76,8 @@ class Test_UpdateListenerRule(OscTestSuite):
             misc.assert_error(error, 400,  '4110', 'InvalidParameterValue')
 
     def test_T4809_with_valid_PathPattern(self):
-        resp = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, PathPattern="/.com").response
-        check_oapi_response(resp, 'UpdateListenerRuleResponse')
+        ret = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, PathPattern="/.com")
+        ret.check_response()
 
     def test_T4810_with_invalid_PathPattern(self):
         try:

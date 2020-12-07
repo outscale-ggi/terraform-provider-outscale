@@ -2,7 +2,6 @@ import pytest
 
 from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.misc import assert_dry_run
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 @pytest.mark.region_synchro_osu
@@ -20,24 +19,24 @@ class Test_ReadImageExportTasks(OscTestSuite):
         super(Test_ReadImageExportTasks, cls).teardown_class()
 
     def test_T2826_valid_params(self):
-        ret = self.a1_r1.oapi.ReadImageExportTasks().response
-        check_oapi_response(ret, 'ReadImageExportTasksResponse')
+        ret = self.a1_r1.oapi.ReadImageExportTasks()
+        ret.check_response()
 
     def test_T2827_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.ReadImageExportTasks(DryRun=True)
         assert_dry_run(ret)
 
     def test_T3007_invalid_filters_task_ids(self):
-        ret = self.a1_r1.oapi.ReadImageExportTasks(Filters={"TaskIds": ['abcd']}).response
-        check_oapi_response(ret, 'ReadImageExportTasksResponse')
+        ret = self.a1_r1.oapi.ReadImageExportTasks(Filters={"TaskIds": ['abcd']})
+        ret.check_response()
 
     def test_T3008_malformed_filters_task_ids(self):
-        ret = self.a1_r1.oapi.ReadImageExportTasks(Filters={"TaskIds": ['image-export-123456']}).response
-        check_oapi_response(ret, 'ReadImageExportTasksResponse')
+        ret = self.a1_r1.oapi.ReadImageExportTasks(Filters={"TaskIds": ['image-export-123456']})
+        ret.check_response()
 
     def test_T3009_unknown_filters_task_ids(self):
-        ret = self.a1_r1.oapi.ReadImageExportTasks(Filters={"TaskIds": ['image-export-12345678']}).response
-        check_oapi_response(ret, 'ReadImageExportTasksResponse')
+        ret = self.a1_r1.oapi.ReadImageExportTasks(Filters={"TaskIds": ['image-export-12345678']})
+        ret.check_response()
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3415_other_account(self):

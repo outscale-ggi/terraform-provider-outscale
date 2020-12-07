@@ -1,9 +1,8 @@
 import string
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools import misc, account_tools
 from qa_sdk_common.config.default_public_config import DefaultPubConfig
 from qa_sdk_pub.osc_api.osc_oapi_api import OscOApi
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 
@@ -43,7 +42,7 @@ class Test_ResetAccountPassword(OscTestSuite):
 
     def test_T4764_non_authenticated(self):
         ret = self.oapi.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=self.new_password)
-        check_oapi_response(ret.response, 'ResetAccountPasswordResponse')
+        ret.check_response()
 
     def test_T4765_with_the_same_password(self):
         try:

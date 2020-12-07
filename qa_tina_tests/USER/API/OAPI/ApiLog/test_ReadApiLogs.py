@@ -3,7 +3,7 @@ from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from datetime import datetime, timedelta
 import time
-from qa_tina_tools.specs.check_tools import check_oapi_response
+from tools.specs.check_tools import check_oapi_response
 import pytest
 
 
@@ -30,7 +30,7 @@ class Test_ReadApiLogs(OscTestSuite):
     @pytest.mark.region_full_cloud_trace
     def test_T2810_valid_params(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=3)
-        check_oapi_response(ret.response, "ReadApiLogsResponse")
+        ret.check_response()
         account_ids = set([log.AccountId for log in ret.response.Logs])
         assert len(account_ids) == 1 and self.a1_r1.config.account.account_id in account_ids, 'incorrect account id(s)'
 
@@ -237,7 +237,7 @@ class Test_ReadApiLogs(OscTestSuite):
     def test_T3201_valid_ResultsPerPage_value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=100)
         assert len(ret.response.Logs) != 0
-        # check_oapi_response(ret.response, 'ReadApiLogsResponse')
+        # ret.check_response()
 
     def test_T3202_valid_NextPageToken_value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=2)
