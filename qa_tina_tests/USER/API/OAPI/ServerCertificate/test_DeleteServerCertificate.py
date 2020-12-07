@@ -3,7 +3,6 @@ from qa_test_tools import misc
 import pytest
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import create_tools
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
@@ -43,8 +42,8 @@ class Test_DeleteServerCertificate(OscTestSuite):
             OscTestSuite.teardown_method(self, method)
 
     def test_T4861_valid_params(self):
-        resp = self.a1_r1.oapi.DeleteServerCertificate(Name=self.sc_name).response
-        check_oapi_response(resp, 'DeleteServerCertificateResponse')
+        ret = self.a1_r1.oapi.DeleteServerCertificate(Name=self.sc_name)
+        ret.check_response()
         self.sc_resp = None
 
     def test_T4862_missing_name(self):

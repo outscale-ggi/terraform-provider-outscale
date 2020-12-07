@@ -1,10 +1,8 @@
 # pylint: disable=missing-docstring
 import string
-import pytest
 from qa_test_tools import misc
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_CreateAccount(OscTestSuite):
@@ -42,7 +40,7 @@ class Test_CreateAccount(OscTestSuite):
         ret = None
         try:
             ret = self.a1_r1.oapi.CreateAccount(**account_info)
-            check_oapi_response(ret.response, "CreateAccountResponse")
+            ret.check_response()
             for attr in account_info.keys():
                 if not hasattr(ret.response.Account, attr):
                     assert False, 'Could not find attribute {} in response'.format(attr)

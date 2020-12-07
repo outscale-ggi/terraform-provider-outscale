@@ -4,7 +4,6 @@ from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import known_error
 from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import VpnConnection, validate_vpn_connection
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tools.tools.tina import wait_tools
 
 NUM_VPN_CONN = 3
@@ -70,7 +69,7 @@ class Test_ReadVpnConnections(VpnConnection):
     def test_T3363_empty_filters(self):
         ret = self.a1_r1.oapi.ReadVpnConnections()
         assert len(ret.response.VpnConnections) == 2 + NUM_VPN_CONN
-        check_oapi_response(ret.response, "ReadVpnConnectionsResponse")
+        ret.check_response()
 
     def test_T3364_filters_bgp_asns(self):
         assert len(self.a1_r1.oapi.ReadVpnConnections(Filters={'BgpAsns': [self.bgp_asn]}).response.VpnConnections) == 1

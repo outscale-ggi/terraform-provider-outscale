@@ -3,7 +3,6 @@ import string
 from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_test_tools.account_tools import create_account
 from qa_test_tools.config import config_constants
 
@@ -42,7 +41,7 @@ class Test_CheckAuthentication(OscTestSuite):
     def test_T4744_required_param(self):
         ret = self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login,
                                                   Password=self.a1_r1.config.account.password)
-        check_oapi_response(ret.response, 'CheckAuthenticationResponse')
+        ret.check_response()
 
     def test_T4745_without_login(self):
         try:

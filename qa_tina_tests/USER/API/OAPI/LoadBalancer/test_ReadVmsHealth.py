@@ -4,7 +4,6 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.misc import id_generator, assert_dry_run, assert_oapi_error
 from qa_tina_tools.tina.setup_tools import setup_public_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_lbu
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
@@ -47,13 +46,13 @@ class Test_ReadVmsHealth(OscTestSuite):
             super(Test_ReadVmsHealth, cls).teardown_class()
 
     def test_T3456_valid_params_without_register(self):
-        resp = self.a1_r1.oapi.ReadVmsHealth(LoadBalancerName=self.lbu_name2).response
-        check_oapi_response(resp, 'ReadVmsHealthResponse')
+        ret = self.a1_r1.oapi.ReadVmsHealth(LoadBalancerName=self.lbu_name2)
+        ret.check_response()
 
     def test_T2945_valid_params(self):
-        resp = self.a1_r1.oapi.ReadVmsHealth(LoadBalancerName=self.lbu_name).response
-        assert len(resp.BackendVmHealth) == 2
-        check_oapi_response(resp, 'ReadVmsHealthResponse')
+        ret = self.a1_r1.oapi.ReadVmsHealth(LoadBalancerName=self.lbu_name)
+        assert len(ret.response.BackendVmHealth) == 2
+        ret.check_response()
 
 
     def test_T2946_valid_params_dry_run(self):

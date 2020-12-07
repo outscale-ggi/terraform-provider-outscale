@@ -4,7 +4,6 @@ import base64
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import pytest
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 @pytest.mark.region_kms
@@ -47,10 +46,10 @@ class Test_DecryptCiphertext(OKMS):
     # EncryptionContext --> Map
 
     def test_T5151_valid_params(self):
-        resp = self.a1_r1.oapi.DecryptCiphertext(Ciphertext=self.encrypt_data1.Ciphertext).response
-        assert resp.Plaintext == self.data1
-        assert resp.MasterKeyId == self.master_key_id
-        check_oapi_response(resp, 'DecryptCiphertextResponse')
+        ret = self.a1_r1.oapi.DecryptCiphertext(Ciphertext=self.encrypt_data1.Ciphertext)
+        assert ret.response.Plaintext == self.data1
+        assert ret.response.MasterKeyId == self.master_key_id
+        ret.check_response()
 
     def test_T5152_missing_cipher_text(self):
         try:
@@ -96,7 +95,7 @@ class Test_DecryptCiphertext(OKMS):
         resp = self.a1_r1.oapi.DecryptCiphertext(Ciphertext=self.encrypt_data3.Ciphertext).response
         assert resp.Plaintext == self.data3
         assert resp.MasterKeyId == self.master_key_id
-        check_oapi_response(resp, 'DecryptCiphertextResponse')
+        ret.check_response()
 
     def test_T5159_dry_run(self):
         ret = self.a1_r1.oapi.DecryptCiphertext(Ciphertext=self.encrypt_data2.Ciphertext, EncryptionContext={'name': 'value'}, DryRun=True)

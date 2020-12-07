@@ -2,7 +2,6 @@ from time import sleep
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_sdk_pub import osc_api
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_test_tools import misc
 import pytest
 from qa_test_tools.misc import assert_dry_run
@@ -44,8 +43,8 @@ class Test_ReadAccessKeys(OscTestSuite):
         try:
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             ak = ret_create.response.AccessKey.AccessKeyId
-            resp_read = self.a1_r1.oapi.ReadAccessKeys().response
-            check_oapi_response(resp_read, 'ReadAccessKeysResponse')
+            ret = self.a1_r1.oapi.ReadAccessKeys()
+            ret.check_response()
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -75,9 +74,9 @@ class Test_ReadAccessKeys(OscTestSuite):
         try:
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             ak = ret_create.response.AccessKey.AccessKeyId
-            resp_read = self.a1_r1.oapi.ReadAccessKeys(Filters={'AccessKeyIds': [ak], 'States': ['ACTIVE']}).response
-            check_oapi_response(resp_read, 'ReadAccessKeysResponse')
-            assert len(resp_read.AccessKeys) == 1
+            ret = self.a1_r1.oapi.ReadAccessKeys(Filters={'AccessKeyIds': [ak], 'States': ['ACTIVE']})
+            ret.check_response()
+            assert len(ret.response.AccessKeys) == 1
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -87,9 +86,9 @@ class Test_ReadAccessKeys(OscTestSuite):
         try:
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             ak = ret_create.response.AccessKey.AccessKeyId
-            resp_read = self.a1_r1.oapi.ReadAccessKeys(Filters={'AccessKeyIds': [ak]}).response
-            check_oapi_response(resp_read, 'ReadAccessKeysResponse')
-            assert len(resp_read.AccessKeys) == 1
+            ret = self.a1_r1.oapi.ReadAccessKeys(Filters={'AccessKeyIds': [ak]})
+            ret.check_response()
+            assert len(ret.response.AccessKeys) == 1
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -99,9 +98,9 @@ class Test_ReadAccessKeys(OscTestSuite):
         try:
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             ak = ret_create.response.AccessKey.AccessKeyId
-            resp_read = self.a1_r1.oapi.ReadAccessKeys(Filters={'States': ['ACTIVE']}).response
-            check_oapi_response(resp_read, 'ReadAccessKeysResponse')
-            assert len(resp_read.AccessKeys) > 0
+            ret = self.a1_r1.oapi.ReadAccessKeys(Filters={'States': ['ACTIVE']})
+            ret.check_response()
+            assert len(ret.response.AccessKeys) > 0
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -124,8 +123,8 @@ class Test_ReadAccessKeys(OscTestSuite):
         try:
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             ak = ret_create.response.AccessKey.AccessKeyId
-            resp_read = self.a1_r1.oapi.ReadAccessKeys(exec_data={osc_api.EXEC_DATA_FORCE_EMPTY_STRING: True}).response
-            check_oapi_response(resp_read, 'ReadAccessKeysResponse')
+            ret = self.a1_r1.oapi.ReadAccessKeys(exec_data={osc_api.EXEC_DATA_FORCE_EMPTY_STRING: True})
+            ret.check_response()
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)

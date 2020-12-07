@@ -3,7 +3,6 @@ import pytest
 from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools import misc
 from qa_tina_tools.tools.tina import create_tools
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
@@ -49,9 +48,9 @@ class Test_ReadServerCertificates(OscTestSuite):
             super(Test_ReadServerCertificates, cls).teardown_class()
 
     def test_T4868_valid_params(self):
-        resp = self.a1_r1.oapi.ReadServerCertificates().response
-        check_oapi_response(resp, 'ReadServerCertificatesResponse')
-        assert len(resp.ServerCertificates) == 3
+        ret = self.a1_r1.oapi.ReadServerCertificates()
+        ret.check_response()
+        assert len(ret.response.ServerCertificates) == 3
 
     def test_T4869_with_first_result(self):
         try:

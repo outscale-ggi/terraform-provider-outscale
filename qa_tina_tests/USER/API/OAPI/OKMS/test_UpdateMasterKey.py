@@ -3,7 +3,6 @@ from qa_test_tools.misc import assert_oapi_error, assert_dry_run,\
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import pytest
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 @pytest.mark.region_kms
@@ -45,9 +44,9 @@ class Test_UpdateMasterKey(OKMS):
 
     def test_T5218_valid_params(self):
         self.mysetup()
-        resp = self.a1_r1.oapi.UpdateMasterKey(MasterKeyId=self.key.MasterKeyId, Description='toto').response
-        check_oapi_response(resp, 'UpdateMasterKeyResponse')
-        compare_validate_objects(self.key, resp.MasterKey, Description='toto')
+        ret = self.a1_r1.oapi.UpdateMasterKey(MasterKeyId=self.key.MasterKeyId, Description='toto')
+        ret.check_response()
+        compare_validate_objects(self.key, ret.response.MasterKey, Description='toto')
 
     def test_T5219_missing_key_id(self):
         try:

@@ -1,7 +1,6 @@
 from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_tina_tools.specs.check_tools import check_oapi_response
 import pytest
 
 #     CreateFlexibleGpuRequest:
@@ -91,11 +90,11 @@ class Test_CreateFlexibleGpu(OscTestSuite):
     def test_T4303_valid_deletion_on_vm_deletion(self):
         resp = None
         try:
-            resp = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DeleteOnVmDeletion=False).response
-            check_oapi_response(resp, 'CreateFlexibleGpuResponse')
-            assert not resp.FlexibleGpu.DeleteOnVmDeletion
-            assert resp.FlexibleGpu.ModelName == self.modelname
-            assert resp.FlexibleGpu.SubregionName == self.subregionname
+            ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DeleteOnVmDeletion=False)
+            ret.check_response()
+            assert not ret.response.FlexibleGpu.DeleteOnVmDeletion
+            assert ret.response.FlexibleGpu.ModelName == self.modelname
+            assert ret.response.FlexibleGpu.SubregionName == self.subregionname
         finally:
             if resp:
                 self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=resp.FlexibleGpu.FlexibleGpuId)
@@ -125,13 +124,13 @@ class Test_CreateFlexibleGpu(OscTestSuite):
     def test_T4188_valid_params(self):
         resp = None
         try:
-            resp = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname).response
-            check_oapi_response(resp, 'CreateFlexibleGpuResponse')
-            assert not resp.FlexibleGpu.DeleteOnVmDeletion
-            assert resp.FlexibleGpu.ModelName == self.modelname
-            assert resp.FlexibleGpu.SubregionName == self.subregionname
-            assert resp.FlexibleGpu.State == 'allocated'
-            assert not hasattr(resp.FlexibleGpu, 'VmId')
+            ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname)
+            ret.check_response()
+            assert not ret.response.FlexibleGpu.DeleteOnVmDeletion
+            assert ret.response.FlexibleGpu.ModelName == self.modelname
+            assert ret.response.FlexibleGpu.SubregionName == self.subregionname
+            assert ret.response.FlexibleGpu.State == 'allocated'
+            assert not hasattr(ret.response.FlexibleGpu, 'VmId')
         except Exception as error:
             raise error
         finally:
@@ -150,14 +149,14 @@ class Test_CreateFlexibleGpu(OscTestSuite):
     def test_T4898_with_generation(self):
         resp = None
         try:
-            resp = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation='v4').response
-            check_oapi_response(resp, 'CreateFlexibleGpuResponse')
-            assert not resp.FlexibleGpu.DeleteOnVmDeletion
-            assert resp.FlexibleGpu.Generation == 'v4'
-            assert resp.FlexibleGpu.ModelName == self.modelname
-            assert resp.FlexibleGpu.SubregionName == self.subregionname
-            assert resp.FlexibleGpu.State == 'allocated'
-            assert not hasattr(resp.FlexibleGpu, 'VmId')
+            ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation='v4')
+            ret.check_response()
+            assert not ret.response.FlexibleGpu.DeleteOnVmDeletion
+            assert ret.response.FlexibleGpu.Generation == 'v4'
+            assert ret.response.FlexibleGpu.ModelName == self.modelname
+            assert ret.response.FlexibleGpu.SubregionName == self.subregionname
+            assert ret.response.FlexibleGpu.State == 'allocated'
+            assert not hasattr(ret.response.FlexibleGpu, 'VmId')
         finally:
             if resp:
                 self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=resp.FlexibleGpu.FlexibleGpuId)

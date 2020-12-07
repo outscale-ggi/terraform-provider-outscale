@@ -2,7 +2,6 @@ from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 import pytest
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_pub import osc_api
 
 #     ReadGpuCatalogRequest:
@@ -44,7 +43,7 @@ class Test_ReadFlexibleGpuCatalog(OscTestSuite):
 
     def test_T4405_no_params(self):
         ret = self.a1_r1.oapi.ReadFlexibleGpuCatalog()
-        check_oapi_response(ret.response, 'ReadFlexibleGpuCatalogResponse')
+        ret.check_response()
         for cat_item in ret.response.FlexibleGpuCatalog:
             assert cat_item.ModelName
             assert cat_item.MaxRam > 0
@@ -63,7 +62,7 @@ class Test_ReadFlexibleGpuCatalog(OscTestSuite):
 
     def test_T4676_without_authentication(self):
         ret = self.a1_r1.oapi.ReadFlexibleGpuCatalog(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
-        check_oapi_response(ret.response, 'ReadFlexibleGpuCatalogResponse')
+        ret.check_response()
         for cat_item in ret.response.FlexibleGpuCatalog:
             assert cat_item.ModelName
             assert cat_item.MaxRam > 0

@@ -1,10 +1,9 @@
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_test_tools.misc import id_generator, assert_error, assert_dry_run,\
+from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.misc import id_generator, assert_dry_run,\
     assert_oapi_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import pytest
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 @pytest.mark.region_kms
@@ -61,10 +60,10 @@ class Test_CreateMasterKey(OKMS):
         self.verify_content(resp)
 
     def test_T5148_valid_params(self):
-        resp = self.a1_r1.oapi.CreateMasterKey(Description='description').response
-        self.key_id = resp.MasterKey.MasterKeyId
-        self.verify_content(resp, description='description')
-        check_oapi_response(resp, 'CreateMasterKeyResponse')
+        ret = self.a1_r1.oapi.CreateMasterKey(Description='description')
+        self.key_id = ret.response.MasterKey.MasterKeyId
+        self.verify_content(ret.response, description='description')
+        ret.check_response()
 
     def test_T5149_invalid_desc_length(self):
         description = id_generator(size=8193)
