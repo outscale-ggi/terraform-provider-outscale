@@ -26,9 +26,8 @@ class Test_OAPI(OscTestSuite):
 
     @pytest.mark.tag_sec_traceability
     def test_T2221_check_request_id(self):
-        ret = self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_GET_VERSION: True})
+        ret = self.a1_r1.oapi.ReadVolumes()
         assert re.search("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", ret.response.ResponseContext.RequestId)
-        assert self.version == ret.version
 
     def test_T2222_invalid_call(self):
         try:
