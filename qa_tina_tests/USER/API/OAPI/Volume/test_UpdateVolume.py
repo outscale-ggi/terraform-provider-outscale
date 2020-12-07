@@ -4,7 +4,6 @@ from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -51,9 +50,9 @@ class Test_UpdateVolume(OscTestSuite):
             super(Test_UpdateVolume, self).teardown_method(method)
 
     def test_T5232_valid_params(self):
-        resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5).response
-        check_oapi_response(resp, 'UpdateVolumeResponse')
-        if resp.Volume.Size != 5:
+        ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=5)
+        ret.check_response()
+        if ret.response.Volume.Size != 5:
             known_error('PRODUCT-282', 'Waiting product decision on this.')
         assert False, 'Remove known error'
         for _ in range(10):
