@@ -92,9 +92,9 @@ class Test_DecryptCiphertext(OKMS):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4040')
 
     def test_T5158_missing_encryption_context(self):
-        resp = self.a1_r1.oapi.DecryptCiphertext(Ciphertext=self.encrypt_data3.Ciphertext).response
-        assert resp.Plaintext == self.data3
-        assert resp.MasterKeyId == self.master_key_id
+        ret = self.a1_r1.oapi.DecryptCiphertext(Ciphertext=self.encrypt_data3.Ciphertext)
+        assert ret.response.Plaintext == self.data3
+        assert ret.response.MasterKeyId == self.master_key_id
         ret.check_response()
 
     def test_T5159_dry_run(self):
