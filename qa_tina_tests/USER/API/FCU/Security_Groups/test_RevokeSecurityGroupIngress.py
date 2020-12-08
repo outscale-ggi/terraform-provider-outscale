@@ -53,7 +53,6 @@ class Test_RevokeSecurityGroupIngress(OscTestSuite):
             assert_error(error, 400, 'NotImplemented', 'This option is not yet implemented: Ipv6Ranges')
 
     def test_T5360_with_default_and_non_default_sg(self):
-<<<<<<< HEAD
         self.vpc1_info = None
         try:
             self.vpc1_info = create_vpc(self.a1_r1, no_eip=True, nb_instance=1 , cidr_prefix="172.16", igw=False, default_rtb=False, state='running')
@@ -70,21 +69,6 @@ class Test_RevokeSecurityGroupIngress(OscTestSuite):
         finally:
             if self.vpc1_info:
                 delete_vpc(self.a1_r1, self.vpc1_info)
-=======
-        self.vpc1_info = create_vpc(self.a1_r1, no_eip=True, nb_instance=1 , cidr_prefix="172.16", igw=False, default_rtb=False, state='running')
-        self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=self.vpc1_info[SUBNETS][0][SECURITY_GROUP_ID], IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp='10.0.0.0/16')
-        ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'vpc-id', 'Value': self.vpc1_info[VPC_ID]}])
-        if ret.response.securityGroupInfo:
-            for group in ret.response.securityGroupInfo:
-                if group.groupName == "default":
-                    # delete all rules
-                    if group.ipPermissions:
-                        permList = [to_dict(perm) for perm in group.ipPermissions]
-                        self.a1_r1.fcu.RevokeSecurityGroupIngress(GroupId=group.groupId, IpPermissions=permList)
-                    continue
-        if self.vpc1_info:
-            delete_vpc(self.a1_r1, self.vpc1_info)
->>>>>>> branch 'TKA_DEV' of https://gitlab.outscale.internal/qa-produit/tests/qa_tina_tests.git
 
     def test_T5361_with_invalid_sg(self):
         try:
