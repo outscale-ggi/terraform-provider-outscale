@@ -100,7 +100,7 @@ class Test_DescribeImageExportTasks(OscTestSuite):
             assert_error(error, 400, '', '')
             known_error('TINA-6064', 'DescribeImageExportTasks')
 
-    def test_T5359_with_invalid_type_image_export_task_id(self):
+    def test_T5365_with_invalid_type_image_export_task_id(self):
         try:
             self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId='foo')
             assert False, "Call shouldn't be successful"
@@ -109,7 +109,7 @@ class Test_DescribeImageExportTasks(OscTestSuite):
             known_error('TINA-6064', 'DescribeImageExportTasks')
 
     @pytest.mark.tag_sec_confidentiality
-    def test_TXXX_from_another_account(self):
+    def test_T5366_from_another_account(self):
         try:
             self.a2_r1.fcu.DescribeImageExportTasks(imageExportTaskId=[self.image_exp_ids[0]])
             assert False, 'Call from another account should not have been successful'
