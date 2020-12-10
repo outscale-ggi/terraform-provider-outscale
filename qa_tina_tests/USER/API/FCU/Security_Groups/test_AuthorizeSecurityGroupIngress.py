@@ -82,56 +82,106 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
         finally:
             self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg_name)
 
-    def test_T961_source_security_group_name(self):
-        sg1_name = 'T961_1_{}'.format(id_generator())
-        sg2_name = 'T961_2_{}'.format(id_generator())
+    def test_T961_public_source_security_group_name(self):
+        sg1_name = 'sg1_name{}'.format(id_generator())
+        sg2_name = 'sg1_name{}'.format(id_generator())
+        sg1_id = None
+        sg2_id = None
         try:
-            ret = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription=sg1_name, GroupName=sg1_name)
-            sg1_id = ret.response.groupId
-            ret = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription=sg2_name, GroupName=sg2_name)
-            sg2_id = ret.response.groupId
+            sg1_id = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription=sg1_name, GroupName=sg1_name).response.groupId
+            sg2_id = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription=sg2_name, GroupName=sg2_name).response.groupId
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg2_id, SourceSecurityGroupName=sg1_name)
             ret = self.a1_r1.fcu.DescribeSecurityGroups(GroupId=[sg2_id])
-            # ICMP
-            assert ret.response.securityGroupInfo[0].ipPermissions[0].groups[0].groupId == sg1_id
-            # TCP
-            assert ret.response.securityGroupInfo[0].ipPermissions[1].groups[0].groupId == sg1_id
-            # UDP
-            assert ret.response.securityGroupInfo[0].ipPermissions[2].groups[0].groupId == sg1_id
+            for i in range(3):
+                assert ret.response.securityGroupInfo[0].ipPermissions[i].groups[0].groupId == sg1_id
         finally:
-            self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg2_name)
-            self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg1_name)
+            if sg2_id:
+                try:
+                    self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg2_name)
+                except:
+                    pass
+            if sg1_id:
+                try:
+                    self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg1_name)
+                except:
+                    pass
 
-    def test_T1300_source_sg_owner_id_and_group_id(self):
-        sg1_name = 'T962_1_{}'.format(id_generator())
-        sg2_name = 'T962_2_{}'.format(id_generator())
+    def test_T5364_private_source_security_group_name(self):
+        sg1_name = 'sg1_name{}'.format(id_generator())
+        sg2_name = 'sg1_name{}'.format(id_generator())
+        sg1_id = None
+        sg2_id = None
         try:
-            ret = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription=sg1_name, GroupName=sg1_name)
-            ret = self.a2_r1.fcu.CreateSecurityGroup(GroupDescription=sg2_name, GroupName=sg2_name)
-            sg2_id = ret.response.groupId
+            sg1_id = self.a1_r1.fcu.CreateSecurityGroup(VpcId=self.vpc_info[VPC_ID], GroupDescription=sg1_name, GroupName=sg1_name).response.groupId
+            sg2_id = self.a1_r1.fcu.CreateSecurityGroup(VpcId=self.vpc_info[VPC_ID], GroupDescription=sg2_name, GroupName=sg2_name).response.groupId
+            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg2_id, SourceSecurityGroupName=sg1_name)
+            ret = self.a1_r1.fcu.DescribeSecurityGroups(GroupId=[sg2_id])
+            for i in range(3):
+                assert ret.response.securityGroupInfo[0].ipPermissions[i].groups[0].groupId == sg1_id
+        finally:
+            if sg2_id:
+                try:
+                    self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg2_id)
+                except:
+                    pass
+            if sg1_id:
+                try:
+                    self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg1_id)
+                except:
+                    pass
+
+    def test_T1300_public_source_sg_owner_id_and_group_id(self):
+        sg1_name = 'sg1_name{}'.format(id_generator())
+        sg2_name = 'sg1_name{}'.format(id_generator())
+        sg1_id = None
+        sg2_id = None
+        try:
+            sg1_id = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription=sg1_name, GroupName=sg1_name).response.groupId
+            sg2_id = self.a2_r1.fcu.CreateSecurityGroup(GroupDescription=sg2_name, GroupName=sg2_name).response.groupId
             ret = self.a2_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg2_id,
                                                                SourceSecurityGroupOwnerId=self.a1_r1.config.account.account_id,
                                                                SourceSecurityGroupName=sg1_name)
+            ret = self.a2_r1.fcu.DescribeSecurityGroups(GroupId=[sg2_id])
+            for i in range(3):
+                assert ret.response.securityGroupInfo[0].ipPermissions[i].groups[0].groupId == sg1_id
         finally:
-            self.a2_r1.fcu.DeleteSecurityGroup(GroupName=sg2_name)
-            self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg1_name)
+            if sg2_id:
+                try:
+                    self.a2_r1.fcu.DeleteSecurityGroup(GroupId=sg2_id)
+                except:
+                    pass
+            if sg1_id:
+                try:
+                    self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg1_id)
+                except:
+                    pass
 
-    def test_T962_source_sg_owner_id(self):
-        sg1_name = 'T962_1_{}'.format(id_generator())
-        sg2_name = 'T962_2_{}'.format(id_generator())
+    def test_T962_public_source_sg_owner_id(self):
+        sg1_name = 'sg1_name{}'.format(id_generator())
+        sg2_name = 'sg1_name{}'.format(id_generator())
+        sg1_id = None
+        sg2_id = None
         try:
-            ret = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription=sg1_name, GroupName=sg1_name)
-            ret = self.a2_r1.fcu.CreateSecurityGroup(GroupDescription=sg2_name, GroupName=sg2_name)
-            sg2_id = ret.response.groupId
-            ret = self.a2_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg2_id, SourceSecurityGroupOwnerId=self.a1_r1.config.account.account_id)
+            sg1_id = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription=sg1_name, GroupName=sg1_name).response.groupId
+            sg2_id = self.a2_r1.fcu.CreateSecurityGroup(GroupDescription=sg2_name, GroupName=sg2_name).response.groupId
+            self.a2_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg2_id, SourceSecurityGroupOwnerId=self.a1_r1.config.account.account_id)
+            assert False, "Call should not have been successful"
         except OscApiException as error:
             if error.error_code == "MissingParameter" and error.message == "Parameter cannot be empty: Authorizations":
                 known_error("TINA-6047", "Incorrect error returned by AuthorizeSecurityGroupIngress")
             assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidPermission.Malformed', 'IpProtocol, IpPermissions or SourceSecurityGroupName is missing')
         finally:
-            self.a2_r1.fcu.DeleteSecurityGroup(GroupName=sg2_name)
-            self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg1_name)
+            if sg2_id:
+                try:
+                    self.a2_r1.fcu.DeleteSecurityGroup(GroupId=sg2_id)
+                except:
+                    pass
+            if sg1_id:
+                try:
+                    self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg1_id)
+                except:
+                    pass
 
     def test_T1408_valid_ipv6_address_format_inbound(self):
         try:
@@ -166,8 +216,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
 
     def test_T5345_public_integer_ip_protocol_param(self):
         try:
-            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=self.publicGroupId, IpProtocol='45',
-                                                         CidrIp=Configuration.get('cidr', 'allips'))
+            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=self.publicGroupId, IpProtocol='45', CidrIp=Configuration.get('cidr', 'allips'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidPermission.Malformed', 'Unsupported IP protocol "45"  - supported: [tcp, udp, icmp]')
@@ -182,8 +231,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
             vpc_id = self.a1_r1.fcu.CreateVpc(CidrBlock=Configuration.get('vpc', '10_0_0_0_16')).response.vpc.vpcId
             subnet_id = self.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_1_0_24'), VpcId=vpc_id).response.subnet.subnetId
             sg_id = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test_sg_description', GroupName=sg_name, VpcId=vpc_id).response.groupId
-            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupName=sg_name, IpProtocol='tcp', FromPort=22, ToPort=22,
-                                                         CidrIp=Configuration.get('cidr', 'allips'))
+            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupName=sg_name, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=Configuration.get('cidr', 'allips'))
         except OscApiException as error:
             if error.status_code == 400 and error.error_code == 'InvalidGroup.NotFound':
                 known_error('TINA-4771', 'AuthorizeSecurityGroupIngress with group name --> error and incorrect message')
@@ -192,17 +240,17 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
             if sg_id:
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
-                except Exception:
+                except:
                     pass
             if subnet_id:
                 try:
                     self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id)
-                except Exception:
+                except:
                     pass
             if vpc_id:
                 try:
                     self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
-                except Exception:
+                except:
                     pass
 
     def test_T3026_valid_group_name_without_vpc(self):
