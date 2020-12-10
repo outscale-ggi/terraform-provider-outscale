@@ -102,7 +102,6 @@ class Test_DescribeKeyPairs(OscTestSuite):
             ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']}])
             if os.getenv('OSC_USE_GATEWAY', None):
                 assert False, 'Remove known error code'
-            assert False, 'Call should not have been successful'
         except OscApiException as error:
             if os.getenv('OSC_USE_GATEWAY', None):
                 assert_error(error, 400, "InvalidParameterValue", None)
