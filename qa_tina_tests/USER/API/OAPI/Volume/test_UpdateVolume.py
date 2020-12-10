@@ -56,7 +56,7 @@ class Test_UpdateVolume(OscTestSuite):
             known_error('PRODUCT-282', 'Waiting product decision on this.')
         assert False, 'Remove known error'
         for _ in range(10):
-            resp = self.a1_r1.oapi.ReadVolumes(Filters={'VolumeIds': [resp.Volume.VolumeId]}).response
+            resp = self.a1_r1.oapi.ReadVolumes(Filters={'VolumeIds': [ret.response.Volume.VolumeId]}).response
             if resp.Volumes[0].Size == 5:
                 break
             time.sleep(2)
