@@ -60,12 +60,10 @@ def perf_inst_exec(oscsdk, logger, queue, args, os):
         try:
             ret = oscsdk.fcu.DescribeKeyPairs(Filter=[{'Name': 'key-name', 'Value': kp_name}])
             if ret.response.keySet:
-                kp_info = {}
-                kp_info[NAME] = kp_name
-                kp_info[PATH] = "/tmp/{}.pem".format(kp_name)
+                kp_info = {NAME: kp_name, PATH: "/tmp/{}.pem".format(kp_name)}
                 private_key = paramiko.RSAKey.from_private_key_file(kp_info[PATH])
         except Exception as error:
-            log_error(logger, error, "Unexpected error while checking security group", result)
+            log_error(logger, error, "Unexpected error while checking key pair", result)
 
     # check security group
     sg = None
