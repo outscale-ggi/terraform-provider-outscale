@@ -3,6 +3,7 @@ from datetime import datetime
 import socket
 from threading import current_thread
 import time
+import os
 
 from paramiko import SSHClient
 from paramiko import SSHException
@@ -59,7 +60,7 @@ def perf_inst_exec(oscsdk, logger, queue, args, os):
         logger.debug("Describe Key Pair")
         try:
             ret = oscsdk.fcu.DescribeKeyPairs(Filter=[{'Name': 'key-name', 'Value': kp_name}])
-            if ret.response.keySet:
+            if ret.response.keySet and os.path.isfile("/tmp/{}.pem".format(kp_name)):
                 kp_info = {}
                 kp_info[NAME] = kp_name
                 kp_info[PATH] = "/tmp/{}.pem".format(kp_name)
