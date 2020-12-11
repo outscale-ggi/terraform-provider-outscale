@@ -108,16 +108,20 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
 
     def test_T5364_private_source_security_group_name(self):
         sg1_name = 'sg1_name{}'.format(id_generator())
-        sg2_name = 'sg1_name{}'.format(id_generator())
+        sg2_name = 'sg2_name{}'.format(id_generator())
         sg1_id = None
         sg2_id = None
         try:
             sg1_id = self.a1_r1.fcu.CreateSecurityGroup(VpcId=self.vpc_info[VPC_ID], GroupDescription=sg1_name, GroupName=sg1_name).response.groupId
             sg2_id = self.a1_r1.fcu.CreateSecurityGroup(VpcId=self.vpc_info[VPC_ID], GroupDescription=sg2_name, GroupName=sg2_name).response.groupId
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg2_id, SourceSecurityGroupName=sg1_name)
+            assert False, 'remove known error code'
             ret = self.a1_r1.fcu.DescribeSecurityGroups(GroupId=[sg2_id])
             for i in range(3):
                 assert ret.response.securityGroupInfo[0].ipPermissions[i].groups[0].groupId == sg1_id
+        except OscApiException as error:
+            if error.error_code == 'InvalidGroup.NotFound' and error.status_code == 400:
+                known_error('TINA-6069', 'AuthorizeSecurityGroupIngress with sg in vpc return InvalidGroup.NotFound')
         finally:
             if sg2_id:
                 try:
