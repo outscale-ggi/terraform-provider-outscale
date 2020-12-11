@@ -44,12 +44,13 @@ class Test_GetConsoleOutput(OscTestSuite):
         finally:
             super(Test_GetConsoleOutput, cls).teardown_class()
 
-    def check_response_output(self, ret, inst_id):
-        assert ret.response.output
-        try:
-            base64.b64decode(ret.response.output)
-        except binascii.Error:
-            assert False, "Response output is not base64"
+    def check_response_output(self, ret, inst_id, empty=False):
+        assert (empty and not ret.response.output) or (not empty and ret.response.output)
+        if ret.response.output:
+            try:
+                base64.b64decode(ret.response.output)
+            except binascii.Error:
+                assert False, "Response output is not base64"
         assert ret.response.instanceId == inst_id
         assert ret.response.timestamp and re.match(TIMESTAMP_REGEX, ret.response.timestamp)
 
@@ -90,7 +91,7 @@ class Test_GetConsoleOutput(OscTestSuite):
         inst_id = self.instance_info_a1[INSTANCE_ID_LIST][1]
         terminate_instances(self.a1_r1, [inst_id])
         ret = self.a1_r1.fcu.GetConsoleOutput(InstanceId=inst_id)
-        self.check_response_output(ret, inst_id)
+        self.check_response_output(ret, inst_id, empty=True)
 
     def test_T4355_with_stopped_instance(self):
         inst_id = self.instance_info_a1[INSTANCE_ID_LIST][2]
