@@ -84,7 +84,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
 
     def test_T961_public_source_security_group_name(self):
         sg1_name = 'sg1_name{}'.format(id_generator())
-        sg2_name = 'sg1_name{}'.format(id_generator())
+        sg2_name = 'sg2_name{}'.format(id_generator())
         sg1_id = None
         sg2_id = None
         try:
@@ -136,7 +136,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
 
     def test_T1300_public_source_sg_owner_id_and_group_id(self):
         sg1_name = 'sg1_name{}'.format(id_generator())
-        sg2_name = 'sg1_name{}'.format(id_generator())
+        sg2_name = 'sg2_name{}'.format(id_generator())
         sg1_id = None
         sg2_id = None
         try:
@@ -162,7 +162,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
 
     def test_T962_public_source_sg_owner_id(self):
         sg1_name = 'sg1_name{}'.format(id_generator())
-        sg2_name = 'sg1_name{}'.format(id_generator())
+        sg2_name = 'sg2_name{}'.format(id_generator())
         sg1_id = None
         sg2_id = None
         try:
