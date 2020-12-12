@@ -31,7 +31,7 @@ class Test_slot_history(OscTestSuite):
             assert False, 'Remove known error'
         except OscApiException as error:
             assert_error(error, 200, -32603, "Internal error.")
-            known_error('TINA-6051', 'Unexpected internal error.')
+            known_error('TINA-5862', 'Unexpected internal error.')
             raise error
 
     def test_T5350_server_with_dates(self):
