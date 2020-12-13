@@ -102,7 +102,7 @@ class Test_UnlinkFlexibleGpu(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T4213_valid_params(self):
-        ret_unlink = self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id).response
+        ret_unlink = self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id)
         self.ret_link = None
         wait_flexible_gpu_state(self.a1_r1, [self.fg_id], state='allocated')
         ret_unlink.check_response()

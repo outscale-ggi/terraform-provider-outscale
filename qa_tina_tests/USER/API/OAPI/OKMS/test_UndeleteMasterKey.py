@@ -52,16 +52,10 @@ class Test_UndeleteMasterKey(OKMS):
         return key_id
 
     def test_T5212_valid_params(self):
-        try:
-            self.key_id = self.mysetup()
-            ret = self.a1_r1.oapi.UndeleteMasterKey(MasterKeyId=self.key_id)
-            assert False, "Remove known error code"
-            assert ret.response.MasterKey.MasterKeyId == self.key_id
-            ret.check_response()
-        except OscApiException as error:
-            if error.message == "InternalError":
-                known_error("TINA-6046", "kms.key.cancel_deletion return Internal error")
-            assert_oapi_error(error, 400, '', '')
+        self.key_id = self.mysetup()
+        ret = self.a1_r1.oapi.UndeleteMasterKey(MasterKeyId=self.key_id)
+        assert ret.response.MasterKey.MasterKeyId == self.key_id
+        ret.check_response()
 
     def test_T5213_no_params(self):
         try:

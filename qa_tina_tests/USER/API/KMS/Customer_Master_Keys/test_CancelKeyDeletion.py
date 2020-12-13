@@ -50,13 +50,8 @@ class Test_CancelKeyDeletion(Kms):
 
     def test_T3235_valid_params(self):
         self.key_id = self.mysetup()
-        try:
-            ret = self.a1_r1.kms.CancelKeyDeletion(KeyId=self.key_id)
-            assert False, "Remove known error code"
-            assert ret.response.KeyId == self.key_id
-        except OscApiException as error:
-            if error.message == "Internal Error":
-                known_error("TINA-6046", "kms.key.cancel_deletion return Internal error")
+        ret = self.a1_r1.kms.CancelKeyDeletion(KeyId=self.key_id)
+        assert ret.response.KeyId == self.key_id
 
     def test_T3236_no_params(self):
         try:
