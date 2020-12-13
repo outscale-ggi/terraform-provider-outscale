@@ -1,6 +1,7 @@
 from qa_test_tools.test_base import OscTestSuite, known_error
 import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_error
 
 
 @pytest.mark.region_kms
@@ -128,8 +129,8 @@ class Test_kms(OscTestSuite):
             ret = self.a1_r1.intel.kms.key.cancel_deletion(owner=self.account_id, key_id=key_id)
             assert False, "Remove known error code"
         except OscApiException as error:
-            if error.message == "Internal error":
-                known_error("TINA-6046", "kms.key.cancel_deletion return Internal error")
+            assert_error(error, 200, -32601, None)
+            known_error("TINA-6046", "kms.key.cancel_deletion return Internal error")
         ret = self.a1_r1.intel.kms.key.find(id=key_id).response.result
         assert len(ret) == 1 and not ret[0].deletion_date
 
