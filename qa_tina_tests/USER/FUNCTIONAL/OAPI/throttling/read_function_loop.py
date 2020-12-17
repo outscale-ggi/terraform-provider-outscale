@@ -14,7 +14,7 @@ import time
 from qa_test_tools import misc
 from qa_test_tools.error import error_type, load_errors
 from qa_test_tools.account_tools import create_account
-from tools.specs.check_tools import get_documentation, DOCUMENTATIONS, SCHEMAS
+from specs.check_tools import get_documentation, DOCUMENTATIONS, SCHEMAS
 
 
 ssl._create_default_https_context = ssl._create_unverified_context

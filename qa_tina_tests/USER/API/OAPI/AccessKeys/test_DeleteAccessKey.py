@@ -94,7 +94,7 @@ class Test_DeleteAccessKey(OscTestSuite):
             ak = ret_create.response.AccessKey.AccessKeyId
             ret_delete = self.a1_r1.oapi.DeleteAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=ak)
             assert False, 'remove known error'
-            ret.check_response()
+            ret_delete.check_response()
         except OscSdkException as error:
             known_error('GTW-1240', 'SDK implementation ')
         finally:
