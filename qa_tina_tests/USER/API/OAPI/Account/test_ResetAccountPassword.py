@@ -1,7 +1,7 @@
 import string
 from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools import misc, account_tools
-from qa_sdk_common.config.default_public_config import DefaultPubConfig
+from qa_sdk_pub.osc_api import DefaultPubConfig
 from qa_sdk_pub.osc_api.osc_oapi_api import OscOApi
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api

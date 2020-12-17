@@ -1,4 +1,3 @@
-from tools.specs.check_tools import check_oapi_response
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
 from qa_tina_tools.tools.tina import create_tools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException

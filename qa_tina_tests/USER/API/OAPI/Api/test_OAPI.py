@@ -11,8 +11,7 @@ import json
 from qa_test_tools.misc import assert_error, assert_oapi_error
 import datetime
 from qa_test_tools import misc
-from tools.specs.check_tools import get_documentation, DOCUMENTATIONS,\
-    PATHS
+from specs.check_tools import get_documentation, DOCUMENTATIONS, PATHS
 
 MIN_OVERTIME=4
 
