@@ -43,7 +43,7 @@ class Test_GetConsoleOutput(OscTestSuite):
                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         msg_output = id_generator(size=128, chars=string.ascii_letters)
         cmd = "echo " + msg_output + " | sudo tee  /dev/kmsg"
-        _, _, _ = SshTools.exec_command_paramiko_2(connection, cmd)
+        _, _, _ = SshTools.exec_command_paramiko(connection, cmd)
 
         start = datetime.datetime.now()
         while datetime.datetime.now() - start < datetime.timedelta(seconds=300):

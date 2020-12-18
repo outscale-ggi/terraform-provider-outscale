@@ -45,7 +45,7 @@ class Test_Lbu_Services(OscTestSuite):
                                                                             password=passphrase)
                 for key, value in list(DEPENDENCIES.items()):
                     cmd = "source /usr/local/outscale/virtualenv/bin/activate \n pip freeze | grep {}".format(key)
-                    out, status, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, cmd)
+                    out, status, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd)
                     assert not status
                     assert value in out
 

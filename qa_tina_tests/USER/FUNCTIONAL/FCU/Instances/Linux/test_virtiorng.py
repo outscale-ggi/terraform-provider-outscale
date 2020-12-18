@@ -37,8 +37,8 @@ class Test_virtiorng(OscTestSuite):
         connection = SshTools.check_connection_paramiko(inst['ipAddress'], kp_info[PATH],
                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         cmd = "cat /sys/devices/virtual/misc/hw_random/rng_available"
-        out, _, _ = SshTools.exec_command_paramiko_2(connection, cmd)
+        out, _, _ = SshTools.exec_command_paramiko(connection, cmd)
         assert 'virtio' in out
         cmd = "cat /sys/devices/virtual/misc/hw_random/rng_current"
-        out, _, _ = SshTools.exec_command_paramiko_2(connection, cmd)
+        out, _, _ = SshTools.exec_command_paramiko(connection, cmd)
         assert 'virtio' in out

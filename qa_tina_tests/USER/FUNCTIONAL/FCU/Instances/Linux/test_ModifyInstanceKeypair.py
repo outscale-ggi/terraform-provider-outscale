@@ -41,7 +41,7 @@ class Test_ModifyInstanceKeypair(OscTestSuite):
                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # execute command
             cmd = 'curl http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key'
-            out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             self.logger.info(out)
             assert not status, "SSH command was not executed correctly on the remote host"
             # create other keypair
@@ -52,7 +52,7 @@ class Test_ModifyInstanceKeypair(OscTestSuite):
             assert ret.response.requestId
             # execute command
             cmd = 'curl http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key'
-            ret = out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            ret = out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             self.logger.info(out)
             assert ret
             assert not status, "SSH command was not executed correctly on the remote host"

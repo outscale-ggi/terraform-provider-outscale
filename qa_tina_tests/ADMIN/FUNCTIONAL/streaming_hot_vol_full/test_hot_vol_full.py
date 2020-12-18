@@ -104,12 +104,12 @@ class Test_hot_vol_full(StreamingBaseHot):
             self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
             wait_snapshots_state(osc_sdk=self.a1_r1, cleanup=True, snapshot_id_list=[snap_id])
         cmd = 'sudo mount -o nouuid {} {}'.format('/dev/xvdc', '/mnt')
-        SshTools.exec_command_paramiko_2(sshclient, cmd)
+        SshTools.exec_command_paramiko(sshclient, cmd)
         cmd = 'sudo cat {}/data_*.txt | md5sum'.format('/mnt')
-        out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+        out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
         self.md5sum_before = out.split(' ')[0]
         cmd = 'sudo umount {}'.format('/mnt')
-        SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+        SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
 
         data_file_before = get_data_file_chain(self.a1_r1, res_id=self.vol_1_id)
 
@@ -170,7 +170,7 @@ class Test_hot_vol_full(StreamingBaseHot):
     #        wait_volumes_state(self.a1_r1, [vol_id], state='in-use', nb_check=5)
     #        attached = True
     #        cmd = 'sudo mkfs.xfs -f /dev/xvdd; sudo mkdir -p /vol2; sudo mount /dev/xvdd /vol2'
-    #        SshTools.exec_command_paramiko_2(self.test_sshclient, cmd)
+    #        SshTools.exec_command_paramiko(self.test_sshclient, cmd)
     #        for _ in range(self.s_len):
     #            snap_id = self.a1_r1.fcu.CreateSnapshot(VolumeId=vol_id).response.snapshotId
     #            wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
@@ -194,7 +194,7 @@ class Test_hot_vol_full(StreamingBaseHot):
     #        if attached:
     #            # umount and detach
     #            cmd = 'sudo umount /vol2'
-    #            SshTools.exec_command_paramiko_2(self.test_sshclient, cmd)
+    #            SshTools.exec_command_paramiko(self.test_sshclient, cmd)
     #            self.a1_r1.fcu.DetachVolume(VolumeId=vol_id)
     #            wait_volumes_state(self.a1_r1, [vol_id], 'available', nb_check=5)
     #        # clean new chain
