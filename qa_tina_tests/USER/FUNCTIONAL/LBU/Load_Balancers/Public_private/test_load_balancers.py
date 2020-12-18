@@ -108,7 +108,7 @@ class Test_load_balancers(OscTestSuite):
             # yum install wget
             # run command on instance wget -o /tmp/toto.txt http://....
             # check output file for http response status (regex)
-            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], eips[2].publicIp, vpc_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, vpc_insts[2], eips[2].publicIp, vpc_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # sshclient = SshTools.check_connection_paramiko(eips[2].publicIp, vpc_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             SshTools.exec_command_paramiko(sshclient, "sudo yum install -y bind-utils", eof_time_out=300)
             SshTools.exec_command_paramiko(sshclient, "nslookup {}".format(ret_lb.DNSName), retry=6, timeout=10)
