@@ -112,33 +112,33 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
     def config_tftp(self, sshclient, text_to_check):
 
         cmd = 'sudo yum -y install tftp tftp-server xinetd'
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status, "tftp package was not installed correctly"
 
         # the default folder of the tftp server is located in the directory below
         cmd = 'sudo touch /var/lib/tftpboot/demo.txt'
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status
         cmd = 'sudo chmod 666 /var/lib/tftpboot/demo.txt'
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status
         cmd = 'sudo echo \'{}\' > /var/lib/tftpboot/demo.txt'.format(text_to_check)
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status
 
         # start the service
         cmd = 'sudo systemctl start xinetd'
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status
 
         # start the service
         cmd = 'sudo systemctl start tftp'
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status
 
@@ -188,7 +188,7 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
 
             # validate tcp
             cmd = 'pwd'
-            _, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
 
             # validate UDP
@@ -244,7 +244,7 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # validate tcp
             cmd = 'pwd'
-            _, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
 
             # validate UDP

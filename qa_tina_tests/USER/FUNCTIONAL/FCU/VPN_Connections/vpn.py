@@ -14,7 +14,7 @@ from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
 from qa_test_tools.config import config_constants as constants
-from qa_tina_tools.tina import wait
+from qa_tina_tools.tina import wait, check_tools
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 
 
@@ -125,8 +125,8 @@ class Vpn(OscTestSuite):
             # wait CGW state == ready before making configuration
             wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw_info[INSTANCE_ID_LIST][0]], state='ready')
 
-            sshclient = SshTools.check_connection_paramiko(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw_info[INSTANCE_ID_LIST][0], self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            # sshclient = SshTools.check_connection_paramiko(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             setup_customer_gateway(self.a1_r1, sshclient, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
                                    self.inst_cgw_info, vgw_ip, psk_key, static, vpn_id,racoon, 0, self.vgw_id)
@@ -143,7 +143,7 @@ class Vpn(OscTestSuite):
 
             # try to make ping from CGW to VPC instance
             try:
-                out, _, _ = SshTools.exec_command_paramiko_2(
+                out, _, _ = SshTools.exec_command_paramiko(
                     sshclient,
                     'ping -I {} -W 1 -c 1 {}'.format(
                         self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],

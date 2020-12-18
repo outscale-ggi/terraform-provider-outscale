@@ -54,7 +54,7 @@ class Test_firewall_vpc(OscTestSuite):
         sshclient = SshTools.check_connection_paramiko(self.public_ip,
                                                        self.vpc_info[KEY_PAIR][PATH],
                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        out, _, _ = SshTools.exec_command_paramiko_2(
+        out, _, _ = SshTools.exec_command_paramiko(
             sshclient,
             'ping -W 1 -c 1 {}'.format(
                 self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress']),
@@ -79,7 +79,7 @@ class Test_firewall_vpc(OscTestSuite):
                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                        retry=20, timeout=10)
 
-        out, _, _ = SshTools.exec_command_paramiko_2(
+        out, _, _ = SshTools.exec_command_paramiko(
             sshclient,
             'ping -W 1 -c 1 {}'.format(
                 self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress']),
@@ -91,7 +91,7 @@ class Test_firewall_vpc(OscTestSuite):
         sshclient = SshTools.check_connection_paramiko(self.public_ip,
                                                        self.vpc_info[KEY_PAIR][PATH],
                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        out, _, _ = SshTools.exec_command_paramiko_2(
+        out, _, _ = SshTools.exec_command_paramiko(
             sshclient,
             'ping -W 1 -c 1 {}'.format(
                 self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress']),
@@ -115,7 +115,7 @@ class Test_firewall_vpc(OscTestSuite):
                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                        retry=20, timeout=10)
 
-        out, _, _ = SshTools.exec_command_paramiko_2(
+        out, _, _ = SshTools.exec_command_paramiko(
             sshclient,
             'ping -W 1 -c 1 {}'.format(
                 self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress']),

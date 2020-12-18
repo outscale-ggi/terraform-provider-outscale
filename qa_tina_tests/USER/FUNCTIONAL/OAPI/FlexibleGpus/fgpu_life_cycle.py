@@ -29,19 +29,19 @@ def check_gpu_instance(osc_sdk, inst_id, ip_address, key_path, user_name, logger
     ret = osc_sdk.intel.device.find_server(name=ret.response.result[0].slots[0].server)
     assert len(ret.response.result) > 0
     cmd = 'sudo nproc'
-    out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+    out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
     logger.info(out)
     assert not status, "SSH command was not executed correctly on the remote host"
     assert not vcores or out.strip() == str(vcores), "Amount of cores does not match specifications for this type of instances"
     cmd = "sudo dmidecode -t 16 | grep 'Maximum Capacity' | awk '{print $3}'"
-    out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+    out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
     logger.info(out)
     assert not status, "SSH command was not executed correctly on the remote host"
     assert not memory_ram or out.strip() == str(memory_ram), "Memory does not match specifications for this type of instance"
     assert not status, "SSH command was not executed correctly on the remote host"
     # cmd = 'sudo lspci | grep -c NVIDIA'
     cmd = "sudo lshw -C display | grep -c '*-display:'"
-    out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd, expected_status=-1)
+    out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd, expected_status=-1)
     logger.info(out)
     err = total_gpu and out.split()[-1:][0].strip() != str(total_gpu + 1)
     assert not err, "The total GPU does not match "

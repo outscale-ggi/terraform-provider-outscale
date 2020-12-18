@@ -119,7 +119,7 @@ class Test_agent_fw_vpc(OscTestSuite):
             content = content_file.read()
 
         cmd = "sudo echo '" + content + "' > " + kp_path
-        out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         # put file
         #SshTools.transfer_file_sftp(sshclient, kp_path, kp_path)
@@ -132,7 +132,7 @@ class Test_agent_fw_vpc(OscTestSuite):
                                                                     username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                                     retry=4, timeout=10)
         cmd = "sudo ping " + Configuration.get('ipaddress', 'dns_google') + " -c 1"
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd)
         self.logger.info(out)
         assert not status, "Subnet that is connected to the NAT gateway seems not to be connected to the internet"
 
@@ -162,7 +162,7 @@ class Test_agent_fw_vpc(OscTestSuite):
                                                        os.path.expanduser(self.a1_r1.config.region.get_info(constants.FW_KP)),
                                                        username='root')
 
-        SshTools.exec_command_paramiko_2(sshclient, "service osc-agent restart")
+        SshTools.exec_command_paramiko(sshclient, "service osc-agent restart")
 
         self.check_ngw_ping(pub_ip=self.public_ip, kp_path=self.vpc_info[KEY_PAIR][PATH],
                             local_addr=self.vpc_info[SUBNETS][1][INSTANCE_SET][0]['privateIpAddress'],

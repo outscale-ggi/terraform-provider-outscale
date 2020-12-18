@@ -44,11 +44,11 @@ def setup_streaming_ressources(osc_sdk):
                                                            username=osc_sdk.config.region.get_info(constants.CENTOS_USER))
             if snap_cfg[3]:
                 cmd = 'sudo yum install -y epel-release'
-                SshTools.exec_command_paramiko_2(sshclient, cmd)
+                SshTools.exec_command_paramiko(sshclient, cmd)
                 cmd = 'sudo yum install -y fio'
-                SshTools.exec_command_paramiko_2(sshclient, cmd)
+                SshTools.exec_command_paramiko(sshclient, cmd)
             cmd = 'sudo mkfs.xfs -f /dev/xvdc'
-            SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=120)
+            SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=120)
 
             osc_sdk.fcu.DetachVolume(VolumeId=vol_id)
             try:

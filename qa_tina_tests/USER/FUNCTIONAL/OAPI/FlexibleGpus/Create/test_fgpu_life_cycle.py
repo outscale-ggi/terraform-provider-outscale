@@ -216,10 +216,10 @@ class Test_fgpu_life_cycle(Fgpu_life_cycle):
                                                            username=self.a1_r1.config.region.get_info(
                                                                constants.CENTOS_USER))
             cmd = 'sudo yum install pciutils -y'
-            _, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+            _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
             assert not status, "SSH command was not executed correctly on the remote host"
             cmd = 'sudo lspci | grep -c NVIDIA '
-            out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
             assert out == "1\r\n"
             assert False, 'Remove known error'

@@ -52,17 +52,17 @@ class Test_fw_vpc(OscTestSuite):
         assert SshTools.check_service(self.sshclient, 'osc-agent')
 
     def test_T1867_check_dns(self):
-        resolvconf, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "cat /etc/resolv.conf")
+        resolvconf, _, _ = SshTools.exec_command_paramiko(self.sshclient, "cat /etc/resolv.conf")
         for dns in self.a1_r1.config.region.get_info(constants.FW_DNS_SERVERS):
             assert 'nameserver {}'.format(dns) in resolvconf
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, 'grep -c "querylog[[:blank:]]*no;" /etc/named.conf')
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'grep -c "querylog[[:blank:]]*no;" /etc/named.conf')
         assert int(out) == 1
 
     def test_T1868_check_ntp(self):
         retry = 30
         wait = 30
         for i in range(retry):
-            out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, 'ntpq -pn')
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'ntpq -pn')
             if re.search(r'\*({})'.format('|'.join(self.a1_r1.config.region.get_info(constants.FW_NTP_SERVER_PREFIX))), out):
                 break
             if i == retry - 1:
@@ -85,41 +85,41 @@ class Test_fw_vpc(OscTestSuite):
         assert SshTools.check_service(self.sshclient, 'ospfd')
 
     def test_T1875_check_netns(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "ip netns exec igw ifconfig | grep Link")
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec igw ifconfig | grep Link")
         assert re.search('lo', out)
         assert re.search('{}'.format(self.vpc_info[VPC_ID]), out)
         assert re.search('wan', out)
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "ip netns exec {} ifconfig | grep Link".format(self.vpc_info[VPC_ID]))
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec {} ifconfig | grep Link".format(self.vpc_info[VPC_ID]))
         assert re.search('lo', out)
         assert re.search('s-', out)
         assert re.search('ifw', out)
         assert re.search('igw', out)
         # TODO: Add tests
-        # out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "ip netns exec igw iptables -L")
+        # out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec igw iptables -L")
         # print out
-        # out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "ip netns exec {} iptables -L".format(self.vpc_info[VPC_ID]))
+        # out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec {} iptables -L".format(self.vpc_info[VPC_ID]))
         # print out
-        # out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "ip netns exec igw ip route")
+        # out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec igw ip route")
         # print out
-        # out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "ip netns exec {} ip route".format(self.vpc_info[VPC_ID]))
+        # out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec {} ip route".format(self.vpc_info[VPC_ID]))
         # print out
 
     def test_T1878_check_fdcp(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "ps ax | grep dhcp")
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ps ax | grep dhcp")
         pattern = re.compile('/sbin/dhclient')
         assert re.search(pattern, out)
 
     def test_T1876_check_hostname(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "hostname")
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "hostname")
         pattern = re.compile('fw-master-{}'.format(self.vpc_info[VPC_ID]))
         assert re.search(pattern, out)
 
     def test_T1877_check_kernel(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "uname -a")
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "uname -a")
         pattern = re.compile(' 4.14.14 ')
         assert re.search(pattern, out)
 
     def test_T1926_check_cpu_generation(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "cat /proc/cpuinfo")
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "cat /proc/cpuinfo")
         pattern = re.compile('Sandy Bridge')
         assert re.search(pattern, out)
