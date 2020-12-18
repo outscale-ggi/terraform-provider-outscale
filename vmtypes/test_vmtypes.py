@@ -45,17 +45,17 @@ def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
                                                    username=osc_sdk.config.region.get_info(constants.CENTOS_USER))
 
     cmd = 'sudo nproc'
-    _, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+    _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
     assert not status, "SSH command was not executed correctly on the remote host"
-    out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+    out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd)
     assert len(set([int(out), core, inst.specs.core])) == 1, "Core values are not all equal, {} {} {}".format(int(out), core, inst.specs.core)
 
     # TODO: check cpu generation ?
 
     cmd = "sudo dmidecode -t 16 | grep 'Maximum Capacity' | awk -v OFS=' ' '{print $3, $4}'"
-    out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+    out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
     assert not status, "SSH command was not executed correctly on the remote host"
-    out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+    out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd)
     out = out.strip().split(" ")
     if out[1] == 'MB':
         expected = int(out[0]) / 1024
@@ -64,7 +64,7 @@ def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
     assert len(set([expected, ram, int(inst.specs.memory / (1024*1024*1024))])) == 1, "Ram values are not all equal, {} {} {}".format(expected, ram, int(inst.specs.memory / (1024*1024*1024)))
 
     cmd = "sudo lshw -C display | grep -c '*-display'"
-    out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd, expected_status=-1)
+    out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd, expected_status=-1)
     displays = out.split()[-1:][0].strip()
     assert int(displays) - 1 == gpu_number, "Gpu number values are not all equal, {} {}".format(displays - 1, gpu_number)
     if gpu_number > 0:
@@ -73,16 +73,16 @@ def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
     if type_info.storage_number > 0:
         for i in range(type_info.storage_number):
             cmd = "sudo fdisk -l /dev/xvd{} | grep /dev/xvd{}".format(chr(98 + i), chr(98 + i))
-            out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
             assert type_info.storage_size * 1024 * 1024 == int(out.strip().split()[4]), "Ephemeral storage size are not equal, {} {}".format(type_info.storage_size * 1024 * 1024, out.strip().split()[4])
 
     if type_info.max_nics > 1:
             cmd = 'sudo yum install pciutils -y'
-            out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
             assert not status, "SSH command was not executed correctly on the remote host"
             cmd = 'sudo lspci | grep -c Ethernet '
-            out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
             assert int(out.strip()) == type_info.max_nics, 'Nic number are not equal, {} {}'.format(int(out.strip()), type_info.max_nics)
 

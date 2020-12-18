@@ -209,13 +209,13 @@ class Test_NAT_gateway(OscTestSuite):
                 content = content_file.read()
 
             cmd = "sudo echo '" + content + "' > " + self.kp_info[info_keys.PATH]
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             self.logger.info(out)
             # put file
             # SshTools.transfer_file_sftp(sshclient, self.kp_info[PATH], self.kp_info[PATH])
 
             cmd = "sudo ifconfig"
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             self.logger.info(out)
 
             sshclient_jhost = SshTools.check_connection_paramiko_nested(sshclient=sshclient,
@@ -235,7 +235,7 @@ class Test_NAT_gateway(OscTestSuite):
             for _ in range(RETRY):
                 for target_ip in target_ips:
                     try:
-                        out, status, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, "sudo ping {} -c 1".format(target_ip), retry=0)
+                        out, status, _ = SshTools.exec_command_paramiko(sshclient_jhost, "sudo ping {} -c 1".format(target_ip), retry=0)
                         self.logger.info(out)
                         if not status:
                             success = True

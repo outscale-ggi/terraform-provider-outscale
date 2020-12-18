@@ -99,9 +99,9 @@ class Test_public_inter_sg(OscTestSuite):
                                                      FromPort=-1, ToPort=-1, CidrIp=self.inst1.ipAddress + '/32')
         time.sleep(SG_WAIT_TIME)
         try:
-            out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, 'ping -c 1 -W 1 {}'.format(self.inst2.ipAddress), retry=10)
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'ping -c 1 -W 1 {}'.format(self.inst2.ipAddress), retry=10)
             assert "1 packets transmitted, 1 received, 0% packet loss" in out
-            out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, 'ping -c 1 -W 1 {}'.format(self.inst2.privateIpAddress), retry=10)
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'ping -c 1 -W 1 {}'.format(self.inst2.privateIpAddress), retry=10)
             assert "1 packets transmitted, 1 received, 0% packet loss" in out
         except Exception as error:
             raise error
@@ -117,9 +117,9 @@ class Test_public_inter_sg(OscTestSuite):
                                                      FromPort=-1, ToPort=-1, CidrIp=self.inst1.privateIpAddress + '/32')
         time.sleep(SG_WAIT_TIME)
         try:
-            out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, 'ping -c 1 -W 1 {}'.format(self.inst2.privateIpAddress), retry=10)
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'ping -c 1 -W 1 {}'.format(self.inst2.privateIpAddress), retry=10)
             assert "1 packets transmitted, 1 received, 0% packet loss" in out
-            out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, 'ping -c 1 -W 1 {}'.format(self.inst2.ipAddress),
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'ping -c 1 -W 1 {}'.format(self.inst2.ipAddress),
                                                          retry=10, expected_status=-1)
             # assert "1 packets transmitted, 1 received, 0% packet loss" in out
             assert "1 packets transmitted, 0 received, 100% packet loss" in out

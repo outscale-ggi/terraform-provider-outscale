@@ -93,9 +93,9 @@ class StreamingBase(OscTestSuite):
 
             if cls.fio:
                 cmd = 'sudo yum install -y epel-release'
-                SshTools.exec_command_paramiko_2(cls.sshclient, cmd)
+                SshTools.exec_command_paramiko(cls.sshclient, cmd)
                 cmd = 'sudo yum install -y fio'
-                SshTools.exec_command_paramiko_2(cls.sshclient, cmd)
+                SshTools.exec_command_paramiko(cls.sshclient, cmd)
             ret = cls.a1_r1.intel.snapshot.find(owner=[cls.ref_account_id],
                                                 description='snap_S{}_from_vol_{}G_with_write_{}M'.format(cls.base_snap_id-1,
                                                                                                           cls.v_size, cls.w_size))

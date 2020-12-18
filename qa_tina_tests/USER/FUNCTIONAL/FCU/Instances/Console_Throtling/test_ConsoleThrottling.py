@@ -109,7 +109,7 @@ class Test_ConsoleThrottling(OscTestSuite):
 
         for e in list_to_write:
             cmd = "echo \'{}\' > /dev/kmsg".format(e)
-            out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, cmd)
             self.logger.info(out)
 
         time.sleep(20)

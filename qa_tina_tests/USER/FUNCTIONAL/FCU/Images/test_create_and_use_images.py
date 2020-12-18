@@ -10,6 +10,7 @@ from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instanc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH, INSTANCE_ID_LIST
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_images_state
+from qa_tina_tools.tina import check_tools
 
 
 class Test_create_and_use_images(OscTestSuite):
@@ -55,9 +56,9 @@ class Test_create_and_use_images(OscTestSuite):
             info = create_instances(self.a1_r1, omi_id=image_id, state='ready')
             public_ip_inst = info[INSTANCE_SET][0]['ipAddress']
 
-            sshclient = SshTools.check_connection_paramiko(public_ip_inst, info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-            out, status, _ = SshTools.exec_command_paramiko_2(sshclient, 'pwd')
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.info[INSTANCE_ID_LIST][0], public_ip_inst, info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            # sshclient = SshTools.check_connection_paramiko(public_ip_inst, info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            out, status, _ = SshTools.exec_command_paramiko(sshclient, 'pwd')
             self.logger.info(out)
             assert not status, "SSH command was not executed correctly on the remote host"
 

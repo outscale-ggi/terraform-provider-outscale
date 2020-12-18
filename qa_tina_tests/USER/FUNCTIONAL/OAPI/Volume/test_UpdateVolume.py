@@ -95,7 +95,7 @@ class Test_UpdateVolume(OscTestSuite):
             self.is_attached = True
 
             cmd = 'sudo mount -o nouuid {} {}'.format(self.device, self.volume_mount)
-            SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+            SshTools.exec_command_paramiko(self.sshclient, cmd)
 
             read_text_file_volume(self.sshclient, self.volume_mount, test_file, text_to_check)
 
@@ -121,29 +121,29 @@ class Test_UpdateVolume(OscTestSuite):
         #check volume before mount with disk
 
         cmd = "sudo fdisk -l /dev/sda | grep 'dev/sda'"
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, cmd)
         size_detected = int(out.split(",")[1][1:11])
         assert vol_size * 2**30 == size_detected
 
         cmd = 'sudo mount -o nouuid {} {}'.format(self.device, self.volume_mount)
-        SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+        SshTools.exec_command_paramiko(self.sshclient, cmd)
 
         # extend volume
         cmd = 'sudo xfs_growfs {}'.format(self.volume_mount)
-        SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+        SshTools.exec_command_paramiko(self.sshclient, cmd)
 
         # check volume after mount and extending with disk
         cmd = 'sudo df -h {} | grep /dev/sda'.format(self.volume_mount)
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, cmd)
         size_detected = int(out.split()[1][0])
         assert vol_size == size_detected
 
         # write file
         cmd = 'sudo openssl rand -out {}/data_x.txt -base64 $(({} * 2**20 * 3/4))'.format(self.volume_mount, 10**9)
-        SshTools.exec_command_paramiko_2(self.sshclient, cmd, eof_time_out=500)
+        SshTools.exec_command_paramiko(self.sshclient, cmd, eof_time_out=500)
 
         cmd = 'sudo cat {}/data_*.txt | md5sum'.format(self.volume_mount)
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, cmd, eof_time_out=500)
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, cmd, eof_time_out=500)
         md5sum = out.split(' ')[0]
 
         umount_volume(self.sshclient, self.volume_mount)

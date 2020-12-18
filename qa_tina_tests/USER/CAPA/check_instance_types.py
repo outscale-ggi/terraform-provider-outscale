@@ -104,14 +104,14 @@ def exec_test(osc_sdk):
                                                            username=osc_sdk.config.region.get_info(constants.CENTOS_USER))
 
             cmd = "cat /proc/cpuinfo | grep -c proc"
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             if int(out) != instance_type_cfg['cpu']:
                 status = "Ko"
                 comment += "Wrong number of CPU ({} instead of {}) ".format(out, instance_type_cfg['cpu'])
             # TODO: check cpu generation ?
 
             cmd = """sudo dmidecode | grep "Maximum Capa" | sed 's/.*: //g'"""
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             out = out.strip().split(" ")
             if out[1] == 'MB':
                 current = int(out[0])
@@ -124,7 +124,7 @@ def exec_test(osc_sdk):
                 comment += "Wrong number of RAM ({} instead of {}) ".format(current, expected)
 
             cmd = "sudo yum install -y pciutils 2>&1 > /dev/null; /usr/sbin/lspci | grep -i -c nvidia"
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd, expected_status=-1)
+            out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, expected_status=-1)
             if int(out) != instance_type_cfg['gpu']:
                 status = "Ko"
                 comment += "Wrong number of GPU ({} instead of {}) ".format(out, instance_type_cfg['gpu'])

@@ -24,21 +24,21 @@ class Test_create_verify_gpu_instances(OscTestSuite):
         sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         cmd = 'sudo nproc'
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status, "SSH command was not executed correctly on the remote host"
         assert out.strip() == str(vcores), "Amount of cores does not match specifications for this type of instances"
         cmd = "sudo dmidecode -t 16 | grep 'Maximum Capacity' | awk '{print $3}'"
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status, "SSH command was not executed correctly on the remote host"
         assert out.strip() == str(memory_ram), "Memory does not match specifications for this type of instance"
         cmd = 'sudo yum install pciutils -y'
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status, "SSH command was not executed correctly on the remote host"
         cmd = 'sudo lspci | grep -c NVIDIA'
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert out.strip() == str(total_gpu), "The total GPU does not match "
 

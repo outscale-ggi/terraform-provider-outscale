@@ -48,7 +48,7 @@ class Test_performance_iops(StreamingBase):
         cmd = 'sudo fio --filename={} --name test_fio --direct=1 {} --bs=16k --size=10G --numjobs=16 --time_based ' \
               '--runtime={} --group_reporting --norandommap' \
               .format(fio_file, mode, fio_time)
-        out, _, _ = SshTools.exec_command_paramiko_2(self.test_sshclient, cmd, eof_time_out=fio_time+30)
+        out, _, _ = SshTools.exec_command_paramiko(self.test_sshclient, cmd, eof_time_out=fio_time+30)
         self.logger.debug(out)
         match = re.search(': IOPS=([0-9-]+), ', out, re.MULTILINE)
         iops = match.group(1)
