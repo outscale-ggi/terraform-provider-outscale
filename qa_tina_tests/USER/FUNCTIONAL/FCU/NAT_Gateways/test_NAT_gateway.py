@@ -10,6 +10,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina import info_keys
 from qa_test_tools.config.region import Feature
 import time
+from qa_tina_tools.tina import check_tools
 
 
 RETRY = 5
@@ -202,8 +203,8 @@ class Test_NAT_gateway(OscTestSuite):
 
             self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst1_id)
 
-            sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[info_keys.PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=6, timeout=10)
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst1_id, self.eip.response.publicIp, self.kp_info[info_keys.PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=6, timeout=10)
+            # sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[info_keys.PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=6, timeout=10)
             # read file and save it on distant machine
             with open(self.kp_info[info_keys.PATH], 'r') as content_file:
                 content = content_file.read()
