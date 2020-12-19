@@ -85,6 +85,7 @@ class Test_create_volume_from_snapshot(OscTestSuite):
     @pytest.mark.tag_redwire
     def test_T63_create_volume_from_snapshot(self):
         volume_ids = []
+        snap_id = None
         try:
             # create volume /dev/xvdb
             volume_id, device, volume_mount = self.create_volume(volumeType='standard', volumeSize=1, drive_letter_code='b')
@@ -118,12 +119,14 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             read_text_file_volume(self.sshclient, volume_mount_1, test_file, text_to_check)
         finally:
             try:
-                for vol_id in volume_ids:
-                    self.a1_r1.fcu.DetachVolume(VolumeId=vol_id)
-                wait_volumes_state(self.a1_r1, volume_ids, state='available', cleanup=False)
-                for vol_id in volume_ids:
-                    self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)
-                self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
+                if volume_ids:
+                    for vol_id in volume_ids:
+                        self.a1_r1.fcu.DetachVolume(VolumeId=vol_id)
+                    wait_volumes_state(self.a1_r1, volume_ids, state='available', cleanup=False)
+                    for vol_id in volume_ids:
+                        self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)
+                if snap_id:
+                    self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
             except Exception as error:
                 self.logger.exception(error)
                 pytest.fail("An unexpected error happened : " + str(error))
