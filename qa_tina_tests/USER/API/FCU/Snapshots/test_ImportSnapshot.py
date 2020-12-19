@@ -52,11 +52,14 @@ class Test_ImportSnapshot(OscTestSuite):
     def teardown_class(cls):
         try:
             if cls.bucket_name:
-                k_list = cls.a1_r1.storageservice.list_objects(Bucket=cls.bucket_name)
-                if 'Contents' in list(k_list.keys()):
-                    for k in k_list['Contents']:
-                        cls.a1_r1.storageservice.delete_object(Bucket=cls.bucket_name, Key=k['Key'])
-                cls.a1_r1.storageservice.delete_bucket(Bucket=cls.bucket_name)
+                try:
+                    k_list = cls.a1_r1.storageservice.list_objects(Bucket=cls.bucket_name)
+                    if 'Contents' in list(k_list.keys()):
+                        for k in k_list['Contents']:
+                            cls.a1_r1.storageservice.delete_object(Bucket=cls.bucket_name, Key=k['Key'])
+                    cls.a1_r1.storageservice.delete_bucket(Bucket=cls.bucket_name)
+                except:
+                    pass
             if cls.snap_id:
                 # remove snapshot
                 cls.a1_r1.fcu.DeleteSnapshot(SnapshotId=cls.snap_id)
