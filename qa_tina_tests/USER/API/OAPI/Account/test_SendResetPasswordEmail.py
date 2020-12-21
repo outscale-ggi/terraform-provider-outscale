@@ -2,8 +2,6 @@ from time import sleep
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_sdk_pub import osc_api
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.specs.check_tools import check_oapi_response
-from qa_test_tools import misc
 
 
 class Test_SendResetPasswordEmail(OscTestSuite):
@@ -41,4 +39,4 @@ class Test_SendResetPasswordEmail(OscTestSuite):
     def test_T4767_non_authenticated(self):
         email = self.a2_r1.oapi.ReadAccounts().response.Accounts[0].Email
         ret = self.a2_r1.oapi.SendResetPasswordEmail(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Email=email)
-        check_oapi_response(ret.response, 'SendResetPasswordEmailResponse')
+        ret.check_response()

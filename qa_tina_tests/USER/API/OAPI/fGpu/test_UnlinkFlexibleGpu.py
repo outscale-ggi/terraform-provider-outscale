@@ -4,7 +4,6 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_tina_tools.specs.check_tools import check_oapi_response
 import pytest
 
 #     UnlinkFlexibleGpuRequest:
@@ -103,10 +102,10 @@ class Test_UnlinkFlexibleGpu(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T4213_valid_params(self):
-        ret_unlink = self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id).response
+        ret_unlink = self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id)
         self.ret_link = None
         wait_flexible_gpu_state(self.a1_r1, [self.fg_id], state='allocated')
-        check_oapi_response(ret_unlink, 'UnlinkFlexibleGpuResponse')
+        ret_unlink.check_response()
 
     def test_T4214_dry_run(self):
         ret = self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id, DryRun=True)

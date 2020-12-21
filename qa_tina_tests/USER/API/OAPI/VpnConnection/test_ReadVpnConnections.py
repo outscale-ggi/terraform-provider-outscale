@@ -4,7 +4,6 @@ from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import known_error
 from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import VpnConnection, validate_vpn_connection
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tools.tools.tina import wait_tools
 
 NUM_VPN_CONN = 3
@@ -70,7 +69,7 @@ class Test_ReadVpnConnections(VpnConnection):
     def test_T3363_empty_filters(self):
         ret = self.a1_r1.oapi.ReadVpnConnections()
         assert len(ret.response.VpnConnections) == 2 + NUM_VPN_CONN
-        check_oapi_response(ret.response, "ReadVpnConnectionsResponse")
+        ret.check_response()
 
     def test_T3364_filters_bgp_asns(self):
         assert len(self.a1_r1.oapi.ReadVpnConnections(Filters={'BgpAsns': [self.bgp_asn]}).response.VpnConnections) == 1
@@ -146,16 +145,16 @@ class Test_ReadVpnConnections(VpnConnection):
             assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('TINA-6013', 'Incorrect error message')
+            known_error('GTW-1620', 'Incorrect error message')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5139_filters_route_destination_ip_ranges_invalid_range(self):
         try:
-            self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': ['10.0.0.0/']}).response.VpnConnections
+            self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': ['10.0.0.0/'],'VpnConnectionIds': [self.vpn_id]}).response.VpnConnections
             assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('TINA-6013', 'Incorrect error message')
+            known_error('GTW-1620', 'Incorrect error message')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T3581_filters_virtual_gateway_ids_id1(self):

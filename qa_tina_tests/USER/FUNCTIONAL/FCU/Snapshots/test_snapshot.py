@@ -44,7 +44,7 @@ class Test_snapshot(OscTestSuite):
             create_text_file_volume(cls.sshclient, cls.volume_mount, cls.test_file, cls.text_to_check)
             #umount
             cmd = 'sudo umount {}'.format(cls.volume_mount)
-            SshTools.exec_command_paramiko_2(cls.sshclient, cmd)
+            SshTools.exec_command_paramiko(cls.sshclient, cmd)
         except Exception as error:
             cls.teardown_class()
             raise error
@@ -90,10 +90,10 @@ class Test_snapshot(OscTestSuite):
             # mount the volume
             cmd = 'sudo mkdir {}'.format(volume_mount)
             self.logger.info("Executing: %s", cmd)
-            SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+            SshTools.exec_command_paramiko(self.sshclient, cmd)
             cmd = 'sudo mount ' + device + ' ' + volume_mount
             self.logger.info("Executing: %s", cmd)
-            SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+            SshTools.exec_command_paramiko(self.sshclient, cmd)
             mounted = True
             # check data
             check_volume(self.sshclient, device, self.size, with_format=False, text_to_check=self.text_to_check, test_file=self.test_file)
@@ -101,7 +101,7 @@ class Test_snapshot(OscTestSuite):
         finally:
             if mounted:
                 cmd = 'sudo umount {}'.format(volume_mount)
-                SshTools.exec_command_paramiko_2(self.sshclient, cmd)
+                SshTools.exec_command_paramiko(self.sshclient, cmd)
             if attached:
                 self.a1_r1.fcu.DetachVolume(VolumeId=vol2_id)
                 wait_tools.wait_volumes_state(self.a1_r1, [vol2_id], state='available')

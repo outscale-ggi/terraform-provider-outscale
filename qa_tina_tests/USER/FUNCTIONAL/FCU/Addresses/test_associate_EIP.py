@@ -51,7 +51,7 @@ class Test_associate_EIP(OscTestSuite):
                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=4, timeout=10)
 
             cmd = 'pwd'
-            out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             self.logger.info(out)
             assert not status, "SSH command was not executed correctly on the remote host"
 

@@ -1,11 +1,11 @@
 import string
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools import misc, account_tools
-from qa_sdk_common.config.default_public_config import DefaultPubConfig
+from qa_sdk_pub.osc_api import DefaultPubConfig
 from qa_sdk_pub.osc_api.osc_oapi_api import OscOApi
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from qa_test_tools.config import config_constants
 
 
 class Test_ResetAccountPassword(OscTestSuite):
@@ -30,7 +30,8 @@ class Test_ResetAccountPassword(OscTestSuite):
         self.pid = account_tools.create_account(self.a1_r1, account_info={'email_address': self.email, 'password': self.password})
         self.a1_r1.oapi.SendResetPasswordEmail(Email=self.email)
         self.rettoken = self.a1_r1.identauth.IdauthPasswordToken.createAccountPasswordToken(accountEmail=self.email, account_id=self.pid)
-        config = DefaultPubConfig(None, None, login=self.email, password=self.password, region_name=self.a1_r1.config.region.name)
+        config = DefaultPubConfig(None, None, login=self.email, password=self.password, region_name=self.a1_r1.config.region.name,
+                                  verify=self.a1_r1.config.region.get_info(config_constants.VALIDATE_CERTS))
         self.oapi = OscOApi(service='oapi', config=config)
         self.new_password = misc.id_generator(size=20)
 
@@ -43,7 +44,7 @@ class Test_ResetAccountPassword(OscTestSuite):
 
     def test_T4764_non_authenticated(self):
         ret = self.oapi.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=self.new_password)
-        check_oapi_response(ret.response, 'ResetAccountPasswordResponse')
+        ret.check_response()
 
     def test_T4765_with_the_same_password(self):
         try:

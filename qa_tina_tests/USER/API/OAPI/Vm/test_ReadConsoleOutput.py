@@ -5,8 +5,6 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.specs.check_tools import check_oapi_response
-
 
 class Test_ReadConsoleOutput(OscTestSuite):
 
@@ -35,7 +33,7 @@ class Test_ReadConsoleOutput(OscTestSuite):
 
     def test_T2824_valid_params(self):
         ret = self.a1_r1.oapi.ReadConsoleOutput(VmId=self.info[INSTANCE_ID_LIST][0])
-        check_oapi_response(ret.response, "ReadConsoleOutputResponse")
+        ret.check_response()
 
     def test_T2825_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.ReadConsoleOutput(VmId=self.info[INSTANCE_ID_LIST][0], DryRun=True)

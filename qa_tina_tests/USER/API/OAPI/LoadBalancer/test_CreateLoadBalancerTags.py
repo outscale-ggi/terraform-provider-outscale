@@ -1,9 +1,8 @@
 # -*- coding:utf-8 -*-
 
 from qa_test_tools.misc import id_generator, assert_oapi_error, assert_dry_run
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.specs.check_tools import check_oapi_response
 import string
 
 
@@ -166,95 +165,95 @@ class Test_CreateLoadBalancerTags(OscTestSuite):
         assert_dry_run(dr_ret)
 
     def test_T4707_valid_params(self):
-        resp = None
+        ret = None
         try:
-            resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
-                                                          Tags=[{'Key': 'key', 'Value': 'value'}]).response
-            check_oapi_response(resp, 'CreateLoadBalancerTagsResponse')
+            ret = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
+                                                          Tags=[{'Key': 'key', 'Value': 'value'}])
+            ret.check_response()
             read = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
             assert read.Tags and len(read.Tags) == 1
         finally:
-            if resp:
+            if ret:
                 self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': 'key'}])
 
     def test_T4708_multi_load_balancer_names(self):
-        resp = None
+        ret = None
         try:
-            resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
+            ret = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
                                                                              self.ret_lbu_a1[1].LoadBalancerName],
-                                                          Tags=[{'Key': 'key', 'Value': 'value'}]).response
-            check_oapi_response(resp, 'CreateLoadBalancerTagsResponse')
+                                                          Tags=[{'Key': 'key', 'Value': 'value'}])
+            ret.check_response()
             read = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
                                                                            self.ret_lbu_a1[1].LoadBalancerName]).response
             assert read.Tags and len(read.Tags) == 2
         finally:
-            if resp:
+            if ret:
                 self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName, self.ret_lbu_a1[1].LoadBalancerName],
                                                        Tags=[{'Key': 'key'}])
 
     def test_T4709_multi_tags(self):
-        resp = None
+        ret = None
         try:
-            resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
-                                                          Tags=[{'Key': 'key1', 'Value': 'value1'}, {'Key': 'key2', 'Value': 'value2'}]).response
-            check_oapi_response(resp, 'CreateLoadBalancerTagsResponse')
+            ret = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
+                                                          Tags=[{'Key': 'key1', 'Value': 'value1'}, {'Key': 'key2', 'Value': 'value2'}])
+            ret.check_response()
             read = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
             assert read.Tags and len(read.Tags) == 2
         finally:
-            if resp:
+            if ret:
                 self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
                                                        Tags=[{'Key': 'key1'}, {'Key': 'key2'}])
 
     def test_T4710_multi_load_balancer_names_multi_tags(self):
-        resp = None
+        ret = None
         try:
-            resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
+            ret = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
                                                                              self.ret_lbu_a1[1].LoadBalancerName],
-                                                          Tags=[{'Key': 'key1', 'Value': 'value1'}, {'Key': 'key2', 'Value': 'value2'}]).response
-            check_oapi_response(resp, 'CreateLoadBalancerTagsResponse')
+                                                          Tags=[{'Key': 'key1', 'Value': 'value1'}, {'Key': 'key2', 'Value': 'value2'}])
+            ret.check_response()
             read = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
                                                                            self.ret_lbu_a1[1].LoadBalancerName]).response
             assert read.Tags and len(read.Tags) == 4
         finally:
-            if resp:
+            if ret:
                 self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName, self.ret_lbu_a1[1].LoadBalancerName],
                                                        Tags=[{'Key': 'key1'}, {'Key': 'key2'}])
 
     def test_T4711_duplicate_loadbalancer_name(self):
-        resp = None
+        ret = None
         try:
-            resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
+            ret = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName,
                                                                              self.ret_lbu_a1[0].LoadBalancerName],
-                                                          Tags=[{'Key': 'key', 'Value': 'value'}]).response
-            check_oapi_response(resp, 'CreateLoadBalancerTagsResponse')
+                                                          Tags=[{'Key': 'key', 'Value': 'value'}])
+            ret.check_response()
             read = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
             assert read.Tags and len(read.Tags) == 1
         finally:
-            if resp:
+            if ret:
                 self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': 'key'}])
 
     def test_T4712_duplicate_key_same_value(self):
-        resp = None
+        ret = None
         try:
-            resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
-                                                          Tags=[{'Key': 'key1', 'Value': 'value1'}, {'Key': 'key1', 'Value': 'value1'}]).response
-            check_oapi_response(resp, 'CreateLoadBalancerTagsResponse')
+            ret = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
+                                                          Tags=[{'Key': 'key1', 'Value': 'value1'}, {'Key': 'key1', 'Value': 'value1'}])
+            ret.check_response()
             read = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
             assert read.Tags and len(read.Tags) == 1
         finally:
-            if resp:
+            if ret:
                 self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': 'key1'}])
 
     def test_T4713_duplicate_key_diff_value(self):
-        resp = None
+        ret = None
         try:
-            resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
-                                                          Tags=[{'Key': 'key1', 'Value': 'value1'}, {'Key': 'key1', 'Value': 'value2'}]).response
-            check_oapi_response(resp, 'CreateLoadBalancerTagsResponse')
+            ret = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
+                                                          Tags=[{'Key': 'key1', 'Value': 'value1'}, {'Key': 'key1', 'Value': 'value2'}])
+            ret.check_response()
             read = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response
             assert read.Tags and len(read.Tags) == 1
         finally:
-            if resp:
+            if ret:
                 self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': 'key1'}])
 
     # test should be last as create functions and delete does not --> tag remains and further tests might fail

@@ -1,4 +1,3 @@
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tools.tools.tina import create_tools
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
@@ -45,9 +44,9 @@ class Test_ReadApiAccessRules(ApiAccessRule):
             super(Test_ReadApiAccessRules, cls).teardown_class()
         
     def test_T5267_no_params(self):
-        resp = self.osc_sdk.oapi.ReadApiAccessRules().response
-        check_oapi_response(resp, 'ReadApiAccessRulesResponse')
-        assert len(resp.ApiAccessRules) == 6
+        ret = self.osc_sdk.oapi.ReadApiAccessRules()
+        ret.check_response()
+        assert len(ret.response.ApiAccessRules) == 6
 
     def test_T5268_extra_param(self):
         try:

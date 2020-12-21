@@ -30,7 +30,12 @@ class Test_ListAccessKeys(OscTestSuite):
             ak_id = None
             exp_date_found = False
             today = datetime.date.today()
-            expiration_date = datetime.date(today.year, today.month + 1, today.day)
+            exp_year = today.year
+            exp_month = today.month + 1
+            if today.month == 12:
+                exp_month = 1
+                exp_year += 1
+            expiration_date = datetime.date(exp_year, exp_month, 28)
             expiration_date = expiration_date.strftime("%Y-%m-%d")
             ret = self.a1_r1.oapi.CreateAccessKey(ExpirationDate=expiration_date)
             ak_id = ret.response.AccessKey.AccessKeyId

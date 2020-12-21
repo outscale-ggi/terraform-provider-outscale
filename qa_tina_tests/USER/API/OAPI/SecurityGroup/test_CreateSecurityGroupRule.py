@@ -2,7 +2,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup, validate_sg
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_CreateSecurityGroupRule(SecurityGroup):
@@ -68,14 +67,14 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
         )
 
     def test_T2723_with_sg_to_link_param(self):
-        resp = self.a1_r1.oapi.CreateSecurityGroupRule(
+        ret = self.a1_r1.oapi.CreateSecurityGroupRule(
             Flow='Inbound',
             SecurityGroupNameToLink=self.sg1['name'],
             SecurityGroupAccountIdToLink=self.a1_r1.config.account.account_id,
-            SecurityGroupId=self.sg1['id']).response
-        check_oapi_response(resp, 'CreateSecurityGroupRuleResponse')
+            SecurityGroupId=self.sg1['id'])
+        ret.check_response()
         validate_sg(
-            resp.SecurityGroup,
+            ret.response.SecurityGroup,
             expected_sg={'SecurityGroupId': self.sg1['id']},
             in_rules=[
                 {
@@ -111,14 +110,14 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             ]
         )
 
-        resp = self.a1_r1.oapi.CreateSecurityGroupRule(
+        ret = self.a1_r1.oapi.CreateSecurityGroupRule(
             Flow='Outbound',
             SecurityGroupNameToLink=self.sg2['id'], # The name can be only used in Cloud Public not in Net
             SecurityGroupAccountIdToLink=self.a1_r1.config.account.account_id,
-            SecurityGroupId=self.sg2['id']).response
-        check_oapi_response(resp, 'CreateSecurityGroupRuleResponse')
+            SecurityGroupId=self.sg2['id'])
+        ret.check_response()
         validate_sg(
-            resp.SecurityGroup,
+            ret.response.SecurityGroup,
             expected_sg={'SecurityGroupId': self.sg2['id']},
             out_rules=[
                 {
@@ -272,7 +271,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
         validate_sg(sg)
 
     def test_T2942_outbound_rules_array_1_element(self):
-        resp = self.a1_r1.oapi.CreateSecurityGroupRule(
+        ret = self.a1_r1.oapi.CreateSecurityGroupRule(
             Flow='Outbound', Rules=[
                 {
                     'IpProtocol': 'tcp',
@@ -280,9 +279,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                     'ToPortRange': 7890,
                     'IpRanges': ['10.0.0.12/32']
                 }],
-            SecurityGroupId=self.sg2['id']).response
-        check_oapi_response(resp, 'CreateSecurityGroupRuleResponse')
-        validate_sg(resp.SecurityGroup)
+            SecurityGroupId=self.sg2['id'])
+        ret.check_response()
+        validate_sg(ret.response.SecurityGroup)
 
     def test_T2730_rules_invalid_array_combination(self):
         for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg2)]:
@@ -321,7 +320,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
 
     def test_T2731_inbound_rules_array_many_element(self):
         for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg2)]:
-            resp = self.a1_r1.oapi.CreateSecurityGroupRule(
+            ret = self.a1_r1.oapi.CreateSecurityGroupRule(
                 Flow=flow,
                 Rules=[
                     {
@@ -337,10 +336,10 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                         'IpRanges': ['10.0.0.12/32'],
                     }
                 ],
-                SecurityGroupId=self.sg3['id']).response
-            check_oapi_response(resp, 'CreateSecurityGroupRuleResponse')
-            validate_sg(resp.SecurityGroup)
-            resp = self.a1_r1.oapi.CreateSecurityGroupRule(
+                SecurityGroupId=self.sg3['id'])
+            ret.check_response()
+            validate_sg(ret.response.SecurityGroup)
+            ret = self.a1_r1.oapi.CreateSecurityGroupRule(
                 Flow=flow,
                 Rules=[
                     {
@@ -360,9 +359,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                         'IpRanges': ['10.0.0.12/32']
                     }
                 ],
-                SecurityGroupId=sg['id']).response
-            check_oapi_response(resp, 'CreateSecurityGroupRuleResponse')
-            validate_sg(resp.SecurityGroup)
+                SecurityGroupId=sg['id'])
+            ret.check_response()
+            validate_sg(ret.response.SecurityGroup)
 
     def test_T4386_with_bad_parameters(self):
         try:

@@ -6,7 +6,6 @@ from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_DeleteRouteTable(OscTestSuite):
@@ -44,8 +43,8 @@ class Test_DeleteRouteTable(OscTestSuite):
 
     def test_T2762_with_valid_params(self):
         try:
-            resp = self.a1_r1.oapi.DeleteRouteTable(RouteTableId=self.route_table_id).response
-            check_oapi_response(resp, 'DeleteRouteTableResponse')
+            ret = self.a1_r1.oapi.DeleteRouteTable(RouteTableId=self.route_table_id)
+            ret.check_response()
         except OscApiException as error:
             assert_oapi_error(error, 400, '', '')
 

@@ -2,12 +2,10 @@
 # from qa_tools.tools.tina.create_tools import create_self_signed_cert
 # import os
 from qa_test_tools import misc
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import create_tools
 import os
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-# from qa_tools.specs.check_tools import check_oapi_response
 # from osc_common.exceptions.osc_exceptions import OscApiException
 
 
@@ -53,9 +51,9 @@ class Test_CreateServerCertificate(OscTestSuite):
             OscTestSuite.teardown_method(self, method)
         
     def test_T4846_with_valid_param(self):
-        self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key).response
-        check_oapi_response(self.sc_resp, 'CreateServerCertificateResponse')
-        assert self.sc_name == self.sc_resp.ServerCertificate.Name
+        self.ret = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key)
+        self.ret.check_response()
+        assert self.sc_name == self.ret.response.ServerCertificate.Name
 
     def test_T4847_missing_body(self):
         try:
@@ -126,9 +124,9 @@ class Test_CreateServerCertificate(OscTestSuite):
         misc.assert_dry_run(dr_ret)
 
     def test_T4857_with_path(self):
-        self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key, Path='/toto/').response
-        check_oapi_response(self.sc_resp, 'CreateServerCertificateResponse')
-        assert self.sc_name == self.sc_resp.ServerCertificate.Name
+        self.ret = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key, Path='/toto/')
+        self.ret.check_response()
+        assert self.sc_name == self.ret.response.ServerCertificate.Name
 
     def test_T4858_with_invalid_path(self):
         try:

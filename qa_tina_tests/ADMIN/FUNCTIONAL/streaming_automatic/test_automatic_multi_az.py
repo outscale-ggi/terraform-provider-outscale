@@ -14,7 +14,7 @@ class Test_automatic_multi_az(StreamingBaseHot):
         cls.v_size = 10
         cls.qemu_version = '2.12'
         #cls.rebase_enabled = False
-        cls.inst_type = 'c4.xlarge'
+        cls.inst_type = 'tinav1.c2r4p1'
         cls.inst_az = 'b'
         cls.vol_type = 'standard'
         cls.iops = None

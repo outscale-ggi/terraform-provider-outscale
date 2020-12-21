@@ -35,20 +35,16 @@ class Test_DeleteVpnGateway(OscTestSuite):
     def test_T4380_without_params(self):
         try:
             self.a1_r1.fcu.DeleteVpnGateway()
-            known_error('TINA-5233', 'call should not have been successful, None parameter')
             assert False, "call should not have been successful, bad parameter"
         except OscApiException as error:
-            assert False, 'Remove known error code'
-            assert_error(error, 400, 'InvalidVpnGatewayID.NotFound', "The VpnGatewayId 'None' does not exist")
+            assert_error(error, 400, 'MissingParameter', "Parameter cannot be empty: VpnGatewayId")
 
     def test_T4381_with_invalid_id(self):
         try:
-            vp_id = id_generator(prefix='vgw-', size=8)
-            self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vp_id)
+            self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId='vgw-12345678')
             assert False, "call should not have been successful, bad parameter"
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidVpnGatewayID.NotFound', "The VpnGatewayId '{}' does not exist".
-                         format(str(vp_id)))
+            assert_error(error, 400, 'InvalidVpnGatewayID.NotFound', "The VpnGatewayId 'vgw-12345678' does not exist")
 
     def test_T4382_with_valid_id(self):
         ret = self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=self.vpn_gateway_id)

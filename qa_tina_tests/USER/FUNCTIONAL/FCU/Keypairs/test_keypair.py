@@ -8,8 +8,10 @@ from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_keypair, generate_key
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_keypair, delete_file
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, NAME, PATH, PUBLIC, PRIVATE
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, NAME, PATH, PUBLIC, PRIVATE,\
+    INSTANCE_ID_LIST
 from qa_common_tools.ssh import SshTools
+from qa_tina_tools.tina import check_tools
 
 
 class Test_keypair(OscTestSuite):
@@ -50,7 +52,8 @@ class Test_keypair(OscTestSuite):
             config = create_instances(self.a1_r1, key_name=key_name, state='ready')
             ip_address = config[INSTANCE_SET][0]['ipAddress']
             # access instance using key
-            SshTools.check_connection_paramiko(ip_address, kp_info[PRIVATE], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            check_tools.check_ssh_connection(self.a1_r1, config[INSTANCE_ID_LIST][0], ip_address, kp_info[PRIVATE], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            # SshTools.check_connection_paramiko(ip_address, kp_info[PRIVATE], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
             if config:
                 delete_instances(self.a1_r1, config)

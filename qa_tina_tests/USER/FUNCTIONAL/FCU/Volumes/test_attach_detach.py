@@ -59,7 +59,7 @@ class Test_attach_detach(OscTestSuite):
                 ret_attach = self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], VolumeId=self.vol_ids[i], Device=device)
                 wait_volumes_state(self.a1_r1, [self.vol_ids[i]], state='in-use')
 
-                out, status, err = SshTools.exec_command_paramiko_2(self.sshclient, CMD)
+                out, status, err = SshTools.exec_command_paramiko(self.sshclient, CMD)
                 print('out = {} '.format(out))
                 print('status = {} '.format(status))
                 print('err = {} '.format(err))
@@ -75,7 +75,7 @@ class Test_attach_detach(OscTestSuite):
                     self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_ids[i])
                     wait_volumes_state(self.a1_r1, [self.vol_ids[i]], state='available')
 
-                    out, status, err = SshTools.exec_command_paramiko_2(self.sshclient, CMD, expected_status=2)
+                    out, status, err = SshTools.exec_command_paramiko(self.sshclient, CMD, expected_status=2)
                     print('out = {} '.format(out))
                     print('status = {} '.format(status))
                     print('err = {} '.format(err))

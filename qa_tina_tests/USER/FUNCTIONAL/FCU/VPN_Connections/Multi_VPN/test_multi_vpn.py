@@ -190,7 +190,7 @@ class Test_multi_vpn(OscTestSuite):
 
             # try to make ping from CGW to VPC instance
             try:
-                out, _, _ = SshTools.exec_command_paramiko_2(
+                out, _, _ = SshTools.exec_command_paramiko(
                     sshclient1,
                     'ping -I {} -W 1 -c 1 {}'.format(inst1['privateIpAddress'], inst_vpc['privateIpAddress']),
                     retry=20,
@@ -199,7 +199,7 @@ class Test_multi_vpn(OscTestSuite):
             except OscCommandError:
                 raise
             try:
-                out, _, _ = SshTools.exec_command_paramiko_2(
+                out, _, _ = SshTools.exec_command_paramiko(
                     sshclient2,
                     'ping -I {} -W 1 -c 1 {}'.format(inst2['privateIpAddress'], inst_vpc['privateIpAddress']),
                     retry=20,

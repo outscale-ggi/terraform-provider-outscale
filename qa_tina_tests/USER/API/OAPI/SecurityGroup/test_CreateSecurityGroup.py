@@ -2,7 +2,6 @@
 from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import validate_sg
 
 
@@ -48,7 +47,7 @@ class Test_CreateSecurityGroup(OscTestSuite):
     def test_T2718_with_all_param(self):
         ret = self.a1_r1.oapi.CreateSecurityGroup(Description="test_desc", SecurityGroupName="test_name")
         self.id = ret.response.SecurityGroup.SecurityGroupId
-        check_oapi_response(ret.response, 'CreateSecurityGroupResponse')
+        ret.check_response()
         validate_sg(ret.response.SecurityGroup, expected_sg={'Description': 'test_desc', 'SecurityGroupName': 'test_name'})
 
     def test_T5135_with_incorrect_type_name(self):

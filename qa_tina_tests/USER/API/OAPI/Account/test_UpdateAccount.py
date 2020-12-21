@@ -3,7 +3,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_UpdateAccount(OscTestSuite):
@@ -59,7 +58,7 @@ class Test_UpdateAccount(OscTestSuite):
     def test_T4917_with_valid_params(self):
         account_info = self.generate_params()
         ret = self.a1_r1.oapi.UpdateAccount(**account_info)
-        check_oapi_response(ret.response, 'UpdateAccountResponse')
+        ret.check_response()
         assert ret.response.Account.City == account_info['City']
         assert ret.response.Account.CompanyName == account_info['CompanyName']
         assert ret.response.Account.Country == account_info['Country']

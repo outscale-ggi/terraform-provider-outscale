@@ -42,7 +42,7 @@ class Test_min_max_behavior(OscTestSuite):
         for server in ret.response.result:
             if server.state != 'READY':
                 continue
-            if server.cpu_generation != 3:
+            if server.cpu_generation != 1:
                 continue
             current_eval = evaluate_server(server)
             if current_eval < best_eval:
@@ -60,7 +60,7 @@ class Test_min_max_behavior(OscTestSuite):
                 core_per_inst = int(kvm_selected.available_core//10)
                 ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region._conf[constants.CENTOS7], MaxCount=20,
                                                   MinCount=5,
-                                                  InstanceType='tinav3.c{}r1'.format(core_per_inst),
+                                                  InstanceType='tinav1.c{}r1'.format(core_per_inst),
                                                   UserData=userdata)
                 inst_ids = [inst.instanceId for inst in ret.response.instancesSet]
                 assert len(inst_ids) == int(kvm_selected.available_core / core_per_inst)

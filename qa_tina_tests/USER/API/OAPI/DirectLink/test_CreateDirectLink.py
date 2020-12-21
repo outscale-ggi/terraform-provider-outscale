@@ -5,8 +5,6 @@ from qa_test_tools.test_base import OscTestSuite
 import string
 import pytest
 
-from qa_tina_tools.specs.check_tools import check_oapi_response
-
 
 @pytest.mark.region_directlink
 class Test_CreateDirectLink(OscTestSuite):
@@ -94,13 +92,13 @@ class Test_CreateDirectLink(OscTestSuite):
     @pytest.mark.region_directlink
     def test_T4070_valid_params(self):
         direct_link_name = id_generator(size=8, chars=string.ascii_lowercase)
-        resp = self.a1_r1.oapi.CreateDirectLink(DirectLinkName=direct_link_name, Location=self.location, Bandwidth='1Gbps').response
-        self.direct_link_id = resp.DirectLink.DirectLinkId
-        check_oapi_response(resp, 'CreateDirectLinkResponse')
-        assert resp.DirectLink.RegionName == self.a1_r1.config.region.name
-        assert resp.DirectLink.AccountId == self.a1_r1.config.account.account_id
-        assert resp.DirectLink.State == 'pending'
-        assert resp.DirectLink.Bandwidth == '1Gbps'
-        assert resp.DirectLink.Location == self.location
-        assert resp.DirectLink.DirectLinkName == direct_link_name
-        assert resp.DirectLink.RegionName == self.a1_r1.config.region.name
+        ret = self.a1_r1.oapi.CreateDirectLink(DirectLinkName=direct_link_name, Location=self.location, Bandwidth='1Gbps')
+        self.direct_link_id = ret.response.DirectLink.DirectLinkId
+        ret.check_response()
+        assert ret.response.DirectLink.RegionName == self.a1_r1.config.region.name
+        assert ret.response.DirectLink.AccountId == self.a1_r1.config.account.account_id
+        assert ret.response.DirectLink.State == 'pending'
+        assert ret.response.DirectLink.Bandwidth == '1Gbps'
+        assert ret.response.DirectLink.Location == self.location
+        assert ret.response.DirectLink.DirectLinkName == direct_link_name
+        assert ret.response.DirectLink.RegionName == self.a1_r1.config.region.name

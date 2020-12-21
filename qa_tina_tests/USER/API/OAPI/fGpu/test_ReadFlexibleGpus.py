@@ -6,7 +6,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_test_tools.config import config_constants as constants
 
 #     ReadFlexibleGpusRequest:
@@ -262,7 +261,7 @@ class Test_ReadFlexibleGpus(OscTestSuite):
         if self.insufficient_capacity:
             pytest.skip("not enough capacity on fgpu")
         ret = self.a1_r1.oapi.ReadFlexibleGpus()
-        check_oapi_response(ret.response, 'ReadFlexibleGpusResponse')
+        ret.check_response()
 
     def test_T4235_dry_run(self):
         if self.insufficient_capacity:

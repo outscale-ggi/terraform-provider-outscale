@@ -27,13 +27,13 @@ echo "yes" > /tmp/userdata.txt
     def check_user_data(self, inst_info, gzip=False, decode=True):
         sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        out, _, _ = SshTools.exec_command_paramiko_2(sshclient, 'curl http://169.254.169.254/latest/user-data', decode=decode)
+        out, _, _ = SshTools.exec_command_paramiko(sshclient, 'curl http://169.254.169.254/latest/user-data', decode=decode)
         if gzip:
             self.logger.debug(zlib.decompress(out))
             out = zlib.decompress(out).decode('utf-8')
         assert out.replace("\r\n", "\n") == self.user_data
         if not gzip:
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient, 'cat /tmp/userdata.txt')
+            out, _, _ = SshTools.exec_command_paramiko(sshclient, 'cat /tmp/userdata.txt')
             assert out.startswith('yes')
 
     def test_T4619_userdata_base64_str(self):

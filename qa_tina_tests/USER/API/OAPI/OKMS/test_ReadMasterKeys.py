@@ -1,7 +1,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import pytest
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 
 
@@ -44,9 +43,9 @@ class Test_ReadMasterKeys(OKMS):
             super(Test_ReadMasterKeys, cls).teardown_class()
 
     def test_T5196_no_params(self):
-        resp = self.a1_r1.oapi.ReadMasterKeys().response
-        check_oapi_response(resp, 'ReadMasterKeysResponse')
-        assert len(resp.MasterKeys) == self.key_num + 1
+        ret = self.a1_r1.oapi.ReadMasterKeys()
+        ret.check_response()
+        assert len(ret.response.MasterKeys) == self.key_num + 1
 
     def test_T5197_with_filter_description(self):
         descriptions = ['description0', 'description2']

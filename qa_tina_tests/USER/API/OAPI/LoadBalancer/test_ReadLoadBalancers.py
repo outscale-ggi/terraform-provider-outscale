@@ -160,23 +160,25 @@ class Test_ReadLoadBalancers(LoadBalancer):
         lb_policy2 = None
         policy_name_lb = None
         policy_name_lb2 = None
+        ret_up = None
         try:
             policy_name_lb = id_generator(prefix='policy-')
             policy_name_lb2 = id_generator(prefix='policy-')
             lb_policy = self.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=self.lb_names_a1[0],PolicyName=policy_name_lb,PolicyType="load_balancer")
             lb_policy2 = self.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=self.lb_names_a1[0],PolicyName=policy_name_lb2,PolicyType="load_balancer")
 
-            self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_names_a1[0], PolicyNames=[policy_name_lb2],
-                                               LoadBalancerPort=80)
+            ret_up = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_names_a1[0], PolicyNames=[policy_name_lb2], LoadBalancerPort=80)
             ret = self.a1_r1.oapi.ReadLoadBalancers(Filters={'LoadBalancerNames': [self.lb_names_a1[0]]}).response.LoadBalancers
 
             assert len(ret[0].Listeners) == 1
             assert ret[0].Listeners[0].PolicyNames[0] == policy_name_lb2
 
             assert len(ret[0].LoadBalancerStickyCookiePolicies) == 2
-            assert ret[0].LoadBalancerStickyCookiePolicies[0].PolicyName == policy_name_lb
-            assert ret[0].LoadBalancerStickyCookiePolicies[1].PolicyName == policy_name_lb2
+            assert set([pol.PolicyName for pol in ret[0].LoadBalancerStickyCookiePolicies]) == set([policy_name_lb, policy_name_lb2])
+
         finally:
+            if ret_up:
+                self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_names_a1[0], PolicyNames=[], LoadBalancerPort=80)
             if lb_policy:
                 self.a1_r1.oapi.DeleteLoadBalancerPolicy(LoadBalancerName=self.lb_names_a1[0], PolicyName=policy_name_lb)
             if lb_policy2:

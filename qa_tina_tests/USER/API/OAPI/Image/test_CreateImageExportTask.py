@@ -12,7 +12,6 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_image
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_CreateImageExportTask(OscTestSuite):
@@ -104,6 +103,7 @@ class Test_CreateImageExportTask(OscTestSuite):
     @pytest.mark.region_storageservice
     def test_T2833_with_valid_params(self):
         bucket_name = id_generator(prefix='bn').lower()
-        resp = self.a1_r1.oapi.CreateImageExportTask(ImageId=self.image_id,
-                                                     OsuExport={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name}).response
-        check_oapi_response(resp, 'CreateImageExportTaskResponse')
+        ret = self.a1_r1.oapi.CreateImageExportTask(ImageId=self.image_id,
+                                                     OsuExport={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name})
+        assert ret.response.ImageExportTask
+        ret.check_response()

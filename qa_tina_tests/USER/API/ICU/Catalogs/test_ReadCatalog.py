@@ -20,11 +20,7 @@ class Test_ReadCatalog(OscTestSuite):
     def test_T1331_with_authent(self):
         try:
             ret = self.a1_r1.icu.ReadCatalog()
-            if self.a1_r1.config.region.name in ['ap-northeast-1']:
-                assert False, 'Remove known error code'
         except OscApiException as error:
-            if self.a1_r1.config.region.name in ['ap-northeast-1']:
-                known_error('OPS-11545', 'No catalog on ap-northeast-1')
             raise error
         # Attributes
         if ret.response.Catalog.Attributes:

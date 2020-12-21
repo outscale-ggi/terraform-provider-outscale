@@ -84,13 +84,13 @@ class StreamingBase(OscTestSuite):
                                                                username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
             if cls.with_fio:
                 cmd = 'sudo yum install -y epel-release'
-                SshTools.exec_command_paramiko_2(cls.sshclient, cmd)
+                SshTools.exec_command_paramiko(cls.sshclient, cmd)
                 cmd = 'sudo yum install -y fio'
-                SshTools.exec_command_paramiko_2(cls.sshclient, cmd)
+                SshTools.exec_command_paramiko(cls.sshclient, cmd)
 
             # format volume
             cmd = 'sudo mkfs.xfs -f /dev/xvdb'
-            SshTools.exec_command_paramiko_2(cls.sshclient, cmd, eof_time_out=120)
+            SshTools.exec_command_paramiko(cls.sshclient, cmd, eof_time_out=120)
 
             # loop
             for i in range(cls.s_len):
@@ -130,9 +130,9 @@ class StreamingBase(OscTestSuite):
                                                                     username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
             if cls.with_fio:
                 cmd = 'sudo yum install -y epel-release'
-                SshTools.exec_command_paramiko_2(cls.test_sshclient, cmd)
+                SshTools.exec_command_paramiko(cls.test_sshclient, cmd)
                 cmd = 'sudo yum install -y fio'
-                SshTools.exec_command_paramiko_2(cls.test_sshclient, cmd)
+                SshTools.exec_command_paramiko(cls.test_sshclient, cmd)
 
             cls.a1_r1.fcu.DetachVolume(VolumeId=cls.vol_id)
             wait_volumes_state(cls.a1_r1, [cls.vol_id], 'available', nb_check=5)
@@ -207,14 +207,14 @@ class StreamingBase(OscTestSuite):
                                                                      self.test_inst_info[KEY_PAIR][PATH],
                                                                      username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             cmd = 'sudo mkdir -p /vol; sudo mount -o nouuid /dev/xvdb /vol'
-            SshTools.exec_command_paramiko_2(self.test_sshclient, cmd)
+            SshTools.exec_command_paramiko(self.test_sshclient, cmd)
 
             self.data_file_before = get_data_file_chain(self.a1_r1, res_id=self.vol_id_test)
             assert len(self.data_file_before) > 1
 
         except:
             try:
-                out, status, err = SshTools.exec_command_paramiko_2(self.test_sshclient, "sudo dmesg")
+                out, status, err = SshTools.exec_command_paramiko(self.test_sshclient, "sudo dmesg")
                 self.logger.debug(out)
                 self.logger.debug(status)
                 self.logger.debug(err)
@@ -225,13 +225,13 @@ class StreamingBase(OscTestSuite):
 
     def teardown_method(self, method):
         try:
-            out, status, err = SshTools.exec_command_paramiko_2(self.test_sshclient, "sudo dmesg")
+            out, status, err = SshTools.exec_command_paramiko(self.test_sshclient, "sudo dmesg")
             self.logger.debug(out)
             self.logger.debug(status)
             self.logger.debug(err)
             if self.cleanup:
                 cmd = 'sudo umount /vol'
-                SshTools.exec_command_paramiko_2(self.test_sshclient, cmd)
+                SshTools.exec_command_paramiko(self.test_sshclient, cmd)
                 if self.vol_id_test:
                     wait_volumes_state(self.a1_r1, [self.vol_id_test], 'in-use', nb_check=5)
                     self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_id_test)

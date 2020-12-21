@@ -10,6 +10,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instanc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH, INSTANCE_ID_LIST
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state
+from qa_tina_tools.tina import check_tools
 
 
 class Test_create_image_from_snapshot(OscTestSuite):
@@ -46,8 +47,8 @@ class Test_create_image_from_snapshot(OscTestSuite):
             assert len(ci1_info[INSTANCE_SET]) == 1
             instance = ci1_info[INSTANCE_SET][0]
             # check instance connection
-            SshTools.check_connection_paramiko(instance['ipAddress'], ci1_info[KEY_PAIR][PATH],
-                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            check_tools.check_ssh_connection(self.a1_r1, ci1_info[INSTANCE_ID_LIST][0], instance['ipAddress'], ci1_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            # SshTools.check_connection_paramiko(instance['ipAddress'], ci1_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # get instance boot disk
             assert len(instance['blockDeviceMapping']) == 1
             # stop instance
@@ -63,8 +64,8 @@ class Test_create_image_from_snapshot(OscTestSuite):
             ci2_info = create_instances(self.a1_r1, state='ready', omi_id=ret_ri.response.imageId)
             assert len(ci2_info[INSTANCE_SET]) == 1
             # check instance connection
-            SshTools.check_connection_paramiko(ci2_info[INSTANCE_SET][0]['ipAddress'], ci2_info[KEY_PAIR][PATH],
-                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            check_tools.check_ssh_connection(self.a1_r1, ci2_info[INSTANCE_ID_LIST][0], ci2_info[INSTANCE_SET][0]['ipAddress'], ci2_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            # SshTools.check_connection_paramiko(ci2_info[INSTANCE_SET][0]['ipAddress'], ci2_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
             if ci2_info:
                 try:
@@ -113,10 +114,6 @@ class Test_create_image_from_snapshot(OscTestSuite):
                     cleanup_images(self.a1_r1, image_id_list=[ret_ri.response.imageId], force=True)
                 except:
                     pass
-            if ret_cs.response.snapshotId:
-                # remove snapshot
-                self.a1_r1.fcu.DeleteSnapshot(SnapshotId=ret_cs.response.snapshotId)
-                wait_snapshots_state(osc_sdk=self.a1_r1, cleanup=True, snapshot_id_list=[ret_cs.response.snapshotId])
             if vol_id:
                 # remove volume
                 self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)

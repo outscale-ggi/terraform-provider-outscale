@@ -2,7 +2,6 @@ from time import sleep
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_test_tools import misc
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_pub import osc_api
 import pytest
 
@@ -82,7 +81,7 @@ class Test_DeleteAccessKey(OscTestSuite):
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             ak = ret_create.response.AccessKey.AccessKeyId
             ret_delete = self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
-            check_oapi_response(ret_delete.response, 'DeleteAccessKeyResponse')
+            ret_delete.check_response()
         finally:
             if ret_create and not ret_delete:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -95,7 +94,7 @@ class Test_DeleteAccessKey(OscTestSuite):
             ak = ret_create.response.AccessKey.AccessKeyId
             ret_delete = self.a1_r1.oapi.DeleteAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=ak)
             assert False, 'remove known error'
-            check_oapi_response(ret_delete.response, 'DeleteAccessKeyResponse')
+            ret_delete.check_response()
         except OscSdkException as error:
             known_error('GTW-1240', 'SDK implementation ')
         finally:

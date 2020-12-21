@@ -5,7 +5,6 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
     OscSdkException
 from qa_test_tools import misc
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_pub import osc_api
 import pytest
 from qa_test_tools.misc import assert_dry_run
@@ -40,7 +39,7 @@ class Test_CreateAccessKey(OscTestSuite):
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             ak = ret_create.response.AccessKey.AccessKeyId
             sk = ret_create.response.AccessKey.SecretKey
-            check_oapi_response(ret_create.response, 'CreateAccessKeyResponse')
+            ret_create.check_response()
             assert hasattr(ret_create.response.AccessKey, "CreationDate")
             assert hasattr(ret_create.response.AccessKey, "LastModificationDate")
             assert re.search(r"([A-Z0-9]{20})", ak), "AK format is not correct"

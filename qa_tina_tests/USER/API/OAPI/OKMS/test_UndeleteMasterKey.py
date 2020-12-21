@@ -3,7 +3,7 @@ from qa_test_tools.misc import id_generator, assert_dry_run,\
     assert_oapi_error
 import pytest
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
-from qa_tina_tools.specs.check_tools import check_oapi_response
+from qa_test_tools.test_base import known_error
 
 
 @pytest.mark.region_kms
@@ -55,7 +55,7 @@ class Test_UndeleteMasterKey(OKMS):
         self.key_id = self.mysetup()
         ret = self.a1_r1.oapi.UndeleteMasterKey(MasterKeyId=self.key_id)
         assert ret.response.MasterKey.MasterKeyId == self.key_id
-        check_oapi_response(ret.response, 'UndeleteMasterKeyResponse')
+        ret.check_response()
 
     def test_T5213_no_params(self):
         try:

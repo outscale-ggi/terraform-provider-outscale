@@ -13,7 +13,6 @@ from qa_test_tools.test_base import OscTestSuite
 #         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
 #       type: object
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 DEFAULT_GPU_ID = "fgpu-12345678"
 DEFAULT_MODEL_NAME = "nvidia-k2"
@@ -47,13 +46,13 @@ class Test_UpdateFlexibleGpu(OscTestSuite):
             super(Test_UpdateFlexibleGpu, cls).teardown_class()
 
     def test_T4641_with_valid_params(self):
-        resp = self.a1_r1.oapi.UpdateFlexibleGpu(FlexibleGpuId=self.fgpu_id, DeleteOnVmDeletion=True).response
-        check_oapi_response(resp, 'UpdateFlexibleGpuResponse')
-        assert resp.FlexibleGpu.DeleteOnVmDeletion
-        assert resp.FlexibleGpu.FlexibleGpuId == self.fgpu_id
-        assert resp.FlexibleGpu.ModelName == DEFAULT_MODEL_NAME
-        assert resp.FlexibleGpu.State == 'allocated'
-        assert resp.FlexibleGpu.SubregionName == self.a1_r1.config.region.az_name
+        ret = self.a1_r1.oapi.UpdateFlexibleGpu(FlexibleGpuId=self.fgpu_id, DeleteOnVmDeletion=True)
+        ret.check_response()
+        assert ret.response.FlexibleGpu.DeleteOnVmDeletion
+        assert ret.response.FlexibleGpu.FlexibleGpuId == self.fgpu_id
+        assert ret.response.FlexibleGpu.ModelName == DEFAULT_MODEL_NAME
+        assert ret.response.FlexibleGpu.State == 'allocated'
+        assert ret.response.FlexibleGpu.SubregionName == self.a1_r1.config.region.az_name
 
     def test_T4642_without_id(self):
         try:
@@ -64,7 +63,7 @@ class Test_UpdateFlexibleGpu(OscTestSuite):
 
     def test_T4643_without_attr(self):
         ret = self.a1_r1.oapi.UpdateFlexibleGpu(FlexibleGpuId=self.fgpu_id)
-        check_oapi_response(ret.response, 'UpdateFlexibleGpuResponse')
+        ret.check_response()
 
     def test_T4644_with_invalid_fgpu_id(self):
         try:

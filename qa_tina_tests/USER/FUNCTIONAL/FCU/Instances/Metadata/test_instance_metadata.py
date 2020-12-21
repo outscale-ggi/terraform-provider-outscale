@@ -44,13 +44,13 @@ class Test_instance_metadata(OscTestSuite):
 
     def check(self, metadata_category, expected_response, URL):
         command = 'curl {}/{} 2> /dev/null'.format(URL, metadata_category)
-        output, _, _ = SshTools.exec_command_paramiko_2(self.connection, command)
+        output, _, _ = SshTools.exec_command_paramiko(self.connection, command)
         if expected_response:
             assert output.strip() == expected_response
         return output
 
     def test_T1771_tags_access(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/')
+        out, _, _ = SshTools.exec_command_paramiko(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/')
         keys = out.split()
         assert len(keys) == 3
         assert 'key1' in keys
@@ -58,25 +58,25 @@ class Test_instance_metadata(OscTestSuite):
         assert 'key3' in keys
 
     def test_T1772_latest_metadata_access(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/latest/meta-data/')
+        out, _, _ = SshTools.exec_command_paramiko(self.connection, 'curl http://169.254.169.254/latest/meta-data/')
         assert 'tags/' in out.split()
 
     def test_T1778_tag_value_access(self):
-        out1, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/key1')
-        out2, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/key2')
-        out3, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/key3')
+        out1, _, _ = SshTools.exec_command_paramiko(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/key1')
+        out2, _, _ = SshTools.exec_command_paramiko(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/key2')
+        out3, _, _ = SshTools.exec_command_paramiko(self.connection, 'curl http://169.254.169.254/latest/meta-data/tags/key3')
         assert out1.strip() == 'value1'
         assert out2.strip() == 'value2'
         assert out3.strip() == ''
 
     def test_T1780_metadata_access(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/')
+        out, _, _ = SshTools.exec_command_paramiko(self.connection, 'curl http://169.254.169.254/')
         values = out.split()
         assert '1.0' == values[0]
         assert 'latest' == values[len(values) - 1]
 
     def test_T1779_latest_access(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.connection, 'curl http://169.254.169.254/latest/')
+        out, _, _ = SshTools.exec_command_paramiko(self.connection, 'curl http://169.254.169.254/latest/')
         values = out.split()
         assert len(values) == 2
         assert 'user-data' in values

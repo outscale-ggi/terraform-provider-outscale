@@ -5,7 +5,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 #     LinkFlexibleGpuRequest:
@@ -121,7 +120,7 @@ class Test_LinkFlexibleGpu(OscTestSuite):
         try:
             ret_link = self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=self.fg_id, VmId=self.inst_info[INSTANCE_ID_LIST][0])
             wait_flexible_gpu_state(self.a1_r1, [self.fg_id], state='attaching')
-            check_oapi_response(ret_link.response, 'LinkFlexibleGpuResponse')
+            ret_link.check_response()
         finally:
             if ret_link:
                 self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id)

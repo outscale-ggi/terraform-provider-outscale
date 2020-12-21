@@ -1,4 +1,3 @@
-from qa_tina_tools.specs.check_tools import check_oapi_response
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
 from qa_tina_tools.tools.tina import create_tools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -34,8 +33,8 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
     
     def test_T5259_valid_params(self):
         self.my_setup()
-        resp = self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=self.api_access_rule_id).response
-        check_oapi_response(resp, 'DeleteApiAccessRuleResponse')
+        ret = self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=self.api_access_rule_id)
+        ret.check_response()
 
     def test_T5260_unknown_id(self):
         try:

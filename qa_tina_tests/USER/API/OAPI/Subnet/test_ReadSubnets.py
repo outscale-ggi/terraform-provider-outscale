@@ -1,12 +1,11 @@
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 from qa_test_tools.config.configuration import Configuration
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 NUM_SUBNETS = 5
 
@@ -57,9 +56,9 @@ class Test_ReadSubnets(OscTestSuite):
             super(Test_ReadSubnets, cls).teardown_class()
 
     def test_T2262_empty_filters(self):
-        resp = self.a1_r1.oapi.ReadSubnets().response
-        assert len(resp.Subnets) == NUM_SUBNETS
-        check_oapi_response(resp, 'ReadSubnetsResponse')
+        ret = self.a1_r1.oapi.ReadSubnets()
+        assert len(ret.response.Subnets) == NUM_SUBNETS
+        ret.check_response()
 
     def test_T2263_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.ReadSubnets(DryRun=True)

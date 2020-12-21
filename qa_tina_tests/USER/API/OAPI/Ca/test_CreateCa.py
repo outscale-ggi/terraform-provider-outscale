@@ -2,7 +2,6 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
-from qa_tina_tools.specs.check_tools import check_oapi_response
 
 
 class Test_CreateCa(OscTestSuite):
@@ -39,9 +38,9 @@ class Test_CreateCa(OscTestSuite):
 
     def test_T5301_required_params(self):
         with open(self.ca1files[1]) as f:
-            resp = self.a1_r1.oapi.CreateCa(CaPem=f.read(), Description='test ca').response
-        check_oapi_response(resp, 'CreateCaResponse')
-        self.cas.append(resp.Ca.CaId)
+            ret = self.a1_r1.oapi.CreateCa(CaPem=f.read(), Description='test ca')
+        ret.check_response()
+        self.cas.append(ret.response.Ca.CaId)
 
     def test_T5302_with_invalid_CaPem(self):
         try:
