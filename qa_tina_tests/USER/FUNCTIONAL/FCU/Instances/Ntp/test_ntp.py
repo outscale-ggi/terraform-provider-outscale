@@ -11,6 +11,8 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from time import sleep
 from qa_tina_tools.tina import check_tools
 
+CENTOS = 'centos7'
+UBUNTU = 'ubuntu'
 
 class Test_ntp(OscTestSuite):
 
@@ -20,8 +22,9 @@ class Test_ntp(OscTestSuite):
         cls.vpc_info = None
         super(Test_ntp, cls).setup_class()
         try:
-            cls.inst_info['centos7'] = create_instances(osc_sdk=cls.a1_r1, omi_id=cls.a1_r1.config.region.get_info(constants.CENTOS7))
-            cls.inst_info['ubuntu'] = create_instances(osc_sdk=cls.a1_r1, omi_id=cls.a1_r1.config.region.get_info(constants.UBUNTU))
+            cls.inst_info[CENTOS] = create_instances(osc_sdk=cls.a1_r1, omi_id=cls.a1_r1.config.region.get_info(constants.CENTOS7))
+            if constants.UBUNTU in cls.a1_r1.config.region._conf.keys():
+                cls.inst_info[UBUNTU] = create_instances(osc_sdk=cls.a1_r1, omi_id=cls.a1_r1.config.region.get_info(constants.UBUNTU))
             cls.vpc_info = create_vpc(cls.a1_r1, nb_instance=1, state='')
         except Exception:
             try:
@@ -61,20 +64,23 @@ class Test_ntp(OscTestSuite):
 
     @pytest.mark.tag_redwire
     def test_T1567_ntp_centos7(self):
-        wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_info['centos7'][INSTANCE_ID_LIST][0]], state='ready')
-        self._test_centos_ntp(self.a1_r1, self.inst_info['centos7'][INSTANCE_ID_LIST][0], ipAddress=self.inst_info['centos7'][INSTANCE_SET][0]['ipAddress'], keyPath=self.inst_info['centos7'][KEY_PAIR][PATH])
+        wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_info[CENTOS][INSTANCE_ID_LIST][0]], state='ready')
+        self._test_centos_ntp(self.a1_r1, self.inst_info[CENTOS][INSTANCE_ID_LIST][0], ipAddress=self.inst_info[CENTOS][INSTANCE_SET][0]['ipAddress'], keyPath=self.inst_info[CENTOS][KEY_PAIR][PATH])
 
     @pytest.mark.tag_redwire
     def test_T3584_ntp_centos7_vpc(self):
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0]], state='ready')
-        self._test_centos_ntp(self.a1_r1, self.inst_info['centos7'][INSTANCE_ID_LIST][0], ipAddress=self.vpc_info[SUBNETS][0][EIP]['publicIp'], keyPath=self.vpc_info[KEY_PAIR][PATH])
+        self._test_centos_ntp(self.a1_r1, self.inst_info[CENTOS][INSTANCE_ID_LIST][0], ipAddress=self.vpc_info[SUBNETS][0][EIP]['publicIp'], keyPath=self.vpc_info[KEY_PAIR][PATH])
 
     @pytest.mark.tag_redwire
     @pytest.mark.region_ubuntu
     def test_T1568_ntp_ubuntu(self):
-        wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_info['ubuntu'][INSTANCE_ID_LIST][0]], state='ready')
-        sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_info['ubuntu'][INSTANCE_ID_LIST][0], self.inst_info['ubuntu'][INSTANCE_SET][0]['ipAddress'], self.inst_info['ubuntu'][KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.UBUNTU_USER))
-        # sshclient = SshTools.check_connection_paramiko(self.inst_info['ubuntu'][INSTANCE_SET][0]['ipAddress'], self.inst_info['ubuntu'][KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.UBUNTU_USER))
+        # check anyway
+        if not UBUNTU in self.inst_info:
+            pytest.skip('Platform does not support ubuntu')
+        wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_info[UBUNTU][INSTANCE_ID_LIST][0]], state='ready')
+        sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_info[UBUNTU][INSTANCE_ID_LIST][0], self.inst_info[UBUNTU][INSTANCE_SET][0]['ipAddress'], self.inst_info[UBUNTU][KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.UBUNTU_USER))
+        # sshclient = SshTools.check_connection_paramiko(self.inst_info[UBUNTU][INSTANCE_SET][0]['ipAddress'], self.inst_info[UBUNTU][KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.UBUNTU_USER))
         cmd = "sudo cat /run/systemd/timesyncd.conf.d/01-dhclient.conf"
         SshTools.exec_command_paramiko(sshclient, "sudo dhclient -v", expected_status=-1)
         sleep(10)
