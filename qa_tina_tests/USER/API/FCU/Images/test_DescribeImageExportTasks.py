@@ -83,35 +83,41 @@ class Test_DescribeImageExportTasks(OscTestSuite):
             known_error('TINA-6064', 'DescribeImageExportTasks')
         assert False, 'Remove known error code'
         wait_image_export_tasks_state(osc_sdk=self.a1_r1, state='completed',
-                                      image_export_task_id_list=[ret[0].imageExportTaskId])
-        i = 0
+                                     image_export_task_id_list=[ret[0].imageExportTaskId])
+
         for img_task in ret.imageExportTaskSet:
+            assert img_task.imageExportTaskId == self.image_exp_ids
             assert img_task.state == 'completed'
             assert img_task.exportToOsu.diskImageFormat == 'qcow2'
-            assert img_task.exportToOsu.osuBucket == self.bucket_names[i]
-            assert img_task.imageExport.imageId[i]
-            i += 1
+            assert img_task.exportToOsu.osuBucket == self.bucket_names
+            assert img_task.exportToOsu.osuPrefix == self.image_ids
+            assert img_task.imageExport.imageId == self.image_ids
+            assert img_task.statusMessage # to be checked after resolving the ticket.
+
 
     def test_T5359_with_invalid_image_export_task_id(self):
         try:
-            self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId=['foo'])
-            assert False, "Call shouldn't be successful"
+            ret = self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId=['foo']).response
+            if len(ret.imageExportTaskSet) != 0:
+                known_error('TINA-6064', 'DescribeImageExportTasks bugs')
+            else:
+                assert False, 'Remove known error code'
+                assert False, "Call shouldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, '', '')
-            known_error('TINA-6064', 'DescribeImageExportTasks')
 
     def test_T5365_with_invalid_type_image_export_task_id(self):
         try:
-            self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId='foo')
-            assert False, "Call shouldn't be successful"
+            ret = self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId='foo').response
+            if len(ret.imageExportTaskSet) != 0:
+                known_error('TINA-6064', 'DescribeImageExportTasks bugs')
+            else:
+                assert False, 'Remove known error code'
+                assert False, "Call shouldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, '', '')
-            known_error('TINA-6064', 'DescribeImageExportTasks')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T5366_from_another_account(self):
-        try:
-            self.a2_r1.fcu.DescribeImageExportTasks(imageExportTaskId=[self.image_exp_ids[0]])
-            assert False, 'Call from another account should not have been successful'
-        except OscApiException as error:
-            assert_error(error, 400, '', '')
+        ret = self.a2_r1.fcu.DescribeImageExportTasks(imageExportTaskId=[self.image_exp_ids[0]]).response
+        assert ret.imageExportTaskSet is None
