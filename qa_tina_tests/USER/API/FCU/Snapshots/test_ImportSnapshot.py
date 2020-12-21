@@ -38,9 +38,13 @@ class Test_ImportSnapshot(OscTestSuite):
                 cls.task_ids.append(task_id)
             try:
                 wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
-                assert False, 'Remove known error'
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    pytest.fail('Remove known error code')
             except AssertionError:
-                cls.has_setup_error = 'OPS-12653'
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    cls.has_setup_error = 'OPS-12653'
+                else:
+                    raise
         except:
             try:
                 cls.teardown_class()
