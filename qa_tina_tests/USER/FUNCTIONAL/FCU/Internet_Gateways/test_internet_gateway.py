@@ -9,6 +9,7 @@ from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_test_tools.config.region import Feature
+from qa_tina_tools.tina import check_tools
 
 
 class Test_internet_gateway(OscTestSuite):
@@ -110,14 +111,14 @@ class Test_internet_gateway(OscTestSuite):
         # add route RTB1
         self.a1_r1.fcu.CreateRoute(DestinationCidrBlock=cidr, GatewayId=self.igw_id, RouteTableId=self.rtb1)
         self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst1_id)
-        sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[PATH],
-                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst1_id, self.eip.response.publicIp, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        # sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         if Feature.INTERNET in self.a1_r1.config.region.get_info(constants.FEATURES):
             target_ip = Configuration.get('ipaddress', 'dns_google')
         else:
             target_ip = '.'.join(self.eip.response.publicIp.split('.')[:-1]) + '.254'
         cmd = "ping " + target_ip + " -c 1"
-        out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         # check ping google DNS
         assert not status, "Subnet that is connected to the internet gateway {} seems not to be connected to the internet".format(self.igw_id)

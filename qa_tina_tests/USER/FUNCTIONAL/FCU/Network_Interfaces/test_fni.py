@@ -193,7 +193,7 @@ class Test_fni(OscTestSuite):
                 content = content_file.read()
 
             cmd = "sudo echo '" + content + "' > " + self.vpc_info[KEY_PAIR][PATH]
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+            out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             self.logger.info(out)
             # put file
             # SshTools.transfer_file_sftp(sshclient, self.vpc_info[KEY_PAIR][PATH], self.vpc_info[KEY_PAIR][PATH])
@@ -207,7 +207,7 @@ class Test_fni(OscTestSuite):
                                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                                             retry=4, timeout=10)
                 cmd = "sudo ls"
-                out, _, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, cmd)
+                out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd)
                 self.logger.vpc_info(out)
 
         # for debug purposes

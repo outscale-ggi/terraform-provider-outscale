@@ -58,7 +58,7 @@ class Test_fw_lbu(OscTestSuite):
         assert SshTools.check_service(self.sshclient, 'osc-lbu-agent', retry=10)
 
     def test_T1881_check_dns(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "cat /etc/resolv.conf")
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "cat /etc/resolv.conf")
         for dns in self.a1_r1.config.region.get_info(constants.FW_DNS_SERVERS):
             pattern = re.compile('nameserver {}'.format(dns))
             assert re.search(pattern, out)
@@ -67,7 +67,7 @@ class Test_fw_lbu(OscTestSuite):
         retry = 30
         wait = 30
         for i in range(retry):
-            out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, 'ntpq -pn')
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'ntpq -pn')
             if re.search(r'\*({})'.format('|'.join(self.a1_r1.config.region.get_info(constants.FW_NTP_SERVER_PREFIX))), out):
                 break
             if i == retry - 1:
@@ -87,16 +87,16 @@ class Test_fw_lbu(OscTestSuite):
     #    ???
 
     def test_T1890_check_hostname(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "hostname")
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "hostname")
         pattern = re.compile('lbu-{}'.format(self.lb_name))
         assert re.search(pattern, out)
 
     def test_T1891_check_kernel(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "uname -a")
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "uname -a")
         pattern = re.compile(' 4.14.14 ')
         assert re.search(pattern, out)
 
     def test_T1928_check_cpu_generation(self):
-        out, _, _ = SshTools.exec_command_paramiko_2(self.sshclient, "cat /proc/cpuinfo")
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "cat /proc/cpuinfo")
         pattern = re.compile('Sandy Bridge')
         assert re.search(pattern, out)

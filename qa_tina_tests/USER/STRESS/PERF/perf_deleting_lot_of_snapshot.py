@@ -84,16 +84,16 @@ def create_snapshot(oscsdk, kp_info, inst_info, volId, VOLDEVice, args, queue):
         # format / mount /write to volume
         cmd = 'sudo mkfs.ext4 -F {}'.format(device)
         logger.info("Executing: %s", cmd)
-        SshTools.exec_command_paramiko_2(sshclient, cmd)
+        SshTools.exec_command_paramiko(sshclient, cmd)
         cmd = 'sudo mkdir ' + thread_name
         logger.info("Executing: %s", cmd)
-        SshTools.exec_command_paramiko_2(sshclient, cmd)
+        SshTools.exec_command_paramiko(sshclient, cmd)
         cmd = 'sudo mount ' + device + ' ' + thread_name
         logger.info("Executing: %s", cmd)
-        SshTools.exec_command_paramiko_2(sshclient, cmd)
+        SshTools.exec_command_paramiko(sshclient, cmd)
         cmd = 'cd  ' + thread_name
         logger.info("Executing: %s", cmd)
-        SshTools.exec_command_paramiko_2(sshclient, cmd)
+        SshTools.exec_command_paramiko(sshclient, cmd)
 
         num = 0
         write_errors = 0
@@ -101,7 +101,7 @@ def create_snapshot(oscsdk, kp_info, inst_info, volId, VOLDEVice, args, queue):
             try:
                 cmd = 'sudo openssl rand -out ' + thread_name + str(num) + '.txt -base64 $((' + str(args.write_size) + ' * 2**20 * 3/4))'
                 logger.info("Executing: %s", cmd)
-                SshTools.exec_command_paramiko_2(sshclient, cmd)
+                SshTools.exec_command_paramiko(sshclient, cmd)
                 write_errors = 0
                 logger.info("Snapshot volume")
                 try:

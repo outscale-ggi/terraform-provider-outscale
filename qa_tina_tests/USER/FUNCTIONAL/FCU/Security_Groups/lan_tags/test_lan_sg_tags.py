@@ -80,7 +80,7 @@ class Test_lan_sg_tags(OscTestSuite):
 
     def check_ping(self, vpc_info, success):
         try:
-            out, _, _ = SshTools.run_command_paramiko_2(vpc_info[SUBNETS][0][EIP]['publicIp'], vpc_info[KEY_PAIR][PATH],
+            out, _, _ = SshTools.run_command_paramiko(vpc_info[SUBNETS][0][EIP]['publicIp'], vpc_info[KEY_PAIR][PATH],
                                                         'ping -c 5 {}'.format(vpc_info[SUBNETS][0][INSTANCE_SET][1]['privateIpAddress']),
                                                         username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except OscCommandError as error:

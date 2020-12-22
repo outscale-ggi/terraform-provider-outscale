@@ -15,21 +15,21 @@ def snap_exist(osc_sdk, snap_name):
 
 def write_data(sshclient, f_num, device='/dev/xvdc', folder='/mnt', w_size=10, fio=False):
     cmd = 'sudo mount -o nouuid {} {}'.format(device, folder)
-    SshTools.exec_command_paramiko_2(sshclient, cmd)
+    SshTools.exec_command_paramiko(sshclient, cmd)
 
     cmd = 'sudo openssl rand -out {}/data_{}.txt -base64 $(({} * 2**20 * 3/4))'.format(folder, f_num, w_size)
-    SshTools.exec_command_paramiko_2(sshclient, cmd)
+    SshTools.exec_command_paramiko(sshclient, cmd)
     cmd = 'sudo openssl rand -out {}/data_xxx.txt -base64 $(({} * 2**20 * 3/4))'.format(folder, w_size)
-    SshTools.exec_command_paramiko_2(sshclient, cmd)
+    SshTools.exec_command_paramiko(sshclient, cmd)
 
     if fio:
         cmd = 'sudo fio --filename={}/fio_{} --name test_fio_{} --direct=1 --rw=randwrite --bs=16k --size=10G --numjobs=16 --time_based ' \
                 '--runtime=300 --group_reporting --norandommap' \
                 .format(folder, f_num, f_num)
-        SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=330)
+        SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=330)
 
     cmd = 'sudo umount {}'.format(folder)
-    SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+    SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
 
 
 def write_and_snap(osc_sdk, sshclient, inst_id, vol_id, f_num, device='/dev/xvdc', folder='/mnt', w_size=10, fio=False, snap_name=None,
@@ -73,14 +73,14 @@ def get_md5sum(osc_sdk, sshclient, inst_id, vol_id, device='/dev/xvdc', folder='
     wait_volumes_state(osc_sdk, [vol_id], state='in-use')
 
     cmd = 'sudo mount -o nouuid {} {}'.format(device, folder)
-    SshTools.exec_command_paramiko_2(sshclient, cmd)
+    SshTools.exec_command_paramiko(sshclient, cmd)
 
     cmd = 'sudo cat {}/data_*.txt | md5sum'.format(folder)
-    out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+    out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
     md5sum = out.split(' ')[0]
 
     cmd = 'sudo umount {}'.format(folder)
-    SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+    SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
 
     osc_sdk.fcu.DetachVolume(VolumeId=vol_id)
     try:
@@ -111,28 +111,28 @@ def write_on_device(sshclient, device, folder, f_num, size, with_md5sum, with_fi
     """
     # mount volume
     cmd = 'sudo mount -o nouuid {} {}'.format(device, folder)
-    SshTools.exec_command_paramiko_2(sshclient, cmd)
+    SshTools.exec_command_paramiko(sshclient, cmd)
     # write file
     cmd = 'sudo openssl rand -out {}/data_{}.txt -base64 $(({} * 2**20 * 3/4))'.format(folder, f_num, size)
-    SshTools.exec_command_paramiko_2(sshclient, cmd)
+    SshTools.exec_command_paramiko(sshclient, cmd)
     cmd = 'sudo openssl rand -out {}/data_xxx.txt -base64 $(({} * 2**20 * 3/4))'.format(folder, size)
-    SshTools.exec_command_paramiko_2(sshclient, cmd)
+    SshTools.exec_command_paramiko(sshclient, cmd)
     if with_fio and f_num in [1, 2, 3, 10]:
         cmd = 'sudo fio --filename={}/fio_{} --name test_fio_{} --direct=1 --rw=randwrite --bs=16k --size=10G --numjobs=16 --time_based ' \
               '--runtime=300 --group_reporting --norandommap' \
               .format(folder, f_num, f_num)
-        SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=330)
+        SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=330)
     # get md5sum
     if with_md5sum:
         cmd = 'sudo cat {}/data_*.txt | md5sum'.format(folder)
-        out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+        out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
         md5sum = out.split(' ')[0]
     else:
         md5sum = None
 
     # unmount volume
     cmd = 'sudo umount {}'.format(folder)
-    SshTools.exec_command_paramiko_2(sshclient, cmd)
+    SshTools.exec_command_paramiko(sshclient, cmd)
     return md5sum
 
 
@@ -145,17 +145,17 @@ def read_on_device(sshclient, device, folder, with_md5sum):
     """
     # mount volume
     cmd = 'sudo mount -o nouuid {} {}'.format(device, folder)
-    SshTools.exec_command_paramiko_2(sshclient, cmd)
+    SshTools.exec_command_paramiko(sshclient, cmd)
     # get md5sum
     if with_md5sum:
         cmd = 'sudo cat {}/data_*.txt | md5sum'.format(folder)
-        out, _, _ = SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+        out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
         md5sum = out.split(' ')[0]
     else:
         md5sum = None
     # unmount volume
     cmd = 'sudo umount {}'.format(folder)
-    SshTools.exec_command_paramiko_2(sshclient, cmd)
+    SshTools.exec_command_paramiko(sshclient, cmd)
     return md5sum
 
 

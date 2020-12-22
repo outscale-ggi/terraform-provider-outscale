@@ -148,7 +148,7 @@ def perf_snapshot(oscsdk, logger, queue, args):
                 sshclient = SshTools.check_connection_paramiko(inst.ipAddress, '/tmp/{}.pem'.format(kp_name),
                                                                username=oscsdk.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'sudo mkfs.xfs -f {}'.format(DEV)
-                SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=600, retry=1)
+                SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=600, retry=1)
             except Exception as error:
                 log_error(logger, error, "Unexpected error while doing volume handling", result)
 
@@ -158,11 +158,11 @@ def perf_snapshot(oscsdk, logger, queue, args):
         sshclient = SshTools.check_connection_paramiko(inst.ipAddress, '/tmp/{}.pem'.format(kp_name),
                                                        username=oscsdk.config.region.get_info(constants.CENTOS_USER))
         cmd = 'sudo mount -o nouuid {} /mnt'.format(DEV)
-        SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+        SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
         cmd = 'sudo openssl rand -out /mnt/data_xxx.txt -base64 $(({} * 2**20 * 3/4))'.format(100)
-        SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+        SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
         cmd = 'sudo umount /mnt'
-        SshTools.exec_command_paramiko_2(sshclient, cmd, eof_time_out=300)
+        SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
 
         # get snapshot list
         snap_list = []

@@ -7,6 +7,7 @@ from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Tes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_subnet
 from qa_tina_tools.tina.info_keys import PATH
 from qa_common_tools.ssh import SshTools
+from qa_tina_tools.tina import check_tools
 
 
 class Test_private_linux_instance(Test_linux_instance):
@@ -82,10 +83,10 @@ class Test_private_linux_instance(Test_linux_instance):
         try:
             inst_id, inst_public_ip = self.create_instance(subnet=self.subnet1_id, security_group_id=self.sg_vpc_id)
             if inst_id:
-                sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'pwd'
-                out, status, _ = SshTools.exec_command_paramiko_2(sshclient, cmd)
+                out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
                 self.logger.info(out)
                 assert not status, "SSH command was not executed correctly on the remote host"
         finally:

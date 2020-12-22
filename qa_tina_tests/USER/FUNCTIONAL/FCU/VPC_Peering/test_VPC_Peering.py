@@ -60,7 +60,7 @@ class Test_VPC_Peering(OscTestSuite):
                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                 retry=4, timeout=10)
             cmd = "sudo ifconfig"
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, cmd)
+            out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd)
             self.logger.info(out)
         finally:
             if peering_info[PEERING].id:

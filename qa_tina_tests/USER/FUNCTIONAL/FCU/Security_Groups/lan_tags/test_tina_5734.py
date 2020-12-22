@@ -49,17 +49,17 @@ class Test_tina_5734(OscTestSuite):
             # check ssh
             sshclient_1 = SshTools.check_connection_paramiko(vpc_info[SUBNETS][0][EIP]['publicIp'], vpc_info[KEY_PAIR][PATH],
                                                              username=self.a1_r1.config.region.get_info(cfg_constants.CENTOS_USER))
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient_1, 'pwd')
+            out, _, _ = SshTools.exec_command_paramiko(sshclient_1, 'pwd')
             sshclient_2 = SshTools.check_connection_paramiko(eip.response.publicIp, vpc_info[KEY_PAIR][PATH],
                                                              username=self.a1_r1.config.region.get_info(cfg_constants.CENTOS_USER))
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient_2, 'pwd')
+            out, _, _ = SshTools.exec_command_paramiko(sshclient_2, 'pwd')
 
             # Stop inst 1
             self.a1_r1.fcu.StopInstances(InstanceId=vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0])
             wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0]], state='stopped')
 
             # check inst 2
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient_2, 'pwd')
+            out, _, _ = SshTools.exec_command_paramiko(sshclient_2, 'pwd')
             self.logger.debug(out)
 
             # Stop inst 2
@@ -73,7 +73,7 @@ class Test_tina_5734(OscTestSuite):
             # check inst 1
             sshclient_1 = SshTools.check_connection_paramiko(vpc_info[SUBNETS][0][EIP]['publicIp'], vpc_info[KEY_PAIR][PATH],
                                                              username=self.a1_r1.config.region.get_info(cfg_constants.CENTOS_USER))
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient_1, 'pwd')
+            out, _, _ = SshTools.exec_command_paramiko(sshclient_1, 'pwd')
             self.logger.debug(out)
 
         finally:
