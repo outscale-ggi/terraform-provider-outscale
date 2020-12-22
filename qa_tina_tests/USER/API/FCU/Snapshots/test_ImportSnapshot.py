@@ -203,7 +203,8 @@ class Test_ImportSnapshot(OscTestSuite):
             snap_id = ret.response.snapshotId
             try:
                 wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
-                assert False, 'remove known error'
+                if self.a1_r1.config.region.name == 'in-west-2a':
+                    assert False, 'remove known error'
             except AssertionError as e:
                 known_error('TINA-6005', 'unable to download file')
         finally:
@@ -228,7 +229,8 @@ class Test_ImportSnapshot(OscTestSuite):
             snap_id = ret.response.snapshotId
             try:
                 wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
-                assert False, 'remove known error'
+                if self.a1_r1.config.region.name == 'in-west-2a':
+                    assert False, 'remove known error'
             except AssertionError as e:
                 known_error('TINA-6005', 'unable to download file')
         finally:
@@ -253,7 +255,8 @@ class Test_ImportSnapshot(OscTestSuite):
             snap_id = ret.response.snapshotId
             try:
                 wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
-                assert False, 'remove known error'
+                if self.a1_r1.config.region.name == 'in-west-2a':
+                    assert False, 'remove known error'
             except AssertionError as e:
                 known_error('TINA-6005', 'unable to download file')
         finally:
@@ -278,7 +281,8 @@ class Test_ImportSnapshot(OscTestSuite):
             snap_id = ret.response.snapshotId
             try:
                 wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
-                assert False, 'remove known error'
+                if self.a1_r1.config.region.name == 'in-west-2a':
+                    assert False, 'remove known error'
             except AssertionError as e:
                 known_error('TINA-6005', 'unable to download file')
         finally:
