@@ -27,7 +27,7 @@ def pytest_runtest_setup(item):
     for test_feature in cur_test_features:
         if test_feature == 'region_storageservice':
             if 'osu' in cur_region_features or 'oos' in cur_region_features:
-                assert cur_region.get_info(constants.STORAGESERVICE).value in cur_region_features
+                assert cur_region.get_info(constants.STORAGESERVICE) in cur_region_features
                 continue
         feature = test_feature[len("region_"):]
         if test_feature.startswith("region_") and feature not in cur_region_features:
