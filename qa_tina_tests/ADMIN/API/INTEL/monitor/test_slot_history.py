@@ -86,7 +86,7 @@ class Test_slot_history(OscTestSuite):
     def test_T5355_with_lbu(self):
         ret = self.a1_r1.intel_lbu.lb.describe()
         if not ret.response.result:
-            pytest.skip('Could not find any vpc.')
+            pytest.skip('Could not find any lbu.')
         ret = self.a1_r1.intel.monitor.slot_history(what=ret.response.result[0].name)
         try:
             assert len(ret.response.result), 'Could not find any history'
