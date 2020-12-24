@@ -2,8 +2,8 @@ from qa_sdk_pub import osc_api
 import pytest
 from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, PASS, FAIL, Api_Access
 
-LOGIN_PASSWORD_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL]
-LOGIN_PASSWORD_PASS_LIST = [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, FAIL, PASS, PASS, FAIL]
+LOGIN_PASSWORD_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL]
+LOGIN_PASSWORD_PASS_LIST = [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, PASS, PASS, FAIL]
 
 
 @pytest.mark.region_admin
@@ -17,7 +17,7 @@ class Test_api_access_login_password(Api_Access):
     @setup_api_access_rules(ConfName.No)
     def test_T4959_login_password_NO_CONF_EEY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
-                               [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, FAIL, PASS, PASS, FAIL])
+                               [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, PASS, PASS, FAIL])
 
     @setup_api_access_rules(ConfName.IpOK)
     def test_T4960_login_password_CONF_IPOK_EEY(self):

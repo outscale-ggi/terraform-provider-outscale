@@ -20,7 +20,7 @@ API_CALLS = ['directlink.DescribeLocations',  # with AkSk
              'eim.ListAccessKeys',  # with AkSk
              'icu.ReadPublicCatalog',  # without authent
              'icu.ListAccessKeys',  # with LoginPassword
-             #'icu.ReadQuotas',  # with AkSk
+             'icu.ReadQuotas',  # with AkSk
              'icu.GetAccount', # with AkSk
              'fcu.DescribeRegions',  # without authent
              'fcu.DescribeSecurityGroups',  # with AkSk
@@ -329,6 +329,8 @@ class Api_Access(OscTestSuite):
                 elif error.status_code == 400 and error.error_code == 'UnauthorizedOperation':
                     results.append(FAIL)
                 elif api_call == 'eim.ListAccessKeys' and error.status_code == 500 and error.error_code == 'InternalError':
+                    results.append(KNOWN)
+                elif api_call == 'icu.GetAccount' and error.status_code == 500 and error.error_code == 'IcuServerException':
                     results.append(KNOWN)
                 elif error.status_code == 401 and error.error_code == 'AuthFailure':
                     results.append(FAIL)
