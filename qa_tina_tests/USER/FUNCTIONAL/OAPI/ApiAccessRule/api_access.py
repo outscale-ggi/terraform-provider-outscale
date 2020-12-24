@@ -21,9 +21,10 @@ API_CALLS = ['directlink.DescribeLocations',  # with AkSk
              'icu.ReadPublicCatalog',  # without authent
              'icu.ListAccessKeys',  # with LoginPassword
              'icu.ReadQuotas',  # with AkSk
+             #'icu.GetAccount', # with AkSk
              'fcu.DescribeRegions',  # without authent
              'fcu.DescribeSecurityGroups',  # with AkSk
-             'kms.ListKeys',  # with AkSk
+             #'kms.ListKeys',  # with AkSk
              'lbu.DescribeLoadBalancers',  # with AkSk
              'oapi.ReadFlexibleGpuCatalog',  # without authent
              'oapi.ReadAccessKeys',  # with LoginPassword
