@@ -17,7 +17,7 @@ class Test_api_access_ak_sk(Api_Access):
     @setup_api_access_rules(ConfName.No)
     def test_T4927_NO_CONF_EEY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
-                               [PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS])
+                               [PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS])
 
     @setup_api_access_rules(ConfName.IpOK)
     def test_T4928_ak_sk_CONF_IPOK_EEY(self):
