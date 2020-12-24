@@ -2,8 +2,8 @@ from qa_sdk_pub import osc_api
 import pytest
 from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, PASS, FAIL, KNOWN, Api_Access
 
-AK_SK_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL]
-AK_SK_PASS_LIST = [PASS, KNOWN, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS]
+AK_SK_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL]
+AK_SK_PASS_LIST = [PASS, KNOWN, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS]
 
 
 @pytest.mark.region_admin
@@ -17,7 +17,7 @@ class Test_api_access_ak_sk(Api_Access):
     @setup_api_access_rules(ConfName.No)
     def test_T4927_NO_CONF_EEY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
-                               [PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS])
+                               [PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS])
 
     @setup_api_access_rules(ConfName.IpOK)
     def test_T4928_ak_sk_CONF_IPOK_EEY(self):
