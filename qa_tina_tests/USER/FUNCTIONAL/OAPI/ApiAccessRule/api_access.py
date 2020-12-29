@@ -170,7 +170,7 @@ def setup_api_access_rules(confkey):
                     if unexpected:
                         raise OscTestException('Unexpected result')
                     if issue_names:
-                        known_error(' '.join(issue_names), 'Expected known error(s)')
+                        known_error(' '.join(set(issue_names)), 'Expected known error(s)')
             finally:
                 ret = self.a1_r1.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), accountPids= [self.account_pid])
                 try:
@@ -353,8 +353,8 @@ class Api_Access(OscTestSuite):
                 errors.append(error)
                 if 'login/password authentication is not supported.' in error.message:
                     results.append(FAIL)
-                elif 'Wrong authentication : only AkSk or Empty is supported.' in error.message:
-                    results.append(FAIL)
+                elif api_call.startswith('oapi.') and 'Wrong authentication : only AkSk or Empty is supported.' in error.message:
+                    results.append('{}API-TODO'.format(ISSUE_PREFIX))
                 else:
                     results.append(ERROR)
             except Exception as error:
