@@ -329,9 +329,7 @@ class Api_Access(OscTestSuite):
                 elif error.status_code == 400 and error.error_code == 'UnauthorizedOperation':
                     results.append(FAIL)
                 elif api_call == 'eim.ListAccessKeys' and error.status_code == 500 and error.error_code == 'InternalError':
-                    results.append(KNOWN)
-                elif api_call == 'icu.GetAccount' and error.status_code == 500 and error.error_code == 'IcuServerException':
-                    results.append(KNOWN)
+                    results.append('ISSUE --> PQA-TODO')
                 elif error.status_code == 401 and error.error_code == 'AuthFailure':
                     results.append(FAIL)
                 else:
@@ -341,10 +339,7 @@ class Api_Access(OscTestSuite):
                 if 'login/password authentication is not supported.' in error.message:
                     results.append(FAIL)
                 elif 'Wrong authentication : only AkSk or Empty is supported.' in error.message:
-                    if api_call.startswith('oapi.'):
-                        results.append(KNOWN)
-                    else:
-                        results.append(FAIL)
+                    results.append(FAIL)
                 else:
                     results.append(ERROR)
             except Exception as error:
@@ -355,7 +350,9 @@ class Api_Access(OscTestSuite):
             try:
                 assert len(expected_results) == len(results)
                 for i in range(len(results)):
-                    assert results[i] == expected_results[i]
+                    if  results[i] != expected_results[i]:
+                        if expected_results[i] != KNOWN or not results[i].startswith("ISSUE -->"):
+                            assert False
             except AssertionError:
                 return results, expected_results, errors
         return None, None, None
