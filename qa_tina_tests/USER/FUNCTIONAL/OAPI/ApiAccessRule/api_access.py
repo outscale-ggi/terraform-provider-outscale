@@ -1,4 +1,4 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
     OscSdkException
 from qa_test_tools.account_tools import create_account, delete_account
@@ -64,6 +64,7 @@ PASS = 0
 FAIL = 1
 ERROR = 2
 KNOWN = 3
+ISSUE_PREFIX = "ISSUE --> " 
 
 CLIENT_CERT_CN1 = 'client.qa1'
 CLIENT_CERT_CN2 = 'client.qa2'
@@ -150,12 +151,26 @@ def setup_api_access_rules(confkey):
             try:
                 put_configuration(self, self.configs[confkey])
                 actual, expected, errors = f(self, *args)
+                issue_names = []
+                unexpected = False
                 if actual:
                     print('actual   results for conf {} -> {}'.format(confkey, actual))
                     print('expected results for conf {} -> {}'.format(confkey, expected))
                     for i in range(len(API_CALLS)):
                         print('{} -> {}'.format(API_CALLS[i], errors[i]))
-                    raise OscTestException('Unexpected result')
+                    for i in range(len(actual)):
+                        if actual[i] != expected[i]:
+                            if expected[i] == KNOWN:
+                                if type(actual[i]) == str and actual[i].startswith(ISSUE_PREFIX):
+                                    issue_names.append(actual[i][len(ISSUE_PREFIX):])
+                                else:
+                                    unexpected = True
+                            else:
+                                unexpected = True
+                    if unexpected:
+                        raise OscTestException('Unexpected result')
+                    if issue_names:
+                        known_error(' '.join(issue_names), 'Expected known error(s)')
             finally:
                 ret = self.a1_r1.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), accountPids= [self.account_pid])
                 try:
@@ -329,7 +344,7 @@ class Api_Access(OscTestSuite):
                 elif error.status_code == 400 and error.error_code == 'UnauthorizedOperation':
                     results.append(FAIL)
                 elif api_call == 'eim.ListAccessKeys' and error.status_code == 500 and error.error_code == 'InternalError':
-                    results.append('ISSUE --> PQA-TODO')
+                    results.append('{}TINA-TODO'.format(ISSUE_PREFIX))
                 elif error.status_code == 401 and error.error_code == 'AuthFailure':
                     results.append(FAIL)
                 else:
@@ -350,9 +365,7 @@ class Api_Access(OscTestSuite):
             try:
                 assert len(expected_results) == len(results)
                 for i in range(len(results)):
-                    if  results[i] != expected_results[i]:
-                        if expected_results[i] != KNOWN or not results[i].startswith("ISSUE -->"):
-                            assert False
+                    assert results[i] == expected_results[i]
             except AssertionError:
                 return results, expected_results, errors
         return None, None, None
