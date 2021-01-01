@@ -50,10 +50,8 @@ class Test_DescribeInstanceAttribute(OscTestSuite):
             self.a1_r1.fcu.DescribeInstanceAttribute(Attribute='instanceType')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.status_code == 500:
-                known_error('TINA-4845', 'Error 500 when calling Describe InstanceAttribute  with attribute only')
-            assert False, 'Remove known error'
-            assert_error(error, 400, "", "")
+            assert_error(error, 400, "InvalidInstanceID.Malformed", "Invalid ID received: . Expected format: i-")
+            known_error('TINA-6100', 'Incorrect error message')
 
     def test_T3454_without_attribute_parameter(self):
         try:
