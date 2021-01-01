@@ -33,7 +33,7 @@ class Test_CreateConnection(OscTestSuite):
             assert ret.response.connectionState == 'requested'
             assert ret.response.location == self.location
             assert ret.response.ownerAccount == self.a1_r1.config.account.account_id
-            assert ret.response.region == self.a1_r1.config.region_name
+            assert ret.response.region == self.a1_r1.config.region.name
             assert ret.response.connectionId.startswith('dxcon-')
         finally:
             if conn_id:
