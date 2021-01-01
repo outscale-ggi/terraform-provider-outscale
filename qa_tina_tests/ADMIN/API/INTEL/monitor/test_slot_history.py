@@ -26,13 +26,8 @@ class Test_slot_history(OscTestSuite):
 
     def test_T5340_server_without_dates(self):
         server_name = self.a1_r1.intel.hardware.get_servers().response.result[0].name
-        try:
-            self.a1_r1.intel.monitor.slot_history(what=server_name)
-            assert False, 'Remove known error'
-        except OscApiException as error:
-            assert_error(error, 200, -32603, "Internal error.")
-            known_error('TINA-5862', 'Unexpected internal error.')
-            raise error
+        ret = self.a1_r1.intel.monitor.slot_history(what=server_name)
+        assert len(ret.response.result), 'Could not find any history'
 
     def test_T5350_server_with_dates(self):
         server_name = self.a1_r1.intel.hardware.get_servers().response.result[0].name
