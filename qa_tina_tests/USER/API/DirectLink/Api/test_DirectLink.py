@@ -57,8 +57,8 @@ class Test_DirectLink(OscTestSuite):
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3850_invalid_authentication(self):
-        sk_bkp = self.a1_r1.config.sk
-        self.a1_r1.config.sk = "foo"
+        sk_bkp = self.a1_r1.config.account.sk
+        self.a1_r1.config.account.sk = "foo"
         try:
             self.a1_r1.directlink.DescribeLocations()
             assert False, 'Call should not have been successful'
@@ -66,7 +66,7 @@ class Test_DirectLink(OscTestSuite):
             misc.assert_error(error, 403, "SignatureDoesNotMatch", "The request signature we calculated does not match the signature you provided. " + \
                                     "Check your AWS Secret Access Key and signing method. Consult the service documentation for details.")
         finally:
-            self.a1_r1.config.sk = sk_bkp
+            self.a1_r1.config.account.sk = sk_bkp
 
     @pytest.mark.tag_sec_availability
     def test_T3851_throttling(self):

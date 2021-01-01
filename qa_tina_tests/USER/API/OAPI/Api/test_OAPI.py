@@ -64,15 +64,15 @@ class Test_OAPI(OscTestSuite):
  
     @pytest.mark.tag_sec_confidentiality
     def test_T2227_invalid_authentication(self):
-        sk_bkp = self.a1_r1.config.sk
-        self.a1_r1.config.sk = "foo"
+        sk_bkp = self.a1_r1.config.account.sk
+        self.a1_r1.config.account.sk = "foo"
         try:
             self.a1_r1.oapi.ReadVolumes()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 401, "1", "AccessDenied")
         finally:
-            self.a1_r1.config.sk = sk_bkp
+            self.a1_r1.config.account.sk = sk_bkp
  
     def test_T2228_check_no_aws_references(self):
         # TODO: To be defined
