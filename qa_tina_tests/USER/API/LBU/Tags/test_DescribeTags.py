@@ -45,10 +45,9 @@ class Test_DescribeTags(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
-            # I KNOW, IT HURTS ON THE EYE! MAIS C'EST COMME ÇA
-            if cls.ret1 or cls.ret2:
-                sleep(60)
+            sleep(60)
             if cls.ret1:
+                # I KNOW, IT HURTS ON THE EYE! MAIS C'EST COMME ÇA
                 delete_lbu(cls.a1_r1, cls.lbu_names[0])
             if cls.ret2:
                 delete_lbu(cls.a1_r1, cls.lbu_names[1])
