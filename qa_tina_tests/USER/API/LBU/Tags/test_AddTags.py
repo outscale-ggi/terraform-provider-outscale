@@ -107,10 +107,9 @@ class Test_AddTags(OscTestSuite):
 
     def test_T5385_invalid_params(self):
         try:
-            tag_key = id_generator("tagkey-")
-            tag_value = id_generator("tagvalue-")
-            filters = {'Key': tag_key, 'Value': tag_value, 'toto': 'toto'}
-            ret = self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
+            filters = {'toto': 'toto'}
+            self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
+            ret = self.a1_r1.lbu.DescribeTags(LoadBalancerNames=[self.lbu_name])
             if ret.status_code == 200:
                 known_error('TINA-6097', 'lbu.AddTags issues (keyTag and invalid param)')
             assert False, 'Call should not have been successful'
