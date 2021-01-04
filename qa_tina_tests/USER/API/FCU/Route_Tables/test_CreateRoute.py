@@ -69,3 +69,12 @@ class Test_CreateRoute(OscTestSuite):
             assert False, 'CreateRoute without parameters should have not succeeded'
         except OscApiException as error:
             assert_error(error, 400, 'MissingParameter', 'Request is missing the following parameter: RouteTableId')
+
+    def test_T5377_invalid_cidr(self):
+        gtw_id = 'igw-12345678'
+        try:
+            self.a1_r1.fcu.CreateRoute(DestinationCidrBlock='10.10.10.23/24', RouteTableId=self.rtb1,
+                                       GatewayId=gtw_id)
+            assert False, 'CreateRoute should have not succeeded'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidParameterValue', "'10.10.10.23/24' is not a valid CIDR")
