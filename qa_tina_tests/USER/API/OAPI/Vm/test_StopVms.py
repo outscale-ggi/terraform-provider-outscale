@@ -133,7 +133,6 @@ class Test_StopVms(OscTestSuite):
     def test_T2121_from_terminated(self):
         vm_id = self.info[INSTANCE_ID_LIST][5]
         terminate_instances(self.a1_r1, [vm_id])
-        self.info[INSTANCE_ID_LIST].remove(vm_id)
         try:
             self.a1_r1.oapi.StopVms(VmIds=[vm_id])
             assert False, 'Call with terminated instance should not have been successful'
