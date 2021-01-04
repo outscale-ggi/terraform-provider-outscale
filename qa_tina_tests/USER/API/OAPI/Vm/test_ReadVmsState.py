@@ -78,11 +78,11 @@ class Test_ReadVmsState(OscTestSuite):
         # check terminated
         code_Name = 'terminated'
         ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_Name]})
-        assert ret.response.VmStates.__len__() == 0
+        assert len(ret.response.VmStates) == 0
         # check terminated with AllVms Activated
         code_Name = 'terminated'
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=True, Filters={'VmStates': [code_Name]})
-        assert ret.response.VmStates.__len__() >= 1
+        assert len(ret.response.VmStates) >= 1
         assert ret.response.VmStates[0].VmState == code_Name
 
     def test_T2077_multiple_filters(self):
