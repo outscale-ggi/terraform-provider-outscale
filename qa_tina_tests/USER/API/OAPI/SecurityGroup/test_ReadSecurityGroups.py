@@ -280,7 +280,7 @@ class Test_ReadSecurityGroups(SecurityGroup):
         assert len(ret) == 0
 
     def test_T5369_with_tags_filter(self):
-        filters = {'Tags': 'sg_key=sg_value'}
+        filters = {'Tags': ['sg_key=sg_value']}
         ret = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
         assert len(ret) == 1
 
@@ -320,10 +320,10 @@ class Test_ReadSecurityGroups(SecurityGroup):
 
     def test_T5375_with_incorrect_tags_filter(self):
         filters = {"TagValues": ['sg_inc_key=sg_inc_value']}
-        ret = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters)
+        ret = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
         assert len(ret) == 0
 
     def test_T5376_with_tags_filter_from_another_account(self):
-        filters = {'Tags': 'sg_key=sg_value'}
+        filters = {'Tags': ['sg_key=sg_value']}
         ret = self.a2_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
         assert len(ret) == 0
