@@ -45,10 +45,11 @@ class Test_DescribeTags(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
-            if cls.ret1 or cls.ret2:
+            sleep(60)
+            if cls.ret1:
                 # I KNOW, IT HURTS ON THE EYE! MAIS C'EST COMME ÇA
-                sleep(60)
                 delete_lbu(cls.a1_r1, cls.lbu_names[0])
+            if cls.ret2:
                 delete_lbu(cls.a1_r1, cls.lbu_names[1])
         finally:
             super(Test_DescribeTags, cls).teardown_class()
