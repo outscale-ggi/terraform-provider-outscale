@@ -94,3 +94,13 @@ class Test_PutUserPolicy(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, "MalformedPolicyDocument", "Invalid policy document")
         # TODO: Add tests
+
+    def test_T5368_invalid_policy_document_type(self):
+        try:
+            self.a1_r1.eim.PutUserPolicy(PolicyDocument={"Statement": [{"Action": ["ec2:AttachInternetGateway"],"Resource": ["*"],"Effect": "Allow"}]}, PolicyName='policy_name', UserName='user_name')
+        except OscApiException as error:
+            if error.message == "Internal Error" and error.status_code == 500:
+                known_error("TINA-5807", "Bug using PutUserPolicy")
+            assert False, 'remove known error code'
+            assert_error(error, 400, "MalformedPolicyDocument", "Invalid policy document")
+

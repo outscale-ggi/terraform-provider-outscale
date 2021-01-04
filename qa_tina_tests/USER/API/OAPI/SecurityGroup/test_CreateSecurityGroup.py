@@ -30,7 +30,7 @@ class Test_CreateSecurityGroup(OscTestSuite):
 
     def test_T2716_with_missing_description(self):
         try:
-            ret = self.a1_r1.oapi.CreateSecurityGroup(Name='test_name')
+            ret = self.a1_r1.oapi.CreateSecurityGroup(SecurityGroupName='test_name')
             self.id = ret.response.SecurityGroupId
             assert False, 'Call should not have been successful'
         except OscApiException as error:

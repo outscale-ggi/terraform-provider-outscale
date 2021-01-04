@@ -6,6 +6,7 @@ from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
 from qa_tina_tools.tools.tina.info_keys import SUBNET_ID, SUBNETS, INSTANCE_ID_LIST
 from qa_test_tools.misc import assert_error
+from qa_tina_tools.tools.tina.wait_tools import wait_network_interfaces_state
 
 
 class Test_ReleaseAddress(OscTestSuite):
@@ -117,16 +118,17 @@ class Test_ReleaseAddress(OscTestSuite):
         eip = self.a1_r1.fcu.AllocateAddress(Domain='vpc').response
         self.a1_r1.fcu.AssociateAddress(NetworkInterfaceId=fni.networkInterfaceId,
                                         PublicIp=eip.publicIp)
+        att_id = self.a1_r1.fcu.AttachNetworkInterface(InstanceId=vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0],
+                                                    NetworkInterfaceId=fni.networkInterfaceId, DeviceIndex=1).response.attachmentId
         try:
             self.a1_r1.fcu.ReleaseAddress(AllocationId=eip.allocationId)
-            knownerror = True
-            known_error('TINA-5500', 'Should not have been able to release in use allocation')
             pytest.fail("Should not have been able to release in use allocation")
         except OscApiException as error:
-            assert False, 'Remove known error'
             assert_error(error, 400, 'InvalidIPAddress.InUse', 'Address is in use: {}'.format(eip.publicIp))
         finally:
             if not knownerror:
+                self.a1_r1.fcu.DetachNetworkInterface(AttachmentId=att_id)
+                wait_network_interfaces_state(osc_sdk=self.a1_r1, network_interface_id_list=[fni.networkInterfaceId], state='available')
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=eip.publicIp)
                 self.a1_r1.fcu.ReleaseAddress(PublicIp=eip.publicIp)
             self.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId=fni.networkInterfaceId)
