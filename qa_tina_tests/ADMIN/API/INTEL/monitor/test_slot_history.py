@@ -2,6 +2,8 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 import pytest
 from datetime import datetime, timedelta
 from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_error
 
 
 @pytest.mark.region_qa
@@ -24,7 +26,13 @@ class Test_slot_history(OscTestSuite):
 
     def test_T5340_server_without_dates(self):
         server_name = self.a1_r1.intel.hardware.get_servers().response.result[0].name
-        ret = self.a1_r1.intel.monitor.slot_history(what=server_name)
+        try:
+            ret = self.a1_r1.intel.monitor.slot_history(what=server_name)
+            # assert False, 'Remove known error'
+        except OscApiException as error:
+            assert_error(error, 200, -32603, "Internal error.")
+            known_error('TINA-6102', 'Unexpected internal error.')
+            raise error
         assert len(ret.response.result), 'Could not find any history'
 
     def test_T5350_server_with_dates(self):
