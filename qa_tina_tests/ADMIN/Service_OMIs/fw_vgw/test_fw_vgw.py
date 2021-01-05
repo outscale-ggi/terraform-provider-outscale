@@ -105,9 +105,9 @@ class Test_fw_vgw(OscTestSuite):
         pytest.skip('nginx not available anymore')
         assert SshTools.check_service(self.sshclient, 'nginx')
 
-    def test_T1905_check_racoon(self):
-        assert SshTools.check_service(self.sshclient, 'racoon', pattern_str='.* is running')
-
+    def test_T1905_check_service(self):
+        assert SshTools.check_service(self.sshclient, 'strongswan', pattern_str='.* is running.*')
+            
     def test_T1900_check_zebra(self):
         assert SshTools.check_service(self.sshclient, 'zebra')
 
