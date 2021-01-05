@@ -1,4 +1,4 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
@@ -97,9 +97,13 @@ class Test_UnlinkFlexibleGpu(OscTestSuite):
     def test_T4212_invalid_dry_run(self):
         try:
             self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id, DryRun='XXXXXXXX')
+            self.ret_link = None
+            known_error("API-159", "Incorrect result with invalid DryRun value")
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            assert False, "Remove known error code"
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
 
     def test_T4213_valid_params(self):
         ret_unlink = self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id)

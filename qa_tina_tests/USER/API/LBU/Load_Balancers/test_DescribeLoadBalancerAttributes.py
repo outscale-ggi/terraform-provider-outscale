@@ -39,9 +39,7 @@ class Test_DescribeLoadBalancerAttributes(OscTestSuite):
             self.ret1 = None
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
-            if error.status_code == 500 :
-                known_error("TINA-4976", "DescribeLoadBalancerAttributes with non existent lbu name -> Internal error")
-        assert False, 'Remove known error'
+            assert_error(error, 400, 'LoadBalancerNotFound', "There is no ACTIVE Load Balancer named 'XXXXXX'")
 
     def test_T4015_without_params(self):
         try:
@@ -57,6 +55,4 @@ class Test_DescribeLoadBalancerAttributes(OscTestSuite):
             self.ret1 = None
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
-            if error.status_code == 500 :
-                known_error("TINA-4976", 'Incorrect internal error')
-            assert False, 'Remove known error'
+            assert_error(error, 400, 'LoadBalancerNotFound', "There is no ACTIVE Load Balancer named '{}'".format(self.lbu_name))
