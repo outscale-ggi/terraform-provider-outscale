@@ -1,6 +1,5 @@
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
-    OscSdkException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_test_tools.account_tools import create_account, delete_account
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
@@ -154,10 +153,6 @@ def setup_api_access_rules(confkey):
                 issue_names = []
                 unexpected = False
                 if actual:
-                    print('actual   results for conf {} -> {}'.format(confkey, actual))
-                    print('expected results for conf {} -> {}'.format(confkey, expected))
-                    for i in range(len(API_CALLS)):
-                        print('{} -> {}'.format(API_CALLS[i], errors[i]))
                     for i in range(len(actual)):
                         if actual[i] != expected[i]:
                             if expected[i] == KNOWN:
@@ -168,6 +163,10 @@ def setup_api_access_rules(confkey):
                             else:
                                 unexpected = True
                     if unexpected:
+                        print('actual   results for conf {} -> {}'.format(confkey, actual))
+                        print('expected results for conf {} -> {}'.format(confkey, expected))
+                        for i in range(len(API_CALLS)):
+                            print('{} -> {}'.format(API_CALLS[i], errors[i]))
                         raise OscTestException('Unexpected result')
                     if issue_names:
                         known_error(' '.join(set(issue_names)), 'Expected known error(s)')
@@ -187,9 +186,9 @@ class Api_Access(OscTestSuite):
     
     @classmethod
     def setup_class(cls):
-        super(Api_Access, cls).setup_class()
         cls.account_pid = None
         cls.tmp_file_paths = []
+        super(Api_Access, cls).setup_class()
         try:
             # create certificates
 #             for path in TMP_FILE_LOCATIONS:
