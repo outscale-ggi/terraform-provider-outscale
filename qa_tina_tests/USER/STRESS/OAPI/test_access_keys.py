@@ -2,17 +2,17 @@ from multiprocessing import Process
 
 from qa_test_tools.test_base import OscTestSuite
 
-class Test_access_keys(OscTestSuite):
+class Test_AccessKeys(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
         cls.QUOTAS = {'accesskey_limit': 1000}
-        super(Test_access_keys, cls).setup_class()
+        super(Test_AccessKeys, cls).setup_class()
 
     def test_T5323_parallel_loop(self):
 
         def exec_job(osc_sdk, nb_retry):
-            for i in range(nb_retry):
+            for _ in range(nb_retry):
                 ak = None
                 try:
                     ret = osc_sdk.oapi.CreateAccessKey()
@@ -27,18 +27,18 @@ class Test_access_keys(OscTestSuite):
         threads = []
 
         self.logger.debug("Init process")
-        for i in range(nb_worker):
-            t = Process(target=exec_job,
-                        args=(self.a1_r1, nb_retry))
-            threads.append(t)
+        for _ in range(nb_worker):
+            thread = Process(target=exec_job,
+                             args=(self.a1_r1, nb_retry))
+            threads.append(thread)
 
         self.logger.debug("Start process")
-        for i in range(len(threads)):
-            threads[i].start()
+        for thread in threads:
+            thread.start()
 
         self.logger.debug("Wait process...")
-        for i in range(len(threads)):
-            threads[i].join()
+        for thread in threads:
+            thread.join()
         self.logger.debug("    ...Process end")
-        for i in range(len(threads)):
-            assert threads[i].exitcode == 0
+        for thread in threads:
+            assert thread.exitcode == 0
