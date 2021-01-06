@@ -36,15 +36,7 @@ class Test_ImportSnapshot(OscTestSuite):
                                                              ExportToOsu={'DiskImageFormat': e, 'OsuBucket': cls.bucket_name})
                 task_id = ret.response.snapshotExportTask.snapshotExportTaskId
                 cls.task_ids.append(task_id)
-            try:
                 wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
-                if cls.a1_r1.config.region.name == 'in-west-2':
-                    pytest.fail('Remove known error code')
-            except AssertionError:
-                if cls.a1_r1.config.region.name == 'in-west-2':
-                    cls.has_setup_error = 'OPS-12653'
-                else:
-                    raise
         except:
             try:
                 cls.teardown_class()
@@ -230,7 +222,6 @@ class Test_ImportSnapshot(OscTestSuite):
             ret = self.a1_r1.fcu.ImportSnapshot(snapshotLocation=url, snapshotSize=gb_to_byte, description='This is a snapshot test')
             snap_id = ret.response.snapshotId
             wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
-
         finally:
             if snap_id:
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
