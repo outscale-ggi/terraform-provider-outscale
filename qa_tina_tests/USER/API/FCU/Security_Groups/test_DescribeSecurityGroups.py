@@ -215,7 +215,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
         assert len(ret.response.securityGroupInfo) == NB_PUB_SG + NB_PRIV_SG
 
     def test_T5417_filter_ip_permission_cidr(self):
-        cidr_range = '46.231.147.8/32'
+        cidr_range = '11.22.33.44/32'
         protocol = 'tcp'
         to_port = 65535
         from_port = 1
@@ -226,13 +226,14 @@ class Test_DescribeSecurityGroups(OscTestSuite):
         ret = self.a1_r1.fcu.DescribeSecurityGroups(
             Filter=[{'Name': 'ip-permission.cidr', 'Value': cidr_range}])
         assert len(ret.response.securityGroupInfo) == 1
+        found = 0
         for perm in ret.response.securityGroupInfo[0].ipPermissions:
-            if perm.fromPort != str(from_port):
-                continue
-            else:
+            if perm.ipRanges[0].cidrIp == cidr_range
                 assert perm.ipProtocol == protocol
-                assert perm.ipRanges[0].cidrIp == cidr_range
+                assert perm.fromPort == str(from_port)
                 assert perm.toPort == str(to_port)
+                found += 1
+        assert found == 1, 'Could not find rule'
 
     def test_T5418_filter_ip_permission_group_id(self):
         # ticket to be created after your OK!
@@ -249,27 +250,27 @@ class Test_DescribeSecurityGroups(OscTestSuite):
 
     def test_T5426_filter_ip_permission_protocol(self):
         protocol = 'tcp'
-        found = False
         ret = self.a1_r1.fcu.DescribeSecurityGroups(
             Filter=[{'Name': 'ip-permission.protocol', 'Value': protocol}])
         for sg_info in ret.response.securityGroupInfo:
+            found = False
             for perm in sg_info.ipPermissions:
                 if hasattr(perm, 'ipProtocol') and perm.ipProtocol == protocol:
                     found = True
                     break
-            assert found is True
+            assert found
 
     def test_T5420_filter_ip_permission_to_port(self):
         to_port = '22'
-        found = False
         ret = self.a1_r1.fcu.DescribeSecurityGroups(
             Filter=[{'Name': 'ip-permission.to-port', 'Value': to_port}])
         for sg_info in ret.response.securityGroupInfo:
+            found = False
             for perm in sg_info.ipPermissions:
                 if hasattr(perm, 'toPort') and perm.toPort == to_port:
                     found = True
                     break
-            assert found is True
+            assert found
 
     def test_T5421_filter_ip_permission_user_id(self):
         user_id = self.a2_r1.config.account.account_id
