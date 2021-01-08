@@ -12,7 +12,6 @@ class Test_DetachVolume(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.inst_info = None
-        cls.vol_detached = False
         super(Test_DetachVolume, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1, nb=2)
@@ -22,15 +21,10 @@ class Test_DetachVolume(OscTestSuite):
             wait_volumes_state(cls.a1_r1, cls.standard_volume_ids, 'available')
             wait_volumes_state(cls.a1_r1, cls.io1_volume_ids, 'available')
             wait_volumes_state(cls.a1_r1, cls.standard_volume_ids, 'available')
-            cls.rslt_attach_standard = cls.a1_r1.fcu.AttachVolume(VolumeId=cls.standard_volume_ids[0], InstanceId=cls.inst_info[INSTANCE_ID_LIST][0],
-                                                                  Device="/dev/xvdb")
-            cls.a1_r1.fcu.AttachVolume(VolumeId=cls.standard_volume_ids[1],
-                                       InstanceId=cls.inst_info[INSTANCE_ID_LIST][0],
-                                       Device="/dev/xvde")
-            cls.rslt_attach_gp2 = cls.a1_r1.fcu.AttachVolume(VolumeId=cls.gp2_volume_ids[0], InstanceId=cls.inst_info[INSTANCE_ID_LIST][0],
-                                                             Device="/dev/xvdc")
-            cls.rslt_attach_io1 = cls.a1_r1.fcu.AttachVolume(VolumeId=cls.io1_volume_ids[0], InstanceId=cls.inst_info[INSTANCE_ID_LIST][0],
-                                                             Device="/dev/xvdd")
+            cls.rslt_attach_standard = cls.a1_r1.fcu.AttachVolume(VolumeId=cls.standard_volume_ids[0], InstanceId=cls.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")
+            cls.a1_r1.fcu.AttachVolume(VolumeId=cls.standard_volume_ids[1], InstanceId=cls.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvde")
+            cls.rslt_attach_gp2 = cls.a1_r1.fcu.AttachVolume(VolumeId=cls.gp2_volume_ids[0], InstanceId=cls.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdc")
+            cls.rslt_attach_io1 = cls.a1_r1.fcu.AttachVolume(VolumeId=cls.io1_volume_ids[0], InstanceId=cls.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdd")
         except:
             try:
                 cls.teardown_class()
@@ -44,10 +38,6 @@ class Test_DetachVolume(OscTestSuite):
             if cls.inst_info:
                 delete_instances(cls.a1_r1, cls.inst_info)
                 cls.a1_r1.fcu.DeleteVolume(VolumeId=cls.standard_volume_ids[0])
-                if not cls.vol_detached:
-                    cls.a1_r1.fcu.DetachVolume(VolumeId=cls.standard_volume_ids[1],
-                                               InstanceId=cls.inst_info[INSTANCE_ID_LIST][0])
-                    wait_volumes_state(cls.a1_r1, volume_id_list=cls.standard_volume_ids, state="available")
                 cls.a1_r1.fcu.DeleteVolume(VolumeId=cls.standard_volume_ids[1])
                 cls.a1_r1.fcu.DeleteVolume(VolumeId=cls.gp2_volume_ids[0])
                 cls.a1_r1.fcu.DeleteVolume(VolumeId=cls.io1_volume_ids[0])
@@ -63,16 +53,13 @@ class Test_DetachVolume(OscTestSuite):
     def teardown_method(self, method):
         try:
             if self.rslt_detach_standard:
-                self.rslt_attach_standard = self.a1_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0],
-                                                                        InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")
+                self.rslt_attach_standard = self.a1_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")
                 wait_volumes_state(self.a1_r1, volume_id_list=self.standard_volume_ids, state="in-use")
             if self.rslt_detach_gp2:
-                self.rslt_attach_gp2 = self.a1_r1.fcu.AttachVolume(VolumeId=self.gp2_volume_ids[0],
-                                                                   InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdc")
+                self.rslt_attach_gp2 = self.a1_r1.fcu.AttachVolume(VolumeId=self.gp2_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdc")
                 wait_volumes_state(self.a1_r1, volume_id_list=self.gp2_volume_ids, state="in-use")
             if self.rslt_detach_io1:
-                self.rslt_attach_io1 = self.a1_r1.fcu.AttachVolume(VolumeId=self.io1_volume_ids[0],
-                                                                   InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdd")
+                self.rslt_attach_io1 = self.a1_r1.fcu.AttachVolume(VolumeId=self.io1_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdd")
                 wait_volumes_state(self.a1_r1, volume_id_list=self.io1_volume_ids, state="in-use")
         finally:
             OscTestSuite.teardown_method(self, method)
@@ -117,24 +104,18 @@ class Test_DetachVolume(OscTestSuite):
         self.rslt_detach_standard = self.a1_r1.fcu.DetachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0])
         wait_volumes_state(self.a1_r1, volume_id_list=[self.standard_volume_ids[0]], state="available")
         try:
-            self.rslt_detach_standard = self.a1_r1.fcu.DetachVolume(VolumeId=self.standard_volume_ids[0],
-                                                                    InstanceId=self.inst_info[INSTANCE_ID_LIST][0])
+            self.rslt_detach_standard = self.a1_r1.fcu.DetachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0])
             assert False, "Call should not be successful"
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', False):
                 assert_error(error, 409, 'InvalidState', None)
                 assert not error.message
                 known_error('GTW-1370', 'Incorrect error code and status, missing error message')
-            assert_error(error, 400, "InvalidVolumeState",
-                         "The volume is not in a valid state for this operation: {}. State: available".format(self.standard_volume_ids[0]))
+            assert_error(error, 400, "InvalidParameterValue", "Given Instance {} and Volume {} are not attached".format(self.inst_info[INSTANCE_ID_LIST][0], self.standard_volume_ids[0]))
 
     def test_T5028_from_an_other_instance(self):
         try:
-            self.a1_r1.fcu.DetachVolume(VolumeId=self.standard_volume_ids[1],
-                                        InstanceId=self.inst_info[INSTANCE_ID_LIST][1])
-            self.__class__.vol_detached = True
-            known_error('TINA-6010', 'Detach volume from an other instance succeed')
+            self.rslt_detach_standard = self.a1_r1.fcu.DetachVolume(VolumeId=self.standard_volume_ids[1], InstanceId=self.inst_info[INSTANCE_ID_LIST][1])
             assert False, "Call should not be successful"
         except OscApiException as error:
-            assert False, 'Remove known error'
-            assert_error(error, 400, " ", " ")
+            assert_error(error, 400, "InvalidParameterValue", "Given Instance {} and Volume {} are not attached".format(self.inst_info[INSTANCE_ID_LIST][1], self.standard_volume_ids[1]))

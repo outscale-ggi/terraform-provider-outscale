@@ -6,7 +6,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response
-from qa_test_tools.misc import assert_dry_run, assert_error
+from qa_test_tools.misc import assert_dry_run
 from qa_test_tools import misc
 
 
@@ -54,8 +54,7 @@ class Test_ReadVms(OscTestSuite):
                 'BsuOptimized': False,
                 'DeletionProtection': False,
                 'Hypervisor': 'xen',
-                'ImageId': self.a1_r1.config.region.get_info(
-                    constants.CENTOS7),
+                'ImageId': self.a1_r1.config.region.get_info(constants.CENTOS7),
                 'IsSourceDestChecked': True,
                 'LaunchNumber': 0,
                 'Placement': None,
@@ -73,8 +72,7 @@ class Test_ReadVms(OscTestSuite):
             placement=
             {
                 'Tenancy': 'default',
-                'SubregionName':
-                    self.a1_r1.config.region.get_info(constants.ZONE)[0],
+                'SubregionName': self.a1_r1.config.region.get_info(constants.ZONE)[0],
             },
             bdm=
             [{
@@ -96,7 +94,7 @@ class Test_ReadVms(OscTestSuite):
         # assert len(ret.response.Vms[0].SecurityGroups) == 1
         # assert ret.response.Vms[0].VmType == 't2.small' # TODO : is it different in 'in' and 'dv'(m1.small) ?
         assert not hasattr(ret.response.Vms[0], 'Nics')
-        #assert len(ret.response.Vms[0].Nics) == 1
+        # assert len(ret.response.Vms[0].Nics) == 1
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3424_other_account(self):

@@ -45,7 +45,7 @@ class Test_ReadVmsState(OscTestSuite):
 
     def test_T2072_include_all_vms_true(self):
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=True)
-        assert len(ret.response.VmStates) >= 3
+        assert len(ret.response.VmStates) == 3
 
     def test_T2073_include_all_vms_false(self):
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=False)
@@ -72,7 +72,7 @@ class Test_ReadVmsState(OscTestSuite):
         code_Name = 'running'
         ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_Name]})
         assert ret.status_code == 200, ret.response.display()
-        assert len(ret.response.VmStates) >= 2
+        assert len(ret.response.VmStates) == 2
         for i in range(len(ret.response.VmStates)):
             assert ret.response.VmStates[i].VmState == code_Name
         # check terminated
@@ -82,7 +82,7 @@ class Test_ReadVmsState(OscTestSuite):
         # check terminated with AllVms Activated
         code_Name = 'terminated'
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=True, Filters={'VmStates': [code_Name]})
-        assert len(ret.response.VmStates) >= 1
+        assert len(ret.response.VmStates) == 1
         assert ret.response.VmStates[0].VmState == code_Name
 
     def test_T2077_multiple_filters(self):
