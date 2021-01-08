@@ -1,11 +1,12 @@
 # pylint: disable=missing-docstring
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
-from qa_test_tools.misc import assert_error
+
 
 NUM_INST = 1
 
@@ -50,10 +51,8 @@ class Test_DescribeInstanceAttribute(OscTestSuite):
             self.a1_r1.fcu.DescribeInstanceAttribute(Attribute='instanceType')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.status_code == 500:
-                known_error('TINA-4845', 'Error 500 when calling Describe InstanceAttribute  with attribute only')
-            assert False, 'Remove known error'
-            assert_error(error, 400, "", "")
+            assert_error(error, 400, "InvalidInstanceID.Malformed", "Invalid ID received: . Expected format: i-")
+            known_error('TINA-6100', 'Incorrect error message')
 
     def test_T3454_without_attribute_parameter(self):
         try:

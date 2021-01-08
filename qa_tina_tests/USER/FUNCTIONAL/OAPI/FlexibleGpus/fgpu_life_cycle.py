@@ -1,17 +1,16 @@
 import pytest
 
+from qa_common_tools.ssh import SshTools
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.config import config_constants as constants
+from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_test_tools.misc import assert_error, assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, start_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.misc import assert_error, assert_oapi_error
-from qa_common_tools.ssh import SshTools
-from qa_test_tools.config import config_constants as constants
-
-
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
+
 
 MODEL_NAME = 'nvidia-k2'
 DEFAULT_TYPE = 'tinav4.c4r8'

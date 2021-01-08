@@ -1,17 +1,18 @@
 import pytest
-from qa_test_tools.test_base import known_error
 
-from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
-from qa_tina_tools.tina.check_tools import check_volume
-from qa_tina_tools.tools.tina.delete_tools import delete_instances_old
-from qa_tina_tools.tina.info_keys import PATH
 from qa_common_tools.ssh import SshTools, OscCommandError
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_test_tools.config.configuration import Configuration
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.config.region import Feature
 from qa_test_tools.config import config_constants as constants
+from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.config.region import Feature
+from qa_test_tools.test_base import known_error
+from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
 from qa_tina_tools.tina import check_tools
+from qa_tina_tools.tina.check_tools import check_volume
+from qa_tina_tools.tina.info_keys import PATH
+from qa_tina_tools.tools.tina.delete_tools import delete_instances_old
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+
 
 # EPH_TYPES = ['m3.medium', 'm3.large', 'm3.xlarge', 'm3.2xlarge', 'r3.large', 'r3.xlarge', 'r3.2xlarge', 'r3.4xlarge', 'r3.8xlarge', 'g2.2xlarge',
 #              'mv3.large', 'mv3.xlarge', 'mv3.2xlarge', 'og4.xlarge', 'og4.2xlarge', 'og4.4xlarge', 'og4.8xlarge', 'io5.2xlarge', 'io5.4xlarge',

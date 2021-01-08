@@ -1,14 +1,13 @@
 import base64
 
 from qa_common_tools.ssh import SshTools
-
-from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.config import config_constants as cfg_constants
-
-from qa_tina_tools.tools.tina.info_keys import NAME, SUBNETS, SUBNET_ID, SECURITY_GROUP_ID, KEY_PAIR, PATH, INSTANCE_ID_LIST, EIP
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_tina_tools.tools.tina.info_keys import NAME, SUBNETS, SUBNET_ID, SECURITY_GROUP_ID, KEY_PAIR, PATH, INSTANCE_ID_LIST, EIP
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+
 
 class Test_tina_5734(OscTestSuite):
 

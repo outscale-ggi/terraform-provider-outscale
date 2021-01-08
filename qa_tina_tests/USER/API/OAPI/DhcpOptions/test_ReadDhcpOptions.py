@@ -1,10 +1,10 @@
 import pytest
 
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.test_base import OscTestSuite, get_export_value
-from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
-from qa_tina_tests.USER.API.OAPI.DhcpOptions.DhcpOptions import validate_dhcp_options
 from qa_test_tools.misc import assert_dry_run
+from qa_test_tools.test_base import OscTestSuite, get_export_value
+from qa_tina_tests.USER.API.OAPI.DhcpOptions.DhcpOptions import validate_dhcp_options
+from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
 
 
 class Test_ReadDhcpOptions(OscTestSuite):

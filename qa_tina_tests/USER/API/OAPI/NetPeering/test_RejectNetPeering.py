@@ -3,11 +3,11 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina.info_keys import PEERING
 from qa_tina_tools.tools.tina.create_tools import create_peering
 from qa_tina_tools.tools.tina.delete_tools import delete_peering
-from qa_tina_tools.tina.info_keys import PEERING
 
 
 class Test_RejectNetPeering(OscTestSuite):

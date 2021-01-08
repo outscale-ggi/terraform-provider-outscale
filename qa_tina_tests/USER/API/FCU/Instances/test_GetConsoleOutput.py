@@ -1,17 +1,20 @@
+import base64
+import binascii
+import datetime
+import re
+import time
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_test_tools.misc import assert_error
-import datetime
-import re
-import time
-import base64
-import binascii
+
+
 TIMESTAMP_REGEX = r'(^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$)'
 
 

@@ -1,18 +1,17 @@
 
-from multiprocessing import Queue, Process
-
 import argparse
 import logging
-
-
+from multiprocessing import Queue, Process
 import ssl
-from qa_test_tools.config import config_constants as constants
-from qa_sdks.osc_sdk import OscSdk
-from qa_test_tools.config import OscConfig
+import time
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub.osc_api import disable_throttling
-import time
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.config import OscConfig
+from qa_test_tools.config import config_constants as constants
 from qa_test_tools.error import error_type, load_errors
+
 
 ssl._create_default_https_context = ssl._create_unverified_context
 

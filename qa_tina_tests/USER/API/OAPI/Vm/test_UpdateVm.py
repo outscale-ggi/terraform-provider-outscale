@@ -1,15 +1,17 @@
 # -*- coding:utf-8 -*-
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_instances_state
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import base64
+
 import pytest
+
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_oapi_error, id_generator, assert_dry_run
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_security_group
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
-from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instances,\
+from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instances, \
     terminate_instances
-from qa_test_tools.misc import assert_oapi_error, id_generator, assert_dry_run
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
+from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_instances_state
 
 
 class Test_UpdateVm(OscTestSuite):

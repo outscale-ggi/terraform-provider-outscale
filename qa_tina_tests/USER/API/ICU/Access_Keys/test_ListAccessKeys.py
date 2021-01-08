@@ -1,10 +1,10 @@
-from qa_test_tools.test_base import OscTestSuite
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_error
-from qa_sdk_pub.osc_api import AuthMethod
-from time import sleep
 import datetime
+from time import sleep
+
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from qa_test_tools.misc import assert_error
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_ListAccessKeys(OscTestSuite):

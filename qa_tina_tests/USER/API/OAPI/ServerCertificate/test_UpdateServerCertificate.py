@@ -1,12 +1,13 @@
 import os
 
-from qa_test_tools import misc
 import pytest
-from qa_test_tools.test_base import OscTestSuite
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.tools.tina import create_tools
-from qa_tina_tools.tina import wait
+from qa_test_tools import misc
 from qa_test_tools.misc import assert_oapi_error
+from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina import wait
+from qa_tina_tools.tools.tina import create_tools
 
 
 #Parameter    In      Type      Required
@@ -14,8 +15,6 @@ from qa_test_tools.misc import assert_oapi_error
 #Name         body    string    false
 #NewName      body    string    false
 #NewPath      body    string    false
-
-
 class Test_UpdateServerCertificate(OscTestSuite):
 
     @classmethod

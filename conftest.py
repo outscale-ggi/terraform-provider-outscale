@@ -1,7 +1,7 @@
 import pytest
 
-from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config import OscAZ
+from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import get_export_value
 
 

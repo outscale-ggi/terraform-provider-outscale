@@ -1,10 +1,11 @@
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error, assert_code
+from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_image
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old
-from qa_tina_tools.tools.tina import info_keys
+
 
 class Test_add_permissions(OscTestSuite):
 
