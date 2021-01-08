@@ -29,7 +29,7 @@ class Test_DescribeImageExportTasks(OscTestSuite):
             cls.inst_info = create_instances(cls.a1_r1)
             cls.inst_id = cls.inst_info[INSTANCE_ID_LIST][0]
 
-            for _ in range(NUM_EXPORT_TASK):
+            for _ in range(NUM_EXPORT_TASK+1):
                 ret, image_id = create_image(cls.a1_r1, cls.inst_id, state='available')
                 cls.image_ids.append(image_id)
                 bucket_name = id_generator(prefix='bucket', chars=ascii_lowercase)
@@ -80,7 +80,7 @@ class Test_DescribeImageExportTasks(OscTestSuite):
         assert ret.imageExport.imageId == self.image_ids[0]
 
     def test_T5358_with_image_export_task_ids(self):
-        ret = self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId=self.image_exp_ids).response
+        ret = self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId=self.image_exp_ids[:-1]).response
         if len(ret.imageExportTaskSet) != NUM_EXPORT_TASK:
             known_error('TINA-6064', 'DescribeImageExportTasks')
         assert False, 'Remove known error code'
