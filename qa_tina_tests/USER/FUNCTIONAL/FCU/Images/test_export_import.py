@@ -85,12 +85,7 @@ class Test_export_import(OscTestSuite):
                 raise OscTestException("Export task did not reach 'completed' state")
 
             # import image
-            try:
-                ret = self.a1_r1.fcu.RegisterImage(ImageLocation=ret.response.imageExportTaskSet[0].exportToOsu.osuManifestUrl)
-                assert False, 'remove known error'
-            except OscApiException as error:
-                assert_error(error, 500, 'InternalError', 'Internal Error')
-                known_error('TINA-6007', 'ssl error')
+            ret = self.a1_r1.fcu.RegisterImage(ImageLocation=ret.response.imageExportTaskSet[0].exportToOsu.osuManifestUrl)
             imp_image_id = ret.response.imageId
             wait_images_state(self.a1_r1, [imp_image_id], state='available')
             # create instance

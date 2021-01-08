@@ -42,7 +42,7 @@ class Test_CreateImage(OscTestSuite):
         try:
             img_id = self.a1_r1.fcu.CreateImage(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Name=name).response.imageId
         except OscApiException as err:
-            assert_error(err, 400, 'InvalidAMIName.Malformed', 'AMI name received: ' + name + '. Constraints: [a-zA-Z0-9_ ()/.-], length: (3, 128)')
+            assert_error(err, 400, "InvalidAMIName.Malformed", "AMI names must be between 3 and 128 characters long, and may contain letters, numbers, '(', ')', '.', '-', '/' and '_'")
         finally:
             if img_id:
                 self.a1_r1.fcu.DeregisterImage(ImageId=img_id)
@@ -75,7 +75,7 @@ class Test_CreateImage(OscTestSuite):
         try:
             img_id = self.a1_r1.fcu.CreateImage(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Name=name).response.imageId
         except OscApiException as err:
-            assert_error(err, 400, 'InvalidAMIName.Malformed', 'AMI name received: ' + name + '. Constraints: [a-zA-Z0-9_ ()/.-], length: (3, 128)')
+            assert_error(err, 400, 'InvalidAMIName.Malformed', "AMI names must be between 3 and 128 characters long, and may contain letters, numbers, '(', ')', '.', '-', '/' and '_'")
         finally:
             if img_id:
                 self.a1_r1.fcu.DeregisterImage(ImageId=img_id)
@@ -86,10 +86,7 @@ class Test_CreateImage(OscTestSuite):
         try:
             img_id = self.a1_r1.fcu.CreateImage(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Name=name).response.imageId
         except OscApiException as err:
-            if err.status_code != 400:
-                known_error('TINA-5696', '404 or 502 error')
-            assert False, 'Remove known error'
-            assert_error(err, 400, 'InvalidAMIName.Malformed', 'AMI name received: é!àçè. Constraints: [a-zA-Z0-9_ ()/.-], length: (3, 128)')
+            assert_error(err, 400, 'InvalidAMIName.Malformed', "AMI names must be between 3 and 128 characters long, and may contain letters, numbers, \'(\', \')\', \'.\', \'-\', \'/\' and \'_\'")
         finally:
             if img_id:
                 self.a1_r1.fcu.DeregisterImage(ImageId=img_id)
