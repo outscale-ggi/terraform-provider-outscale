@@ -2,9 +2,9 @@ import pytest
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools import misc
+from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import delete_tools
-from qa_test_tools.config import config_constants as constants
 
 
 class Test_create_vm(OscTestSuite):

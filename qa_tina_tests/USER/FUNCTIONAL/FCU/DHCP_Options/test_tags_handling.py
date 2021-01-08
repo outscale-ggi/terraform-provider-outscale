@@ -1,5 +1,6 @@
-from qa_test_tools.test_base import OscTestSuite
 import time
+
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_tags_handling(OscTestSuite):

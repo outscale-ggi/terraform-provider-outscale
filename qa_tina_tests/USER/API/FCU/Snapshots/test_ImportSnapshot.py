@@ -1,6 +1,8 @@
-import time
-import pytest
 from string import ascii_lowercase
+import time
+
+import pytest
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error

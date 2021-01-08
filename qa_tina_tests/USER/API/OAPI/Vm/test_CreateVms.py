@@ -1,18 +1,19 @@
 # -*- coding:utf-8 -*-
-from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state,\
-    wait_security_groups_state
+import base64
+import random
+import string
+import zlib
+
+from qa_common_tools.ssh import SshTools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, id_generator
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response, create_vms
-import random
-import string
-import base64
-import zlib
-from qa_tina_tools.tina.oapi import delete_Vms, create_Vms
-from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tina.info_keys import KEY_PAIR, PATH
+from qa_tina_tools.tina.oapi import delete_Vms, create_Vms
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state, \
+    wait_security_groups_state
 
 
 class Test_CreateVms(OscTestSuite):

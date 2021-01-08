@@ -1,6 +1,7 @@
+import time
+
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
-import time
 
 
 def snap_exist(osc_sdk, snap_name):

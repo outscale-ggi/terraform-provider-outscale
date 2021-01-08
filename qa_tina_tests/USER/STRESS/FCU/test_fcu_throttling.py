@@ -1,15 +1,15 @@
-from qa_test_tools.test_base import OscTestSuite
-from qa_sdk_pub.osc_api import disable_throttling
-import time
 import sys
+import time
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.error import group_errors
 from qa_sdk_pub import osc_api
+from qa_sdk_pub.osc_api import disable_throttling
+from qa_test_tools.error import group_errors
+from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_test_tools.test_base import OscTestSuite
+
 
 # ec2/throttling/Describe* --> 0,5
-
-
 # FRONT_NUM = 3
 FRONT_NUM = 1
 

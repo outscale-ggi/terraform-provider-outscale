@@ -1,14 +1,15 @@
 # pylint: disable=missing-docstring
 
 import re
+import time
+
 import pytest
 
-import qa_sdk_pub.osc_api as osc_api
-from qa_sdk_pub.osc_api import AuthMethod, EXEC_DATA_METHOD,\
-    EXEC_DATA_AUTHENTICATION
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_pub.osc_api import AuthMethod, EXEC_DATA_METHOD, \
+    EXEC_DATA_AUTHENTICATION
+import qa_sdk_pub.osc_api as osc_api
 from qa_test_tools.test_base import OscTestSuite
-import time
 
 
 class Test_ICU(OscTestSuite):

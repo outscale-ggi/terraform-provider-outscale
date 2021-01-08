@@ -1,12 +1,12 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools.misc import id_generator
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_lbu
-from qa_tina_tools.tina.setup_tools import setup_private_load_balancer, setup_public_load_balancer
 from qa_test_tools.config import config_constants as constants
+from qa_test_tools.misc import assert_oapi_error
+from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina.setup_tools import setup_private_load_balancer, setup_public_load_balancer
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
+from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_lbu
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
 class Test_RegisterVmsInLoadBalancer(OscTestSuite):

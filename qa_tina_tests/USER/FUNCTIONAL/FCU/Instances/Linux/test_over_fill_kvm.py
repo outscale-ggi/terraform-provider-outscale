@@ -1,10 +1,12 @@
+from multiprocessing import Process
+import multiprocessing
+
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
-from multiprocessing import Process
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-import multiprocessing
+
 
 INST_TYPE = 'c4.xlarge'
 THREAD_NUM = 20

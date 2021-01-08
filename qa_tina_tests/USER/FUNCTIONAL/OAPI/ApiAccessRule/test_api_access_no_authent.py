@@ -1,6 +1,8 @@
-from qa_sdk_pub import osc_api
 import pytest
+
+from qa_sdk_pub import osc_api
 from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, PASS, FAIL, Api_Access
+
 
 NO_AUTHENT_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL]
 NO_AUTHENT_PASS_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL]

@@ -1,7 +1,7 @@
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.misc import assert_dry_run
+from qa_test_tools.test_base import OscTestSuite
 
 
 @pytest.mark.region_synchro_osu

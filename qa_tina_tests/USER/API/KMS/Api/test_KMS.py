@@ -1,14 +1,14 @@
 # pylint: disable=missing-docstring
 
 import re
+import time
+
 import pytest
 
-import qa_sdk_pub.osc_api as osc_api
-from qa_sdk_pub.osc_api import AuthMethod
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite
+import qa_sdk_pub.osc_api as osc_api
 from qa_test_tools.misc import assert_error
-import time
+from qa_test_tools.test_base import OscTestSuite
 
 
 @pytest.mark.region_kms

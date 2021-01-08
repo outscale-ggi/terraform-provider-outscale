@@ -1,8 +1,9 @@
 # pylint: disable=missing-docstring
 import string
+
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 class Test_CreateAccount(OscTestSuite):

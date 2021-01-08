@@ -1,11 +1,12 @@
 import pytest
-from qa_test_tools.config.configuration import Configuration
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_customer_gateways
 from qa_tina_tools.tools.tina.create_tools import create_customer_gateway
 from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state
-from qa_test_tools.misc import assert_error
 
 
 class Test_DescribeCustomerGateways(OscTestSuite):

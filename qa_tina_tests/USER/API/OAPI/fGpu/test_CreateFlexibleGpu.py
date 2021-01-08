@@ -1,7 +1,9 @@
-from qa_test_tools.test_base import OscTestSuite, known_error
+import pytest
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-import pytest
+from qa_test_tools.test_base import OscTestSuite, known_error
+
 
 #     CreateFlexibleGpuRequest:
 #       properties:
@@ -17,7 +19,6 @@ import pytest
 #         FlexibleGpu: {$ref: '#/components/schemas/FlexibleGpu'}
 #         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
 #       type: object
-
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
 

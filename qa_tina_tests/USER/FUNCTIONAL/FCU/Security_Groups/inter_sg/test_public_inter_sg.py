@@ -1,21 +1,21 @@
+import base64
 import time
-from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.config import config_constants as constants
 
-from qa_tina_tools.constants import SG_WAIT_TIME
+import pytest
+
+from qa_common_tools.ssh import SshTools, OscCommandError
+from qa_test_tools.config import config_constants as constants
+from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_tina_tools.constants import SG_WAIT_TIME
+from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_keypair
-from qa_tina_tools.tina.info_keys import NAME, PATH
-from qa_common_tools.ssh import SshTools, OscCommandError
-import base64
-import pytest
+
 
 # NUM_PER_TRY = 10
 # NUM_TRY = 10
-
-
 class Test_public_inter_sg(OscTestSuite):
 
     @classmethod

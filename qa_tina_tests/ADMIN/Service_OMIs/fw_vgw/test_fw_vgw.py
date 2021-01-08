@@ -3,13 +3,15 @@ import os
 import random
 import re
 import time
+
+from netaddr import IPNetwork, IPAddress
 import pytest
-from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina import wait_tools
+
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from netaddr import IPNetwork, IPAddress
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import wait
+from qa_tina_tools.tools.tina import wait_tools
 
 
 @pytest.mark.region_admin

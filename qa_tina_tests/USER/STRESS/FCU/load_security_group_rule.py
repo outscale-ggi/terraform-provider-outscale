@@ -1,18 +1,17 @@
-from multiprocessing import Queue, Process
-
 import argparse
 import logging
-
-
+from multiprocessing import Queue, Process
+from random import randint
 import ssl
-from qa_test_tools.config import config_constants as constants
+import time
+
+from qa_sdk_pub.osc_api import disable_throttling
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
-from qa_sdk_pub.osc_api import disable_throttling
-import time
-from random import randint
+from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_security_groups
+
 
 ssl._create_default_https_context = ssl._create_unverified_context
 

@@ -1,13 +1,15 @@
-from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina.create_tools import create_volumes
-from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
-from qa_tina_tools.tools.tina.delete_tools import delete_volumes
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_error, id_generator
 import string
 from time import sleep
+
 import pytest
+
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_error, id_generator
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
+from qa_tina_tools.tools.tina.create_tools import create_volumes
+from qa_tina_tools.tools.tina.delete_tools import delete_volumes
+from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 
 
 class Test_CopySnapshot(OscTestSuite):

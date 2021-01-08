@@ -1,10 +1,12 @@
 from time import sleep
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_sdk_pub import osc_api
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
-from qa_test_tools import misc
+
 import pytest
+
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
+from qa_sdk_pub import osc_api
+from qa_test_tools import misc
 from qa_test_tools.misc import assert_dry_run
+from qa_test_tools.test_base import OscTestSuite, known_error
 
 
 class Test_ReadAccessKeys(OscTestSuite):
