@@ -2,6 +2,7 @@
 # pylint: disable=missing-docstring
 
 import pytest
+
 from qa_test_tools.test_base import OscTestSuite
 
 

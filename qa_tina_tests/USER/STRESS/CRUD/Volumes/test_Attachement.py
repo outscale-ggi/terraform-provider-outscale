@@ -1,13 +1,13 @@
 # pylint: disable=missing-docstring
 
-import string
 import random
+import string
 
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
-from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
+from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
 
 
 class Test_Attachement(OscTestSuite):

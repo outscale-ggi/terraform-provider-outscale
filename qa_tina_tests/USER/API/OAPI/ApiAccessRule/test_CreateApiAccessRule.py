@@ -1,7 +1,8 @@
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_tina_tools.tools.tina import create_tools
-from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
+from qa_tina_tools.tools.tina import create_tools
+
 
 #    CreateApiAccessRuleRequest:
 #      additionalProperties: false
@@ -28,7 +29,6 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 #            type: string
 #          type: array
 #      type: object
-
 class Test_CreateApiAccessRule(ApiAccessRule):
     
     def test_T5247_only_description(self):

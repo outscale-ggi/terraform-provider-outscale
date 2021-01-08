@@ -1,9 +1,11 @@
-from qa_test_tools.test_base import OscTestSuite, known_error
-import pytest
 from datetime import datetime, timedelta
-from qa_test_tools.exceptions.test_exceptions import OscTestException
+
+import pytest
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import assert_error
+from qa_test_tools.test_base import OscTestSuite, known_error
 
 
 @pytest.mark.region_qa

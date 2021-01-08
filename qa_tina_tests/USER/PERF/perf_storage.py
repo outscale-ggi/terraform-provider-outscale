@@ -1,5 +1,5 @@
-import logging
 from datetime import datetime
+import logging
 from string import ascii_lowercase
 
 import numpy

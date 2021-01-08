@@ -1,14 +1,14 @@
+import string
 import time
 
-from qa_test_tools.config.configuration import Configuration
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.misc import assert_error, id_generator
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc_old, create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_subnet, delete_vpc
-from qa_tina_tools.tools.tina.wait_tools import wait_subnets_state, wait_security_groups_state
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, SUBNET_ID, VPC_ID
-from qa_test_tools.misc import assert_error, id_generator
-import string
+from qa_tina_tools.tools.tina.wait_tools import wait_subnets_state, wait_security_groups_state
 
 
 class Test_DeleteSubnet(OscTestSuite):

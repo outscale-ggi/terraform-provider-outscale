@@ -1,10 +1,10 @@
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_error, id_generator
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_tina_tools.tina.check_tools import check_obj_equal
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_security_group
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_security_group
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, SECURITY_GROUP_ID, SUBNETS
-from qa_tina_tools.tina.check_tools import check_obj_equal
-from qa_test_tools.misc import assert_error, id_generator
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 class Test_ModifyNetworkInterfaceAttribute(OscTestSuite):

@@ -1,7 +1,8 @@
-from qa_test_tools.test_base import OscTestSuite
 import pytest
-from qa_tina_tools.constants import TWO_REGIONS_NEEDED
+
 from qa_test_tools.account_tools import create_account, delete_account
+from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.constants import TWO_REGIONS_NEEDED
 
 
 class Test_copy_account(OscTestSuite):

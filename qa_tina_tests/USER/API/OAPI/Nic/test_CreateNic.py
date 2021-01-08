@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
-from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 from qa_test_tools.test_base import known_error
+from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 
 
 class Test_CreateNic(Nic):
