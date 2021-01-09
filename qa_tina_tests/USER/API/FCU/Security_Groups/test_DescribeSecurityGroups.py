@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.delete_tools import delete_security_group, delete_vpc
 from qa_tina_tools.tools.tina.create_tools import create_security_group, create_vpc
@@ -7,7 +7,6 @@ from qa_test_tools.misc import assert_error, id_generator
 import string
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
-from qa_test_tools.exceptions.test_exceptions import OscTestException
 
 # attention priv > pub >= 2 otherwise it won't work
 NB_PUB_SG = 2
@@ -31,6 +30,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
                 cls.pub_sg_ids.append(create_security_group(cls.a1_r1, name=cls.sg_names[i], desc="desc{}".format(i+1)))
             for i in range(NB_PRIV_SG):
                 cls.priv_sg_ids.append(create_security_group(cls.a1_r1, name=cls.sg_names[i], desc="desc{}".format(i+1), vpc_id=cls.vpc_info[info_keys.VPC_ID]))
+            cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.pub_sg_ids[0], SourceSecurityGroupName=cls.sg_names[1])
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -41,6 +41,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
+            cls.a1_r1.fcu.RevokeSecurityGroupIngress(GroupId=cls.pub_sg_ids[0], SourceSecurityGroupName=cls.sg_names[1])
             for sg_id in cls.pub_sg_ids:
                 delete_security_group(cls.a1_r1, sg_id)
             for sg_id in cls.priv_sg_ids:
@@ -63,7 +64,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
         try:
             ret.check_response()
             assert False, 'Remove known error'
-        except OscTestException:
+        except OscSdkException:
             known_error('API-156', 'incorrect response structure')
  
     def test_T5399_with_invalid_group_id(self):
@@ -193,15 +194,15 @@ class Test_DescribeSecurityGroups(OscTestSuite):
             assert sg_info.groupDescription == 'desc1'
 
     def test_T5414_filter_group_id_public(self):
-        ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'group-id', 'Value': [self.pub_sg_ids]}])
+        ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'group-id', 'Value': self.pub_sg_ids}])
         assert len(ret.response.securityGroupInfo) == NB_PUB_SG
 
     def test_T5415_filter_group_id_private(self):
-        ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'group-id', 'Value': [self.priv_sg_ids]}])
+        ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'group-id', 'Value': self.priv_sg_ids}])
         assert len(ret.response.securityGroupInfo) == NB_PRIV_SG
 
     def test_T5416_filter_group_name(self):
-        ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'group-name', 'Value': [self.sg_names]}])
+        ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'group-name', 'Value': self.sg_names}])
         assert len(ret.response.securityGroupInfo) == NB_PUB_SG + NB_PRIV_SG
 
     def test_T5417_filter_ip_permission_cidr(self):
@@ -213,8 +214,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
                                                      IpPermissions=[{'IpProtocol': protocol,
                                                                      'ToPort': to_port, 'FromPort': from_port,
                                                                      'IpRanges': [{'CidrIp': cidr_range}]}])
-        ret = self.a1_r1.fcu.DescribeSecurityGroups(
-            Filter=[{'Name': 'ip-permission.cidr', 'Value': [cidr_range]}])
+        ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'ip-permission.cidr', 'Value': [cidr_range]}])
         assert len(ret.response.securityGroupInfo) == 1
         found = 0
         for perm in ret.response.securityGroupInfo[0].ipPermissions:
@@ -226,45 +226,30 @@ class Test_DescribeSecurityGroups(OscTestSuite):
         assert found == 1, 'Could not find rule'
 
     def test_T5418_filter_ip_permission_group_id(self):
-        resp = None
-        try:
-            resp = self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=self.pub_sg_ids[0], SourceSecurityGroupName=self.sg_names[1])
-            ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'ip-permission.group-id', 'Value': [self.pub_sg_ids[1]]}])
-            assert len(ret.response.securityGroupInfo) == 1
-            for sg_info in ret.response.securityGroupInfo:
-                assert sg_info.groupId == self.pub_sg_ids[0]
-                assert sg_info.groupName == self.sg_names[0]
-                for perm in sg_info.ipPermissions:
-                    if getattr(perm, 'groups') is not None:
-                        for group in perm.groups:
-                            assert group.groupId == self.pub_sg_ids[1]
-                            assert group.groupName == self.sg_names[1]
-                            assert group.userId == self.a1_r1.config.account.account_id
-        finally:
-            if resp:
-                self.a1_r1.fcu.RevokeSecurityGroupIngress(GroupId=self.pub_sg_ids[0], SourceSecurityGroupName=self.sg_names[1])
+        ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'ip-permission.group-id', 'Value': [self.pub_sg_ids[1]]}])
+        assert len(ret.response.securityGroupInfo) == 1
+        for sg_info in ret.response.securityGroupInfo:
+            assert sg_info.groupId == self.pub_sg_ids[0]
+            assert sg_info.groupName == self.sg_names[0]
+            for perm in sg_info.ipPermissions:
+                if getattr(perm, 'groups') is not None:
+                    for group in perm.groups:
+                        assert group.groupId == self.pub_sg_ids[1]
+                        assert group.groupName == self.sg_names[1]
+                        assert group.userId == self.a1_r1.config.account.account_id
 
     def test_T5419_filter_ip_permission_group_name(self):
-        resp = None
-        try:
-            resp = self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=self.pub_sg_ids[0],
-                                                                SourceSecurityGroupName=self.sg_names[1])
-            ret = self.a1_r1.fcu.DescribeSecurityGroups(
-                Filter=[{'Name': 'ip-permission.group-name', 'Value': [self.sg_names[1]]}])
-            assert len(ret.response.securityGroupInfo) == 1
-            for sg_info in ret.response.securityGroupInfo:
-                assert sg_info.groupId == self.pub_sg_ids[0]
-                assert sg_info.groupName == self.sg_names[0]
-                for perm in sg_info.ipPermissions:
-                    if getattr(perm, 'groups') is not None:
-                        for group in perm.groups:
-                            assert group.groupId == self.pub_sg_ids[1]
-                            assert group.groupName == self.sg_names[1]
-                            assert group.userId == self.a1_r1.config.account.account_id
-        finally:
-            if resp:
-                self.a1_r1.fcu.RevokeSecurityGroupIngress(GroupId=self.pub_sg_ids[0],
-                                                          SourceSecurityGroupName=self.sg_names[1])
+        ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'ip-permission.group-name', 'Value': [self.sg_names[1]]}])
+        assert len(ret.response.securityGroupInfo) == 1
+        for sg_info in ret.response.securityGroupInfo:
+            assert sg_info.groupId == self.pub_sg_ids[0]
+            assert sg_info.groupName == self.sg_names[0]
+            for perm in sg_info.ipPermissions:
+                if getattr(perm, 'groups') is not None:
+                    for group in perm.groups:
+                        assert group.groupId == self.pub_sg_ids[1]
+                        assert group.groupName == self.sg_names[1]
+                        assert group.userId == self.a1_r1.config.account.account_id
 
     def test_T5426_filter_ip_permission_protocol(self):
         protocol = 'tcp'
@@ -305,8 +290,8 @@ class Test_DescribeSecurityGroups(OscTestSuite):
                 for perm in sg_info.ipPermissions:
                     if hasattr(perm, 'groups') and getattr(perm, 'groups') is not None:
                             for group in perm.groups:
-                                if hasattr(group, 'userId'):
-                                    assert group.userId == user_id
+                                if hasattr(group, 'groupName') and group.groupName == sg2_name:
+                                    assert hasattr(group, 'userId') and group.userId == user_id
         finally:
             for sg_id in self.pub_sg_ids:
                 self.a1_r1.fcu.RevokeSecurityGroupIngress(GroupId=sg_id,
