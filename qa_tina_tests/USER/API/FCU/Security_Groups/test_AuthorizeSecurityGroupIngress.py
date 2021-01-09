@@ -231,6 +231,9 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                                                         CidrIp=Configuration.get('cidr', 'allips'))
 
     def test_T2987_valid_group_name(self):
+        sg_id = None
+        vpc_id = None
+        subnet_id = None
         try:
             sg_name = id_generator(prefix='sg_name')
             vpc_id = self.a1_r1.fcu.CreateVpc(CidrBlock=Configuration.get('vpc', '10_0_0_0_16')).response.vpc.vpcId
