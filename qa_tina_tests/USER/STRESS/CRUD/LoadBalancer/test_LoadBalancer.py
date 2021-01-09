@@ -1,6 +1,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscException, OscApiException
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 
@@ -38,16 +38,16 @@ class Test_LoadBalancer(OscTestSuite):
                 resp = None
                 resp = create_load_balancer(self.a1_r1, name + str(i))
                 create_sucess += 1
-            except OscApiException as error:
+            except OscApiException:
                 create_errors += 1
-            except OscException as error:
+            except OscException:
                 create_errors += 1
             finally:
                 try:
                     if resp:
                         delete_lbu(self.a1_r1, name + str(i))
                         delete_success += 1
-                except OscException as error:
+                except OscException:
                     delete_errors += 1
 
         # TODO: rm time.sleep
@@ -72,7 +72,7 @@ class Test_LoadBalancer(OscTestSuite):
                     Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80}],
                     LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name])
                 create_sucess += 1
-            except OscApiException as error:
+            except OscApiException:
                 self.a1_r1.oapi.ReadLoadBalancers(Filters={'LoadBalancerNames': [name]})
                 create_errors += 1
             finally:
@@ -80,7 +80,7 @@ class Test_LoadBalancer(OscTestSuite):
                     if resp:
                         delete_lbu(self.a1_r1, name )
                         delete_success += 1
-                except OscException as error:
+                except OscException:
                     delete_errors += 1
         assert create_errors == 0
         assert delete_errors == 0

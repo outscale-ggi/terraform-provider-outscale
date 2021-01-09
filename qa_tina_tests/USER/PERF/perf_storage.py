@@ -1,5 +1,4 @@
 from datetime import datetime
-import logging
 from string import ascii_lowercase
 
 import numpy
@@ -20,7 +19,7 @@ def perf_storage(oscsdk, service, logger, queue, args):
             logger.debug("%s : %d/%d", "create_bucket", num + 1, retry)
             tmp = misc.id_generator(prefix="bucket", size=10, chars=ascii_lowercase)
             start_desc = datetime.now()
-            ret = connector.create_bucket(Bucket=tmp)
+            connector.create_bucket(Bucket=tmp)
             durations.append((datetime.now() - start_desc).total_seconds())
             bucket_names.append(tmp)
         result["create_bucket"+service] = numpy.array(durations).mean()

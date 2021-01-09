@@ -18,7 +18,7 @@ class Test_api_access_ak_sk(Api_Access):
 
 
     @setup_api_access_rules(ConfName.No)
-    def test_T4927_NO_CONF_EEY(self):
+    def test_T4927_ak_sk_NO_CONF_EEY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
                                [PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS])
 
@@ -121,7 +121,7 @@ class Test_api_access_ak_sk(Api_Access):
                                AK_SK_PASS_LIST)
  
     @setup_api_access_rules(ConfName.IpKO_Ca)
-    def test_T4945_ak_sk_CONF_IKO_CA_YEN(self):
+    def test_T4945_ak_sk_CONF_IPKO_CA_YEN(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
                                 osc_api.EXEC_DATA_CERTIFICATE: [self.certfiles_ca1cn1[2], self.certfiles_ca1cn1[1]]},
                                AK_SK_PASS_LIST_WITH_KNOWN)
