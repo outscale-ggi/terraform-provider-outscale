@@ -135,7 +135,7 @@ def put_configuration(self, access_rules):
         ret = osc_sdk.oapi.ReadApiAccessRules()
         #ret = osc_sdk.identauth.IdauthAccount.listApiAccessRules()
         print(ret.response.display())
-    except Exception as error:
+    except Exception:
         print('Could not list rules for conf {}'.format([rule for rule in access_rules if rule[DESC] == description]))
 
 # method creating the rules related to the configuration
@@ -323,7 +323,7 @@ class Api_Access(OscTestSuite):
                 for elt in api_call.split('.'):
                     func = getattr(func, elt)
                     # print('{}'.format(func))
-                ret = func(exec_data)
+                func(exec_data)
                 # print(ret.response.display())
                 results.append(PASS)
                 errors.append(None)
@@ -344,7 +344,7 @@ class Api_Access(OscTestSuite):
                 elif error.status_code == 400 and error.error_code == 'UnauthorizedOperation':
                     results.append(FAIL)
                 elif api_call == 'eim.ListAccessKeys' and error.status_code == 500 and error.error_code == 'InternalError':
-                    results.append('{}TINA-TODO'.format(ISSUE_PREFIX))
+                    results.append('{}TINA-6116'.format(ISSUE_PREFIX))
                 elif error.status_code == 401 and error.error_code == 'AuthFailure':
                     results.append(FAIL)
                 else:
