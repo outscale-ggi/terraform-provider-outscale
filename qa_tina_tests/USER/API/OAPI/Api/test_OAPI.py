@@ -1,17 +1,19 @@
 # pylint: disable=missing-docstring
 
+import datetime
+import json
 import re
+import subprocess
+
 import pytest
 
-import qa_sdk_pub.osc_api as osc_api
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscException
-from qa_test_tools.test_base import OscTestSuite, known_error
-import subprocess
-import json
-from qa_test_tools.misc import assert_error, assert_oapi_error
-import datetime
+import qa_sdk_pub.osc_api as osc_api
 from qa_test_tools import misc
+from qa_test_tools.misc import assert_error, assert_oapi_error
+from qa_test_tools.test_base import OscTestSuite, known_error
 from specs.check_tools import get_documentation, DOCUMENTATIONS, PATHS
+
 
 MIN_OVERTIME=4
 
@@ -64,15 +66,15 @@ class Test_OAPI(OscTestSuite):
  
     @pytest.mark.tag_sec_confidentiality
     def test_T2227_invalid_authentication(self):
-        sk_bkp = self.a1_r1.config.sk
-        self.a1_r1.config.sk = "foo"
+        sk_bkp = self.a1_r1.config.account.sk
+        self.a1_r1.config.account.sk = "foo"
         try:
             self.a1_r1.oapi.ReadVolumes()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 401, "1", "AccessDenied")
         finally:
-            self.a1_r1.config.sk = sk_bkp
+            self.a1_r1.config.account.sk = sk_bkp
  
     def test_T2228_check_no_aws_references(self):
         # TODO: To be defined

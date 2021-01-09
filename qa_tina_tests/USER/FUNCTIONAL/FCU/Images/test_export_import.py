@@ -1,15 +1,16 @@
-import pytest
-from qa_sdk_common.exceptions import OscApiException
+from string import ascii_lowercase
+from time import sleep
 
+import pytest
+
+from qa_sdk_common.exceptions import OscApiException
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
-from string import ascii_lowercase
-from time import sleep
-from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_images_state
 
 
@@ -84,12 +85,7 @@ class Test_export_import(OscTestSuite):
                 raise OscTestException("Export task did not reach 'completed' state")
 
             # import image
-            try:
-                ret = self.a1_r1.fcu.RegisterImage(ImageLocation=ret.response.imageExportTaskSet[0].exportToOsu.osuManifestUrl)
-                assert False, 'remove known error'
-            except OscApiException as error:
-                assert_error(error, 500, 'InternalError', 'Internal Error')
-                known_error('TINA-6007', 'ssl error')
+            ret = self.a1_r1.fcu.RegisterImage(ImageLocation=ret.response.imageExportTaskSet[0].exportToOsu.osuManifestUrl)
             imp_image_id = ret.response.imageId
             wait_images_state(self.a1_r1, [imp_image_id], state='available')
             # create instance

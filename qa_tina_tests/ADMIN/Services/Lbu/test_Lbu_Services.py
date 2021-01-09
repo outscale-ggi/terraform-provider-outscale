@@ -1,8 +1,8 @@
 
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite
 from qa_common_tools.ssh import SshTools
+from qa_test_tools.test_base import OscTestSuite
 
 
 VMS = ['in2-pr-intel-lbu-1']

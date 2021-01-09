@@ -1,9 +1,11 @@
 import os
+
 import pytest
-from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools import misc
-from qa_tina_tools.tools.tina import create_tools
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools import misc
+from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina import create_tools
 
 
 #Parameter     In      Type       Required
@@ -11,8 +13,6 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 #FirstResult   body    integer    false
 #MaxResults    body    integer    false
 #Path          body    string     false
-
-
 class Test_ReadServerCertificates(OscTestSuite):
 
     @classmethod

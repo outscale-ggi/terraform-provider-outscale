@@ -1,9 +1,9 @@
 # -*- coding:utf-8 -*-
 import pytest
 
+from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tests.USER.API.OAPI.ClientGateway.ClientGateway import validate_client_gateway
-from qa_test_tools.misc import assert_dry_run
 
 
 class Test_ReadClientGateways(OscTestSuite):

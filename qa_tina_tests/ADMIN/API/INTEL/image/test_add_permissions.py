@@ -1,10 +1,10 @@
 from qa_sdk_common.exceptions import OscApiException
-from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error, assert_code
+from qa_test_tools.test_base import OscTestSuite, assert_code
+from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_image
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old
-from qa_tina_tools.tools.tina import info_keys
+
 
 class Test_add_permissions(OscTestSuite):
 
@@ -16,7 +16,7 @@ class Test_add_permissions(OscTestSuite):
 
         cls.inst_info = create_instances(cls.a1_r1)
         cls.inst_id = cls.inst_info[info_keys.INSTANCE_ID_LIST][0]
-        ret, cls.image_id = create_image(cls.a1_r1, cls.inst_id, state='available')
+        _, cls.image_id = create_image(cls.a1_r1, cls.inst_id, state='available')
 
     @classmethod
     def teardown_class(cls):
@@ -40,6 +40,6 @@ class Test_add_permissions(OscTestSuite):
                                     " \n 'Received: [arg0.users]'")
 
     def test_T5125_with_valid_type_for_users(self):
-        actual_user = owner=self.a1_r1.config.account.account_id
+        actual_user = self.a1_r1.config.account.account_id
         self.a1_r1.intel.image.add_permissions(owner=self.a1_r1.config.account.account_id, image=self.image_id, users=[actual_user])
         assert True

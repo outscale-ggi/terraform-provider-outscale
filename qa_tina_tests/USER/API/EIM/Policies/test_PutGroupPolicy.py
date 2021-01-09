@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
 import json
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import known_error, OscTestSuite

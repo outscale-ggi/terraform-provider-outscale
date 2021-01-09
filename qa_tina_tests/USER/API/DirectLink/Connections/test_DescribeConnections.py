@@ -1,9 +1,10 @@
 # -*- coding:utf-8 -*-
 # pylint: disable=missing-docstring
 
-from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools.misc import id_generator
 import pytest
+
+from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
 
 
 @pytest.mark.region_admin
@@ -37,7 +38,7 @@ class Test_DescribeConnections(OscTestSuite):
         assert ret.response.connections[0].connectionState == 'pending'
         assert ret.response.connections[0].location == self.location
         assert ret.response.connections[0].ownerAccount == self.a1_r1.config.account.account_id
-        assert ret.response.connections[0].region == self.a1_r1.config.region_name
+        assert ret.response.connections[0].region == self.a1_r1.config.region.name
         assert ret.response.connections[0].connectionId.startswith('dxcon-')
 
     @pytest.mark.region_directlink
@@ -49,7 +50,7 @@ class Test_DescribeConnections(OscTestSuite):
         assert ret.response.connections[0].connectionState == 'pending'
         assert ret.response.connections[0].location == self.location
         assert ret.response.connections[0].ownerAccount == self.a1_r1.config.account.account_id
-        assert ret.response.connections[0].region == self.a1_r1.config.region_name
+        assert ret.response.connections[0].region == self.a1_r1.config.region.name
         assert ret.response.connections[0].connectionId.startswith('dxcon-')
         assert ret.response.connections[0].connectionId == self.conn_id
 

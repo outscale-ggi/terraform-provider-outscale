@@ -1,8 +1,8 @@
-from qa_test_tools.config import config_constants as constants
 from qa_sdk_common.exceptions.osc_exceptions import OscException
+from qa_test_tools.account_tools import create_account
+from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools.account_tools import create_account
 
 
 class Test_auto_sync_account_state(OscTestSuite):
