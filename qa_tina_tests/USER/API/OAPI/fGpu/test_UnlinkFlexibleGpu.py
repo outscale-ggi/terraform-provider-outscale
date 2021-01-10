@@ -99,10 +99,8 @@ class Test_UnlinkFlexibleGpu(OscTestSuite):
         try:
             self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id, DryRun='XXXXXXXX')
             self.ret_link = None
-            known_error("API-159", "Incorrect result with invalid DryRun value")
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert False, "Remove known error code"
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
 
