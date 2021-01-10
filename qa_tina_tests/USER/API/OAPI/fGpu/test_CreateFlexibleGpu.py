@@ -108,12 +108,11 @@ class Test_CreateFlexibleGpu(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T4187_invalid_dry_run(self):
+        ret = None
         try:
             ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DryRun='XXXXXXXX')
-            known_error("API-159", "Incorrect result with invalid DryRun value")
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert False, "Remove known error code"
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
         finally:
             if ret:

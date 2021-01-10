@@ -110,12 +110,11 @@ class Test_LinkFlexibleGpu(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T4205_invalid_dry_run(self):
+        ret_link = None
         try:
             ret_link = self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=self.fg_id, VmId=self.inst_info[INSTANCE_ID_LIST][0], DryRun='XXXXXXXX')
-            known_error("API-159", "Incorrect result with invalid DryRun value")
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert False, "Remove known error code"
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
         finally:
             if ret_link:
