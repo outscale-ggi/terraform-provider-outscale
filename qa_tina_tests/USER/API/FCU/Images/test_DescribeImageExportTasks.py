@@ -10,7 +10,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_image_export_tasks_state
 
-
 NUM_EXPORT_TASK = 2
 
 
@@ -19,7 +18,7 @@ class Test_DescribeImageExportTasks(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'image_export_limit': NUM_EXPORT_TASK}
+        cls.QUOTAS = {'image_export_limit': NUM_EXPORT_TASK + 1}
         cls.image_ids = []
         cls.inst_info = None
         cls.image_exp_ids = []
@@ -29,12 +28,12 @@ class Test_DescribeImageExportTasks(OscTestSuite):
             cls.inst_info = create_instances(cls.a1_r1)
             cls.inst_id = cls.inst_info[INSTANCE_ID_LIST][0]
 
-            for _ in range(NUM_EXPORT_TASK+1):
-                ret, image_id = create_image(cls.a1_r1, cls.inst_id, state='available')
+            for _ in range(NUM_EXPORT_TASK + 1):
+                _, image_id = create_image(cls.a1_r1, cls.inst_id, state='available')
                 cls.image_ids.append(image_id)
                 bucket_name = id_generator(prefix='bucket', chars=ascii_lowercase)
                 cls.bucket_names.append(bucket_name)
-                image_export = cls.a1_r1.fcu.CreateImageExportTask(ImageId=image_id,ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name})
+                image_export = cls.a1_r1.fcu.CreateImageExportTask(ImageId=image_id, ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name})
                 image_export_id = image_export.response.imageExportTask.imageExportTaskId
                 cls.image_exp_ids.append(image_export_id)
 
@@ -94,8 +93,7 @@ class Test_DescribeImageExportTasks(OscTestSuite):
             assert img_task.exportToOsu.osuBucket == self.bucket_names
             assert img_task.exportToOsu.osuPrefix == self.image_ids
             assert img_task.imageExport.imageId == self.image_ids
-            assert img_task.statusMessage # to be checked after resolving the ticket.
-
+            assert img_task.statusMessage  # to be checked after resolving the ticket.
 
     def test_T5359_with_invalid_image_export_task_id(self):
         try:
