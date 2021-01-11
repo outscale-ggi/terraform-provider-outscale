@@ -195,7 +195,6 @@ class Vpn(OscTestSuite):
                 self.upgrade_ike_to_v2(sshclient, leftid, rightid)
                 self.test_ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'], self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
 
-            # check vpn connection status
             start = datetime.now()
             while (datetime.now() - start).total_seconds() < 60:
                 try:
