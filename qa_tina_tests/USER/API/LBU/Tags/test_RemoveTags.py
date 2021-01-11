@@ -67,7 +67,7 @@ class Test_RemoveTags(OscTestSuite):
             filters = {'toto': 'toto'}
             resp = self.a1_r1.lbu.RemoveTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
             if resp.status_code == 200:
-                known_error('TINA-', '')
+                known_error('TINA-6118', 'RemoveTags lbu accepts invalid_tag')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert False, 'Remove known error code'
