@@ -1,6 +1,5 @@
-import time
-
 import requests
+import time
 
 from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants

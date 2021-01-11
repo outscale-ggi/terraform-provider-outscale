@@ -7,7 +7,6 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 
-
 NUM_SUBNETS = 5
 
 def check_tags(subnets, key, value):

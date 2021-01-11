@@ -1,8 +1,8 @@
 import pytest
 
 from qa_sdk_pub import osc_api
-from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, PASS, FAIL, Api_Access, KNOWN
-
+from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, PASS, FAIL, \
+    Api_Access, KNOWN
 
 AK_SK_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL]
 AK_SK_PASS_LIST = [PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS]
