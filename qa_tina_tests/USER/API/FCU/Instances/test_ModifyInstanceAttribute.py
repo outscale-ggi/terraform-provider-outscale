@@ -7,7 +7,8 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes, create_security_group, create_vpc
-from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances, delete_volumes, delete_security_group, delete_vpc
+from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances, delete_volumes, \
+    delete_security_group, delete_vpc
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state
 

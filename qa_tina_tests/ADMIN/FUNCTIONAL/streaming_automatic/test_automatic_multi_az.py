@@ -2,7 +2,6 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import wait_streaming_state, assert_streaming_state
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming_hot.base import StreamingBaseHot
 
 

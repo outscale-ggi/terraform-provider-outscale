@@ -1,6 +1,5 @@
-from time import sleep
-
 import pytest
+from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_sdk_pub import osc_api

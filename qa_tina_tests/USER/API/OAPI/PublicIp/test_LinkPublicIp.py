@@ -8,7 +8,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
 from qa_tina_tools.tools.tina.info_keys import SUBNET_ID, SUBNETS, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_addresses_state
 
-
 NUM_STANDARD_EIPS = 1
 NUM_VPC_EIPS = 10
 

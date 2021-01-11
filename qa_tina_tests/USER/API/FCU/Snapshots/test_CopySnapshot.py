@@ -1,7 +1,7 @@
 import string
-from time import sleep
 
 import pytest
+from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator

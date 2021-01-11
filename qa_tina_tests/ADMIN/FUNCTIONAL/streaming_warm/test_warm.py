@@ -1,13 +1,13 @@
 # -*- coding:utf-8 -*-
 # pylint: disable=missing-docstring
-from time import sleep
-
 import pytest
+from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.base import StreamingBase
-from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import assert_streaming_state, wait_streaming_state, get_streaming_operation, get_data_file_chain
+from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import assert_streaming_state, wait_streaming_state, \
+    get_streaming_operation, get_data_file_chain
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST

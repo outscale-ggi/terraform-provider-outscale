@@ -8,7 +8,6 @@ from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_security_groups_state, wait_keypairs_state, wait_instances_state
 
-
 MAX_WAIT_TIME = 120
 
 

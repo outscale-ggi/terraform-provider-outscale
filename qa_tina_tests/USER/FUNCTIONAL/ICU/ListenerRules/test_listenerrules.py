@@ -1,12 +1,11 @@
 import pytest
 import requests
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_tina_tools.tina.setup_tools import start_test_http_server, start_http_server
+from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina.setup_tools import start_http_server
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_lbu
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, PATH, KEY_PAIR, SECURITY_GROUP_ID

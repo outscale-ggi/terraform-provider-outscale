@@ -1,5 +1,3 @@
-from _curses import error
-
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.wait import wait_VpnConnections_state
 from qa_tina_tools.tools.tina.create_tools import get_random_public_ip

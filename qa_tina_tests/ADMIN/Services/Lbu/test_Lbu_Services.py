@@ -4,7 +4,6 @@ import pytest
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.test_base import OscTestSuite
 
-
 VMS = ['in2-pr-intel-lbu-1']
 DEPENDENCIES = {'SQLAlchemy': '1.2', 'alembic': '0.8.10', 'Jinja2': '2.7.3', 'pytz': '2016.7'}
 

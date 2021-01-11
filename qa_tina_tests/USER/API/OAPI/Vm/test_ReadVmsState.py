@@ -36,6 +36,25 @@ class Test_ReadVmsState(OscTestSuite):
             super(Test_ReadVmsState, cls).teardown_class()
         cls.info = None
 
+    # ATTENTION, this test is better first as terminated vm can 'disappear'
+    def test_T2076_filter_vm_state_name(self):
+        # check running
+        code_Name = 'running'
+        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_Name]})
+        assert ret.status_code == 200, ret.response.display()
+        assert len(ret.response.VmStates) == 2
+        for i in range(len(ret.response.VmStates)):
+            assert ret.response.VmStates[i].VmState == code_Name
+        # check terminated
+        code_Name = 'terminated'
+        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_Name]})
+        assert len(ret.response.VmStates) == 0
+        # check terminated with AllVms Activated
+        code_Name = 'terminated'
+        ret = self.a1_r1.oapi.ReadVmsState(AllVms=True, Filters={'VmStates': [code_Name]})
+        assert len(ret.response.VmStates) == 1
+        assert ret.response.VmStates[0].VmState == code_Name
+
     def test_T2071_no_param(self):
         ret = self.a1_r1.oapi.ReadVmsState()
         # check if all are running
@@ -66,24 +85,6 @@ class Test_ReadVmsState(OscTestSuite):
         assert len(ret.response.VmStates) == 2
         assert True if self.info[INSTANCE_SET][0]['instanceId'] in (vm.VmId for vm in ret.response.VmStates) else False
         assert True if self.info[INSTANCE_SET][1]['instanceId'] in (vm.VmId for vm in ret.response.VmStates) else False
-
-    def test_T2076_filter_vm_state_name(self):
-        # check running
-        code_Name = 'running'
-        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_Name]})
-        assert ret.status_code == 200, ret.response.display()
-        assert len(ret.response.VmStates) == 2
-        for i in range(len(ret.response.VmStates)):
-            assert ret.response.VmStates[i].VmState == code_Name
-        # check terminated
-        code_Name = 'terminated'
-        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_Name]})
-        assert len(ret.response.VmStates) == 0
-        # check terminated with AllVms Activated
-        code_Name = 'terminated'
-        ret = self.a1_r1.oapi.ReadVmsState(AllVms=True, Filters={'VmStates': [code_Name]})
-        assert len(ret.response.VmStates) == 1
-        assert ret.response.VmStates[0].VmState == code_Name
 
     def test_T2077_multiple_filters(self):
         result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[INSTANCE_SET][0]['instanceId']],
