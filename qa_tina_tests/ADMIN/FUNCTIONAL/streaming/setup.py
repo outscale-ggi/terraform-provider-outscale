@@ -14,7 +14,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instanc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
-
 DEFAULT_SNAP_CFG = [
     # nb_snap, vol_size, w_size, fio
     #(10, 10, 100, False),

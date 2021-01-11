@@ -1,6 +1,6 @@
-from enum import Enum
 import os
 import string
+from enum import Enum
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_sdk_pub import osc_api
@@ -14,8 +14,7 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.as_.wait_tools import wait_task_state
 from qa_tina_tools.tools.tina import create_tools
 
-
-# other solution, embed call characteristics in calls, expected result can be computed, instead of being 
+# other solution, embed call characteristics in calls, expected result can be computed, instead of being
 API_CALLS = ['directlink.DescribeLocations',  # with AkSk
              'eim.ListAccessKeys',  # with AkSk
              'icu.ReadPublicCatalog',  # without authent

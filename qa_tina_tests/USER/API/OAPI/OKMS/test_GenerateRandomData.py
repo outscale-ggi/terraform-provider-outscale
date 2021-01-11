@@ -1,7 +1,5 @@
 import pytest
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
 
 

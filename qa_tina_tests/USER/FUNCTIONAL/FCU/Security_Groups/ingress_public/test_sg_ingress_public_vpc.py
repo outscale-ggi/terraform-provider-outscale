@@ -1,5 +1,5 @@
-from os import system as system_call
 import os
+from os import system as system_call
 from platform import system as system_name
 
 import pytest

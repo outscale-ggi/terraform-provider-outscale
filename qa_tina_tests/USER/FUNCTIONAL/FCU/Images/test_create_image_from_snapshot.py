@@ -1,6 +1,5 @@
 import pytest
 
-from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite

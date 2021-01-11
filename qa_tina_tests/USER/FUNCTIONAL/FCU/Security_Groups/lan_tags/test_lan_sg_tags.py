@@ -8,7 +8,8 @@ from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_vpc, start_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, stop_instances
-from qa_tina_tools.tools.tina.info_keys import VPC_ID, INSTANCE_SET, SUBNETS, KEY_PAIR, EIP, PATH, SECURITY_GROUP_ID, INSTANCE_ID_LIST
+from qa_tina_tools.tools.tina.info_keys import VPC_ID, INSTANCE_SET, SUBNETS, KEY_PAIR, EIP, PATH, SECURITY_GROUP_ID, \
+    INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 

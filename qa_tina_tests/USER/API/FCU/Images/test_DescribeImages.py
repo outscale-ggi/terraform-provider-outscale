@@ -2,6 +2,8 @@
     This module describe all test cases for describeImages
 """
 
+import pytest
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator, assert_error
@@ -11,7 +13,6 @@ from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_volumes, attach_volume, create_image, create_instances_old
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances_old
 from qa_tina_tools.tools.tina.wait_tools import wait_images_state
-import pytest
 
 VOL_SIZE_1 = 11
 VOL_SIZE_2 = 123

@@ -16,7 +16,6 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH
 
-
 INDEX = './index'
 INSTANCES_CFG = './qa_tina/USER/CAPA/instance_type_list.json'
 RESULT = 'result.json'

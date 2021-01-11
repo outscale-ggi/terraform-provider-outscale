@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import random
 import string
+
 import time
 
 from qa_test_tools.test_base import OscTestSuite

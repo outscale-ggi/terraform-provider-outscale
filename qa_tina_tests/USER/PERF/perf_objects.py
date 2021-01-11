@@ -1,5 +1,5 @@
-from datetime import datetime
 import os
+from datetime import datetime
 from string import ascii_lowercase
 
 from qa_test_tools import misc
