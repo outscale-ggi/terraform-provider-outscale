@@ -5,18 +5,19 @@ import argparse
 import importlib
 import inspect
 import logging
-from multiprocessing import Queue
 import sys
+from multiprocessing import Queue
 from threading import Thread
-import time
 
+import time
 import urllib3
 
 from qa_sdks.osc_sdk import OscSdk
 from qa_support_tools.influxdb.influxdb import push_metrics
 from qa_support_tools.influxdb.influxdb_config import OscInfluxdbConfig
 from qa_test_tools.config import OscConfig
-from qa_tina_tools.tools.tina.cleanup_tools import cleanup_instances, cleanup_volumes, cleanup_security_groups, cleanup_keypairs
+from qa_tina_tools.tools.tina.cleanup_tools import cleanup_instances, cleanup_volumes, cleanup_security_groups, \
+    cleanup_keypairs
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 

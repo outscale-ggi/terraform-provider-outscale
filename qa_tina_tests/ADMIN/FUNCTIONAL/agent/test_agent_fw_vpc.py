@@ -9,7 +9,8 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import KEY_PAIR, PATH, INSTANCE_SET, VPC_ID
-from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, SUBNETS, SUBNET_ID, INSTANCE_ID_LIST, INTERNET_GATEWAY_ID, SECURITY_GROUP_ID
+from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, SUBNETS, SUBNET_ID, INSTANCE_ID_LIST, \
+    INTERNET_GATEWAY_ID, SECURITY_GROUP_ID
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 

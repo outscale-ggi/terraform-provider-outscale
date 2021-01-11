@@ -1,15 +1,14 @@
 import argparse
 import logging
-from multiprocessing import Queue, Process
 import ssl
 import uuid
+from multiprocessing import Queue, Process
 
 from qa_sdk_pub.osc_api import disable_throttling
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
-
 
 ssl._create_default_https_context = ssl._create_unverified_context
 

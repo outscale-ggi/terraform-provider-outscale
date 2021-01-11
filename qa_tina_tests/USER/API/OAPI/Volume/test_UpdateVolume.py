@@ -1,6 +1,5 @@
-import time
-
 import pytest
+import time
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants

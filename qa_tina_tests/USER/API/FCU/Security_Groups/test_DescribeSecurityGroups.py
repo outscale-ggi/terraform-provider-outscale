@@ -1,11 +1,12 @@
 # pylint: disable=missing-docstring
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_tina_tools.tools.tina.delete_tools import delete_security_group, delete_vpc
-from qa_tina_tools.tools.tina.create_tools import create_security_group, create_vpc
-from qa_test_tools.misc import assert_error, id_generator
 import string
+
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
+from qa_test_tools.misc import assert_error, id_generator
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina import info_keys
+from qa_tina_tools.tools.tina.create_tools import create_security_group, create_vpc
+from qa_tina_tools.tools.tina.delete_tools import delete_security_group, delete_vpc
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 
 # attention priv > pub >= 2 otherwise it won't work

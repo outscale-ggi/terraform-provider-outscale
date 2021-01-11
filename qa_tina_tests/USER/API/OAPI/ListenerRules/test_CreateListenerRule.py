@@ -1,7 +1,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools import misc 
+from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina import info_keys

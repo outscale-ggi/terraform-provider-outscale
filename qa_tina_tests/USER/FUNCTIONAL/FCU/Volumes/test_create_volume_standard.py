@@ -2,7 +2,6 @@ import uuid
 
 import pytest
 
-from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tests.USER.FUNCTIONAL.FCU.Volumes.create_volume import CreateVolume
 from qa_tina_tools.tina import check_tools

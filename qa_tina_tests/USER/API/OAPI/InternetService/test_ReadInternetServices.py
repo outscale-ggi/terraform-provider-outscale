@@ -7,7 +7,6 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state, \
     wait_internet_gateways_state
 
-
 NUM_INTERNET_SERVICES = 3
 
 
