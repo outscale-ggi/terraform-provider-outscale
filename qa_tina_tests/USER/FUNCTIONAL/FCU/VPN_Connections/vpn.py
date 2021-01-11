@@ -66,7 +66,7 @@ class Vpn(OscTestSuite):
             sshclient, cmd, retry=20, timeout=10)
             assert out
     
-    def test_ping(self, sshclient, cgw_priv_ip, vpc_inst_ip):
+    def ping(self, sshclient, cgw_priv_ip, vpc_inst_ip):
         try:
             out, _, _ = SshTools.exec_command_paramiko(
                 sshclient, 'ping -I {} -W 1 -c 1 {}'.format(cgw_priv_ip, vpc_inst_ip), retry=20, timeout=10)
@@ -185,16 +185,16 @@ class Vpn(OscTestSuite):
             self.logger.info("inst vpc -> : None -- {}".format(inst2['privateIpAddress']))
 
             # try to make ping from CGW to VPC instance
-            self.test_ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'], self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
+            self.ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'], self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
             if options:
                 for option in options:
                     self.update_cgw_config(option, sshclient)
-                    self.test_ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'], self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
+                    self.ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'], self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
             if migration:
                 leftid = "\            leftid={}".format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'])
                 rightid = "\            rightid={}".format(vgw_ip)
                 self.upgrade_ike_to_v2(sshclient, leftid, rightid)
-                self.test_ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'], self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
+                self.ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'], self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
 
             start = datetime.now()
             while (datetime.now() - start).total_seconds() < 60:
