@@ -106,7 +106,6 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
     @pytest.mark.region_directlink
     def test_T5367_with_existing_virtual_interface(self):
         newPrivateVirtualInterface = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
-        interface_info = None
         self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
         interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                              newPrivateVirtualInterface=newPrivateVirtualInterface)
@@ -118,4 +117,5 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
                 known_error("TINA-4915" , "Virtual interface : Error message")
             assert False, 'remove known error code'
         finally:
-            self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)
+            if interface_info:
+                self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)

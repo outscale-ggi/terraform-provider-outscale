@@ -113,7 +113,7 @@ class Test_ReadAccessKeys(OscTestSuite):
             ak = ret_create.response.AccessKey.AccessKeyId
             self.a1_r1.oapi.ReadAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=ak)
             assert False, 'remove known error'
-        except OscSdkException as error:
+        except OscSdkException:
             known_error('GTW-1240', 'SDK implementation ')
         finally:
             if ret_create:
