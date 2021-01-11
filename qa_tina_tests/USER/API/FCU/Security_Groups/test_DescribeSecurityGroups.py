@@ -321,7 +321,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
     def test_T5425_filter_description_invalid_type(self):
         try:
             self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'description', 'Value': 'desc1'}])
-            known_error('TINA-6117', "the Valur should be a list")
+            known_error('TINA-6117', "the Value should be a list")
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert False, "remove known error code"
