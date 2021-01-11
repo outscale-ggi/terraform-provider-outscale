@@ -34,30 +34,35 @@ class Test_RemoveTags(OscTestSuite):
         finally:
             super(Test_RemoveTags, cls).teardown_class()
 
-    def test_TXX_valid_params(self):
+    def test_T5431_valid_params(self):
         filters = {'Key': id_generator("tagkey-"), 'Value': id_generator("tagvalue-")}
         self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
         self.a1_r1.lbu.RemoveTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
         resp = self.a1_r1.lbu.DescribeTags(LoadBalancerNames=[self.lbu_name]).response.DescribeTagsResult
         assert resp.TagDescriptions[0].Tags is None
 
-    def test_TXX_without_tag(self):
+    def test_T5432_without_tag(self):
         try:
             self.a1_r1.lbu.RemoveTags(LoadBalancerNames=[self.lbu_name])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_error(err, 400, 'ValidationError', 'The request must contain the parameter Tags')
 
-    def test_TXX_without_lbu_name(self):
+    def test_T5433_without_lbu_name(self):
+        ret = None
+        filters = {}
         try:
             filters = {'Key': id_generator("tagkey-"), 'Value': id_generator("tagvalue-")}
-            self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
+            ret = self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
             self.a1_r1.lbu.RemoveTags(Tags=[filters])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_error(err, 400, 'ValidationError', 'The request must contain the parameter LoadBalancerNames')
+        finally:
+            if ret:
+                self.a1_r1.lbu.RemoveTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
 
-    def test_TXX_with_invalid_tag(self):
+    def test_T5434_with_invalid_tag(self):
         try:
             filters = {'toto': 'toto'}
             resp = self.a1_r1.lbu.RemoveTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
@@ -68,34 +73,49 @@ class Test_RemoveTags(OscTestSuite):
             assert False, 'Remove known error code'
             assert_error(err, 400, 'ValidationError', 'The request must contain the parameter LoadBalancerNames')
 
-    def test_TXX_with_invalid_lbu_name(self):
+    def test_T5435_with_invalid_lbu_name(self):
+        ret = None
+        filters = {}
         try:
             filters = {'Key': id_generator("tagkey-"), 'Value': id_generator("tagvalue-")}
-            self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
+            ret = self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
             self.a1_r1.lbu.RemoveTags(LoadBalancerNames=['toto'], Tags=[filters])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_error(err, 400, 'LoadBalancerNotFound', 'The specified load balancer does not exists.')
+        finally:
+            if ret:
+                self.a1_r1.lbu.RemoveTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
 
-    def test_TXX_with_invalid_type_lbu_name(self):
+    def test_T5436_with_invalid_type_lbu_name(self):
+        ret = None
+        filters = {}
         try:
             filters = {'Key': id_generator("tagkey-"), 'Value': id_generator("tagvalue-")}
-            self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
+            ret = self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
             self.a1_r1.lbu.RemoveTags(LoadBalancerNames=self.lbu_name, Tags=[filters])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_error(err, 400, 'OWS.Error', 'Request is not valid.')
+        finally:
+            if ret:
+                self.a1_r1.lbu.RemoveTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
 
-    def test_TXX_with_invalid_type_tag(self):
+    def test_T5437_with_invalid_type_tag(self):
+        ret = None
+        filters = {}
         try:
             filters = {'Key': id_generator("tagkey-"), 'Value': id_generator("tagvalue-")}
-            self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
-            self.a1_r1.lbu.RemoveTags(LoadBalancerNames=self.lbu_name, Tags=filters)
+            ret = self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
+            self.a1_r1.lbu.RemoveTags(LoadBalancerNames=[self.lbu_name], Tags=filters)
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_error(err, 400, 'OWS.Error', 'Request is not valid.')
+        finally:
+            if ret:
+                self.a1_r1.lbu.RemoveTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
 
-    def test_TXX_with_multiple_tags(self):
+    def test_T5438_with_multiple_tags(self):
         filters = {'Key': id_generator("tagkey-"), 'Value': id_generator("tagvalue-")}
         self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
         filters_2 = {'Key': id_generator("tagkey2-"), 'Value': id_generator("tagvalue2-")}
@@ -104,11 +124,16 @@ class Test_RemoveTags(OscTestSuite):
         resp = self.a1_r1.lbu.DescribeTags(LoadBalancerNames=[self.lbu_name]).response.DescribeTagsResult
         assert resp.TagDescriptions[0].Tags is None
 
-    def test_TXX_from_another_account(self):
+    def test_T5439_from_another_account(self):
+        ret = None
+        filters = {}
         try:
             filters = {'Key': id_generator("tagkey-"), 'Value': id_generator("tagvalue-")}
-            self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
+            ret = self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
             self.a2_r1.lbu.RemoveTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
             assert False, "call should not have been successful"
         except OscApiException as err:
             assert_error(err, 400, 'LoadBalancerNotFound', "The specified load balancer does not exists.")
+        finally:
+            if ret:
+                self.a1_r1.lbu.RemoveTags(LoadBalancerNames=[self.lbu_name], Tags=[filters])
