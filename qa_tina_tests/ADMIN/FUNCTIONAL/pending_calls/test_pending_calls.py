@@ -2,12 +2,14 @@
 # pylint: disable=missing-docstring
 
 import time
-from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
+
 from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
+from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, SUBNETS, SUBNET_ID
+from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
+
 
 class Test_pending_calls(OscTestSuite):
 

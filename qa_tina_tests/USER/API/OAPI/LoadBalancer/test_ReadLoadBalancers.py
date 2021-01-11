@@ -2,7 +2,6 @@
 import pytest
 
 from qa_test_tools.misc import id_generator
-
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
 
 

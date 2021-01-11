@@ -1,14 +1,15 @@
 # pylint: disable=missing-docstring
 
 import re
+import time
+
 import pytest
 
-import qa_sdk_pub.osc_api as osc_api
-from qa_sdk_pub.osc_api import AuthMethod, EXEC_DATA_METHOD,\
-    EXEC_DATA_AUTHENTICATION
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_pub.osc_api import AuthMethod, EXEC_DATA_METHOD, \
+    EXEC_DATA_AUTHENTICATION
+import qa_sdk_pub.osc_api as osc_api
 from qa_test_tools.test_base import OscTestSuite
-import time
 
 
 class Test_ICU(OscTestSuite):
@@ -60,8 +61,8 @@ class Test_ICU(OscTestSuite):
     @pytest.mark.tag_sec_confidentiality
     def test_T3866_invalid_authentication(self):
         time.sleep(11)
-        sk_bkp = self.a1_r1.config.sk
-        self.a1_r1.config.sk = "foo"
+        sk_bkp = self.a1_r1.config.account.sk
+        self.a1_r1.config.account.sk = "foo"
         try:
             self.a1_r1.icu.ListAccessKeys()
             assert False, 'Call should not have been successful'
@@ -71,7 +72,7 @@ class Test_ICU(OscTestSuite):
             assert error.message == "The request signature we calculated does not match the signature you provided. " + \
                                     "Check your AWS Secret Access Key and signing method. Consult the service documentation for details."
         finally:
-            self.a1_r1.config.sk = sk_bkp
+            self.a1_r1.config.account.sk = sk_bkp
 
     @pytest.mark.tag_sec_availability
     def test_T3867_throttling(self):

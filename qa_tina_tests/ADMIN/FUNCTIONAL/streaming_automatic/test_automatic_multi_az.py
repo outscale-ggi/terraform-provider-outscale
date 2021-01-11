@@ -2,8 +2,9 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from qa_tina_tests.ADMIN.FUNCTIONAL.streaming_hot.base import StreamingBaseHot
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import wait_streaming_state, assert_streaming_state
+from qa_tina_tests.ADMIN.FUNCTIONAL.streaming_hot.base import StreamingBaseHot
+
 
 @pytest.mark.region_admin
 class Test_automatic_multi_az(StreamingBaseHot):

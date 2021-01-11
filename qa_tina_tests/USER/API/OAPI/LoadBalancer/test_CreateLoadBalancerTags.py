@@ -1,9 +1,10 @@
 # -*- coding:utf-8 -*-
 
+import string
+
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-import string
 
 
 class Test_CreateLoadBalancerTags(OscTestSuite):

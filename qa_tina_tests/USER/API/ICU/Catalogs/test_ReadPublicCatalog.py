@@ -1,5 +1,5 @@
-from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_pub import osc_api
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_ReadPublicCatalog(OscTestSuite):

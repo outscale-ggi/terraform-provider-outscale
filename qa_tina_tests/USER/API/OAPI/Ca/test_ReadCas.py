@@ -1,6 +1,6 @@
+from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
-from qa_test_tools.misc import assert_dry_run
 
 
 class Test_ReadCas(OscTestSuite):

@@ -1,5 +1,8 @@
 # -*- coding:utf-8 -*-
 import pytest
+
+from qa_sdk_common.exceptions import OscApiException
+from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup, validate_sg
 
 
@@ -48,6 +51,10 @@ class Test_ReadSecurityGroups(SecurityGroup):
                 ToPortRange=1234,
                 IpRange='10.0.0.12/32',
                 SecurityGroupId=cls.sg2['id'])
+            cls.a1_r1.oapi.CreateTags(ResourceIds=[cls.sg1['id']], Tags=[{'Key': 'sg_key', 'Value': 'sg_value'}])
+            cls.a1_r1.oapi.CreateTags(ResourceIds=[cls.sg2['id']], Tags=[{'Key': 'sg_key', 'Value': 'sg_toto'}])
+            cls.a1_r1.oapi.CreateTags(ResourceIds=[cls.sg3['id']], Tags=[{'Key': 'sg_toto', 'Value': 'sg_value'}])
+
         except:
             try:
                 cls.teardown_class()
@@ -271,4 +278,52 @@ class Test_ReadSecurityGroups(SecurityGroup):
         filters = {'NetIds': ['vpc-123456789']}
         ret = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
         assert len(ret) == 0
-        
+
+    def test_T5369_with_tags_filter(self):
+        filters = {'Tags': ['sg_key=sg_value']}
+        ret = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
+        assert len(ret) == 1
+
+    def test_T5370_with_tagskey_filter(self):
+        filters = {"TagKeys": ['sg_key']}
+        ret = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
+        assert len(ret) == 2
+
+    def test_T5371_with_tagvalues_filter(self):
+        filters = {"TagValues": ['sg_value']}
+        ret = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
+        assert len(ret) == 2
+
+    def test_T5372_with_invalid_tags_filter(self):
+        try:
+            filters = {'Tags': 'sg_invalid_key=sg_invalid_value'}
+            self.a1_r1.oapi.ReadSecurityGroups(Filters=filters)
+            assert False, "Call shouldn't be successful"
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
+    def test_T5373_with_invalid_tagskey_filter(self):
+        try:
+            filters = {"TagKeys": 'sg_invalid_key'}
+            self.a1_r1.oapi.ReadSecurityGroups(Filters=filters)
+            assert False, "Call shouldn't be successful"
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
+    def test_T5374_with_invalid_tagvalues_filter(self):
+        try:
+            filters = {"TagValues": 'sg_invalid_value'}
+            self.a1_r1.oapi.ReadSecurityGroups(Filters=filters)
+            assert False, "Call shouldn't be successful"
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
+    def test_T5375_with_incorrect_tags_filter(self):
+        filters = {"TagValues": ['sg_inc_key=sg_inc_value']}
+        ret = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
+        assert len(ret) == 0
+
+    def test_T5376_with_tags_filter_from_another_account(self):
+        filters = {'Tags': ['sg_key=sg_value']}
+        ret = self.a2_r1.oapi.ReadSecurityGroups(Filters=filters).response.SecurityGroups
+        assert len(ret) == 0

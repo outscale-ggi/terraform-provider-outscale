@@ -6,9 +6,9 @@ import base64
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error, get_export_value
+from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
 from qa_tina_tools.tools.tina.delete_tools import delete_key
-from qa_tina_tools.tina.info_keys import PUBLIC
 
 
 class Test_ImportKeyPair(OscTestSuite):

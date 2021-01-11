@@ -3,10 +3,10 @@
 import json
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_sdks.osc_sdk import OscSdk
 
 
 class Test_DeleteAccessKey(OscTestSuite):

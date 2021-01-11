@@ -1,11 +1,11 @@
 # -*- coding:utf-8 -*-
 
+import pytest
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
-import pytest
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
-from qa_test_tools.test_base import known_error
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 

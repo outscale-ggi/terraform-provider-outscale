@@ -1,13 +1,12 @@
 import pytest
 
-from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.config import config_constants as constants
-
-from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
-from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_subnet
-from qa_tina_tools.tina.info_keys import PATH
 from qa_common_tools.ssh import SshTools
+from qa_test_tools.config import config_constants as constants
+from qa_test_tools.config.configuration import Configuration
+from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
 from qa_tina_tools.tina import check_tools
+from qa_tina_tools.tina.info_keys import PATH
+from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_subnet
 
 
 class Test_private_linux_instance(Test_linux_instance):

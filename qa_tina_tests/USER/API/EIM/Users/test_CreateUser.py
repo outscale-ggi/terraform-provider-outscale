@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 
 import re
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException

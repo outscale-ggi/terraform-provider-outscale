@@ -1,12 +1,13 @@
-from qa_test_tools.config.configuration import Configuration
+import string
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_security_groups
 from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.info_keys import VPC_ID
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
-import string
+from qa_tina_tools.tools.tina.info_keys import VPC_ID
 
 
 class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
@@ -230,6 +231,9 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                                                         CidrIp=Configuration.get('cidr', 'allips'))
 
     def test_T2987_valid_group_name(self):
+        sg_id = None
+        vpc_id = None
+        subnet_id = None
         try:
             sg_name = id_generator(prefix='sg_name')
             vpc_id = self.a1_r1.fcu.CreateVpc(CidrBlock=Configuration.get('vpc', '10_0_0_0_16')).response.vpc.vpcId

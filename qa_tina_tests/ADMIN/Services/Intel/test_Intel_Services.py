@@ -1,8 +1,8 @@
 
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite
 from qa_common_tools.ssh import SshTools
+from qa_test_tools.test_base import OscTestSuite
 
 
 VMS = ['in2-pr-intel-main-1', 'in2-pr-intel-main-2', 'in2-pr-intel-main-3', 'in2-pr-intel-main-cron-1']

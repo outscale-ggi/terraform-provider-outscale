@@ -1,7 +1,7 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_tina_tools.tools.state import SnapshotStatus, VolumeStatus
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_tina_tools.tools.state import SnapshotStatus, VolumeStatus
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state
 

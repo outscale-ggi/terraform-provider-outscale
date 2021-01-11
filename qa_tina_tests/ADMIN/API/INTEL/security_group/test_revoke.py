@@ -1,5 +1,6 @@
 from qa_test_tools.test_base import OscTestSuite
 
+
 class Test_revoke(OscTestSuite):
 
     def test_T3566_with_negative_protocol_value(self):
