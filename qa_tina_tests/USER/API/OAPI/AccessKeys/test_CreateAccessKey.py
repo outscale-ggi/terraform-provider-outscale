@@ -59,7 +59,7 @@ class Test_CreateAccessKey(OscTestSuite):
             assert False, 'Remove known error code'
             assert ak == ret_create.response.AccessKey.AccessKeyId, "AccesskeyID created does not correspond AccesskeyID passed"
             assert sk == ret_create.response.AccessKey.SecretKey, "SecrretAccesskey created does not correspond SecrretAccesskey passed"
-        except OscSdkException as error:
+        except OscSdkException:
             known_error('GTW-1240', 'SDK implementation ')
         finally:
             if ret_create:
@@ -93,7 +93,7 @@ class Test_CreateAccessKey(OscTestSuite):
         assert_dry_run(ret_create)
 
     def test_T5323_with_loop(self):
-        for i in range(50):
+        for _ in range(50):
             ret = self.a1_r1.oapi.CreateAccessKey()
             ak_id = ret.response.AccessKey.AccessKeyId
             self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak_id)
