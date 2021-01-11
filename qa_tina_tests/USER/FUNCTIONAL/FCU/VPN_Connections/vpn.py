@@ -22,6 +22,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 
 class Vpn(OscTestSuite):
 
+        
     @classmethod
     def setup_class(cls):
         super(Vpn, cls).setup_class()
@@ -33,6 +34,48 @@ class Vpn(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         super(Vpn, cls).teardown_class()
+
+    def upgrade_ike_to_v2(self, sshclient, leftid, rightid):
+        cmd = """
+            sudo sed -i  's/^            keyexchange=.*/            keyexchange=ikev2/g'  /etc/strongswan/ipsec.conf;
+            sudo sed -i '$a{}' /etc/strongswan/ipsec.conf;
+            sudo sed -i '$a{}' /etc/strongswan/ipsec.conf;
+            sudo systemctl stop strongswan; sudo systemctl start strongswan;""".format(leftid, rightid)
+        _, _, _ = SshTools.exec_command_paramiko(
+        sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+        cmd = 'sudo strongswan statusall | grep  -E "IKEv2"'
+        out, _, _ = SshTools.exec_command_paramiko(
+            sshclient, cmd, retry=20, timeout=10)
+        assert out
+    def update_cgw_config(self, option, sshclient):
+        cmd = """
+        sudo sed -i  's/^            ike=.*/            ike={}/g'  /etc/strongswan/ipsec.conf ;
+        sudo sed -i  's/^            esp=.*/            esp={}/g'  /etc/strongswan/ipsec.conf; 
+        sudo systemctl stop strongswan;""".format(option, option)
+        _, _, _ = SshTools.exec_command_paramiko(
+        sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+        
+        out, _, _ = SshTools.exec_command_paramiko(
+        sshclient, "sudo systemctl start strongswan;", retry=20, timeout=10, eof_time_out=60)
+    
+        regex = r"([a-z]*)([0-9]*)"
+    
+        matches = re.finditer(regex, option, re.MULTILINE)
+        for _, match in enumerate(matches, start=1):
+            opt = "{}.*{}".format((match.group(1)).upper(), match.group(2))
+            cmd = 'sudo strongswan statusall | grep  -E "{}"'.format(opt)
+            out, _, _ = SshTools.exec_command_paramiko(
+            sshclient, cmd, retry=20, timeout=10)
+            assert out
+    
+    def test_ping(self, sshclient, cgw_priv_ip, vpc_inst_ip):
+        try:
+            out, _, _ = SshTools.exec_command_paramiko(
+                sshclient, 'ping -I {} -W 1 -c 1 {}'.format(cgw_priv_ip, vpc_inst_ip), retry=20, timeout=10)
+            assert "1 packets transmitted, 1 received, 0% packet loss" in out
+        except OscCommandError as error:
+            raise error
+
 
     def setup_method(self, method):
         super(Vpn, self).setup_method(method)
@@ -72,48 +115,6 @@ class Vpn(OscTestSuite):
                 delete_instances(self.a1_r1, self.inst_cgw_info)
         finally:
             super(Vpn, self).teardown_method(method)
-
-    def upgrade_ike_to_v2(self, sshclient, leftid, rightid):
-        cmd = """
-            sudo sed -i  's/^            keyexchange=.*/            keyexchange=ikev2/g'  /etc/strongswan/ipsec.conf;
-            sudo sed -i '$a{}' /etc/strongswan/ipsec.conf;
-            sudo sed -i '$a{}' /etc/strongswan/ipsec.conf;
-            sudo systemctl stop strongswan; sudo systemctl start strongswan;""".format(leftid, rightid)
-        _, _, _ = SshTools.exec_command_paramiko(
-        sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
-        cmd = 'sudo strongswan statusall | grep  -E "IKEv2"'
-        out, _, _ = SshTools.exec_command_paramiko(
-            sshclient, cmd, retry=20, timeout=10)
-        assert out
-        
-    def update_cgw_config(self, option, sshclient):
-        cmd = """
-        sudo sed -i  's/^            ike=.*/            ike={}/g'  /etc/strongswan/ipsec.conf ;
-        sudo sed -i  's/^            esp=.*/            esp={}/g'  /etc/strongswan/ipsec.conf; 
-        sudo systemctl stop strongswan;""".format(option, option)
-        _, _, _ = SshTools.exec_command_paramiko(
-        sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
-        
-        out, _, _ = SshTools.exec_command_paramiko(
-        sshclient, "sudo systemctl start strongswan;", retry=20, timeout=10, eof_time_out=60)
-
-        regex = r"([a-z]*)([0-9]*)"
-    
-        matches = re.finditer(regex, option, re.MULTILINE)
-        for _, match in enumerate(matches, start=1):
-            opt = "{}.*{}".format((match.group(1)).upper(), match.group(2))
-            cmd = 'sudo strongswan statusall | grep  -E "{}"'.format(opt)
-            out, _, _ = SshTools.exec_command_paramiko(
-            sshclient, cmd, retry=20, timeout=10)
-            assert out
-
-    def test_ping(self, sshclient, cgw_priv_ip, vpc_inst_ip):
-        try:
-            out, _, _ = SshTools.exec_command_paramiko(
-                sshclient, 'ping -I {} -W 1 -c 1 {}'.format(cgw_priv_ip, vpc_inst_ip), retry=20, timeout=10)
-            assert "1 packets transmitted, 1 received, 0% packet loss" in out
-        except OscCommandError as error:
-            raise error
 
     def exec_test_vpn(self, static, racoon, default_rtb=True, options=None, ike="ikev1", migration=None):
 
