@@ -15,24 +15,25 @@
 #        write data on disk (args.write_size)
 #        snapshot volume
 
-from threading import Thread, current_thread
-from multiprocessing import Queue
-import time
 import argparse
+from datetime import datetime
 import logging
+from multiprocessing import Queue
 import ssl
+from threading import Thread, current_thread
+import time
 
-from qa_sdk_common.exceptions import OscApiException
-from qa_test_tools.misc import assert_error
 from qa_common_tools.ssh import SshTools
-from qa_test_tools.config import config_constants as constants
+from qa_sdk_common.exceptions import OscApiException
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
+from qa_test_tools.config import config_constants as constants
+from qa_test_tools.misc import assert_error
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
-from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR, INSTANCE_SET
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
-from datetime import datetime
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR, INSTANCE_SET
+from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
+
 
 ssl._create_default_https_context = ssl._create_unverified_context
 LOGGING_LEVEL = logging.DEBUG

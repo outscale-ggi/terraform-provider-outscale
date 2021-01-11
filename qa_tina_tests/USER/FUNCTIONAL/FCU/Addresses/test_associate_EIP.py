@@ -1,11 +1,10 @@
 
+from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import KEY_PAIR, PATH, INSTANCE_ID_LIST
-from qa_common_tools.ssh import SshTools
 
 
 class Test_associate_EIP(OscTestSuite):

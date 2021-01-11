@@ -1,11 +1,12 @@
-from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.delete_tools import delete_vpc
-from qa_tina_tools.tina.info_keys import SUBNET_ID, SUBNETS
-from qa_tina_tools.tools.tina.wait_tools import wait_nat_gateways_state
+import string
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
-import string
+from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina.info_keys import SUBNET_ID, SUBNETS
+from qa_tina_tools.tools.tina.create_tools import create_vpc
+from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_tina_tools.tools.tina.wait_tools import wait_nat_gateways_state
 
 
 class Test_CreateNatGateway(OscTestSuite):

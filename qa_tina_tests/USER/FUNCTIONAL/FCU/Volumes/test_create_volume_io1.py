@@ -1,5 +1,6 @@
-from qa_tina_tests.USER.FUNCTIONAL.FCU.Volumes.create_volume import CreateVolume
 import pytest
+
+from qa_tina_tests.USER.FUNCTIONAL.FCU.Volumes.create_volume import CreateVolume
 
 
 @pytest.mark.region_io1

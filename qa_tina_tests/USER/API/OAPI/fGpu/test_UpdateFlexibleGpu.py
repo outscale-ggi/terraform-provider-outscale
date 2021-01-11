@@ -1,6 +1,8 @@
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
+
 
 #     DeleteFlexibleGpuRequest:
 #       properties:
@@ -12,8 +14,6 @@ from qa_test_tools.test_base import OscTestSuite
 #       properties:
 #         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
 #       type: object
-from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
-
 DEFAULT_GPU_ID = "fgpu-12345678"
 DEFAULT_MODEL_NAME = "nvidia-k2"
 

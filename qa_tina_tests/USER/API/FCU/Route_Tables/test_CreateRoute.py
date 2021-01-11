@@ -1,10 +1,10 @@
-from qa_test_tools.config.configuration import Configuration
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.info_keys import VPC_ID
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_tina_tools.tools.tina.info_keys import VPC_ID
 
 
 class Test_CreateRoute(OscTestSuite):
@@ -69,3 +69,12 @@ class Test_CreateRoute(OscTestSuite):
             assert False, 'CreateRoute without parameters should have not succeeded'
         except OscApiException as error:
             assert_error(error, 400, 'MissingParameter', 'Request is missing the following parameter: RouteTableId')
+
+    def test_T5377_invalid_cidr(self):
+        gtw_id = 'igw-12345678'
+        try:
+            self.a1_r1.fcu.CreateRoute(DestinationCidrBlock='10.10.10.23/24', RouteTableId=self.rtb1,
+                                       GatewayId=gtw_id)
+            assert False, 'CreateRoute should have not succeeded'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidParameterValue', "'10.10.10.23/24' is not a valid CIDR")

@@ -37,7 +37,7 @@ class Test_UpdateAccount(OscTestSuite):
 
     def test_T4914_email_new(self):
         email = 'qa+T573_{}@outscale.com'.format(id_generator(size=8))
-        ret = self.a1_r1.oapi.UpdateAccount(Email=email)
+        self.a1_r1.oapi.UpdateAccount(Email=email)
         ret = self.a1_r1.oapi.ReadAccounts()
         assert ret.response.Accounts[0].Email == email
 

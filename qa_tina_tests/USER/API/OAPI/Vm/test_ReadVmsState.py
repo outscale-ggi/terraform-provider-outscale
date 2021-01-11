@@ -1,12 +1,12 @@
 # -*- coding:utf-8 -*-
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST
-from qa_tina_tools.tools.tina.delete_tools import delete_instances
-from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina.create_tools import create_instances
+from qa_tina_tools.tools.tina.delete_tools import delete_instances
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST
 
 
 class Test_ReadVmsState(OscTestSuite):
@@ -45,7 +45,7 @@ class Test_ReadVmsState(OscTestSuite):
 
     def test_T2072_include_all_vms_true(self):
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=True)
-        assert len(ret.response.VmStates) >= 3
+        assert len(ret.response.VmStates) == 3
 
     def test_T2073_include_all_vms_false(self):
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=False)
@@ -72,17 +72,17 @@ class Test_ReadVmsState(OscTestSuite):
         code_Name = 'running'
         ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_Name]})
         assert ret.status_code == 200, ret.response.display()
-        assert len(ret.response.VmStates) >= 2
+        assert len(ret.response.VmStates) == 2
         for i in range(len(ret.response.VmStates)):
             assert ret.response.VmStates[i].VmState == code_Name
         # check terminated
         code_Name = 'terminated'
         ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_Name]})
-        assert ret.response.VmStates.__len__() == 0
+        assert len(ret.response.VmStates) == 0
         # check terminated with AllVms Activated
         code_Name = 'terminated'
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=True, Filters={'VmStates': [code_Name]})
-        assert ret.response.VmStates.__len__() >= 1
+        assert len(ret.response.VmStates) == 1
         assert ret.response.VmStates[0].VmState == code_Name
 
     def test_T2077_multiple_filters(self):

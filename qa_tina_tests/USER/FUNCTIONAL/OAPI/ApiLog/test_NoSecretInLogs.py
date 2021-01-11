@@ -3,14 +3,16 @@
 
 import string
 import time
+
 import pytest
 
+from qa_sdk_common.config import DefaultAccount, DefaultRegion
 from qa_sdk_pub.osc_api import AuthMethod
+from qa_sdk_pub.osc_api import DefaultPubConfig
 from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
+from qa_test_tools.account_tools import delete_account, create_account
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools.account_tools import delete_account, create_account
-from qa_sdk_pub.osc_api import DefaultPubConfig
 
 
 @pytest.mark.region_cloudtrace
@@ -66,7 +68,7 @@ class Test_NoSecretInLogs(OscTestSuite):
             pid = create_account(self.a1_r1, account_info={'email_address': email, 'password': password})
             self.a1_r1.icu.SendResetPasswordEmail(Email=email)
             rettoken = self.a1_r1.identauth.IdauthPasswordToken.createAccountPasswordToken(accountEmail=email, account_id=pid)
-            config = DefaultPubConfig(None, None, login=email, password=password, region_name=self.a1_r1.config.region.name)
+            config = DefaultPubConfig(account=DefaultAccount(login=email, password=password), region=DefaultRegion(name=self.a1_r1.config.region.name))
             icu = OscIcuApi(service='icu', config=config)
             new_password = id_generator(size=20)
             icu.ResetAccountPassword(auth=AuthMethod.Empty, Token=rettoken.response.passwordToken, Password=new_password)

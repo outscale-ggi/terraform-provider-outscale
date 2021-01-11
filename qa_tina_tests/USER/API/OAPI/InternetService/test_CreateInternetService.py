@@ -1,5 +1,5 @@
-from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.misc import assert_dry_run
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_internet_gateways_state
 
 

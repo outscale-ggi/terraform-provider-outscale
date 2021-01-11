@@ -1,12 +1,11 @@
 
 import datetime
+from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_test_tools.misc import assert_error, generate_signature
-from qa_sdk_pub.osc_api import AuthMethod
-from time import sleep
 from qa_sdk_pub import osc_api
+from qa_test_tools.misc import assert_error, generate_signature
+from qa_test_tools.test_base import OscTestSuite, known_error
 
 
 class Test_CheckSignature(OscTestSuite):

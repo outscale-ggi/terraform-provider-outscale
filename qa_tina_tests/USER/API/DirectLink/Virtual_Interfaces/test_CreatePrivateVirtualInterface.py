@@ -2,9 +2,10 @@
 # pylint: disable=missing-docstring
 
 import pytest
-from qa_test_tools.test_base import OscTestSuite
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
+from qa_test_tools.test_base import OscTestSuite, known_error
 
 
 @pytest.mark.region_admin
@@ -13,7 +14,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.conn_id = None
-        cls.QUOTAS = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
+        cls.QUOTAS = {'dl_connection_limit': 2, 'dl_interface_limit': 2}
         super(Test_CreatePrivateVirtualInterface, cls).setup_class()
         ret = cls.a1_r1.directlink.DescribeLocations()
         ret = cls.a1_r1.directlink.CreateConnection(location=ret.response.locations[0].locationCode,
@@ -101,3 +102,20 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
                                                                 newPrivateVirtualInterface=newPrivateVirtualInterface)
         except OscApiException as error:
             assert_error(error, 400, "DirectConnectClientException", "Invalid type, newPrivateVirtualInterface.virtualInterfaceName must be a string")
+
+    @pytest.mark.region_directlink
+    def test_T5367_with_existing_virtual_interface(self):
+        newPrivateVirtualInterface = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
+        interface_info = None
+        self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+        interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
+                                                                             newPrivateVirtualInterface=newPrivateVirtualInterface)
+        try:
+            interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
+                                                                                 newPrivateVirtualInterface=newPrivateVirtualInterface)
+        except OscApiException as error:
+            if error.message == "Internal Error" and error.status_code == 500:
+                known_error("TINA-4915" , "Virtual interface : Error message")
+            assert False, 'remove known error code'
+        finally:
+            self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)

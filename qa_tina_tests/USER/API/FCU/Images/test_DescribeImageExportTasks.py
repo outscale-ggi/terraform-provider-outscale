@@ -10,7 +10,9 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_image_export_tasks_state
 
+
 NUM_EXPORT_TASK = 2
+
 
 @pytest.mark.region_storageservice
 class Test_DescribeImageExportTasks(OscTestSuite):
@@ -27,8 +29,8 @@ class Test_DescribeImageExportTasks(OscTestSuite):
             cls.inst_info = create_instances(cls.a1_r1)
             cls.inst_id = cls.inst_info[INSTANCE_ID_LIST][0]
 
-            for _ in range(NUM_EXPORT_TASK):
-                ret , image_id = create_image(cls.a1_r1, cls.inst_id, state='available')
+            for _ in range(NUM_EXPORT_TASK+1):
+                ret, image_id = create_image(cls.a1_r1, cls.inst_id, state='available')
                 cls.image_ids.append(image_id)
                 bucket_name = id_generator(prefix='bucket', chars=ascii_lowercase)
                 cls.bucket_names.append(bucket_name)
@@ -63,7 +65,7 @@ class Test_DescribeImageExportTasks(OscTestSuite):
     def test_T5356_without_params(self):
         ret = self.a1_r1.fcu.DescribeImageExportTasks().response
         assert ret.requestId
-        assert len(ret.imageExportTaskSet) >= 2
+        assert len(ret.imageExportTaskSet) >= NUM_EXPORT_TASK
 
     def test_T5357_with_image_export_task_id(self):
         ret = self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId=[self.image_exp_ids[0]]).response.imageExportTaskSet
@@ -78,12 +80,12 @@ class Test_DescribeImageExportTasks(OscTestSuite):
         assert ret.imageExport.imageId == self.image_ids[0]
 
     def test_T5358_with_image_export_task_ids(self):
-        ret = self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId=[self.image_exp_ids]).response
-        if len(ret.imageExportTaskSet) != 2:
+        ret = self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId=self.image_exp_ids[:-1]).response
+        if len(ret.imageExportTaskSet) != NUM_EXPORT_TASK:
             known_error('TINA-6064', 'DescribeImageExportTasks')
         assert False, 'Remove known error code'
         wait_image_export_tasks_state(osc_sdk=self.a1_r1, state='completed',
-                                     image_export_task_id_list=[ret[0].imageExportTaskId])
+                                      image_export_task_id_list=[ret[0].imageExportTaskId])
 
         for img_task in ret.imageExportTaskSet:
             assert img_task.imageExportTaskId == self.image_exp_ids

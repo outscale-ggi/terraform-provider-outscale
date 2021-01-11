@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_security_group
 from qa_tina_tools.tools.tina.delete_tools import delete_security_group
-from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 
 
 class Nic(OscTestSuite):

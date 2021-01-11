@@ -1,12 +1,14 @@
-from qa_test_tools.test_base import OscTestSuite
 import pytest
-from qa_test_tools import misc
-from qa_test_tools.misc import id_generator, assert_error
+
+from qa_sdk_common.config import DefaultAccount, DefaultRegion
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_pub import osc_api
 from qa_sdk_pub.osc_api import DefaultPubConfig
 from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account, delete_account
-from qa_sdk_pub import osc_api
+from qa_test_tools.misc import id_generator, assert_error
+from qa_test_tools.test_base import OscTestSuite
 
 
 @pytest.mark.region_admin
@@ -24,7 +26,7 @@ class Test_Strong_Password(OscTestSuite):
             self.rettoken = self.a1_r1.identauth.IdauthPasswordToken.createAccountPasswordToken(accountEmail=self.email, account_id=self.user)
             ret = self.a1_r1.intel.accesskey.find_by_user(owner=self.user)
             keys = ret.response.result[0]
-            config = DefaultPubConfig(ak=keys.name, sk=keys.secret, login=self.email, password=self.password, region_name=self.a1_r1.config.region.name)
+            config = DefaultPubConfig(account=DefaultAccount(ak=keys.name, sk=keys.secret, login=self.email, password=self.password), region=DefaultRegion(name=self.a1_r1.config.region.name))
             self.icu = OscIcuApi(service='icu', config=config)
         except:
             try:

@@ -1,11 +1,12 @@
 # -*- coding:utf-8 -*-
 # pylint: disable=missing-docstring
 import re
+
 import pytest
 
 from qa_common_tools.ssh import SshTools
-
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming import StreamingBase
+
 
 @pytest.mark.region_admin
 @pytest.mark.tag_qemu
