@@ -115,3 +115,12 @@ class Test_CreateLoadBalancerPolicy(LoadBalancer):
                     self.a2_r1.oapi.DeleteLoadBalancer(LoadBalancerName=self.lb_name)
                 except:
                     pass
+
+    def test_T5448_invalid_PolicyType(self):
+        try:
+            self.a1_r1.oapi.CreateLoadBalancerPolicy(
+            LoadBalancerName=self.lb_name, PolicyName=id_generator(prefix='policy-'),
+            PolicyType='load_balancé')
+            assert False, "call should not have been successful"
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4128')
