@@ -95,4 +95,49 @@ class Test_slot_history(OscTestSuite):
             assert len(ret.response.result), 'Could not find any history'
             raise OscTestException('Remove known error')
         except AssertionError:
-            known_error('TINA-6051', 'No history for lbus')
+            known_error('TINA-6123', 'No history found for lbus, by name')
+
+    def test_T5443_with_extended_lbu(self):
+        ret = self.a1_r1.intel_lbu.lb.describe()
+        if not ret.response.result:
+            pytest.skip('Could not find any lbu.')
+        ret = self.a1_r1.intel.monitor.slot_history(what='lbu-{}'.format(ret.response.result[0].name))
+        try:
+            assert len(ret.response.result), 'Could not find any history'
+            known_error('TINA-6123', 'No history found for lbus, by name')
+        except AssertionError:
+            raise OscTestException('Remove known error')
+
+    def test_T5444_with_lbu_wildcard(self):
+        ret1 = self.a1_r1.intel.monitor.slot_history(what='lbu*')
+        ret2 = self.a1_r1.intel.monitor.slot_history(what='lbu-*')
+        assert len(ret2.response.result), 'Could not find lbu history with wildcard'
+        try:
+            assert len(ret1.response.result), 'Could not find any history'
+            raise OscTestException('Remove known error')
+        except AssertionError:
+            known_error('TINA-6123', 'wildcard does not always work')
+
+    def test_T5445_with_vpc_wildcard(self):
+        ret1 = self.a1_r1.intel.monitor.slot_history(what='vpc*')
+        ret2 = self.a1_r1.intel.monitor.slot_history(what='vpc-*')
+        assert len(ret2.response.result), 'Could not find vpc history with wildcard'
+        try:
+            assert len(ret1.response.result), 'Could not find any history'
+            raise OscTestException('Remove known error')
+        except AssertionError:
+            known_error('TINA-6123', 'wildcard does not always work')
+
+    def test_T5446_with_vgw_wildcard(self):
+        ret1 = self.a1_r1.intel.monitor.slot_history(what='vgw*')
+        ret2 = self.a1_r1.intel.monitor.slot_history(what='vgw-*')
+        assert len(ret2.response.result), 'Could not find vgw history with wildcard'
+        try:
+            assert len(ret1.response.result), 'Could not find any history'
+            raise OscTestException('Remove known error')
+        except AssertionError:
+            known_error('TINA-6123', 'wildcard does not always work')
+
+    def test_T5447_with_instance_wildcard(self):
+        ret = self.a1_r1.intel.monitor.slot_history(what='i-1234*')
+        assert len(ret.response.result), 'Could not find instance history with wildcard'
