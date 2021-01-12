@@ -13,21 +13,10 @@ class Test_AddTags(OscTestSuite):
     def setup_class(cls):
         super(Test_AddTags, cls).setup_class()
         cls.ret = None
-        cls.tags = {}
         cls.lbu_name = id_generator(prefix='lbu-')
         cls.ret = create_load_balancer(cls.a1_r1, lb_name=cls.lbu_name, listeners=[
             {'InstancePort': 65535, 'Protocol': 'HTTP', 'LoadBalancerPort': 80}],
                                         availability_zones=[cls.a1_r1.config.region.az_name])
-
-    def setup_method(self, method):
-        super(Test_AddTags, self).setup_method(method)
-        try:
-            self.tags = {}
-        except Exception as error:
-            try:
-                self.teardown_method(method)
-            finally:
-                raise error
 
     def teardown_method(self, method):
         try:
