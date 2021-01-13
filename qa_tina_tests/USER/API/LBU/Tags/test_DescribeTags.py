@@ -70,10 +70,10 @@ class Test_DescribeTags(OscTestSuite):
         assert ret.TagDescriptions[0].Tags[0].Value == self.filters_list[0]['Value']
         ret = self.a1_r1.lbu.DescribeTags(LoadBalancerNames=[self.lbu_names[1]]).response.DescribeTagsResult
         assert len(ret.TagDescriptions[0].Tags) == 2
-        assert ret.TagDescriptions[0].Tags[0].Key == self.filters_list[2]['Key']
-        assert ret.TagDescriptions[0].Tags[0].Value == self.filters_list[2]['Value']
-        assert ret.TagDescriptions[0].Tags[1].Key == self.filters_list[1]['Key']
-        assert ret.TagDescriptions[0].Tags[1].Value == self.filters_list[1]['Value']
+        assert ret.TagDescriptions[0].Tags[0].Key in [self.filters_list[2]['Key'], self.filters_list[1]['Key']]
+        assert ret.TagDescriptions[0].Tags[0].Value in [self.filters_list[2]['Value'], self.filters_list[1]['Value']]
+        assert ret.TagDescriptions[0].Tags[1].Key in [self.filters_list[2]['Key'], self.filters_list[1]['Key']]
+        assert ret.TagDescriptions[0].Tags[1].Value in [self.filters_list[2]['Value'], self.filters_list[1]['Value']]
 
     def test_T5394_with_empty_lbu_name(self):
         try:

@@ -34,7 +34,7 @@ class ApiAccessRule(OscTestSuite):
             for cafile in [cls.ca1files[1], cls.ca2files[1], cls.ca3files[1]]:
                 with open(cafile) as f:
                     cls.ca_ids.append(cls.osc_sdk.oapi.CreateCa(CaPem=f.read(), Description='description').response.Ca.CaId)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
             except:

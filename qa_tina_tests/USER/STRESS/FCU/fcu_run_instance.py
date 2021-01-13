@@ -64,8 +64,7 @@ if __name__ == '__main__':
     oscsdk = OscSdk(config=OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE))
     created = []
     try:
-        inst_id = set()
-        inst_ids = []
+        inst_ids = set()
         i = 0
         logger.info("Start workers")
 
@@ -89,12 +88,12 @@ if __name__ == '__main__':
 
         while not queue.empty():
             res = queue.get()
-            inst_id.add(res["inst_ids"])
+            inst_ids.add(res["inst_ids"])
         if args.same_token:
-            assert len(inst_id) == 1
+            assert len(inst_ids) == 1
         else:
-            assert len(inst_id) == args.process_number - 1
+            assert len(inst_ids) == args.process_number - 1
 
     finally:
-        for id in inst_id:
-            terminate_instances(oscsdk, [id])
+        for inst_id in inst_ids:
+            terminate_instances(oscsdk, [inst_id])
