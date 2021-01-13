@@ -1,6 +1,8 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools import misc
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina import create_tools
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 
@@ -12,6 +14,9 @@ class Test_CreateLoadBalancerListeners(OscTestSuite):
         super(Test_CreateLoadBalancerListeners, cls).setup_class()
         cls.lbu_name = id_generator('lbu-')
         cls.ret_create = None
+        cls.crtpath, cls.keypath = create_tools.create_self_signed_cert()
+        cls.key = open(cls.keypath).read()
+        cls.cert = open(cls.crtpath).read()
         try:
             cls.ret_create = create_load_balancer(cls.a1_r1, cls.lbu_name, availability_zones=[cls.a1_r1.config.region.az_name],
                                                   listeners=[{'InstancePort': 80, 'Protocol': 'HTTP', 'LoadBalancerPort': 80}])
@@ -36,6 +41,21 @@ class Test_CreateLoadBalancerListeners(OscTestSuite):
                                                                'Protocol': 'HTTP',
                                                                'LoadBalancerPort': 8080,
                                                                'SSLCertificateId': None}])
+    def test_T5430_with_ssl_certificate_id(self):
+        orn = None
+        sc_name = misc.id_generator(prefix='sc-')
+        ret1 = self.a1_r1.oapi.CreateServerCertificate(Name=sc_name, Body=self.cert, PrivateKey=self.key)
+        ret2 = self.a1_r1.eim.ListServerCertificates()
+        for certif in  ret2.response.ListServerCertificatesResult.ServerCertificateMetadataList:
+            if certif.ServerCertificateId == ret1.response.ServerCertificate.Id:
+                orn = certif.Arn
+        if orn:
+            self.a1_r1.lbu.CreateLoadBalancerListeners(LoadBalancerName=self.lbu_name,
+                                                       Listeners=[{'InstancePort': 8080,
+                                                                   'Protocol': 'HTTPS',
+                                                                   'LoadBalancerPort': 8080,
+                                                                   'SSLCertificateId': orn}])
+
 
     def test_T1302_with_only_lb_name(self):
         try:
