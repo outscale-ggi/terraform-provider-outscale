@@ -1,7 +1,9 @@
 import datetime
 import uuid
+from string import ascii_lowercase
 
 import pytest
+from qa_test_tools.misc import id_generator
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
@@ -13,7 +15,8 @@ from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tools.tina.create_tools import attach_volume, create_instances_old, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_keypair
-from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
+from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state, \
+    wait_snapshot_export_tasks_state
 
 
 class Test_create_volume_from_snapshot(OscTestSuite):
@@ -107,6 +110,78 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             ret = self.a1_r1.fcu.CreateSnapshot(VolumeId=volume_id)
             snap_id = ret.response.snapshotId
             wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
+            # create volume /dev/xvdc
+            volume_id_1, device_1, volume_mount_1 = self.create_volume(volumeType='standard', volumeSize=1,
+                                                                       drive_letter_code='c', Snapshot_Id=snap_id)
+            volume_ids.append(volume_id_1)
+            # attach the volume
+            attach_volume(self.a1_r1, self.inst_id, volume_id_1, device_1)
+            # mount the volume
+            format_mount_volume(self.sshclient, device_1, volume_mount_1, False)
+            # read from file
+            read_text_file_volume(self.sshclient, volume_mount_1, test_file, text_to_check)
+        finally:
+            try:
+                if volume_ids:
+                    for vol_id in volume_ids:
+                        self.a1_r1.fcu.DetachVolume(VolumeId=vol_id)
+                    wait_volumes_state(self.a1_r1, volume_ids, state='available', cleanup=False)
+                    for vol_id in volume_ids:
+                        self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)
+                if snap_id:
+                    self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
+            except Exception as error:
+                self.logger.exception(error)
+                pytest.fail("An unexpected error happened : " + str(error))
+
+    @pytest.mark.region_storageservice
+    def test_T5449_create_volume_from_imported_snapshot_from_storageservice(self):
+        volume_ids = []
+        snap_id = None
+        supported_snap_types = ['qcow2']
+        bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
+        key = None
+        try:
+            # create volume /dev/xvdb
+            volume_id, device, volume_mount = self.create_volume(volumeType='standard', volumeSize=1, drive_letter_code='b')
+            volume_ids.append(volume_id)
+            # attach the volume
+            attach_volume(self.a1_r1, self.inst_id, volume_id, device)
+            # format the volume
+            format_mount_volume(self.sshclient, device, volume_mount, True)
+            # write some text on the file
+            test_file = "test_snapshots.txt"
+            text_to_check = uuid.uuid4().hex
+            create_text_file_volume(self.sshclient, volume_mount, test_file, text_to_check)
+            read_text_file_volume(self.sshclient, volume_mount, test_file, text_to_check)
+            # unmount volume to force write to the disk
+            cmd = "sudo umount {}".format(device)
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, cmd)
+            self.logger.info(out)
+            # create a snap
+            ret = self.a1_r1.fcu.CreateSnapshot(VolumeId=volume_id)
+            snap_id = ret.response.snapshotId
+            wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
+            ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=snap_id,
+                                                          ExportToOsu={'DiskImageFormat': supported_snap_types[0], 'OsuBucket': bucket_name})
+            task_id = ret.response.snapshotExportTask.snapshotExportTaskId
+
+            wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
+            k_list = self.a1_r1.storageservice.list_objects(Bucket=bucket_name)
+            if 'Contents' in list(k_list.keys()):
+                key = k_list['Contents'][0]['Key']
+            else:
+                assert False, "Key not found on storageservice"
+            params = {'Bucket': bucket_name, 'Key': key}
+            url = self.a1_r1.storageservice.generate_presigned_url(ClientMethod='get_object', Params=params,
+                                                                   ExpiresIn=3600)
+            ret = self.a1_r1.fcu.DescribeSnapshots(SnapshotId=[snap_id])
+            size = ret.response.snapshotSet[0].volumeSize
+            gb_to_byte = int(size) * pow(1024, 3)
+            ret = self.a1_r1.fcu.ImportSnapshot(snapshotLocation=url, snapshotSize=gb_to_byte,
+                                                description='This is a snapshot test')
+            snap_id_imported = ret.response.snapshotId
+            wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id_imported])
             # create volume /dev/xvdc
             volume_id_1, device_1, volume_mount_1 = self.create_volume(volumeType='standard', volumeSize=1,
                                                                        drive_letter_code='c', Snapshot_Id=snap_id)

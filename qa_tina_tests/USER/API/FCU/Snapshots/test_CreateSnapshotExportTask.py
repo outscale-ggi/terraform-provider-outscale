@@ -59,14 +59,13 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
 
     def teardown_method(self, method):
         try:
-            if 'osu' in self.a1_r1.config.region.get_info(constants.FEATURES):
+            if self.a1_r1.config.region.get_info(constants.STORAGESERVICE) in ['oos', 'osu']:
                 delete_buckets(self.a1_r1, [self.bucket_name])
                 delete_buckets(self.a2_r1, [self.bucket_name])
         finally:
             super(Test_CreateSnapshotExportTask, self).teardown_method(method)
 
-    @pytest.mark.region_synchro_osu
-    @pytest.mark.region_osu
+    @pytest.mark.region_storageservice
     def test_T1019_valid_parameters(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                             'OsuBucket': self.bucket_name})
@@ -78,7 +77,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         assert ret.response.snapshotExportTask.exportToOsu.diskImageFormat == 'qcow2'
         assert ret.response.snapshotExportTask.exportToOsu.osuBucket == self.bucket_name
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
-        k_list = self.a1_r1.osu.list_objects(Bucket=self.bucket_name)['Contents']
+        k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)['Contents']
         assert len(k_list) == 1
         assert k_list[0]['Size'] > 0
         if '{}-{}.qcow2.gz'.format(self.snap_id, task_id.split('-')[2]) == k_list[0]['Key']:
@@ -116,8 +115,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
             assert_error(error, 400, 'InvalidSnapshot.NotFound',
                          'The Snapshot ID does not exist: {}, for account: {}'.format(self.snap_id, self.a2_r1.config.account.account_id))
 
-    @pytest.mark.region_synchro_osu
-    @pytest.mark.region_osu
+    @pytest.mark.region_storageservice
     def test_T3890_with_shared_snapshot_id(self):
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
                                                CreateVolumePermission={'Add': [{'UserId': self.a2_r1.config.account.account_id}]})
@@ -162,16 +160,15 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue', "Value of parameter 'OsuBucket' must be lowercase. Received: FOO")
 
-    @pytest.mark.region_synchro_osu
-    @pytest.mark.region_osu
+    @pytest.mark.region_storageservice
     def test_T3891_with_existing_osu_bucket(self):
-        self.a1_r1.osu.create_bucket(Bucket=self.bucket_name)
+        self.a1_r1.storageservice.create_bucket(Bucket=self.bucket_name)
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                             'OsuBucket': self.bucket_name})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         assert ret.response.snapshotExportTask.exportToOsu.osuBucket == self.bucket_name
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
-        k_list = self.a1_r1.osu.list_objects(Bucket=self.bucket_name)['Contents']
+        k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)['Contents']
         assert len(k_list) == 1
         assert k_list[0]['Size'] > 0
         if '{}-{}.qcow2.gz'.format(self.snap_id, task_id.split('-')[2]) == k_list[0]['Key']:
@@ -179,15 +176,14 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         assert False, "Remove known error"
         assert '{}.qcow2.gz'.format(task_id) == k_list[0]['Key']
 
-    @pytest.mark.region_synchro_osu
-    @pytest.mark.region_osu
+    @pytest.mark.region_storageservice
     def test_T3892_with_osu_key(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                             'OsuBucket': self.bucket_name, 'OsuKey': 'osu_key'})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         assert not hasattr(ret.response.snapshotExportTask.exportToOsu, 'osuKey')
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
-        k_list = self.a1_r1.osu.list_objects(Bucket=self.bucket_name)['Contents']
+        k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)['Contents']
         assert len(k_list) == 1
         assert k_list[0]['Size'] > 0
         if '{}-{}.qcow2.gz'.format(self.snap_id, task_id.split('-')[2]) == k_list[0]['Key']:
@@ -196,8 +192,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         # OsuKey not supported by Tina
         assert '{}.qcow2.gz'.format(task_id) == k_list[0]['Key']
 
-    @pytest.mark.region_synchro_osu
-    @pytest.mark.region_osu
+    @pytest.mark.region_storageservice
     def test_T3893_with_osu_prefix(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                             'OsuBucket': self.bucket_name,
@@ -205,7 +200,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         assert not hasattr(ret.response.snapshotExportTask.exportToOsu, 'osuPrefix')
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
-        k_list = self.a1_r1.osu.list_objects(Bucket=self.bucket_name)['Contents']
+        k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)['Contents']
         assert len(k_list) == 1
         assert k_list[0]['Size'] > 0
         if 'osu_prefix-{}-{}.qcow2.gz'.format(self.snap_id, task_id.split('-')[2]) == k_list[0]['Key']:
@@ -213,8 +208,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         assert False, "Remove known error"
         assert 'osu_prefix-{}.qcow2.gz'.format(task_id) == k_list[0]['Key']
 
-    @pytest.mark.region_synchro_osu
-    @pytest.mark.region_osu
+    @pytest.mark.region_storageservice
     def test_T3894_with_ak_sk(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                             'OsuBucket': self.bucket_name,
@@ -241,8 +235,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
             assert_error(error, 400, 'InvalidSnapshot.NotFound',
                          'The Snapshot ID does not exist: foo, for account: {}'.format(self.a1_r1.config.account.account_id))
 
-    @pytest.mark.region_synchro_osu
-    @pytest.mark.region_osu
+    @pytest.mark.region_storageservice
     def test_T3896_with_invalid_ak_sk(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                             'OsuBucket': self.bucket_name,
