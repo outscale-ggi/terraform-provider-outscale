@@ -172,10 +172,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
             self.a2_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg2_id, SourceSecurityGroupOwnerId=self.a1_r1.config.account.account_id)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            if error.error_code == "MissingParameter" and error.message == "Parameter cannot be empty: Authorizations":
-                known_error("TINA-6047", "Incorrect error returned by AuthorizeSecurityGroupIngress")
-            assert False, 'Remove known error code'
-            assert_error(error, 400, 'InvalidPermission.Malformed', 'IpProtocol, IpPermissions or SourceSecurityGroupName is missing')
+            assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: Authorizations')
         finally:
             if sg2_id:
                 try:
@@ -203,10 +200,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                                                          CidrIp=Configuration.get('cidr', 'allips'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.error_code == "MissingParameter" and error.message == "Parameter cannot be empty: Authorizations":
-                known_error("TINA-6047", "Incorrect error returned by AuthorizeSecurityGroupIngress")
-            assert False, 'Remove known error code'
-            assert_error(error, 400, 'InvalidPermission.Malformed', "IpProtocol, IpPermissions or SourceSecurityGroupName is missing")
+            assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: Authorizations')
 
     def test_T3046_private_no_ip_protocol_param(self):
         try:
@@ -214,10 +208,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                                                          CidrIp=Configuration.get('cidr', 'allips'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.error_code == "MissingParameter" and error.message == "Parameter cannot be empty: Authorizations":
-                known_error("TINA-6047", "Incorrect error returned by AuthorizeSecurityGroupIngress")
-            assert False, 'Remove known error code'
-            assert_error(error, 400, 'InvalidPermission.Malformed', "IpProtocol, IpPermissions or SourceSecurityGroupName is missing")
+            assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: Authorizations')
 
     def test_T5345_public_integer_ip_protocol_param(self):
         try:
