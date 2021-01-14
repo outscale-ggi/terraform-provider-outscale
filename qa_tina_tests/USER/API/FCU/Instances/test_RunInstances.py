@@ -6,7 +6,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_instances, create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_instances, delete_vpc, \
     terminate_instances
@@ -46,19 +46,34 @@ class Test_RunInstances(OscTestSuite):
                 wait_instances_state(self.a1_r1, [inst_id], 'running')
                 self.a1_r1.fcu.TerminateInstances(InstanceId=[inst_id])
             wait_instances_state(self.a1_r1, [inst_id], 'terminated')
+            ret = self.a1_r1.intel.instance.get(owner=self.a1_r1.config.account.account_id, id=inst_id)
+            if value == 'terminate':
+                if ret.response.result.terminating:
+                    assert False, 'Remove known error'
+                else:
+                    self.a1_r1.fcu.TerminateInstances(InstanceId=[inst_id])
+                    known_error('TINA-6142', '...')
+            assert ret.response.result.terminating
+            assert ret.response.result.state == 'terminated'
+            assert ret.response.result.ustate == 'terminated'
 
+    @pytest.mark.region_admin
     def test_T924_without_instance_shutdown_behavior(self):
         self.run_with_instance_initiated_shutdown_behavior(value_to_check='stop')
 
+    @pytest.mark.region_admin
     def test_T925_with_instance_shutdown_behavior_stop(self):
         self.run_with_instance_initiated_shutdown_behavior(value='stop')
 
+    @pytest.mark.region_admin
     def test_T926_with_instance_shutdown_behavior_terminate(self):
         self.run_with_instance_initiated_shutdown_behavior(value='terminate')
 
+    @pytest.mark.region_admin
     def test_T927_with_instance_shutdown_behavior_restart(self):
         self.run_with_instance_initiated_shutdown_behavior(value='restart')
 
+    @pytest.mark.region_admin
     def test_T928_with_instance_shutdown_behavior_invalid(self):
         self.run_with_instance_initiated_shutdown_behavior(value='shutdown', error_code='InvalidParameterValue', status_code=400)
 
