@@ -277,7 +277,7 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
             inst = ret.response.reservationSet[0].instancesSet[0]
             assert hasattr(inst, 'privateIpAddress')
             if not hasattr(inst, 'ipAddress'):
-                known_error('TINA-4168', 'incorrect ip allocation')
+                known_error('TINA-6134', 'incorrect ip allocation')
             assert False, 'Remove know error code'
             assert hasattr(inst, 'ipAddress')
         finally:
@@ -311,7 +311,7 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
             inst = ret.response.reservationSet[0].instancesSet[0]
             assert hasattr(inst, 'privateIpAddress')
             if hasattr(inst, 'ipAddress'):
-                known_error('TINA-4168', 'incorrect ip allocation')
+                known_error('TINA-6134', 'incorrect ip allocation')
             assert False, 'Remove know error code'
             assert not hasattr(inst, 'ipAddress')
         finally:
