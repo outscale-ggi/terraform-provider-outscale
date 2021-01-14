@@ -57,18 +57,23 @@ class Test_RunInstances(OscTestSuite):
             assert ret.response.result.state == 'terminated'
             assert ret.response.result.ustate == 'terminated'
 
+    @pytest.mark.region_admin
     def test_T924_without_instance_shutdown_behavior(self):
         self.run_with_instance_initiated_shutdown_behavior(value_to_check='stop')
 
+    @pytest.mark.region_admin
     def test_T925_with_instance_shutdown_behavior_stop(self):
         self.run_with_instance_initiated_shutdown_behavior(value='stop')
 
+    @pytest.mark.region_admin
     def test_T926_with_instance_shutdown_behavior_terminate(self):
         self.run_with_instance_initiated_shutdown_behavior(value='terminate')
 
+    @pytest.mark.region_admin
     def test_T927_with_instance_shutdown_behavior_restart(self):
         self.run_with_instance_initiated_shutdown_behavior(value='restart')
 
+    @pytest.mark.region_admin
     def test_T928_with_instance_shutdown_behavior_invalid(self):
         self.run_with_instance_initiated_shutdown_behavior(value='shutdown', error_code='InvalidParameterValue', status_code=400)
 
