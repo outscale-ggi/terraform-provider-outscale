@@ -134,7 +134,7 @@ class Test_export_import(OscTestSuite):
             sshclient = SshTools.check_connection_paramiko(self.inst_info[INSTANCE_SET][0]['ipAddress'], self.inst_info[KEY_PAIR][PATH],
                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             cmd = 'sudo mkdir test'
-            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+            _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             # create image
             image_id = self.a1_r1.fcu.CreateImage(InstanceId=inst_id, Name=id_generator(prefix='omi_')).response.imageId
             wait_images_state(self.a1_r1, [image_id], state='available')
@@ -171,7 +171,7 @@ class Test_export_import(OscTestSuite):
                                                            username=self.a1_r1.config.region.get_info(
                                                                constants.CENTOS_USER))
             cmd = 'sudo cd test'
-            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+            _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
 
         except Exception as error:
