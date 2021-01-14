@@ -41,8 +41,9 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             # create keypair
             cls.kp_info = create_keypair(cls.a1_r1)
             # run instance
-            ret, id_list = create_instances_old(cls.a1_r1, key_name=cls.kp_info[NAME], security_group_id_list=[sg_id], state='ready')
+            ret, id_list = create_instances_old(cls.a1_r1, num=2, key_name=cls.kp_info[NAME], security_group_id_list=[sg_id], state='ready')
             cls.inst_id = id_list[0]
+            cls.inst_id_1 = id_list[1]
             cls.public_ip_inst = ret.response.reservationSet[0].instancesSet[0].ipAddress
             cls.logger.info('PublicIP : {}'.format(cls.public_ip_inst))
             cls.sshclient = check_tools.check_ssh_connection(cls.a1_r1, cls.inst_id, cls.public_ip_inst, cls.kp_info[PATH], username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
@@ -55,7 +56,7 @@ class Test_create_volume_from_snapshot(OscTestSuite):
     def teardown_class(cls):
         try:
             # terminate the instance
-            delete_instances_old(cls.a1_r1, [cls.inst_id])
+            delete_instances_old(cls.a1_r1, [cls.inst_id, cls.inst_id_1])
 
             delete_keypair(cls.a1_r1, cls.kp_info)
 
@@ -146,7 +147,7 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             volume_id, device, volume_mount = self.create_volume(volumeType='standard', volumeSize=1, drive_letter_code='b')
             volume_ids.append(volume_id)
             # attach the volume
-            attach_volume(self.a1_r1, self.inst_id, volume_id, device)
+            attach_volume(self.a1_r1, self.inst_id_1, volume_id, device)
             # format the volume
             format_mount_volume(self.sshclient, device, volume_mount, True)
             # write some text on the file
@@ -187,7 +188,7 @@ class Test_create_volume_from_snapshot(OscTestSuite):
                                                                        drive_letter_code='c', Snapshot_Id=snap_id)
             volume_ids.append(volume_id_1)
             # attach the volume
-            attach_volume(self.a1_r1, self.inst_id, volume_id_1, device_1)
+            attach_volume(self.a1_r1, self.inst_id_1, volume_id_1, device_1)
             # mount the volume
             format_mount_volume(self.sshclient, device_1, volume_mount_1, False)
             # read from file
