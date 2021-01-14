@@ -29,9 +29,12 @@ class Test_create_volume_from_snapshot(OscTestSuite):
         cls.sg_name = 'sg_T63_{}'.format(unique_id)
         IP_Ingress = Configuration.get('cidr', 'allips')
         cls.public_ip_inst = None
+        cls.public_ip_inst_storage = None
         cls.inst_id = None
+        cls.inst_id_storage = None
         cls.kp_info = None
         cls.sshclient = None
+        cls.sshclient_storage = None
         try:
             # create security group
             sg_response = cls.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test_sg_description', GroupName=cls.sg_name)
@@ -42,11 +45,14 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             cls.kp_info = create_keypair(cls.a1_r1)
             # run instance
             ret, id_list = create_instances_old(cls.a1_r1, num=2, key_name=cls.kp_info[NAME], security_group_id_list=[sg_id], state='ready')
-            cls.inst_id = id_list[0]
-            cls.inst_id_1 = id_list[1]
+            cls.inst_id = id_list[1]
+            cls.inst_id_storage = id_list[0]
             cls.public_ip_inst = ret.response.reservationSet[0].instancesSet[0].ipAddress
+            cls.public_ip_inst_storage = ret.response.reservationSet[0].instancesSet[1].ipAddress
+
             cls.logger.info('PublicIP : {}'.format(cls.public_ip_inst))
             cls.sshclient = check_tools.check_ssh_connection(cls.a1_r1, cls.inst_id, cls.public_ip_inst, cls.kp_info[PATH], username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            cls.sshclient_storage = check_tools.check_ssh_connection(cls.a1_r1, cls.inst_id_storage, cls.public_ip_inst_storage, cls.kp_info[PATH], username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # cls.sshclient = SshTools.check_connection_paramiko(cls.public_ip_inst, cls.kp_info[PATH], username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except Exception as error:
             cls.teardown_class()
@@ -56,7 +62,7 @@ class Test_create_volume_from_snapshot(OscTestSuite):
     def teardown_class(cls):
         try:
             # terminate the instance
-            delete_instances_old(cls.a1_r1, [cls.inst_id, cls.inst_id_1])
+            delete_instances_old(cls.a1_r1, [cls.inst_id, cls.inst_id_storage])
 
             delete_keypair(cls.a1_r1, cls.kp_info)
 
@@ -147,17 +153,17 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             volume_id, device, volume_mount = self.create_volume(volumeType='standard', volumeSize=1, drive_letter_code='b')
             volume_ids.append(volume_id)
             # attach the volume
-            attach_volume(self.a1_r1, self.inst_id_1, volume_id, device)
+            attach_volume(self.a1_r1, self.inst_id_storage, volume_id, device)
             # format the volume
-            format_mount_volume(self.sshclient, device, volume_mount, True)
+            format_mount_volume(self.sshclient_storage, device, volume_mount, True)
             # write some text on the file
             test_file = "test_snapshots.txt"
             text_to_check = uuid.uuid4().hex
-            create_text_file_volume(self.sshclient, volume_mount, test_file, text_to_check)
-            read_text_file_volume(self.sshclient, volume_mount, test_file, text_to_check)
+            create_text_file_volume(self.sshclient_storage, volume_mount, test_file, text_to_check)
+            read_text_file_volume(self.sshclient_storage, volume_mount, test_file, text_to_check)
             # unmount volume to force write to the disk
             cmd = "sudo umount {}".format(device)
-            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, cmd)
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient_storage, cmd)
             self.logger.info(out)
             # create a snap
             ret = self.a1_r1.fcu.CreateSnapshot(VolumeId=volume_id)
@@ -188,11 +194,11 @@ class Test_create_volume_from_snapshot(OscTestSuite):
                                                                        drive_letter_code='c', Snapshot_Id=snap_id)
             volume_ids.append(volume_id_1)
             # attach the volume
-            attach_volume(self.a1_r1, self.inst_id_1, volume_id_1, device_1)
+            attach_volume(self.a1_r1, self.inst_id_storage, volume_id_1, device_1)
             # mount the volume
-            format_mount_volume(self.sshclient, device_1, volume_mount_1, False)
+            format_mount_volume(self.sshclient_storage, device_1, volume_mount_1, False)
             # read from file
-            read_text_file_volume(self.sshclient, volume_mount_1, test_file, text_to_check)
+            read_text_file_volume(self.sshclient_storage, volume_mount_1, test_file, text_to_check)
         finally:
             try:
                 if volume_ids:
