@@ -10,9 +10,10 @@ class Test_CreateAccessKey(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_CreateAccessKey, cls).setup_class()
+        cls.user = None
         try:
             cls.username = id_generator(prefix='user_')
-            cls.a1_r1.eim.CreateUser(UserName=cls.username)
+            cls.user = cls.a1_r1.eim.CreateUser(UserName=cls.username)
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -24,8 +25,8 @@ class Test_CreateAccessKey(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
-            cls.a1_r1.eim.DeleteUserPolicy(PolicyName='full_api', UserName=cls.username)
-            cls.a1_r1.eim.DeleteUser(UserName=cls.username)
+            if cls.user:
+                cls.a1_r1.eim.DeleteUser(UserName=cls.username)
         finally:
             super(Test_CreateAccessKey, cls).teardown_class()
 
