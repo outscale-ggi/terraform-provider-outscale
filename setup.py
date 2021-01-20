@@ -4,7 +4,7 @@ import sys
 from setuptools import find_packages, setup
 
 sys.path.insert(0, os.path.abspath('.'))  # isort:skip
-from qa_tina_tests import version  # isort:skip
+from qa_tina_tests import version  # isort:skip pylint:disable=wrong-import-position
 
 
 def parse_requirements(filename):
@@ -37,7 +37,7 @@ for DEP in DEPS:
             PKG_DIR[SUB_DEP] = './{}/{}'.format(DEP, SUB_DEP)
         PACKAGES += [p for p in find_packages(where='./{}'.format(DEP)) if p in DEPS[DEP] or p.split('.')[0] in DEPS[DEP]]
     else:
-        PKG_DIR[DEP] = './{}/{}'.format(DEP, DEP)
+        PKG_DIR[DEP] = './{dep}/{dep}'.format(dep=DEP)
         tmp_pkgs = find_packages(where='./{}'.format(DEP))
         if tmp_pkgs:
             PACKAGES += [p for p in find_packages(where='./{}'.format(DEP)) if p == DEP or p.startswith('{}.'.format(DEP))]
