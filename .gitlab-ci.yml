@@ -1,0 +1,228 @@
+image: "python:3.6"
+#image: "osc-python-3-6:latest"
+
+variables:
+  MODULE_PATH: "qa_tina_tests"
+
+before_script:
+  - mkdir ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - echo -e "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - git config --global http.sslverify false
+  - env | grep -v "SSH_PRIVATE_KEY"
+  - python -V
+  - make init-deps
+
+stages:
+  - dependencies
+  - lint
+  - test
+  - security
+  - build
+  - deploy
+
+todo:
+  stage: dependencies
+  script:
+    - make check-todo
+  only:
+    - /^develop.*$/
+    - master
+  allow_failure: true
+
+requirements:
+  stage: dependencies
+  script:
+    - make update-req
+    - git --no-pager diff requirements.txt
+    - test $(git diff-index --name-only HEAD | grep -c requirements.txt) = 0
+  only:
+    refs:
+      - /^develop.*$/
+      - master
+  allow_failure: true
+
+dependencies:
+  stage: dependencies
+  script:
+    - make update-deps
+    - git --no-pager diff internal_deps.txt
+    - test $(git diff-index --name-only HEAD | grep -c internal_deps.txt) = 0
+  only:
+    refs:
+      - /^develop.*$/
+      - master
+  allow_failure: true
+
+check_init_deps:
+  stage: dependencies
+  script:
+    - make check-init
+  only:
+    refs:
+      - /^develop.*$/
+      - master
+  allow_failure: true
+
+.lint:
+  stage: lint
+  needs: []
+  script:
+    - make pylint
+  only:
+    refs:
+      - /^develop.*$/
+      - master
+
+.lint_mr:
+  stage: lint
+  needs: []
+  script:
+    - git fetch
+    - make pylint-mr MR_SRC=origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME MR_DST=origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+  only:
+    refs:
+      - merge_requests
+
+.test:
+  stage: test
+  needs: []
+  script:
+    - make test
+  only:
+    refs:
+      - /^develop.*$/
+      - master
+
+.security:
+  stage: security
+  needs: []
+  script:
+    - make bandit
+  only:
+    refs:
+      - /^develop.*$/
+      - master
+
+.security_mr:
+  stage: security
+  needs: []
+  script:
+    - git fetch
+    - make bandit-mr MR_SRC=origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME MR_DST=origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+  only:
+    refs:
+      - merge_requests
+
+lint:3.6:
+  extends: .lint
+
+lint_mr:3.6:
+  extends: .lint_mr
+
+test:3.6:
+  extends: .test
+
+security:3.6:
+  extends: .security
+
+security_mr:3.6:
+  extends: .security_mr
+
+.3.7:
+  image: python:3.7
+
+lint:3.7:
+  extends:
+      - .3.7
+      - .lint
+
+test:3.7:
+  extends:
+      - .3.7
+      - .test
+
+security:3.7:
+  extends:
+      - .3.7
+      - .security
+
+.3.8:
+  image: python:3.8
+
+lint:3.8:
+  extends:
+      - .3.8
+      - .lint
+
+test:3.8:
+  extends:
+      - .3.8
+      - .test
+
+security:3.8:
+  extends:
+      - .3.8
+      - .security
+
+.3.9:
+  image: python:3.9
+
+lint:3.9:
+  extends:
+      - .3.9
+      - .lint
+
+test:3.9:
+  extends:
+      - .3.9
+      - .test
+
+security:3.9:
+  extends:
+      - .3.9
+      - .security
+
+.rc:
+  image: python:rc
+  allow_failure: true
+
+lint:rc:
+  extends:
+      - .rc
+      - .lint
+
+test:rc:
+  extends:
+      - .rc
+      - .test
+
+security:rc:
+  extends:
+      - .rc
+      - .security
+
+build:
+  stage: build
+  script:
+    - make build
+  artifacts:
+    paths:
+      - dist/*
+  only:
+    - /^develop.*$/
+    - master
+    - merge_requests
+    - /^TINA-[0-9]+\.[0-9]+\.x$/
+    - /^TINA-[0-9]+\.[0-9]+\.[0-9]+$/
+    - tags
+
+deploy:
+  stage: deploy
+  script:
+    - ./deploy.sh dist/osc_qa_tina_tests*-py3-none-any.whl ~/.ssh/id_rsa
+  only:
+    - /^TINA-[0-9]+\.[0-9]+\.x$/
+    - /^TINA-[0-9]+\.[0-9]+\.[0-9]+$/
+    - tags

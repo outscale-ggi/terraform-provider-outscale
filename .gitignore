@@ -1,8 +1,6 @@
 *.pyc
 /.pytest_cache/
 .venv
-venv_build
-venv_dev
 qa_common_tools
 qa_support_tools
 qa_tina_tools
@@ -10,8 +8,3 @@ qa_test_tools
 qa_sdks
 /.project
 /.pydevproject
-/ca1cn1.csr
-/ca1cn2.csr
-/ca2cn1.csr
-/ca3cn1.csr
-/cacert.cnf
