@@ -3,10 +3,9 @@ import sys
 
 from setuptools import find_packages, setup
 
-from qa_tina_tests import version
-
-# sys.path.insert(0, os.path.abspath('.'))  # isort:skip
-# from qa_tina_tests import version  # isort:skip
+if 1 == 1:
+    sys.path.insert(0, os.path.abspath('.'))
+    from qa_tina_tests import version
 
 
 def parse_requirements(filename):
@@ -33,7 +32,7 @@ PACKAGES = []
 PKG_DIR = {}
 
 for DEP in DEPS:
-    print('dep = {}'.format(DEP))
+    # print('dep = {}'.format(DEP))
     if DEPS[DEP]:
         for SUB_DEP in DEPS[DEP]:
             PKG_DIR[SUB_DEP] = './{}/{}'.format(DEP, SUB_DEP)
@@ -59,8 +58,8 @@ setup(
     package_dir=PKG_DIR,
     package_data={
         'qa_test_tools.config': ['*.cfg'],
-        'specs.yaml': ['*.yaml']
-        #'qa_tools.specs.oapi': ['*.yaml']
+        'specs.yaml': ['*.yaml'],
+        # 'qa_tools.specs.oapi': ['*.yaml']
     },
     # data_files = [('etc/osc-qa-tina-redwires', ['qa_tina_redwires/config/osc_credentials', 'qa_tina_redwires/config/osc_regions'])],
     classifiers=["Programming Language :: Python :: 3", "License :: OSI Approved :: MIT License", "Operating System :: OS Independent",],
