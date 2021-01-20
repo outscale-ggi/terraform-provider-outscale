@@ -3,8 +3,10 @@ import sys
 
 from setuptools import find_packages, setup
 
-sys.path.insert(0, os.path.abspath('.'))  # isort:skip
-from qa_tina_tests import version  # isort:skip pylint:disable=wrong-import-position
+from qa_tina_tests import version
+
+# sys.path.insert(0, os.path.abspath('.'))  # isort:skip
+# from qa_tina_tests import version  # isort:skip
 
 
 def parse_requirements(filename):
