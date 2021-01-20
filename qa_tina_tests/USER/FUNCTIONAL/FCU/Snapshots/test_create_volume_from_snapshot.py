@@ -172,7 +172,7 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=snap_id,
                                                           ExportToOsu={'DiskImageFormat': supported_snap_types[0], 'OsuBucket': bucket_name})
             task_id = ret.response.snapshotExportTask.snapshotExportTaskId
-
+            num_1 = self.a1_r1.oapi.ReadQuotas(Filters={'QuotaNames': ['snapshot_export_limit']})
             wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
             k_list = self.a1_r1.storageservice.list_objects(Bucket=bucket_name)
             if 'Contents' in list(k_list.keys()):
