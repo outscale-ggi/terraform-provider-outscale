@@ -31,7 +31,7 @@ class Test_DeleteSecurityGroup(OscTestSuite):
         assert del_group.response.osc_return == 'true'
         assert re.search(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{8})", del_group.response.requestId)
         assert del_group.response._name == 'DeleteSecurityGroupResponse'
- 
+
     def test_T982_using_name(self):
         sg_name = 'test_sg'
         sg_response = self.conns[0].fcu.CreateSecurityGroup(GroupDescription='test_sg_description', GroupName=sg_name)

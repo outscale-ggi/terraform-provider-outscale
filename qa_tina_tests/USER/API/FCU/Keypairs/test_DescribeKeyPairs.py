@@ -107,7 +107,7 @@ class Test_DescribeKeyPairs(OscTestSuite):
             if os.getenv('OSC_USE_GATEWAY', None):
                 assert_error(error, 400, "InvalidParameterValue", None)
                 known_error('GTW-1352', 'Call with incorrect argument type does not fail')
-            raise error  
+            raise error
         assert len(ret.response.keySet) == 1
         assert ret.response.keySet[0].keyName == self.kp_list[1]['name']
         assert ret.response.keySet[0].keyFingerprint == self.kp_list[1]['fingerprint']
@@ -199,7 +199,7 @@ class Test_DescribeKeyPairs(OscTestSuite):
             ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']},
                                                           {'Name': 'key-name', 'Value': self.kp_list[1]['name']}])
             if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code' 
+                assert False, 'Remove known error code'
         except OscApiException as error:
             if os.getenv('OSC_USE_GATEWAY', None):
                 assert_error(error, 400, "InvalidParameterValue", None)
@@ -213,7 +213,7 @@ class Test_DescribeKeyPairs(OscTestSuite):
             ret = self.a1_r1.fcu.DescribeKeyPairs(Keyname=self.kp_list[1]['name'],
                                                   Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']}])
             if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code' 
+                assert False, 'Remove known error code'
         except OscApiException as error:
             if os.getenv('OSC_USE_GATEWAY', None):
                 assert_error(error, 400, "InvalidParameterValue", None)
@@ -227,7 +227,7 @@ class Test_DescribeKeyPairs(OscTestSuite):
             ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']},
                                                           {'Name': 'key-name', 'Value': self.kp_list[0]['name']}])
             if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code' 
+                assert False, 'Remove known error code'
         except OscApiException as error:
             if os.getenv('OSC_USE_GATEWAY', None):
                 assert_error(error, 400, "InvalidParameterValue", None)
@@ -239,7 +239,7 @@ class Test_DescribeKeyPairs(OscTestSuite):
         try:
             ret = self.a1_r1.fcu.DescribeKeyPairs(foo='bar')
             if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code' 
+                assert False, 'Remove known error code'
         except OscApiException as error:
             if os.getenv('OSC_USE_GATEWAY', None):
                 assert_error(error, 400, "InvalidParameter", None)

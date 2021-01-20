@@ -80,7 +80,7 @@ class Test_OAPI(OscTestSuite):
         # known_error('', 'Remove all AWS references in OAPI requests')
         pass
  
-    @pytest.mark.skip('obsolete for now, per account per call not supported : gateway-1188')
+    @pytest.mark.skip('obsolete for now, per account per call not supported : GTW-1188')
     @pytest.mark.tag_sec_availability
     def test_T2229_throttling(self):
         osc_api.disable_throttling()
