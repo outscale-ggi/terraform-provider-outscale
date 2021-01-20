@@ -86,6 +86,10 @@ init-deps:
     done
 endif
 
+# retro-compat...
+deps: init-deps
+init: init-deps
+
 ifneq ($(VENV_PATH), "$(ROOT_PATH)/.venv")
 
 init-venv:
