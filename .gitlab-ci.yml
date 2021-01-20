@@ -27,7 +27,7 @@ todo:
   script:
     - make check-todo
   only:
-    - /^develop.*$/
+    - /^dev.*$/
     - master
   allow_failure: true
 
@@ -39,7 +39,7 @@ requirements:
     - test $(git diff-index --name-only HEAD | grep -c requirements.txt) = 0
   only:
     refs:
-      - /^develop.*$/
+      - /^dev.*$/
       - master
   allow_failure: true
 
@@ -51,7 +51,7 @@ dependencies:
     - test $(git diff-index --name-only HEAD | grep -c internal_deps.txt) = 0
   only:
     refs:
-      - /^develop.*$/
+      - /^dev.*$/
       - master
   allow_failure: true
 
@@ -61,7 +61,7 @@ check_init_deps:
     - make check-init
   only:
     refs:
-      - /^develop.*$/
+      - /^dev.*$/
       - master
   allow_failure: true
 
@@ -72,7 +72,7 @@ check_init_deps:
     - make pylint
   only:
     refs:
-      - /^develop.*$/
+      - /^dev.*$/
       - master
 
 .lint_mr:
@@ -92,7 +92,7 @@ check_init_deps:
     - make test
   only:
     refs:
-      - /^develop.*$/
+      - /^dev.*$/
       - master
 
 .security:
@@ -102,7 +102,7 @@ check_init_deps:
     - make bandit
   only:
     refs:
-      - /^develop.*$/
+      - /^dev.*$/
       - master
 
 .security_mr:
@@ -211,10 +211,10 @@ build:
     paths:
       - dist/*
   only:
-    - /^develop.*$/
+    - /^dev.*$/
     - master
     - merge_requests
-    - /^TINA-[0-9]+\.[0-9]+\.x$/
+    - /^TINA-[0-9]+\.[0-9]+\.[0-9]\.[0-9]$/
     - /^TINA-[0-9]+\.[0-9]+\.[0-9]+$/
     - tags
 
@@ -223,6 +223,6 @@ deploy:
   script:
     - ./deploy.sh dist/osc_qa_tina_tests*-py3-none-any.whl ~/.ssh/id_rsa
   only:
-    - /^TINA-[0-9]+\.[0-9]+\.x$/
+    - /^TINA-[0-9]+\.[0-9]+\.[0-9]\.[0-9]$/
     - /^TINA-[0-9]+\.[0-9]+\.[0-9]+$/
     - tags

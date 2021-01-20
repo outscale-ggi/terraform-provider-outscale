@@ -31,11 +31,14 @@ help:
 	@echo '  check-init'
 	@echo '  pylint'
 	@echo '  pylint-mr'
+	@echo '  pylint-diff'
 	@echo '  check-todo'
 	@echo '  bandit'
 	@echo '  bandit-mr'
+	@echo '  bandit-diff'
 	@echo '  test'
 	@echo '  ci'
+	@echo '  ci-diff'
 	@echo '  build'
 	@echo '  update-deps'
 	@echo '  update-req'
@@ -145,6 +148,11 @@ pylint-mr: init-ci
 	export PYTHONPATH=$(PYTHON_PATH);                 \
     pylint -j 4 --rcfile=./pylint.conf $$(git diff --name-only $(MR_SRC) $(MR_DST) | grep "\.py$$");
 
+pylint-diff: init-ci
+	@echo "Static code analysis..."
+	export PYTHONPATH=$(PYTHON_PATH);                 \
+    pylint -j 4 --rcfile=./pylint.conf $$(git status --porcelain | cut -c4- | grep "\.py$$");
+
 check-todo: init-ci
 	@echo "Check TODO..."
 	export PYTHONPATH=$(PYTHON_PATH);                         \
@@ -160,6 +168,11 @@ bandit-mr: init-ci
 	export PYTHONPATH=$(PYTHON_PATH);                         \
     bandit -r -l --configfile bandit.conf $$(git diff --name-only $(MR_SRC) $(MR_DST) | grep "\.py$$");
 
+bandit-diff: init-ci
+	@echo "Static code analysis..."
+	export PYTHONPATH=$(PYTHON_PATH);                         \
+    bandit -r -l --configfile bandit.conf $$(git status --porcelain | cut -c4- | grep "\.py$$");
+
 test: init-ci
 	@echo "Test..."
 #	cd tests/;                    \
@@ -168,6 +181,7 @@ test: init-ci
 
 ci: bandit pylint test
 
+ci-diff: bandit-diff pylint-diff
 
 build: init-build
 	@echo "Build package..."
