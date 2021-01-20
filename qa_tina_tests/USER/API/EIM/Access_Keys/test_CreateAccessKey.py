@@ -1,4 +1,3 @@
-import json
 import re
 
 from qa_sdk_common.exceptions import OscApiException
@@ -14,18 +13,13 @@ class Test_CreateAccessKey(OscTestSuite):
         try:
             cls.username = id_generator(prefix='user_')
             cls.a1_r1.eim.CreateUser(UserName=cls.username)
-            policy = {"Statement": [{"Sid": "full_api",
-                                     "Effect": "Allow",
-                                     "Action": "*",
-                                     "Resource": "*"
-                                     }]}
-            cls.a1_r1.eim.PutUserPolicy(PolicyDocument=json.dumps(policy), PolicyName='full_api', UserName=cls.username)
-        except:
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -41,6 +35,8 @@ class Test_CreateAccessKey(OscTestSuite):
         except OscApiException as error:
             if error.message == "Internal Error":
                 known_error("TINA-5698", "Unexpected Internal Error")
+            else:
+                assert False, "Remove known error"
 
     def test_T5452_with_username(self):
         ret = None
