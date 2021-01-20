@@ -1,0 +1,35 @@
+default_language_version:
+            python: python3.6
+fail_fast: true
+#exclude: ^(ows|queue|svcli)/  # Deprecated modules
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.1.0  # v2.1.0
+    hooks:
+    -   id: trailing-whitespace
+        #exclude: ^rpmbuild/  # Contains patches that would no longer work with changes
+    -   id: end-of-file-fixer
+        #exclude: ^rpmbuild/  # Contains patches that would no longer work with changes
+    -   id: check-docstring-first
+    -   id: check-json
+    -   id: check-merge-conflict
+    -   id: check-yaml
+    -   id: debug-statements
+        #exclude: ^(devtools|image_setup|ows|scripts|tests)/  # Hook is not working with Python 2
+    -   id: requirements-txt-fixer
+-   repo: https://github.com/asottile/seed-isort-config
+    rev: v2.2.0
+    hooks:
+    -   id: seed-isort-config
+-   repo: https://github.com/pre-commit/mirrors-isort
+    rev: v4.3.21
+    hooks:
+    -   id: isort
+-   repo: https://github.com/lovesegfault/beautysh
+    rev: 6.0.1
+    hooks:
+    -   id: beautysh
+-   repo: https://github.com/psf/black
+    rev: 19.10b0
+    hooks:
+    -   id: black
