@@ -93,20 +93,12 @@ class SecurityGroup(OscTestSuite):
         super(SecurityGroup, cls).setup_class()
         cls.sg1 = None
         cls.sg2 = None
+        cls.sg3 = None
         try:
-            name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
-            cls.sg1 = {'id': cls.a1_r1.oapi.CreateSecurityGroup(
-                Description="test_desc", SecurityGroupName=name
-            ).response.SecurityGroup.SecurityGroupId, 'name': name}
-            cls.vpc = create_vpc(cls.a1_r1, nb_subnet=0, igw=False)
-            name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
-            cls.sg2 = {'id': cls.a1_r1.oapi.CreateSecurityGroup(
-                Description="test_desc", SecurityGroupName=name, NetId=cls.vpc['vpc_id']
-            ).response.SecurityGroup.SecurityGroupId, 'name': name}
-            name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
-            cls.sg3 = {'id': cls.a1_r1.oapi.CreateSecurityGroup(
-                Description="test_desc", SecurityGroupName=name, NetId=cls.vpc['vpc_id']
-            ).response.SecurityGroup.SecurityGroupId, 'name': name}
+            cls.sg1 = cls.a1_r1.oapi.CreateSecurityGroup(Description="TEST_SG_DESC_1", SecurityGroupName='TEST_SG_NAME_1').response.SecurityGroup
+            cls.vpc_info = create_vpc(cls.a1_r1, nb_subnet=0, igw=False)
+            cls.sg2 = cls.a1_r1.oapi.CreateSecurityGroup(Description="TEST_SG_DESC_2", SecurityGroupName='TEST_SG_NAME_2', NetId=cls.vpc['vpc_id']).response.SecurityGroup
+            cls.sg3 = cls.a1_r1.oapi.CreateSecurityGroup(Description="TEST_SG_DESC_3", SecurityGroupName='TEST_SG_NAME_3', NetId=cls.vpc['vpc_id']).response.SecurityGroup
             time.sleep(4)
         except:
             try:
@@ -118,12 +110,21 @@ class SecurityGroup(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
-            if cls.sg3:
-                cls.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=cls.sg3['id'])
             if cls.sg1:
-                cls.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=cls.sg1['id'])
+                try:
+                    cls.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=cls.sg1.SecurityGroupId)
+                except:
+                    pass
             if cls.sg2:
-                cls.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=cls.sg2['id'])
-            delete_vpc(cls.a1_r1, cls.vpc)
+                try:
+                    cls.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=cls.sg2.SecurityGroupId)
+                except:
+                    pass
+            if cls.sg3:
+                try:
+                    cls.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=cls.sg3.SecurityGroupId)
+                except:
+                    pass
+            delete_vpc(cls.a1_r1, cls.vpc_info)
         finally:
             super(SecurityGroup, cls).teardown_class()
