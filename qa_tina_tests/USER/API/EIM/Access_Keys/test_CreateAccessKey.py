@@ -72,6 +72,5 @@ class Test_CreateAccessKey(OscTestSuite):
     def test_T5455_from_another_account(self):
         try:
             self.a2_r1.eim.CreateAccessKey(UserName=self.username)
-            print("isi")
         except OscApiException as err:
             assert_error(err, 400, "NoSuchEntity", "The user with name cannot be found: {}".format(self.username))
