@@ -38,7 +38,7 @@ class Test_ListAccessKeys(OscTestSuite):
         finally:
             super(Test_ListAccessKeys, cls).teardown_class()
 
-    def test_TXX_no_params(self):
+    def test_T5470_no_params(self):
         ret = self.a1_r1.eim.ListAccessKeys().response.ListAccessKeysResult
         assert len(ret.AccessKeyMetadata) >= 1
         for ak in ret.AccessKeyMetadata:
@@ -46,7 +46,7 @@ class Test_ListAccessKeys(OscTestSuite):
             assert hasattr(ak, "CreateDate")
             assert getattr(ak, "Status") in ["Active", "Inactive"]
 
-    def test_TXX_with_username(self):
+    def test_T5471_with_username(self):
         ret = self.a1_r1.eim.ListAccessKeys(UserName=self.username).response.ListAccessKeysResult
         assert len(ret.AccessKeyMetadata) == NB_ACCESSKEY
         for ak in ret.AccessKeyMetadata:
@@ -55,21 +55,21 @@ class Test_ListAccessKeys(OscTestSuite):
             assert hasattr(ak, "CreateDate")
             assert ak.Status == "Active"
 
-    def test_TXX_with_invalid_username_type(self):
+    def test_T5472_with_invalid_username_type(self):
         try:
             self.a1_r1.eim.ListAccessKeys(UserName=[self.username])
         except OscApiException as err:
             # Maybe Create a Ticket for improvement of the message
             assert_error(err, 400, "ValidationError", "Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: Invalid composite name part]")
 
-    def test_TXX_with_nonexisting_username(self):
+    def test_T5473_with_nonexisting_username(self):
         try:
             name = 'foo'
             self.a1_r1.eim.ListAccessKeys(UserName='foo')
         except OscApiException as err:
             assert_error(err, 404, "NoSuchEntity", "The user with name {} cannot be found.".format(name))
 
-    def test_TXX_from_another_account(self):
+    def test_T5474_from_another_account(self):
         try:
             self.a2_r1.eim.ListAccessKeys(UserName=self.username)
         except OscApiException as err:
