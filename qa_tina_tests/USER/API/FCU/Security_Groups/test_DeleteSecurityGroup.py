@@ -10,7 +10,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tina.info_keys import SECURITY_GROUP_ID, SUBNETS, SUBNET_ID
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
-from qa_test_tools import misc
 
 
 class Test_DeleteSecurityGroup(OscTestSuite):
@@ -97,12 +96,11 @@ class Test_DeleteSecurityGroup(OscTestSuite):
 
     def test_T5460_associated_with_lbu(self):
         vpc_info = create_vpc(self.a1_r1)
-        ret = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test', GroupName=misc.id_generator(prefix='sg'), VpcId=vpc_info[VPC_ID])
+        ret = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test', GroupName=id_generator(prefix='sg'), VpcId=vpc_info[VPC_ID])
         sg_id = ret.response.groupId
         lb_name = id_generator(prefix='lbu-')
         create_load_balancer(self.a1_r1, lb_name, listeners=[{'InstancePort': 65535, 'Protocol': 'HTTP', 'LoadBalancerPort': 80}],
                               sg=[sg_id], subnets=[vpc_info[SUBNETS][0][SUBNET_ID]])
-        lb_name = lb_name
         try:
             self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
         except OscApiException as error:
