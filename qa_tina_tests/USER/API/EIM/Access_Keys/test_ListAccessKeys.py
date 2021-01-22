@@ -18,7 +18,6 @@ class Test_ListAccessKeys(OscTestSuite):
             cls.ret_create = cls.a1_r1.eim.CreateUser(UserName=cls.username)
             for _ in range(NB_ACCESSKEY):
                 cls.a1_r1.eim.CreateAccessKey(UserName=cls.username)
-            cls.tested_ak = None
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -58,19 +57,22 @@ class Test_ListAccessKeys(OscTestSuite):
     def test_T5472_with_invalid_username_type(self):
         try:
             self.a1_r1.eim.ListAccessKeys(UserName=[self.username])
+            assert False, "Call should not have been successful"
         except OscApiException as err:
             # Maybe Create a Ticket for improvement of the message
             assert_error(err, 400, "ValidationError", "Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: Invalid composite name part]")
 
     def test_T5473_with_nonexisting_username(self):
+        name = 'foo'
         try:
-            name = 'foo'
-            self.a1_r1.eim.ListAccessKeys(UserName='foo')
+            self.a1_r1.eim.ListAccessKeys(UserName=name)
+            assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 404, "NoSuchEntity", "The user with name {} cannot be found.".format(name))
 
     def test_T5474_from_another_account(self):
         try:
             self.a2_r1.eim.ListAccessKeys(UserName=self.username)
+            assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 404, "NoSuchEntity", "The user with name {} cannot be found.".format(self.username))

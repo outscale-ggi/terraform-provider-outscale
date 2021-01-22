@@ -31,8 +31,17 @@ class Test_UpdateAccessKey(OscTestSuite):
 
     def setup_method(self, method):
         super(Test_UpdateAccessKey, self).setup_method(method)
-        ret = self.a1_r1.eim.CreateAccessKey(UserName=self.username)
-        self.ak_id = ret.response.CreateAccessKeyResult.AccessKey.AccessKeyId
+        self.ak_id = None
+        try:
+            ret = self.a1_r1.eim.CreateAccessKey(UserName=self.username)
+            self.ak_id = ret.response.CreateAccessKeyResult.AccessKey.AccessKeyId
+        except Exception as error:
+            try:
+                self.teardown_method(method)
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:
@@ -52,15 +61,16 @@ class Test_UpdateAccessKey(OscTestSuite):
     def test_T5462_without_params(self):
         try:
             self.a1_r1.eim.UpdateAccessKey()
+            assert False, "Call should not have been successful"
         except OscApiException as error:
             if error.message == "Internal Error":
                 known_error("TINA-6165", "Unexpected Internal Error")
-            else:
-                assert False, "Remove known error"
+            assert False, "Remove known error"
 
     def test_T5463_without_username(self):
         try:
             self.a1_r1.eim.UpdateAccessKey(AccessKeyId=self.ak_id, Status='Active')
+            assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 404, "NoSuchEntity", "Cannot find access key [pid={}] for entity [arn:aws:iam::{}:account]"
                          .format(self.ak_id, self.a1_r1.config.account.account_id))
@@ -68,12 +78,14 @@ class Test_UpdateAccessKey(OscTestSuite):
     def test_T5464_without_accesskey_id(self):
         try:
             self.a1_r1.eim.UpdateAccessKey(Status='Inactive', UserName=self.username)
+            assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 400, "ValidationError", "AccessKeyId may not be empty")
 
     def test_T5465_without_status(self):
         try:
             self.a1_r1.eim.UpdateAccessKey(AccessKeyId=self.ak_id, UserName=self.username)
+            assert False, "Call should not have been successful"
         except OscApiException as error:
             if error.message == "Internal Error":
                 known_error("TINA-6166", "Unexpected Internal Error")
@@ -84,6 +96,7 @@ class Test_UpdateAccessKey(OscTestSuite):
     def test_T5466_with_invalid_accesskey_id(self):
         try:
             self.a1_r1.eim.UpdateAccessKey(AccessKeyId='foo', Status='Inactive', UserName=self.username)
+            assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 404, "NoSuchEntity", "Cannot find access key [pid={}] for entity [arn:aws:iam::{}:user/{}]"
                          .format('foo', self.a1_r1.config.account.account_id, self.username))
@@ -91,6 +104,7 @@ class Test_UpdateAccessKey(OscTestSuite):
     def test_T5467_with_invalid_status(self):
         try:
             self.a1_r1.eim.UpdateAccessKey(AccessKeyId=self.ak_id, Status='foo', Username=self.username)
+            assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 400, "InvalidParameterValue",
                          "Request contains an invalid parameter value \"{}\" for key \"Status\"".format('foo'.upper()))
@@ -98,11 +112,13 @@ class Test_UpdateAccessKey(OscTestSuite):
     def test_T5468_with_invalid_username(self):
         try:
             self.a1_r1.eim.UpdateAccessKey(AccessKeyId=self.ak_id, Status='Inactive', UserName='foo')
+            assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 404, "NoSuchEntity", "The user with name {} cannot be found.".format('foo'))
 
     def test_T5469_from_another_account(self):
         try:
             self.a2_r1.eim.UpdateAccessKey(AccessKeyId=self.ak_id, Status='Inactive', UserName=self.username)
+            assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 404, "NoSuchEntity", "The user with name {} cannot be found.".format(self.username))
