@@ -74,7 +74,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
 
-    def test_TXXXX_with_sg_to_link_param_outbound(self):
+    def test_T5475_with_sg_to_link_param_outbound(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
             Flow='Outbound',
             SecurityGroupNameToLink=self.sg3.SecurityGroupId, # The name can be only used in Cloud Public not in Net
@@ -300,7 +300,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
 
-    def test_TXXXX_outbound_rules_array_many_element(self):
+    def test_T5476_outbound_rules_array_many_element(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
             Flow='Outbound',
             Rules=[

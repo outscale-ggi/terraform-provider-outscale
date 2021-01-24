@@ -154,7 +154,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
 
-    def test_TXXXX_with_sg_to_unlink_param_inbound(self):
+    def test_T5478_with_sg_to_unlink_param_inbound(self):
         ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
             Flow='Inbound',
             SecurityGroupNameToUnlink=self.sg1.SecurityGroupName,
@@ -416,7 +416,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
 
-    def test_TXXXX_rules_array_many_element2(self):
+    def test_T5477_rules_array_many_element2(self):
         ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
             Flow='Inbound',
             Rules=[
