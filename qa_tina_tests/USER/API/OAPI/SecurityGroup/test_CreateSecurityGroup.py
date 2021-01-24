@@ -2,7 +2,8 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import validate_sg
+import os
+from qa_test_tools.compare_objects import verify_response, create_hints
 
 
 class Test_CreateSecurityGroup(OscTestSuite):
@@ -48,7 +49,8 @@ class Test_CreateSecurityGroup(OscTestSuite):
         ret = self.a1_r1.oapi.CreateSecurityGroup(Description="test_desc", SecurityGroupName="test_name")
         self.id = ret.response.SecurityGroup.SecurityGroupId
         ret.check_response()
-        validate_sg(ret.response.SecurityGroup, expected_sg={'Description': 'test_desc', 'SecurityGroupName': 'test_name'})
+        hints = create_hints([self.id, self.a1_r1.config.account.account_id, 'test_desc', 'test_name'])
+        assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_all_params.json'), hints), 'Could not verify response content.'
 
     def test_T5135_with_incorrect_type_name(self):
         try:
