@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring
 
 import datetime
 import json
@@ -18,7 +17,7 @@ MIN_OVERTIME=4
 
 
 class Test_OAPI(OscTestSuite):
-    
+
     @classmethod
     def setup_class(cls):
         super(Test_OAPI, cls).setup_class()
@@ -125,7 +124,7 @@ class Test_OAPI(OscTestSuite):
         batcmd += " -d '{}'"
         result = subprocess.check_output(batcmd, shell=True)
         json_result = json.loads(result)
-        assert 'Errors' not in json_result 
+        assert 'Errors' not in json_result
 
     def test_T4772_check_param_encoding(self):
         sg_ids = []
@@ -139,7 +138,7 @@ class Test_OAPI(OscTestSuite):
                 SecurityGroupName=misc.id_generator(prefix='sg_name'),
                 Description='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ._-:/()#,@[]+=&;{}!$').response
             sg_ids.append(resp.SecurityGroup.SecurityGroupId)
-             
+
             resp_tags = self.a1_r1.oapi.CreateTags(ResourceIds=sg_ids, Tags=[{'Key': tag_key, 'Value': tag_value}])
             resp_read_tags = self.a1_r1.oapi.ReadTags().response
             for tag in resp_read_tags.Tags:
@@ -163,7 +162,7 @@ class Test_OAPI(OscTestSuite):
                 SecurityGroupName=misc.id_generator(prefix='sg_name'),
                 Description='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ._-:/()#,@[]+=&;{}!$').response
             sg_ids.append(resp.SecurityGroup.SecurityGroupId)
-             
+
             resp_tags = self.a1_r1.oapi.CreateTags(exec_data={osc_api.EXEC_DATA_METHOD: 'GET'},
                                                    ResourceIds=sg_ids, Tags=[{'Key': tag_key, 'Value': tag_value}])
             assert False, 'Call should not have been successful'
@@ -184,7 +183,7 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_SIGN: 'FOO'})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert error.message == 'Wrong sign method : only OSC/AWS supported.'
+            assert error.get_error_message() == 'Wrong sign method : only OSC/AWS supported.'
 
     def test_T4907_incorrect_content_type(self):
         try:
@@ -203,7 +202,7 @@ class Test_OAPI(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscException as error:
             assert_oapi_error(error, 401, "AccessDenied", 1)
-             
+
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
         self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
@@ -212,7 +211,7 @@ class Test_OAPI(OscTestSuite):
         date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
         date_stamp = date_time.strftime('%Y%m%d')
         self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
- 
+
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_stamp = date_time.strftime('%Y%m%d')
         self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
@@ -222,15 +221,17 @@ class Test_OAPI(OscTestSuite):
             date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
             date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
             date_stamp = date_time.strftime('%Y%m%d')
-            self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp, osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
+                                                          osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
             assert_oapi_error(error, 401, "AccessDenied", 1)
- 
+
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
         date_stamp = date_time.strftime('%Y%m%d')
-        self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp, osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+        self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
+                                                      osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
 
     def test_T4921_incorrect_date_time_stamp(self):
         try:
@@ -243,7 +244,7 @@ class Test_OAPI(OscTestSuite):
     def test_T4922_incorrect_date_stamp(self):
         date_stamp = 'toto'
         self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
- 
+
     def test_T4923_empty_date_time_stamp(self):
         try:
             date_time_stamp = ''

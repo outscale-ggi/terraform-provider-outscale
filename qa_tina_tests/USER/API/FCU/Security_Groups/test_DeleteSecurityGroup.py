@@ -38,7 +38,7 @@ class Test_DeleteSecurityGroup(OscTestSuite):
 #     @classmethod
 #     def setup_class(cls):
 #         super(Test_DeleteSecurityGroup, cls).setup_class()
-# 
+#
 #     @classmethod
 #     def teardown_class(cls):
 #         super(Test_DeleteSecurityGroup, cls).teardown_class()
@@ -62,7 +62,7 @@ class Test_DeleteSecurityGroup(OscTestSuite):
         del_group = self.conns[0].fcu.DeleteSecurityGroup(GroupName=sg_name)
         assert del_group.response.osc_return == 'true'
         assert re.search(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{8})", del_group.response.requestId)
-        assert del_group.response._name == 'DeleteSecurityGroupResponse'
+        assert del_group.response.obj_name == 'DeleteSecurityGroupResponse'
 
     def test_T983_using_name_and_id(self):
         sg_name = 'test_sg'
@@ -72,7 +72,7 @@ class Test_DeleteSecurityGroup(OscTestSuite):
         del_group = self.conns[0].fcu.DeleteSecurityGroup(GroupId=sg_id, GroupName=sg_name)
         assert del_group.response.osc_return == 'true'
         assert re.search(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{8})", del_group.response.requestId)
-        assert del_group.response._name == 'DeleteSecurityGroupResponse'
+        assert del_group.response.obj_name == 'DeleteSecurityGroupResponse'
 
     def test_T2623_reserved_for_vpc(self):
         vpc_id = None

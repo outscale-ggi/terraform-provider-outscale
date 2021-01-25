@@ -1,8 +1,9 @@
 # -*- coding:utf-8 -*-
+import os
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
-import os
 from qa_test_tools.compare_objects import verify_response, create_hints
 
 
