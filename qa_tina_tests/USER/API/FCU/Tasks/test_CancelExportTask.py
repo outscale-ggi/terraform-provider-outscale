@@ -38,9 +38,9 @@ class Test_CancelExportTask(OscTestSuite):
             wait_snapshots_state(osc_sdk=cls.a1_r1, state='completed', snapshot_id_list=[cls.snap_id, cls.snap_id_boot])
             # export snapshot
             cls.bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
-            for type in cls.supported_snap_types:
+            for format_type in cls.supported_snap_types:
                 ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=cls.snap_id,
-                                                             ExportToOsu={'DiskImageFormat': type,
+                                                             ExportToOsu={'DiskImageFormat': format_type,
                                                                           'OsuBucket': cls.bucket_name})
                 task_id = ret.response.snapshotExportTask.snapshotExportTaskId
                 cls.task_ids.append(task_id)
