@@ -77,20 +77,20 @@ class Test_create_volume_from_snapshot(OscTestSuite):
     def create_volume(self, volume_type='standard', iops=None, volume_size=8, drive_letter_code='b', snapshot_id=None):
 
         drive_letter = drive_letter_code
-        volume_type = volume_type
+        type_of_volume = volume_type
         dev = '/dev/xvd{}'.format(drive_letter)
         volume_mount = '/mnt/volume_{}'.format(drive_letter_code)
         size_disk = volume_size
         ret = None
 
-        if volume_type in ['io1', 'os1']:
+        if type_of_volume in ['io1', 'os1']:
 
-            ret = self.a1_r1.fcu.CreateVolume(Size=size_disk, VolumeType=volume_type, AvailabilityZone=self.azs[0], Iops=iops)
+            ret = self.a1_r1.fcu.CreateVolume(Size=size_disk, VolumeType=type_of_volume, AvailabilityZone=self.azs[0], Iops=iops)
         else:
             if not snapshot_id:
-                ret = self.a1_r1.fcu.CreateVolume(Size=size_disk, VolumeType=volume_type, AvailabilityZone=self.azs[0])
+                ret = self.a1_r1.fcu.CreateVolume(Size=size_disk, VolumeType=type_of_volume, AvailabilityZone=self.azs[0])
             else:
-                ret = self.a1_r1.fcu.CreateVolume(Size=size_disk, VolumeType=volume_type, AvailabilityZone=self.azs[0], SnapshotId=snapshot_id)
+                ret = self.a1_r1.fcu.CreateVolume(Size=size_disk, VolumeType=type_of_volume, AvailabilityZone=self.azs[0], SnapshotId=snapshot_id)
         volume_id = ret.response.volumeId
         wait_volumes_state(self.a1_r1, [volume_id], state='available', nb_check=5)
         return volume_id, dev, volume_mount

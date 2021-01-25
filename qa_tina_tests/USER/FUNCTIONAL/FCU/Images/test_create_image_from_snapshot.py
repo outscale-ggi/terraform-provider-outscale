@@ -105,15 +105,21 @@ class Test_create_image_from_snapshot(OscTestSuite):
             ret = self.a1_r1.fcu.GetProductType(ImageId=ret_ri.response.imageId)
             assert ret.response.productTypeId == '0001'
         finally:
+            errors = []
             if ret_ri:
                 try:
                     cleanup_images(self.a1_r1, image_id_list=[ret_ri.response.imageId], force=True)
-                except:
-                    pass
+                except Exception as error:
+                    errors.append(error)
             if vol_id:
                 # remove volume
-                self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)
-                wait_volumes_state(osc_sdk=self.a1_r1, cleanup=True, volume_id_list=[vol_id])
+                try:
+                    self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)
+                    wait_volumes_state(osc_sdk=self.a1_r1, cleanup=True, volume_id_list=[vol_id])
+                except Exception as error:
+                    errors.append(error)
+            if errors:
+                raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), errors))
 
     @pytest.mark.region_admin
     @pytest.mark.region_storageservice
@@ -177,16 +183,28 @@ class Test_create_image_from_snapshot(OscTestSuite):
             print(ret)
 
         finally:
+            errors = []
             if ret_ri:
                 try:
                     cleanup_images(self.a1_r1, image_id_list=[ret_ri.response.imageId], force=True)
-                except:
-                    pass
+                except Exception as error:
+                    errors.append(error)
             if vol_id:
                 # remove volume
-                self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)
-                wait_volumes_state(osc_sdk=self.a1_r1, cleanup=True, volume_id_list=[vol_id])
+                try:
+                    self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)
+                    wait_volumes_state(osc_sdk=self.a1_r1, cleanup=True, volume_id_list=[vol_id])
+                except Exception as error:
+                    errors.append(error)
             if ret_cs.response.snapshotId:
-                self.a1_r1.fcu.DeleteSnapshot(SnapshotId=ret_cs.response.snapshotId)
+                try:
+                    self.a1_r1.fcu.DeleteSnapshot(SnapshotId=ret_cs.response.snapshotId)
+                except Exception as error:
+                    errors.append(error)
             if inst_info:
-                delete_instances(self.a1_r1, inst_info)
+                try:
+                    delete_instances(self.a1_r1, inst_info)
+                except Exception as error:
+                    errors.append(error)
+            if errors:
+                raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), errors))
