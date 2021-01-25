@@ -1,14 +1,12 @@
 # -*- coding:utf-8 -*-
 from string import ascii_lowercase
 
-from qa_tina_tools.tools.tina.delete_tools import delete_instances
-
-from qa_tina_tools.tools.tina.create_tools import create_instances
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, BLOCK_DEVICE_MAPPING, VOLUME_ID, EBS
-
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_tina_tools.tools.tina.create_tools import create_instances
+from qa_tina_tools.tools.tina.delete_tools import delete_instances
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, BLOCK_DEVICE_MAPPING, VOLUME_ID, EBS
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state, \
     wait_snapshot_export_tasks_state
 
@@ -40,33 +38,31 @@ class Test_CancelExportTask(OscTestSuite):
             wait_snapshots_state(osc_sdk=cls.a1_r1, state='completed', snapshot_id_list=[cls.snap_id, cls.snap_id_boot])
             # export snapshot
             cls.bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
-            for e in cls.supported_snap_types:
+            for type in cls.supported_snap_types:
                 ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=cls.snap_id,
-                                                             ExportToOsu={'DiskImageFormat': e,
+                                                             ExportToOsu={'DiskImageFormat': type,
                                                                           'OsuBucket': cls.bucket_name})
                 task_id = ret.response.snapshotExportTask.snapshotExportTaskId
                 cls.task_ids.append(task_id)
                 wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed',
                                                  snapshot_export_task_id_list=cls.task_ids)
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):
         try:
             if cls.bucket_name:
-                try:
-                    k_list = cls.a1_r1.storageservice.list_objects(Bucket=cls.bucket_name)
-                    if 'Contents' in list(k_list.keys()):
-                        for k in k_list['Contents']:
-                            cls.a1_r1.storageservice.delete_object(Bucket=cls.bucket_name, Key=k['Key'])
-                    cls.a1_r1.storageservice.delete_bucket(Bucket=cls.bucket_name)
-                except:
-                    pass
+                k_list = cls.a1_r1.storageservice.list_objects(Bucket=cls.bucket_name)
+                if 'Contents' in list(k_list.keys()):
+                    for k in k_list['Contents']:
+                        cls.a1_r1.storageservice.delete_object(Bucket=cls.bucket_name, Key=k['Key'])
+                cls.a1_r1.storageservice.delete_bucket(Bucket=cls.bucket_name)
             if cls.snap_id:
                 # remove snapshot
                 cls.a1_r1.fcu.DeleteSnapshot(SnapshotId=cls.snap_id)

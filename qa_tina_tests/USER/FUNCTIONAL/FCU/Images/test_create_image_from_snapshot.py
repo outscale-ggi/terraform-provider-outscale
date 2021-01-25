@@ -1,7 +1,7 @@
 from string import ascii_lowercase
 
 import pytest
-
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
@@ -20,21 +20,9 @@ class Test_create_image_from_snapshot(OscTestSuite):
     def setup_class(cls):
         super(Test_create_image_from_snapshot, cls).setup_class()
 
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
     @classmethod
     def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_create_image_from_snapshot, cls).teardown_class()
+        super(Test_create_image_from_snapshot, cls).teardown_class()
 
     @pytest.mark.tag_redwire
     def test_T1572_create_image_from_snapshot(self):
@@ -48,8 +36,10 @@ class Test_create_image_from_snapshot(OscTestSuite):
             assert len(ci1_info[INSTANCE_SET]) == 1
             instance = ci1_info[INSTANCE_SET][0]
             # check instance connection
-            check_tools.check_ssh_connection(self.a1_r1, ci1_info[INSTANCE_ID_LIST][0], instance['ipAddress'], ci1_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-            # SshTools.check_connection_paramiko(instance['ipAddress'], ci1_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            check_tools.check_ssh_connection(self.a1_r1, ci1_info[INSTANCE_ID_LIST][0], instance['ipAddress'], ci1_info[KEY_PAIR][PATH],
+                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            # SshTools.check_connection_paramiko(instance['ipAddress'], ci1_info[KEY_PAIR][PATH],
+            # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # get instance boot disk
             assert len(instance['blockDeviceMapping']) == 1
             # stop instance
@@ -65,24 +55,29 @@ class Test_create_image_from_snapshot(OscTestSuite):
             ci2_info = create_instances(self.a1_r1, state='ready', omi_id=ret_ri.response.imageId)
             assert len(ci2_info[INSTANCE_SET]) == 1
             # check instance connection
-            check_tools.check_ssh_connection(self.a1_r1, ci2_info[INSTANCE_ID_LIST][0], ci2_info[INSTANCE_SET][0]['ipAddress'], ci2_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-            # SshTools.check_connection_paramiko(ci2_info[INSTANCE_SET][0]['ipAddress'], ci2_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            check_tools.check_ssh_connection(self.a1_r1, ci2_info[INSTANCE_ID_LIST][0], ci2_info[INSTANCE_SET][0]['ipAddress'],
+                                             ci2_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            # SshTools.check_connection_paramiko(ci2_info[INSTANCE_SET][0]['ipAddress'], ci2_info[KEY_PAIR][PATH],
+            # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
+            errors = []
             if ci2_info:
                 try:
                     delete_instances(self.a1_r1, ci2_info)
-                except:
-                    pass
+                except Exception as error:
+                    errors.append(error)
             if ci1_info:
                 try:
                     delete_instances(self.a1_r1, ci1_info)
-                except:
-                    pass
+                except Exception as error:
+                    errors.append(error)
             if ret_ri:
                 try:
                     cleanup_images(self.a1_r1, image_id_list=[ret_ri.response.imageId], force=True)
-                except:
-                    pass
+                except Exception as error:
+                    errors.append(error)
+            if errors:
+                raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), errors))
 
     @pytest.mark.region_admin
     def test_T5246_create_image_from_snapshot_without_product_type(self):
