@@ -86,7 +86,4 @@ class Test_DeleteSecurityGroup(OscTestSuite):
             assert_error(error, 400, None, None)
         finally:
             if vpc_id:
-                try:
-                    self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
-                except:
-                    pass
+                self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
