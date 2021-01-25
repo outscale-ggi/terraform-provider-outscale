@@ -41,7 +41,8 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             SecurityGroupId=self.sg1.SecurityGroupId)
         ret.check_response()
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_valid_case_inbound.json'), self.hints), 'Could not verify response content.'
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_valid_case_inbound.json'),
+                                   self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
@@ -56,7 +57,8 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             SecurityGroupId=self.sg3.SecurityGroupId)
         ret.check_response()
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_valid_case_outbound.json'), self.hints), 'Could not verify response content.'
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_valid_case_outbound.json'),
+                                   self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
@@ -69,7 +71,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             SecurityGroupId=self.sg1.SecurityGroupId)
         ret.check_response()
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_with_sg_to_link_param_inbound.json'), self.hints), 'Could not verify response content.'
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_with_sg_to_link_param_inbound.json'),
+                                   self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
@@ -82,7 +86,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             SecurityGroupId=self.sg3.SecurityGroupId)
         ret.check_response()
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_with_sg_to_link_param_outbound.json'), self.hints), 'Could not verify response content.'
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_with_sg_to_link_param_outbound.json'),
+                                   self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
@@ -202,7 +208,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             SecurityGroupId=self.sg1.SecurityGroupId)
         ret.check_response()
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_inbound_rules_array_1_element.json'), self.hints), 'Could not verify response content.'
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_inbound_rules_array_1_element.json'),
+                                   self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
@@ -219,7 +227,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             SecurityGroupId=self.sg3.SecurityGroupId)
         ret.check_response()
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_outbound_rules_array_1_element.json'), self.hints), 'Could not verify response content.'
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_outbound_rules_array_1_element.json'),
+                                   self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
@@ -295,7 +305,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             SecurityGroupId=self.sg4.SecurityGroupId)
         ret.check_response()
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_inbound_rules_array_many_element.json'), self.hints), 'Could not verify response content.'
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_inbound_rules_array_many_element.json'),
+                                   self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
@@ -336,7 +348,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             SecurityGroupId=self.sg4.SecurityGroupId)
         ret.check_response()
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_outbound_rules_array_many_element.json'), self.hints), 'Could not verify response content.'
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_outbound_rules_array_many_element.json'),
+                                   self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
