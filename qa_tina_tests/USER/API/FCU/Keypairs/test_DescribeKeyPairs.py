@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring
 import os
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException

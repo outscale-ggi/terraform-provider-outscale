@@ -141,17 +141,17 @@ endif
 pylint: init-ci
 	@echo "Static code analysis..."
 	export PYTHONPATH=$(PYTHON_PATH);                 \
-    pylint -j 4 --rcfile=./pylint.conf $(PROJECT_MODULES);
+    pylint --rcfile=./pylint.conf $(PROJECT_MODULES);
 
 pylint-mr: init-ci
 	@echo "Static code analysis..."
 	export PYTHONPATH=$(PYTHON_PATH);                 \
-    pylint -j 4 --rcfile=./pylint.conf $$(git diff --name-only $(MR_SRC) $(MR_DST) | grep "\.py$$");
+    pylint --rcfile=./pylint.conf $$(git diff --name-only $(MR_SRC) $(MR_DST) | grep "\.py$$");
 
 pylint-diff: init-ci
 	@echo "Static code analysis..."
 	export PYTHONPATH=$(PYTHON_PATH);                 \
-    pylint -j 4 --rcfile=./pylint.conf $$(git status --porcelain | cut -c4- | grep "\.py$$");
+    pylint --rcfile=./pylint.conf $$(git status --porcelain | cut -c4- | grep "\.py$$");
 
 check-todo: init-ci
 	@echo "Check TODO..."
