@@ -1,8 +1,8 @@
 from string import ascii_lowercase
 
+from time import sleep
 import pytest
 from qa_common_tools.ssh import SshTools
-from time import sleep
 
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import id_generator
@@ -124,7 +124,7 @@ class Test_export_import(OscTestSuite):
     def test_T5450_check_file_after_import_the_image(self):
         image_id = None
         imp_image_id = None
-        vol_id_list = None
+        vol_id_list = []
         ret_attach = None
         bucket = None
         bucket_name = id_generator(prefix="bucket", chars=ascii_lowercase)

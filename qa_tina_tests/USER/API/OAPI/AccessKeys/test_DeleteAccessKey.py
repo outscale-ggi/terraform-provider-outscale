@@ -1,5 +1,5 @@
-import pytest
 from time import sleep
+import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_sdk_pub import osc_api
@@ -93,7 +93,8 @@ class Test_DeleteAccessKey(OscTestSuite):
         try:
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             ak = ret_create.response.AccessKey.AccessKeyId
-            ret_delete = self.a1_r1.oapi.DeleteAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=ak)
+            ret_delete = self.a1_r1.oapi.DeleteAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+                                                         AccessKeyId=ak)
             assert False, 'remove known error'
             ret_delete.check_response()
         except OscSdkException:
