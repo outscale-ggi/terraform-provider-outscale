@@ -77,12 +77,13 @@ class Test_ReadSecurityGroups(SecurityGroup):
             cls.a1_r1.oapi.CreateTags(ResourceIds=[cls.sg3.SecurityGroupId], Tags=[{'Key': 'sg_key', 'Value': 'sg_toto'}])
             cls.a1_r1.oapi.CreateTags(ResourceIds=[cls.sg4.SecurityGroupId], Tags=[{'Key': 'sg_toto', 'Value': 'sg_value'}])
 
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
 # filters
 #       "AccountIds": ["string"],

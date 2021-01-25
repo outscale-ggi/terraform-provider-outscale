@@ -55,29 +55,35 @@ class SecurityGroup(OscTestSuite):
                                       cls.sg6.SecurityGroupName,
                                       cls.sg6.Description])
             time.sleep(4)
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):
         try:
+            teardown_error = None
             for sg in [cls.sg1, cls.sg2, cls.sg3, cls.sg4]:
                 if sg:
                     try:
                         cls.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=sg.SecurityGroupId)
-                    except:
-                        pass
+                    except Exception as error:
+                        if not teardown_error:
+                            teardown_error = error
             for sg in [cls.sg5, cls.sg6]:
                 if sg:
                     try:
                         cls.a2_r1.oapi.DeleteSecurityGroup(SecurityGroupId=sg.SecurityGroupId)
-                    except:
-                        pass
+                    except Exception as error:
+                        if not teardown_error:
+                            teardown_error = error
             time.sleep(10)
             delete_vpc(cls.a1_r1, cls.vpc_info)
+            if teardown_error:
+                raise teardown_error
         finally:
             super(SecurityGroup, cls).teardown_class()

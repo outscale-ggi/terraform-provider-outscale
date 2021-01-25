@@ -20,12 +20,13 @@ class Test_DeleteSecurityGroup(OscTestSuite):
         try:
             self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(Description="test_desc",
                                                           SecurityGroupName="test_delete").response.SecurityGroup.SecurityGroupId
-        except:
+        except Exception as error1:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     def teardown_method(self, method):
         try:

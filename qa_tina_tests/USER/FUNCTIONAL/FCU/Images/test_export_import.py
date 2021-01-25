@@ -25,12 +25,13 @@ class Test_export_import(OscTestSuite):
         super(Test_export_import, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1, state='running')
-        except Exception as error:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):
@@ -105,14 +106,11 @@ class Test_export_import(OscTestSuite):
             if imp_image_id:
                 cleanup_images(self.a1_r1, image_id_list=[imp_image_id], force=True)
             if bucket:
-                try:
-                    ret = self.a1_r1.storageservice.list_objects_v2(Bucket=bucket_name)
-                    if 'Contents' in ret:
-                        for obj in ret['Contents']:
-                            self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=obj['Key'])
-                    self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
-                except Exception as error:
-                    pass
+                ret = self.a1_r1.storageservice.list_objects_v2(Bucket=bucket_name)
+                if 'Contents' in ret:
+                    for obj in ret['Contents']:
+                        self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=obj['Key'])
+                self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
             if image_id:
                 cleanup_images(self.a1_r1, image_id_list=[image_id], force=True)
             if ret_attach:
@@ -182,14 +180,11 @@ class Test_export_import(OscTestSuite):
             if imp_image_id:
                 cleanup_images(self.a1_r1, image_id_list=[imp_image_id], force=True)
             if bucket:
-                try:
-                    ret = self.a1_r1.storageservice.list_objects_v2(Bucket=bucket_name)
-                    if 'Contents' in ret:
-                        for obj in ret['Contents']:
-                            self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=obj['Key'])
-                    self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
-                except Exception as error:
-                    pass
+                ret = self.a1_r1.storageservice.list_objects_v2(Bucket=bucket_name)
+                if 'Contents' in ret:
+                    for obj in ret['Contents']:
+                        self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=obj['Key'])
+                self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
             if image_id:
                 cleanup_images(self.a1_r1, image_id_list=[image_id], force=True)
             if ret_attach:

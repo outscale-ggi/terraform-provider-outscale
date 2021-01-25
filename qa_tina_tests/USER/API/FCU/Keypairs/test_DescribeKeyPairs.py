@@ -17,12 +17,13 @@ class Test_DescribeKeyPairs(OscTestSuite):
                 ret = cls.a1_r1.fcu.CreateKeyPair(KeyName='a1_keys_{}'.format(i))
                 cls.kp_list.append({'name': ret.response.keyName, 'fingerprint': ret.response.keyFingerprint})
             cls.fingerprint = cls.a2_r1.fcu.CreateKeyPair(KeyName='a2_key_1').response.keyFingerprint
-        except Exception as error:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):

@@ -76,12 +76,13 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                         'IpRanges': ['10.0.0.12/32']
                     }],
                 SecurityGroupId=cls.sg4.SecurityGroupId)
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     def test_T2737_without_param(self):
         try:

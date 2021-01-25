@@ -20,12 +20,12 @@ class Test_DeleteSecurityGroup(OscTestSuite):
         cls.instance_info_a1 = None
         try:
             cls.instance_info_a1 = create_instances(cls.a1_r1)
-        except Exception as error:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            except Exception as error2:
+                raise error2
+            raise error1
 
     @classmethod
     def teardown_class(cls):
