@@ -27,7 +27,7 @@ class Test_DeleteKeyPair(OscTestSuite):
     def test_T933_without_keyname(self):
         try:
             self.a1_r1.fcu.DeleteKeyPair()
-            pytest.fail("Deleting key pair wiout key name should not have succeeded")
+            pytest.fail("Deleting key pair without key name should not have succeeded")
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)

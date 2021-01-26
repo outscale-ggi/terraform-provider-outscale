@@ -1,7 +1,7 @@
 import re
+from time import sleep
 
 import pytest
-from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, \
     OscSdkException
@@ -91,9 +91,3 @@ class Test_CreateAccessKey(OscTestSuite):
     def test_T5060_with_DryRun(self):
         ret_create = self.a1_r1.oapi.CreateAccessKey(DryRun=True)
         assert_dry_run(ret_create)
-
-    def test_T5323_with_loop(self):
-        for _ in range(50):
-            ret = self.a1_r1.oapi.CreateAccessKey()
-            ak_id = ret.response.AccessKey.AccessKeyId
-            self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak_id)

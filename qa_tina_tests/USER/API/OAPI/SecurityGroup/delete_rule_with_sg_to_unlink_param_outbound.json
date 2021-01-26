@@ -1,0 +1,9 @@
+{"ResponseContext": {"RequestId": "55aa3a4d-b187-4e8a-b848-2de14fd6a1b6"},
+ "SecurityGroup": {"AccountId": "###VALUE0###",
+                   "Description": "###VALUE11###",
+                   "InboundRules": [{"FromPortRange": 1234, "IpProtocol": "tcp", "IpRanges": ["10.0.0.12/32"], "ToPortRange": 1234}],
+                   "NetId": "###VALUE2###",
+                   "OutboundRules": [{"FromPortRange": -1, "IpProtocol": "-1", "IpRanges": ["0.0.0.0/0"], "ToPortRange": -1}],
+                   "SecurityGroupId": "###VALUE9###",
+                   "SecurityGroupName": "###VALUE10###",
+                   "Tags": []}}

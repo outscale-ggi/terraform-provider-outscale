@@ -1,0 +1,2 @@
+{"ResponseContext": {"RequestId": "b2f75cc1-ebc2-4bae-b815-02f0deeaf9d8"},
+ "SecurityGroup": {"AccountId": "###VALUE1###", "Description": "###VALUE2###", "InboundRules": [], "OutboundRules": [], "SecurityGroupId": "###VALUE0###", "SecurityGroupName": "###VALUE3###", "Tags": []}}

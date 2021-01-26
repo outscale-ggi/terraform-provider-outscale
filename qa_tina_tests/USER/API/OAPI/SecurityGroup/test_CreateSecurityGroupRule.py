@@ -1,7 +1,10 @@
 # -*- coding:utf-8 -*-
+import os
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
-from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup, validate_sg
+from qa_test_tools.compare_objects import verify_response
+from qa_test_tools.test_base import known_error
+from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
 
 
 class Test_CreateSecurityGroupRule(SecurityGroup):
@@ -29,134 +32,69 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T2721_valid_case_inbound(self):
-        sg = self.a1_r1.oapi.CreateSecurityGroupRule(
+        ret = self.a1_r1.oapi.CreateSecurityGroupRule(
             Flow='Inbound',
             IpProtocol='tcp',
             FromPortRange=1234,
             ToPortRange=1234,
             IpRange='10.0.0.12/32',
-            SecurityGroupId=self.sg1['id']).response.SecurityGroup
-        validate_sg(
-            sg,
-            expected_sg={'SecurityGroupId': self.sg1['id']},
-            out_rules=[],
-            in_rules=[{
-                'IpProtocol': 'tcp', 'FromPortRange': 1234,
-                'ToPortRange': 1234, 'IpRanges': ['10.0.0.12/32'],
-            }]
-        )
+            SecurityGroupId=self.sg1.SecurityGroupId)
+        ret.check_response()
+        try:
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_valid_case_inbound.json'),
+                                   self.hints), 'Could not verify response content.'
+            assert False, 'Remove known error'
+        except AssertionError:
+            known_error('API-173', 'Protocols and ip ranges are incorrect.')
 
     def test_T2722_valid_case_outbound(self):
-        sg = self.a1_r1.oapi.CreateSecurityGroupRule(
+        ret = self.a1_r1.oapi.CreateSecurityGroupRule(
             Flow='Outbound',
             IpProtocol='tcp',
             FromPortRange=1234,
             ToPortRange=1234,
             IpRange='10.0.0.12/32',
-            SecurityGroupId=self.sg2['id']).response.SecurityGroup
-        validate_sg(
-            sg,
-            expected_sg={'SecurityGroupId': self.sg2['id']},
-            out_rules=[{
-                'IpProtocol': 'tcp', 'FromPortRange': 1234,
-                'ToPortRange': 1234, 'IpRanges': ['10.0.0.12/32'],
-            },
-                {
-                    'IpProtocol': '-1', 'IpRanges': ['0.0.0.0/0'],
-            }]
-        )
+            SecurityGroupId=self.sg3.SecurityGroupId)
+        ret.check_response()
+        try:
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_valid_case_outbound.json'),
+                                   self.hints), 'Could not verify response content.'
+            assert False, 'Remove known error'
+        except AssertionError:
+            known_error('API-173', 'Protocols and ip ranges are incorrect.')
 
-    def test_T2723_with_sg_to_link_param(self):
+    def test_T2723_with_sg_to_link_param_inbound(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
             Flow='Inbound',
-            SecurityGroupNameToLink=self.sg1['name'],
+            SecurityGroupNameToLink=self.sg1.SecurityGroupName,
             SecurityGroupAccountIdToLink=self.a1_r1.config.account.account_id,
-            SecurityGroupId=self.sg1['id'])
+            SecurityGroupId=self.sg1.SecurityGroupId)
         ret.check_response()
-        validate_sg(
-            ret.response.SecurityGroup,
-            expected_sg={'SecurityGroupId': self.sg1['id']},
-            in_rules=[
-                {
-                    'IpProtocol': 'icmp',
-                    'FromPortRange': -1,
-                    'SecurityGroupsMembers': [{
-                        'SecurityGroupId': self.sg1['id'],
-                        'SecurityGroupName': self.sg1['name'],
-                        'AccountId': self.a1_r1.config.account.account_id,
-                    }],
-                    'ToPortRange':-1,
-                },
-                {
-                    'IpProtocol': 'tcp',
-                    'FromPortRange': 1,
-                    'SecurityGroupsMembers': [{
-                        'SecurityGroupId': self.sg1['id'],
-                        'SecurityGroupName': self.sg1['name'],
-                        'AccountId': self.a1_r1.config.account.account_id,
-                    }],
-                    'ToPortRange': 65535,
-                },
-                {
-                    'IpProtocol': 'udp',
-                    'FromPortRange': 1,
-                    'SecurityGroupsMembers': [{
-                        'SecurityGroupId': self.sg1['id'],
-                        'SecurityGroupName': self.sg1['name'],
-                        'AccountId': self.a1_r1.config.account.account_id,
-                    }],
-                    'ToPortRange': 65535,
-                }
-            ]
-        )
+        try:
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_with_sg_to_link_param_inbound.json'),
+                                   self.hints), 'Could not verify response content.'
+            assert False, 'Remove known error'
+        except AssertionError:
+            known_error('API-173', 'Protocols and ip ranges are incorrect.')
 
+    def test_T5475_with_sg_to_link_param_outbound(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
             Flow='Outbound',
-            SecurityGroupNameToLink=self.sg2['id'], # The name can be only used in Cloud Public not in Net
+            SecurityGroupNameToLink=self.sg3.SecurityGroupId, # The name can be only used in Cloud Public not in Net
             SecurityGroupAccountIdToLink=self.a1_r1.config.account.account_id,
-            SecurityGroupId=self.sg2['id'])
+            SecurityGroupId=self.sg3.SecurityGroupId)
         ret.check_response()
-        validate_sg(
-            ret.response.SecurityGroup,
-            expected_sg={'SecurityGroupId': self.sg2['id']},
-            out_rules=[
-                {
-                    'IpProtocol': '-1', 'IpRanges': ['0.0.0.0/0'],
-                },
-                {
-                    'IpProtocol': 'icmp',
-                    'FromPortRange':-1,
-                    'SecurityGroupsMembers': [{
-                        'SecurityGroupId': self.sg2['id'],
-                        'SecurityGroupName': self.sg2['name'],
-                        'AccountId': self.a1_r1.config.account.account_id,
-                    }],
-                    'ToPortRange':-1,
-                },
-                {
-                    'IpProtocol': 'tcp',
-                    'FromPortRange': 1,
-                    'SecurityGroupsMembers': [{
-                        'SecurityGroupId': self.sg2['id'],
-                        'SecurityGroupName': self.sg2['name'],
-                        'AccountId': self.a1_r1.config.account.account_id,
-                    }],
-                    'ToPortRange': 65535,
-                },
-                {
-                    'IpProtocol': 'udp',
-                    'FromPortRange': 1,
-                    'SecurityGroupsMembers': [{
-                        'SecurityGroupId': self.sg2['id'],
-                        'SecurityGroupName': self.sg2['name'],
-                        'AccountId': self.a1_r1.config.account.account_id,
-                    }],
-                    'ToPortRange': 65535,
-                }]
-        )
+        try:
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_with_sg_to_link_param_outbound.json'),
+                                   self.hints), 'Could not verify response content.'
+            assert False, 'Remove known error'
+        except AssertionError:
+            known_error('API-173', 'Protocols and ip ranges are incorrect.')
 
     def test_T2724_invalid_ip_range(self):
-        for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg2)]:
+        for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
             try:
                 self.a1_r1.oapi.CreateSecurityGroupRule(
                     Flow=flow,
@@ -164,14 +102,14 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                     FromPortRange=1237,
                     ToPortRange=1234,
                     IpRange='Hello',
-                    SecurityGroupId=sg['id']
+                    SecurityGroupId=sg.SecurityGroupId
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T2725_unknown_protocol(self):
-        for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg2)]:
+        for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
             try:
                 self.a1_r1.oapi.CreateSecurityGroupRule(
                     Flow=flow,
@@ -179,14 +117,14 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                     FromPortRange=1237,
                     ToPortRange=1234,
                     IpRange='10.0.0.12/32',
-                    SecurityGroupId=sg['id']
+                    SecurityGroupId=sg.SecurityGroupId
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2726_invalid_port_range(self):
-        for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg2)]:
+        for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
             try:
                 self.a1_r1.oapi.CreateSecurityGroupRule(
                     Flow=flow,
@@ -194,7 +132,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                     FromPortRange=1237,
                     ToPortRange=1234,
                     IpRange='10.0.0.12/32',
-                    SecurityGroupId=sg['id']
+                    SecurityGroupId=sg.SecurityGroupId
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
@@ -206,7 +144,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                     FromPortRange=1234,
                     ToPortRange=1234,
                     IpRange='10.0.0.12/32',
-                    SecurityGroupId=sg['id']
+                    SecurityGroupId=sg.SecurityGroupId
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
@@ -220,7 +158,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 FromPortRange=1234,
                 ToPortRange=1234,
                 IpRange='10.0.0.12/32',
-                SecurityGroupId=self.sg1['id'])
+                SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'OperationNotSupported', '8004')
@@ -229,11 +167,11 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
         try:
             self.a1_r1.oapi.CreateSecurityGroupRule(
                 Flow='Inbound',
-                SecurityGroupId=self.sg1['id'])
+                SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
-        for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg2)]:
+        for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
             try:
                 self.a1_r1.oapi.CreateSecurityGroupRule(
                     Flow=flow,
@@ -248,27 +186,34 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                             'ToPortRange': 1235,
                             'IpRanges': ['10.0.0.12/32'],
                         }],
-                    SecurityGroupId=sg['id']
+                    SecurityGroupId=sg.SecurityGroupId
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T2729_inbound_rules_array_1_element(self):
-        sg = self.a1_r1.oapi.CreateSecurityGroupRule(
+        ret = self.a1_r1.oapi.CreateSecurityGroupRule(
             Flow='Inbound',
             Rules=[
                 {
                     'SecurityGroupsMembers': [{
                         'AccountId': self.a1_r1.config.account.account_id,
-                        'SecurityGroupName': self.sg1['name'],
+                        'SecurityGroupName': self.sg1.SecurityGroupName,
                     }],
                     'IpProtocol': 'tcp',
                     'FromPortRange': 45,
                     'ToPortRange': 7890,
                     'IpRanges': ['10.0.0.12/32']}],
-            SecurityGroupId=self.sg1['id']).response.SecurityGroup
-        validate_sg(sg)
+            SecurityGroupId=self.sg1.SecurityGroupId)
+        ret.check_response()
+        try:
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_inbound_rules_array_1_element.json'),
+                                   self.hints), 'Could not verify response content.'
+            assert False, 'Remove known error'
+        except AssertionError:
+            known_error('API-173', 'Protocols and ip ranges are incorrect.')
 
     def test_T2942_outbound_rules_array_1_element(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -279,32 +224,38 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                     'ToPortRange': 7890,
                     'IpRanges': ['10.0.0.12/32']
                 }],
-            SecurityGroupId=self.sg2['id'])
+            SecurityGroupId=self.sg3.SecurityGroupId)
         ret.check_response()
-        validate_sg(ret.response.SecurityGroup)
+        try:
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_outbound_rules_array_1_element.json'),
+                                   self.hints), 'Could not verify response content.'
+            assert False, 'Remove known error'
+        except AssertionError:
+            known_error('API-173', 'Protocols and ip ranges are incorrect.')
 
     def test_T2730_rules_invalid_array_combination(self):
-        for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg2)]:
+        for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
             try:
                 self.a1_r1.oapi.CreateSecurityGroupRule(
                     Flow=flow,
                     Rules=[
                         {
                             'SecurityGroupsMembers': [{
-                                'SecurityGroupName': sg['name'],
-                                'SecurityGroupId': sg['id'],
+                                'SecurityGroupName': sg.SecurityGroupName,
+                                'SecurityGroupId': sg.SecurityGroupId,
                             }],
                             'IpProtocol': 'icmp',
                             'FromPortRange':-1,
                             'ToPortRange':-1,
                             'IpRanges': ['10.0.0.12/32']}],
-                    SecurityGroupId=sg['id'])
+                    SecurityGroupId=sg.SecurityGroupId)
                 self.a1_r1.oapi.DeleteSecurityGroupRule(
                     Flow=flow,
                     Rules=[
                         {
                             'SecurityGroupsMembers': [{
-                                'SecurityGroupId': sg['id'],
+                                'SecurityGroupId': sg.SecurityGroupId,
                             }],
                             'IpProtocol': 'icmp',
                             'FromPortRange':-1,
@@ -312,56 +263,97 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                             'IpRanges': ['10.0.0.12/32'],
                         }
                     ],
-                    SecurityGroupId=sg['id']
+                    SecurityGroupId=sg.SecurityGroupId
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 assert_oapi_error(error, 400, 'InvalidParameter', '3002')
 
     def test_T2731_inbound_rules_array_many_element(self):
-        for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg2)]:
-            ret = self.a1_r1.oapi.CreateSecurityGroupRule(
-                Flow=flow,
-                Rules=[
-                    {
-                        'IpProtocol': 'tcp',
-                        'FromPortRange': 1234,
-                        'ToPortRange': 1235,
-                        'IpRanges': ['10.0.0.12/32'],
-                    },
-                    {
-                        'IpProtocol': 'udp',
-                        'FromPortRange': 4325,
-                        'ToPortRange': 6587,
-                        'IpRanges': ['10.0.0.12/32'],
-                    }
-                ],
-                SecurityGroupId=self.sg3['id'])
-            ret.check_response()
-            validate_sg(ret.response.SecurityGroup)
-            ret = self.a1_r1.oapi.CreateSecurityGroupRule(
-                Flow=flow,
-                Rules=[
-                    {
-                        'IpProtocol': 'icmp',
-                        'FromPortRange': -1,
-                        'ToPortRange': -1,
-                        'IpRanges': ['10.0.0.12/32']
-                    },
-                    {
-                        'SecurityGroupsMembers': [{
-                            'AccountId': self.a1_r1.config.account.account_id,
-                            'SecurityGroupId': sg['id'],
-                        }],
-                        'IpProtocol': 'udp',
-                        'FromPortRange': 56,
-                        'ToPortRange': 78,
-                        'IpRanges': ['10.0.0.12/32']
-                    }
-                ],
-                SecurityGroupId=sg['id'])
-            ret.check_response()
-            validate_sg(ret.response.SecurityGroup)
+        ret = self.a1_r1.oapi.CreateSecurityGroupRule(
+            Flow='Inbound',
+            Rules=[
+                {
+                    'IpProtocol': 'tcp',
+                    'FromPortRange': 1234,
+                    'ToPortRange': 1235,
+                    'IpRanges': ['10.0.0.11/32'],
+                },
+                {
+                    'IpProtocol': 'udp',
+                    'FromPortRange': 4325,
+                    'ToPortRange': 6587,
+                    'IpRanges': ['10.0.0.12/32'],
+                },
+                {
+                    'IpProtocol': 'icmp',
+                    'FromPortRange': -1,
+                    'ToPortRange': -1,
+                    'IpRanges': ['10.0.0.13/32']
+                },
+                {
+                    'SecurityGroupsMembers': [{
+                        'AccountId': self.a1_r1.config.account.account_id,
+                        'SecurityGroupId': self.sg3.SecurityGroupId,
+                    }],
+                    'IpProtocol': 'udp',
+                    'FromPortRange': 56,
+                    'ToPortRange': 78,
+                    'IpRanges': ['10.0.0.14/32']
+                }
+            ],
+            SecurityGroupId=self.sg4.SecurityGroupId)
+        ret.check_response()
+        try:
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_inbound_rules_array_many_element.json'),
+                                   self.hints), 'Could not verify response content.'
+            assert False, 'Remove known error'
+        except AssertionError:
+            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+
+    def test_T5476_outbound_rules_array_many_element(self):
+        ret = self.a1_r1.oapi.CreateSecurityGroupRule(
+            Flow='Outbound',
+            Rules=[
+                {
+                    'IpProtocol': 'tcp',
+                    'FromPortRange': 1234,
+                    'ToPortRange': 1235,
+                    'IpRanges': ['10.0.0.11/32'],
+                },
+                {
+                    'IpProtocol': 'udp',
+                    'FromPortRange': 4325,
+                    'ToPortRange': 6587,
+                    'IpRanges': ['10.0.0.12/32'],
+                },
+                {
+                    'IpProtocol': 'icmp',
+                    'FromPortRange': -1,
+                    'ToPortRange': -1,
+                    'IpRanges': ['10.0.0.13/32']
+                },
+                {
+                    'SecurityGroupsMembers': [{
+                        'AccountId': self.a1_r1.config.account.account_id,
+                        'SecurityGroupId': self.sg3.SecurityGroupId,
+                    }],
+                    'IpProtocol': 'udp',
+                    'FromPortRange': 56,
+                    'ToPortRange': 78,
+                    'IpRanges': ['10.0.0.14/32']
+                }
+            ],
+            SecurityGroupId=self.sg4.SecurityGroupId)
+        ret.check_response()
+        try:
+            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                              'create_rule_outbound_rules_array_many_element.json'),
+                                   self.hints), 'Could not verify response content.'
+            assert False, 'Remove known error'
+        except AssertionError:
+            known_error('API-173', 'Protocols and ip ranges are incorrect.')
 
     def test_T4386_with_bad_parameters(self):
         try:
@@ -370,7 +362,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 IpProtocol='icmp',
                 FromPortRange=-1,
                 ToPortRange=-1,
-                SecurityGroupId=self.sg1['id'])
+                SecurityGroupId=self.sg1.SecurityGroupId)
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', '3002')
 
@@ -387,7 +379,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                         'FromPortRange': 45,
                         'ToPortRange': 7890,
                         'IpRanges': ['10.0.0.12/32']}],
-                SecurityGroupId=self.sg1['id'])
+                SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', 7000)
@@ -406,7 +398,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                         'FromPortRange': 45,
                         'ToPortRange': 7890,
                         'IpRanges': ['10.0.0.12/32']}],
-                SecurityGroupId=self.sg1['id'])
+                SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', 5060)
@@ -425,7 +417,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                         'FromPortRange': 45,
                         'ToPortRange': 7890,
                         'IpRanges': ['10.0.0.12/32']}],
-                SecurityGroupId=self.sg1['id'])
+                SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', 5060)

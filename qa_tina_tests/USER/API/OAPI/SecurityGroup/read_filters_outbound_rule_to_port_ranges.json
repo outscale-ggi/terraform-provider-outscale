@@ -1,0 +1,10 @@
+{"ResponseContext": {"RequestId": "1942f4a7-4c12-4dbb-8061-bbdbad2bd401"},
+ "SecurityGroups": [{"AccountId": "###VALUE0###",
+                     "Description": "###VALUE14###",
+                     "InboundRules": [],
+                     "NetId": "###VALUE2###",
+                     "OutboundRules": [{"FromPortRange": 2345, "IpProtocol": "tcp", "IpRanges": ["10.0.0.14/32"], "ToPortRange": 2345},
+                                       {"FromPortRange": -1, "IpProtocol": "-1", "IpRanges": ["0.0.0.0/0"], "ToPortRange": -1}],
+                     "SecurityGroupId": "###VALUE12###",
+                     "SecurityGroupName": "###VALUE13###",
+                     "Tags": [{"Key": "sg_toto", "Value": "sg_value"}]}]}
