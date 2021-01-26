@@ -123,14 +123,12 @@ class Test_UpdateAccessKey(OscTestSuite):
         except OscApiException as err:
             assert_error(err, 404, "NoSuchEntity", "The user with name {} cannot be found.".format(self.username))
 
-    def test_TXX_without_username_with_ak_account(self):
-        # To be checked: le call passe, mais je n'arrive pas à comprendre pourquoi le call eim.ListAccessKeys
-        #                me renvoie toutes les clés..
+    def test_T5499_without_username_with_ak_account(self):
         ak_id_account = None
         try:
             ak_id_account = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
             self.a1_r1.eim.UpdateAccessKey(AccessKeyId=ak_id_account, Status='Inactive')
-            ret = self.a1_r1.eim.ListAccessKeys(AccessKeyId=ak_id_account).response.ListAccessKeysResult
+            ret = self.a1_r1.eim.ListAccessKeys().response.ListAccessKeysResult
             assert ret.AccessKeyMetadata[-1].Status == "Inactive"
         finally:
             if ak_id_account:
