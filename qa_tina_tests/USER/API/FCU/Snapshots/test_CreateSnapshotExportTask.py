@@ -198,7 +198,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
                                                                                             'OsuBucket': self.bucket_name,
                                                                                             'OsuPrefix': 'osu_prefix-'})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
-        assert not hasattr(ret.response.snapshotExportTask.exportToOsu, 'osuPrefix')
+        assert hasattr(ret.response.snapshotExportTask.exportToOsu, 'osuPrefix')
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
         k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)['Contents']
         assert len(k_list) == 1
@@ -241,8 +241,11 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
                                                                                             'OsuBucket': self.bucket_name,
                                                                                             'aksk':{'AccessKey': 'foo', 'SecretKey': 'bar'}})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
-        wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
-
+        try:
+            wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
+            assert False, 'Remove known error'
+        except AssertionError as error:
+            known_error('TINA-6147', 'Create export snapshot task with invalid ak/sk should have the failed state')
         ret = self.a1_r1.fcu.DescribeSnapshotExportTasks(SnapshotExportTaskId=[task_id])
         assert ret.response.snapshotExportTaskSet[0].statusMessage.startswith('Error accessing bucket ' + \
                                                                               '{}: S3ResponseError: 403 Forbidden\n'.format(self.bucket_name) + \

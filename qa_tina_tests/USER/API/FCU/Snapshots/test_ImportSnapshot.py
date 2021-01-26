@@ -71,8 +71,6 @@ class Test_ImportSnapshot(OscTestSuite):
             super(Test_ImportSnapshot, cls).teardown_class()
 
     def test_T1051_without_parameter(self):
-        if self.has_setup_error:
-            known_error(self.has_setup_error, 'Unexpected error during setup')
         try:
             self.a1_r1.fcu.ImportSnapshot()
             assert False, 'Call should not have been successful'
@@ -80,8 +78,6 @@ class Test_ImportSnapshot(OscTestSuite):
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: snapshotLocation')
 
     def test_T1052_without_url(self):
-        if self.has_setup_error:
-            known_error(self.has_setup_error, 'Unexpected error during setup')
         try:
             self.a1_r1.fcu.ImportSnapshot(snapshotSize=1)
             assert False, 'Call should not have been successful'
@@ -89,8 +85,6 @@ class Test_ImportSnapshot(OscTestSuite):
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: snapshotLocation')
 
     def test_T1053_with_invalid_url_format(self):
-        if self.has_setup_error:
-            known_error(self.has_setup_error, 'Unexpected error during setup')
         try:
             self.a1_r1.fcu.ImportSnapshot(snapshotSize=1, snapshotLocation='foo', description='This is a snapshot test')
             assert False, 'Call should not have been successful'
@@ -98,8 +92,6 @@ class Test_ImportSnapshot(OscTestSuite):
             assert_error(error, 400, 'InvalidURLFormat', 'Only HTTP or HTTPs URL are accepted: foo')
 
     def test_T1055_with_invalid_url_expired(self):
-        if self.has_setup_error:
-            known_error(self.has_setup_error, 'Unexpected error during setup')
         try:
             snap_id = None
             key = None
@@ -123,8 +115,6 @@ class Test_ImportSnapshot(OscTestSuite):
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
 
     def test_T1054_with_invalid_url(self):
-        if self.has_setup_error:
-            known_error(self.has_setup_error, 'Unexpected error during setup')
         try:
             snap_id = None
             key = None
@@ -147,8 +137,6 @@ class Test_ImportSnapshot(OscTestSuite):
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
 
     def test_T1056_with_deleted_bucket(self):
-        if self.has_setup_error:
-            known_error(self.has_setup_error, 'Unexpected error during setup')
         task_id = None
         bucket_name = None
         snap_id = None
@@ -189,8 +177,6 @@ class Test_ImportSnapshot(OscTestSuite):
                 self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
 
     def test_T1057_without_snapshot_size(self):
-        if self.has_setup_error:
-            known_error(self.has_setup_error, 'Unexpected error during setup')
         try:
             key = None
             k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
@@ -207,8 +193,6 @@ class Test_ImportSnapshot(OscTestSuite):
 
 
     def test_T1050_with_valid_params(self):
-        if self.has_setup_error:
-            known_error(self.has_setup_error, 'Unexpected error during setup')
         try:
             snap_id = None
             key = None
@@ -231,8 +215,6 @@ class Test_ImportSnapshot(OscTestSuite):
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
 
     def test_T1059_with_valid_format_description(self):
-        if self.has_setup_error:
-            known_error(self.has_setup_error, 'Unexpected error during setup')
         try:
             snap_id = None
             key = None
@@ -255,8 +237,6 @@ class Test_ImportSnapshot(OscTestSuite):
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
 
     def test_T1058_with_wrong_size(self):
-        if self.has_setup_error:
-            known_error(self.has_setup_error, 'Unexpected error during setup')
         try:
             snap_id = None
             key = None
@@ -270,16 +250,16 @@ class Test_ImportSnapshot(OscTestSuite):
             ret = self.a1_r1.fcu.DescribeSnapshots(SnapshotId=[self.snap_id])
             size = ret.response.snapshotSet[0].volumeSize
             gb_to_byte = size
-            ret = self.a1_r1.fcu.ImportSnapshot(description='This is a snapshot test', snapshotLocation=url, snapshotSize=gb_to_byte)
-            snap_id = ret.response.snapshotId
-            wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
+            try:
+                self.a1_r1.fcu.ImportSnapshot(description='This is a snapshot test', snapshotLocation=url, snapshotSize=gb_to_byte)
+                known_error('TINA-6150', 'Import snapshot with wrong size does not return an error ')
+            except OscApiException as error:
+                assert False, 'remove known error and add an assert error'
         finally:
             if snap_id:
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
 
     def test_T4505_without_description(self):
-        if self.has_setup_error:
-            known_error(self.has_setup_error, 'Unexpected error during setup')
         try:
             snap_id = None
             key = None

@@ -1,8 +1,8 @@
 from string import ascii_lowercase
 
+from time import sleep
 import pytest
 from qa_common_tools.ssh import SshTools
-from time import sleep
 
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import id_generator
@@ -25,12 +25,13 @@ class Test_export_import(OscTestSuite):
         super(Test_export_import, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1, state='running')
-        except Exception as error:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):
@@ -105,14 +106,11 @@ class Test_export_import(OscTestSuite):
             if imp_image_id:
                 cleanup_images(self.a1_r1, image_id_list=[imp_image_id], force=True)
             if bucket:
-                try:
-                    ret = self.a1_r1.storageservice.list_objects_v2(Bucket=bucket_name)
-                    if 'Contents' in ret:
-                        for obj in ret['Contents']:
-                            self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=obj['Key'])
-                    self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
-                except Exception as error:
-                    pass
+                ret = self.a1_r1.storageservice.list_objects_v2(Bucket=bucket_name)
+                if 'Contents' in ret:
+                    for obj in ret['Contents']:
+                        self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=obj['Key'])
+                self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
             if image_id:
                 cleanup_images(self.a1_r1, image_id_list=[image_id], force=True)
             if ret_attach:
@@ -124,7 +122,7 @@ class Test_export_import(OscTestSuite):
     def test_T5450_check_file_after_import_the_image(self):
         image_id = None
         imp_image_id = None
-        vol_id_list = None
+        vol_id_list = []
         ret_attach = None
         bucket = None
         bucket_name = id_generator(prefix="bucket", chars=ascii_lowercase)
@@ -134,7 +132,7 @@ class Test_export_import(OscTestSuite):
             sshclient = SshTools.check_connection_paramiko(self.inst_info[INSTANCE_SET][0]['ipAddress'], self.inst_info[KEY_PAIR][PATH],
                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             cmd = 'sudo mkdir test'
-            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+            _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             # create image
             image_id = self.a1_r1.fcu.CreateImage(InstanceId=inst_id, Name=id_generator(prefix='omi_')).response.imageId
             wait_images_state(self.a1_r1, [image_id], state='available')
@@ -171,7 +169,7 @@ class Test_export_import(OscTestSuite):
                                                            username=self.a1_r1.config.region.get_info(
                                                                constants.CENTOS_USER))
             cmd = 'sudo cd test'
-            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+            _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
 
         except Exception as error:
@@ -182,14 +180,11 @@ class Test_export_import(OscTestSuite):
             if imp_image_id:
                 cleanup_images(self.a1_r1, image_id_list=[imp_image_id], force=True)
             if bucket:
-                try:
-                    ret = self.a1_r1.storageservice.list_objects_v2(Bucket=bucket_name)
-                    if 'Contents' in ret:
-                        for obj in ret['Contents']:
-                            self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=obj['Key'])
-                    self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
-                except Exception as error:
-                    pass
+                ret = self.a1_r1.storageservice.list_objects_v2(Bucket=bucket_name)
+                if 'Contents' in ret:
+                    for obj in ret['Contents']:
+                        self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=obj['Key'])
+                self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
             if image_id:
                 cleanup_images(self.a1_r1, image_id_list=[image_id], force=True)
             if ret_attach:
