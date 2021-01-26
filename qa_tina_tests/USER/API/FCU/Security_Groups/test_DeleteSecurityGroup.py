@@ -39,13 +39,6 @@ class Test_DeleteSecurityGroup(OscTestSuite):
                 delete_instances(cls.a1_r1, cls.instance_info_a1)
         finally:
             super(Test_DeleteSecurityGroup, cls).teardown_class()
-#     @classmethod
-#     def setup_class(cls):
-#         super(Test_DeleteSecurityGroup, cls).setup_class()
-#
-#     @classmethod
-#     def teardown_class(cls):
-#         super(Test_DeleteSecurityGroup, cls).teardown_class()
 
     def test_T981_using_id(self):
         sg_name = 'test_sg'
@@ -90,10 +83,7 @@ class Test_DeleteSecurityGroup(OscTestSuite):
             assert_error(error, 400, None, None)
         finally:
             if vpc_id:
-                try:
-                    self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
-                except:
-                    pass
+                self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
 
     def test_T5459_associated_with_vm(self):
         try:
