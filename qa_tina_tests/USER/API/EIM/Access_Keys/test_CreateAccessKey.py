@@ -61,7 +61,8 @@ class Test_CreateAccessKey(OscTestSuite):
             assert re.search(r"([A-Z0-9]{40})", sk), "SK format is not correct"
             assert hasattr(ret.AccessKey, "CreateDate")
             assert ret.AccessKey.Status == "Active"
-            assert ret.AccessKey.UserName == "orn:ows:idauth::{}:user/{}".format(self.a1_r1.config.account.account_id, self.username)
+            assert ret.AccessKey.UserName == "orn:ows:idauth::{}:user/{}"\
+                .format(self.a1_r1.config.account.account_id, self.username)
         finally:
             if ret:
                 self.a1_r1.eim.DeleteAccessKey(UserName=self.username, AccessKeyId=ak)
@@ -72,7 +73,8 @@ class Test_CreateAccessKey(OscTestSuite):
             assert False, "Call should not have been successful"
         except OscApiException as err:
             # Maybe Create a Ticket for improvement of the message
-            assert_error(err, 400, "ValidationError", "Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: Invalid composite name part]")
+            assert_error(err, 400, "ValidationError", "Invalid arguments for isAuthorized():"
+                                                      " [arg0.resources[].relativeId: Invalid composite name part]")
 
     def test_T5454_with_nonexisting_username(self):
         name = 'foo'

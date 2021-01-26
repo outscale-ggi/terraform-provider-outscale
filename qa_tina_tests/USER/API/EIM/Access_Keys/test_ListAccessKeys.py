@@ -60,7 +60,8 @@ class Test_ListAccessKeys(OscTestSuite):
             assert False, "Call should not have been successful"
         except OscApiException as err:
             # Maybe Create a Ticket for improvement of the message
-            assert_error(err, 400, "ValidationError", "Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: Invalid composite name part]")
+            assert_error(err, 400, "ValidationError", "Invalid arguments for isAuthorized(): "
+                                                      "[arg0.resources[].relativeId: Invalid composite name part]")
 
     def test_T5473_with_nonexisting_username(self):
         name = 'foo'
