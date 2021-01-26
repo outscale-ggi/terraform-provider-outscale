@@ -125,7 +125,7 @@ class Test_UpdateAccessKey(OscTestSuite):
 
     def test_TXX_without_username_with_ak_account(self):
         # To be checked: le call passe, mais je n'arrive pas à comprendre pourquoi le call eim.ListAccessKeys
-        #                me renvoie toutes les clés.
+        #                me renvoie toutes les clés..
         ak_id_account = None
         try:
             ak_id_account = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
