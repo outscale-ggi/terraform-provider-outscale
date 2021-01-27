@@ -29,10 +29,10 @@ class Test_ListAccessKeys(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
-            ret = cls.a1_r1.eim.ListAccessKeys(UserName=cls.username)
-            for key in ret.response.ListAccessKeysResult.AccessKeyMetadata:
-                cls.a1_r1.eim.DeleteAccessKey(UserName=cls.username, AccessKeyId=key.AccessKeyId)
             if cls.ret_create:
+                ret = cls.a1_r1.eim.ListAccessKeys(UserName=cls.username)
+                for key in ret.response.ListAccessKeysResult.AccessKeyMetadata:
+                    cls.a1_r1.eim.DeleteAccessKey(UserName=cls.username, AccessKeyId=key.AccessKeyId)
                 cls.a1_r1.eim.DeleteUser(UserName=cls.username)
         finally:
             super(Test_ListAccessKeys, cls).teardown_class()
@@ -61,7 +61,7 @@ class Test_ListAccessKeys(OscTestSuite):
         except OscApiException as err:
             # Maybe Create a Ticket for improvement of the message
             assert_error(err, 400, "ValidationError", "Invalid arguments for isAuthorized(): "
-                                                      "[arg0.resources[].relativeId: Invalid composite name part]")
+                                                    "[arg0.resources[].relativeId: Invalid composite name part]")
 
     def test_T5473_with_nonexisting_username(self):
         name = 'foo'
