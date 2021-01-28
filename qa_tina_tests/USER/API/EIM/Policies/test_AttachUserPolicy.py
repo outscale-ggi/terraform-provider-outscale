@@ -10,8 +10,8 @@ class Test_AttachUserPolicy(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_AttachUserPolicy, cls).setup_class()
-        cls.user = None
         cls.username = None
+        cls.user = None
         cls.policy_arn = None
         cls.ret = None
         try:
