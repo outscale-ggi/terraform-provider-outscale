@@ -1,4 +1,5 @@
 import json
+import re
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
@@ -62,7 +63,8 @@ class Test_AttachUserPolicy(OscTestSuite):
 
     def test_T5500_valid_params(self):
         self.ret = self.a1_r1.eim.AttachUserPolicy(PolicyArn=self.policy_arn, UserName=self.username)
-        assert self.ret.response.ResponseMetadata.RequestId
+        assert re.search("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+                         self.ret.response.ResponseMetadata.RequestId)
 
     def test_T5501_without_params(self):
         try:
@@ -107,6 +109,7 @@ class Test_AttachUserPolicy(OscTestSuite):
 
     def test_T5506_with_multiple_policies(self):
         resp = None
+        policy_arn = None
         policy_document = {"Statement": [{"Sid": "full_api", "Effect": "Allow", "Action": "*", "Resource": "*"}]}
         try:
             policy_name = id_generator(prefix='policy_')
@@ -124,6 +127,7 @@ class Test_AttachUserPolicy(OscTestSuite):
 
     def test_T5507_with_invalid_policy_arn_type(self):
         policy_document = {"Statement": [{"Sid": "full_api", "Effect": "Allow", "Action": "*", "Resource": "*"}]}
+        policy_arn = None
         try:
             policy_name = id_generator(prefix='policy_')
             policy_arn = self.a1_r1.eim.CreatePolicy(PolicyName=policy_name,
