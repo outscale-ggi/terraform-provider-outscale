@@ -33,9 +33,9 @@ class Test_DetachUserPolicy(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
+            if cls.policy_arn:
+                cls.a1_r1.eim.DeletePolicy(PolicyArn=cls.policy_arn)
             if cls.user:
-                if cls.policy_arn:
-                    cls.a1_r1.eim.DeletePolicy(PolicyArn=cls.policy_arn)
                 cls.a1_r1.eim.DeleteUser(UserName=cls.user_name)
         finally:
             super(Test_DetachUserPolicy, cls).teardown_class()
@@ -64,14 +64,6 @@ class Test_DetachUserPolicy(OscTestSuite):
         self.detached = self.a1_r1.eim.DetachUserPolicy(PolicyArn=self.policy_arn, UserName=self.user_name)
         ret = self.a1_r1.eim.ListAttachedUserPolicies(UserName=self.user_name).response
         assert ret.ListAttachedUserPoliciesResult.AttachedPolicies is None
-
-    def test_T5515_no_params(self):
-        try:
-            self.a1_r1.eim.DetachUserPolicy()
-            assert False, "Call should not have been successful"
-        except OscApiException as err:
-            assert_error(err, 400, "ValidationError", "Value null at 'policyArn' failed to satisfy constraint:"
-                                                      " Member must not be null")
 
     def test_T5516_without_policy_arn(self):
         try:
