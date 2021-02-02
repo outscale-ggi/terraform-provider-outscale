@@ -60,12 +60,12 @@ class Test_DetachUserPolicy(OscTestSuite):
         finally:
             super(Test_DetachUserPolicy, self).teardown_method(method)
 
-    def test_TXX_valid_params(self):
+    def test_T5514_valid_params(self):
         self.detached = self.a1_r1.eim.DetachUserPolicy(PolicyArn=self.policy_arn, UserName=self.user_name)
         ret = self.a1_r1.eim.ListAttachedUserPolicies(UserName=self.user_name).response
         assert ret.ListAttachedUserPoliciesResult.AttachedPolicies is None
 
-    def test_TXX_no_params(self):
+    def test_T5515_no_params(self):
         try:
             self.a1_r1.eim.DetachUserPolicy()
             assert False, "Call should not have been successful"
@@ -73,7 +73,7 @@ class Test_DetachUserPolicy(OscTestSuite):
             assert_error(err, 400, "ValidationError", "Value null at 'policyArn' failed to satisfy constraint:"
                                                       " Member must not be null")
 
-    def test_TXX_without_policy_arn(self):
+    def test_T5516_without_policy_arn(self):
         try:
             self.a1_r1.eim.DetachUserPolicy(UserName=self.user_name)
             assert False, "Call should not have been successful"
@@ -81,7 +81,7 @@ class Test_DetachUserPolicy(OscTestSuite):
             assert_error(err, 400, "ValidationError", "Value null at 'policyArn' failed to satisfy constraint:"
                                                       " Member must not be null")
 
-    def test_TXX_without_username(self):
+    def test_T5517_without_username(self):
         try:
             self.a1_r1.eim.DetachUserPolicy(PolicyArn=self.policy_arn)
             assert False, "Call should not have been successful"
@@ -92,21 +92,21 @@ class Test_DetachUserPolicy(OscTestSuite):
             assert_error(err, 404, "NoSuchEntity", "Value null at 'username' failed to satisfy constraint:"
                                                   " Member must not be null")
 
-    def test_TXX_with_invalid_policy_arn(self):
+    def test_T5518_with_invalid_policy_arn(self):
         try:
             self.a1_r1.eim.DetachUserPolicy(PolicyArn='foo', UserName=self.user_name)
             assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 400, "ValidationError", "ARN foo is not valid.")
 
-    def test_TXX_with_invalid_username(self):
+    def test_T5519_with_invalid_username(self):
         try:
             self.a1_r1.eim.DetachUserPolicy(PolicyArn=self.policy_arn, UserName='foo')
             assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 404, "NoSuchEntity", "The user with name foo cannot be found")
 
-    def test_TXX_from_another_account(self):
+    def test_T5520_from_another_account(self):
         try:
             self.a2_r1.eim.DetachUserPolicy(PolicyArn=self.policy_arn, UserName='foo')
             assert False, "Call should not have been successful"
