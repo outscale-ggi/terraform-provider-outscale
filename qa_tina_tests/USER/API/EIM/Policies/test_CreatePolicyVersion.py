@@ -108,12 +108,12 @@ class Test_CreatePolicyVersion(OscTestSuite):
             self.ret = self.a1_r1.eim.CreatePolicyVersion(PolicyArn=self.policy.CreatePolicyResult.Policy.Arn) \
                 .response.CreatePolicyVersionResult
             assert False, "Call should not have been successful"
-        except OscApiException as error:
+        except OscApiException as err:
             msg = "The specified value for policyDocument is invalid. It must contain only printable ASCII characters."
-            if error.message == msg:
+            if err.message == msg:
                 known_error('TINA-6203', 'eim.CreatePolicyVersion issues')
             assert False, 'Remove known error'
-            assert_error(error, 400, "", "")
+            assert_error(err, 400, "", "")
 
     def test_T5526_with_invalid_policy_arn(self):
         try:
