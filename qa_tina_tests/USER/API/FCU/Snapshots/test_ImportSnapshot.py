@@ -2,10 +2,11 @@ import time
 from string import ascii_lowercase
 import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.exceptions import OscTestException
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state, wait_snapshot_export_tasks_state
-from qa_test_tools.exceptions.test_exceptions import OscTestException
+
 
 
 @pytest.mark.region_storageservice
