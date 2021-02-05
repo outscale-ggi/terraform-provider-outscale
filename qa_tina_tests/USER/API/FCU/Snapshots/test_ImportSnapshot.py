@@ -1,10 +1,11 @@
 import time
-import pytest
 from string import ascii_lowercase
+import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state, wait_snapshot_export_tasks_state
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 
 
 @pytest.mark.region_storageservice
@@ -31,9 +32,9 @@ class Test_ImportSnapshot(OscTestSuite):
             wait_snapshots_state(osc_sdk=cls.a1_r1, state='completed', snapshot_id_list=[cls.snap_id])
             # export snapshot
             cls.bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
-            for e in cls.supported_snap_types:
+            for format_type in cls.supported_snap_types:
                 ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=cls.snap_id,
-                                                             ExportToOsu={'DiskImageFormat': e, 'OsuBucket': cls.bucket_name})
+                                                             ExportToOsu={'DiskImageFormat': format_type, 'OsuBucket': cls.bucket_name})
                 task_id = ret.response.snapshotExportTask.snapshotExportTaskId
                 cls.task_ids.append(task_id)
             try:
@@ -45,15 +46,17 @@ class Test_ImportSnapshot(OscTestSuite):
                     cls.has_setup_error = 'OPS-12804'
                 else:
                     raise
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):
+        errors = []
         try:
             if cls.bucket_name:
                 try:
@@ -62,8 +65,8 @@ class Test_ImportSnapshot(OscTestSuite):
                         for k in k_list['Contents']:
                             cls.a1_r1.storageservice.delete_object(Bucket=cls.bucket_name, Key=k['Key'])
                     cls.a1_r1.storageservice.delete_bucket(Bucket=cls.bucket_name)
-                except:
-                    pass
+                except Exception as error:
+                    errors.append(error)
             if cls.snap_id:
                 # remove snapshot
                 cls.a1_r1.fcu.DeleteSnapshot(SnapshotId=cls.snap_id)
@@ -72,6 +75,8 @@ class Test_ImportSnapshot(OscTestSuite):
                 # remove volume
                 cls.a1_r1.fcu.DeleteVolume(VolumeId=cls.vol_id)
                 wait_volumes_state(osc_sdk=cls.a1_r1, cleanup=True, volume_id_list=[cls.vol_id])
+            if errors:
+                raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), errors))
         finally:
             super(Test_ImportSnapshot, cls).teardown_class()
 
@@ -279,7 +284,7 @@ class Test_ImportSnapshot(OscTestSuite):
                 self.a1_r1.fcu.ImportSnapshot(description='This is a snapshot test', snapshotLocation=url,
                                               snapshotSize=gb_to_byte)
                 known_error('TINA-6150', 'Import snapshot with wrong size does not return an error ')
-            except OscApiException as error:
+            except OscApiException:
                 assert False, 'remove known error and add an assert error'
         finally:
             if snap_id:
