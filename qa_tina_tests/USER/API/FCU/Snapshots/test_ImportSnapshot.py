@@ -275,7 +275,12 @@ class Test_ImportSnapshot(OscTestSuite):
             gb_to_byte = size
             ret = self.a1_r1.fcu.ImportSnapshot(description='This is a snapshot test', snapshotLocation=url, snapshotSize=gb_to_byte)
             snap_id = ret.response.snapshotId
-            wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
+            try:
+                self.a1_r1.fcu.ImportSnapshot(description='This is a snapshot test', snapshotLocation=url,
+                                              snapshotSize=gb_to_byte)
+                known_error('TINA-6150', 'Import snapshot with wrong size does not return an error ')
+            except OscApiException as error:
+                assert False, 'remove known error and add an assert error'
         finally:
             if snap_id:
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
