@@ -1,6 +1,8 @@
 import time
 from string import ascii_lowercase
 import pytest
+from botocore.exceptions import ClientError
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.exceptions import OscTestException
 from qa_test_tools.misc import id_generator, assert_error
@@ -40,7 +42,7 @@ class Test_ImportSnapshot(OscTestSuite):
                 cls.task_ids.append(task_id)
             try:
                 wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
-                if cls.a1_r1.config.region.name == 'in-west-2':
+                if cls.a1_r1.config.region.name == 'cloudgouv-eu-west-1':
                     pytest.fail('Remove known error code')
             except AssertionError:
                 if cls.a1_r1.config.region.name == 'cloudgouv-eu-west-1':
@@ -66,6 +68,9 @@ class Test_ImportSnapshot(OscTestSuite):
                         for k in k_list['Contents']:
                             cls.a1_r1.storageservice.delete_object(Bucket=cls.bucket_name, Key=k['Key'])
                     cls.a1_r1.storageservice.delete_bucket(Bucket=cls.bucket_name)
+                except ClientError as error:
+                    if error.response['Error']['Code'] == 'NoSuchBucket' and cls.has_setup_error:
+                        print('No object found because we had an error in the export snapshot- returning empty')
                 except Exception as error:
                     errors.append(error)
             if cls.snap_id:
