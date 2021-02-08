@@ -1,6 +1,5 @@
-from string import ascii_lowercase
-import logger
 import time
+from string import ascii_lowercase
 import pytest
 from botocore.exceptions import ClientError
 
@@ -71,7 +70,7 @@ class Test_ImportSnapshot(OscTestSuite):
                     cls.a1_r1.storageservice.delete_bucket(Bucket=cls.bucket_name)
                 except ClientError as error:
                     if error.response['Error']['Code'] == 'NoSuchBucket' and cls.has_setup_error:
-                        logger.info('No object found because we had an error in the export snapshot- returning empty')
+                        print('No object found because we had an error in the export snapshot- returning empty')
                 except Exception as error:
                     errors.append(error)
             if cls.snap_id:
