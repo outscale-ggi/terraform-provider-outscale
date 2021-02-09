@@ -32,14 +32,13 @@ class Test_DeletePolicy(OscTestSuite):
 
     def teardown_method(self, method):
         try:
-            if self.deleted:
+            if not self.deleted:
                 self.a1_r1.eim.DeletePolicy(PolicyArn=self.policy.CreatePolicyResult.Policy.Arn)
         finally:
             super(Test_DeletePolicy, self).teardown_method(method)
 
     def test_T5530_valid_params(self):
         self.deleted = self.a1_r1.eim.DeletePolicy(PolicyArn=self.policy.CreatePolicyResult.Policy.Arn)
-        self.deleted = None
 
     def test_T5531_without_arn(self):
         try:
