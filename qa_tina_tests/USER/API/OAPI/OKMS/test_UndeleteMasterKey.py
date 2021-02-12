@@ -1,9 +1,9 @@
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_dry_run,\
-    assert_oapi_error
 import pytest
+
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import id_generator, assert_dry_run, \
+    assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.OKMS.okms import OKMS
-from qa_test_tools.test_base import known_error
 
 
 @pytest.mark.region_kms

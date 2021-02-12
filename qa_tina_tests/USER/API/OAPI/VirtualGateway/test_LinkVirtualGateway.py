@@ -1,9 +1,10 @@
-from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state, wait_vpcs_state
-from qa_test_tools.config.configuration import Configuration
 import pytest
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state, wait_vpcs_state
 
 
 class Test_LinkVirtualGateway(OscTestSuite):

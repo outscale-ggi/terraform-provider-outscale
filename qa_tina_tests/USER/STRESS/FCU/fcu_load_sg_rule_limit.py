@@ -1,18 +1,16 @@
 
-from multiprocessing import Queue, Process
-
-
 import argparse
 import logging
-
-
 import ssl
-import time
-from qa_sdk_pub.osc_api import disable_throttling
-from qa_test_tools.config import config_constants as constants
+from multiprocessing import Queue, Process
 from random import randint
-from qa_test_tools.config import OscConfig
+
+import time
+
+from qa_sdk_pub.osc_api import disable_throttling
 from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.config import OscConfig
+from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_security_groups
 

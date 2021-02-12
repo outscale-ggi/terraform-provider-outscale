@@ -1,16 +1,17 @@
-from os import system as system_call
 import os
+from os import system as system_call
 from platform import system as system_name
-import pytest
-from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.config import config_constants as constants
 
+import pytest
+
+from qa_common_tools.ssh import SshTools
+from qa_test_tools.config import config_constants as constants
+from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_subnet, delete_instances_old, delete_keypair
-from qa_tina_tools.tina.info_keys import NAME, PATH
-from qa_common_tools.ssh import SshTools
 
 
 class Test_sg_ingress_public_vpc(OscTestSuite):

@@ -1,10 +1,10 @@
 import pytest
 
-from qa_test_tools import misc 
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina import info_keys
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 class Test_CreateListenerRule(OscTestSuite):
@@ -298,3 +298,23 @@ class Test_CreateListenerRule(OscTestSuite):
 
     def test_T4798_incorrect_content_lrd_rulename(self):
         self.check_error(400, '4110', "InvalidParameterValue", lrd={'ListenerRuleName': 12345, 'Priority': 100, 'HostNamePattern': '*.com'})
+
+    def test_T5441_missing_lrd_rulename(self):
+        self.check_error(400, '7000', "MissingParameter", lrd={'Priority': 100, 'HostNamePattern': '*.com'})
+
+    def test_T5442_same_ListenerRuleName(self):
+        ListenerRuleName = misc.id_generator(prefix='rn-')
+        ret_lr = self.a1_r1.oapi.CreateListenerRule(Listener=self.ld,
+                                                         ListenerRule={'ListenerRuleName': ListenerRuleName,
+                                                                       'Priority': 100, 'HostNamePattern': "*.abc.*.abc.*.com"},
+                                                         VmIds=self.inst_info[info_keys.INSTANCE_ID_LIST])
+
+        try:
+            self.a1_r1.oapi.CreateListenerRule(Listener=self.ld,
+                                                     ListenerRule={'ListenerRuleName': ListenerRuleName,
+                                                                   'Priority': 100, 'HostNamePattern': "*.abc.*.abc.*.com"},
+                                                     VmIds=self.inst_info[info_keys.INSTANCE_ID_LIST])
+        except OscApiException as error:
+            misc.assert_oapi_error(error, 409, 'ResourceConflict', 9054)
+        finally:
+            self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=ret_lr.response.ListenerRule.ListenerRuleName)

@@ -2,14 +2,16 @@
 import os
 import random
 import re
-import time
+
 import pytest
-from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina import wait_tools
+import time
+from netaddr import IPNetwork, IPAddress
+
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from netaddr import IPNetwork, IPAddress
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import wait
+from qa_tina_tools.tools.tina import wait_tools
 
 
 @pytest.mark.region_admin
@@ -105,9 +107,9 @@ class Test_fw_vgw(OscTestSuite):
         pytest.skip('nginx not available anymore')
         assert SshTools.check_service(self.sshclient, 'nginx')
 
-    def test_T1905_check_racoon(self):
-        assert SshTools.check_service(self.sshclient, 'racoon', pattern_str='.* is running')
-
+    def test_T1905_check_service(self):
+        assert SshTools.check_service(self.sshclient, 'strongswan', pattern_str='.* is running.*')
+            
     def test_T1900_check_zebra(self):
         assert SshTools.check_service(self.sshclient, 'zebra')
 

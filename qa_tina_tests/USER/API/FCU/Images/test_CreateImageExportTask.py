@@ -9,10 +9,10 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_images_state
 from qa_tina_tools.tools.tina.create_tools import create_instances
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_images_state
 
 NUM_EXPORT_TASK = 5
 NUM_IMAGES = NUM_EXPORT_TASK * 5

@@ -1,7 +1,7 @@
-from qa_test_tools.test_base import OscTestSuite
 import os
-import pytest
-from qa_tina_tools.tina import cleanup
+
+from qa_test_tools.test_base import OscTestSuite
+
 
 class Test_CleanupAccount(OscTestSuite):
     

@@ -1,11 +1,12 @@
 # -*- coding:utf-8 -*-
 # pylint: disable=missing-docstring
 
-import time
 import pytest
+import time
+
+from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import wait_tools
-from qa_test_tools.misc import id_generator
 
 
 @pytest.mark.region_admin

@@ -1,15 +1,16 @@
-from multiprocessing import Queue, Process
 import argparse
 import logging
 import ssl
-from qa_test_tools.config import config_constants as constants
+from datetime import datetime
+from multiprocessing import Queue, Process
+
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
+from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, SUBNETS, SUBNET_ID
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
-from datetime import datetime
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, SUBNETS, SUBNET_ID
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 ssl._create_default_https_context = ssl._create_unverified_context
 

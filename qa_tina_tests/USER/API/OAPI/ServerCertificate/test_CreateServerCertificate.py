@@ -1,14 +1,15 @@
 # from qa_tools.tools.test_base import OscTestSuite, known_error
 # from qa_tools.tools.tina.create_tools import create_self_signed_cert
 # import os
+import os
+
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import create_tools
-import os
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+
+
 # from osc_common.exceptions.osc_exceptions import OscApiException
-
-
 #Parameter    In      Type       Required
 #Body         body    string     true
 #Chain        body    string     false
@@ -16,9 +17,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 #Name         body    string     true
 #Path         body    string     false
 #PrivateKey   body    string     true
-
 # Note: only tested with self signed certificates
-
 class Test_CreateServerCertificate(OscTestSuite):
     
     @classmethod

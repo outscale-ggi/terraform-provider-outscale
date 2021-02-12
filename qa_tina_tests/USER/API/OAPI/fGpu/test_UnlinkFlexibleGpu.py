@@ -1,10 +1,11 @@
+import pytest
+
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-import pytest
 
 #     UnlinkFlexibleGpuRequest:
 #       properties:
@@ -16,7 +17,6 @@ import pytest
 #       properties:
 #         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
 #       type: object
-
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
 
@@ -97,9 +97,11 @@ class Test_UnlinkFlexibleGpu(OscTestSuite):
     def test_T4212_invalid_dry_run(self):
         try:
             self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id, DryRun='XXXXXXXX')
+            self.ret_link = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
 
     def test_T4213_valid_params(self):
         ret_unlink = self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id)

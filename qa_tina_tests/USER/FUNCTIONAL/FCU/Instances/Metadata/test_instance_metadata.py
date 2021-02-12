@@ -1,12 +1,11 @@
+from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.state import InstanceState
-from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_keypair
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, NAME, PATH, \
     INSTANCE_ID_LIST
-from qa_common_tools.ssh import SshTools
 
 
 class Test_instance_metadata(OscTestSuite):

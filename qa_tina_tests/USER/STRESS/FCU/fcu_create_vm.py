@@ -1,19 +1,18 @@
 
+import argparse
+import datetime
+import logging
+import ssl
 from multiprocessing import Queue, Process
 
-import argparse
-import logging
+import time
 
-
-import ssl
-from qa_test_tools.config import config_constants as constants
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-import time
+from qa_test_tools.config import config_constants as constants
 from qa_test_tools.error import error_type, load_errors
 from qa_test_tools.misc import id_generator
-import datetime
 
 ssl._create_default_https_context = ssl._create_unverified_context
 

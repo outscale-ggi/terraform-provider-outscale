@@ -1,29 +1,29 @@
-from qa_test_tools.test_base import OscTestSuite
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
-    OscSdkException
-from qa_test_tools.account_tools import create_account, delete_account
-from qa_sdks.osc_sdk import OscSdk
-from qa_test_tools.config import OscConfig
-from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_tina_tools.tools.tina import create_tools
-from qa_test_tools.config import config_constants
-from enum import Enum
-from qa_tina_tools.tools.as_.wait_tools import wait_task_state
-from qa_sdk_pub import osc_api
-from qa_test_tools import misc
-import string
 import os
+import string
+from enum import Enum
 
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
+from qa_sdk_pub import osc_api
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools import misc
+from qa_test_tools.account_tools import create_account, delete_account
+from qa_test_tools.config import OscConfig
+from qa_test_tools.config import config_constants
+from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_tina_tools.tools.as_.wait_tools import wait_task_state
+from qa_tina_tools.tools.tina import create_tools
 
-# other solution, embed call characteristics in calls, expected result can be computed, instead of being 
+# other solution, embed call characteristics in calls, expected result can be computed, instead of being
 API_CALLS = ['directlink.DescribeLocations',  # with AkSk
              'eim.ListAccessKeys',  # with AkSk
              'icu.ReadPublicCatalog',  # without authent
              'icu.ListAccessKeys',  # with LoginPassword
              'icu.ReadQuotas',  # with AkSk
+             'icu.GetAccount', # with AkSk
              'fcu.DescribeRegions',  # without authent
              'fcu.DescribeSecurityGroups',  # with AkSk
-             'kms.ListKeys',  # with AkSk
+             #'kms.ListKeys',  # with AkSk
              'lbu.DescribeLoadBalancers',  # with AkSk
              'oapi.ReadFlexibleGpuCatalog',  # without authent
              'oapi.ReadAccessKeys',  # with LoginPassword
@@ -63,6 +63,7 @@ PASS = 0
 FAIL = 1
 ERROR = 2
 KNOWN = 3
+ISSUE_PREFIX = "ISSUE --> " 
 
 CLIENT_CERT_CN1 = 'client.qa1'
 CLIENT_CERT_CN2 = 'client.qa2'
@@ -133,7 +134,7 @@ def put_configuration(self, access_rules):
         ret = osc_sdk.oapi.ReadApiAccessRules()
         #ret = osc_sdk.identauth.IdauthAccount.listApiAccessRules()
         print(ret.response.display())
-    except Exception as error:
+    except Exception:
         print('Could not list rules for conf {}'.format([rule for rule in access_rules if rule[DESC] == description]))
 
 # method creating the rules related to the configuration
@@ -149,12 +150,26 @@ def setup_api_access_rules(confkey):
             try:
                 put_configuration(self, self.configs[confkey])
                 actual, expected, errors = f(self, *args)
+                issue_names = []
+                unexpected = False
                 if actual:
-                    print('actual   results for conf {} -> {}'.format(confkey, actual))
-                    print('expected results for conf {} -> {}'.format(confkey, expected))
-                    for i in range(len(API_CALLS)):
-                        print('{} -> {}'.format(API_CALLS[i], errors[i]))
-                    raise OscTestException('Unexpected result')
+                    for i in range(len(actual)):
+                        if actual[i] != expected[i]:
+                            if expected[i] == KNOWN:
+                                if type(actual[i]) == str and actual[i].startswith(ISSUE_PREFIX):
+                                    issue_names.append(actual[i][len(ISSUE_PREFIX):])
+                                else:
+                                    unexpected = True
+                            else:
+                                unexpected = True
+                    if unexpected:
+                        print('actual   results for conf {} -> {}'.format(confkey, actual))
+                        print('expected results for conf {} -> {}'.format(confkey, expected))
+                        for i in range(len(API_CALLS)):
+                            print('{} -> {}'.format(API_CALLS[i], errors[i]))
+                        raise OscTestException('Unexpected result')
+                    if issue_names:
+                        known_error(' '.join(set(issue_names)), 'Expected known error(s)')
             finally:
                 ret = self.a1_r1.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), accountPids= [self.account_pid])
                 try:
@@ -171,9 +186,9 @@ class Api_Access(OscTestSuite):
     
     @classmethod
     def setup_class(cls):
-        super(Api_Access, cls).setup_class()
         cls.account_pid = None
         cls.tmp_file_paths = []
+        super(Api_Access, cls).setup_class()
         try:
             # create certificates
 #             for path in TMP_FILE_LOCATIONS:
@@ -307,7 +322,7 @@ class Api_Access(OscTestSuite):
                 for elt in api_call.split('.'):
                     func = getattr(func, elt)
                     # print('{}'.format(func))
-                ret = func(exec_data)
+                func(exec_data)
                 # print(ret.response.display())
                 results.append(PASS)
                 errors.append(None)
@@ -328,7 +343,7 @@ class Api_Access(OscTestSuite):
                 elif error.status_code == 400 and error.error_code == 'UnauthorizedOperation':
                     results.append(FAIL)
                 elif api_call == 'eim.ListAccessKeys' and error.status_code == 500 and error.error_code == 'InternalError':
-                    results.append(KNOWN)
+                    results.append('{}TINA-6116'.format(ISSUE_PREFIX))
                 elif error.status_code == 401 and error.error_code == 'AuthFailure':
                     results.append(FAIL)
                 else:
@@ -337,11 +352,8 @@ class Api_Access(OscTestSuite):
                 errors.append(error)
                 if 'login/password authentication is not supported.' in error.message:
                     results.append(FAIL)
-                elif 'Wrong authentication : only AkSk or Empty is supported.' in error.message:
-                    if api_call.startswith('oapi.'):
-                        results.append(KNOWN)
-                    else:
-                        results.append(FAIL)
+                elif api_call.startswith('oapi.') and 'Wrong authentication : only AkSk or Empty is supported.' in error.message:
+                    results.append('{}GTW-1240'.format(ISSUE_PREFIX))
                 else:
                     results.append(ERROR)
             except Exception as error:

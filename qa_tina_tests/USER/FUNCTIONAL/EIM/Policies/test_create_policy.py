@@ -1,9 +1,10 @@
 import pytest
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_test_tools import misc
-from qa_sdks.osc_sdk import OscSdk
-from qa_test_tools.config import OscConfig
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools import misc
+from qa_test_tools.config import OscConfig
+from qa_test_tools.test_base import OscTestSuite, known_error
 
 
 class Test_create_policy(OscTestSuite):
@@ -52,7 +53,6 @@ class Test_create_policy(OscTestSuite):
         try:
             policy_response = self.a1_r1.eim.CreatePolicy(
                 PolicyName=tmp, PolicyDocument='{"Statement": [{"Action": ["fcuext:*"], "Resource": ["*"], "Effect": "Allow"}]}')
-            PolicyName = tmp
             attach_policy = self.a1_r1.eim.AttachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
             try:
                 self.account_sdk.fcu.DescribeInstanceTypes()
@@ -100,8 +100,7 @@ class Test_create_policy(OscTestSuite):
         policy_response = None
         attach_policy = None
         try:
-            policy_response = self.a1_r1.eim.CreatePolicy(
-                PolicyName=PolicyName, PolicyDocument='{"Statement": [{"Action": ["directconnect:*"], "Resource": ["*"], "Effect": "Allow"}]}')
+            policy_response = self.a1_r1.eim.CreatePolicy(PolicyName=PolicyName, PolicyDocument='{"Statement": [{"Action": ["directconnect:*"], "Resource": ["*"], "Effect": "Allow"}]}')
             attach_policy = self.a1_r1.eim.AttachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.UserName)
             ret = self.account_sdk.directlink.DescribeLocations()
             assert ret.status_code == 200

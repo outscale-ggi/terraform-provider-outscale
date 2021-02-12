@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import re
+from datetime import datetime
+
 import time
 
+from qa_common_tools.ssh import SshTools, OscCommandError
+from qa_test_tools.config import config_constants as constants
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina import wait
+from qa_tina_tools.tina.setup_tools import setup_customer_gateway
+from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SECURITY_GROUP_ID, SUBNETS, KEY_PAIR, VPC_ID, PATH, INSTANCE_ID_LIST
-from qa_common_tools.ssh import SshTools, OscCommandError
-from qa_tina_tools.tools.tina import wait_tools
-from qa_tina_tools.tina.setup_tools import setup_customer_gateway
-from qa_test_tools.config import config_constants as constants
-from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_tina_tools.tina import wait
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SECURITY_GROUP_ID, SUBNETS, KEY_PAIR, \
+    VPC_ID, PATH, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 
 

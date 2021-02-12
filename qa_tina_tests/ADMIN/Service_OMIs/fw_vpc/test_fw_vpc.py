@@ -1,15 +1,17 @@
 # pylint: disable=missing-docstring
 import os
 import re
-import time
+
 import pytest
-from qa_tina_tools.tools.tina.info_keys import VPC_ID
+import time
+from netaddr import IPNetwork, IPAddress
+
+from qa_common_tools.ssh import SshTools
+from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
-from qa_common_tools.ssh import SshTools
-from qa_test_tools.config import config_constants as constants
-from netaddr import IPNetwork, IPAddress
+from qa_tina_tools.tools.tina.info_keys import VPC_ID
 
 
 class Test_fw_vpc(OscTestSuite):

@@ -1,16 +1,13 @@
+import argparse
+import logging
+import ssl
 import uuid
 from multiprocessing import Queue, Process
 
-import argparse
-import logging
-
-
-import ssl
-
 from qa_sdk_pub.osc_api import disable_throttling
-from qa_test_tools.config import config_constants as constants
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
+from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
 
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -67,8 +64,7 @@ if __name__ == '__main__':
     oscsdk = OscSdk(config=OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE))
     created = []
     try:
-        inst_id = set()
-        inst_ids = []
+        inst_ids = set()
         i = 0
         logger.info("Start workers")
 
@@ -92,12 +88,12 @@ if __name__ == '__main__':
 
         while not queue.empty():
             res = queue.get()
-            inst_id.add(res["inst_ids"])
+            inst_ids.add(res["inst_ids"])
         if args.same_token:
-            assert len(inst_id) == 1
+            assert len(inst_ids) == 1
         else:
-            assert len(inst_id) == args.process_number - 1
+            assert len(inst_ids) == args.process_number - 1
 
     finally:
-        for id in inst_id:
-            terminate_instances(oscsdk, [id])
+        for inst_id in inst_ids:
+            terminate_instances(oscsdk, [inst_id])

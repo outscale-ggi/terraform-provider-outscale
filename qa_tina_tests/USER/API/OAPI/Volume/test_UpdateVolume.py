@@ -1,4 +1,5 @@
 import pytest
+import time
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
@@ -8,7 +9,6 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
-import time
 
 
 def compare_validate_volumes(before_volume, after_volume, **kwargs):
@@ -132,13 +132,10 @@ class Test_UpdateVolume(OscTestSuite):
 
     def test_T5245_with_too_small(self):
         try:
-            ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=0)
-            if ret.status_code == 200:
-                known_error("TINA-5996", "UpdateVolume success with a size 0, waiting for product decision")
+            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId, Size=0)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert False, 'Remove known error'
-            assert_oapi_error(error, 400, '', '')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
 
     def test_T5241_with_lower_size(self):
         try:

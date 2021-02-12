@@ -1,10 +1,11 @@
 import pytest
 
-from qa_test_tools.config import config_constants as constants
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error, get_export_value
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+
 
 class Test_DeleteKeyPair(OscTestSuite):
 
@@ -26,7 +27,7 @@ class Test_DeleteKeyPair(OscTestSuite):
     def test_T933_without_keyname(self):
         try:
             self.a1_r1.fcu.DeleteKeyPair()
-            pytest.fail("Deleting key pair wiout key name should not have succeeded")
+            pytest.fail("Deleting key pair without key name should not have succeeded")
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', default_value=False):
                 assert_error(error, 400, 'MissingParameter', None)

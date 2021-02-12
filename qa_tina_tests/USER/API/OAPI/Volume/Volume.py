@@ -22,7 +22,7 @@ def validate_volume_response(volume, **kwargs):
     assert hasattr(volume, 'SubregionName')
     assert hasattr(volume, 'LinkedVolumes')
     
-    id = kwargs.get('volume_id')
+    vol_id = kwargs.get('volume_id')
     iops = kwargs.get('iops')
     az = kwargs.get('az')
     size = kwargs.get('size')
@@ -32,8 +32,8 @@ def validate_volume_response(volume, **kwargs):
     tags = kwargs.get('tags')
     linked_volumes = kwargs.get('linked_volumes')
     
-    if id:
-        assert volume.VolumeId == id
+    if vol_id:
+        assert volume.VolumeId == vol_id
     if volume_type: 
         assert volume.VolumeType == volume_type
     if volume_type == 'io1':

@@ -4,9 +4,9 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
 from qa_tina_tools.constants import CODE_INJECT
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 
 

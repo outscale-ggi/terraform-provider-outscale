@@ -1,10 +1,11 @@
-from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools import misc
-import string
-from qa_sdks.osc_sdk import OscSdk
-from qa_test_tools.config import OscConfig
 import os
+import string
+
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools import misc
 from qa_test_tools.account_tools import delete_account, create_account
+from qa_test_tools.config import OscConfig
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
 
 
@@ -33,7 +34,7 @@ class ApiAccessRule(OscTestSuite):
             for cafile in [cls.ca1files[1], cls.ca2files[1], cls.ca3files[1]]:
                 with open(cafile) as f:
                     cls.ca_ids.append(cls.osc_sdk.oapi.CreateCa(CaPem=f.read(), Description='description').response.Ca.CaId)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
             except:

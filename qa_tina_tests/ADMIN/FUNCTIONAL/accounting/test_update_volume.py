@@ -1,9 +1,11 @@
 import datetime
+
 from time import sleep
+
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
-ACCOUNTING_DELTA = 30
+ACCOUNTING_DELTA = 60
 class Test_update_volume(OscTestSuite):
 
     @classmethod
@@ -55,8 +57,7 @@ class Test_update_volume(OscTestSuite):
                 assert r.operation == 'CreateVolume'
                 assert (r.type == 'BSU:VolumeIOPS:io1' if i in [1, 5] else r.type == 'BSU:VolumeUsage:io1')
                 assert r.instance == self.vol.VolumeId
-                assert abs(dates[j] - r.created.dt) <= \
-                       datetime.timedelta(seconds=ACCOUNTING_DELTA)
+                assert abs(dates[j] - r.created.dt) <= datetime.timedelta(seconds=ACCOUNTING_DELTA)
 
                 if i in [0, 1, 3]:
                     assert(r.closing) is False
@@ -72,8 +73,8 @@ class Test_update_volume(OscTestSuite):
                     assert(r.closing) is True
                     assert(r.is_last) is True
 
+                j = i-j
                 i += 1
-                j = (i-j)-1
         finally:
             if not is_deleted:
                 if self.vol:

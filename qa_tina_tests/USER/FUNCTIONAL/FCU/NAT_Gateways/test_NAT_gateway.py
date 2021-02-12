@@ -1,17 +1,18 @@
 import datetime
+
 import pytest
-from qa_test_tools.config.configuration import Configuration
+import time
+
+from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as constants
+from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.config.region import Feature
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina import check_tools
+from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_keypair, delete_subnet
-from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_tina_tools.tools.tina import info_keys
-from qa_test_tools.config.region import Feature
-import time
-from qa_tina_tools.tina import check_tools
-
 
 RETRY = 5
 TIMEOUT = 2

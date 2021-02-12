@@ -1,7 +1,8 @@
-from qa_test_tools.test_base import OscTestSuite
+import pytest
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-import pytest
+from qa_test_tools.test_base import OscTestSuite
 
 #     CreateFlexibleGpuRequest:
 #       properties:
@@ -17,7 +18,6 @@ import pytest
 #         FlexibleGpu: {$ref: '#/components/schemas/FlexibleGpu'}
 #         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
 #       type: object
-
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
 
@@ -107,11 +107,15 @@ class Test_CreateFlexibleGpu(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T4187_invalid_dry_run(self):
+        ret = None
         try:
-            self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DryRun='XXXXXXXX')
+            ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DryRun='XXXXXXXX')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+        finally:
+            if ret:
+                self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=ret.response.FlexibleGpu.FlexibleGpuId)
 
     def test_T4236_without_params(self):
         try:

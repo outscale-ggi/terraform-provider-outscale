@@ -1,13 +1,15 @@
-from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina.create_tools import create_volumes
-from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
-from qa_tina_tools.tools.tina.delete_tools import delete_volumes
+import string
+
+import pytest
+from time import sleep
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
-import string
-from time import sleep
-import pytest
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
+from qa_tina_tools.tools.tina.create_tools import create_volumes
+from qa_tina_tools.tools.tina.delete_tools import delete_volumes
+from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 
 
 class Test_CopySnapshot(OscTestSuite):
@@ -63,14 +65,14 @@ class Test_CopySnapshot(OscTestSuite):
         self.snap_ids.append(res.snapshotId)
         wait_snapshots_state(self.a1_r1, [res.snapshotId], state='completed')
         self.check_snapshot_res(res, self.vol_id, 'description')
-        res2 = self.a1_r1.fcu.CopySnapshot(SourceSnapshotId=res.snapshotId, SourceRegion=self.a1_r1.config.region_name)
+        res2 = self.a1_r1.fcu.CopySnapshot(SourceSnapshotId=res.snapshotId, SourceRegion=self.a1_r1.config.region.name)
         wait_snapshots_state(self.a1_r1, [res2.response.snapshotId], state='completed')
         self.snap_copies_ids.append(res2.response.snapshotId)
 
     def test_T1009_invalid_snapshot_id(self):
         snapshotId = id_generator(prefix="inv-", size=10, chars=string.hexdigits)
         try:
-            res = self.a1_r1.fcu.CopySnapshot(SourceSnapshotId=snapshotId, SourceRegion=self.a1_r1.config.region_name)
+            res = self.a1_r1.fcu.CopySnapshot(SourceSnapshotId=snapshotId, SourceRegion=self.a1_r1.config.region.name)
             wait_snapshots_state(self.a1_r1, [res.response.snapshotId], state='completed')
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
@@ -80,7 +82,7 @@ class Test_CopySnapshot(OscTestSuite):
     def test_T1010_unexisting_snapshot_id(self):
         snapshotId = id_generator(prefix="snap-9", size=7, chars=(string.hexdigits).lower())
         try:
-            res = self.a1_r1.fcu.CopySnapshot(SourceSnapshotId=snapshotId, SourceRegion=self.a1_r1.config.region_name)
+            res = self.a1_r1.fcu.CopySnapshot(SourceSnapshotId=snapshotId, SourceRegion=self.a1_r1.config.region.name)
             wait_snapshots_state(self.a1_r1, [res.response.snapshotId], state='completed')
             assert False, "Call shouldn't successful"
         except OscApiException as error:
@@ -94,7 +96,7 @@ class Test_CopySnapshot(OscTestSuite):
         self.check_snapshot_res(res, self.vol_id, 'description')
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=res.snapshotId,
                                                CreateVolumePermission={'Add': [{'UserId': self.a2_r1.config.account.account_id}]})
-        res2 = self.a2_r1.fcu.CopySnapshot(SourceSnapshotId=res.snapshotId, SourceRegion=self.a1_r1.config.region_name)
+        res2 = self.a2_r1.fcu.CopySnapshot(SourceSnapshotId=res.snapshotId, SourceRegion=self.a1_r1.config.region.name)
         wait_snapshots_state(self.a2_r1, [res2.response.snapshotId], state='completed')
         self.snap_copies_ids_u2.append(res2.response.snapshotId)
 
@@ -108,7 +110,7 @@ class Test_CopySnapshot(OscTestSuite):
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=res.snapshotId,
                                                CreateVolumePermission={'Add': [{'UserId': self.a3_r1.config.account.account_id}]})
         try:
-            res2 = self.a2_r1.fcu.CopySnapshot(SourceSnapshotId=res.snapshotId, SourceRegion=self.a1_r2.config.region_name).response
+            res2 = self.a2_r1.fcu.CopySnapshot(SourceSnapshotId=res.snapshotId, SourceRegion=self.a1_r2.config.region.name).response
             wait_snapshots_state(self.a1_r1, [res2.snapshotId], state='completed')
             self.snap_copies_ids_u2.append(res2.snapshotId)
             assert False, "Call shouldn't successful"
@@ -128,7 +130,7 @@ class Test_CopySnapshot(OscTestSuite):
                                                CreateVolumePermission={'Add': [{'UserId': self.a2_r1.config.account.account_id}]})
         try:
             # res_quota = self.a3_r1.icu.ReadQuotas(QuotaNames=["snapshot_copy_limit"])
-            res2 = self.a2_r1.fcu.CopySnapshot(SourceSnapshotId=res.snapshotId, SourceRegion=self.a1_r2.config.region_name)
+            res2 = self.a2_r1.fcu.CopySnapshot(SourceSnapshotId=res.snapshotId, SourceRegion=self.a1_r2.config.region.name)
             wait_snapshots_state(self.a1_r1, [res2.snapshotId], state='completed')
             self.snap_copies_ids_u2.append(res2.response.snapshotId)
             assert False, "Call shouldn't successful"

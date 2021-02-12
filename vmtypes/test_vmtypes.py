@@ -1,19 +1,19 @@
 import argparse
 import logging
 import ssl
-from qa_test_tools.config import config_constants as constants
-from qa_test_tools.config import OscConfig
-from qa_sdks.osc_sdk import OscSdk
-from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, SUBNETS, SUBNET_ID, INSTANCE_SET
 from pprint import pprint
-from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_common_tools.ssh import SshTools
 
-from vmtypes import INST_TYPE_MATRIX
+from qa_common_tools.ssh import SshTools
 from qa_sdk_common.objects.osc_objects import OscObjectDict
+from qa_sdks.osc_sdk import OscSdk
+from qa_test_tools.config import OscConfig
+from qa_test_tools.config import config_constants as constants
+from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
+from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
+from vmtypes import INST_TYPE_MATRIX
+from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_tina_tools.tools.tina import info_keys
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -33,13 +33,13 @@ def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
         # gpu_model = tina_type[1][0]
         gpu_number = tina_type[1][1]
 
-    inst_id = inst_info[INSTANCE_ID_LIST][0]
+    inst_id = inst_info[info_keys.INSTANCE_ID_LIST][0]
     inst = osc_sdk.intel.instance.find(id=inst_id).response.result[0]
 
     assert inst.tina_type == tina_type[0], 'Types do not correspond'
     # do some test depending on type (ephemeral/gpu)
     if ip_address is None:
-        ip_address = inst_info[INSTANCE_SET][0]['ipAddress']
+        ip_address = inst_info[info_keys.INSTANCE_SET][0]['ipAddress']
 
     sshclient = SshTools.check_connection_paramiko(ip_address, key_path,
                                                    username=osc_sdk.config.region.get_info(constants.CENTOS_USER))
@@ -151,17 +151,17 @@ if __name__ == '__main__':
                     try:
                         inst_info = create_instances(osc_sdk, inst_type=type_info.name, key_name=args.key_name, state='ready',
                                                      nb_ephemeral=len(type_info.storage), wait_time=5, threshold=24,
-                                                     subnet_id=(vpc_info[SUBNETS][0][SUBNET_ID] if type_info.max_nics > 1 else None))
+                                                     subnet_id=(vpc_info[info_keys.SUBNETS][0][info_keys.SUBNET_ID] if type_info.max_nics > 1 else None))
                     except AssertionError as error:
                         if 'stopped' in str(error):
                             raise OscTestException("Could not start instance -> stopped")
                         raise error
                     if type_info.max_nics > 1:
-                        osc_sdk.fcu.AssociateAddress(AllocationId=eip.allocationId, InstanceId=inst_info[INSTANCE_ID_LIST][0])
+                        osc_sdk.fcu.AssociateAddress(AllocationId=eip.allocationId, InstanceId=inst_info[info_keys.INSTANCE_ID_LIST][0])
                         for i in range(type_info.max_nics - 1):
-                            fni_id = osc_sdk.fcu.CreateNetworkInterface(SubnetId=vpc_info[SUBNETS][0][SUBNET_ID]).response.networkInterface.networkInterfaceId
+                            fni_id = osc_sdk.fcu.CreateNetworkInterface(SubnetId=vpc_info[info_keys.SUBNETS][0][info_keys.SUBNET_ID]).response.networkInterface.networkInterfaceId
                             fni_ids.append(fni_id)
-                            osc_sdk.fcu.AttachNetworkInterface(DeviceIndex=1+i, InstanceId=inst_info[INSTANCE_ID_LIST][0], NetworkInterfaceId=fni_id)
+                            osc_sdk.fcu.AttachNetworkInterface(DeviceIndex=1+i, InstanceId=inst_info[info_keys.INSTANCE_ID_LIST][0], NetworkInterfaceId=fni_id)
                     infos.append('Check instance with type {}'.format(type_info.name))
                     check_instance(osc_sdk, type_info, inst_info, args.key_path, ip_address=(eip.publicIp if type_info.max_nics > 2 else None))
                 except OscApiException as error:

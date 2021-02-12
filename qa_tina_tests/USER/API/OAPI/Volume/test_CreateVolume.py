@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
-from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools.misc import assert_dry_run
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.misc import assert_oapi_error
-from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
+from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 
 class Test_CreateVolume(OscTestSuite):
@@ -206,6 +206,7 @@ class Test_CreateVolume(OscTestSuite):
 
     def test_T5231_valid_from_snapshot_id_of_volume_standard_with_an_inferior_size(self):
         self.snap_id = None
+        ret_vol2 = None
         try:
             ret = self.a1_r1.oapi.CreateVolume(VolumeType='standard', SubregionName=self.azs[0], Size=2).response.Volume
             self.vol_ids.append(ret.VolumeId)
@@ -216,6 +217,8 @@ class Test_CreateVolume(OscTestSuite):
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', 4125)
         finally:
+            if ret_vol2:
+                self.a1_r1.oapi.DeleteVolume(VolumeId=ret_vol2.VolumeId)
             if self.snap_id:
                 self.a1_r1.oapi.DeleteSnapshot(SnapshotId=self.snap_id)
 

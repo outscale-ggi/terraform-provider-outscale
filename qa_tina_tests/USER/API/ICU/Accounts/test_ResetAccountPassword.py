@@ -1,22 +1,20 @@
-from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools import misc
-from qa_sdk_pub.osc_api import DefaultPubConfig
-from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
-from qa_test_tools.account_tools import create_account, delete_account
 import string
+
+from qa_sdk_common.config import DefaultAccount, DefaultRegion
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from qa_sdk_pub.osc_api import DefaultPubConfig
+from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
+from qa_test_tools import misc
+from qa_test_tools.account_tools import create_account, delete_account
+from qa_test_tools.misc import id_generator, assert_error
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_ResetAccountPassword(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.pid = None
-        cls.rettoken = None
-        cls.icu = None
-        cls.new_password = None
         cls.email = '{}@outscale.com'.format(id_generator(prefix='qa+Test_ResetAccountPassword+'))
         cls.password = misc.id_generator(size=20, chars=string.digits + string.ascii_letters)
 
@@ -28,12 +26,22 @@ class Test_ResetAccountPassword(OscTestSuite):
 
     def setup_method(self, method):
         super(Test_ResetAccountPassword, self).setup_method(method)
-        self.pid = create_account(self.a1_r1, account_info={'email_address': self.email, 'password': self.password})
-        self.a1_r1.icu.SendResetPasswordEmail(Email=self.email)
-        self.rettoken = self.a1_r1.identauth.IdauthPasswordToken.createAccountPasswordToken(accountEmail=self.email, account_id=self.pid)
-        config = DefaultPubConfig(None, None, login=self.email, password=self.password, region_name=self.a1_r1.config.region.name)
-        self.icu = OscIcuApi(service='icu', config=config)
-        self.new_password = misc.id_generator(size=20)
+        self.pid = None
+        self.rettoken = None
+        self.icu = None
+        self.new_password = None
+        try:
+            self.pid = create_account(self.a1_r1, account_info={'email_address': self.email, 'password': self.password})
+            self.a1_r1.icu.SendResetPasswordEmail(Email=self.email)
+            self.rettoken = self.a1_r1.identauth.IdauthPasswordToken.createAccountPasswordToken(accountEmail=self.email, account_id=self.pid)
+            config = DefaultPubConfig(account=DefaultAccount(login=self.email, password=self.password), region=DefaultRegion(name=self.a1_r1.config.region.name))
+            self.icu = OscIcuApi(service='icu', config=config)
+            self.new_password = misc.id_generator(size=20)
+        except:
+            try:
+                self.teardown_method(method)
+            except:
+                pass
 
     def teardown_method(self, method):
         try:

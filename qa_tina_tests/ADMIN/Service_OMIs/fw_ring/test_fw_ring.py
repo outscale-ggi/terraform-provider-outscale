@@ -1,12 +1,14 @@
 # pylint: disable=missing-docstring
 import os
 import re
-import time
+
 import pytest
-from qa_test_tools.test_base import OscTestSuite
+import time
+from netaddr import IPNetwork, IPAddress
+
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from netaddr import IPNetwork, IPAddress
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_fw_ring(OscTestSuite):

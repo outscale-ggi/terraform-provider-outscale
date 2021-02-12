@@ -3,10 +3,10 @@
 import json
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_sdks.osc_sdk import OscSdk
 
 
 class Test_DeleteAccessKey(OscTestSuite):
@@ -28,12 +28,13 @@ class Test_DeleteAccessKey(OscTestSuite):
                                                                   ak=ret.response.CreateAccessKeyResult.AccessKey.AccessKeyId,
                                                                   sk=ret.response.CreateAccessKeyResult.AccessKey.SecretAccessKey))
             cls.tested_ak = None
-        except:
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -48,8 +49,16 @@ class Test_DeleteAccessKey(OscTestSuite):
 
     def setup_method(self, method):
         super(Test_DeleteAccessKey, self).setup_method(method)
-        ret = self.a1_r1.eim.CreateAccessKey(UserName=self.username)
-        self.tested_ak = ret.response.CreateAccessKeyResult.AccessKey.AccessKeyId
+        try:
+            ret = self.a1_r1.eim.CreateAccessKey(UserName=self.username)
+            self.tested_ak = ret.response.CreateAccessKeyResult.AccessKey.AccessKeyId
+        except Exception as error:
+            try:
+                self.teardown_method(method)
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:

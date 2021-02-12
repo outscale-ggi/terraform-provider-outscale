@@ -1,10 +1,10 @@
-from qa_test_tools.config.configuration import Configuration
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc_old
 from qa_tina_tools.tools.tina.wait_tools import wait_dhcp_options_association
-from qa_test_tools.misc import assert_error
 
 
 class Test_AssociateDhcpOptions(OscTestSuite):

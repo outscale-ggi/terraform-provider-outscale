@@ -1,13 +1,14 @@
 import re
-
 from time import sleep
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
-    OscSdkException
-from qa_test_tools import misc
-from qa_sdk_pub import osc_api
+
 import pytest
+
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException, \
+    OscSdkException
+from qa_sdk_pub import osc_api
+from qa_test_tools import misc
 from qa_test_tools.misc import assert_dry_run
+from qa_test_tools.test_base import OscTestSuite, known_error
 
 
 class Test_CreateAccessKey(OscTestSuite):
@@ -58,7 +59,7 @@ class Test_CreateAccessKey(OscTestSuite):
             assert False, 'Remove known error code'
             assert ak == ret_create.response.AccessKey.AccessKeyId, "AccesskeyID created does not correspond AccesskeyID passed"
             assert sk == ret_create.response.AccessKey.SecretKey, "SecrretAccesskey created does not correspond SecrretAccesskey passed"
-        except OscSdkException as error:
+        except OscSdkException:
             known_error('GTW-1240', 'SDK implementation ')
         finally:
             if ret_create:
@@ -90,9 +91,3 @@ class Test_CreateAccessKey(OscTestSuite):
     def test_T5060_with_DryRun(self):
         ret_create = self.a1_r1.oapi.CreateAccessKey(DryRun=True)
         assert_dry_run(ret_create)
-
-    def test_T5323_with_loop(self):
-        for i in range(50):
-            ret = self.a1_r1.oapi.CreateAccessKey()
-            ak_id = ret.response.AccessKey.AccessKeyId
-            self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak_id)

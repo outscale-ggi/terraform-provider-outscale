@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 import re
+
 import pytest
+from time import sleep
+
+from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH, INSTANCE_ID_LIST, SUBNETS, EIP
-from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from time import sleep
-from qa_tina_tools.tina import check_tools
 
 CENTOS = 'centos7'
 UBUNTU = 'ubuntu'
@@ -23,7 +25,7 @@ class Test_ntp(OscTestSuite):
         super(Test_ntp, cls).setup_class()
         try:
             cls.inst_info[CENTOS] = create_instances(osc_sdk=cls.a1_r1, omi_id=cls.a1_r1.config.region.get_info(constants.CENTOS7))
-            if constants.UBUNTU in cls.a1_r1.config.region._conf.keys():
+            if constants.UBUNTU in cls.a1_r1.config.region._conf.keys() and cls.a1_r1.config.region.get_info(constants.UBUNTU) != "None":
                 cls.inst_info[UBUNTU] = create_instances(osc_sdk=cls.a1_r1, omi_id=cls.a1_r1.config.region.get_info(constants.UBUNTU))
             cls.vpc_info = create_vpc(cls.a1_r1, nb_instance=1, state='')
         except Exception:
