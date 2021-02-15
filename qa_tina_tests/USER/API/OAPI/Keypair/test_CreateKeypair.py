@@ -4,7 +4,7 @@ import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.misc import assert_oapi_error
+from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
@@ -39,7 +39,7 @@ class Test_CreateKeypair(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameter', '3001')
 
     def test_T2347_invalid_length_name(self):
-        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(256))
+        keypair_name = id_generator(prefix='keypair_', size=256)
         try:
             self.a1_r1.oapi.CreateKeypair(KeyName=keypair_name)
             assert False, 'Call should not have been successful'
@@ -49,7 +49,7 @@ class Test_CreateKeypair(OscTestSuite):
     def test_T2348_valid_name(self):
         ret = None
         try:
-            self.keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+            self.keypair_name = id_generator(prefix='keypair_')
             ret = self.a1_r1.oapi.CreateKeypair(KeypairName=self.keypair_name).response.Keypair
             assert ret.KeypairName == self.keypair_name
             assert ret.KeypairFingerprint is not None
@@ -63,7 +63,7 @@ class Test_CreateKeypair(OscTestSuite):
     def test_T2349_invalid_duplicate_name(self):
         ret = None
         try:
-            self.keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+            self.keypair_name = id_generator(prefix='keypair_')
             ret = self.a1_r1.oapi.CreateKeypair(KeypairName=self.keypair_name).response.Keypair
             assert ret.KeypairName == self.keypair_name
             assert ret.KeypairFingerprint is not None
@@ -81,7 +81,7 @@ class Test_CreateKeypair(OscTestSuite):
     def test_T2354_invalid_public_key(self):
         self.keypair_name = None
         try:
-            self.keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+            self.keypair_name = id_generator(prefix='keypair_')
             self.a1_r1.oapi.CreateKeypair(KeypairName=self.keypair_name, PublicKey='publicKey')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -90,7 +90,7 @@ class Test_CreateKeypair(OscTestSuite):
     def test_T2355_valid_import(self):
         ret = None
         try:
-            self.keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+            self.keypair_name = id_generator(prefix='keypair_')
             generated_key = generate_key(self.keypair_name)
             with open(generated_key[PUBLIC].encode(), 'r') as key:
                 pub_key = key.read()
@@ -107,7 +107,7 @@ class Test_CreateKeypair(OscTestSuite):
     def test_T2356_invalid_duplicate_name(self):
         ret = None
         try:
-            self.keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+            self.keypair_name = id_generator(prefix='keypair_')
             generated_key = generate_key(self.keypair_name)
             with open(generated_key[PUBLIC].encode(), 'r') as key:
                 pub_key = key.read()
@@ -132,9 +132,9 @@ class Test_CreateKeypair(OscTestSuite):
 
     def test_T5536_name_with_spaces(self):
         ret = None
-        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
-        keypair_name = '   {}   '.format(keypair_name)
         try:
+            keypair_name = id_generator(prefix='keypair_')
+            keypair_name = '   {}   '.format(keypair_name)
             ret = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name).response.Keypair
             assert ret.KeypairName == keypair_name
         finally:
@@ -143,9 +143,9 @@ class Test_CreateKeypair(OscTestSuite):
 
     def test_T5537_name_with_plus(self):
         ret = None
-        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
-        keypair_name = '+++{}+++'.format(keypair_name)
         try:
+            keypair_name = id_generator(prefix='keypair_')
+            keypair_name = '+++{}+++'.format(keypair_name)
             ret = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name).response.Keypair
             assert ret.KeypairName == keypair_name
         finally:
