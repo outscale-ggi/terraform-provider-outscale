@@ -25,13 +25,13 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
             _, [cls.vol_id] = create_volumes(cls.a1_r1, state='available')
             cls.snap_id = cls.a1_r1.fcu.CreateSnapshot(VolumeId=cls.vol_id).response.snapshotId
             wait_snapshots_state(osc_sdk=cls.a1_r1, state='completed', snapshot_id_list=[cls.snap_id])
-        except:
-            # pylint: disable=bare-except
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):
@@ -46,16 +46,16 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
 
     def setup_method(self, method):
         super(Test_CreateSnapshotExportTask, self).setup_method(method)
-        self.bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
         try:
-            pass
-        except:
+            self.bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
+        except Exception as error1:
             # pylint: disable=bare-except
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     def teardown_method(self, method):
         try:
@@ -251,3 +251,15 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
                                                                               '{}: S3ResponseError: 403 Forbidden\n'.format(self.bucket_name) + \
                                                                               '<?xml version="1.0" encoding="UTF-8"?>' + \
                                                                               '<Error><Code>InvalidAccessKeyId</Code>')
+
+    def test_T5541_with_differents_disk_image_format(self):
+        disk_format_list = ['raw']
+        for disk_format in disk_format_list:
+            try:
+                ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': disk_format,
+                                                                                              'OsuBucket': self.bucket_name})
+                task_id = ret.response.snapshotExportTask.snapshotExportTaskId
+                wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
+                known_error('TINA-6196', 'Create export snapshot task(OOS) with raw format failed')
+            except AssertionError:
+                assert False, 'remove known error'
