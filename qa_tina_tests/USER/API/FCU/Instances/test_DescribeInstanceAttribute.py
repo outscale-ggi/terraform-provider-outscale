@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
@@ -65,3 +64,11 @@ class Test_DescribeInstanceAttribute(OscTestSuite):
         ret = self.a1_r1.fcu.DescribeInstanceAttribute(Attribute='sourceDestCheck',
                                                        InstanceId=self.vpc_info_1['subnets'][0]['instance_set'][0]['instanceId'])
         assert ret.response.sourceDestCheck.value or not ret.response.sourceDestCheck.value
+
+    def test_T5538_from_another_account_without_instance_id(self):
+        try:
+            self.a2_r1.fcu.DescribeInstanceAttribute(Attribute='instanceType')
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "InvalidInstanceID.Malformed", "Invalid ID received: . Expected format: i-")
+            known_error('TINA-6100', 'Incorrect error message')
