@@ -12,6 +12,11 @@ from qa_tina_tools.tools.tina.create_tools import generate_key
 
 class Test_CreateKeypair(OscTestSuite):
 
+    @classmethod
+    def setup_class(cls):
+        super(Test_CreateKeypair, cls).setup_class()
+        cls.keypair_name = None
+
     def test_T2344_empty_param(self):
         try:
             self.a1_r1.oapi.CreateKeypair()
@@ -53,10 +58,7 @@ class Test_CreateKeypair(OscTestSuite):
             raise err
         finally:
             if ret:
-                try:
-                    self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
-                except:
-                    pass
+                self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
 
     def test_T2349_invalid_duplicate_name(self):
         ret = None
@@ -73,10 +75,8 @@ class Test_CreateKeypair(OscTestSuite):
                 assert_oapi_error(error, 409, 'ResourceConflict', '9011')
         finally:
             if ret:
-                try:
-                    self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
-                except:
-                    pass
+                self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
+
 
     def test_T2354_invalid_public_key(self):
         self.keypair_name = None
@@ -102,10 +102,7 @@ class Test_CreateKeypair(OscTestSuite):
             assert False, 'It\'s a regression'
         finally:
             if ret:
-                try:
-                    self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
-                except:
-                    pass
+                self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
 
     def test_T2356_invalid_duplicate_name(self):
         ret = None
@@ -124,19 +121,14 @@ class Test_CreateKeypair(OscTestSuite):
                 assert_oapi_error(error, 409, 'ResourceConflict', '9011')
             finally:
                 if ret:
-                    try:
-                        self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
-                    except:
-                        pass
+                    self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
+
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4032')
             assert False, 'It\'s a regression'
         finally:
             if ret:
-                try:
-                    self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
-                except:
-                    pass
+                self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
 
     def test_T5536_name_with_spaces(self):
         ret = None
@@ -147,10 +139,7 @@ class Test_CreateKeypair(OscTestSuite):
             assert ret.KeypairName == keypair_name
         finally:
             if ret:
-                try:
-                    self.a1_r1.oapi.DeleteKeypair(KeypairName=keypair_name)
-                except:
-                    pass
+                self.a1_r1.oapi.DeleteKeypair(KeypairName=keypair_name)
 
     def test_T5537_name_with_plus(self):
         ret = None
@@ -161,7 +150,4 @@ class Test_CreateKeypair(OscTestSuite):
             assert ret.KeypairName == keypair_name
         finally:
             if ret:
-                try:
-                    self.a1_r1.oapi.DeleteKeypair(KeypairName=keypair_name)
-                except:
-                    pass
+                self.a1_r1.oapi.DeleteKeypair(KeypairName=keypair_name)
