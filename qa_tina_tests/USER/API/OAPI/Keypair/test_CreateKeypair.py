@@ -1,6 +1,4 @@
 # -*- coding:utf-8 -*-
-import random
-import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.exceptions.test_exceptions import OscTestException
