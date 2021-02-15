@@ -23,9 +23,10 @@ class Test_DescribeInstanceAttribute(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
