@@ -137,3 +137,31 @@ class Test_CreateKeypair(OscTestSuite):
                     self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
                 except:
                     pass
+
+    def test_T5536_name_with_spaces(self):
+        ret = None
+        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        keypair_name = '   {}   '.format(keypair_name)
+        try:
+            ret = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name).response.Keypair
+            assert ret.KeypairName == keypair_name
+        finally:
+            if ret:
+                try:
+                    self.a1_r1.oapi.DeleteKeypair(KeypairName=keypair_name)
+                except:
+                    pass
+
+    def test_T5537_name_with_plus(self):
+        ret = None
+        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        keypair_name = '+++{}+++'.format(keypair_name)
+        try:
+            ret = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name).response.Keypair
+            assert ret.KeypairName == keypair_name
+        finally:
+            if ret:
+                try:
+                    self.a1_r1.oapi.DeleteKeypair(KeypairName=keypair_name)
+                except:
+                    pass
