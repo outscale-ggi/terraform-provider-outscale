@@ -1,7 +1,8 @@
+from time import sleep
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_peering
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, INSTANCE_SET, KEY_PAIR, PATH, VPC_ID, PEERING, EIP, ROUTE_TABLE_ID, SECURITY_GROUP_ID
@@ -67,3 +68,19 @@ class Test_VPC_Peering(OscTestSuite):
             if self.vpc1_info[SUBNETS][0][EIP]['publicIp']:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc1_info[SUBNETS][0][EIP]['publicIp'])
                 self.a1_r1.fcu.ReleaseAddress(PublicIp=self.vpc1_info[SUBNETS][0][EIP]['publicIp'])
+
+    def test_T5542_reverse_peering(self):
+        try:
+            peering_info = create_peering(self.a1_r1, state='active', vpc_id=self.vpc1_info[VPC_ID], peer_vpc_id=self.vpc2_info[VPC_ID])
+            assert peering_info[PEERING].status.name == 'active'
+            peering_info2 = self.a1_r1.fcu.CreateVpcPeeringConnection(VpcId=self.vpc2_info[VPC_ID], PeerVpcId=self.vpc1_info[VPC_ID]).response.vpcPeeringConnection
+            if peering_info2.status.code == 'pending-acceptance':
+                known_error('TINA-6230', 'Unexpected status')
+            assert False, 'Remove known error'
+            assert peering_info2.status.code == 'rejected'
+
+        finally:
+            if peering_info[PEERING].id:
+                self.a1_r1.fcu.DeleteVpcPeeringConnection(VpcPeeringConnectionId=peering_info[PEERING].id)
+            if peering_info2:
+                self.a1_r1.fcu.DeleteVpcPeeringConnection(VpcPeeringConnectionId=peering_info2.vpcPeeringConnectionId)
