@@ -79,7 +79,8 @@ class Test_VPC_Peering(OscTestSuite):
                         VpcId=self.vpc2_info[VPC_ID], PeerVpcId=self.vpc1_info[VPC_ID]).response.vpcPeeringConnection
             if peering_info2.status.code == 'pending-acceptance':
                 known_error('TINA-6230', 'Unexpected status')
-            assert False, 'Remove known error and completed the test'
+            assert False, 'Remove known error and completed the test. status is rejected and connection disappear' \
+                          'after x seconds. see TINA-4445 for more infos'
             assert peering_info2.status.code == 'rejected'
         finally:
             if peering_info[PEERING].id:
