@@ -71,6 +71,7 @@ class Test_VPC_Peering(OscTestSuite):
                 self.a1_r1.fcu.ReleaseAddress(PublicIp=self.vpc1_info[SUBNETS][0][EIP]['publicIp'])
 
     def test_T5542_reverse_peering(self):
+        peering_info2 = None
         try:
             peering_info = create_peering(self.a1_r1, state='active', vpc_id=self.vpc1_info[VPC_ID], peer_vpc_id=self.vpc2_info[VPC_ID])
             assert peering_info[PEERING].status.name == 'active'
