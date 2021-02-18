@@ -1,5 +1,3 @@
-from time import sleep
-
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite, known_error
