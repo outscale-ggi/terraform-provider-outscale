@@ -38,7 +38,8 @@ class Test_access_logs(OscTestSuite):
             kp_info = cls.inst_info[KEY_PAIR]
             start_http_server(cls.inst_info[INSTANCE_SET][0]['ipAddress'], kp_info[PATH],
                                   cls.a1_r1.config.region.get_info(constants.CENTOS_USER), text=cls.inst_info[INSTANCE_ID_LIST][0])
-            cls.ret_reg = cls.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=cls.lb_name, Instances=[{'InstanceId': cls.inst_info[INSTANCE_ID_LIST][0]}])
+            cls.ret_reg = cls.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=cls.lb_name,
+                                                                          Instances=[{'InstanceId': cls.inst_info[INSTANCE_ID_LIST][0]}])
             wait_lbu_backend_state(cls.a1_r1, cls.lb_name)
         except Exception as error1:
             try:
@@ -52,7 +53,8 @@ class Test_access_logs(OscTestSuite):
     def teardown_class(cls):
         try:
             if cls.ret_reg:
-                cls.a1_r1.lbu.DeregisterInstancesFromLoadBalancer(LoadBalancerName=cls.lb_name, Instances=[{'InstanceId': cls.inst_info[INSTANCE_ID_LIST][0]}])
+                cls.a1_r1.lbu.DeregisterInstancesFromLoadBalancer(LoadBalancerName=cls.lb_name,
+                                                                  Instances=[{'InstanceId': cls.inst_info[INSTANCE_ID_LIST][0]}])
             if cls.inst_info:
                 delete_instances(cls.a1_r1, cls.inst_info)
             if cls.lbu_resp:
@@ -70,7 +72,8 @@ class Test_access_logs(OscTestSuite):
             self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerAttributes={'AccessLog': access_log},
                                                         LoadBalancerName=self.lb_name)
             for _ in range(10):
-                requests.get("http://{}".format(self.lbu_resp.response.CreateLoadBalancerResult.DNSName), verify=False)
+                requests.get("http://{}".format(self.lbu_resp.response.CreateLoadBalancerResult.DNSName),
+                             verify=self.a1_r1.config.region.get_info(constants.VALIDATE_CERTS))
                 time.sleep(10)
 
         finally:

@@ -1,5 +1,3 @@
-# pylint: disable=missing-docstring
-
 from string import ascii_lowercase
 
 import pytest
@@ -49,7 +47,6 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         try:
             self.bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
         except Exception as error1:
-            # pylint: disable=bare-except
             try:
                 self.teardown_method(method)
             except Exception as error2:
@@ -151,7 +148,8 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
                                                                                               'OsuBucket': self.bucket_name})
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_error(error, 400, 'InvalidParameterValue', "Value of parameter \'DiskFormat\' is not valid: {}. Supported values: qcow2, raw".format(disk_format))
+                assert_error(error, 400, 'InvalidParameterValue', "Value of parameter \'DiskFormat\' is not valid: {}. "
+                                                                  "Supported values: qcow2, raw".format(disk_format))
 
     def test_T1028_with_invalid_osu_bucket(self):
         try:
@@ -246,6 +244,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
             assert False, 'Remove known error'
         except AssertionError as error:
             known_error('TINA-6147', 'Create export snapshot task with invalid ak/sk should have the failed state')
+            raise error
         ret = self.a1_r1.fcu.DescribeSnapshotExportTasks(SnapshotExportTaskId=[task_id])
         assert ret.response.snapshotExportTaskSet[0].statusMessage.startswith('Error accessing bucket ' + \
                                                                               '{}: S3ResponseError: 403 Forbidden\n'.format(self.bucket_name) + \

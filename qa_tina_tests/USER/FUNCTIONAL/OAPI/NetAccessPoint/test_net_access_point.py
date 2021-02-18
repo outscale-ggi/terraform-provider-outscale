@@ -79,7 +79,7 @@ class Test_net_access_point(OscTestSuite):
                 dest_private_addr=net_with_internet_info[info_keys.SUBNETS][2][info_keys.VMS][0]['PrivateIp'],
                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                 retry=4, timeout=10)
-            out, _, _ = SshTools.exec_command_paramiko_2(sshclient_jhost, cmd, retry=20, timeout=20)
+            out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd, retry=20, timeout=20)
             assert 'ListAllMyBucketsResult' in out
         finally:
             errors = []
