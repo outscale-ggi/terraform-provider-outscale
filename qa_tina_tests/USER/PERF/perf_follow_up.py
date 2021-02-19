@@ -96,20 +96,20 @@ if __name__ == '__main__':
     QUEUE = Queue()
     threads = []
     FINAL_STATUS = 0
-    method = None
+    METHOD = None
 
     module = importlib.import_module(args.perf_type, '.')
     methods = inspect.getmembers(module, inspect.isfunction)
-    for method in methods:
-        if method[0] == args.perf_type:
+    for METHOD in methods:
+        if METHOD[0] == args.perf_type:
             break
-    if method[0] != args.perf_type:
+    if METHOD[0] != args.perf_type:
         logger.info("method %s could not be found", args.perf_type)
         sys.exit(1)
     logger.info("Start workers")
     for i in range(args.nb_worker):
         t = Thread(name="{}-{}".format(args.perf_type, i),
-                   target=method[1],
+                   target=METHOD[1],
                    args=[oscsdk, logger, QUEUE, args])
         threads.append(t)
         t.start()
