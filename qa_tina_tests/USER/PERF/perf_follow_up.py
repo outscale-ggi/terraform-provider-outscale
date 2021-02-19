@@ -26,7 +26,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 LOGGING_LEVEL = logging.DEBUG
 
-PERF_TYPES = ['perf_objects_oos', 'perf_objects_osu', 'perf_oos', 'perf_osu', 'perf_snapshot', 'perf_describe', 'perf_volume', 'perf_sg', 'perf_inst', 'perf_inst_windows',
+PERF_TYPES = ['perf_objects_oos', 'put_object_marine', 'perf_objects_osu', 'perf_oos', 'perf_osu', 'perf_snapshot',
+              'perf_describe', 'perf_volume', 'perf_sg', 'perf_inst', 'perf_inst_windows',
               'perf_simple_snapshot']
 
 if __name__ == '__main__':
@@ -79,8 +80,8 @@ if __name__ == '__main__':
     args = args_p.parse_args()
 
     if args.perf_type not in PERF_TYPES:
-        logger.info("incorrect perf test type, should be in " + str(PERF_TYPES))
-        exit(1)
+        logger.info("incorrect perf test type, should be in: %s", str(PERF_TYPES))
+        sys.exit(1)
 
     oscsdk = OscSdk(config=OscConfig.get(az_name=args.az, account_name=args.account))
 
@@ -94,26 +95,27 @@ if __name__ == '__main__':
 
     QUEUE = Queue()
     threads = []
-    final_status = 0
+    FINAL_STATUS = 0
+    METHOD = None
 
     module = importlib.import_module(args.perf_type, '.')
     methods = inspect.getmembers(module, inspect.isfunction)
-    for method in methods:
-        if method[0] == args.perf_type:
+    for METHOD in methods:
+        if METHOD[0] == args.perf_type:
             break
-    if method[0] != args.perf_type:
-        logger.info("method {} could not be found".format(args.perf_type))
-        exit(1)
+    if METHOD[0] != args.perf_type:
+        logger.info("method %s could not be found", args.perf_type)
+        sys.exit(1)
     logger.info("Start workers")
     for i in range(args.nb_worker):
         t = Thread(name="{}-{}".format(args.perf_type, i),
-                   target=method[1],
+                   target=METHOD[1],
                    args=[oscsdk, logger, QUEUE, args])
         threads.append(t)
         t.start()
 
     logger.info("Wait workers")
-    for i in range(len(threads)):
+    for i, _ in enumerate(threads):
         threads[i].join()
     time.sleep(2)
 
@@ -126,7 +128,7 @@ if __name__ == '__main__':
         import pprint
         pprint.pprint(res)
         if res['status'] != 'OK':
-            final_status += 1
+            FINAL_STATUS += 1
         if args.graph and args.db:
             data = {}
             logger.debug("execution time")
@@ -134,9 +136,10 @@ if __name__ == '__main__':
                 if key == "status":
                     continue
                 data[str(key)] = int(value * 1000)
-            push_metrics(args.db, args.graph, {'region': args.az[:-1], 'az': args.az, 'id_worker': i}, data, OscInfluxdbConfig.get(), timestamp)
+            push_metrics(args.db, args.graph, {'region': args.az[:-1], 'az': args.az, 'id_worker': i},
+                         data, OscInfluxdbConfig.get(), timestamp)
             logger.debug(res)
     if i != len(threads):
         logger.error('Missing result !!!')
-        final_status += 1
-    sys.exit(final_status)
+        FINAL_STATUS += 1
+    sys.exit(FINAL_STATUS)
