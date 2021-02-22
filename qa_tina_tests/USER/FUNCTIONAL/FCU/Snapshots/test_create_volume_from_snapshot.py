@@ -186,7 +186,7 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             url = self.a1_r1.storageservice.generate_presigned_url(ClientMethod='get_object', Params=params,
                                                                    ExpiresIn=3600)
             ret = self.a1_r1.fcu.DescribeSnapshots(SnapshotId=[snap_id])
-            size = ret.response.snapshotSet[0].volume_size
+            size = ret.response.snapshotSet[0].volumeSize
             gb_to_byte = int(size) * pow(1024, 3)
             ret = self.a1_r1.fcu.ImportSnapshot(snapshotLocation=url, snapshotSize=gb_to_byte,
                                                 description='This is a snapshot test')
