@@ -96,7 +96,7 @@ class Test_ModifyVpcEndpoint(OscTestSuite):
         print(ret.response.display())
         assert len(ret.response.vpcEndpointSet[0].routeTableIdSet) == 2
 
-    def test_T4491_add_with_multiple_routetableid(self): 
+    def test_T4491_add_with_multiple_routetableid(self):
         rtb_id = self.a1_r1.fcu.CreateRouteTable(VpcId=self.vpc_info[VPC_ID]).response.routeTable.routeTableId
         rtb_id2 = self.a1_r1.fcu.CreateRouteTable(VpcId=self.vpc_info[VPC_ID]).response.routeTable.routeTableId
         ret = self.a1_r1.fcu.ModifyVpcEndpoint(VpcEndpointId=self.vpcendpointid1, AddRouteTableId=[rtb_id, rtb_id2])
@@ -107,14 +107,14 @@ class Test_ModifyVpcEndpoint(OscTestSuite):
         assert rtb_id2 in ret.response.vpcEndpointSet[0].routeTableIdSet
         assert self.vpc_info[ROUTE_TABLE_ID] in ret.response.vpcEndpointSet[0].routeTableIdSet
 
-    def test_T4492_add_with_invalid_routetableid(self): 
+    def test_T4492_add_with_invalid_routetableid(self):
         try:
             self.a1_r1.fcu.ModifyVpcEndpoint(VpcEndpointId=self.vpcendpointid1, AddRouteTableId=['rtb-12345678'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidRouteTableID.NotFound', "The route table ID 'rtb-12345678' does not exist")
 
-    def test_T4493_add_with_routetableid_with_other_account(self): 
+    def test_T4493_add_with_routetableid_with_other_account(self):
         try:
             rtb_id = self.a1_r1.fcu.CreateRouteTable(VpcId=self.vpc_info[VPC_ID]).response.routeTable.routeTableId
             self.a2_r1.fcu.ModifyVpcEndpoint(VpcEndpointId=self.vpcendpointid1, AddRouteTableId=rtb_id)
@@ -122,14 +122,14 @@ class Test_ModifyVpcEndpoint(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'InvalidVpcEndpointId.NotFound', "VPC Endpoint '{}' does not exist".format(self.vpcendpointid1))
 
-    def test_T4494_remove_with_invalid_routetableid(self): 
+    def test_T4494_remove_with_invalid_routetableid(self):
         try:
             self.a1_r1.fcu.ModifyVpcEndpoint(VpcEndpointId=self.vpcendpointid1, RemoveRouteTableId=['rtb-12345678'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidRouteTableID.NotFound', "The route table ID 'rtb-12345678' does not exist")
 
-    def test_T4495_remove_with_multiple_routetableida(self): 
+    def test_T4495_remove_with_multiple_routetableida(self):
         rtb_id = self.a1_r1.fcu.CreateRouteTable(VpcId=self.vpc_info[VPC_ID]).response.routeTable.routeTableId
         rtb_id2 = self.a1_r1.fcu.CreateRouteTable(VpcId=self.vpc_info[VPC_ID]).response.routeTable.routeTableId
         ret = self.a1_r1.fcu.ModifyVpcEndpoint(VpcEndpointId=self.vpcendpointid1, AddRouteTableId=[rtb_id, rtb_id2])
@@ -140,7 +140,7 @@ class Test_ModifyVpcEndpoint(OscTestSuite):
         assert len(ret.response.vpcEndpointSet[0].routeTableIdSet) == 1
         assert self.vpc_info[ROUTE_TABLE_ID] in ret.response.vpcEndpointSet[0].routeTableIdSet
 
-    def test_T4496_remove_with_routetableid(self): 
+    def test_T4496_remove_with_routetableid(self):
         rtb_id = self.a1_r1.fcu.CreateRouteTable(VpcId=self.vpc_info[VPC_ID]).response.routeTable.routeTableId
         ret = self.a1_r1.fcu.ModifyVpcEndpoint(VpcEndpointId=self.vpcendpointid1, AddRouteTableId=rtb_id)
         assert ret.response.osc_return
@@ -150,7 +150,7 @@ class Test_ModifyVpcEndpoint(OscTestSuite):
         assert len(ret.response.vpcEndpointSet[0].routeTableIdSet) == 1
         assert rtb_id in ret.response.vpcEndpointSet[0].routeTableIdSet
 
-    def test_T4497_with_all_params(self): 
+    def test_T4497_with_all_params(self):
         rtb_id = self.a1_r1.fcu.CreateRouteTable(VpcId=self.vpc_info[VPC_ID]).response.routeTable.routeTableId
         ret = self.a1_r1.fcu.ModifyVpcEndpoint(VpcEndpointId=self.vpcendpointid1, AddRouteTableId=rtb_id,
                                                RemoveRouteTableId=self.vpc_info[ROUTE_TABLE_ID])
@@ -159,7 +159,7 @@ class Test_ModifyVpcEndpoint(OscTestSuite):
         assert len(ret.response.vpcEndpointSet[0].routeTableIdSet) == 1
         assert rtb_id in ret.response.vpcEndpointSet[0].routeTableIdSet
 
-    def test_T4498_incorrect_params(self): 
+    def test_T4498_incorrect_params(self):
         try:
             self.a1_r1.fcu.ModifyVpcEndpoint(VpcEndpointId=self.vpcendpointid1, ServiceName=self.vpc_info[ROUTE_TABLE_ID])
             assert False, 'Call should not have been successful'
