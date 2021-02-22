@@ -183,7 +183,7 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_SIGN: 'FOO'})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert error.message == 'Wrong sign method : only OSC/AWS supported.'
+            assert 'Wrong sign method : only OSC/AWS supported.' in error.get_error_message()
 
     def test_T4907_incorrect_content_type(self):
         try:
