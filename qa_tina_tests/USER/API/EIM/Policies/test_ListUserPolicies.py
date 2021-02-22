@@ -1,6 +1,8 @@
 import json
 
 from qa_sdk_common.exceptions import OscApiException
+from qa_sdks import OscSdk
+from qa_test_tools.config import OscConfig
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 
@@ -14,6 +16,8 @@ class Test_ListUserPolicies(OscTestSuite):
         cls.user = None
         cls.policy_name = None
         cls.attached = None
+        cls.create_ak = None
+        cls.conn_user = None
         try:
             cls.user_name = id_generator(prefix='user_')
             cls.user = cls.a1_r1.eim.CreateUser(UserName=cls.user_name)
@@ -21,6 +25,10 @@ class Test_ListUserPolicies(OscTestSuite):
             cls.policy_name = id_generator(prefix='policy_')
             cls.attached = cls.a1_r1.eim.PutUserPolicy(PolicyDocument=json.dumps(policy_document),
                                                        PolicyName=cls.policy_name, UserName=cls.user_name)
+            cls.create_ak = cls.a1_r1.eim.CreateAccessKey(UserName=cls.user_name)
+            cls.conn_user = OscSdk(config=OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name,
+                                                                  ak=cls.create_ak.response.CreateAccessKeyResult.AccessKey.AccessKeyId,
+                                                                  sk=cls.create_ak.response.CreateAccessKeyResult.AccessKey.SecretAccessKey))
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -35,6 +43,9 @@ class Test_ListUserPolicies(OscTestSuite):
         if cls.user:
             if cls.attached:
                 cls.a1_r1.eim.DeleteUserPolicy(PolicyName=cls.policy_name, UserName=cls.user_name)
+            if cls.create_ak:
+                cls.a1_r1.eim.DeleteAccessKey(UserName=cls.user_name,
+                                              AccessKeyId=cls.create_ak.response.CreateAccessKeyResult.AccessKey.AccessKeyId)
             cls.a1_r1.eim.DeleteUser(UserName=cls.user_name)
 
     def test_T5509_valid_params(self):
