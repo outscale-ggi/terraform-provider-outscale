@@ -31,11 +31,13 @@ class Test_ListUserPolicies(OscTestSuite):
 
     @classmethod
     def teardown_class(cls):
-        super(Test_ListUserPolicies, cls).teardown_class()
-        if cls.user:
-            if cls.attached:
-                cls.a1_r1.eim.DeleteUserPolicy(PolicyName=cls.policy_name, UserName=cls.user_name)
-            cls.a1_r1.eim.DeleteUser(UserName=cls.user_name)
+        try:
+            if cls.user:
+                if cls.attached:
+                    cls.a1_r1.eim.DeleteUserPolicy(PolicyName=cls.policy_name, UserName=cls.user_name)
+                cls.a1_r1.eim.DeleteUser(UserName=cls.user_name)
+        finally:
+            super(Test_ListUserPolicies, cls).teardown_class()
 
     def test_T5509_valid_params(self):
         ret = self.a1_r1.eim.ListUserPolicies(UserName=self.user_name)
