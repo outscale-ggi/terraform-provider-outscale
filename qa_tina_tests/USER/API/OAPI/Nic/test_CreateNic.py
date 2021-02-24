@@ -115,9 +115,7 @@ class Test_CreateNic(Nic):
             self.nic_id = self.a1_r1.oapi.CreateNic(PrivateIps=[{'IsPrimary': True}], SubnetId=self.subnet_id1).response.Nic.NicId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('TINA-6048', 'Incorrect internal error')
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T5330_with_private_ips_missing_is_primary(self):
         ret = self.a1_r1.oapi.CreateNic(PrivateIps=[{'PrivateIp': '10.0.1.20'}], SubnetId=self.subnet_id1)

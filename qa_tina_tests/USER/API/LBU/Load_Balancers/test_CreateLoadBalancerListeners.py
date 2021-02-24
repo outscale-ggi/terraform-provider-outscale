@@ -51,9 +51,9 @@ class Test_CreateLoadBalancerListeners(OscTestSuite):
                 orn = certif.Arn
         if orn:
             self.a1_r1.lbu.CreateLoadBalancerListeners(LoadBalancerName=self.lbu_name,
-                                                       Listeners=[{'InstancePort': 8080,
+                                                       Listeners=[{'InstancePort': 8084,
                                                                    'Protocol': 'HTTPS',
-                                                                   'LoadBalancerPort': 8080,
+                                                                   'LoadBalancerPort': 8084,
                                                                    'SSLCertificateId': orn}])
 
 
