@@ -33,7 +33,6 @@ class Test_DeleteSecurityGroup(OscTestSuite):
 
     @classmethod
     def teardown_class(cls):
-        super(Test_DeleteSecurityGroup, cls).teardown_class()
         try:
             if cls.instance_info_a1:
                 delete_instances(cls.a1_r1, cls.instance_info_a1)
