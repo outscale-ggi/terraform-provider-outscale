@@ -20,12 +20,13 @@ class Test_CreateLoadBalancerListeners(OscTestSuite):
         try:
             cls.ret_create = create_load_balancer(cls.a1_r1, cls.lbu_name, availability_zones=[cls.a1_r1.config.region.az_name],
                                                   listeners=[{'InstancePort': 80, 'Protocol': 'HTTP', 'LoadBalancerPort': 80}])
-        except Exception as error:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):
