@@ -18,6 +18,7 @@ class SecurityGroup(OscTestSuite):
         cls.sg3 = None
         cls.sg4 = None
         cls.sg5 = None
+        cls.sg6 = None
         super(SecurityGroup, cls).setup_class()
         try:
             cls.sg1 = cls.a1_r1.oapi.CreateSecurityGroup(Description="TEST_SG_DESC_1",
@@ -29,10 +30,10 @@ class SecurityGroup(OscTestSuite):
                                                          SecurityGroupName='TEST_SG_NAME_3', NetId=cls.vpc_info[VPC_ID]).response.SecurityGroup
             cls.sg4 = cls.a1_r1.oapi.CreateSecurityGroup(Description="TEST_SG_DESC_4",
                                                          SecurityGroupName='TEST_SG_NAME_4', NetId=cls.vpc_info[VPC_ID]).response.SecurityGroup
-            cls.sg5 = cls.a2_r1.oapi.CreateSecurityGroup(Description="TEST_SG_DESC_1",
-                                                         SecurityGroupName='TEST_SG_NAME_1').response.SecurityGroup
-            cls.sg6 = cls.a2_r1.oapi.CreateSecurityGroup(Description="TEST_SG_DESC_2",
-                                                         SecurityGroupName='TEST_SG_NAME_2').response.SecurityGroup
+            cls.sg5 = cls.a2_r1.oapi.CreateSecurityGroup(Description="TEST_SG_DESC_5",
+                                                         SecurityGroupName='TEST_SG_NAME_5').response.SecurityGroup
+            cls.sg6 = cls.a2_r1.oapi.CreateSecurityGroup(Description="TEST_SG_DESC_6",
+                                                         SecurityGroupName='TEST_SG_NAME_6').response.SecurityGroup
             cls.hints = create_hints([cls.a1_r1.config.account.account_id,
                                       cls.a2_r1.config.account.account_id,
                                       cls.vpc_info[VPC_ID],
