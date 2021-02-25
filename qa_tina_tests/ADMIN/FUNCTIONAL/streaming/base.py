@@ -1,14 +1,13 @@
 # -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import write_and_snap, get_data_file_chain, get_md5sum
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state, wait_instances_state
+from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import write_and_snap, get_data_file_chain, get_md5sum
 
 
 # Snapshots creation:
@@ -112,8 +111,8 @@ class StreamingBase(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
+            except Exception as err:
+                raise err
             raise error
 
     @classmethod
@@ -160,7 +159,8 @@ class StreamingBase(OscTestSuite):
                                                             availability_zone='{}{}'.format(self.a1_r1.config.region.name, self.inst_az))
                     elif i > self.branch_id:
                         snap_id = write_and_snap(osc_sdk=self.a1_r1, sshclient=self.sshclient, inst_id=self.inst_info[INSTANCE_ID_LIST][0],
-                                                 vol_id=self.vol_2_id, f_num=i+self.base_snap_id, w_size=self.w_size, snap_name="S{}_from_V2".format(i),
+                                                 vol_id=self.vol_2_id, f_num=i+self.base_snap_id, w_size=self.w_size,
+                                                 snap_name="S{}_from_V2".format(i),
                                                  snap_attached=self.snap_attached)
                         self.vol_2_snap_list.append(snap_id)
             self.vol_1_df_list = get_data_file_chain(self.a1_r1, self.vol_1_id)
