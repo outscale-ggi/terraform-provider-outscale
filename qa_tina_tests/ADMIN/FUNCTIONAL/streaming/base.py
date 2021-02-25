@@ -250,9 +250,15 @@ class StreamingBase(OscTestSuite):
         self.logger.debug(self.vol_1_df_list)
         self.logger.debug(len(data_file_after))
         self.logger.debug(2 + nb_new_snap)
-        assert len(data_file_after) == 2 + nb_new_snap
-        assert data_file_after[0 + nb_new_snap] == self.vol_1_df_list[0]
-        assert data_file_after[1 + nb_new_snap] == self.vol_1_df_list[1]
+        if self.rebase_enabled:
+            assert len(data_file_after) == 3 + nb_new_snap
+            assert data_file_after[0 + nb_new_snap] == self.vol_1_df_list[0]
+            assert data_file_after[1 + nb_new_snap] == self.vol_1_df_list[1]
+            assert data_file_after[2 + nb_new_snap] == self.vol_1_df_list[-1]
+        else:
+            assert len(data_file_after) == 2 + nb_new_snap
+            assert data_file_after[0 + nb_new_snap] == self.vol_1_df_list[0]
+            assert data_file_after[1 + nb_new_snap] == self.vol_1_df_list[1]
 
     def check_stream_inter(self, nb_new_snap=0):
         data_file_after = get_data_file_chain(self.a1_r1, res_id=self.vol_1_id)
