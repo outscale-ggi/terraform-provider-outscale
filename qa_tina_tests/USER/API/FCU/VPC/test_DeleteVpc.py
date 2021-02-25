@@ -52,7 +52,7 @@ class Test_DeleteVpc(OscTestSuite):
             try:
                 self.a2_r1.fcu.DeleteVpc(VpcId=vpc_id)
             except Exception:
-                self.logger.info("Could not delete vpc -> " + vpc_id)
+                self.logger.info("Could not delete vpc -> {}".format(vpc_id))
             assert err.status_code == 400
             assert err.message == "The vpc ID '%s' does not exist" % vpc_id
 
