@@ -18,6 +18,7 @@ class SecurityGroup(OscTestSuite):
         cls.sg3 = None
         cls.sg4 = None
         cls.sg5 = None
+        cls.sg6 = None
         super(SecurityGroup, cls).setup_class()
         try:
             cls.sg1 = cls.a1_r1.oapi.CreateSecurityGroup(Description="TEST_SG_DESC_1",

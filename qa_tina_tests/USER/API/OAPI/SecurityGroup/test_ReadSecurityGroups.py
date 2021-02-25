@@ -147,6 +147,9 @@ class Test_ReadSecurityGroups(SecurityGroup):
         assert len(resp.SecurityGroups) == 1
         assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_account_ids.json'),
                                self.hints), 'Could not verify response content.'
+        if int(resp.SecurityGroups[0].InboundRules[0].IpProtocol):
+            known_error("TINA-6173", "[oAPI] ReadSecurityGroups Incorrect value returned for IpProtocol/IpRang")
+        assert False, 'Remove known error code'
 
     def test_T5483_filters_inbound_rule_from_port_ranges(self):
         filters = {'InboundRuleFromPortRanges': [45]}
