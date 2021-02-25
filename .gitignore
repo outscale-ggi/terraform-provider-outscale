@@ -8,3 +8,4 @@ qa_test_tools
 qa_sdks
 /.project
 /.pydevproject
+osc_qa_tina_tests*.egg-info/
