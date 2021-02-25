@@ -3,12 +3,12 @@ from multiprocessing import Process
 from qa_test_tools.test_base import OscTestSuite
 
 
-class Test_AccessKeys(OscTestSuite):
+class Test_access_keys(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
         cls.QUOTAS = {'accesskey_limit': 1000}
-        super(Test_AccessKeys, cls).setup_class()
+        super(Test_access_keys, cls).setup_class()
 
     def test_T5323_parallel_loop(self):
 
