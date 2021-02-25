@@ -171,12 +171,12 @@ class StreamingBase(OscTestSuite):
                 self.md5sum_before = get_md5sum(osc_sdk=self.a1_r1, sshclient=self.sshclient, inst_id=self.inst_info[INSTANCE_ID_LIST][0],
                                                 vol_id=self.vol_1_id)
                 self.logger.debug("md5sum before: %s", self.md5sum_before)
-        except:
+        except Exception as error:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            raise error
 
     def teardown_method(self, method):
         try:
