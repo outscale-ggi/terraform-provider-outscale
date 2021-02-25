@@ -20,7 +20,7 @@ stages:
 #  - test
   - security
   - build
-  - deploy
+#  - deploy
 
 #todo:
 #  stage: dependencies
@@ -218,11 +218,11 @@ build:
     - /^TINA-[0-9]+\.[0-9]+\.[0-9]+$/
     - tags
 
-deploy:
-  stage: deploy
-  script:
-    - ./deploy.sh dist/osc_qa_tina_tests*-py3-none-any.whl ~/.ssh/id_rsa
-  only:
-    - /^TINA-[0-9]+\.[0-9]+\.[0-9]\.[0-9]$/
-    - /^TINA-[0-9]+\.[0-9]+\.[0-9]+$/
-    - tags
+#deploy:
+#  stage: deploy
+#  script:
+#    - ./deploy.sh dist/osc_qa_tina_tests*-py3-none-any.whl ~/.ssh/id_rsa
+#  only:
+#    - /^TINA-[0-9]+\.[0-9]+\.[0-9]\.[0-9]$/
+#    - /^TINA-[0-9]+\.[0-9]+\.[0-9]+$/
+#    - tags
