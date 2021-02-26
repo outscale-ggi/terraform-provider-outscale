@@ -1,6 +1,5 @@
 import base64
 
-from qa_common_tools.ssh import SshTools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
@@ -8,6 +7,8 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH
+
+from qa_common_tools.ssh import SshTools  # isort:skip
 
 METADATA_PACEMENT = 'curl http://169.254.169.254/latest/meta-data/placement/'
 INSTANCE_TYPE = 'tinav3.c1r1p1'

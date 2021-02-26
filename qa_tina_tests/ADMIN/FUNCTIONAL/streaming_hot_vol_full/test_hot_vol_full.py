@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 import pytest
 
-from qa_common_tools.ssh import SshTools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
@@ -12,6 +11,8 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_snaps
 
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import assert_streaming_state, get_data_file_chain, wait_streaming_state, write_data
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming_hot.base import StreamingBaseHot
+
+from qa_common_tools.ssh import SshTools  # isort:skip
 
 
 @pytest.mark.region_admin
