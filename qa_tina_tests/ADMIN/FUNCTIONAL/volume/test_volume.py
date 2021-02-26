@@ -1,7 +1,7 @@
 import datetime
+import time
 
 import pytest
-import time
 
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.test_base import OscTestSuite
@@ -12,19 +12,19 @@ VOLUME_DELETION_PERIOD = 30
 
 @pytest.mark.region_admin
 class Test_volume(OscTestSuite):
-
     @classmethod
     def setup_class(cls):
         super(Test_volume, cls).setup_class()
         try:
             cls.account_id = cls.a1_r1.config.account.account_id
             cls.account2_id = cls.a2_r1.config.account.account_id
-        except:
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):

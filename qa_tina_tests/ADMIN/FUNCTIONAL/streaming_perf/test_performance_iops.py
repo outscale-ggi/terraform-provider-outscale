@@ -1,17 +1,18 @@
 # -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+from __future__ import division
+
 import re
 
 import pytest
 
 from qa_common_tools.ssh import SshTools
+
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming import StreamingBase
 
 
 @pytest.mark.region_admin
 @pytest.mark.tag_qemu
 class Test_performance_iops(StreamingBase):
-
     @classmethod
     def setup_class(cls):
         cls.w_size = 100
@@ -26,7 +27,7 @@ class Test_performance_iops(StreamingBase):
         cls.with_fio = True
         super(Test_performance_iops, cls).setup_class()
 
-    #def test_Txxxx_streaming(self):
+    # def test_Txxxx_streaming(self):
     #    start_time = time.time()
     #    ret = self.a1_r1.intel.streaming.start(resource_id=self.vol_id_test, base_data_file=self.data['snap_2']['datafiles'][0])
     #    wait_streaming_state(self.a1_r1, self.vol_id_test, cleanup=True, sleep=5, max_it=150, logger=self.logger)
@@ -46,18 +47,21 @@ class Test_performance_iops(StreamingBase):
             mode = '--readonly --rw=randread'
         else:
             mode = '--rw=randwrite'
-        cmd = 'sudo fio --filename={} --name test_fio --direct=1 {} --bs=16k --size=10G --numjobs=16 --time_based ' \
-              '--runtime={} --group_reporting --norandommap' \
-              .format(fio_file, mode, fio_time)
-        out, _, _ = SshTools.exec_command_paramiko(self.test_sshclient, cmd, eof_time_out=fio_time+30)
+        cmd = (
+            'sudo fio --filename={} --name test_fio --direct=1 {} --bs=16k --size=10G --numjobs=16 --time_based '
+            '--runtime={} --group_reporting --norandommap'.format(fio_file, mode, fio_time)
+        )
+        out, _, _ = SshTools.exec_command_paramiko(self.test_sshclient, cmd, eof_time_out=fio_time + 30)
         self.logger.debug(out)
         match = re.search(': IOPS=([0-9-]+), ', out, re.MULTILINE)
         iops = match.group(1)
-        self.logger.info("IOPS: %s / %s / %s / Streaming: %s",
-                         test_name,
-                         "Intermediate" if intermediate else "Full",
-                         "ReadOnly" if read_only else "ReadWrite",
-                         iops)
+        self.logger.info(
+            "IOPS: %s / %s / %s / Streaming: %s",
+            test_name,
+            "Intermediate" if intermediate else "Full",
+            "ReadOnly" if read_only else "ReadWrite",
+            iops,
+        )
         key = "{}_and_{}".format("intermediate" if intermediate else "full", test_name)
         self.add_metric(key, iops)
         if int(iops) < self.iops:
