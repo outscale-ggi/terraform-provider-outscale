@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -37,12 +36,13 @@ class Test_cold(StreamingBase):
         super(Test_cold, self).setup_method(method)
         try:
             pass
-        except:
+        except Exception as error:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:

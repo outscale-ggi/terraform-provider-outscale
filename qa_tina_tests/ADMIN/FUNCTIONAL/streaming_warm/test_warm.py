@@ -17,7 +17,7 @@ from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import assert_streaming_stat
 def check_data_file_chain(osc_sdk, vol_id, vol_df_list):
     ret = get_data_file_chain(osc_sdk, vol_id)
     assert len(ret) == len(vol_df_list)
-    for i in range(len(ret)):
+    for i, _ in enumerate(ret):
         assert ret[i] == vol_df_list[i]
 
 
@@ -49,12 +49,13 @@ class Test_warm(StreamingBase):
             self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_stopped_info[INSTANCE_ID_LIST][0], VolumeId=self.vol_1_id, Device='/dev/xvdc')
             wait_volumes_state(self.a1_r1, [self.vol_1_id], state='in-use')
             self.attached = True
-        except:
+        except Exception as error:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:
@@ -321,7 +322,7 @@ class Test_warm(StreamingBase):
                 res_attach = True
                 assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
                 wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-                self.check_full_streaming()
+                self.check_stream_full(mode="WARM")
             else:
                 wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
                 self.check_no_stream()
