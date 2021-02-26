@@ -1,30 +1,28 @@
 # -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 import pytest
 
 from qa_common_tools.ssh import SshTools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
-from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import wait_streaming_state, assert_streaming_state, \
-    get_data_file_chain, write_data
-from qa_tina_tests.ADMIN.FUNCTIONAL.streaming_hot.base import StreamingBaseHot
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
-from qa_tina_tools.tools.tina.info_keys import KEY_PAIR, PATH, INSTANCE_ID_LIST
-from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state, wait_instances_state
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, KEY_PAIR, PATH
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_snapshots_state, wait_volumes_state
+
+from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import assert_streaming_state, get_data_file_chain, wait_streaming_state, write_data
+from qa_tina_tests.ADMIN.FUNCTIONAL.streaming_hot.base import StreamingBaseHot
 
 
 @pytest.mark.region_admin
 @pytest.mark.tag_qemu
 class Test_hot_vol_full(StreamingBaseHot):
-
     @classmethod
     def setup_class(cls):
         cls.w_size = 20
         cls.v_size = 10
         cls.qemu_version = '2.12'
-        #cls.rebase_enabled = False
+        # cls.rebase_enabled = False
         cls.inst_type = 'c4.xlarge'
         cls.vol_type = 'standard'
         cls.iops = None
@@ -57,14 +55,14 @@ class Test_hot_vol_full(StreamingBaseHot):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
         self.detach(resource_id=self.vol_1_id)
         if self.rebase_enabled:
-            self.check_stream_full()
+            self.check_stream_full(mode="COLD")
         else:
             self.check_no_stream()
 
     def test_T3302_hot_vol_full_and_stop(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
         self.stop(resource_id=self.vol_1_id)
-        self.check_stream_full()
+        self.check_stream_full(mode="WARM")
 
     def test_T3300_hot_vol_full_and_snapshot(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
@@ -80,7 +78,7 @@ class Test_hot_vol_full(StreamingBaseHot):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
         self.delete_snap(resource_id=self.vol_1_id, snap_id=self.vol_1_snap_list[-1])
         self.check_stream_full()
-        #self.vol_1_snap_list.remove(self.vol_1_snap_list[-1])
+        # self.vol_1_snap_list.remove(self.vol_1_snap_list[-1])
 
     def test_T3305_hot_vol_full_and_stream_twice(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
@@ -96,11 +94,14 @@ class Test_hot_vol_full(StreamingBaseHot):
 
     def test_T4361_hot_vol_full_without_snapshots_on_last_datafiles(self):
         ret = wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.inst_running_info[INSTANCE_ID_LIST], state='ready')
-        sshclient = SshTools.check_connection_paramiko(ret.response.reservationSet[0].instancesSet[0].ipAddress, self.inst_running_info[KEY_PAIR][PATH],
-                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        sshclient = SshTools.check_connection_paramiko(
+            ret.response.reservationSet[0].instancesSet[0].ipAddress,
+            self.inst_running_info[KEY_PAIR][PATH],
+            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+        )
         for i in range(5):
-            write_data(sshclient=sshclient, f_num=100+i, device='/dev/xvdc', folder='/mnt', w_size=self.w_size, fio=False)
-            snap_id = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_1_id, Description='S{}'.format(100+i)).response.snapshotId
+            write_data(sshclient=sshclient, f_num=100 + i, device='/dev/xvdc', folder='/mnt', w_size=self.w_size, fio=False)
+            snap_id = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_1_id, Description='S{}'.format(100 + i)).response.snapshotId
             wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
             self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
             wait_snapshots_state(osc_sdk=self.a1_r1, cleanup=True, snapshot_id_list=[snap_id])
@@ -128,8 +129,9 @@ class Test_hot_vol_full(StreamingBaseHot):
         attached = False
         try:
             # create vol2
-            _, [vol_2_id] = create_volumes(self.a1_r1, snapshot_id=self.vol_1_snap_list[-1], size=self.v_size, volume_type=self.vol_type,
-                                           iops=self.iops)
+            _, [vol_2_id] = create_volumes(
+                self.a1_r1, snapshot_id=self.vol_1_snap_list[-1], size=self.v_size, volume_type=self.vol_type, iops=self.iops
+            )
             wait_volumes_state(self.a1_r1, [vol_2_id], 'available')
             # start streaming
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
@@ -156,7 +158,7 @@ class Test_hot_vol_full(StreamingBaseHot):
                 # delete vol2
                 delete_volumes(self.a1_r1, [vol_2_id])
 
-    #def test_T3306_hot_vol_full_and_stream_diff_df_chain_on_same_instance(self):
+    # def test_T3306_hot_vol_full_and_stream_diff_df_chain_on_same_instance(self):
     #    vol_id = None
     #    snap_id_list = []
     #    attached = False
