@@ -1,7 +1,7 @@
 import time
 
 from qa_common_tools.ssh import SshTools
-from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
+from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state
 
 
 def snap_exist(osc_sdk, snap_name):
@@ -9,7 +9,7 @@ def snap_exist(osc_sdk, snap_name):
     if ret.response.snapshotSet:
         if len(ret.response.snapshotSet) == 1:
             return True
-        elif len(ret.response.snapshotSet) > 1:
+        if len(ret.response.snapshotSet) > 1:
             return True  # TODO: raise an exception
     return False
 
@@ -24,17 +24,19 @@ def write_data(sshclient, f_num, device='/dev/xvdc', folder='/mnt', w_size=10, f
     SshTools.exec_command_paramiko(sshclient, cmd)
 
     if fio:
-        cmd = 'sudo fio --filename={}/fio_{} --name test_fio_{} --direct=1 --rw=randwrite --bs=16k --size=10G --numjobs=16 --time_based ' \
-                '--runtime=300 --group_reporting --norandommap' \
-                .format(folder, f_num, f_num)
+        cmd = (
+            'sudo fio --filename={folder}/fio_{f_num} --name test_fio_{f_num} --direct=1 --rw=randwrite --bs=16k --size=10G --numjobs=16 '
+            '--time_based --runtime=300 --group_reporting --norandommap'.format(folder=folder, f_num=f_num)
+        )
         SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=330)
 
     cmd = 'sudo umount {}'.format(folder)
     SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
 
 
-def write_and_snap(osc_sdk, sshclient, inst_id, vol_id, f_num, device='/dev/xvdc', folder='/mnt', w_size=10, fio=False, snap_name=None,
-                   snap_attached=True):
+def write_and_snap(
+    osc_sdk, sshclient, inst_id, vol_id, f_num, device='/dev/xvdc', folder='/mnt', w_size=10, fio=False, snap_name=None, snap_attached=True
+):
 
     if not snap_name:
         snap_name = "snap_S{}_with_write_{}".format(f_num, w_size)
@@ -119,9 +121,10 @@ def write_on_device(sshclient, device, folder, f_num, size, with_md5sum, with_fi
     cmd = 'sudo openssl rand -out {}/data_xxx.txt -base64 $(({} * 2**20 * 3/4))'.format(folder, size)
     SshTools.exec_command_paramiko(sshclient, cmd)
     if with_fio and f_num in [1, 2, 3, 10]:
-        cmd = 'sudo fio --filename={}/fio_{} --name test_fio_{} --direct=1 --rw=randwrite --bs=16k --size=10G --numjobs=16 --time_based ' \
-              '--runtime=300 --group_reporting --norandommap' \
-              .format(folder, f_num, f_num)
+        cmd = (
+            'sudo fio --filename={folder}/fio_{f_num} --name test_fio_{f_num} --direct=1 --rw=randwrite --bs=16k --size=10G --numjobs=16 '
+            '--time_based --runtime=300 --group_reporting --norandommap'.format(folder=folder, f_num=f_num)
+        )
         SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=330)
     # get md5sum
     if with_md5sum:
@@ -195,15 +198,14 @@ def wait_streaming_state(osc_sdk, res_id, state='started', cleanup=False, sleep=
                 elapsed_time = time.time() - start_time
                 logger.debug("Wait streaming cleanup: %s", elapsed_time)
                 return
-            else:
-                assert False, "Streaming operation not found"
+            assert False, "Streaming operation not found"
         else:
             if len(ret.response.result) == 1:
                 if not cleanup and ret.response.result[0].state == state:
                     elapsed_time = time.time() - start_time
                     logger.debug("Wait streaming %s: %s", state, elapsed_time)
                     return
-                elif cleanup and ret.response.result[0].state != 'started':
+                if cleanup and ret.response.result[0].state != 'started':
                     assert False, "Streaming operation not started"
             else:
                 assert False, "Multiple streaming operation on same resource !!!"
