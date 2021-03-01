@@ -9,19 +9,19 @@ from qa_tina_tools.tools.tina.info_keys import VPC_ID
 
 
 class Test_find_tag_resource_owner(OscTestSuite):
-
     @classmethod
     def setup_class(cls):
         super(Test_find_tag_resource_owner, cls).setup_class()
         cls.vpc_info = None
         try:
             cls.vpc_info = create_vpc(osc_sdk=cls.a1_r1)
-        except:
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -32,7 +32,7 @@ class Test_find_tag_resource_owner(OscTestSuite):
             super(Test_find_tag_resource_owner, cls).teardown_class()
 
     def test_T4434_with_vpc(self):
-        ret=self.a1_r1.intel.netimpl.create_firewalls(resource=self.vpc_info[VPC_ID])
+        ret = self.a1_r1.intel.netimpl.create_firewalls(resource=self.vpc_info[VPC_ID])
         ret = self.a1_r1.intel.tag.find(resource=ret.response.result.master.vm, key='resource-owner')
         assert len(ret.response.result) == 1
         assert ret.response.result[0].value == self.a1_r1.config.account.account_id
@@ -54,7 +54,8 @@ class Test_find_tag_resource_owner(OscTestSuite):
             lb_name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(
                 Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80}],
-                LoadBalancerName=lb_name, SubregionNames=[self.a1_r1.config.region.az_name],
+                LoadBalancerName=lb_name,
+                SubregionNames=[self.a1_r1.config.region.az_name],
             )
             ret = self.a1_r1.intel_lbu.lb.get(owner=self.a1_r1.config.account.account_id, names=[lb_name])
             resource = ret.response.result[0].dns_name.split('.')[0]
@@ -66,4 +67,3 @@ class Test_find_tag_resource_owner(OscTestSuite):
             assert ret.response.result[0].value == self.a1_r1.config.account.account_id
         finally:
             delete_lbu(self.a1_r1, lbu_name=lb_name)
-
