@@ -50,7 +50,7 @@ class Test_hot_snap_full(StreamingBaseHot):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
         self.detach(resource_id=self.vol_1_snap_list[-1])
         if self.rebase_enabled:
-            self.check_stream_full()
+            self.check_stream_full(mode="WARM")
         else:
             self.check_no_stream()
 
@@ -58,7 +58,7 @@ class Test_hot_snap_full(StreamingBaseHot):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
         self.stop(resource_id=self.vol_1_snap_list[-1])
         if self.rebase_enabled:
-            self.check_stream_full()
+            self.check_stream_full(mode="COLD")
         else:
             self.check_no_stream()
 
