@@ -49,7 +49,7 @@ class Test_hot_vol_inter(StreamingBaseHot):
         self.detach(resource_id=self.vol_1_id)
         if self.rebase_enabled:
             # self.check_stream_inter()
-            self.check_stream_full()  # ==> TODO: Open Jira and add known error !!!
+            self.check_stream_full(mode="COLD")  # ==> TODO: Open Jira and add known error !!!
         else:
             self.check_no_stream()
 
