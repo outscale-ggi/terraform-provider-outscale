@@ -40,6 +40,7 @@ class Test_CreateAccessKey(OscTestSuite):
             ret_create = self.a1_r1.icu.CreateAccessKey()
             ak = ret_create.response.accessKey.accessKeyId
             sk = ret_create.response.accessKey.secretAccessKey
+            assert ret_create.response.accessKey.ownerId
             assert re.search(r"([A-Z0-9]{20})", ak), "AK format is not correct"
             assert re.search(r"([A-Z0-9]{40})", sk), "SK format is not correct"
             assert ret_create.response.accessKey.status == 'ACTIVE'

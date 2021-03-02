@@ -4,10 +4,11 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
+from qa_test_tools.exceptions import OscTestException
 
 
 class Test_ReadImages(OscTestSuite):
@@ -48,43 +49,47 @@ class Test_ReadImages(OscTestSuite):
             # to be clear permission on image_id3 :
             #           - AccountIds = []
             #           - GlobalPermission = False
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):
+        errors = []
         try:
             if cls.image_id:
                 try:
                     cls.a1_r1.oapi.DeleteImage(ImageId=cls.image_id)
-                except:
-                    pass
+                except Exception as error:
+                    errors.append(error)
             if cls.image_id2:
                 try:
                     cls.a1_r1.oapi.DeleteImage(ImageId=cls.image_id2)
-                except:
-                    pass
+                except Exception as error:
+                    errors.append(error)
             if cls.image_id3:
                 try:
                     cls.a1_r1.oapi.DeleteImage(ImageId=cls.image_id3)
-                except:
-                    pass
+                except Exception as error:
+                    errors.append(error)
             if cls.image_id4:
                 try:
                     cls.a1_r1.oapi.DeleteImage(ImageId=cls.image_id4)
-                except:
-                    pass
+                except Exception as error:
+                    errors.append(error)
             if cls.snap1_id:
                 try:
                     cls.a1_r1.oapi.DeleteSnapshot(SnapshotId=cls.snap1_id)
-                except:
-                    pass
+                except Exception as error:
+                    errors.append(error)
             if cls.volume_ids:
                 delete_volumes(cls.a1_r1, cls.volume_ids)
+            if errors:
+                raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), errors))
         finally:
             super(Test_ReadImages, cls).teardown_class()
 
@@ -123,6 +128,22 @@ class Test_ReadImages(OscTestSuite):
         ret = self.a1_r1.oapi.ReadImages(Filters={'ImageIds': [self.image_id]}).response.Images
         assert len(ret) == 1
         assert ret[0].ImageId == self.image_id
+
+    def test_T5545_filters_hypervisors(self):
+        ret = self.a1_r1.oapi.ReadImages(Filters={'Hypervisors': ['xen']})
+        assert len(ret.response.Images) >= 3
+        #TODO add the verify response
+        # assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+        #                                                   'read_image_hypervisors_filter.json'),
+        #                        None), 'Could not verify response content.'
+
+    def test_T5546_filters_productscode(self):
+        try:
+            ret = self.a1_r1.oapi.ReadImages(Filters={'ProductCodes': ['0001']})
+            assert len(ret.response.Images) >= 3
+            assert False, 'Remove known error'
+        except AssertionError:
+            known_error('GTW-1763', 'ProductCodes filter does not work in ReadImages')
 
     def test_T2307_filters_states_pending(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'States': ['pending/queued']}).response.Images

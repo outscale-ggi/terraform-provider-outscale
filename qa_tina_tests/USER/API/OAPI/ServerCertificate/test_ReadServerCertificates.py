@@ -52,6 +52,11 @@ class Test_ReadServerCertificates(OscTestSuite):
         ret.check_response()
         assert len(ret.response.ServerCertificates) == 3
 
+    def test_Txxx_filters_paths(self):
+        ret = self.a1_r1.oapi.ReadServerCertificates(Filters={'Paths': ['/path1/']})
+        ret.check_response()
+        assert len(ret.response.ServerCertificates) == 2
+
     def test_T4869_with_first_result(self):
         try:
             self.a1_r1.oapi.ReadServerCertificates(FirstResult=1).response
