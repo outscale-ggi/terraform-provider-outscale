@@ -1,18 +1,18 @@
 # -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
-import pytest
 import time
+
+import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import wait_streaming_state, assert_streaming_state
+
+from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import assert_streaming_state, wait_streaming_state
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming_hot.base import StreamingBaseHot
 
 
 @pytest.mark.region_admin
 @pytest.mark.tag_qemu
 class Test_hot_snap_full(StreamingBaseHot):
-
     @classmethod
     def setup_class(cls):
         cls.w_size = 20
@@ -50,7 +50,7 @@ class Test_hot_snap_full(StreamingBaseHot):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
         self.detach(resource_id=self.vol_1_snap_list[-1])
         if self.rebase_enabled:
-            self.check_stream_full()
+            self.check_stream_full(mode="WARM")
         else:
             self.check_no_stream()
 
@@ -58,7 +58,7 @@ class Test_hot_snap_full(StreamingBaseHot):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
         self.stop(resource_id=self.vol_1_snap_list[-1])
         if self.rebase_enabled:
-            self.check_stream_full()
+            self.check_stream_full(mode="COLD")
         else:
             self.check_no_stream()
 
@@ -76,8 +76,8 @@ class Test_hot_snap_full(StreamingBaseHot):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
         self.delete_snap(resource_id=self.vol_1_snap_list[-1], snap_id=self.vol_1_snap_list[-1])
         self.check_no_stream()
-        time.sleep(60) # Why ?
-        #self.vol_1_snap_list.remove(self.vol_1_snap_list[-1])
+        time.sleep(60)  # Why ?
+        # self.vol_1_snap_list.remove(self.vol_1_snap_list[-1])
 
     def test_T4217_hot_snap_full_and_stream_twice(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])

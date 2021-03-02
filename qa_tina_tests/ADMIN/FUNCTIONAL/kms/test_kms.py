@@ -7,19 +7,19 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 
 @pytest.mark.region_kms
 class Test_kms(OscTestSuite):
-
     @classmethod
     def setup_class(cls):
         super(Test_kms, cls).setup_class()
         try:
             cls.account_id = cls.a1_r1.config.account.account_id
             cls.account2_id = cls.a2_r1.config.account.account_id
-        except:
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -32,14 +32,19 @@ class Test_kms(OscTestSuite):
         try:
             self.a1_r1.intel.kms.key.delete(owner=self.account_id, force=True)
             self.a1_r1.intel.kms.key.delete(owner=self.account2_id, force=True)
-        except:
-            pass
-        finally:
-            OscTestSuite.teardown_method(self, method)
+        except Exception as error:
+            try:
+                OscTestSuite.teardown_method(self, method)
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     def verify_result(self, ret, **kwargs):
         assert ('bypass_policy' in kwargs and kwargs['bypass_policy'] == ret.bypass_policy) or ret.bypass_policy is False
-        assert ('creation_date' in kwargs and kwargs['creation_date'] is not None and kwargs['creation_date'] == ret.creation_date) or ret.creation_date
+        assert (
+            'creation_date' in kwargs and kwargs['creation_date'] is not None and kwargs['creation_date'] == ret.creation_date
+        ) or ret.creation_date
         assert not ret.deletion_date
         assert not ret.description
         assert ret.enabled
@@ -50,7 +55,9 @@ class Test_kms(OscTestSuite):
         assert ret.owner == self.a1_r1.config.account.account_id
         assert ('policy' in kwargs and kwargs['policy'] == ret.policy) or ret.policy == 'default'
         assert ('rotation' in kwargs and kwargs['rotation'] == ret.rotation) or ret.rotation is True
-        assert ('rotation_date' in kwargs and kwargs['rotation_date'] is not None and kwargs['rotation_date'] == ret.rotation_date) or ret.rotation_date
+        assert (
+            'rotation_date' in kwargs and kwargs['rotation_date'] is not None and kwargs['rotation_date'] == ret.rotation_date
+        ) or ret.rotation_date
         assert ret.state == 'enabled'
         assert ret.usage == 'ENCRYPT_DECRYPT'
 
@@ -60,34 +67,13 @@ class Test_kms(OscTestSuite):
 
     def test_T3191_create_default_key(self):
         ret = self.a1_r1.intel.kms.key.create(owner=self.account_id, default=True).response.result
-        self.verify_result(ret,
-                           bypass_policy=None,
-                           creation_date=None,
-                           is_default=True,
-                           manager=None,
-                           policy=None,
-                           rotation=None,
-                           rotation_date=None)
+        self.verify_result(ret, bypass_policy=None, creation_date=None, is_default=True, manager=None, policy=None, rotation=None, rotation_date=None)
 
     def test_T3192_create_default_key_twice(self):
         ret = self.a1_r1.intel.kms.key.create(owner=self.account_id, default=True).response.result
-        self.verify_result(ret,
-                           bypass_policy=None,
-                           creation_date=None,
-                           is_default=True,
-                           manager=None,
-                           policy=None,
-                           rotation=None,
-                           rotation_date=None)
+        self.verify_result(ret, bypass_policy=None, creation_date=None, is_default=True, manager=None, policy=None, rotation=None, rotation_date=None)
         ret = self.a1_r1.intel.kms.key.create(owner=self.account_id, default=True).response.result
-        self.verify_result(ret,
-                           bypass_policy=None,
-                           creation_date=None,
-                           is_default=True,
-                           manager=None,
-                           policy=None,
-                           rotation=None,
-                           rotation_date=None)
+        self.verify_result(ret, bypass_policy=None, creation_date=None, is_default=True, manager=None, policy=None, rotation=None, rotation_date=None)
 
     def test_T3193_delete_key(self):
         ret = self.a1_r1.intel.kms.key.create(owner=self.account_id).response.result

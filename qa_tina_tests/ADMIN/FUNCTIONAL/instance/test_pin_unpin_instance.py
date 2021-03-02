@@ -4,16 +4,16 @@ from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, start_instances
-from qa_tina_tools.tools.tina.delete_tools import terminate_instances, stop_instances
+from qa_tina_tools.tools.tina.delete_tools import stop_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 
 
 class Test_pin_unpin_instance(OscTestSuite):
-
     @classmethod
     def setup_class(cls):
         cls.inst_info = None
         cls.inst_id = None
+        cls.server = None
         super(Test_pin_unpin_instance, cls).setup_class()
         try:
             pass
@@ -41,9 +41,10 @@ class Test_pin_unpin_instance(OscTestSuite):
         except OscApiException as error:
             try:
                 self.teardown_method(method)
-            except Exception:
-                pass
-            raise error
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:
