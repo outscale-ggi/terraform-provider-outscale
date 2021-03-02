@@ -21,7 +21,6 @@ class Test_ReadServerCertificates(OscTestSuite):
             name = misc.id_generator('sc_')
             osc_sdk.oapi.CreateServerCertificate(Name=name, Body=cert, PrivateKey=key, Path=path)
             return name
-            
         super(Test_ReadServerCertificates, cls).setup_class()
         cls.crtpath, cls.keypath = create_tools.create_self_signed_cert()
         cls.key = open(cls.keypath).read()
@@ -44,7 +43,7 @@ class Test_ReadServerCertificates(OscTestSuite):
                 os.remove(cls.crtpath)
             if cls.keypath:
                 os.remove(cls.keypath)
-        finally:    
+        finally:
             super(Test_ReadServerCertificates, cls).teardown_class()
 
     def test_T4868_valid_params(self):
@@ -52,7 +51,7 @@ class Test_ReadServerCertificates(OscTestSuite):
         ret.check_response()
         assert len(ret.response.ServerCertificates) == 3
 
-    def test_Txxx_filters_paths(self):
+    def test_T5549_filters_paths(self):
         ret = self.a1_r1.oapi.ReadServerCertificates(Filters={'Paths': ['/path1/']})
         ret.check_response()
         assert len(ret.response.ServerCertificates) == 2

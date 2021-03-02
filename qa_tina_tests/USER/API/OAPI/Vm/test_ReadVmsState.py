@@ -6,11 +6,11 @@ import pytz
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_tina_tools.tools.tina import info_keys
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST
+from qa_tina_tools.tools.tina import info_keys
 
 
 class Test_ReadVmsState(OscTestSuite):
@@ -44,21 +44,21 @@ class Test_ReadVmsState(OscTestSuite):
     # ATTENTION, this test is better first as terminated vm can 'disappear'
     def test_T2076_filter_vm_state_name(self):
         # check running
-        code_Name = 'running'
-        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_Name]})
+        code_name = 'running'
+        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_name]})
         assert ret.status_code == 200, ret.response.display()
         assert len(ret.response.VmStates) == 2
         for i in range(len(ret.response.VmStates)):
-            assert ret.response.VmStates[i].VmState == code_Name
+            assert ret.response.VmStates[i].VmState == code_name
         # check terminated
-        code_Name = 'terminated'
-        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_Name]})
+        code_name = 'terminated'
+        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_name]})
         assert len(ret.response.VmStates) == 0
         # check terminated with AllVms Activated
-        code_Name = 'terminated'
-        ret = self.a1_r1.oapi.ReadVmsState(AllVms=True, Filters={'VmStates': [code_Name]})
+        code_name = 'terminated'
+        ret = self.a1_r1.oapi.ReadVmsState(AllVms=True, Filters={'VmStates': [code_name]})
         assert len(ret.response.VmStates) == 1
-        assert ret.response.VmStates[0].VmState == code_Name
+        assert ret.response.VmStates[0].VmState == code_name
 
     def test_T2071_no_param(self):
         ret = self.a1_r1.oapi.ReadVmsState()
@@ -73,9 +73,9 @@ class Test_ReadVmsState(OscTestSuite):
         start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(
             seconds=10)
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=2)
-        PINKVM = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response.result[0].servers[0].server
+        pinkvm = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response.result[0].servers[0].server
         ret = self.a1_r1.intel.scheduled_events.create(event_type='software-upgrade', resource_type='server',
-                                                       targets=[PINKVM], start_date=str(start_date),
+                                                       targets=[pinkvm], start_date=str(start_date),
                                                        end_date=str(end_date), description='test')
         event_id = ret.response.result.id
         try:
@@ -115,8 +115,8 @@ class Test_ReadVmsState(OscTestSuite):
         ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[INSTANCE_SET][0]['instanceId'],
                                                               self.info[INSTANCE_SET][1]['instanceId']]})
         assert len(ret.response.VmStates) == 2
-        assert True if self.info[INSTANCE_SET][0]['instanceId'] in (vm.VmId for vm in ret.response.VmStates) else False
-        assert True if self.info[INSTANCE_SET][1]['instanceId'] in (vm.VmId for vm in ret.response.VmStates) else False
+        assert self.info[INSTANCE_SET][0]['instanceId'] in (vm.VmId for vm in ret.response.VmStates)
+        assert self.info[INSTANCE_SET][1]['instanceId'] in (vm.VmId for vm in ret.response.VmStates)
 
     def test_T2077_multiple_filters(self):
         result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[INSTANCE_SET][0]['instanceId']],

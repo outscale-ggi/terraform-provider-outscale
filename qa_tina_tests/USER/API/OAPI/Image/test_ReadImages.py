@@ -5,10 +5,11 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.exceptions import OscTestException
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
-from qa_test_tools.exceptions import OscTestException
+
 
 
 class Test_ReadImages(OscTestSuite):
@@ -96,7 +97,7 @@ class Test_ReadImages(OscTestSuite):
     def test_T2304_empty_filters(self):
         ret = self.a1_r1.oapi.ReadImages().response.Images
         assert len(ret) >= 3
-        image = next((x for x in ret if x.ImageId == self.image_id), None)
+        image = next((i for i in ret if i.ImageId == self.image_id), None)
         assert image.AccountId == self.a1_r1.config.account.account_id
         assert image.Architecture == 'x86_64'
         assert len(image.BlockDeviceMappings) == 1
@@ -105,9 +106,7 @@ class Test_ReadImages(OscTestSuite):
         assert image.BlockDeviceMappings[0].Bsu.SnapshotId.startswith('snap-')
         assert hasattr(image.BlockDeviceMappings[0].Bsu, 'VolumeSize')
         assert image.BlockDeviceMappings[0].Bsu.VolumeType == 'standard'
-        # assert image.Description == ''
-        # assert image.ImageName.startswith('centos-6-copy')
-        assert image.FileLocation is not ''
+        assert image.FileLocation != ''
         assert image.PermissionsToLaunch.GlobalPermission
         assert image.PermissionsToLaunch.AccountIds == []
         assert image.ProductCodes is not None
@@ -217,77 +216,77 @@ class Test_ReadImages(OscTestSuite):
 
     def test_T3387_filters_architectures(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'Architectures': ['x86_64']}).response.Images
-        for x in ret:
-            assert x.Architecture == 'x86_64'
+        for i in ret:
+            assert i.Architecture == 'x86_64'
 
     def test_T3388_filters_block_device_mapping_delete_on_vm_deletion_true(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'BlockDeviceMappingDeleteOnVmDeletion': True}).response.Images
-        for x in ret:
+        for i in ret:
             found = False
-            for bdm in x.BlockDeviceMappings:
+            for bdm in i.BlockDeviceMappings:
                 if bdm.Bsu.DeleteOnVmDeletion:
                     found = True
             assert found
 
     def test_T3389_filters_block_device_mapping_delete_on_vm_deletion_false(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'BlockDeviceMappingDeleteOnVmDeletion': False}).response.Images
-        for x in ret:
+        for i in ret:
             found = False
-            for bdm in x.BlockDeviceMappings:
+            for bdm in i.BlockDeviceMappings:
                 if not bdm.Bsu.DeleteOnVmDeletion:
                     found = True
             assert found
 
     def test_T3390_filters_block_device_mapping_device_names(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'BlockDeviceMappingDeviceNames': ['/dev/sda1']}).response.Images
-        for x in ret:
+        for i in ret:
             found = False
-            for bdm in x.BlockDeviceMappings:
+            for bdm in i.BlockDeviceMappings:
                 if bdm.DeviceName == '/dev/sda1':
                     found = True
             assert found
 
     def test_T3391_filters_block_device_mapping_snapshot_ids(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'BlockDeviceMappingSnapshotIds': [self.snap1_id]}).response.Images
-        for x in ret:
+        for i in ret:
             found = False
-            for bdm in x.BlockDeviceMappings:
+            for bdm in i.BlockDeviceMappings:
                 if bdm.Bsu.SnapshotId == self.snap1_id:
                     found = True
             assert found
 
     def test_T3392_filters_block_device_mapping_volume_sizes(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'BlockDeviceMappingVolumeSizes': [2]}).response.Images
-        for x in ret:
+        for i in ret:
             found = False
-            for bdm in x.BlockDeviceMappings:
+            for bdm in i.BlockDeviceMappings:
                 if bdm.Bsu.VolumeSize == 2:
                     found = True
             assert found
 
     def test_T3393_filters_block_device_mapping_volume_types(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'BlockDeviceMappingVolumeTypes': ['gp2']}).response.Images
-        for x in ret:
+        for i in ret:
             found = False
-            for bdm in x.BlockDeviceMappings:
+            for bdm in i.BlockDeviceMappings:
                 if bdm.Bsu.VolumeType == 'gp2':
                     found = True
             assert found
 
     def test_T3394_filters_file_locations(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'FileLocations': ['*centos-6-copy*']}).response.Images
-        for x in ret:
-            assert 'centos-6-copy' in x.FileLocation
+        for i in ret:
+            assert 'centos-6-copy' in i.FileLocation
 
     def test_T3395_filters_root_device_names(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'RootDeviceNames': ['/dev/sda1']}).response.Images
-        for x in ret:
-            assert x.RootDeviceName == '/dev/sda1'
+        for i in ret:
+            assert i.RootDeviceName == '/dev/sda1'
 
     def test_T3396_filters_root_device_types(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'RootDeviceTypes': ['bsu']}).response.Images
-        for x in ret:
-            assert x.RootDeviceType == 'bsu'
+        for i in ret:
+            assert i.RootDeviceType == 'bsu'
 
     def test_T3397_filters_virtualization_types(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'VirtualizationTypes': ['hvm']}).response.Images

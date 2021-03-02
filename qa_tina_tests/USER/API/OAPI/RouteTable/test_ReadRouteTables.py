@@ -61,7 +61,7 @@ class Test_ReadRouteTables(OscTestSuite):
         res = self.a1_r1.oapi.ReadRouteTables(Filters={'NetIds': [self.vpc_info[VPC_ID]]}).response
         assert all(rt.NetId == self.vpc_info[VPC_ID] for rt in res.RouteTables)
 
-    def test_T5548_with_linkroutetablelinkroutetableids_filter(self):
+    def test_T5548_with_link_rtb_ids_filter(self):
         try:
             ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableLinkRouteTableIds': [self.link_id]})
             assert len(ret.response.RouteTables) >= 1
@@ -130,8 +130,6 @@ class Test_ReadRouteTables(OscTestSuite):
         ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableMain': False})
         assert len(ret.response.RouteTables) == 1
         assert ret.response.RouteTables[0].RouteTableId == self.ret_create.response.routeTable.routeTableId
-        
         ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableMain': True})
         assert len(ret.response.RouteTables) == 1
         assert ret.response.RouteTables[0].RouteTableId == self.vpc_info[ROUTE_TABLE_ID]
-

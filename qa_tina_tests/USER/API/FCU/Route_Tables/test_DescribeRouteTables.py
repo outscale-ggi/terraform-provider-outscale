@@ -1,12 +1,10 @@
-# pylint: disable=missing-docstring
-from qa_tina_tools.tools.tina.create_tools import create_vpc
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
-from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, INTERNET_GATEWAY_ID, VPC_ID, SUBNETS, SUBNET_ID
+from qa_tina_tools.tools.tina.info_keys import VPC_ID, SUBNETS, SUBNET_ID
+from qa_tina_tools.tools.tina.create_tools import create_vpc
 
 
 NUM_RTS = 3
@@ -55,7 +53,7 @@ class Test_DescribeRouteTables(OscTestSuite):
 
     def test_T3274_without_param(self):
         ret = self.a1_r1.fcu.DescribeRouteTables().response.routeTableSet
-        assert len(set([RouteTable.routeTableId for RouteTable in ret])) == len(self.rt_ids) + 1
+        assert len({RouteTable.routeTableId for RouteTable in ret}) == len(self.rt_ids) + 1
         for rtb in ret:
             if not rtb.associationSet or not rtb.associationSet[0].main:
                 assert rtb.routeTableId in self.rt_ids
@@ -71,6 +69,6 @@ class Test_DescribeRouteTables(OscTestSuite):
         ret = self.a2_r1.fcu.DescribeRouteTables(Filter=[{'Name': 'route-table-id', 'Value': self.rt_ids[0]}])
         assert not ret.response.routeTableSet
 
-    def test_T5547_with_associationroutetableassociation_id_filter(self):
+    def test_T5547_with_association_rtb_id_filter(self):
         ret = self.a1_r1.fcu.DescribeRouteTables(Filter=[{'Name': 'association.route-table-association-id', 'Value': self.rtb_assoc_id}])
         assert ret.response.routeTableSet[0].associationSet[0].routeTableId == self.rt_ids[0]

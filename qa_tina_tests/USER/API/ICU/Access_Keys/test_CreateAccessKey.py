@@ -198,8 +198,6 @@ class Test_CreateAccessKey(OscTestSuite):
             sk = id_generator(size=30)
             ak = id_generator(size=10)
             ret_create = self.a1_r1.icu.CreateAccessKey(SecretAccessKey=sk, AccessKeyId=ak)
-            ret_create.response.accessKey.secretAccessKey
-            ret_create.response.accessKey.accessKeyId
             known_error('TINA-3930', 'test should have failed')
         except OscApiException as error:
             assert False, 'Remove known error code'
@@ -216,8 +214,6 @@ class Test_CreateAccessKey(OscTestSuite):
             sk = id_generator(size=40)
             ak = id_generator(size=10)
             ret_create = self.a1_r1.icu.CreateAccessKey(SecretAccessKey=sk, AccessKeyId=ak)
-            ret_create.response.accessKey.secretAccessKey
-            ret_create.response.accessKey.accessKeyId
             known_error('TINA-3930', 'test should have failed')
         except OscApiException as error:
             assert False, 'Remove known error code'
