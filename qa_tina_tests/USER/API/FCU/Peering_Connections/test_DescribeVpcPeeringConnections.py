@@ -41,9 +41,10 @@ class Test_DescribeVpcPeeringConnections(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
