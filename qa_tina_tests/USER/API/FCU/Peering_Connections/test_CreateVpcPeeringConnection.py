@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -58,7 +57,7 @@ class Test_CreateVpcPeeringConnection(OscTestSuite):
         assert ret.response.vpcPeeringConnection.requesterVpcInfo.ownerId == self.a1_r1.config.account.account_id
         assert ret.response.vpcPeeringConnection.requesterVpcInfo.vpcId == self.vpc_info_1[VPC_ID]
         assert ret.response.vpcPeeringConnection.status.code == "pending-acceptance"
-        assert ret.response.vpcPeeringConnection.status.message == "Pending accceptance by {}".format(self.a1_r1.config.account.account_id)
+        assert ret.response.vpcPeeringConnection.status.message == "Pending acceptance by {}".format(self.a1_r1.config.account.account_id)
         assert not ret.response.vpcPeeringConnection.tagSet
         assert re.search(r"(pcx-[a-zA-Z0-9]{8})", ret.response.vpcPeeringConnection.vpcPeeringConnectionId)
 
