@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
@@ -42,9 +41,10 @@ class Test_DescribeVpcPeeringConnections(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -133,7 +133,7 @@ class Test_DescribeVpcPeeringConnections(OscTestSuite):
 
     def test_T2486_with_valid_filter_status_message(self):
         ret = self.a1_r1.fcu.DescribeVpcPeeringConnections(Filter=[{'Name': 'status-message',
-                                                                    'Value': ["Pending accceptance by {}".format(
+                                                                    'Value': ["Pending acceptance by {}".format(
                                                                         self.a2_r1.config.account.account_id)]}])
         assert len(ret.response.vpcPeeringConnectionSet) == 1
 

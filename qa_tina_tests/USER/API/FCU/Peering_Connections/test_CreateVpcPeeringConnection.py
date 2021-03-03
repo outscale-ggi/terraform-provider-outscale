@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -28,12 +27,13 @@ class Test_CreateVpcPeeringConnection(OscTestSuite):
         try:
             self.vpc_info_1 = create_vpc(self.a1_r1, cidr_prefix="10.1", igw=False, default_rtb=True, no_ping=True)
             self.vpc_info_2 = create_vpc(self.a1_r1, cidr_prefix="10.2", igw=False, default_rtb=True, no_ping=True)
-        except:
+        except Exception as error:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:
@@ -58,7 +58,7 @@ class Test_CreateVpcPeeringConnection(OscTestSuite):
         assert ret.response.vpcPeeringConnection.requesterVpcInfo.ownerId == self.a1_r1.config.account.account_id
         assert ret.response.vpcPeeringConnection.requesterVpcInfo.vpcId == self.vpc_info_1[VPC_ID]
         assert ret.response.vpcPeeringConnection.status.code == "pending-acceptance"
-        assert ret.response.vpcPeeringConnection.status.message == "Pending accceptance by {}".format(self.a1_r1.config.account.account_id)
+        assert ret.response.vpcPeeringConnection.status.message == "Pending acceptance by {}".format(self.a1_r1.config.account.account_id)
         assert not ret.response.vpcPeeringConnection.tagSet
         assert re.search(r"(pcx-[a-zA-Z0-9]{8})", ret.response.vpcPeeringConnection.vpcPeeringConnectionId)
 
