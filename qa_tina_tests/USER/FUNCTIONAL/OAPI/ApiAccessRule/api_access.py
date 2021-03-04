@@ -26,10 +26,14 @@ API_CALLS = [
             'fcu.DescribeRegions',  # without authent
             'fcu.DescribeSecurityGroups',  # with AkSk
 <<<<<<< Upstream, based on origin/TINA-2.5.17
+<<<<<<< Upstream, based on origin/TINA-2.5.17
             # 'kms.ListKeys',  # with AkSk
 =======
             #'kms.ListKeys',  # with AkSk
 >>>>>>> 22ca19c added CreateAccount api call
+=======
+            # 'kms.ListKeys',  # with AkSk
+>>>>>>> 1cf1c00 pylint
             'lbu.DescribeLoadBalancers',  # with AkSk
             'oapi.ReadFlexibleGpuCatalog',  # without authent
             'oapi.ReadAccessKeys',  # with LoginPassword
@@ -49,6 +53,7 @@ def create_account_params():
             'FirstName': 'Test_user',
             'LastName': 'Test_Last_name',
 <<<<<<< Upstream, based on origin/TINA-2.5.17
+<<<<<<< Upstream, based on origin/TINA-2.5.17
             'Password': misc.id_generator(size=20, chars=string.digits + string.ascii_letters),
             'ZipCode': '92210'}
 
@@ -62,6 +67,9 @@ API_CREATE_PARAMS = {'icu.CreateAccount': create_account_params}
 API_DELETE_PARAMS = {'icu.CreateAccount': delete_account_params}
 =======
             'Password': misc.id_generator(size=20, chars=string.digits+string.ascii_letters),
+=======
+            'Password': misc.id_generator(size=20, chars=string.digits + string.ascii_letters),
+>>>>>>> 1cf1c00 pylint
             'ZipCode': '92210'}
 
 
@@ -71,11 +79,13 @@ def delete_account_params(delete_params):
 
 API_CREATE_PARAMS = {'icu.CreateAccount': create_account_params}
 
-
 API_DELETE_PARAMS = {'icu.CreateAccount': delete_account_params}
 
+<<<<<<< Upstream, based on origin/TINA-2.5.17
 >>>>>>> 22ca19c added CreateAccount api call
 
+=======
+>>>>>>> 1cf1c00 pylint
 IP_COND = 'ips'
 CA_COND = 'caCertificates'
 CN_COND = 'cns'
@@ -290,11 +300,16 @@ class Api_Access(OscTestSuite):
             cls.account_pid = create_account(cls.a1_r1, account_info=account_info)
             keys = cls.a1_r1.intel.accesskey.find_by_user(owner=cls.account_pid).response.result[0]
 <<<<<<< Upstream, based on origin/TINA-2.5.17
+<<<<<<< Upstream, based on origin/TINA-2.5.17
             config = OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret, account_id=cls.account_pid,
                                              login=email, password=password)
 =======
             config = OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret, account_id=cls.account_pid, login=email, password=password)
 >>>>>>> 22ca19c added CreateAccount api call
+=======
+            config = OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret, account_id=cls.account_pid,
+                                             login=email, password=password)
+>>>>>>> 1cf1c00 pylint
             cls.osc_sdk = OscSdk(config=config)
 
             cls.osc_sdk.identauth.IdauthEntityLimit.putAccountLimits(account_id=config.region.get_info(config_constants.AS_IDAUTH_ID),
