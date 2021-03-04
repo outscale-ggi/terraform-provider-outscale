@@ -246,8 +246,8 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                                 'SecurityGroupId': sg.SecurityGroupId,
                             }],
                             'IpProtocol': 'icmp',
-                            'FromPortRange':-1,
-                            'ToPortRange':-1,
+                            'FromPortRange': -1,
+                            'ToPortRange': -1,
                             'IpRanges': ['10.0.0.12/32']}],
                     SecurityGroupId=sg.SecurityGroupId)
                 self.a1_r1.oapi.DeleteSecurityGroupRule(
@@ -311,6 +311,39 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             assert False, 'Remove known error'
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        finally:
+            self.a1_r1.oapi.DeleteSecurityGroupRule(
+                    Flow='Inbound',
+                    SecurityGroupId=self.sg4.SecurityGroupId,
+                    Rules=[
+                        {'IpProtocol': 'tcp',
+                         'FromPortRange': 1234,
+                         'ToPortRange': 1235,
+                         'IpRanges': ['10.0.0.11/32'],
+                         },
+                        {
+                         'IpProtocol': 'udp',
+                         'FromPortRange': 4325,
+                         'ToPortRange': 6587,
+                         'IpRanges': ['10.0.0.12/32'],
+                        },
+                        {
+                         'IpProtocol': 'icmp',
+                         'FromPortRange': -1,
+                         'ToPortRange': -1,
+                         'IpRanges': ['10.0.0.13/32']
+                        },
+                        {
+                         'SecurityGroupsMembers': [{
+                             'AccountId': self.a1_r1.config.account.account_id,
+                             'SecurityGroupId': self.sg3.SecurityGroupId,
+                         }],
+                         'IpProtocol': 'udp',
+                         'FromPortRange': 56,
+                         'ToPortRange': 78,
+                         'IpRanges': ['10.0.0.14/32']
+                        }]
+                )
 
     def test_T5476_outbound_rules_array_many_element(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -354,6 +387,42 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             assert False, 'Remove known error'
         except AssertionError:
             known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        finally:
+            self.a1_r1.oapi.DeleteSecurityGroupRule(
+                Flow='Outbound',
+                SecurityGroupId=self.sg4.SecurityGroupId,
+
+                Rules=[
+                    {
+                        'IpProtocol': 'tcp',
+                        'FromPortRange': 1234,
+                        'ToPortRange': 1235,
+                        'IpRanges': ['10.0.0.11/32'],
+                    },
+                    {
+                        'IpProtocol': 'udp',
+                        'FromPortRange': 4325,
+                        'ToPortRange': 6587,
+                        'IpRanges': ['10.0.0.12/32'],
+                    },
+                    {
+                        'IpProtocol': 'icmp',
+                        'FromPortRange': -1,
+                        'ToPortRange': -1,
+                        'IpRanges': ['10.0.0.13/32']
+                    },
+                    {
+                        'SecurityGroupsMembers': [{
+                            'AccountId': self.a1_r1.config.account.account_id,
+                            'SecurityGroupId': self.sg3.SecurityGroupId,
+                        }],
+                        'IpProtocol': 'udp',
+                        'FromPortRange': 56,
+                        'ToPortRange': 78,
+                        'IpRanges': ['10.0.0.14/32']
+                    }
+                ]
+            )
 
     def test_T4386_with_bad_parameters(self):
         try:
