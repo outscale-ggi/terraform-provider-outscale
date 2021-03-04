@@ -30,12 +30,13 @@ class Test_CreateFlexibleGpu(OscTestSuite):
         try:
             cls.subregionname = cls.a1_r1.config.region.az_name
             cls.modelname = DEFAULT_MODEL_NAME
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):
