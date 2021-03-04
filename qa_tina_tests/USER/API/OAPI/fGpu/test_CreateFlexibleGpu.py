@@ -30,13 +30,24 @@ class Test_CreateFlexibleGpu(OscTestSuite):
         try:
             cls.subregionname = cls.a1_r1.config.region.az_name
             cls.modelname = DEFAULT_MODEL_NAME
+<<<<<<< Upstream, based on origin/TINA-2.5.17
         except Exception as error1:
+=======
+        except Exception as error:
+>>>>>>> 64d0692 bandit
             try:
                 cls.teardown_class()
+<<<<<<< Upstream, based on origin/TINA-2.5.17
             except Exception as error2:
                 raise error2
             finally:
                 raise error1
+=======
+            except Exception as err:
+                raise err
+            finally:
+                raise error
+>>>>>>> 64d0692 bandit
 
     @classmethod
     def teardown_class(cls):

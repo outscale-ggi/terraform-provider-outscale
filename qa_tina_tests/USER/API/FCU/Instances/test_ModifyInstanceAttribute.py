@@ -38,12 +38,13 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
             for _ in range(2):
                 cls.sg_id_list.append(create_security_group(cls.a1_r1))
             wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.stopped_id, cls.vpc_inst_id], state='stopped')
-        except:
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
