@@ -113,13 +113,10 @@ class Test_CreateKeypair(OscTestSuite):
             assert ret.KeypairName == self.keypair_name
             assert ret.KeypairFingerprint is not None
             try:
-                ret = self.a1_r1.oapi.CreateKeypair(KeypairName=self.keypair_name, PublicKey=pub_key).response.Keypair
+                self.a1_r1.oapi.CreateKeypair(KeypairName=self.keypair_name, PublicKey=pub_key)
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 assert_oapi_error(error, 409, 'ResourceConflict', '9011')
-            finally:
-                if ret:
-                    self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
 
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4032')
