@@ -5,7 +5,6 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, INTERNET_GATEWAY_ID, VPC_ID, SUBNETS, SUBNET_ID
-from qa_tina_tools.tina.info_keys import SUBNETS, SUBNET_ID
 
 
 class Test_ReadRouteTables(OscTestSuite):
