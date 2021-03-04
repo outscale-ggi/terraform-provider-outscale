@@ -15,20 +15,48 @@ from qa_tina_tools.tools.as_.wait_tools import wait_task_state
 from qa_tina_tools.tools.tina import create_tools
 
 # other solution, embed call characteristics in calls, expected result can be computed, instead of being
-API_CALLS = ['directlink.DescribeLocations',  # with AkSk
-             'eim.ListAccessKeys',  # with AkSk
-             'icu.ReadPublicCatalog',  # without authent
-             'icu.ListAccessKeys',  # with LoginPassword
-             'icu.ReadQuotas',  # with AkSk
-             'icu.GetAccount', # with AkSk
-             'fcu.DescribeRegions',  # without authent
-             'fcu.DescribeSecurityGroups',  # with AkSk
-             #'kms.ListKeys',  # with AkSk
-             'lbu.DescribeLoadBalancers',  # with AkSk
-             'oapi.ReadFlexibleGpuCatalog',  # without authent
-             'oapi.ReadAccessKeys',  # with LoginPassword
-             'oapi.ReadKeypairs'  # with AkSk
+API_CALLS = [
+            'directlink.DescribeLocations',  # with AkSk
+            'eim.ListAccessKeys',  # with AkSk
+            'icu.ReadPublicCatalog',  # without authent
+            'icu.ListAccessKeys',  # with LoginPassword
+            'icu.ReadQuotas',  # with AkSk
+            'icu.GetAccount',  # with AkSk
+            'icu.CreateAccount',  # with AkSk
+            'fcu.DescribeRegions',  # without authent
+            'fcu.DescribeSecurityGroups',  # with AkSk
+            #'kms.ListKeys',  # with AkSk
+            'lbu.DescribeLoadBalancers',  # with AkSk
+            'oapi.ReadFlexibleGpuCatalog',  # without authent
+            'oapi.ReadAccessKeys',  # with LoginPassword
+            'oapi.ReadKeypairs'  # with AkSk
             ]
+
+API_DELETE_CALLS = {'icu.CreateAccount': 'xsub.terminate_account'}
+
+
+def create_account_params():
+    customer_id = misc.id_generator(size=8, chars=string.digits)
+    return {'City': 'Saint_Cloud',
+            'CompanyName': 'Outscale',
+            'Country': 'France',
+            'CustomerId': customer_id,
+            'Email': 'qa+test_api_access_rule_{}@outscale.com'.format(customer_id),
+            'FirstName': 'Test_user',
+            'LastName': 'Test_Last_name',
+            'Password': misc.id_generator(size=20, chars=string.digits+string.ascii_letters),
+            'ZipCode': '92210'}
+
+
+def delete_account_params(delete_params):
+    return {'pid': delete_params.response.Account.AccountPid}
+
+
+API_CREATE_PARAMS = {'icu.CreateAccount': create_account_params}
+
+
+API_DELETE_PARAMS = {'icu.CreateAccount': delete_account_params}
+
 
 IP_COND = 'ips'
 CA_COND = 'caCertificates'
@@ -234,7 +262,12 @@ class Api_Access(OscTestSuite):
                             'password': password, 'zipcode': '92210'}
             cls.account_pid = create_account(cls.a1_r1, account_info=account_info)
             keys = cls.a1_r1.intel.accesskey.find_by_user(owner=cls.account_pid).response.result[0]
-            cls.osc_sdk = OscSdk(config=OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret, account_id=cls.account_pid, login=email, password=password))
+            config = OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret, account_id=cls.account_pid, login=email, password=password)
+            cls.osc_sdk = OscSdk(config=config)
+
+            cls.osc_sdk.identauth.IdauthEntityLimit.putAccountLimits(account_id=config.region.get_info(config_constants.AS_IDAUTH_ID),
+                                                                    accountPid=cls.account_pid,
+                                                                    limits={'items': [{"article": 'COUNT_ACCOUNT_CREATED_ACCOUNTS', "value": 100}]})
 
             cls.ca1_pid = cls.osc_sdk.oapi.CreateCa(CaPem=open(cls.ca1files[1]).read(), Description="ca1files").response.Ca.CaId
             cls.ca2_pid = cls.osc_sdk.oapi.CreateCa(CaPem=open(cls.ca2files[1]).read(), Description="ca2files").response.Ca.CaId
@@ -322,7 +355,24 @@ class Api_Access(OscTestSuite):
                 for elt in api_call.split('.'):
                     func = getattr(func, elt)
                     # print('{}'.format(func))
-                func(exec_data)
+                response = None
+                if api_call in API_CREATE_PARAMS:
+                    create_params = API_CREATE_PARAMS[api_call]()
+                    response = func(exec_data, **create_params)
+                else:
+                    response = func(exec_data)
+                # print(ret.response.display())
+                if api_call in API_DELETE_CALLS:
+                    api_delete_call = API_DELETE_CALLS[api_call]
+                    func = self.osc_sdk
+                    for elt in api_delete_call.split('.'):
+                        func = getattr(func, elt)
+                        # print('{}'.format(func))
+                    if api_call in API_DELETE_PARAMS:
+                        delete_params = API_DELETE_PARAMS[api_call](response)
+                        func(**delete_params)
+                    else:
+                        func()
                 # print(ret.response.display())
                 results.append(PASS)
                 errors.append(None)
