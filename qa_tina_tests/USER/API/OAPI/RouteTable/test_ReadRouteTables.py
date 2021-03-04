@@ -28,7 +28,7 @@ class Test_ReadRouteTables(OscTestSuite):
             cls.link_id = cls.a1_r1.oapi.LinkRouteTable(SubnetId=cls.vpc_info[SUBNETS][1][SUBNET_ID],
                                                          RouteTableId=cls.ret_create.response.routeTable.routeTableId).response.LinkRouteTableId
 
-        except Exception as error:
+        except Exception as error1:
             try:
                 cls.teardown_class()
             except Exception as error2:
@@ -64,12 +64,8 @@ class Test_ReadRouteTables(OscTestSuite):
         assert all(rt.NetId == self.vpc_info[VPC_ID] for rt in res.RouteTables)
 
     def test_T5548_with_link_rtb_ids_filter(self):
-        try:
-            ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableLinkRouteTableIds': [self.link_id]})
-            assert len(ret.response.RouteTables) >= 1
-            assert False, 'Remove known error'
-        except AssertionError:
-            known_error('GTW-1765', 'LinkRouteTableLinkRouteTableIds filter does not work')
+        ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableLinkRouteTableIds': [self.link_id]})
+        assert len(ret.response.RouteTables) == 1
 
     def test_T2022_route_table_ids_filter(self):
         res = self.a1_r1.oapi.ReadRouteTables(Filters={'RouteTableIds': [self.vpc_info[ROUTE_TABLE_ID]]}).response
