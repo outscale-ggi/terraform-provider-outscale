@@ -114,10 +114,10 @@ class Test_UpdateVm(OscTestSuite):
         ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
         assert ret.VmId == self.vm_ids[0]
         assert len(ret.BlockDeviceMappings) == 3
-        assert True if "/dev/xvdb" in (x.DeviceName for x in ret.BlockDeviceMappings) else False
-        assert True if "/dev/xvdc" in (x.DeviceName for x in ret.BlockDeviceMappings) else False
-        assert True if "/dev/sda1" in (x.DeviceName for x in ret.BlockDeviceMappings) else False
-        assert True if self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.BlockDeviceMappings) else False
+        assert "/dev/xvdb" in (x.DeviceName for x in ret.BlockDeviceMappings)
+        assert "/dev/xvdc" in (x.DeviceName for x in ret.BlockDeviceMappings)
+        assert "/dev/sda1" in (x.DeviceName for x in ret.BlockDeviceMappings)
+        assert self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.BlockDeviceMappings)
 
     def test_T2133_BlockMappingDevice_missing_device_name(self):
         try:
@@ -140,10 +140,10 @@ class Test_UpdateVm(OscTestSuite):
             ret = self.a1_r1.oapi.ReadVmAttribute(VmId=self.vm_ids[0], Attribute='BlockDeviceMappings')
             assert ret.response.VmId == self.vm_ids[0]
             assert len(ret.response.BlockDeviceMappings) == 3
-            assert True if "/dev/xvdb" in (x.DeviceName for x in ret.response.BlockDeviceMappings) else False
-            assert True if "/dev/xvdc" in (x.DeviceName for x in ret.response.BlockDeviceMappings) else False
-            assert True if "/dev/sda1" in (x.DeviceName for x in ret.response.BlockDeviceMappings) else False
-            assert True if self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.response.BlockDeviceMappings) else False
+            assert "/dev/xvdb" in (x.DeviceName for x in ret.response.BlockDeviceMappings)
+            assert "/dev/xvdc" in (x.DeviceName for x in ret.response.BlockDeviceMappings)
+            assert "/dev/sda1" in (x.DeviceName for x in ret.response.BlockDeviceMappings)
+            assert self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.response.BlockDeviceMappings)
 
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
