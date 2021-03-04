@@ -40,12 +40,13 @@ class Test_UpdateVm(OscTestSuite):
             cls.a1_r1.fcu.AttachVolume(Device="/dev/xvdb", InstanceId=cls.vm_ids[0], VolumeId=cls.vol_ids[0])
             cls.a1_r1.fcu.AttachVolume(Device="/dev/xvdc", InstanceId=cls.vm_ids[0], VolumeId=cls.vol_ids[1])
             wait_volumes_state(cls.a1_r1, cls.vol_ids, 'in-use')
-        except:
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
