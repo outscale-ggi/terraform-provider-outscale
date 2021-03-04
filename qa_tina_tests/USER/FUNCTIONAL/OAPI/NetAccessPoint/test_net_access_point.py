@@ -3,12 +3,11 @@ from qa_sdk_common.exceptions import OscApiException
 
 from qa_common_tools.ssh import SshTools
 
-from qa_tina_tools import constants
 from qa_tina_tools.tina import oapi, info_keys, wait
 
-from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_test_tools.config import config_constants
 
 PUBLIC_NET_IP_RANGE_SUFFIX = '10.0'
 
@@ -41,11 +40,11 @@ class Test_net_access_point(OscTestSuite):
                     IpProtocol='tcp', FromPortRange=22, ToPortRange=22, Flow='Inbound',
                     IpRange=net_with_internet_info[info_keys.SUBNETS][0][info_keys.IP_RANGE])
             try:
-                net_access_point_service_name = self.a1_r1.config.region.get_info(constants.OSU_SERVICE_NAME)
+                net_access_point_service_name = self.a1_r1.config.region.get_info(config_constants.OSU_SERVICE_NAME)
             except ValueError:
-                tmp_list = self.a1_r1.config.region.get_info(constants.HOST).split('.')
+                tmp_list = self.a1_r1.config.region.get_info(config_constants.HOST).split('.')
                 tmp_list.reverse()
-                net_access_point_service_name = '{}.{}'.format('.'.join(tmp_list), self.a1_r1.config.region.get_info(constants.STORAGESERVICE))
+                net_access_point_service_name = '{}.{}'.format('.'.join(tmp_list), self.a1_r1.config.region.get_info(config_constants.STORAGESERVICE))
             resp = self.a1_r1.fcu.DescribePrefixLists().response
             for prefix in resp.prefixListSet:
                 if prefix.prefixListName == net_access_point_service_name:
@@ -67,7 +66,7 @@ class Test_net_access_point(OscTestSuite):
             sshclient = SshTools.check_connection_paramiko(
                 net_with_internet_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'],
                 net_with_internet_info[info_keys.KEY_PAIR][info_keys.PATH],
-                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=4, timeout=10)
+                username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER), retry=4, timeout=10)
             tmp_list = net_access_point_service_name.split('.')
             tmp_list.reverse()
             cmd = "curl https://{}".format('.'.join(tmp_list))
@@ -77,7 +76,7 @@ class Test_net_access_point(OscTestSuite):
                 ssh_key=net_with_internet_info[info_keys.KEY_PAIR][info_keys.PATH],
                 local_private_addr=net_with_internet_info[info_keys.SUBNETS][0][info_keys.VMS][0]['PrivateIp'],
                 dest_private_addr=net_with_internet_info[info_keys.SUBNETS][2][info_keys.VMS][0]['PrivateIp'],
-                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+                username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER),
                 retry=4, timeout=10)
             out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd, retry=20, timeout=20)
             assert 'ListAllMyBucketsResult' in out
