@@ -363,7 +363,7 @@ class ApiAccess(OscTestSuite):
         errors = []
         for i, api_call in enumerate(API_CALLS):
             try:
-                # if api_call.startswith('icu.') and expected_results[i] == 1 and 
+                # if api_call.startswith('icu.') and expected_results[i] == 1 and
                 # exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.AkSk:
                 #     expected_results[i] = PASS
                 if api_call.startswith('oapi.') and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.LoginPassword:
