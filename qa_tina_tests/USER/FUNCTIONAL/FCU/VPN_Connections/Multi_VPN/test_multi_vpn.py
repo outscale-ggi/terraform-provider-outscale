@@ -89,34 +89,35 @@ class Test_multi_vpn(OscTestSuite):
         # initialize a VPC with 1 subnet, 1 instance and an igw
         self.vpc_info = create_vpc(osc_sdk=self.a1_r1, nb_instance=1, default_rtb=default_rtb)
 
-        self.a1_r1.fcu.AttachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
+        self.a1_r1.fcu.AttachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)        
+    
 
-        # create VPN connection
-        ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw1_id,
-                                                 Type='ipsec.1',
-                                                 VpnGatewayId=self.vgw_id,
-                                                 Options={'StaticRoutesOnly': static})
-        vpn1_id = ret.response.vpnConnection.vpnConnectionId
-        wait_vpn_connections_state(self.a1_r1, [vpn1_id], state='available')
-        vpn_cfg = ret.response.vpnConnection.customerGatewayConfiguration
-        match = re.search('<vpn_gateway><tunnel_outside_address><ip_address>(.+?)</ip_address>', vpn_cfg)
-        vgw1_ip = match.group(1)
-        match = re.search('<pre_shared_key>(.+?)</pre_shared_key>', vpn_cfg)
-        psk1_key = match.group(1)
+        rtb_id = None
+        if default_rtb:
+            rtb_id = self.vpc_info[ROUTE_TABLE_ID]
+        else:
+            rtb_id = self.vpc_info[SUBNETS][0][ROUTE_TABLE_ID]
 
-        ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw2_id,
-                                                 Type='ipsec.1',
-                                                 VpnGatewayId=self.vgw_id,
-                                                 Options={'StaticRoutesOnly': static})
-        vpn2_id = ret.response.vpnConnection.vpnConnectionId
-        wait_vpn_connections_state(self.a1_r1, [vpn2_id], state='available')
-        vpn_cfg = ret.response.vpnConnection.customerGatewayConfiguration
-        match = re.search('<vpn_gateway><tunnel_outside_address><ip_address>(.+?)</ip_address>', vpn_cfg)
-        vgw2_ip = match.group(1)
-        match = re.search('<pre_shared_key>(.+?)</pre_shared_key>', vpn_cfg)
-        psk2_key = match.group(1)
+        # enable route propagation from VGW to VPC route table
+        self.a1_r1.fcu.EnableVgwRoutePropagation(GatewayId=self.vgw_id,
+                                                 RouteTableId=rtb_id)
 
+        vpn1_id = None
+        vpn2_id = None
         try:
+            # create VPN connection
+            ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw1_id,
+                                                     Type='ipsec.1',
+                                                     VpnGatewayId=self.vgw_id,
+                                                     Options={'StaticRoutesOnly': static})
+            vpn1_id = ret.response.vpnConnection.vpnConnectionId
+            wait_vpn_connections_state(self.a1_r1, [vpn1_id], state='available')
+            vpn_cfg = ret.response.vpnConnection.customerGatewayConfiguration
+            match = re.search('<vpn_gateway><tunnel_outside_address><ip_address>(.+?)</ip_address>', vpn_cfg)
+            vgw1_ip = match.group(1)
+            match = re.search('<pre_shared_key>(.+?)</pre_shared_key>', vpn_cfg)
+            psk1_key = match.group(1)
+    
             # open flow from VGW to CGW1
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=self.inst_cgw1_info[SECURITY_GROUP_ID],
                                                          IpProtocol='udp',
@@ -135,6 +136,63 @@ class Test_multi_vpn(OscTestSuite):
                                                          FromPort=-1,
                                                          ToPort=-1,
                                                          CidrIp="{}/32".format(self.inst_cgw1_info[INSTANCE_SET][0]['privateIpAddress']))
+
+            # wait CGW state == ready before making configuration
+            wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw1_info[INSTANCE_ID_LIST][0]], state='ready')
+
+            sshclient1 = SshTools.check_connection_paramiko(self.inst_cgw1_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw1_info[KEY_PAIR][PATH],
+                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+
+            setup_customer_gateway(self.a1_r1, sshclient1, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
+                                   self.inst_cgw1_info, vgw1_ip, psk1_key, static, vpn1_id,racoon=racoon)
+
+            # wait vpc instance state == ready before try to make ping
+            wait_tools.wait_instances_state(self.a1_r1,
+                                 [self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0]],
+                                 state='ready')
+
+            inst1 = self.inst_cgw1_info[INSTANCE_SET][0]
+            inst_vpc = self.vpc_info[SUBNETS][0][INSTANCE_SET][0]
+            self.logger.info("inst1 cgw -> : {} -- {}".format(inst1['ipAddress'], inst1['privateIpAddress']))
+            self.logger.info("inst vpc -> : None -- {}".format(inst_vpc['privateIpAddress']))
+
+            # try to make ping from CGW to VPC instance
+            try:
+                out, _, _ = SshTools.exec_command_paramiko(
+                    sshclient1,
+                    'ping -I {} -W 1 -c 1 {}'.format(inst1['privateIpAddress'], inst_vpc['privateIpAddress']),
+                    retry=20,
+                    timeout=10)
+                assert "1 packets transmitted, 1 received, 0% packet loss" in out
+            except OscCommandError:
+                raise
+
+            # check vpn connection status
+            start = datetime.now()
+            while (datetime.now() - start).total_seconds() < 60:
+                try:
+                    ret = self.a1_r1.fcu.DescribeVpnConnections(VpnConnectionId=[vpn1_id])
+                    self.logger.info('state = {}'.format(ret.response.vpnConnectionSet[0].state))
+                    self.logger.info('telemetry = {}'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
+                    assert ret.response.vpnConnectionSet[0].state == 'available'
+                    assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].status == 'UP'
+                    break
+                except Exception:
+                    time.sleep(5)
+                    pass
+
+            ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw2_id,
+                                                     Type='ipsec.1',
+                                                     VpnGatewayId=self.vgw_id,
+                                                     Options={'StaticRoutesOnly': static})
+            vpn2_id = ret.response.vpnConnection.vpnConnectionId
+            wait_vpn_connections_state(self.a1_r1, [vpn2_id], state='available')
+            vpn_cfg = ret.response.vpnConnection.customerGatewayConfiguration
+            match = re.search('<vpn_gateway><tunnel_outside_address><ip_address>(.+?)</ip_address>', vpn_cfg)
+            vgw2_ip = match.group(1)
+            match = re.search('<pre_shared_key>(.+?)</pre_shared_key>', vpn_cfg)
+            psk2_key = match.group(1)
+
             # open flow from VGW to CGW2
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=self.inst_cgw2_info[SECURITY_GROUP_ID],
                                                          IpProtocol='udp',
@@ -154,56 +212,51 @@ class Test_multi_vpn(OscTestSuite):
                                                          ToPort=-1,
                                                          CidrIp="{}/32".format(self.inst_cgw2_info[INSTANCE_SET][0]['privateIpAddress']))
 
-            rtb_id = None
-            if default_rtb:
-                rtb_id = self.vpc_info[ROUTE_TABLE_ID]
-            else:
-                rtb_id = self.vpc_info[SUBNETS][0][ROUTE_TABLE_ID]
-
-            # enable route propagation from VGW to VPC route table
-            self.a1_r1.fcu.EnableVgwRoutePropagation(GatewayId=self.vgw_id,
-                                                     RouteTableId=rtb_id)
 
             # wait CGW state == ready before making configuration
-            wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw1_info[INSTANCE_ID_LIST][0]], state='ready')
             wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw2_info[INSTANCE_ID_LIST][0]], state='ready')
 
-            sshclient1 = SshTools.check_connection_paramiko(self.inst_cgw1_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw1_info[KEY_PAIR][PATH],
-                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             sshclient2 = SshTools.check_connection_paramiko(self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw2_info[KEY_PAIR][PATH],
                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
-            setup_customer_gateway(self.a1_r1, sshclient1, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
-                                   self.inst_cgw1_info, vgw1_ip, psk1_key, static, vpn1_id,racoon=racoon)
             setup_customer_gateway(self.a1_r1, sshclient2, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
                                    self.inst_cgw2_info, vgw2_ip, psk2_key, static, vpn2_id, index=1, racoon=racoon)
 
-            # wait vpc instance state == ready before try to make ping
-            wait_tools.wait_instances_state(self.a1_r1,
-                                 [self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0]],
-                                 state='ready')
 
-            inst1 = self.inst_cgw1_info[INSTANCE_SET][0]
             inst2 = self.inst_cgw2_info[INSTANCE_SET][0]
-            inst_vpc = self.vpc_info[SUBNETS][0][INSTANCE_SET][0]
-            self.logger.info("inst1 cgw -> : {} -- {}".format(inst1['ipAddress'], inst1['privateIpAddress']))
             self.logger.info("inst2 cgw -> : {} -- {}".format(inst2['ipAddress'], inst2['privateIpAddress']))
             self.logger.info("inst vpc -> : None -- {}".format(inst_vpc['privateIpAddress']))
 
             # try to make ping from CGW to VPC instance
             try:
                 out, _, _ = SshTools.exec_command_paramiko(
-                    sshclient1,
-                    'ping -I {} -W 1 -c 1 {}'.format(inst1['privateIpAddress'], inst_vpc['privateIpAddress']),
+                    sshclient2,
+                    'ping -I {} -W 1 -c 1 {}'.format(inst2['privateIpAddress'], inst_vpc['privateIpAddress']),
                     retry=20,
                     timeout=10)
                 assert "1 packets transmitted, 1 received, 0% packet loss" in out
             except OscCommandError:
                 raise
+
+            # check vpn connection status
+            start = datetime.now()
+            while (datetime.now() - start).total_seconds() < 60:
+                try:
+                    ret = self.a1_r1.fcu.DescribeVpnConnections(VpnConnectionId=[vpn2_id])
+                    self.logger.info('state = {}'.format(ret.response.vpnConnectionSet[0].state))
+                    self.logger.info('telemetry = {}'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
+                    assert ret.response.vpnConnectionSet[0].state == 'available'
+                    assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].status == 'UP'
+                    break
+                except Exception:
+                    time.sleep(5)
+                    pass
+
+            # try to make ping from CGW to VPC instance
             try:
                 out, _, _ = SshTools.exec_command_paramiko(
-                    sshclient2,
-                    'ping -I {} -W 1 -c 1 {}'.format(inst2['privateIpAddress'], inst_vpc['privateIpAddress']),
+                    sshclient1,
+                    'ping -I {} -W 1 -c 1 {}'.format(inst1['privateIpAddress'], inst_vpc['privateIpAddress']),
                     retry=20,
                     timeout=10)
                 assert "1 packets transmitted, 1 received, 0% packet loss" in out
@@ -219,30 +272,22 @@ class Test_multi_vpn(OscTestSuite):
                     self.logger.info('telemetry = {}'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
                     assert ret.response.vpnConnectionSet[0].state == 'available'
                     assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].status == 'UP'
-                    time.sleep(5)
                     break
                 except Exception:
-                    pass
-            while (datetime.now() - start).total_seconds() < 60:
-                try:
-                    ret = self.a1_r1.fcu.DescribeVpnConnections(VpnConnectionId=[vpn2_id])
-                    self.logger.info('state = {}'.format(ret.response.vpnConnectionSet[0].state))
-                    self.logger.info('telemetry = {}'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
-                    assert ret.response.vpnConnectionSet[0].state == 'available'
-                    assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].status == 'UP'
                     time.sleep(5)
-                    break
-                except Exception:
                     pass
 
         finally:
             # delete VPN connection
-            ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn1_id)
-            ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn2_id)
+            if vpn1_id:
+                ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn1_id)
+            if vpn2_id:
+                ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn2_id)
             wait.wait_VpnConnections_state(self.a1_r1, [vpn1_id, vpn2_id], state='deleted', cleanup=True)
 
             self.a1_r1.fcu.DetachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
             wait_tools.wait_vpn_gateways_attachment_state(self.a1_r1, [self.vgw_id], 'detached')
+
 
     def test_T1948_test_vpn_static(self):
         self.exec_test_vpn(static=False, racoon= True, default_rtb=True)
