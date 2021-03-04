@@ -68,7 +68,7 @@ class SecurityGroup(OscTestSuite):
     def teardown_class(cls):
         try:
             teardown_error = None
-            for sg in [cls.sg1, cls.sg2, cls.sg3, cls.sg4]:
+            for sg in [cls.sg1, cls.sg2, cls.sg4, cls.sg3]:
                 if sg:
                     try:
                         cls.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=sg.SecurityGroupId)
