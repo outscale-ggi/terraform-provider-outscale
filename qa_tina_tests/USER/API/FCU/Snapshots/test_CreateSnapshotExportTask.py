@@ -9,6 +9,7 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_buckets
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_snapshot_export_tasks_state
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 
 
 class Test_CreateSnapshotExportTask(OscTestSuite):
@@ -241,10 +242,9 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         try:
             wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
-            assert False, 'Remove known error'
+            raise OscTestException('Remove known error')
         except AssertionError:
             known_error('TINA-6147', 'Create export snapshot task with invalid ak/sk should have the failed state')
-            raise error
         ret = self.a1_r1.fcu.DescribeSnapshotExportTasks(SnapshotExportTaskId=[task_id])
         assert ret.response.snapshotExportTaskSet[0].statusMessage.startswith('Error accessing bucket ' + \
                                                                               '{}: S3ResponseError: 403 Forbidden\n'.format(self.bucket_name) + \

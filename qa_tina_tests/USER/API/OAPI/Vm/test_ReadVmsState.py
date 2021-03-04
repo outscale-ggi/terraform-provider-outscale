@@ -69,7 +69,6 @@ class Test_ReadVmsState(OscTestSuite):
 
     @pytest.mark.region_admin
     def test_T5544_filters_maintenance(self):
-        event_id = None
         start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(
             seconds=10)
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=2)
