@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 import re
 
 import pytest
@@ -30,12 +29,13 @@ class Test_CreateNetPeering(OscTestSuite):
         try:
             self.vpc_info_1 = create_vpc(self.a1_r1, cidr_prefix="10.1", igw=False, default_rtb=True, no_ping=True)
             self.vpc_info_2 = create_vpc(self.a1_r1, cidr_prefix="10.2", igw=False, default_rtb=True, no_ping=True)
-        except:
+        except Exception as error:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:
@@ -63,7 +63,7 @@ class Test_CreateNetPeering(OscTestSuite):
         assert ret.response.NetPeering.SourceNet.AccountId == self.a1_r1.config.account.account_id
         assert ret.response.NetPeering.SourceNet.NetId == self.vpc_info_1[VPC_ID]
         assert ret.response.NetPeering.State.Name == "pending-acceptance"
-        assert ret.response.NetPeering.State.Message == "Pending accceptance by {}".format(self.a1_r1.config.account.account_id)
+        assert ret.response.NetPeering.State.Message == "Pending acceptance by {}".format(self.a1_r1.config.account.account_id)
         assert not ret.response.NetPeering.Tags
         assert re.search(r"(pcx-[a-zA-Z0-9]{8})", ret.response.NetPeering.NetPeeringId)
 
@@ -130,7 +130,7 @@ class Test_CreateNetPeering(OscTestSuite):
             ret = self.a1_r1.oapi.CreateNetPeering(SourceNetId=self.vpc_info_1[VPC_ID], AccepterNetId=vpc_info_3[VPC_ID])
             self.peering = ret.response.NetPeering.NetPeeringId
             assert ret.response.NetPeering.State.Name == "pending-acceptance"
-            assert ret.response.NetPeering.State.Message == "Pending accceptance by {}".format(
+            assert ret.response.NetPeering.State.Message == "Pending acceptance by {}".format(
                 self.a2_r1.config.account.account_id)
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5065')
