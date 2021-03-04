@@ -1,5 +1,4 @@
 import pytest
-from qa_sdk_common.exceptions import OscApiException
 
 from qa_common_tools.ssh import SshTools
 
@@ -7,7 +6,7 @@ from qa_tina_tools import constants
 from qa_tina_tools.tina import oapi, info_keys, wait
 
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 
 PUBLIC_NET_IP_RANGE_SUFFIX = '10.0'
@@ -28,7 +27,6 @@ class Test_net_access_point(OscTestSuite):
         net_with_internet_info = None
         net_access_point = None
         net_access_point_service_name = None
-        prefix_found = False
         try:
             net_with_internet_info = oapi.create_Net(self.a1_r1, nb_subnet=3, nb_vm=1, state=None, cidr_prefix=PUBLIC_NET_IP_RANGE_SUFFIX)
             self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -46,31 +44,23 @@ class Test_net_access_point(OscTestSuite):
                 tmp_list = self.a1_r1.config.region.get_info(constants.HOST).split('.')
                 tmp_list.reverse()
                 net_access_point_service_name = '{}.{}'.format('.'.join(tmp_list), self.a1_r1.config.region.get_info(constants.STORAGESERVICE))
-            resp = self.a1_r1.fcu.DescribePrefixLists().response
-            for prefix in resp.prefixListSet:
-                if prefix.prefixListName == net_access_point_service_name:
-                    prefix_found = True
-            try:
-                net_access_point = self.a1_r1.oapi.CreateNetAccessPoint(
+            net_access_point = self.a1_r1.oapi.CreateNetAccessPoint(
                     NetId=net_with_internet_info[info_keys.NET_ID],
                     ServiceName=net_access_point_service_name,
                     RouteTableIds=[net_with_internet_info[info_keys.SUBNETS][2][info_keys.ROUTE_TABLE_ID]]).response.NetAccessPoint
-                if not prefix_found:
-                    assert False, 'Remove known error'
-            except OscApiException as error:
-                if not prefix_found:
-                    known_error('OPS-13113', 'DescribePrefixLists does not return the oos prefix list name')
-                assert error
 
             wait.wait_Vms_state(self.a1_r1, [net_with_internet_info[info_keys.SUBNETS][0][info_keys.VM_IDS][0]],
                                 state='ready')
+
             sshclient = SshTools.check_connection_paramiko(
                 net_with_internet_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'],
                 net_with_internet_info[info_keys.KEY_PAIR][info_keys.PATH],
                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=4, timeout=10)
             tmp_list = net_access_point_service_name.split('.')
             tmp_list.reverse()
-            cmd = "curl https://{}".format('.'.join(tmp_list))
+            cmd = "curl -k https://{}".format('.'.join(tmp_list))
+            wait.wait_Vms_state(self.a1_r1, [net_with_internet_info[info_keys.SUBNETS][2][info_keys.VM_IDS][0]],
+                                state='ready')
             sshclient_jhost = SshTools.check_connection_paramiko_nested(
                 sshclient=sshclient,
                 ip_address=net_with_internet_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'],
@@ -80,7 +70,7 @@ class Test_net_access_point(OscTestSuite):
                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                 retry=4, timeout=10)
             out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd, retry=20, timeout=20)
-            assert 'ListAllMyBucketsResult' in out
+            assert 'Access Denied' in out
         finally:
             errors = []
             if net_access_point:
