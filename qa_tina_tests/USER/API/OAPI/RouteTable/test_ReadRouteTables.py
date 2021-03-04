@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, INTERNET_GATEWAY_ID, VPC_ID, SUBNETS, SUBNET_ID
@@ -16,16 +16,18 @@ class Test_ReadRouteTables(OscTestSuite):
         cls.rtb2 = None
         cls.rtb2 = None
         cls.ret_create = None
+        cls.link_id = None
         try:
-            cls.vpc_info = create_vpc(cls.a1_r1, nb_subnet=1, igw=True, default_rtb=True)
+            cls.vpc_info = create_vpc(cls.a1_r1, nb_subnet=2, igw=True, default_rtb=True)
             cls.cidr_destination = '100.0.0.0/24'
             cls.rtb1 = cls.a1_r1.oapi.CreateRoute(DestinationIpRange=cls.cidr_destination, RouteTableId=cls.vpc_info[ROUTE_TABLE_ID],
                                        GatewayId=cls.vpc_info[INTERNET_GATEWAY_ID])
             cls.rtb2 = cls.a1_r1.oapi.CreateRoute(DestinationIpRange=cls.cidr_destination, RouteTableId=cls.vpc_info[ROUTE_TABLE_ID],
                                        GatewayId=cls.vpc_info[INTERNET_GATEWAY_ID])
             cls.ret_create = cls.a1_r1.fcu.CreateRouteTable(VpcId=cls.vpc_info[VPC_ID])
-            cls.link_id = cls.a1_r1.oapi.LinkRouteTable(SubnetId=cls.vpc_info[SUBNETS][0][SUBNET_ID],
-                                                        RouteTableId=cls.ret_create.response.routeTable.routeTableId).response.LinkRouteTableId
+            cls.link_id = cls.a1_r1.oapi.LinkRouteTable(SubnetId=cls.vpc_info[SUBNETS][1][SUBNET_ID],
+                                                         RouteTableId=cls.ret_create.response.routeTable.routeTableId).response.LinkRouteTableId
+
         except Exception as error1:
             try:
                 cls.teardown_class()
@@ -62,12 +64,8 @@ class Test_ReadRouteTables(OscTestSuite):
         assert all(rt.NetId == self.vpc_info[VPC_ID] for rt in res.RouteTables)
 
     def test_T5548_with_link_rtb_ids_filter(self):
-        try:
-            ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableLinkRouteTableIds': [self.link_id]})
-            assert len(ret.response.RouteTables) >= 1
-            assert False, 'Remove known error'
-        except AssertionError:
-            known_error('GTW-1765', 'LinkRouteTableLinkRouteTableIds filter does not work')
+        ret = self.a1_r1.oapi.ReadRouteTables(Filters={'LinkRouteTableLinkRouteTableIds': [self.link_id]})
+        assert len(ret.response.RouteTables) == 1
 
     def test_T2022_route_table_ids_filter(self):
         res = self.a1_r1.oapi.ReadRouteTables(Filters={'RouteTableIds': [self.vpc_info[ROUTE_TABLE_ID]]}).response
