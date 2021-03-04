@@ -1,8 +1,8 @@
 import os
 import re
 
-import pytest
 import time
+import pytest
 from netaddr import IPNetwork, IPAddress
 
 from qa_common_tools.ssh import SshTools
