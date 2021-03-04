@@ -63,7 +63,7 @@ class Test_CreateNetPeering(OscTestSuite):
         assert ret.response.NetPeering.SourceNet.AccountId == self.a1_r1.config.account.account_id
         assert ret.response.NetPeering.SourceNet.NetId == self.vpc_info_1[VPC_ID]
         assert ret.response.NetPeering.State.Name == "pending-acceptance"
-        assert ret.response.NetPeering.State.Message == "Pending accceptance by {}".format(self.a1_r1.config.account.account_id)
+        assert ret.response.NetPeering.State.Message == "Pending acceptance by {}".format(self.a1_r1.config.account.account_id)
         assert not ret.response.NetPeering.Tags
         assert re.search(r"(pcx-[a-zA-Z0-9]{8})", ret.response.NetPeering.NetPeeringId)
 
@@ -130,7 +130,7 @@ class Test_CreateNetPeering(OscTestSuite):
             ret = self.a1_r1.oapi.CreateNetPeering(SourceNetId=self.vpc_info_1[VPC_ID], AccepterNetId=vpc_info_3[VPC_ID])
             self.peering = ret.response.NetPeering.NetPeeringId
             assert ret.response.NetPeering.State.Name == "pending-acceptance"
-            assert ret.response.NetPeering.State.Message == "Pending accceptance by {}".format(
+            assert ret.response.NetPeering.State.Message == "Pending acceptance by {}".format(
                 self.a2_r1.config.account.account_id)
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5065')

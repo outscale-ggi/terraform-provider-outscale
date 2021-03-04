@@ -99,7 +99,7 @@ class Test_ReadNetPeerings(OscTestSuite):
         assert len(ret.response.NetPeerings) == 1
 
     def test_T2001_with_valid_filter_state_mesages(self):
-        ret = self.a1_r1.oapi.ReadNetPeerings(Filters={'StateMessages': ["Pending accceptance by {}".format(
+        ret = self.a1_r1.oapi.ReadNetPeerings(Filters={'StateMessages': ["Pending acceptance by {}".format(
             self.a2_r1.config.account.account_id)]})
         assert len(ret.response.NetPeerings) == 1
 
