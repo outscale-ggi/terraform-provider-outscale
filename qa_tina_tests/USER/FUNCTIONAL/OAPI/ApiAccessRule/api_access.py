@@ -25,7 +25,7 @@ API_CALLS = [
             'icu.CreateAccount',  # with AkSk
             'fcu.DescribeRegions',  # without authent
             'fcu.DescribeSecurityGroups',  # with AkSk
-            #'kms.ListKeys',  # with AkSk
+            # 'kms.ListKeys',  # with AkSk
             'lbu.DescribeLoadBalancers',  # with AkSk
             'oapi.ReadFlexibleGpuCatalog',  # without authent
             'oapi.ReadAccessKeys',  # with LoginPassword
@@ -44,7 +44,7 @@ def create_account_params():
             'Email': 'qa+test_api_access_rule_{}@outscale.com'.format(customer_id),
             'FirstName': 'Test_user',
             'LastName': 'Test_Last_name',
-            'Password': misc.id_generator(size=20, chars=string.digits+string.ascii_letters),
+            'Password': misc.id_generator(size=20, chars=string.digits + string.ascii_letters),
             'ZipCode': '92210'}
 
 
@@ -54,9 +54,7 @@ def delete_account_params(delete_params):
 
 API_CREATE_PARAMS = {'icu.CreateAccount': create_account_params}
 
-
 API_DELETE_PARAMS = {'icu.CreateAccount': delete_account_params}
-
 
 IP_COND = 'ips'
 CA_COND = 'caCertificates'
@@ -86,6 +84,7 @@ class ConfName(Enum):
     Ca_CaCn = 'Ca_CaCn'
     Ca_CaCnTest = 'Ca_CaCn'
     CaCn_CaCn = 'CaCnOK_CaCn'
+
 
 PASS = 0
 FAIL = 1
@@ -128,7 +127,7 @@ def put_configuration(self, access_rules):
 #                                          Cns=access_rule[CN_COND] if CN_COND in access_rule else None,
 #                                          Description=access_rule[DESC],
 #                                          IpRanges=access_rule[IP_COND] )
-        kwargs={}
+        kwargs = {}
         if CA_COND in access_rule:
             kwargs['CaIds'] = access_rule[CA_COND]
         if CN_COND in access_rule:
@@ -138,7 +137,7 @@ def put_configuration(self, access_rules):
         if DESC in access_rule:
             kwargs['Description'] = access_rule[DESC]
         osc_sdk.oapi.CreateApiAccessRule(**kwargs)
-        #osc_sdk.identauth.IdauthAccount.createApiAccessRule(
+        # osc_sdk.identauth.IdauthAccount.createApiAccessRule(
         #    account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
         #    principal= {"accountPid": osc_sdk.config.account.account_id}, accessRule=access_rule)
      
@@ -147,9 +146,9 @@ def put_configuration(self, access_rules):
     for rule in ret.response.ApiAccessRules:
         if rule.Description != description:
             osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=rule.ApiAccessRuleId)
-    #ret = osc_sdk.identauth.IdauthAccount.listApiAccessRules()
+    # ret = osc_sdk.identauth.IdauthAccount.listApiAccessRules()
     # print(ret.response.display())
-    #for item in ret.response.items:
+    # for item in ret.response.items:
     #    if item.description != description:
     #        osc_sdk.identauth.IdauthAccount.deleteApiAccessRule(
     #            account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
@@ -160,10 +159,11 @@ def put_configuration(self, access_rules):
     try:
         print('new api rules:')
         ret = osc_sdk.oapi.ReadApiAccessRules()
-        #ret = osc_sdk.identauth.IdauthAccount.listApiAccessRules()
+        # ret = osc_sdk.identauth.IdauthAccount.listApiAccessRules()
         print(ret.response.display())
     except Exception:
         print('Could not list rules for conf {}'.format([rule for rule in access_rules if rule[DESC] == description]))
+
 
 # method creating the rules related to the configuration
 # it erases any existing rules (a configuration containing these rules is returned)
@@ -184,7 +184,7 @@ def setup_api_access_rules(confkey):
                     for i in range(len(actual)):
                         if actual[i] != expected[i]:
                             if expected[i] == KNOWN:
-                                if type(actual[i]) == str and actual[i].startswith(ISSUE_PREFIX):
+                                if isinstance(actual[i], str) and actual[i].startswith(ISSUE_PREFIX):
                                     issue_names.append(actual[i][len(ISSUE_PREFIX):])
                                 else:
                                     unexpected = True
@@ -199,16 +199,20 @@ def setup_api_access_rules(confkey):
                     if issue_names:
                         known_error(' '.join(set(issue_names)), 'Expected known error(s)')
             finally:
-                ret = self.a1_r1.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), accountPids= [self.account_pid])
+                ret = self.a1_r1.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(
+                    account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                    accountPids=[self.account_pid])
                 try:
                     wait_task_state(osc_sdk=self.a1_r1, state='COMPLETED', task_handle=ret.response.handle)
                 except:
                     raise OscTestException('Could not reset api rules in time.')
-                self.a1_r1.identauth__admin.IdauthAdmin.invalidateCache(account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID))
+                self.a1_r1.identauth__admin.IdauthAdmin.invalidateCache(
+                    account_id=self.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID))
 
         return wrapper
 
     return _setup_api_access_rules
+
 
 class Api_Access(OscTestSuite):
     
@@ -224,45 +228,49 @@ class Api_Access(OscTestSuite):
 #                     os.system("rm -rf {}".format(path))
 #                 os.mkdir(path)
             
-            cls.ca1files = create_tools.create_caCertificate_file(root='.', cakey='ca1.key', cacrt='ca1.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
+            cls.ca1files = create_tools.create_caCertificate_file(root='.', cakey='ca1.key', cacrt='ca1.crt',
+                                                                  casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
             cls.tmp_file_paths.extend(cls.ca1files)
-            cls.ca2files = create_tools.create_caCertificate_file(root='.', cakey='ca2.key', cacrt='ca2.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale2.com"')
+            cls.ca2files = create_tools.create_caCertificate_file(root='.', cakey='ca2.key', cacrt='ca2.crt',
+                                                                  casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale2.com"')
             cls.tmp_file_paths.extend(cls.ca2files)
-            cls.ca3files = create_tools.create_caCertificate_file(root='.', cakey='ca3.key', cacrt='ca3.crt', casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale3.com"')
+            cls.ca3files = create_tools.create_caCertificate_file(root='.', cakey='ca3.key', cacrt='ca3.crt',
+                                                                  casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale3.com"')
             cls.tmp_file_paths.extend(cls.ca3files)
 
             cls.certfiles_ca1cn1 = create_tools.create_clientCertificate_files(
                 cls.ca1files[0], cls.ca1files[1],
-                root='.', clientkey = 'ca1cn1.key', clientcsr='ca1cn1.csr', clientcrt='ca1cn1.crt',
+                root='.', clientkey='ca1cn1.key', clientcsr='ca1cn1.csr', clientcrt='ca1cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
             cls.tmp_file_paths.extend(cls.certfiles_ca1cn1)
 
             cls.certfiles_ca2cn1 = create_tools.create_clientCertificate_files(
                 cls.ca2files[0], cls.ca2files[1],
-                root='.', clientkey = 'ca2cn1.key', clientcsr='ca2cn1.csr', clientcrt='ca2cn1.crt',
+                root='.', clientkey='ca2cn1.key', clientcsr='ca2cn1.csr', clientcrt='ca2cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
             cls.tmp_file_paths.extend(cls.certfiles_ca2cn1)
 
             cls.certfiles_ca1cn2 = create_tools.create_clientCertificate_files(
                 cls.ca1files[0], cls.ca1files[1],
-                root='.', clientkey = 'ca1cn2.key', clientcsr='ca1cn2.csr', clientcrt='ca1cn2.crt',
+                root='.', clientkey='ca1cn2.key', clientcsr='ca1cn2.csr', clientcrt='ca1cn2.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN2))
             cls.tmp_file_paths.extend(cls.certfiles_ca1cn2)
 
             cls.certfiles_ca3cn1 = create_tools.create_clientCertificate_files(
                 cls.ca3files[0], cls.ca3files[1],
-                root='.', clientkey = 'ca3cn1.key', clientcsr='ca3cn1.csr', clientcrt='ca3cn1.crt',
+                root='.', clientkey='ca3cn1.key', clientcsr='ca3cn1.csr', clientcrt='ca3cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
             cls.tmp_file_paths.extend(cls.certfiles_ca3cn1)
 
             email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='api_access').lower())
-            password = misc.id_generator(size=20, chars=string.digits+string.ascii_letters)
+            password = misc.id_generator(size=20, chars=string.digits + string.ascii_letters)
             account_info = {'city': 'Saint_Cloud', 'company_name': 'Outscale', 'country': 'France',
                             'email_address': email, 'firstname': 'Test_user', 'lastname': 'Test_Last_name',
                             'password': password, 'zipcode': '92210'}
             cls.account_pid = create_account(cls.a1_r1, account_info=account_info)
             keys = cls.a1_r1.intel.accesskey.find_by_user(owner=cls.account_pid).response.result[0]
-            config = OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret, account_id=cls.account_pid, login=email, password=password)
+            config = OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret, account_id=cls.account_pid,
+                                             login=email, password=password)
             cls.osc_sdk = OscSdk(config=config)
 
             cls.osc_sdk.identauth.IdauthEntityLimit.putAccountLimits(account_id=config.region.get_info(config_constants.AS_IDAUTH_ID),
@@ -316,7 +324,7 @@ class Api_Access(OscTestSuite):
                 # CaCriterion1, CaCrierion2
                 ConfName.Ca_Ca: [{CA_COND: [cls.ca1_pid], DESC: ConfName.Ca_Ca.value}, {CA_COND: [cls.ca2_pid], DESC: ConfName.Ca_Ca.value}],
                 # caCriterion1, caCriterion2 + CnCriterion
-                ConfName.Ca_CaCn: [{CA_COND: [cls.ca1_pid], DESC: ConfName.Ca_CaCn.value}, {CA_COND: [cls.ca2_pid],CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.Ca_CaCn.value}],
+                ConfName.Ca_CaCn: [{CA_COND: [cls.ca1_pid], DESC: ConfName.Ca_CaCn.value}, {CA_COND: [cls.ca2_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.Ca_CaCn.value}],
                 # caCriterion1 + cnCriterion1, caCriterion2 + CnCriterion2
                 ConfName.CaCn_CaCn: [{CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CaCn_CaCn.value}, {CA_COND: [cls.ca2_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CaCn_CaCn.value}],
                 }
