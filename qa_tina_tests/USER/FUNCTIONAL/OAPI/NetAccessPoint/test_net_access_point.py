@@ -27,7 +27,6 @@ class Test_net_access_point(OscTestSuite):
         net_with_internet_info = None
         net_access_point = None
         net_access_point_service_name = None
-        prefix_found = False
         try:
             net_with_internet_info = oapi.create_Net(self.a1_r1, nb_subnet=3, nb_vm=1, state=None, cidr_prefix=PUBLIC_NET_IP_RANGE_SUFFIX)
             self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -45,7 +44,6 @@ class Test_net_access_point(OscTestSuite):
                 tmp_list = self.a1_r1.config.region.get_info(constants.HOST).split('.')
                 tmp_list.reverse()
                 net_access_point_service_name = '{}.{}'.format('.'.join(tmp_list), self.a1_r1.config.region.get_info(constants.STORAGESERVICE))
-            resp = self.a1_r1.fcu.DescribePrefixLists().response
             net_access_point = self.a1_r1.oapi.CreateNetAccessPoint(
                     NetId=net_with_internet_info[info_keys.NET_ID],
                     ServiceName=net_access_point_service_name,
