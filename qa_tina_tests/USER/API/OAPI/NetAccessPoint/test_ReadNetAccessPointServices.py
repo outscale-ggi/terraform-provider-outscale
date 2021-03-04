@@ -5,12 +5,20 @@ from qa_test_tools.test_base import OscTestSuite
 Service_Name = ['fcu', 'lbu', 'eim', 'icu', 'directlink', 'api', 'kms', 'oos']
 
 <<<<<<< Upstream, based on origin/TINA-2.5.17
+<<<<<<< Upstream, based on origin/TINA-2.5.17
 =======
+=======
+>>>>>>> 483f716 revert
 SERVICE_NAMES = ['fcu', 'lbu', 'eim', 'icu', 'directlink', 'api', 'kms']
+<<<<<<< Upstream, based on origin/TINA-2.5.17
 >>>>>>> 5459df0 pylint
 =======
 SERVICE_NAMES = ['fcu', 'lbu', 'eim', 'icu', 'directlink', 'api', 'kms']
 >>>>>>> 1cf1c00 pylint
+=======
+=======
+>>>>>>> 078b246 revert
+>>>>>>> 483f716 revert
 
 class Test_ReadNetAccessPointServices(OscTestSuite):
 
@@ -18,6 +26,7 @@ class Test_ReadNetAccessPointServices(OscTestSuite):
         services = self.a1_r1.oapi.ReadNetAccessPointServices().response.Services
 <<<<<<< Upstream, based on origin/TINA-2.5.17
         assert len(services) == len(Service_Name)
+<<<<<<< Upstream, based on origin/TINA-2.5.17
         for service in services:
             assert service.ServiceName.split('.')[3] in Service_Name
 <<<<<<< Upstream, based on origin/TINA-2.5.17
@@ -29,9 +38,15 @@ class Test_ReadNetAccessPointServices(OscTestSuite):
 =======
         services = self.a1_r1.oapi.ReadNetAccessPointServices().response.Services
         assert len(services) == 7
+=======
+>>>>>>> 078b246 revert
         for service in services:
+<<<<<<< Upstream, based on origin/TINA-2.5.17
             assert service.ServiceName.split('.')[3] in SERVICE_NAMES
 >>>>>>> 1cf1c00 pylint
+=======
+            assert service.ServiceName.split('.')[3] in Service_Name
+>>>>>>> 483f716 revert
             assert service.IpRanges
             assert service.ServiceName
             assert service.ServiceId
