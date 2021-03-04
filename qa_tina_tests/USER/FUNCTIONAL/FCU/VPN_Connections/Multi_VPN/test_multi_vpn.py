@@ -95,7 +95,7 @@ class Test_multi_vpn(OscTestSuite):
         # initialize a VPC with 1 subnet, 1 instance and an igw
         self.vpc_info = create_vpc(osc_sdk=self.a1_r1, nb_instance=1, default_rtb=default_rtb)
 
-        self.a1_r1.fcu.AttachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)        
+        self.a1_r1.fcu.AttachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
 
         rtb_id = None
         if default_rtb:
@@ -158,8 +158,8 @@ class Test_multi_vpn(OscTestSuite):
 
             inst1 = self.inst_cgw1_info[INSTANCE_SET][0]
             inst_vpc = self.vpc_info[SUBNETS][0][INSTANCE_SET][0]
-            self.logger.info("inst1 cgw -> : %s -- %s".format(inst1['ipAddress'], inst1['privateIpAddress']))
-            self.logger.info("inst vpc -> : None -- %s".format(inst_vpc['privateIpAddress']))
+            print("inst1 cgw -> : {} -- {}".format(inst1['ipAddress'], inst1['privateIpAddress']))
+            print("inst vpc -> : None -- {}".format(inst_vpc['privateIpAddress']))
 
             # try to make ping from CGW to VPC instance
             out, _, _ = SshTools.exec_command_paramiko(
@@ -224,8 +224,8 @@ class Test_multi_vpn(OscTestSuite):
                                    self.inst_cgw2_info, vgw2_ip, psk2_key, static, vpn2_id, index=1, racoon=racoon)
 
             inst2 = self.inst_cgw2_info[INSTANCE_SET][0]
-            self.logger.info("inst2 cgw -> : %s -- %s".format(inst2['ipAddress'], inst2['privateIpAddress']))
-            self.logger.info("inst vpc -> : None -- %s".format(inst_vpc['privateIpAddress']))
+            print("inst2 cgw -> : {} -- {}".format(inst2['ipAddress'], inst2['privateIpAddress']))
+            print("inst vpc -> : None -- {}".format(inst_vpc['privateIpAddress']))
 
             # try to make ping from CGW to VPC instance
             out, _, _ = SshTools.exec_command_paramiko(
@@ -269,7 +269,6 @@ class Test_multi_vpn(OscTestSuite):
                     break
                 except Exception:
                     time.sleep(5)
-                    pass
 
         finally:
             # delete VPN connection

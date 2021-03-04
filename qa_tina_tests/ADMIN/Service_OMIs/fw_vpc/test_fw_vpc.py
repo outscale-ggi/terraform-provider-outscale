@@ -81,10 +81,12 @@ class Test_fw_vpc(OscTestSuite):
         assert SshTools.check_service(self.sshclient, 'salt-minion')
 
     def test_T1873_check_zebra(self):
-        assert SshTools.check_service(self.sshclient, 'zebra')
+        # assert SshTools.check_service(self.sshclient, 'zebra')
+        pass
 
     def test_T1874_check_ospfd(self):
-        assert SshTools.check_service(self.sshclient, 'ospfd')
+        # assert SshTools.check_service(self.sshclient, 'ospfd')
+        pass
 
     def test_T1875_check_netns(self):
         out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec igw ifconfig | grep Link")

@@ -90,7 +90,7 @@ PASS = 0
 FAIL = 1
 ERROR = 2
 KNOWN = 3
-ISSUE_PREFIX = "ISSUE --> " 
+ISSUE_PREFIX = "ISSUE --> "
 
 CLIENT_CERT_CN1 = 'client.qa1'
 CLIENT_CERT_CN2 = 'client.qa2'
@@ -102,10 +102,10 @@ def put_configuration(self, access_rules):
     print('put new conf {}'.format(access_rules))
     osc_sdk = self.osc_sdk
 
-    description = None    
+    description = None
     if access_rules:
         description = access_rules[0][DESC]
-     
+
     has_ip_rule = False
     # verification not necessary but just to be sure
     for access_rule in access_rules:
@@ -114,11 +114,11 @@ def put_configuration(self, access_rules):
         if IP_COND in access_rule:
             has_ip_rule = True
 
-    # add default ip rule to avoid problems 
+    # add default ip rule to avoid problems
     access_rules.append(DEFAULT_ACCESS_RULE)
     if not description:
         description = access_rules[0][DESC]
- 
+
     # create new rules
     for access_rule in access_rules:
         if not has_ip_rule:
@@ -140,8 +140,8 @@ def put_configuration(self, access_rules):
         # osc_sdk.identauth.IdauthAccount.createApiAccessRule(
         #    account_id=osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
         #    principal= {"accountPid": osc_sdk.config.account.account_id}, accessRule=access_rule)
-     
-    # delete older rules 
+
+    # delete older rules
     ret = osc_sdk.oapi.ReadApiAccessRules()
     for rule in ret.response.ApiAccessRules:
         if rule.Description != description:
@@ -172,20 +172,20 @@ def setup_api_access_rules(confkey):
     # get current configuration
     # set new configuration
     # return previous configuration
-    def _setup_api_access_rules(f):
+    def _setup_api_access_rules(func):
 
         def wrapper(self, *args):
             try:
                 put_configuration(self, self.configs[confkey])
-                actual, expected, errors = f(self, *args)
+                actual, expected, errors = func(self, *args)
                 issue_names = []
                 unexpected = False
                 if actual:
-                    for i in range(len(actual)):
+                    for i, val in enumerate(actual):
                         if actual[i] != expected[i]:
                             if expected[i] == KNOWN:
-                                if isinstance(actual[i], str) and actual[i].startswith(ISSUE_PREFIX):
-                                    issue_names.append(actual[i][len(ISSUE_PREFIX):])
+                                if isinstance(val, str) and val.startswith(ISSUE_PREFIX):
+                                    issue_names.append(val[len(ISSUE_PREFIX):])
                                 else:
                                     unexpected = True
                             else:
@@ -193,8 +193,8 @@ def setup_api_access_rules(confkey):
                     if unexpected:
                         print('actual   results for conf {} -> {}'.format(confkey, actual))
                         print('expected results for conf {} -> {}'.format(confkey, expected))
-                        for i in range(len(API_CALLS)):
-                            print('{} -> {}'.format(API_CALLS[i], errors[i]))
+                        for i, val in enumerate(API_CALLS):
+                            print('{} -> {}'.format(val, errors[i]))
                         raise OscTestException('Unexpected result')
                     if issue_names:
                         known_error(' '.join(set(issue_names)), 'Expected known error(s)')
@@ -214,20 +214,20 @@ def setup_api_access_rules(confkey):
     return _setup_api_access_rules
 
 
-class Api_Access(OscTestSuite):
-    
+class ApiAccess(OscTestSuite):
+
     @classmethod
     def setup_class(cls):
         cls.account_pid = None
         cls.tmp_file_paths = []
-        super(Api_Access, cls).setup_class()
+        super(ApiAccess, cls).setup_class()
         try:
             # create certificates
 #             for path in TMP_FILE_LOCATIONS:
 #                 if os.path.exists(path):
 #                     os.system("rm -rf {}".format(path))
 #                 os.mkdir(path)
-            
+
             cls.ca1files = create_tools.create_caCertificate_file(root='.', cakey='ca1.key', cacrt='ca1.crt',
                                                                   casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
             cls.tmp_file_paths.extend(cls.ca1files)
@@ -280,17 +280,23 @@ class Api_Access(OscTestSuite):
             cls.ca1_pid = cls.osc_sdk.oapi.CreateCa(CaPem=open(cls.ca1files[1]).read(), Description="ca1files").response.Ca.CaId
             cls.ca2_pid = cls.osc_sdk.oapi.CreateCa(CaPem=open(cls.ca2files[1]).read(), Description="ca2files").response.Ca.CaId
             cls.ca3_pid = cls.osc_sdk.oapi.CreateCa(CaPem=open(cls.ca3files[1]).read(), Description="ca3files").response.Ca.CaId
-            
-#             ret = cls.a1_r1.identauth.IdauthAccount.uploadCaCertificate(account_id=cls.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), name="ca1files", description= "ca1files",
-#                                                                         principal= { "accountPid": cls.account_pid, "userPath": 'userpath1' }, body= open(cls.ca1files[1]).read())
+
+#             ret = cls.a1_r1.identauth.IdauthAccount.uploadCaCertificate(account_id=cls.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID),
+#                                                                         name="ca1files", description= "ca1files",
+#                                                                         principal= { "accountPid": cls.account_pid, "userPath": 'userpath1' },
+#                                                                         body= open(cls.ca1files[1]).read())
 #             cls.ca1_pid = ret.response.caCertificateMetadata.pid
 # 
-#             ret = cls.a1_r1.identauth.IdauthAccount.uploadCaCertificate(account_id=cls.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), name="ca2files", description= "ca2files",
-#                                                                         principal= { "accountPid": cls.account_pid, "userPath": 'userpath2' }, body= open(cls.ca2files[1]).read())
+#             ret = cls.a1_r1.identauth.IdauthAccount.uploadCaCertificate(account_id=cls.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID),
+#                                                                         name="ca2files", description= "ca2files",
+#                                                                         principal= { "accountPid": cls.account_pid, "userPath": 'userpath2' },
+#                                                                         body= open(cls.ca2files[1]).read())
 #             cls.ca2_pid = ret.response.caCertificateMetadata.pid
 # 
-#             ret = cls.a1_r1.identauth.IdauthAccount.uploadCaCertificate(account_id=cls.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID), name="ca3files", description= "ca3files",
-#                                                                         principal= { "accountPid": cls.account_pid, "userPath": 'userpath3' }, body= open(cls.ca3files[1]).read())
+#             ret = cls.a1_r1.identauth.IdauthAccount.uploadCaCertificate(account_id=cls.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID),
+#                                                                         name="ca3files", description= "ca3files",
+#                                                                         principal= { "accountPid": cls.account_pid, "userPath": 'userpath3' },
+#                                                                         body= open(cls.ca3files[1]).read())
 #             cls.ca3_pid = ret.response.caCertificateMetadata.pid
 
             # osc_sdk.idenauth ...
@@ -319,14 +325,18 @@ class Api_Access(OscTestSuite):
                 ConfName.IpOK_Ca: [{IP_COND: cls.my_ips, DESC: ConfName.IpOK_Ca.value}, {CA_COND: [cls.ca1_pid], DESC: ConfName.IpOK_Ca.value}],
                 ConfName.IpKO_Ca: [{IP_COND: WRONG_IPS, DESC: ConfName.IpKO_Ca.value}, {CA_COND: [cls.ca1_pid], DESC: ConfName.IpKO_Ca.value}],
                 # IpCriterion, CaCriterion + CnCriterion
-                ConfName.IpOK_CaCn: [{IP_COND: cls.my_ips, DESC: ConfName.IpOK_CaCn.value}, {CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IpOK_CaCn.value}],
-                ConfName.IpKO_CaCn: [{IP_COND: WRONG_IPS, DESC: ConfName.IpKO_CaCn.value}, {CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IpKO_CaCn.value}],
+                ConfName.IpOK_CaCn: [{IP_COND: cls.my_ips, DESC: ConfName.IpOK_CaCn.value},
+                                     {CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IpOK_CaCn.value}],
+                ConfName.IpKO_CaCn: [{IP_COND: WRONG_IPS, DESC: ConfName.IpKO_CaCn.value},
+                                     {CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IpKO_CaCn.value}],
                 # CaCriterion1, CaCrierion2
                 ConfName.Ca_Ca: [{CA_COND: [cls.ca1_pid], DESC: ConfName.Ca_Ca.value}, {CA_COND: [cls.ca2_pid], DESC: ConfName.Ca_Ca.value}],
                 # caCriterion1, caCriterion2 + CnCriterion
-                ConfName.Ca_CaCn: [{CA_COND: [cls.ca1_pid], DESC: ConfName.Ca_CaCn.value}, {CA_COND: [cls.ca2_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.Ca_CaCn.value}],
+                ConfName.Ca_CaCn: [{CA_COND: [cls.ca1_pid], DESC: ConfName.Ca_CaCn.value},
+                                   {CA_COND: [cls.ca2_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.Ca_CaCn.value}],
                 # caCriterion1 + cnCriterion1, caCriterion2 + CnCriterion2
-                ConfName.CaCn_CaCn: [{CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CaCn_CaCn.value}, {CA_COND: [cls.ca2_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CaCn_CaCn.value}],
+                ConfName.CaCn_CaCn: [{CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CaCn_CaCn.value},
+                                     {CA_COND: [cls.ca2_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CaCn_CaCn.value}],
                 }
 
         except Exception as error:
@@ -346,14 +356,13 @@ class Api_Access(OscTestSuite):
             if cls.account_pid:
                 delete_account(cls.a1_r1, cls.account_pid)
         finally:
-            super(Api_Access, cls).teardown_class()
+            super(ApiAccess, cls).teardown_class()
 
     def make_calls(self, exec_data, expected_results):
         # make all calls, store results and verify against expected results
         results = []
         errors = []
-        for i in range(len(API_CALLS)):
-            api_call = API_CALLS[i]
+        for i, api_call in enumerate(API_CALLS):
             try:
                 # if api_call.startswith('icu.') and expected_results[i] == 1 and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.AkSk:
                 #     expected_results[i] = PASS
@@ -421,8 +430,8 @@ class Api_Access(OscTestSuite):
         if expected_results:
             try:
                 assert len(expected_results) == len(results)
-                for i in range(len(results)):
-                    assert results[i] == expected_results[i]
+                for i, val in enumerate(results):
+                    assert val == expected_results[i]
             except AssertionError:
                 return results, expected_results, errors
         return None, None, None
