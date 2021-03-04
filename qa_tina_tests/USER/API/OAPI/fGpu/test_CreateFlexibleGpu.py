@@ -30,13 +30,13 @@ class Test_CreateFlexibleGpu(OscTestSuite):
         try:
             cls.subregionname = cls.a1_r1.config.region.az_name
             cls.modelname = DEFAULT_MODEL_NAME
-        except Exception as error:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except Exception as err:
-                raise err
+            except Exception as error2:
+                raise error2
             finally:
-                raise error
+                raise error1
 
     @classmethod
     def teardown_class(cls):
@@ -147,12 +147,17 @@ class Test_CreateFlexibleGpu(OscTestSuite):
         assert_dry_run(ret)
 
     def test_T4743_dry_run_false(self):
-        ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DryRun=False)
-        assert_dry_run(ret)
+        ret = None
+        try:
+            ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DryRun=False)
+            assert_dry_run(ret)
+        finally:
+            if ret:
+                self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=ret.response.FlexibleGpu.FlexibleGpuId)
 
     @pytest.mark.region_gpu
     def test_T4898_with_generation(self):
-        resp = None
+        ret = None
         try:
             ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation='v4')
             ret.check_response()
@@ -163,8 +168,8 @@ class Test_CreateFlexibleGpu(OscTestSuite):
             assert ret.response.FlexibleGpu.State == 'allocated'
             assert not hasattr(ret.response.FlexibleGpu, 'VmId')
         finally:
-            if resp:
-                self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=resp.FlexibleGpu.FlexibleGpuId)
+            if ret:
+                self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=ret.response.FlexibleGpu.FlexibleGpuId)
 
     @pytest.mark.region_gpu
     def test_T4902_with_unsupported_generation(self):
