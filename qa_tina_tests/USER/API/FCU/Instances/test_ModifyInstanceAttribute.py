@@ -253,9 +253,9 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
     def test_T1624_user_data_private_only_true_false(self):
         inst_info = None
         try:
-            data_true = base64.encodestring(
+            data_true = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodestring(
+            data_false = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_true)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -287,9 +287,9 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
     def test_T1625_user_data_private_only_false_true(self):
         inst_info = None
         try:
-            data_true = base64.encodestring(
+            data_true = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodestring(
+            data_false = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_false)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -319,7 +319,7 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
                 delete_instances(self.a1_r1, inst_info)
 
     def test_T3987_incorrect_userdata_value(self):
-        user_data = base64.encodestring('private_only=True'.encode()).decode().strip()
+        user_data = base64.encodebytes('private_only=True'.encode()).decode().strip()
         try:
             self.a1_r1.fcu.ModifyInstanceAttribute(InstanceId=self.running_id, UserData=user_data)
             assert False, 'Call should not have been successful'
