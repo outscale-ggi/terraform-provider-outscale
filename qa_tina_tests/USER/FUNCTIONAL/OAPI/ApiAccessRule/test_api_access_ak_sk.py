@@ -10,7 +10,7 @@ AK_SK_PASS_LIST_WITH_KNOWN = [PASS, KNOWN, PASS, PASS, PASS, PASS, PASS, PASS, P
 
 @pytest.mark.region_admin
 class Test_api_access_ak_sk(ApiAccess):
-    
+
 ###################################################
 # ak-sk
 ###################################################
@@ -59,7 +59,7 @@ class Test_api_access_ak_sk(ApiAccess):
     def test_T4934_ak_sk_CONF_IPOKCA_YEY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
                                 osc_api.EXEC_DATA_CERTIFICATE: [self.certfiles_ca1cn1[2], self.certfiles_ca1cn1[1]]},
-                               AK_SK_PASS_LIST_WITH_KNOWN)      
+                               AK_SK_PASS_LIST_WITH_KNOWN)
 
     @setup_api_access_rules(ConfName.IpOKCa)
     def test_T4935_ak_sk_CONF_IPOKCA_NEY(self):

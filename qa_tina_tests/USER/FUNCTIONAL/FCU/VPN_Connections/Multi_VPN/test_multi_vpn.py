@@ -158,26 +158,6 @@ class Test_multi_vpn(OscTestSuite):
 
             inst1 = self.inst_cgw1_info[INSTANCE_SET][0]
             inst_vpc = self.vpc_info[SUBNETS][0][INSTANCE_SET][0]
-<<<<<<< HEAD
-            self.logger.info("inst1 cgw -> : {} -- {}".format(inst1['ipAddress'], inst1['privateIpAddress']))
-            self.logger.info("inst vpc -> : None -- {}".format(inst_vpc['privateIpAddress']))
-
-            # try to make ping from CGW to VPC instance
-            out, _, _ = SshTools.exec_command_paramiko(
-                sshclient1,
-                'ping -I {} -W 1 -c 1 {}'.format(inst1['privateIpAddress'], inst_vpc['privateIpAddress']),
-                retry=20,
-                timeout=10)
-            assert "1 packets transmitted, 1 received, 0% packet loss" in out
-
-            # check vpn connection status
-            start = datetime.now()
-            while (datetime.now() - start).total_seconds() < 60:
-                try:
-                    ret = self.a1_r1.fcu.DescribeVpnConnections(VpnConnectionId=[vpn1_id])
-                    print('state = {}'.format(ret.response.vpnConnectionSet[0].state))
-                    print('telemetry = {}'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
-=======
             print("inst1 cgw -> : {} -- {}".format(inst1['ipAddress'], inst1['privateIpAddress']))
             print("inst vpc -> : None -- {}".format(inst_vpc['privateIpAddress']))
 
@@ -194,9 +174,8 @@ class Test_multi_vpn(OscTestSuite):
             while (datetime.now() - start).total_seconds() < 60:
                 try:
                     ret = self.a1_r1.fcu.DescribeVpnConnections(VpnConnectionId=[vpn1_id])
-                    self.logger.info('state = %s'.format(ret.response.vpnConnectionSet[0].state))
-                    self.logger.info('telemetry = %s'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
->>>>>>> branch 'dev-lars' of https://gitlab.outscale.internal/qa-produit/tests/qa_tina_tests.git
+                    print('state = {}'.format(ret.response.vpnConnectionSet[0].state))
+                    print('telemetry = {}'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
                     assert ret.response.vpnConnectionSet[0].state == 'available'
                     assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].status == 'UP'
                     break
@@ -261,13 +240,8 @@ class Test_multi_vpn(OscTestSuite):
             while (datetime.now() - start).total_seconds() < 60:
                 try:
                     ret = self.a1_r1.fcu.DescribeVpnConnections(VpnConnectionId=[vpn2_id])
-<<<<<<< HEAD
                     print('state = {}'.format(ret.response.vpnConnectionSet[0].state))
                     print('telemetry = {}'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
-=======
-                    self.logger.info('state = %s'.format(ret.response.vpnConnectionSet[0].state))
-                    self.logger.info('telemetry = %s'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
->>>>>>> branch 'dev-lars' of https://gitlab.outscale.internal/qa-produit/tests/qa_tina_tests.git
                     assert ret.response.vpnConnectionSet[0].state == 'available'
                     assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].status == 'UP'
                     break
@@ -288,13 +262,8 @@ class Test_multi_vpn(OscTestSuite):
             while (datetime.now() - start).total_seconds() < 60:
                 try:
                     ret = self.a1_r1.fcu.DescribeVpnConnections(VpnConnectionId=[vpn1_id])
-<<<<<<< HEAD
                     print('state = {}'.format(ret.response.vpnConnectionSet[0].state))
                     print('telemetry = {}'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
-=======
-                    self.logger.info('state = %s'.format(ret.response.vpnConnectionSet[0].state))
-                    self.logger.info('telemetry = %s'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
->>>>>>> branch 'dev-lars' of https://gitlab.outscale.internal/qa-produit/tests/qa_tina_tests.git
                     assert ret.response.vpnConnectionSet[0].state == 'available'
                     assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].status == 'UP'
                     break

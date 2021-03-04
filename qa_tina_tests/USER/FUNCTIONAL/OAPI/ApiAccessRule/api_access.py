@@ -286,13 +286,13 @@ class ApiAccess(OscTestSuite):
 #                                                                         principal= { "accountPid": cls.account_pid, "userPath": 'userpath1' },
 #                                                                         body= open(cls.ca1files[1]).read())
 #             cls.ca1_pid = ret.response.caCertificateMetadata.pid
-# 
+#
 #             ret = cls.a1_r1.identauth.IdauthAccount.uploadCaCertificate(account_id=cls.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID),
 #                                                                         name="ca2files", description= "ca2files",
 #                                                                         principal= { "accountPid": cls.account_pid, "userPath": 'userpath2' },
 #                                                                         body= open(cls.ca2files[1]).read())
 #             cls.ca2_pid = ret.response.caCertificateMetadata.pid
-# 
+#
 #             ret = cls.a1_r1.identauth.IdauthAccount.uploadCaCertificate(account_id=cls.a1_r1.config.region.get_info(config_constants.AS_IDAUTH_ID),
 #                                                                         name="ca3files", description= "ca3files",
 #                                                                         principal= { "accountPid": cls.account_pid, "userPath": 'userpath3' },
@@ -317,7 +317,6 @@ class ApiAccess(OscTestSuite):
                 # IpCriterion + CaCriterion + CnCriterion
                 ConfName.IpOKCaCn: [{IP_COND: cls.my_ips, CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IpOKCaCn.value}],
                 ConfName.IpKOCaCn: [{IP_COND: WRONG_IPS, CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IpKOCaCn.value}],
-                
                 # IpCritrerion1 , IpCriterion2
                 ConfName.IpOK_IpKO: [{IP_COND: cls.my_ips, DESC: ConfName.IpOK_IpKO.value}, {IP_COND: WRONG_IPS, DESC: ConfName.IpOK_IpKO.value}],
                 ConfName.IpKO_IpKO: [{IP_COND: WRONG_IPS, DESC: ConfName.IpKO_IpKO.value}, {IP_COND: WRONG_IPS_BIS, DESC: ConfName.IpKO_IpKO.value}],
@@ -344,7 +343,7 @@ class ApiAccess(OscTestSuite):
                 cls.teardown_class()
             finally:
                 raise error
- 
+
     @classmethod
     def teardown_class(cls):
         try:
@@ -364,7 +363,8 @@ class ApiAccess(OscTestSuite):
         errors = []
         for i, api_call in enumerate(API_CALLS):
             try:
-                # if api_call.startswith('icu.') and expected_results[i] == 1 and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.AkSk:
+                # if api_call.startswith('icu.') and expected_results[i] == 1 and 
+                # exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.AkSk:
                 #     expected_results[i] = PASS
                 if api_call.startswith('oapi.') and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.LoginPassword:
                     expected_results[i] = KNOWN
@@ -401,7 +401,8 @@ class ApiAccess(OscTestSuite):
                     results.append(FAIL)
                 elif error.error_code == '4' and error.status_code == 401 and error.message == 'AccessDenied':
                     results.append(FAIL)
-                elif error.status_code == 400 and error.error_code == 'IcuClientException' and error.message == 'Field AuthenticationMethod is required':
+                elif error.status_code == 400 and error.error_code == 'IcuClientException' and \
+                    error.message == 'Field AuthenticationMethod is required':
                     results.append(FAIL)
                 elif error.status_code == 400 and error.error_code == 'AccessDeniedException':
                     results.append(FAIL)
