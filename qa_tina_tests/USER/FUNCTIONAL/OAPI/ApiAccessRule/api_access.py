@@ -56,7 +56,6 @@ API_CREATE_PARAMS = {'icu.CreateAccount': create_account_params}
 
 API_DELETE_PARAMS = {'icu.CreateAccount': delete_account_params}
 
-
 IP_COND = 'ips'
 CA_COND = 'caCertificates'
 CN_COND = 'cns'

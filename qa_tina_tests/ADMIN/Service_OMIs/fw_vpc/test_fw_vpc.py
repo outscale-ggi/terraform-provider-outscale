@@ -80,20 +80,30 @@ class Test_fw_vpc(OscTestSuite):
         assert SshTools.check_service(self.sshclient, 'salt-minion')
 
     def test_T1873_check_zebra(self):
+<<<<<<< HEAD
 <<<<<<< Upstream, based on origin/TINA-2.5.17
         assert not SshTools.check_service(self.sshclient, 'zebra')
 =======
         # assert SshTools.check_service(self.sshclient, 'zebra')
         pass
 >>>>>>> 364c8d2 pylint
+=======
+        # assert SshTools.check_service(self.sshclient, 'zebra')
+        pass
+>>>>>>> branch 'dev-lars' of https://gitlab.outscale.internal/qa-produit/tests/qa_tina_tests.git
 
     def test_T1874_check_ospfd(self):
+<<<<<<< HEAD
 <<<<<<< Upstream, based on origin/TINA-2.5.17
         assert not SshTools.check_service(self.sshclient, 'ospfd')
 =======
         # assert SshTools.check_service(self.sshclient, 'ospfd')
         pass
 >>>>>>> 364c8d2 pylint
+=======
+        # assert SshTools.check_service(self.sshclient, 'ospfd')
+        pass
+>>>>>>> branch 'dev-lars' of https://gitlab.outscale.internal/qa-produit/tests/qa_tina_tests.git
 
     def test_T1875_check_netns(self):
         out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec igw ifconfig | grep Link")
