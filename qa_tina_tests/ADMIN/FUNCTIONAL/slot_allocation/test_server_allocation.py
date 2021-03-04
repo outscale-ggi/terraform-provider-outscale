@@ -34,10 +34,9 @@ class Test_server_allocation(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception as err:
-                raise err
-            finally:
-                raise error
+            except:
+                pass
+            raise
 
     @classmethod
     def teardown_class(cls):
