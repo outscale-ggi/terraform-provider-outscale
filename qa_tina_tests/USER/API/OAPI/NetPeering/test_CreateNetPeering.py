@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 import re
 
 import pytest
@@ -30,12 +29,13 @@ class Test_CreateNetPeering(OscTestSuite):
         try:
             self.vpc_info_1 = create_vpc(self.a1_r1, cidr_prefix="10.1", igw=False, default_rtb=True, no_ping=True)
             self.vpc_info_2 = create_vpc(self.a1_r1, cidr_prefix="10.2", igw=False, default_rtb=True, no_ping=True)
-        except:
+        except Exception as error:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:

@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -40,9 +39,10 @@ class Test_ReadNetPeerings(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
