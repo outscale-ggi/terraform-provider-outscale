@@ -244,9 +244,9 @@ class Test_UpdateVm(OscTestSuite):
     def test_T2147_user_data_private_only_true_false(self):
         inst_info = None
         try:
-            data_true = base64.encodestring(
+            data_true = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodestring(
+            data_false = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_true)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -280,9 +280,9 @@ class Test_UpdateVm(OscTestSuite):
     def test_T2148_user_data_private_only_false_true(self):
         inst_info = None
         try:
-            data_true = base64.encodestring(
+            data_true = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodestring(
+            data_false = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_false)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
