@@ -5,15 +5,14 @@ import string
 
 from cryptography.hazmat.primitives.asymmetric import ec
 
-from qa_common_tools.ssh import SshTools, KeyType, OscSshError
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_common_tools.ssh import SshTools, KeyType, OscSshError
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tina import oapi, info_keys
 from qa_tina_tools.tina.info_keys import PUBLIC, PRIVATE
-from qa_tina_tools.tools.tina.create_tools import generate_key, \
-    generate_ed25519_key
+from qa_tina_tools.tools.tina.create_tools import generate_key, generate_ed25519_key
 
 
 class Test_CheckConnection(OscTestSuite):
@@ -116,7 +115,7 @@ class Test_CheckConnection(OscTestSuite):
         vm_info = None
 
         keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
-    
+
         try:
             key_info = generate_ed25519_key(keypair_name)
 
