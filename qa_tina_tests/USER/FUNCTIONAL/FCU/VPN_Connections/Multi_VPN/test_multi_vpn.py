@@ -95,7 +95,7 @@ class Test_multi_vpn(OscTestSuite):
         # initialize a VPC with 1 subnet, 1 instance and an igw
         self.vpc_info = create_vpc(osc_sdk=self.a1_r1, nb_instance=1, default_rtb=default_rtb)
 
-        self.a1_r1.fcu.AttachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)        
+        self.a1_r1.fcu.AttachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
 
         rtb_id = None
         if default_rtb:
@@ -122,7 +122,7 @@ class Test_multi_vpn(OscTestSuite):
             vgw1_ip = match.group(1)
             match = re.search('<pre_shared_key>(.+?)</pre_shared_key>', vpn_cfg)
             psk1_key = match.group(1)
-    
+
             # open flow from VGW to CGW1
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=self.inst_cgw1_info[SECURITY_GROUP_ID],
                                                          IpProtocol='udp',
@@ -181,7 +181,6 @@ class Test_multi_vpn(OscTestSuite):
                     break
                 except Exception:
                     time.sleep(5)
-                    pass
 
             ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw2_id,
                                                      Type='ipsec.1',
@@ -247,7 +246,6 @@ class Test_multi_vpn(OscTestSuite):
                     break
                 except Exception:
                     time.sleep(5)
-                    pass
 
             # try to make ping from CGW to VPC instance
             out, _, _ = SshTools.exec_command_paramiko(
