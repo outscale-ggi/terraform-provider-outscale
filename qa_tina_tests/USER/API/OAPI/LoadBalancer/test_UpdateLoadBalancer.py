@@ -140,10 +140,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_app).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app}])
             self.empty_policies(80)
-            assert False, 'Remove known error'
         except OscApiException as error:
             assert_oapi_error(error, 409, 'ResourceConflict', '9034')
-            known_error('GTW-1616', 'Could not update with more than one policy.')
  
     # http - app : 0 -> n1 -> n2 -> 0
     def test_T5333_http_app_policy_mixed(self):
@@ -153,10 +151,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_app[1:3]).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app[1:3]}])
             self.empty_policies(80)
-            assert False, 'Remove known error'
         except OscApiException as error:
             assert_oapi_error(error, 409, 'ResourceConflict', '9034')
-            known_error('GTW-1616', 'Could not update with more than one policy.')
  
     # http - lb : 0 -> 1 -> 0
     def test_T5334_http_lb_policy_single(self):
@@ -170,10 +166,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb}])
             self.empty_policies(80)
-            assert False, 'Remove known error'
         except OscApiException as error:
             assert_oapi_error(error, 409, 'ResourceConflict', '9035')
-            known_error('GTW-1616', 'Could not update with more than one policy.')
  
     # http - lb : 0 -> n1 -> n2 -> 0
     def test_T5336_http_lb_policy_mixed(self):
@@ -183,10 +177,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb[1:3]).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb[1:3]}])
             self.empty_policies(80)
-            assert False, 'Remove known error'
         except OscApiException as error:
             assert_oapi_error(error, 409, 'ResourceConflict', '9035')
-            known_error('GTW-1616', 'Could not update with more than one policy.')
  
     # http - lb, app
     def test_T5337_http_app_lb_same_listener(self):
@@ -194,10 +186,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=[self.policy_name_lb[0], self.policy_name_app[0]]).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': [self.policy_name_lb[0], self.policy_name_app[0]]}])
             self.empty_policies(80)
-            assert False, 'Remove known error'
         except OscApiException as error:
             assert_oapi_error(error, 409, 'ResourceConflict', '9036')
-            known_error('GTW-1616', 'Could not update with more than one policy.')
  
     # ftp - lb : 0 -> n
     def test_T5338_ftp_lb_policy(self):

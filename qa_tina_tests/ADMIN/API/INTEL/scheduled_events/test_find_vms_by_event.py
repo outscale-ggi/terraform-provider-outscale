@@ -53,9 +53,6 @@ class Test_find_vms_by_event(OscTestSuite):
             # event_id = ret.response.result[0].id
             ret = self.a1_r1.intel.scheduled_events.find_vms_by_event(event_id=event_id)
             assert len(ret.response.result) > 0
-        except Exception as error:
-            assert_error(error, 200, -32603, 'Internal error.')
-            known_error('TINA-5768', 'Unexpected internal error')
         finally:
             if event_id:
                 self.a1_r1.intel.scheduled_events.finish(event_id=event_id)

@@ -4,6 +4,7 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_peering
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, INSTANCE_SET, KEY_PAIR, PATH, VPC_ID, PEERING, EIP, ROUTE_TABLE_ID, SECURITY_GROUP_ID
+from time import sleep
 
 
 class Test_VPC_Peering(OscTestSuite):
@@ -77,13 +78,7 @@ class Test_VPC_Peering(OscTestSuite):
             assert peering_info[PEERING].status.name == 'active'
             peering_info2 = self.a1_r1.fcu.CreateVpcPeeringConnection(
                         VpcId=self.vpc2_info[VPC_ID], PeerVpcId=self.vpc1_info[VPC_ID]).response.vpcPeeringConnection
-            if peering_info2.status.code == 'pending-acceptance':
-                known_error('TINA-6230', 'Unexpected status')
-            assert False, 'Remove known error and completed the test. status is rejected and connection disappear' \
-                          'after x seconds. see TINA-4445 for more infos'
             assert peering_info2.status.code == 'rejected'
         finally:
             if peering_info[PEERING].id:
                 self.a1_r1.fcu.DeleteVpcPeeringConnection(VpcPeeringConnectionId=peering_info[PEERING].id)
-            if peering_info2:
-                self.a1_r1.fcu.DeleteVpcPeeringConnection(VpcPeeringConnectionId=peering_info2.vpcPeeringConnectionId)
