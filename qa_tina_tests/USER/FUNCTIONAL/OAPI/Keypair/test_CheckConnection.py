@@ -1,6 +1,5 @@
 # -*- coding:utf-8 -*-
 import os
-import random
 import string
 
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -8,7 +7,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools, KeyType, OscSshError
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.misc import assert_oapi_error
+from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tina import oapi, info_keys
 from qa_tina_tools.tina.info_keys import PUBLIC, PRIVATE
@@ -20,8 +19,8 @@ class Test_CheckConnection(OscTestSuite):
     def test_T5112_valid_check_connection_import_ec_key_256(self):
         key_resp = None
         vm_info = None
-
-        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        
+        keypair_name = id_generator(size=7)
 
         try:
             key_info = generate_key(keypair_name, key_size=ec.SECP256R1(), crypto_type=KeyType.ecdsa)
@@ -52,7 +51,7 @@ class Test_CheckConnection(OscTestSuite):
         key_resp = None
         vm_info = None
 
-        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        keypair_name = id_generator(size=7)
 
         try:
             key_info = generate_key(keypair_name, key_size=ec.SECP384R1(), crypto_type=KeyType.ecdsa)
@@ -83,7 +82,7 @@ class Test_CheckConnection(OscTestSuite):
         key_resp = None
         vm_info = None
 
-        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        keypair_name = id_generator(size=7)
 
         try:
             key_info = generate_key(keypair_name, key_size=ec.SECP521R1(), crypto_type=KeyType.ecdsa)
@@ -114,7 +113,7 @@ class Test_CheckConnection(OscTestSuite):
         key_resp = None
         vm_info = None
 
-        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        keypair_name = id_generator(size=7)
 
         try:
             key_info = generate_ed25519_key(keypair_name)
@@ -145,7 +144,7 @@ class Test_CheckConnection(OscTestSuite):
         key_resp = None
         vm_info = None
 
-        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        keypair_name = id_generator(size=7)
 
         try:
             key_info = generate_key(keypair_name, key_size=1024)
@@ -171,7 +170,7 @@ class Test_CheckConnection(OscTestSuite):
         key_resp = None
         vm_info = None
 
-        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        keypair_name = id_generator(size=7)
 
         try:
             key_info = generate_key(keypair_name)
@@ -197,7 +196,7 @@ class Test_CheckConnection(OscTestSuite):
         key_resp = None
         vm_info = None
 
-        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        keypair_name = id_generator(size=7)
 
         try:
             key_info = generate_key(keypair_name, key_size=3072)
@@ -227,7 +226,7 @@ class Test_CheckConnection(OscTestSuite):
         key_resp = None
         vm_info = None
 
-        keypair_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        keypair_name = id_generator(size=7)
 
         try:
             key_info = generate_key(keypair_name, key_size=4096)
