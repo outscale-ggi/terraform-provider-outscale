@@ -39,7 +39,7 @@ class Test_CheckConnection(OscTestSuite):
             assert False, 'Remove the known error code'
 
         except OscSshError:
-            known_error('TINA-5824', "Can't reach instances created using ecdsa(256, 384, 521) and ed25519 keys")
+            known_error('OPS-13224', "Can't reach instances created using ecdsa(256, 384, 521) and ed25519 keys")
 
         finally:
             if vm_info:
@@ -70,7 +70,7 @@ class Test_CheckConnection(OscTestSuite):
             assert False, 'Remove the known error code'
 
         except OscSshError:
-            known_error('TINA-5824', "Can't reach instances created using ecdsa(256, 384, 521) and ed25519 keys")
+            known_error('OPS-13224', "Can't reach instances created using ecdsa(256, 384, 521) and ed25519 keys")
 
         finally:
             if vm_info:
@@ -101,7 +101,7 @@ class Test_CheckConnection(OscTestSuite):
             assert False, 'Remove the known error code'
 
         except OscSshError:
-            known_error('TINA-5824', "Can't reach instances created using ecdsa(256, 384, 521) and ed25519 keys")
+            known_error('OPS-13224', "Can't reach instances created using ecdsa(256, 384, 521) and ed25519 keys")
 
         finally:
             if vm_info:
@@ -132,7 +132,7 @@ class Test_CheckConnection(OscTestSuite):
             assert False, 'Remove the known error code'
 
         except OscSshError:
-            known_error('TINA-5824', "Can't reach instances created using ecdsa(256, 384, 521) and ed25519 keys")
+            known_error('OPS-13224', "Can't reach instances created using ecdsa(256, 384, 521) and ed25519 keys")
 
         finally:
             if vm_info:
