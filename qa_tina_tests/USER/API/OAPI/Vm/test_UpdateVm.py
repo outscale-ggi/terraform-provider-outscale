@@ -40,12 +40,13 @@ class Test_UpdateVm(OscTestSuite):
             cls.a1_r1.fcu.AttachVolume(Device="/dev/xvdb", InstanceId=cls.vm_ids[0], VolumeId=cls.vol_ids[0])
             cls.a1_r1.fcu.AttachVolume(Device="/dev/xvdc", InstanceId=cls.vm_ids[0], VolumeId=cls.vol_ids[1])
             wait_volumes_state(cls.a1_r1, cls.vol_ids, 'in-use')
-        except:
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -114,10 +115,10 @@ class Test_UpdateVm(OscTestSuite):
         ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
         assert ret.VmId == self.vm_ids[0]
         assert len(ret.BlockDeviceMappings) == 3
-        assert True if "/dev/xvdb" in (x.DeviceName for x in ret.BlockDeviceMappings) else False
-        assert True if "/dev/xvdc" in (x.DeviceName for x in ret.BlockDeviceMappings) else False
-        assert True if "/dev/sda1" in (x.DeviceName for x in ret.BlockDeviceMappings) else False
-        assert True if self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.BlockDeviceMappings) else False
+        assert "/dev/xvdb" in (x.DeviceName for x in ret.BlockDeviceMappings)
+        assert "/dev/xvdc" in (x.DeviceName for x in ret.BlockDeviceMappings)
+        assert "/dev/sda1" in (x.DeviceName for x in ret.BlockDeviceMappings)
+        assert self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.BlockDeviceMappings)
 
     def test_T2133_BlockMappingDevice_missing_device_name(self):
         try:
@@ -140,10 +141,10 @@ class Test_UpdateVm(OscTestSuite):
             ret = self.a1_r1.oapi.ReadVmAttribute(VmId=self.vm_ids[0], Attribute='BlockDeviceMappings')
             assert ret.response.VmId == self.vm_ids[0]
             assert len(ret.response.BlockDeviceMappings) == 3
-            assert True if "/dev/xvdb" in (x.DeviceName for x in ret.response.BlockDeviceMappings) else False
-            assert True if "/dev/xvdc" in (x.DeviceName for x in ret.response.BlockDeviceMappings) else False
-            assert True if "/dev/sda1" in (x.DeviceName for x in ret.response.BlockDeviceMappings) else False
-            assert True if self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.response.BlockDeviceMappings) else False
+            assert "/dev/xvdb" in (x.DeviceName for x in ret.response.BlockDeviceMappings)
+            assert "/dev/xvdc" in (x.DeviceName for x in ret.response.BlockDeviceMappings)
+            assert "/dev/sda1" in (x.DeviceName for x in ret.response.BlockDeviceMappings)
+            assert self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.response.BlockDeviceMappings)
 
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
@@ -244,9 +245,9 @@ class Test_UpdateVm(OscTestSuite):
     def test_T2147_user_data_private_only_true_false(self):
         inst_info = None
         try:
-            data_true = base64.encodestring(
+            data_true = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodestring(
+            data_false = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_true)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -280,9 +281,9 @@ class Test_UpdateVm(OscTestSuite):
     def test_T2148_user_data_private_only_false_true(self):
         inst_info = None
         try:
-            data_true = base64.encodestring(
+            data_true = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodestring(
+            data_false = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_false)
             inst_id = inst_info[INSTANCE_ID_LIST][0]

@@ -1,16 +1,15 @@
 import pytest
 
 from qa_sdk_pub import osc_api
-from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, PASS, FAIL, \
-    Api_Access
+from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, PASS, FAIL, ApiAccess
 
-NO_AUTHENT_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL]
-NO_AUTHENT_PASS_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL]
+NO_AUTHENT_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL]
+NO_AUTHENT_PASS_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL]
 
 
 @pytest.mark.region_admin
-class Test_api_access_no_authent(Api_Access):
-    
+class Test_api_access_no_authent(ApiAccess):
+
 ###################################################
 # no-authent
 ###################################################
@@ -59,7 +58,7 @@ class Test_api_access_no_authent(Api_Access):
     def test_T4998_no_authent_CONF_IPOKCA_YEY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty,
                                 osc_api.EXEC_DATA_CERTIFICATE: [self.certfiles_ca1cn1[2], self.certfiles_ca1cn1[1]]},
-                               NO_AUTHENT_PASS_LIST)      
+                               NO_AUTHENT_PASS_LIST)
 
     @setup_api_access_rules(ConfName.IpOKCa)
     def test_T4999_no_authent_CONF_IPOKCA_NEY(self):
