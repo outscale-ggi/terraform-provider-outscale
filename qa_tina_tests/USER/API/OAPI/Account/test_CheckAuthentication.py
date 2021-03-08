@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring
 import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -6,6 +5,7 @@ from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account
 from qa_test_tools.config import config_constants
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.misc import id_generator
 
 
 class Test_CheckAuthentication(OscTestSuite):
@@ -14,13 +14,9 @@ class Test_CheckAuthentication(OscTestSuite):
     def setup_class(cls):
         super(Test_CheckAuthentication, cls).setup_class()
         try:
-            pass
-        except:
-            try:
-                cls.teardown_class()
-            except:
-                pass
-            raise
+            cls.teardown_class()
+        except Exception as error:
+            raise error
 
     @classmethod
     def teardown_class(cls):
@@ -35,7 +31,7 @@ class Test_CheckAuthentication(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if error.status_code == 400 and error.message == 'InvalidParameterValue':
-                known_error('GTW-1371', 'Incorrect error message in CheckAuthentication')
+                known_error('GTW-1767', 'Incorrect error message in CheckAuthentication')
             assert False, ('Remove known error')
             misc.assert_error(error, 400, '3001', 'InvalidParameter')
 
@@ -50,7 +46,7 @@ class Test_CheckAuthentication(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if error.status_code == 400 and error.message == 'InvalidParameterValue':
-                known_error('GTW-1371', 'Incorrect error message in CheckAuthentication')
+                known_error('GTW-1767', 'Incorrect error message in CheckAuthentication')
             assert False, ('Remove known error')
             misc.assert_error(error, 400, '3001', 'InvalidParameter')
 
@@ -60,13 +56,14 @@ class Test_CheckAuthentication(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if error.status_code == 400 and error.message == 'InvalidParameterValue':
-                known_error('GTW-1371', 'Incorrect error message in CheckAuthentication')
+                known_error('GTW-1767', 'Incorrect error message in CheckAuthentication')
             assert False, ('Remove known error')
             misc.assert_error(error, 400, '3001', 'InvalidParameter')
 
     def test_T4747_with_invalid_password(self):
+        password = id_generator(size=20)
         try:
-            self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login, Password='foo')
+            self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login, Password=password)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             misc.assert_error(error, 400, '4120', 'InvalidParameterValue')
