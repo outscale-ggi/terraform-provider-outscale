@@ -24,7 +24,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             for _ in range(3):
                 name = id_generator(prefix='policy-')
                 cls.policy_name_app.append(name)
-                cls.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=cls.lb_name, PolicyName=name, PolicyType='app', CookieName=id_generator(prefix='cookie-'))
+                cls.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=cls.lb_name, PolicyName=name, PolicyType='app',
+                                                         CookieName=id_generator(prefix='cookie-'))
                 name = id_generator(prefix='policy-')
                 cls.policy_name_lb.append(name)
                 cls.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=cls.lb_name, PolicyName=name, PolicyType='load_balancer')
@@ -129,14 +130,16 @@ class Test_UpdateLoadBalancer(LoadBalancer):
 
     # http - app : 0 -> 1 -> 0
     def test_T5331_http_app_single_policy(self):
-        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_app[0:1]).response.LoadBalancer
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
+                                                 PolicyNames=self.policy_name_app[0:1]).response.LoadBalancer
         validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app[0:1]}])
         self.empty_policies(80)
 
     # http - app : 0 -> n -> 0
     def test_T5332_http_app_policy_multi(self):
         try:
-            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_app).response.LoadBalancer
+            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
+                                                     PolicyNames=self.policy_name_app).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app}])
             self.empty_policies(80)
         except OscApiException as error:
@@ -145,9 +148,11 @@ class Test_UpdateLoadBalancer(LoadBalancer):
     # http - app : 0 -> n1 -> n2 -> 0
     def test_T5333_http_app_policy_mixed(self):
         try:
-            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_app[0:2]).response.LoadBalancer
+            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
+                                                     PolicyNames=self.policy_name_app[0:2]).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app[0:2]}])
-            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_app[1:3]).response.LoadBalancer
+            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
+                                                     PolicyNames=self.policy_name_app[1:3]).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app[1:3]}])
             self.empty_policies(80)
         except OscApiException as error:
@@ -155,14 +160,16 @@ class Test_UpdateLoadBalancer(LoadBalancer):
 
     # http - lb : 0 -> 1 -> 0
     def test_T5334_http_lb_policy_single(self):
-        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb[0:1]).response.LoadBalancer
+        lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
+                                                 PolicyNames=self.policy_name_lb[0:1]).response.LoadBalancer
         validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb[0:1]}])
         self.empty_policies(80)
 
     # http - lb : 0 -> n -> 0
     def test_T5335_http_lb_policy_multi(self):
         try:
-            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb).response.LoadBalancer
+            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
+                                                     PolicyNames=self.policy_name_lb).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb}])
             self.empty_policies(80)
         except OscApiException as error:
@@ -171,9 +178,11 @@ class Test_UpdateLoadBalancer(LoadBalancer):
     # http - lb : 0 -> n1 -> n2 -> 0
     def test_T5336_http_lb_policy_mixed(self):
         try:
-            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb[0:2]).response.LoadBalancer
+            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
+                                                     PolicyNames=self.policy_name_lb[0:2]).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb[0:2]}])
-            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=self.policy_name_lb[1:3]).response.LoadBalancer
+            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
+                                                     PolicyNames=self.policy_name_lb[1:3]).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb[1:3]}])
             self.empty_policies(80)
         except OscApiException as error:
@@ -182,7 +191,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
     # http - lb, app
     def test_T5337_http_app_lb_same_listener(self):
         try:
-            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80, PolicyNames=[self.policy_name_lb[0], self.policy_name_app[0]]).response.LoadBalancer
+            lb = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
+                                                     PolicyNames=[self.policy_name_lb[0], self.policy_name_app[0]]).response.LoadBalancer
             validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': [self.policy_name_lb[0], self.policy_name_app[0]]}])
             self.empty_policies(80)
         except OscApiException as error:

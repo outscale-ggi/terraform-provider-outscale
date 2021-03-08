@@ -2,8 +2,7 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_find_vms_by_event(OscTestSuite):
