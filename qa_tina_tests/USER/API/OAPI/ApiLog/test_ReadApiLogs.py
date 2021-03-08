@@ -28,7 +28,6 @@ class Test_ReadApiLogs(OscTestSuite):
     def teardown_class(cls):
         super(Test_ReadApiLogs, cls).teardown_class()
 
-    @pytest.mark.region_full_cloud_trace
     def test_T2810_valid_params(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=3)
         ret.check_response()
@@ -39,7 +38,6 @@ class Test_ReadApiLogs(OscTestSuite):
         ret = self.a1_r1.oapi.ReadApiLogs(DryRun=True)
         assert_dry_run(ret)
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3200_invalid_ResultsPerPage_value(self):
         try:
             self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=1001)
@@ -59,7 +57,6 @@ class Test_ReadApiLogs(OscTestSuite):
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4114', None)
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3203_invalid_NextPageToken_value(self):
         try:
             self.a1_r1.oapi.ReadApiLogs(NextPageToken=123456)
@@ -75,7 +72,6 @@ class Test_ReadApiLogs(OscTestSuite):
             assert False, 'Remove known error code'
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4114', None)
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3204_verify_calls_on_log(self):
         call = ['ReadDhcpOptions', 'ReadImages', 'ReadNics', 'ReadApiLogs', 'ReadTags',
                 'ReadSubnets', 'ReadKeypairs', 'ReadVms', 'DescribeImages', 'ListAccessKeys']
@@ -86,7 +82,6 @@ class Test_ReadApiLogs(OscTestSuite):
         assert ret.response.Logs[1].QueryCallName in call
         assert ret.response.Logs[2].QueryCallName in call
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3205_verify_fcu_call(self):
         self.a1_r1.fcu.DescribeInstances()
         time.sleep(15)
@@ -94,27 +89,22 @@ class Test_ReadApiLogs(OscTestSuite):
                                           Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(seconds=100)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
         assert 'DescribeInstances' in [call.QueryCallName for call in ret.response.Logs]
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3206_valid_filter_QueryCallNames(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryCallNames": ["ReadVms"]}, ResultsPerPage=2)
         assert len(ret.response.Logs) == 2
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3207_valid_filter_QueryAccessKeys(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryAccessKeys": [self.a1_r1.config.account.ak]})
         assert len(ret.response.Logs) != 0
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3208_valid_filter_QueryApiNames(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryApiNames": ["oapi"]})
         assert len(ret.response.Logs) != 0
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3209_invalid_QueryApiNames_value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryApiNames": ["fcu", "lbu", "directlink", "eim", "icu"]})
         assert ret.response.Logs
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3210_valid_filter_QueryIpAddresses(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryIpAddresses": ["169.254.232.245"]})
         assert len(ret.response.Logs) != 0
@@ -132,21 +122,18 @@ class Test_ReadApiLogs(OscTestSuite):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [404]})
         assert len(ret.response.Logs) == 0
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3214_valid_filter_QueryDateBefore(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateBefore': (datetime.utcnow()).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
         assert len(ret.response.Logs) != 0
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateBefore': (datetime.utcnow()).strftime('%Y-%m-%d')})
         assert len(ret.response.Logs) != 0
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3215_valid_filter_QueryDateAfter(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(seconds=50)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
         assert len(ret.response.Logs) != 0
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(seconds=50)).strftime('%Y-%m-%d')})
         assert len(ret.response.Logs) != 0
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3216_valid_filter_combination(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=5,
                                           Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
@@ -163,7 +150,6 @@ class Test_ReadApiLogs(OscTestSuite):
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', "4110")
 
-    @pytest.mark.region_full_cloud_trace
     def test_T4179_invalid_filter_incorrect_date_order(self):
         try:
             self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=5,
@@ -183,7 +169,6 @@ class Test_ReadApiLogs(OscTestSuite):
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', "4110")
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3219_invalid_filter_QueryIpAddresses(self):
         try:
             self.a1_r1.oapi.ReadApiLogs(Filters={"QueryIpAddresses": ['0.1']})
@@ -208,7 +193,6 @@ class Test_ReadApiLogs(OscTestSuite):
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', "3001")
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3222_valid_With_Value(self):
         param = ['QueryAccessKey', 'QueryIpAddress', 'QueryUserAgent', 'QueryCallName', 'QueryApiName', 'QueryApiVersion',
                  'QueryDate', 'QueryHeaderRaw', 'QueryHeaderSize', 'QueryPayloadRaw', 'ResponseStatusCode', 'ResponseSize', 'CallDuration',
@@ -224,7 +208,6 @@ class Test_ReadApiLogs(OscTestSuite):
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', "3001")
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3229_verify_response_of_With_Value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(With={'QueryAccessKey': True, 'QueryIpAddress': True, 'QueryUserAgent': True, 'QueryCallName': True,
                                                 'QueryApiName': True, 'QueryApiVersion': True, 'QueryDate': True, 'QueryHeaderRaw': True,
@@ -234,7 +217,6 @@ class Test_ReadApiLogs(OscTestSuite):
                                           ResultsPerPage=5)
         assert not ret.response.ResponseContext.RequestId == ret.response.Logs[0].RequestId
 
-    @pytest.mark.region_full_cloud_trace
     def test_T3201_valid_ResultsPerPage_value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=100)
         assert len(ret.response.Logs) != 0
