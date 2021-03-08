@@ -31,7 +31,7 @@ class Test_ReadApiLogs(OscTestSuite):
     def test_T2810_valid_params(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=3)
         ret.check_response()
-        account_ids = set([log.AccountId for log in ret.response.Logs])
+        account_ids = {log.AccountId for log in ret.response.Logs}
         assert len(account_ids) == 1 and self.a1_r1.config.account.account_id in account_ids, 'incorrect account id(s)'
 
     def test_T2823_valid_params_dry_run(self):
