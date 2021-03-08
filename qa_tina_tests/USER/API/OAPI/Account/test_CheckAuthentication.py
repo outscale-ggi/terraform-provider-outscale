@@ -5,6 +5,7 @@ from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account
 from qa_test_tools.config import config_constants
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.misc import id_generator
 
 
 class Test_CheckAuthentication(OscTestSuite):
@@ -60,8 +61,9 @@ class Test_CheckAuthentication(OscTestSuite):
             misc.assert_error(error, 400, '3001', 'InvalidParameter')
 
     def test_T4747_with_invalid_password(self):
+        password = id_generator(size=20)
         try:
-            self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login, Password='foo')
+            self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login, Password=password)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             misc.assert_error(error, 400, '4120', 'InvalidParameterValue')
