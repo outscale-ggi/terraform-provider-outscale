@@ -13,12 +13,13 @@ class Test_find_vms_by_event(OscTestSuite):
         try:
             cls.events = []
 
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):

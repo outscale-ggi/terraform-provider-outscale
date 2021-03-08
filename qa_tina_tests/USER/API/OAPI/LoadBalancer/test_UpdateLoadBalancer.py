@@ -29,12 +29,13 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                 name = id_generator(prefix='policy-')
                 cls.policy_name_lb.append(name)
                 cls.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=cls.lb_name, PolicyName=name, PolicyType='load_balancer')
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):
@@ -42,8 +43,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             if cls.lb_name:
                 try:
                     cls.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=cls.lb_name)
-                except:
-                    pass
+                except Exception as error:
+                    raise error
         finally:
             super(Test_UpdateLoadBalancer, cls).teardown_class()
 
@@ -453,5 +454,5 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             if ret_create_lbu:
                 try:
                     self.a2_r1.oapi.DeleteLoadBalancer(LoadBalancerName=self.lb_name)
-                except:
-                    pass
+                except Exception as error:
+                    raise error

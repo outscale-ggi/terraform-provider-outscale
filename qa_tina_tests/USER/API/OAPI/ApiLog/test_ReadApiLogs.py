@@ -116,8 +116,8 @@ class Test_ReadApiLogs(OscTestSuite):
     def test_T3213_valid_filter_ResponseStatusCodes(self):
         try:
             self.a1_r1.oapi.ReadVm()
-        except:
-            pass
+        except Exception as error:
+            raise error
         time.sleep(15)
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [404]})
         assert len(ret.response.Logs) == 0

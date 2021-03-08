@@ -13,13 +13,9 @@ class Test_CheckAuthentication(OscTestSuite):
     def setup_class(cls):
         super(Test_CheckAuthentication, cls).setup_class()
         try:
-            pass
-        except:
-            try:
-                cls.teardown_class()
-            except:
-                pass
-            raise
+            cls.teardown_class()
+        except Exception as error:
+            raise error
 
     @classmethod
     def teardown_class(cls):
