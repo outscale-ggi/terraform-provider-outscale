@@ -132,7 +132,7 @@ class Test_ReadImages(OscTestSuite):
         ret = self.a1_r1.oapi.ReadImages(Filters={'Hypervisors': ['xen']})
         assert len(ret.response.Images) >= 3
         #TODO add the verify response
-        # assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+        # verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
         #                                                   'read_image_hypervisors_filter.json'),
         #                        None), 'Could not verify response content.'
 
