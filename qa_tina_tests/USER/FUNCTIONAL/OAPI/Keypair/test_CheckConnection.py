@@ -1,25 +1,23 @@
 # -*- coding:utf-8 -*-
 import os
-import string
 
 from cryptography.hazmat.primitives.asymmetric import ec
 
+from qa_common_tools.ssh import KeyType, OscSshError, SshTools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.ssh import SshTools, KeyType, OscSshError
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_tina_tools.tina import oapi, info_keys
-from qa_tina_tools.tina.info_keys import PUBLIC, PRIVATE
-from qa_tina_tools.tools.tina.create_tools import generate_key, generate_ed25519_key
+from qa_tina_tools.tina import info_keys, oapi
+from qa_tina_tools.tina.info_keys import PRIVATE, PUBLIC
+from qa_tina_tools.tools.tina.create_tools import generate_ed25519_key, generate_key
 
 
 class Test_CheckConnection(OscTestSuite):
-
     def test_T5112_valid_check_connection_import_ec_key_256(self):
         key_resp = None
         vm_info = None
-        
+
         keypair_name = id_generator(size=7)
 
         try:
@@ -31,8 +29,13 @@ class Test_CheckConnection(OscTestSuite):
             key_resp = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name, PublicKey=pub_key).response
             vm_info = oapi.create_Vms(self.a1_r1, key_name=keypair_name, state='ready')
 
-            SshTools.check_connection_paramiko(vm_info[info_keys.VMS][0]['PublicIp'], key_info[PRIVATE], retry=3,
-                                               key_type=KeyType.ecdsa, username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            SshTools.check_connection_paramiko(
+                vm_info[info_keys.VMS][0]['PublicIp'],
+                key_info[PRIVATE],
+                retry=3,
+                key_type=KeyType.ecdsa,
+                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            )
 
             assert False, 'Remove the known error code'
 
@@ -62,8 +65,13 @@ class Test_CheckConnection(OscTestSuite):
             key_resp = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name, PublicKey=pub_key).response
             vm_info = oapi.create_Vms(self.a1_r1, key_name=keypair_name, state='ready')
 
-            SshTools.check_connection_paramiko(vm_info[info_keys.VMS][0]['PublicIp'], key_info[PRIVATE], retry=3,
-                                               key_type=KeyType.ecdsa, username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            SshTools.check_connection_paramiko(
+                vm_info[info_keys.VMS][0]['PublicIp'],
+                key_info[PRIVATE],
+                retry=3,
+                key_type=KeyType.ecdsa,
+                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            )
 
             assert False, 'Remove the known error code'
 
@@ -93,8 +101,13 @@ class Test_CheckConnection(OscTestSuite):
             key_resp = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name, PublicKey=pub_key).response
             vm_info = oapi.create_Vms(self.a1_r1, key_name=keypair_name, state='ready')
 
-            SshTools.check_connection_paramiko(vm_info[info_keys.VMS][0]['PublicIp'], key_info[PRIVATE],
-                                               retry=3, key_type=KeyType.ecdsa, username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            SshTools.check_connection_paramiko(
+                vm_info[info_keys.VMS][0]['PublicIp'],
+                key_info[PRIVATE],
+                retry=3,
+                key_type=KeyType.ecdsa,
+                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            )
 
             assert False, 'Remove the known error code'
 
@@ -124,8 +137,13 @@ class Test_CheckConnection(OscTestSuite):
             key_resp = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name, PublicKey=pub_key).response
             vm_info = oapi.create_Vms(self.a1_r1, key_name=keypair_name, state='ready')
 
-            SshTools.check_connection_paramiko(vm_info[info_keys.VMS][0]['PublicIp'], key_info[PRIVATE], retry=3,
-                                               key_type=KeyType.ed25519, username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            SshTools.check_connection_paramiko(
+                vm_info[info_keys.VMS][0]['PublicIp'],
+                key_info[PRIVATE],
+                retry=3,
+                key_type=KeyType.ed25519,
+                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            )
 
             assert False, 'Remove the known error code'
 
@@ -155,8 +173,13 @@ class Test_CheckConnection(OscTestSuite):
             key_resp = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name, PublicKey=pub_key).response
             vm_info = oapi.create_Vms(self.a1_r1, key_name=keypair_name, state='ready')
 
-            SshTools.check_connection_paramiko(vm_info[info_keys.VMS][0]['PublicIp'], key_info[PRIVATE], retry=3,
-                                               key_type=KeyType.rsa, username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            SshTools.check_connection_paramiko(
+                vm_info[info_keys.VMS][0]['PublicIp'],
+                key_info[PRIVATE],
+                retry=3,
+                key_type=KeyType.rsa,
+                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            )
 
         finally:
             if vm_info:
@@ -181,8 +204,13 @@ class Test_CheckConnection(OscTestSuite):
             key_resp = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name, PublicKey=pub_key).response
             vm_info = oapi.create_Vms(self.a1_r1, key_name=keypair_name, state='ready')
 
-            SshTools.check_connection_paramiko(vm_info[info_keys.VMS][0]['PublicIp'], key_info[PRIVATE], retry=3,
-                                               key_type=KeyType.rsa,username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            SshTools.check_connection_paramiko(
+                vm_info[info_keys.VMS][0]['PublicIp'],
+                key_info[PRIVATE],
+                retry=3,
+                key_type=KeyType.rsa,
+                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            )
 
         finally:
             if vm_info:
@@ -207,8 +235,13 @@ class Test_CheckConnection(OscTestSuite):
             key_resp = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name, PublicKey=pub_key).response
             vm_info = oapi.create_Vms(self.a1_r1, key_name=keypair_name, state='ready')
 
-            SshTools.check_connection_paramiko(vm_info[info_keys.VMS][0]['PublicIp'], key_info[PRIVATE],
-                                               retry=3, key_type=KeyType.rsa, username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            SshTools.check_connection_paramiko(
+                vm_info[info_keys.VMS][0]['PublicIp'],
+                key_info[PRIVATE],
+                retry=3,
+                key_type=KeyType.rsa,
+                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            )
 
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4033')
@@ -237,8 +270,13 @@ class Test_CheckConnection(OscTestSuite):
             key_resp = self.a1_r1.oapi.CreateKeypair(KeypairName=keypair_name, PublicKey=pub_key).response
             vm_info = oapi.create_Vms(self.a1_r1, key_name=keypair_name, state='ready')
 
-            SshTools.check_connection_paramiko(vm_info[info_keys.VMS][0]['PublicIp'], key_info[PRIVATE],
-                                               retry=3, key_type=KeyType.rsa, username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            SshTools.check_connection_paramiko(
+                vm_info[info_keys.VMS][0]['PublicIp'],
+                key_info[PRIVATE],
+                retry=3,
+                key_type=KeyType.rsa,
+                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            )
 
         finally:
             if vm_info:
