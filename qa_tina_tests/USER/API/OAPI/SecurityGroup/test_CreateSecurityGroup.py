@@ -56,8 +56,7 @@ class Test_CreateSecurityGroup(OscTestSuite):
         self.sg_id = ret.response.SecurityGroup.SecurityGroupId
         ret.check_response()
         hints = create_hints([self.sg_id, self.a1_r1.config.account.account_id, 'test_desc', 'test_name'])
-        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                          'create_all_params.json'), hints), 'Could not verify response content.'
+        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_all_params.json'), hints)
 
     def test_T5135_with_incorrect_type_name(self):
         try:

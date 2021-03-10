@@ -61,15 +61,13 @@ class Test_DeleteSecurityGroup(OscTestSuite):
         ret = self.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=self.sg_id)
         self.sg_id = None
         ret.check_response()
-        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                          'delete_with_id.json'), None), 'Could not verify response content.'
+        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_with_id.json'), None)
 
     def test_T2736_with_name(self):
         ret = self.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupName='test_delete')
         self.sg_id = None
         ret.check_response()
-        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                          'delete_with_name.json'), None), 'Could not verify response content.'
+        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_with_name.json'), None)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3515_with_other_user(self):
