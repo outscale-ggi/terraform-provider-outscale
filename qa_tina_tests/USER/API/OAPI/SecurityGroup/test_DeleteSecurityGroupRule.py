@@ -124,7 +124,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             IpRange='10.0.0.12/32',
             SecurityGroupId=self.sg1.SecurityGroupId)
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_valid_case_inbound.json'),
+            verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_valid_case_inbound.json'),
                                    self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
         except AssertionError:
@@ -139,7 +139,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             IpRange='10.0.0.12/32',
             SecurityGroupId=self.sg3.SecurityGroupId)
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_valid_case_outbound.json'),
+            verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_valid_case_outbound.json'),
                                    self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
         except AssertionError:
@@ -152,7 +152,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
             SecurityGroupId=self.sg3.SecurityGroupId)
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+            verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                               'delete_rule_with_sg_to_unlink_param_outbound.json'),
                                    self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
@@ -166,7 +166,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
             SecurityGroupId=self.sg1.SecurityGroupId)
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+            verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                               'delete_rule_with_sg_to_unlink_param_inbound.json'),
                                    self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
@@ -394,7 +394,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                     'IpRanges': ["10.0.0.12/32"]}],
             SecurityGroupId=self.sg1.SecurityGroupId)
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+            verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                               'delete_rule_rules_array_single_element.json'),
                                    self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
@@ -420,7 +420,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             ],
             SecurityGroupId=self.sg4.SecurityGroupId)
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+            verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                               'delete_rule_rules_array_many_element1.json'),
                                    self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'
@@ -450,7 +450,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             ],
             SecurityGroupId=self.sg1.SecurityGroupId)
         try:
-            assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+            verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                               'delete_rule_rules_array_many_element2.json'),
                                    self.hints), 'Could not verify response content.'
             assert False, 'Remove known error'

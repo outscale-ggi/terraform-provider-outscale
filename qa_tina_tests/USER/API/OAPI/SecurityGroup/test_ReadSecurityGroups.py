@@ -112,14 +112,14 @@ class Test_ReadSecurityGroups(SecurityGroup):
     def test_T2750_no_params(self):
         resp = self.a1_r1.oapi.ReadSecurityGroups().response
         assert len(resp.SecurityGroups) == 4 + 2  # adding 2 default
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_empty.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_empty.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T2751_filters_account_ids(self):
         filters = {'AccountIds': [self.a1_r1.config.account.account_id]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 4 + 2  # adding 2 default
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_account_ids.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_account_ids.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5479_filters_account_ids_unknown(self):
@@ -138,14 +138,14 @@ class Test_ReadSecurityGroups(SecurityGroup):
         filters = {'Descriptions': [self.sg1.Description, self.sg3.Description]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 2
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_descriptions.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_descriptions.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5482_filters_inbound_rule_account_ids(self):
         filters = {'InboundRuleAccountIds': [self.a2_r1.config.account.account_id]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_account_ids.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_account_ids.json'),
                                self.hints), 'Could not verify response content.'
         if int(resp.SecurityGroups[0].InboundRules[0].IpProtocol):
             known_error("TINA-6173", "[oAPI] ReadSecurityGroups Incorrect value returned for IpProtocol/IpRang")
@@ -155,7 +155,7 @@ class Test_ReadSecurityGroups(SecurityGroup):
         filters = {'InboundRuleFromPortRanges': [45]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_from_port_ranges.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_from_port_ranges.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5484_filters_inbound_rule_ip_ranges(self):
@@ -165,7 +165,7 @@ class Test_ReadSecurityGroups(SecurityGroup):
             known_error('API-173', 'Cannot filter by inbound ip range value')
         assert False, 'Remove known error'
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_ip_ranges.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_ip_ranges.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5485_filters_inbound_rule_protocols(self):
@@ -175,47 +175,47 @@ class Test_ReadSecurityGroups(SecurityGroup):
             known_error('API-173', 'Cannot filter by outbound protocol value')
         assert False, 'Remove known error'
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_protocols.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_protocols.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5486_filters_inbound_rule_sg_ids(self):
         filters = {'InboundRuleSecurityGroupIds': [self.sg5.SecurityGroupId]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_sg_ids.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_sg_ids.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5487_filters_inbound_sg_names(self):
         filters = {'InboundRuleSecurityGroupNames': [self.sg6.SecurityGroupName]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_sg_names.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_sg_names.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5488_filters_inbound_to_port_ranges(self):
         filters = {'InboundRuleToPortRanges': [535]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_to_port_ranges.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_to_port_ranges.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5489_filters_net_ids(self):
         filters = {'NetIds': [self.vpc_info[VPC_ID]]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_net_ids.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_net_ids.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5490_filters_outbound_rule_account_ids(self):
         filters = {'OutboundRuleAccountIds': [self.a2_r1.config.account.account_id]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_account_ids.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_account_ids.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5491_filters_outbound_rule_from_port_ranges(self):
         filters = {'OutboundRuleFromPortRanges': [1234]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_from_port_ranges.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_from_port_ranges.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5492_filters_outbound_rule_ip_ranges(self):
@@ -225,7 +225,7 @@ class Test_ReadSecurityGroups(SecurityGroup):
             known_error('API-173', 'Cannot filter by outbound ip range value')
         assert False, 'Remove known error'
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_ip_ranges.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_ip_ranges.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5493_filters_outbound_protocols(self):
@@ -235,67 +235,67 @@ class Test_ReadSecurityGroups(SecurityGroup):
             known_error('API-173', 'Cannot filter by outbound protocol value')
         assert False, 'Remove known error'
         assert len(resp.SecurityGroups) == 2
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_protocols.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_protocols.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5494_filters_outbound_sg_ids(self):
         filters = {'OutboundRuleSecurityGroupIds': [self.sg4.SecurityGroupId]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_sg_ids.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_sg_ids.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5495_filters_outbound_sg_names(self):
         filters = {'OutboundRuleSecurityGroupNames': [self.sg4.SecurityGroupName]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_sg_names.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_sg_names.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5496_filters_outbound_to_port_ranges(self):
         filters = {'OutboundRuleFromPortRanges': [2345]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_to_port_ranges.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_to_port_ranges.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5497_filters_sg_ids(self):
         filters = {'SecurityGroupIds': [self.sg1.SecurityGroupId, self.sg3.SecurityGroupId]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_sg_ids.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_sg_ids.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5498_filters_sg_names(self):
         filters = {'SecurityGroupNames': [self.sg1.SecurityGroupName, self.sg4.SecurityGroupName]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_sg_names.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_sg_names.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5369_filters_tags(self):
         filters = {'Tags': ['sg_key=sg_value']}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 1
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                   'read_filters_tags.json'), self.hints), 'Could not verify response content.'
 
     def test_T5370_filters_tagkeys(self):
         filters = {"TagKeys": ['sg_key']}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 2
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_tagkeys.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_tagkeys.json'),
                                self.hints), 'Could not verify response content.'
 
     def test_T5371_filters_tagvalues(self):
         filters = {"TagValues": ['sg_value']}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 2
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_tagvalues.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_tagvalues.json'),
                                self.hints), 'Could not verify response content.'
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3417_with_other_account(self):
         resp = self.a2_r1.oapi.ReadSecurityGroups().response
         assert len(resp.SecurityGroups) == 2 + 1  # adding 1 default
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_with_other_account.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_with_other_account.json'),
                                self.hints), 'Could not verify response content.'
 
     @pytest.mark.tag_sec_confidentiality
@@ -303,5 +303,5 @@ class Test_ReadSecurityGroups(SecurityGroup):
         filters = {'SecurityGroupIds': [self.sg3.SecurityGroupId]}
         resp = self.a2_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 0
-        assert verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_with_other_account_filters.json'),
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_with_other_account_filters.json'),
                                self.hints), 'Could not verify response content.'
