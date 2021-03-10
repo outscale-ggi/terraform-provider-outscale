@@ -18,7 +18,7 @@ class Test_api_access_login_password(ApiAccess):
     @setup_api_access_rules(ConfName.No)
     def test_T4959_login_password_NO_CONF_EEY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
-                               [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, PASS, PASS, FAIL])
+                               [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL, PASS, PASS, FAIL])
 
     @setup_api_access_rules(ConfName.IpOK)
     def test_T4960_login_password_CONF_IPOK_EEY(self):

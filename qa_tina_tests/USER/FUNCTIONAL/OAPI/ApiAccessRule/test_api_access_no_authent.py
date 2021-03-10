@@ -40,7 +40,7 @@ class Test_api_access_no_authent(ApiAccess):
     def test_T4995_no_authent_CONF_CA_NEY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty,
                                 osc_api.EXEC_DATA_CERTIFICATE: [self.certfiles_ca2cn1[2], self.certfiles_ca2cn1[1]]},
-                               [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL])
+                               [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL])
 
     @setup_api_access_rules(ConfName.CaCn)
     def test_T4996_no_authent_CONF_CACN_YYY(self):
@@ -52,7 +52,7 @@ class Test_api_access_no_authent(ApiAccess):
     def test_T4997_no_authent_CONF_CACN_YNY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty,
                                 osc_api.EXEC_DATA_CERTIFICATE: [self.certfiles_ca1cn2[2], self.certfiles_ca1cn2[1]]},
-                               [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL])
+                               [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL])
 
     @setup_api_access_rules(ConfName.IpOKCa)
     def test_T4998_no_authent_CONF_IPOKCA_YEY(self):
