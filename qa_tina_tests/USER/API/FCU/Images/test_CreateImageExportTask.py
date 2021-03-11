@@ -14,6 +14,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_images_state
 
+
 NUM_EXPORT_TASK = 5
 NUM_IMAGES = NUM_EXPORT_TASK * 5
 

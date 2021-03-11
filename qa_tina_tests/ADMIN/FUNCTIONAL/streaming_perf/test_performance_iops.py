@@ -6,7 +6,6 @@ import re
 import pytest
 
 from qa_common_tools.ssh import SshTools
-
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming import StreamingBase
 
 

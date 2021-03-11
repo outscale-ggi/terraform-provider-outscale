@@ -9,6 +9,7 @@ from qa_tina_tools.tools.tina.create_tools import create_security_group, create_
 from qa_tina_tools.tools.tina.delete_tools import delete_security_group, delete_vpc
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 
+
 # attention priv > pub >= 2 otherwise it won't work
 NB_PUB_SG = 2
 NB_PRIV_SG = 4

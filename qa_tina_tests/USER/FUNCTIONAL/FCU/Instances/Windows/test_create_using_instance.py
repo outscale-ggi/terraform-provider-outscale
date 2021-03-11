@@ -1,10 +1,10 @@
 import base64
 import datetime
-
-import pytest
 import time
+
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
+import pytest
 
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.test_base import OscTestSuite

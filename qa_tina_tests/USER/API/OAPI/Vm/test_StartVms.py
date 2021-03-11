@@ -11,6 +11,7 @@ from qa_tina_tools.tools.tina.delete_tools import terminate_instances, delete_in
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
+
 NUM_INST = 10
 
 

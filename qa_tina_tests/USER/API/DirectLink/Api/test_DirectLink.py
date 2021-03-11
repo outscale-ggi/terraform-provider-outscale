@@ -4,8 +4,8 @@ import re
 
 import pytest
 
-import qa_sdk_pub.osc_api as osc_api
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+import qa_sdk_pub.osc_api as osc_api
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.config import OscConfig

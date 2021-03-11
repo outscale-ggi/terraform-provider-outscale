@@ -2,9 +2,9 @@
 # pylint: disable=missing-docstring
 
 import string
+import time
 
 import pytest
-import time
 
 from qa_sdk_common.config import DefaultAccount, DefaultRegion
 from qa_sdk_pub.osc_api import AuthMethod

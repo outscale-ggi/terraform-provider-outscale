@@ -2,10 +2,10 @@
 import os
 import random
 import re
-
-import pytest
 import time
+
 from netaddr import IPNetwork, IPAddress
+import pytest
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants

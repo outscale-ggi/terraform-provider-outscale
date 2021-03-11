@@ -10,6 +10,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state, wait_volumes_state
 
+
 RESOURCE_TYPES = ['vm', 'nic', 'virtual-private-gateway', 'vpn-connection']
 
 

@@ -1,12 +1,12 @@
 import base64
-import socket
 from datetime import datetime
+import socket
 from threading import current_thread
-
-import paramiko
 import time
+
 from paramiko import SSHClient
 from paramiko import SSHException
+import paramiko
 from paramiko.ssh_exception import BadHostKeyException, AuthenticationException
 
 from qa_test_tools.config import config_constants as constants

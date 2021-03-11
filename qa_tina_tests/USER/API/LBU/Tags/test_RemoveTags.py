@@ -6,6 +6,7 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 
+
 class Test_RemoveTags(OscTestSuite):
 
     @classmethod

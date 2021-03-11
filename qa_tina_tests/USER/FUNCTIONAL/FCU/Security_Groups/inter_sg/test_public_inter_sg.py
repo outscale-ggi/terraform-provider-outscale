@@ -1,7 +1,7 @@
 import base64
+import time
 
 import pytest
-import time
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants

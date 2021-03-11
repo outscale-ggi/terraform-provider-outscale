@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
-
 import time
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException

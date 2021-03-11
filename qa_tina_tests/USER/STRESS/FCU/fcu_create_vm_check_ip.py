@@ -1,10 +1,9 @@
 
 import argparse
 import logging
+from multiprocessing import Queue, Process
 import multiprocessing
 import ssl
-from multiprocessing import Queue, Process
-
 import time
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -16,6 +15,7 @@ from qa_test_tools.error import error_type, load_errors
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import id_generator
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
+
 
 ssl._create_default_https_context = ssl._create_unverified_context
 

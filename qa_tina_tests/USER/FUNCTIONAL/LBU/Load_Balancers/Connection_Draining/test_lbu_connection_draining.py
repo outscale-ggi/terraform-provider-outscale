@@ -1,9 +1,9 @@
 # pylint: disable=missing-docstring
 
 from threading import Thread
+import time
 
 import requests
-import time
 
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration

@@ -1,6 +1,5 @@
 
 import datetime
-
 from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException

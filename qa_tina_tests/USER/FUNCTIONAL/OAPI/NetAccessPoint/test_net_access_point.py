@@ -1,13 +1,12 @@
 import pytest
 
 from qa_common_tools.ssh import SshTools
-
+from qa_test_tools.config import config_constants as constants
+from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools import constants
 from qa_tina_tools.tina import oapi, info_keys, wait
 
-from qa_test_tools.config import config_constants as constants
-from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools.exceptions.test_exceptions import OscTestException
 
 PUBLIC_NET_IP_RANGE_SUFFIX = '10.0'
 

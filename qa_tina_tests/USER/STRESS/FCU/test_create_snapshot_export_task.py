@@ -1,8 +1,8 @@
-import string
 from pprint import pprint
+import string
+import time
 
 import pytest
-import time
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.error import group_errors, error_type
@@ -12,6 +12,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_buckets
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_snapshot_export_tasks_state
+
 
 CALL_NUMBER = 50
 
