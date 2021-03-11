@@ -204,7 +204,8 @@ class Test_ReadSecurityGroups(SecurityGroup):
         filters = {'OutboundRuleFromPortRanges': [1234]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 1
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_from_port_ranges.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_from_port_ranges.json'),
+                        self.hints)
 
     def test_T5492_filters_outbound_rule_ip_ranges(self):
         filters = {'OutboundRuleIpRanges': ['10.0.0.13/32']}
