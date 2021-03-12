@@ -23,8 +23,8 @@ import ssl
 from threading import Thread, current_thread
 import time
 
-from qa_common_tools.ssh import SshTools
 from qa_sdk_common.exceptions import OscApiException
+from qa_common_tools.ssh import SshTools
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
 from qa_test_tools.config import config_constants as constants
