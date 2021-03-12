@@ -20,12 +20,11 @@ class Test_ReleaseAddress(OscTestSuite):
         super(Test_ReleaseAddress, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

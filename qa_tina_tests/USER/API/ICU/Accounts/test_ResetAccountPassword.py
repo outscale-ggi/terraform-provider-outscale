@@ -45,8 +45,8 @@ class Test_ResetAccountPassword(OscTestSuite):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:

@@ -18,9 +18,8 @@ class Test_ScheduleKeyDeletion(Kms):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -38,7 +37,7 @@ class Test_ScheduleKeyDeletion(Kms):
                 try:
                     self.a1_r1.kms.ScheduleKeyDeletion(KeyId=self.key_id, PendingWindowInDays=7)
                 except:
-                    pass
+                    print('Could not schedule key deletion.')
         finally:
             OscTestSuite.teardown_method(self, method)
 

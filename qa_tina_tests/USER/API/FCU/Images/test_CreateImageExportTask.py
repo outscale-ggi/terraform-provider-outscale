@@ -39,12 +39,11 @@ class Test_CreateImageExportTask(OscTestSuite):
                 wait_images_state(osc_sdk=cls.a1_r1, image_id_list=[ret.response.imageId], state='available')
                 cls.image_ids.append(ret.response.imageId)
             cls.a1_r1.fcu.ModifyImageAttribute(ImageId=cls.image_ids[0], LaunchPermission={'Add': [{'UserId': cls.a2_r1.config.account.account_id}]})
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

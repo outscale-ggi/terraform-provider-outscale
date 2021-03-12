@@ -19,12 +19,11 @@ class Test_CreateNatGateway(OscTestSuite):
         try:
             cls.vpc_info = create_vpc(cls.a1_r1)
             cls.eip = cls.a1_r1.fcu.AllocateAddress(Domain='vpc').response
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

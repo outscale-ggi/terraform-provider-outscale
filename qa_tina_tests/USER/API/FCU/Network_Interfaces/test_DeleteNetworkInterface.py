@@ -17,12 +17,11 @@ class Test_DeleteNetworkInterface(OscTestSuite):
         try:
             # create VPC
             cls.vpc_info = create_vpc(cls.a1_r1, nb_subnet=1)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

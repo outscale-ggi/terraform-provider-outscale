@@ -40,12 +40,11 @@ class Test_GetConsoleOutput(OscTestSuite):
             cls.instance_info_a2 = create_instances(cls.a2_r1, state=None)
             wait_instances_state(cls.a1_r1, cls.instance_info_a1[INSTANCE_ID_LIST], state='running')
             wait_instances_state(cls.a2_r1, cls.instance_info_a2[INSTANCE_ID_LIST], state='running')
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

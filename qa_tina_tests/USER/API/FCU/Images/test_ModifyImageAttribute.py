@@ -30,12 +30,11 @@ class Test_ModifyImageAttribute(OscTestSuite):
             ret, cls.image_id = create_image(cls.a1_r1, cls.inst_id, name=cls.image_name, state='available', description=DESCRIPTION)
             cls.img1_snap_id_list = get_snapshot_id_list(ret)
             assert len(cls.img1_snap_id_list) == 1, 'Could not find snapshots created when creating image'
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

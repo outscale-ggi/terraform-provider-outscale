@@ -46,24 +46,24 @@ class Test_delete_recursive(OscTestSuite):
                     self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_conn_id)
                     wait_VpnConnections_state(self.a1_r1, [vpn_conn_id], 'deleted')
                 except:
-                    pass
+                    print('Could not delete vpn connection')
             if vgw_id:
                 try:
                     self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
                 except:
-                    pass
+                    print('Could not delete vpn gateway')
             resp = self.a1_r1.fcu.DescribeCustomerGateways(CustomerGatewayId=[cgw_id]).response
             if resp.customerGatewaySet:
                 try:
                     self.a1_r1.fcu.DeleteCustomerGateway(CustomerGatewayId=cgw_id)
                 except:
-                    pass
+                    print('Could not delete customer gateway')
             resp = self.a1_r1.fcu.DescribeVpcs(VpcId=[vpc_id]).response
             if resp.vpcSet:
                 try:
                     self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
                 except:
-                    pass
+                    print('Could not delete vpc')
             resp = self.a1_r1.fcu.DescribeVpnConnections().response
             states = {[v.state for v in resp.vpnConnectionSet]}
             assert not resp.vpnConnectionSet or (len(states) == 1 and states.pop() == 'deleted')

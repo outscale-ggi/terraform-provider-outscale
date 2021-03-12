@@ -26,7 +26,7 @@ class Test_EnableKey(Kms):
                 try:
                     cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_id, PendingWindowInDays=7)
                 except:
-                    pass
+                    print('Could not schedule key deletion.')
         finally:
             super(Test_EnableKey, cls).teardown_class()
 

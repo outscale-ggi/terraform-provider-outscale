@@ -19,12 +19,11 @@ class Test_AttachNetworkInterface(OscTestSuite):
             cls.vpc_info = create_vpc(cls.a1_r1, igw=False, nb_instance=1)
             ret = cls.a1_r1.fcu.CreateNetworkInterface(SubnetId=cls.vpc_info[SUBNETS][0][SUBNET_ID])
             cls.ni_id = ret.response.networkInterface.networkInterfaceId
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -33,14 +32,12 @@ class Test_AttachNetworkInterface(OscTestSuite):
                 try:
                     cls.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId=cls.ni_id)
                 except:
-                    pass
+                    print('Could not delete network interface')
             if cls.vpc_info:
                 try:
                     delete_vpc(cls.a1_r1, cls.vpc_info)
                 except:
-                    pass
-        except Exception as error:
-            raise error
+                    print('Could not delete vpc')
         finally:
             super(Test_AttachNetworkInterface, cls).teardown_class()
 

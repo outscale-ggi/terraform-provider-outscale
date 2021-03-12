@@ -13,13 +13,6 @@ class Test_CancelKeyDeletion(Kms):
         cls.key_id = None
         super(Test_CancelKeyDeletion, cls).setup_class()
 
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_CancelKeyDeletion, cls).teardown_class()
-
     def setup_method(self, method):
         Kms.setup_method(self, method)
         self.key_id = None
@@ -30,7 +23,7 @@ class Test_CancelKeyDeletion(Kms):
                 try:
                     self.a1_r1.kms.ScheduleKeyDeletion(KeyId=self.key_id, PendingWindowInDays=7)
                 except:
-                    pass
+                    print('Could not schedule key deletion.')
         finally:
             Kms.teardown_method(self, method)
 

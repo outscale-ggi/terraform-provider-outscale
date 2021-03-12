@@ -17,12 +17,11 @@ class Test_DetachInternetGateway(OscTestSuite):
         super(Test_DetachInternetGateway, cls).setup_class()
         try:
             cls.vpc_info = create_vpc(cls.a1_r1, igw=False)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

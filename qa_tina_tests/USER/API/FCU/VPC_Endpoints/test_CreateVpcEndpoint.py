@@ -26,9 +26,8 @@ class Test_CreateVpcEndpoint(OscTestSuite):
         except Exception as error:
             try:
                 self.teardown_method(method)
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:

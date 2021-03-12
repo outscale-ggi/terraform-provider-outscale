@@ -37,12 +37,11 @@ class Test_DetachNetworkInterface(OscTestSuite):
             cls.inst_id = inst.response.instancesSet[0].instanceId
             # wait instance to become ready
             wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst_id], state='ready')
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

@@ -18,12 +18,11 @@ class Test_DeleteLoadBalancerPolicy(OscTestSuite):
             cls.ret1 = create_load_balancer(cls.a1_r1, cls.lbu_name, listeners=[{'InstancePort': 65535, 'Protocol': 'HTTP', 'LoadBalancerPort': 80}],
                                             availability_zones=[cls.a1_r1.config.region.az_name])
             cls.a1_r1.lbu.CreateLBCookieStickinessPolicy(LoadBalancerName=cls.lbu_name, PolicyName=cls.policy_name, CookieExpirationPeriod=600)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -41,9 +40,8 @@ class Test_DeleteLoadBalancerPolicy(OscTestSuite):
         except:
             try:
                 OscTestSuite.teardown_method(self, method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         if not self.deleted_policy:

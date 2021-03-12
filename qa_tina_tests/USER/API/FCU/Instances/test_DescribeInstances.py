@@ -18,12 +18,11 @@ class Test_DescribeInstances(OscTestSuite):
         cls.instance_info_a1 = None
         try:
             cls.instance_info_a1 = create_instances(cls.a1_r1, nb=NUM_INST)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

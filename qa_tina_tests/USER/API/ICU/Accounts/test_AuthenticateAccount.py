@@ -21,16 +21,8 @@ class Test_AuthenticateAccount(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_AuthenticateAccount, cls).teardown_class()
+            finally:
+                raise
 
     def test_T2159_required_param(self):
         ret = self.a1_r1.icu.AuthenticateAccount(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
@@ -54,9 +46,10 @@ class Test_AuthenticateAccount(OscTestSuite):
             assert_error(error, 400, 'IcuClientException', 'Field Password is required')
 
     def test_T2162_with_invalid_password(self):
+        passwd = id_generator(size=3, chars=string.ascii_lowercase)
         try:
             self.a1_r1.icu.AuthenticateAccount(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
-                                               Login=self.a1_r1.config.account.login, Password='foo')
+                                               Login=self.a1_r1.config.account.login, Password=passwd)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 401, 'AuthFailure',

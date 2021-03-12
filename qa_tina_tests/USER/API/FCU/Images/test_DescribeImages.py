@@ -57,12 +57,11 @@ class Test_DescribeImages(OscTestSuite):
             assert len(cls.img2_snap_id_list) == 3, 'Could not find snapshots created when creating image'
             launch_permissions = {'Add': [{'UserId': str(cls.a2_r1.config.account.account_id)}]}
             cls.a1_r1.fcu.ModifyImageAttribute(ImageId=cls.image2_id, LaunchPermission=launch_permissions)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

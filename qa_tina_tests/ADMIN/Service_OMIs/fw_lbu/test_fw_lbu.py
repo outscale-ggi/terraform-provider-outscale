@@ -42,12 +42,11 @@ class Test_fw_lbu(OscTestSuite):
                                                                username='root',
                                                                retry=30,
                                                                timeout=10)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

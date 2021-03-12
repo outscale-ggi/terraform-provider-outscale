@@ -17,12 +17,11 @@ class Test_DescribeVirtualInterfaces(OscTestSuite):
         super(Test_DescribeVirtualInterfaces, cls).setup_class()
         try:
             cls.ret_loc = cls.a1_r1.directlink.DescribeLocations()
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

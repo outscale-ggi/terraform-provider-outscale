@@ -15,12 +15,11 @@ class Test_DeleteRouteTable(OscTestSuite):
             # create VPC
             vpc = cls.a1_r1.fcu.CreateVpc(CidrBlock=Configuration.get('vpc', '10_0_0_0_16'))
             cls.vpc_id = vpc.response.vpc.vpcId
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

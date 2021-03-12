@@ -41,9 +41,8 @@ class Test_DescribeSnapshotExportTasks(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
         finally:
             if snap_id:
                 # remove snapshot

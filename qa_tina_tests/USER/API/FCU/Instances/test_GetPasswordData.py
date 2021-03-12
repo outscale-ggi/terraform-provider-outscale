@@ -21,12 +21,11 @@ class Test_GetPasswordData(OscTestSuite):
                                                     inst_type='c4.large', key_name=cls.kp_info_a2[info_keys.NAME])
             wait_tools.wait_instances_state(cls.a1_r1, cls.instance_info_a1[info_keys.INSTANCE_ID_LIST], state='ready', threshold=150)
             wait_tools.wait_instances_state(cls.a2_r1, cls.instance_info_a2[info_keys.INSTANCE_ID_LIST], state='ready', threshold=150)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

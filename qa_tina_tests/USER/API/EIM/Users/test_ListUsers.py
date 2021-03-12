@@ -25,9 +25,8 @@ class Test_ListUsers(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):

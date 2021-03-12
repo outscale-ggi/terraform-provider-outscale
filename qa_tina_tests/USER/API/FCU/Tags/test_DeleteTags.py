@@ -19,9 +19,8 @@ class Test_DeleteTags(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -43,9 +42,8 @@ class Test_DeleteTags(OscTestSuite):
         except OscApiException as error:
             try:
                 self.teardown_method(method)
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:

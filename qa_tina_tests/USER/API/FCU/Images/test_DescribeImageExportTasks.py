@@ -38,12 +38,11 @@ class Test_DescribeImageExportTasks(OscTestSuite):
                 image_export_id = image_export.response.imageExportTask.imageExportTaskId
                 cls.image_exp_ids.append(image_export_id)
 
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

@@ -31,12 +31,11 @@ class Test_DescribeInstanceStatus(OscTestSuite):
             terminate_instances(cls.a1_r1, [cls.inst4_id_terminated])
             cls.inst_info_2 = create_instances(cls.a2_r1)
             cls.inst_account2 = cls.inst_info_2[INSTANCE_ID_LIST][0]
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

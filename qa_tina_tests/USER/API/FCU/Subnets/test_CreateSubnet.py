@@ -15,12 +15,11 @@ class Test_CreateSubnet(OscTestSuite):
         super(Test_CreateSubnet, cls).setup_class()
         try:
             cls.vpc_info = create_vpc(cls.a1_r1, nb_subnet=0, igw=False)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

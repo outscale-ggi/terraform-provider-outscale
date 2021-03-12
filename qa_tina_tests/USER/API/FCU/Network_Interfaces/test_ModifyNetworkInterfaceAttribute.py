@@ -22,12 +22,11 @@ class Test_ModifyNetworkInterfaceAttribute(OscTestSuite):
                                                                       'Value': [cls.vpc_info[VPC_ID]]}]).response.networkInterfaceSet[0]
             cls.sg_pub_id = create_security_group(cls.a1_r1, cls.sg_pub_name, cls.sg_pub_name)
             cls.sg_priv_id = create_security_group(cls.a1_r1, cls.sg_priv_name, cls.sg_priv_name, cls.vpc_info[VPC_ID])
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

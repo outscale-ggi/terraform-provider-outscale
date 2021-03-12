@@ -17,9 +17,8 @@ class Test_find(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -28,7 +27,7 @@ class Test_find(OscTestSuite):
                 try:
                     cls.a1_r1.oapi.DeleteVolume(VolumeId=vol_id)
                 except:
-                    pass
+                    print('Could not delete volume')
         finally:
             super(Test_find, cls).teardown_class()
 

@@ -24,8 +24,6 @@ class Test_CreateVpnConnection(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
             finally:
                 raise error
 

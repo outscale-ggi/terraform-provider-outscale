@@ -33,12 +33,11 @@ class Test_DescribeSecurityGroups(OscTestSuite):
                 cls.priv_sg_ids.append(create_security_group(cls.a1_r1, name=cls.sg_names[i], desc="desc{}".format(i + 1),
                                                              vpc_id=cls.vpc_info[info_keys.VPC_ID]))
             cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.pub_sg_ids[0], SourceSecurityGroupName=cls.sg_names[1])
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

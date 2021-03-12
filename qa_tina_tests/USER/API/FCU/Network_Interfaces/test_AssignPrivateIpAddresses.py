@@ -24,12 +24,11 @@ class Test_AssignPrivateIpAddresses(OscTestSuite):
             cls.subnet_id = res_snet.response.subnet.subnetId
             res_ni = cls.a1_r1.fcu.CreateNetworkInterface(SubnetId=cls.subnet_id, PrivateIpAddress=Configuration.get('ipaddress', '10_0_1_4'))
             cls.ni_id = res_ni.response.networkInterface.networkInterfaceId
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

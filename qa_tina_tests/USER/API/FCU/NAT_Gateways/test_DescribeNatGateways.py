@@ -23,12 +23,11 @@ class Test_DescribeNatGateways(OscTestSuite):
             cls.ng_id = cls.a1_r1.fcu.CreateNatGateway(AllocationId=cls.eip,
                                                        SubnetId=cls.vpc_info[SUBNETS][0][SUBNET_ID]).response.natGateway.natGatewayId
             wait_nat_gateways_state(cls.a1_r1, nat_gateway_id_list=[cls.ng_id], state='available')
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

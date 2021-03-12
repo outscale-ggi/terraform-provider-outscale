@@ -24,12 +24,11 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
             cls.publicGroupId = cls.a1_r1.fcu.CreateSecurityGroup(GroupName=cls.name, GroupDescription='Description').response.groupId
             cls.privateGroupId = cls.a1_r1.fcu.CreateSecurityGroup(GroupName=cls.name, GroupDescription='Description',
                                                                    VpcId=cls.vpc_info[VPC_ID]).response.groupId
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -100,12 +99,12 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg2_name)
                 except:
-                    pass
+                    print('Could not delete security group')
             if sg1_id:
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg1_name)
                 except:
-                    pass
+                    print('Could not delete security group')
 
     def test_T5364_private_source_security_group_name(self):
         sg1_name = 'sg1_name{}'.format(id_generator())
@@ -128,12 +127,12 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg2_id)
                 except:
-                    pass
+                    print('Could not delete security group')
             if sg1_id:
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg1_id)
                 except:
-                    pass
+                    print('Could not delete security group')
 
     def test_T1300_public_source_sg_owner_id_and_group_id(self):
         sg1_name = 'sg1_name{}'.format(id_generator())
@@ -154,12 +153,12 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                 try:
                     self.a2_r1.fcu.DeleteSecurityGroup(GroupId=sg2_id)
                 except:
-                    pass
+                    print('Could not delete security group')
             if sg1_id:
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg1_id)
                 except:
-                    pass
+                    print('Could not delete security group')
 
     def test_T962_public_source_sg_owner_id(self):
         sg1_name = 'sg1_name{}'.format(id_generator())
@@ -178,12 +177,12 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                 try:
                     self.a2_r1.fcu.DeleteSecurityGroup(GroupId=sg2_id)
                 except:
-                    pass
+                    print('Could not delete security group')
             if sg1_id:
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg1_id)
                 except:
-                    pass
+                    print('Could not delete security group')
 
     def test_T1408_valid_ipv6_address_format_inbound(self):
         try:
@@ -241,12 +240,12 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                 except:
-                    pass
+                    print('Could not delete security group')
             if subnet_id:
                 try:
                     self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id)
                 except:
-                    pass
+                    print('Could not delete security group')
             if vpc_id:
                 try:
                     self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
@@ -264,7 +263,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                 except Exception:
-                    pass
+                    print('Could not delete security group')
 
     def test_T3043_invalid_port_range_minus_1_to_8(self):
         try:
@@ -280,7 +279,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                 except Exception:
-                    pass
+                    print('Could not delete security group')
 
     def test_T3044_invalid_port_range_8_to_minus_1(self):
         try:
@@ -296,7 +295,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                 except Exception:
-                    pass
+                    print('Could not delete security group')
 
     def test_T3045_invalid_port_range_minus_9_to_8(self):
         sg_id = None
@@ -313,7 +312,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                 except Exception:
-                    pass
+                    print('Could not delete security group')
 
     def test_T3231_ippermissions_missing_ipprotocol(self):
         self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=self.publicGroupId,
