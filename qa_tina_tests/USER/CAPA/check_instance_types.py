@@ -7,8 +7,8 @@ import os
 
 from json2html.jsonconv import json2html
 
-from qa_common_tools.ssh import SshTools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_common_tools.ssh import SshTools
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
 from qa_test_tools.config import config_constants as constants

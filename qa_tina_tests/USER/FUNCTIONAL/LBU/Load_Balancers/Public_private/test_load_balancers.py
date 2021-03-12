@@ -3,8 +3,8 @@ import time
 
 import pytest
 
-from qa_common_tools.ssh import SshTools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator

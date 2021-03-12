@@ -66,6 +66,59 @@ def my_create_account(config, queue, args):
     queue.put(result)
 
 
+def run(args):
+
+    logger.info("Initialize environment")
+    config = OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE)
+
+    nb_ok = 0
+    nb_ko = 0
+
+    queue = Queue()
+    processes = []
+    i = 0
+    logger.info("Start workers")
+    for i in range(args.process_number):
+        proc = Process(name="load-{}".format(i), target=my_create_account, args=[config, queue, args])
+        processes.append(proc)
+
+    start = time.time()
+    for proc in processes:
+        proc.start()
+
+    logger.info("Wait workers")
+    for proc in processes:
+        proc.join()
+    end = time.time()
+
+    durations = []
+    errors = load_errors()
+    nums = []
+
+    logger.info("Get results")
+    while not queue.empty():
+        res = queue.get()
+        for key in res.keys():
+            if key == "status":
+                if res[key] == "OK":
+                    nb_ok += 1
+                else:
+                    nb_ko += 1
+            elif key == 'duration':
+                durations.append(res[key])
+            elif key == 'error':
+                errors.add(res[key])
+            elif key == 'num':
+                nums.append(res[key])
+        logger.debug(res)
+    logger.info("OK = %d - KO = %d", nb_ok, nb_ko)
+    logger.info("durations = %s", durations)
+    logger.info("nums = %d", nums)
+    print('duration = {}'.format(end - start))
+    print('calls number = {}'.format(sum(nums)))
+    errors.print_errors()
+
+
 if __name__ == '__main__':
 
     logger = logging.getLogger('perf')
@@ -96,58 +149,6 @@ if __name__ == '__main__':
                         required=False, type=int, default=10, help='number of processes, default 10')
     args_p.add_argument('-nc', '--num_create', dest='num_create_per_process', action='store',
                         required=False, type=int, default=500, help='number of read calls per process, default 500')
-    args = args_p.parse_args()
+    main_args = args_p.parse_args()
 
-    logger.info("Initialize environment")
-    config = OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE)
-    try:
-
-        nb_ok = 0
-        nb_ko = 0
-
-        queue = Queue()
-        processes = []
-        i = 0
-        logger.info("Start workers")
-        for i in range(args.process_number):
-            proc = Process(name="load-{}".format(i), target=my_create_account, args=[config, queue, args])
-            processes.append(proc)
-
-        start = time.time()
-        for proc in processes:
-            proc.start()
-
-        logger.info("Wait workers")
-        for proc in processes:
-            proc.join()
-        end = time.time()
-
-        durations = []
-        errors = load_errors()
-        nums = []
-
-        logger.info("Get results")
-        while not queue.empty():
-            res = queue.get()
-            for key in res.keys():
-                if key == "status":
-                    if res[key] == "OK":
-                        nb_ok += 1
-                    else:
-                        nb_ko += 1
-                elif key == 'duration':
-                    durations.append(res[key])
-                elif key == 'error':
-                    errors.add(res[key])
-                elif key == 'num':
-                    nums.append(res[key])
-            logger.debug(res)
-        logger.info("OK = {} - KO = {}".format(nb_ok, nb_ko))
-        logger.info("durations = {}".format(durations))
-        logger.info("nums = {}".format(nums))
-        print('duration = {}'.format(end - start))
-        print('calls number = {}'.format(sum(nums)))
-        errors.print_errors()
-
-    finally:
-        pass
+    run(main_args)

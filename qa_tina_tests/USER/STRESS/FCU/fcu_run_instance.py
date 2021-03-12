@@ -19,7 +19,7 @@ DEFAULT_VALUE = -1
 DEFAULT_TYPE = 't2.nano'
 
 
-def test_Create_Vm(osc_sdk, queue, token):
+def create_vm(osc_sdk, queue, token):
     result = {}
     disable_throttling()
     ret = osc_sdk.fcu.RunInstances(ImageId=osc_sdk.config.region.get_info(constants.CENTOS7),
@@ -28,6 +28,48 @@ def test_Create_Vm(osc_sdk, queue, token):
 
     result['inst_ids'] = ret.response.instancesSet[0].instanceId
     queue.put(result)
+
+
+def run(args):
+    logger.info("Initialize environment")
+    oscsdk = OscSdk(config=OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE))
+    # created = []
+    try:
+        inst_ids = set()
+        i = 0
+        logger.info("Start workers")
+
+        processes = []
+        queue = Queue()
+        token = str(uuid.uuid4())
+        for i in range(args.process_number):
+            if args.same_token:
+                token = args.same_token
+            else:
+                token = str(uuid.uuid4())
+            proc = Process(name="load-{}".format(i), target=create_vm, args=[oscsdk, queue, token])
+            processes.append(proc)
+
+        for proc in processes:
+            proc.start()
+
+        logger.info("Wait workers")
+        for proc in processes:
+            proc.join()
+
+        while not queue.empty():
+            res = queue.get()
+            inst_ids.add(res["inst_ids"])
+        if args.same_token:
+            assert len(inst_ids) == 1
+        else:
+            assert len(inst_ids) == args.process_number - 1
+
+    finally:
+        for inst_id in inst_ids:
+            terminate_instances(oscsdk, [inst_id])
+
+
 if __name__ == '__main__':
 
     logger = logging.getLogger('perf')
@@ -60,42 +102,6 @@ if __name__ == '__main__':
                         required=False, type=int, default=4, help='number of read calls per process, default 500')
     args_p.add_argument('-st', '--same_token', dest='same_token', action='store',
                         required=False, type=bool, default=False, help='Set the bool')
-    args = args_p.parse_args()
+    main_args = args_p.parse_args()
 
-    logger.info("Initialize environment")
-    oscsdk = OscSdk(config=OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE))
-    created = []
-    try:
-        inst_ids = set()
-        i = 0
-        logger.info("Start workers")
-
-        processes = []
-        queue = Queue()
-        token = str(uuid.uuid4())
-        for i in range(args.process_number):
-            if args.same_token:
-                token = token
-            else:
-                token = str(uuid.uuid4())
-            proc = Process(name="load-{}".format(i), target=test_Create_Vm, args=[oscsdk, queue, token])
-            processes.append(proc)
-        print("kaka")
-        for proc in processes:
-            proc.start()
-
-        logger.info("Wait workers")
-        for proc in processes:
-            proc.join()
-
-        while not queue.empty():
-            res = queue.get()
-            inst_ids.add(res["inst_ids"])
-        if args.same_token:
-            assert len(inst_ids) == 1
-        else:
-            assert len(inst_ids) == args.process_number - 1
-
-    finally:
-        for inst_id in inst_ids:
-            terminate_instances(oscsdk, [inst_id])
+    run(main_args)

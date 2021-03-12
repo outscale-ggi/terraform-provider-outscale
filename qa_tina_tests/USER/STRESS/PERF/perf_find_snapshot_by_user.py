@@ -10,6 +10,7 @@ import ssl
 from threading import Thread, current_thread
 import time
 
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
@@ -18,7 +19,6 @@ from qa_tina_tools.tools.tina.create_tools import create_instances, create_volum
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR, INSTANCE_SET
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))

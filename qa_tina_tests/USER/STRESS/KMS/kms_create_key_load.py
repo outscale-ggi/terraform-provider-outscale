@@ -57,40 +57,7 @@ def create_key(osc_sdk, queue, args):
     queue.put(result)
 
 
-if __name__ == '__main__':
-
-    logger = logging.getLogger('perf')
-
-    log_handler = logging.StreamHandler()
-    log_handler.setFormatter(
-        logging.Formatter('[%(asctime)s] ' +
-                          '[%(levelname)8s]' +
-                          '[%(threadName)s] ' +
-                          '[%(module)s.%(funcName)s():%(lineno)d]: ' +
-                          '%(message)s', '%m/%d/%Y %H:%M:%S'))
-
-    logger.setLevel(level=LOGGING_LEVEL)
-    logger.addHandler(log_handler)
-
-    logging.getLogger('tools').addHandler(log_handler)
-    logging.getLogger('tools').setLevel(level=LOGGING_LEVEL)
-
-    args_p = argparse.ArgumentParser(description="Test platform performances",
-                                     formatter_class=argparse.RawTextHelpFormatter)
-
-    args_p.add_argument('-r', '--region-az', dest='az', action='store',
-                        required=True, type=str,
-                        help='Selected Outscale region AZ for the test')
-    args_p.add_argument('-a', '--account', dest='account', action='store',
-                        required=True, type=str, help='Set account used for the test')
-    args_p.add_argument('-np', '--proc_num', dest='process_number', action='store',
-                        required=False, type=int, default=10, help='number of processes, default 10')
-    args_p.add_argument('-nc', '--num_create', dest='num_create_per_process', action='store',
-                        required=False, type=int, default=500, help='number of read calls per process, default 500')
-    args_p.add_argument('-ca', '--create_account', dest='create_account', action='store_true',
-                        required=False, help='create account instead of using account')
-    args = args_p.parse_args()
-
+def run(args):
     pid = None
     try:
 
@@ -152,9 +119,9 @@ if __name__ == '__main__':
                 elif key == 'num':
                     nums.append(res[key])
             logger.debug(res)
-        logger.info("OK = {} - KO = {}".format(nb_ok, nb_ko))
-        logger.info("durations = {}".format(durations))
-        logger.info("nums = {}".format(nums))
+        logger.info("OK = %d - KO = %d", nb_ok, nb_ko)
+        logger.info("durations = %d", durations)
+        logger.info("nums = %s", nums)
         print('duration = {}'.format(end - start))
         print('calls number = {}'.format(sum(nums)))
         errors.print_errors()
@@ -165,3 +132,40 @@ if __name__ == '__main__':
             intel.user.delete(username=pid)
             intel.user.gc(username=pid)
             osc_sdk_as.identauth.IdauthAccountAdmin.deleteAccount(principal={"accountPid": pid}, forceRemoval="true")
+
+
+if __name__ == '__main__':
+
+    logger = logging.getLogger('perf')
+
+    log_handler = logging.StreamHandler()
+    log_handler.setFormatter(
+        logging.Formatter('[%(asctime)s] ' +
+                          '[%(levelname)8s]' +
+                          '[%(threadName)s] ' +
+                          '[%(module)s.%(funcName)s():%(lineno)d]: ' +
+                          '%(message)s', '%m/%d/%Y %H:%M:%S'))
+
+    logger.setLevel(level=LOGGING_LEVEL)
+    logger.addHandler(log_handler)
+
+    logging.getLogger('tools').addHandler(log_handler)
+    logging.getLogger('tools').setLevel(level=LOGGING_LEVEL)
+
+    args_p = argparse.ArgumentParser(description="Test platform performances",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+
+    args_p.add_argument('-r', '--region-az', dest='az', action='store',
+                        required=True, type=str,
+                        help='Selected Outscale region AZ for the test')
+    args_p.add_argument('-a', '--account', dest='account', action='store',
+                        required=True, type=str, help='Set account used for the test')
+    args_p.add_argument('-np', '--proc_num', dest='process_number', action='store',
+                        required=False, type=int, default=10, help='number of processes, default 10')
+    args_p.add_argument('-nc', '--num_create', dest='num_create_per_process', action='store',
+                        required=False, type=int, default=500, help='number of read calls per process, default 500')
+    args_p.add_argument('-ca', '--create_account', dest='create_account', action='store_true',
+                        required=False, help='create account instead of using account')
+    main_args = args_p.parse_args()
+
+    run(main_args)

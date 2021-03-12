@@ -20,7 +20,7 @@ class Test_ReadSubregions(OscTestSuite):
 
     def test_T3711_empty_filters(self):
         ret = self.a1_r1.oapi.ReadSubregions().response.Subregions
-        assert len(ret)
+        assert len(ret) > 0
         verify_response(ret)
 
     def test_T3714_filters_invalid_subregion_names(self):
