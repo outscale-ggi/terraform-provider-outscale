@@ -81,9 +81,8 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -211,13 +210,13 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
                     try:
                         delete_instances_old(self.a1_r1, [inst_id])
                     except Exception:
-                        pass
+                        print('Could not delete instances')
 
                 if sg_id:
                     try:
                         self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                     except Exception:
-                        pass
+                        print('Could not delete security group')
 
             except:
                 pytest.fail("An error happened deleting resources in the test")
@@ -270,13 +269,13 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
                     try:
                         delete_instances_old(self.a1_r1, [inst_id])
                     except Exception:
-                        pass
+                        print('Could not delete instances')
 
                 if sg_id:
                     try:
                         self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                     except Exception:
-                        pass
+                        print('Could not delete security group')
 
             except:
                 pytest.fail("An error happened deleting resources in the test")

@@ -22,7 +22,7 @@ class Test_UpdateMasterKey(OKMS):
                 try:
                     cls.a1_r1.oapi.DeleteMasterKey(MasterKeyId=cls.key.MasterKeyId, DaysUntilDeletion=7)
                 except:
-                    pass
+                    print('Could not delete master key')
         finally:
             super(Test_UpdateMasterKey, cls).teardown_class()
 
@@ -39,7 +39,7 @@ class Test_UpdateMasterKey(OKMS):
                 try:
                     self.a1_r1.oapi.DeleteMasterKey(MasterKeyId=self.key.MasterKeyId, DaysUntilDeletion=7)
                 except:
-                    pass
+                    print('Could not delete master key')
         finally:
             OKMS.teardown_method(self, method)
 

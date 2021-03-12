@@ -31,7 +31,7 @@ def create_sg_rule(osc_sdk, queue, group_id, num_sg_rules_per_process):
             osc_sdk.fcu.AuthorizeSecurityGroupIngress(GroupId=group_id, IpProtocol='tcp', FromPort=port, ToPort=port)
             ports.add(port)
         except Exception:
-            pass
+            print('Could not create rule')
 
     end = time.time()
     result['ports'] = ports

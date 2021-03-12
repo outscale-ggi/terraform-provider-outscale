@@ -145,7 +145,7 @@ def run(args):
             ret = oscsdk.fcu.DescribeSnapshots(Owner=[oscsdk.config.account.account_id]).response
             snap_number = len(ret.snapshotSet)
         except Exception as error:
-            pass
+            print('Could not describe snapshot')
 
         inst_info = None
 

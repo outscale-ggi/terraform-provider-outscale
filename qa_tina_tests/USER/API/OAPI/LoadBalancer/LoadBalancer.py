@@ -72,8 +72,6 @@ def validate_load_balancer_global_form(lb, **kwargs):
                 for key, value in lst.items():
                     assert getattr(llst, key) == value, ('In listener, {} is different of expected value {} for key {}'
                                                 .format(getattr(llst, key), value, key))
-            else:
-                pass
     assert hasattr(lb, 'LoadBalancerName')
     if kwargs.get('name'):
         assert lb.LoadBalancerName == kwargs.get('name')
@@ -150,26 +148,26 @@ class LoadBalancer(OscTestSuite):
             if cls.sg_id:
                 cls.a1_r1.fcu.DeleteSecurityGroup(GroupId=cls.sg_id)
         except:
-            pass
+            print('Could not delete security group')
         try:
             if cls.sg_id_2:
                 cls.a1_r1.fcu.DeleteSecurityGroup(GroupId=cls.sg_id_2)
         except:
-            pass
+            print('Could not delete security group')
         try:
             if cls.sg_id_3:
                 cls.a1_r1.fcu.DeleteSecurityGroup(GroupId=cls.sg_id_3)
         except:
-            pass
+            print('Could not delete security group')
         try:
             if cls.inst_info:
                 delete_instances(cls.a1_r1, cls.inst_info)
         except:
-            pass
+            print('Could not delete instances')
         try:
             if cls.vpc_info:
                 delete_vpc(cls.a1_r1, cls.vpc_info)
         except:
-            pass
+            print('Could not delete vpc')
         finally:
             super(LoadBalancer, cls).teardown_class()

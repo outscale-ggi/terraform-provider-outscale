@@ -26,8 +26,6 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
         try:
             if self.api_access_rule_id:
                 self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=self.api_access_rule_id)
-        except:
-            pass
         finally:
             ApiAccessRule.teardown_method(self, method)
 

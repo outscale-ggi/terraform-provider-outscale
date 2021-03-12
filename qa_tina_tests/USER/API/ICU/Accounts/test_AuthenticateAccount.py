@@ -13,17 +13,6 @@ from qa_test_tools.test_base import OscTestSuite
 
 class Test_AuthenticateAccount(OscTestSuite):
 
-    @classmethod
-    def setup_class(cls):
-        super(Test_AuthenticateAccount, cls).setup_class()
-        try:
-            pass
-        except:
-            try:
-                cls.teardown_class()
-            finally:
-                raise
-
     def test_T2159_required_param(self):
         ret = self.a1_r1.icu.AuthenticateAccount(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
                                                  Login=self.a1_r1.config.account.login, Password=self.a1_r1.config.account.password)

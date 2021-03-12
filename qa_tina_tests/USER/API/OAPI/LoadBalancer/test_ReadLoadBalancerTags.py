@@ -37,9 +37,8 @@ class Test_ReadLoadBalancerTags(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -48,12 +47,12 @@ class Test_ReadLoadBalancerTags(OscTestSuite):
                 try:
                     cls.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=ret_lbu.LoadBalancerName)
                 except:
-                    pass
+                    print('Could not delete lbu')
             for ret_lbu in cls.ret_lbu_a2:
                 try:
                     cls.a2_r1.oapi.DeleteLoadBalancer(LoadBalancerName=ret_lbu.LoadBalancerName)
                 except:
-                    pass
+                    print('Could not delete lbu')
         finally:
             super(Test_ReadLoadBalancerTags, cls).teardown_class()
 

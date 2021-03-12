@@ -23,9 +23,8 @@ class Test_UnlinkVolume(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -34,7 +33,7 @@ class Test_UnlinkVolume(OscTestSuite):
                 try:
                     delete_instances(cls.a1_r1, cls.inst_info)
                 except:
-                    pass
+                    print('Could not delete instances')
         finally:
             super(Test_UnlinkVolume, cls).teardown_class()
 
@@ -50,9 +49,8 @@ class Test_UnlinkVolume(OscTestSuite):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:
@@ -61,12 +59,12 @@ class Test_UnlinkVolume(OscTestSuite):
                     self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_id)
                     wait_volumes_state(self.a1_r1, [self.vol_id], state='available')
                 except:
-                    pass
+                    print('Could not detach volume')
             if self.vol_id:
                 try:
                     self.a1_r1.oapi.DeleteVolume(VolumeId=self.vol_id)
                 except:
-                    pass
+                    print('Could not delete volume')
         finally:
             OscTestSuite.teardown_method(self, method)
 

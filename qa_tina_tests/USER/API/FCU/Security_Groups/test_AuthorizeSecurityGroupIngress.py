@@ -250,7 +250,7 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
                 try:
                     self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
                 except:
-                    pass
+                    print('Could not delete vpc')
 
     def test_T3026_valid_group_name_without_vpc(self):
         try:

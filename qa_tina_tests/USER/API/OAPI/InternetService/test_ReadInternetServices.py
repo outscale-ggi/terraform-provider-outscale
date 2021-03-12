@@ -32,9 +32,8 @@ class Test_ReadInternetServices(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -42,12 +41,12 @@ class Test_ReadInternetServices(OscTestSuite):
             try:
                 cls.a1_r1.oapi.UnlinkInternetService(InternetServiceId=cls.net_ids[0], NetId=cls.net_id)
             except:
-                pass
+                print('Could not unlink internet service')
         if cls.net_id:
             try:
                 cls.a1_r1.oapi.DeleteNet(NetId=cls.net_id)
             except:
-                pass
+                print('Could not delete net')
         try:
             for net_id in cls.net_ids:
                 cls.a1_r1.oapi.DeleteInternetService(InternetServiceId=net_id)

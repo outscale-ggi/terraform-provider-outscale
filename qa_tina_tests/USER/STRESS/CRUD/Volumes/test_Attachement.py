@@ -19,21 +19,6 @@ class Test_Attachement(OscTestSuite):
         cls.vol_id = None
         cls.loop = 50
         cls.nb_test = 0
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_Attachement, cls).teardown_class()
 
     def setup_method(self, method):
         super(Test_Attachement, self).setup_method(method)

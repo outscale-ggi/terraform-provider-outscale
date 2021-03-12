@@ -27,9 +27,8 @@ class Test_gc(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -38,12 +37,12 @@ class Test_gc(OscTestSuite):
                 try:
                     delete_lbu(cls.a1_r1, lbu_name=cls.lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
             if cls.vpc_info:
                 try:
                     delete_vpc(cls.a1_r1, cls.vpc_info)
                 except:
-                    pass
+                    print('Could not delete vpc')
         finally:
             super(Test_gc, cls).teardown_class()
 

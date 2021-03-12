@@ -35,9 +35,8 @@ class Test_ReadVolumes(OscTestSuite):
         except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -51,7 +50,7 @@ class Test_ReadVolumes(OscTestSuite):
                     cls.a1_r1.oapi.DeleteVms(VmIds=[cls.vms[0].VmId])
                     wait_instances_state(cls.a1_r1, [cls.vms[0].VmId], state='terminated')
                 except:
-                    pass
+                    print('Could not delete instances')
         finally:
             super(Test_ReadVolumes, cls).teardown_class()
 

@@ -28,7 +28,7 @@ class Test_DeleteInternetService(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteInternetService(InternetServiceId=net_id)
                 except:
-                    pass
+                    print('Could not delete internet service')
 
     def test_T2241_valid_params_dry_run(self):
         net_id = None
@@ -42,7 +42,7 @@ class Test_DeleteInternetService(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteInternetService(InternetServiceId=net_id)
                 except:
-                    pass
+                    print('Could not delete internet service')
 
     def test_T3459_without_params(self):
         try:
@@ -65,7 +65,7 @@ class Test_DeleteInternetService(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteInternetService(InternetServiceId=net_id)
                 except:
-                    pass
+                    print('Could not delete internet service')
 
     def test_T3815_invalid_internet_service_id(self):
         try:

@@ -18,7 +18,7 @@ class Test_butterfly_vpc(OscTestSuite):
             try:
                 message = error.args[0]
             except:
-                pass
+                print('Could not find message')
             if message and message.startswith('Threshold reach for wait_instances_state'):
                 known_error('TINA-6012', 'Instance did not reach running state')
             raise error
@@ -27,9 +27,9 @@ class Test_butterfly_vpc(OscTestSuite):
                 try:
                     delete_instances(self.a1_r1, inst_info)
                 except:
-                    pass
+                    print('Could not delete instances')
             if vpc_info:
                 try:
                     delete_vpc(self.a1_r1, vpc_info)
                 except:
-                    pass
+                    print('Could not delete vpc')

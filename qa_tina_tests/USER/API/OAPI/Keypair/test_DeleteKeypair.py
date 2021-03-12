@@ -59,7 +59,7 @@ class Test_DeleteKeypair(OscTestSuite):
                 try:
                     delete_keypair(self.a1_r1, kp_info)
                 except:
-                    pass
+                    print('Could not delete keypair')
 
     def test_T3465_invalid_dry_run(self):
         try:
@@ -74,4 +74,4 @@ class Test_DeleteKeypair(OscTestSuite):
                 try:
                     delete_keypair(self.a1_r1, kp_info)
                 except:
-                    pass
+                    print('Could not delete keypair')

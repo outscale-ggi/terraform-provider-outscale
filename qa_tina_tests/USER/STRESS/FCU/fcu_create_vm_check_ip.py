@@ -50,7 +50,7 @@ def make_read_file(osc_sdk, index, num_call):
             file.write('dups = {}\n'.format(dups))
             file.write('describe = {}'.format(ret.display()))
     except:
-        pass
+        print('error occurred in make_read_file')
 
 
 def wait_vm_ip_address(osc_sdk, vm_id, max_wait=60, sleep_duration=2):

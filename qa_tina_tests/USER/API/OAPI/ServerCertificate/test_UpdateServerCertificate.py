@@ -50,7 +50,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteServerCertificate(Name=self.sc_name)
                 except:
-                    pass
+                    print('Could not delete server certificate')
         finally:
             OscTestSuite.teardown_method(self, method)
 

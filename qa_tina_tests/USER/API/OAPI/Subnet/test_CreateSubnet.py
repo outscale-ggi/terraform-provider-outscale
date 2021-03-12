@@ -26,9 +26,8 @@ class Test_CreateSubnet(OscTestSuite):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:
@@ -120,7 +119,7 @@ class Test_CreateSubnet(OscTestSuite):
                 try:
                     self.a2_r1.oapi.DeleteNet(NetId=net_use2.Net.NetId)
                 except:
-                    pass
+                    print('Could not delete net')
 
     def test_T2622_valid_az(self):
         self.subnet_id = self.a1_r1.oapi.CreateSubnet(NetId=self.net,

@@ -12,13 +12,5 @@ class Kms(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Kms, cls).teardown_class()
+            finally:
+                raise error

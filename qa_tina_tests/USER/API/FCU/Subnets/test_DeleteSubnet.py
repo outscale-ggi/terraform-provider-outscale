@@ -57,17 +57,17 @@ class Test_DeleteSubnet(OscTestSuite):
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                 except Exception:
-                    pass
+                    print('Could not delete security group')
             if subnet_id:
                 try:
                     self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id)
                 except Exception:
-                    pass
+                    print('Could not delete subnet')
             if vpc_id:
                 try:
                     self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
                 except Exception:
-                    pass
+                    print('Could not delete vpc')
 
     def test_T1946_with_subnet_id_list(self):
         try:
@@ -127,8 +127,5 @@ class Test_DeleteSubnet(OscTestSuite):
             assert_error(error, 400, 'InvalidSubnetID.NotFound', "The subnet ID '{}' does not exist".format(subnet_id))
 
     def test_T4051_with_valid_params(self):
-        try:
-            subnet_id = self.a1_r1.fcu.CreateSubnet(VpcId=self.vpc_info[VPC_ID], CidrBlock='10.0.1.0/24').response.subnet.subnetId
-            self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id)
-        finally:
-            pass
+        subnet_id = self.a1_r1.fcu.CreateSubnet(VpcId=self.vpc_info[VPC_ID], CidrBlock='10.0.1.0/24').response.subnet.subnetId
+        self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id)

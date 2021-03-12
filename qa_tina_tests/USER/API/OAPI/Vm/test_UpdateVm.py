@@ -182,17 +182,14 @@ class Test_UpdateVm(OscTestSuite):
 
     def test_T2139_GroupId(self):
         sg_id = None
-        try:
-            ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
-            sg_id = create_security_group(self.a1_r1, id_generator(prefix='T2139'), 'desc')
-            self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], SecurityGroupIds=[sg_id])
-            ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
-            assert ret.VmId == self.vm_ids[0]
-            assert ret.DeletionProtection is False
-            assert isinstance(ret.SecurityGroups, list)
-            assert ret.SecurityGroups[0].SecurityGroupId == sg_id
-        finally:
-            pass
+        ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
+        sg_id = create_security_group(self.a1_r1, id_generator(prefix='T2139'), 'desc')
+        self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], SecurityGroupIds=[sg_id])
+        ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
+        assert ret.VmId == self.vm_ids[0]
+        assert ret.DeletionProtection is False
+        assert isinstance(ret.SecurityGroups, list)
+        assert ret.SecurityGroups[0].SecurityGroupId == sg_id
 
     def test_T2140_IISB(self):
         self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], VmInitiatedShutdownBehavior='stop')

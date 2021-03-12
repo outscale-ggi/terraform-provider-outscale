@@ -156,7 +156,7 @@ def run(args):
                         for fni_id in fni_ids:
                             osc_sdk.fcu.DeleteNetworkInterface(NetworkInterfaceId=fni_id)
                     except:
-                        pass
+                        print('Could not delete instances/nics')
     except Exception as error:
         unexpected_errors[None] = error
     finally:

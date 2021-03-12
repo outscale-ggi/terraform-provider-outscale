@@ -35,9 +35,8 @@ class Test_LinkPublicIp(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -63,9 +62,6 @@ class Test_LinkPublicIp(OscTestSuite):
             ret = self.a1_r1.oapi.LinkPublicIp(VmId=self.inst_info[INSTANCE_ID_LIST][0], PublicIp=self.standard_eips[0].publicIp)
             assert ret.response.LinkPublicIpId and \
                 isinstance(ret.response.LinkPublicIpId, str), "Missing/Incorrect response element 'LinkPublicIpId'."
-        # for debug purposes
-        except Exception as error:
-            raise error
         finally:
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.standard_eips[0].publicIp)

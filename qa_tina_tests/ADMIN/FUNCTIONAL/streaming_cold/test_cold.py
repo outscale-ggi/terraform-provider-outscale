@@ -31,24 +31,6 @@ class Test_cold(StreamingBase):
         cls.check_data = False  # TODO: change...
         super(Test_cold, cls).setup_class()
 
-    def setup_method(self, method):
-        super(Test_cold, self).setup_method(method)
-        try:
-            pass
-        except Exception as error:
-            try:
-                self.teardown_method(method)
-            except Exception as err:
-                raise err
-            finally:
-                raise error
-
-    def teardown_method(self, method):
-        try:
-            pass
-        finally:
-            super(Test_cold, self).teardown_method(method)
-
     def test_T3123_cold_vol_full(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
         if self.rebase_enabled:

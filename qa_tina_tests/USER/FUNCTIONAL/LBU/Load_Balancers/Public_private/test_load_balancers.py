@@ -22,25 +22,6 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 class Test_load_balancers(OscTestSuite):
 
-    @classmethod
-    def setup_class(cls):
-        super(Test_load_balancers, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_load_balancers, cls).teardown_class()
-
     @pytest.mark.tag_redwire
     def test_T1573_public_lbu(self):
 

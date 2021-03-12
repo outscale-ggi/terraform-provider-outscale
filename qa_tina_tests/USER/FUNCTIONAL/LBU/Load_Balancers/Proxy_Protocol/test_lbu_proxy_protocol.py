@@ -42,9 +42,8 @@ class Test_lbu_proxy_protocol(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -53,7 +52,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
                 try:
                     cls.a1_r1.eim.DeleteServerCertificate(ServerCertificateName=cls.cert_name)
                 except:
-                    pass
+                    print('Could not delete server certificate')
             if cls.crtpath:
                 os.remove(cls.crtpath)
             if cls.keypath:

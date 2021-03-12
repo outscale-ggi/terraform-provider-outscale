@@ -23,21 +23,6 @@ class Test_CreateMasterKey(OKMS):
     def setup_class(cls):
         cls.key_id = None
         super(Test_CreateMasterKey, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_CreateMasterKey, cls).teardown_class()
 
     def setup_method(self, method):
         OKMS.setup_method(self, method)
@@ -49,7 +34,7 @@ class Test_CreateMasterKey(OKMS):
                 try:
                     self.a1_r1.oapi.DeleteMasterKey(KeyId=self.key_id, DaysUntilDeletion=7)
                 except:
-                    pass
+                    print('Could not delete master key')
         finally:
             OscTestSuite.teardown_method(self, method)
 

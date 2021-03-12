@@ -141,9 +141,8 @@ class Test_NAT_gateway(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -246,7 +245,7 @@ class Test_NAT_gateway(OscTestSuite):
                             success = True
                             break
                     except OscCommandError:
-                        pass
+                        print('Could not execute command')
                 if success:
                     break
                 time.sleep(TIMEOUT)

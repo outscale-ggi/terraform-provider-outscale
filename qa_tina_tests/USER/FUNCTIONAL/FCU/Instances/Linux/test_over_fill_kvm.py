@@ -22,29 +22,13 @@ def create_inst(oscsdk, procnum, return_dict, inst_type, inst_number, num_iter):
             inst_info = create_instances(oscsdk, nb=inst_number, inst_type=inst_type, state=None)
         except:
             # logger.exception('Could not start instances')
-            pass
+            print('Could not delete instances')
         if inst_info:
             inst_ids.extend(inst_info[INSTANCE_ID_LIST])
     return_dict[procnum] = inst_ids
 
 
 class Test_over_fill_kvm(OscTestSuite):
-
-    @classmethod
-    def setup_class(cls):
-        super(Test_over_fill_kvm, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            cls.teardown_class()
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_over_fill_kvm, cls).teardown_class()
 
     def test_T2288_verify_all_started(self):
         manager = multiprocessing.Manager()

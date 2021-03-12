@@ -27,9 +27,8 @@ class Test_CreateVpnConnection(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -38,17 +37,17 @@ class Test_CreateVpnConnection(OscTestSuite):
                 cls.a1_r1.oapi.DeleteVpnConnection(VpnConnectionId=cls.vpn_id)
                 wait.wait_VpnConnections_state(cls.a1_r1, [cls.vpn_id], state='deleted', cleanup=True)
         except:
-            pass
+            print('Could not delete vpn connection')
         try:
             if cls.vg_id:
                 cls.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=cls.vg_id)
         except:
-            pass
+            print('Could not delete virtual gateway')
         try:
             if cls.cg_id:
                 cls.a1_r1.oapi.DeleteClientGateway(ClientGatewayId=cls.cg_id)
         except:
-            pass
+            print('Could not delete client gateway')
         finally:
             super(Test_CreateVpnConnection, cls).teardown_class()
 

@@ -25,9 +25,8 @@ class Test_ReadVmsHealth(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -40,8 +39,6 @@ class Test_ReadVmsHealth(OscTestSuite):
                 delete_lbu(cls.a1_r1, cls.lbu_name)
             if cls.ret_lb2:
                 delete_lbu(cls.a1_r1, cls.lbu_name2)
-        except Exception as error:
-            raise error
         finally:
             super(Test_ReadVmsHealth, cls).teardown_class()
 

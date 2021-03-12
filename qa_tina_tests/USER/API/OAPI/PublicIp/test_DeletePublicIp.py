@@ -25,9 +25,8 @@ class Test_DeletePublicIp(OscTestSuite):
         except AssertionError as error:
             try:
                 self.teardown_method(method)
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:

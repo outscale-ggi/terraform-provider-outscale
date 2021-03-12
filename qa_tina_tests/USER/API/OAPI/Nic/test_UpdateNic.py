@@ -29,9 +29,8 @@ class Test_UpdateNic(Nic):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

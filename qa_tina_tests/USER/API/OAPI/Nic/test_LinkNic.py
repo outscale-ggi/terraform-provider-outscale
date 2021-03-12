@@ -26,9 +26,8 @@ class Test_LinkNic(Nic):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -38,18 +37,18 @@ class Test_LinkNic(Nic):
                     cls.a1_r1.oapi.DeleteNic(NicId=nic_id)
                     wait_network_interfaces_state(cls.a1_r1, [nic_id], cleanup=True)
                 except:
-                    pass
+                    print('Could not delete nic')
 
             if cls.inst_info:
                 try:
                     delete_instances(cls.a1_r1, cls.inst_info)
                 except:
-                    pass
+                    print('Could not delete instances')
             if cls.vpc_inst_info:
                 try:
                     delete_instances(cls.a1_r1, cls.vpc_inst_info)
                 except:
-                    pass
+                    print('Could not delete instances')
         finally:
             super(Test_LinkNic, cls).teardown_class()
 
@@ -63,7 +62,7 @@ class Test_LinkNic(Nic):
                 try:
                     self.a1_r1.oapi.UnlinkNic(LinkNicId=nic_link_id)
                 except:
-                    pass
+                    print('Could not unlink nic')
         finally:
             super(Test_LinkNic, self).teardown_method(method)
 

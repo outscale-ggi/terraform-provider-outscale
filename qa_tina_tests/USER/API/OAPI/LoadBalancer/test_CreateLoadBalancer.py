@@ -28,7 +28,8 @@ class Test_CreateLoadBalancer(LoadBalancer):
                 try:
                     self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
+
         finally:
             super(Test_CreateLoadBalancer, self).teardown_method(method)
 
@@ -571,9 +572,9 @@ class Test_CreateLoadBalancer(LoadBalancer):
                 try:
                     self.a2_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
                 except:
-                    pass
+                    print('Could not delete lbu')
             if ret_create_lbu2:
                 try:
                     self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
                 except:
-                    pass
+                    print('Could not delete lbu')

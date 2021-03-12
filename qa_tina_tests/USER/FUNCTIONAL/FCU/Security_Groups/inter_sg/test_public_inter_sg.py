@@ -59,7 +59,7 @@ class Test_public_inter_sg(OscTestSuite):
                     if len(cls.instances) > 1:
                         break
                 except Exception as error:
-                    pass
+                    print('Could not create instances')
             if len(cls.instances) < 2:
                 cls.logger.info("Test can not be executed")
                 cls.missing = True
@@ -72,9 +72,8 @@ class Test_public_inter_sg(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):

@@ -82,8 +82,6 @@ def validate_vm_response(vm_ret, **kwargs):
                         assert getattr(vm_bdm.Bsu, key) == value, (
                             'In BlockDeviceMapping, {} is different of expected value {} for key {}'
                             .format(getattr(vm_bdm.Bsu, key), value, key))
-            else:
-                pass
     nics = kwargs.get('nic', [])
     for nic in nics:
         local_nic_id = None

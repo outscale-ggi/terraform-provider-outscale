@@ -32,9 +32,8 @@ class Test_modify_pin_state(OscTestSuite):
         except Exception as error:
             try:
                 self.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:

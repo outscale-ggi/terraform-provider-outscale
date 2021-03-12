@@ -35,7 +35,7 @@ def start_windows(osc_sdk, args, subnet_id, queue):
             try:
                 delete_instances(osc_sdk, inst_info)
             except:
-                pass
+                print('Could not delete instances')
     queue.put(result)
 
 
@@ -98,7 +98,7 @@ def run(args):
             try:
                 delete_vpc(oscsdk, vpc_info)
             except:
-                pass
+                print('Could not delete vpc')
 
 
 if __name__ == '__main__':

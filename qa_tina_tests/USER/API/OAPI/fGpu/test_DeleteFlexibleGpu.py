@@ -20,16 +20,8 @@ class Test_DeleteFlexibleGpu(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_DeleteFlexibleGpu, cls).teardown_class()
+            finally:
+                raise
 
     def test_T4190_missing_flexible_gpu_id(self):
         try:

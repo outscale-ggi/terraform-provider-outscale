@@ -11,17 +11,6 @@ from qa_tina_tools.tina import oapi, wait, info_keys, setup_tools
 
 class Test_loadbalancer_policy(OscTestSuite):
 
-    @classmethod
-    def setup_class(cls, ):
-        super(Test_loadbalancer_policy, cls).setup_class()
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_loadbalancer_policy, cls).teardown_class()
-
     def test_T5343_lbu_policy(self):
         try:
             vm_info = oapi.create_Vms(self.a1_r1, vm_type=self.a1_r1.config.region.get_info(constants.DEFAULT_GPU_INSTANCE_TYPE))

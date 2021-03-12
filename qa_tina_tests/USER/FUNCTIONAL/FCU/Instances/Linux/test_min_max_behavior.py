@@ -16,21 +16,6 @@ def evaluate_server(server):
 
 
 class Test_min_max_behavior(OscTestSuite):
-    @classmethod
-    def setup_class(cls):
-        super(Test_min_max_behavior, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            cls.teardown_class()
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_min_max_behavior, cls).teardown_class()
 
     @pytest.mark.region_admin
     def test_T4517_min_max_count_behavior(self):

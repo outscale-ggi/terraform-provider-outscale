@@ -36,13 +36,6 @@ class Test_CreateKey(Kms):
         cls.key_id = None
         super(Test_CreateKey, cls).setup_class()
 
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_CreateKey, cls).teardown_class()
-
     def setup_method(self, method):
         Kms.setup_method(self, method)
         self.key_id = None

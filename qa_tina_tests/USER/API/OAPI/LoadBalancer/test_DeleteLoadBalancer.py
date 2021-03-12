@@ -26,9 +26,8 @@ class Test_DeleteLoadBalancer(LoadBalancer):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:
@@ -36,7 +35,7 @@ class Test_DeleteLoadBalancer(LoadBalancer):
                 try:
                     delete_lbu(self.a1_r1, lbu_name=self.lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
         finally:
             super(Test_DeleteLoadBalancer, self).teardown_method(method)
 

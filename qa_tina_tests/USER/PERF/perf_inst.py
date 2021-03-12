@@ -130,7 +130,7 @@ def perf_inst_exec(oscsdk, logger, queue, args, opsys):
                         inst_ssh_time = (datetime.now() - start_run_inst_time).total_seconds()
                         result['inst_ssh'] = inst_ssh_time
                     except (BadHostKeyException, AuthenticationException, SSHException, socket.error):
-                        pass
+                        print('Could not connect')
                 if not prompt_inst_time:
                     ret = oscsdk.fcu.GetConsoleOutput(InstanceId=inst_list[0].instanceId)
                     output = ret.response.output

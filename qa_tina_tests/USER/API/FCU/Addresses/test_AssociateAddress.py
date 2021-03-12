@@ -214,9 +214,7 @@ class Test_AssociateAddress(OscTestSuite):
                                                            AllocationId=eip.allocationId, AllowReassociation=None).response.associationId
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                if error.status_code == 400 and error.error_code == 'InvalidIPAddress.InUse':
-                    pass
-                else:
+                if error.status_code != 400 or error.error_code != 'InvalidIPAddress.InUse':
                     raise error
         # for debug purposes
         except Exception as error:
@@ -240,9 +238,7 @@ class Test_AssociateAddress(OscTestSuite):
                                                            AllocationId=eip.allocationId, AllowReassociation=False).response.associationId
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                if error.status_code == 400 and error.error_code == 'InvalidIPAddress.InUse':
-                    pass
-                else:
+                if error.status_code != 400 or error.error_code != 'InvalidIPAddress.InUse':
                     raise error
         # for debug purposes
         except Exception as error:

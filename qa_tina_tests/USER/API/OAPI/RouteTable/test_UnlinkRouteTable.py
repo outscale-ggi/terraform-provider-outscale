@@ -40,9 +40,8 @@ class Test_UnlinkRouteTable(OscTestSuite):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:
@@ -50,22 +49,22 @@ class Test_UnlinkRouteTable(OscTestSuite):
                 try:
                     self.a1_r1.oapi.UnlinkRouteTable(LinkRouteTableId=self.link_id)
                 except:
-                    pass
+                    print('Could not unlink route table')
             if self.rt_id:
                 try:
                     self.a1_r1.oapi.DeleteRouteTable(RouteTableId=self.rt_id)
                 except:
-                    pass
+                    print('Could not delete route table')
             if self.subnet_id:
                 try:
                     self.a1_r1.oapi.DeleteSubnet(SubnetId=self.subnet_id)
                 except:
-                    pass
+                    print('Could not delete subnet')
             if self.net_id:
                 try:
                     self.a1_r1.oapi.DeleteNet(NetId=self.net_id)
                 except:
-                    pass
+                    print('Could not delete net')
         finally:
             OscTestSuite.teardown_method(self, method)
 

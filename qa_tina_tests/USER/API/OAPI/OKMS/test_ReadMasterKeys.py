@@ -28,9 +28,8 @@ class Test_ReadMasterKeys(OKMS):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -39,7 +38,7 @@ class Test_ReadMasterKeys(OKMS):
                 try:
                     cls.a1_r1.oapi.DeleteMasterKey(MasterKeyId=key_id, DaysUntilDeletion=7)
                 except:
-                    pass
+                    print('Could not delete master key')
         finally:
             super(Test_ReadMasterKeys, cls).teardown_class()
 

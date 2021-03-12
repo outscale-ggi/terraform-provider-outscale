@@ -50,9 +50,8 @@ class Test_ReadLoadBalancers(LoadBalancer):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -61,12 +60,12 @@ class Test_ReadLoadBalancers(LoadBalancer):
                 try:
                     cls.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
             for lb_name in cls.lb_names_a2:
                 try:
                     cls.a2_r1.oapi.DeleteLoadBalancer(LoadBalancerName=lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
         finally:
             super(Test_ReadLoadBalancers, cls).teardown_class()
 

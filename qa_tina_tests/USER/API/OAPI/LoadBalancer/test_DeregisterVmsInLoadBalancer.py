@@ -17,9 +17,8 @@ class Test_DeregisterVmsInLoadBalancer(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -37,7 +36,7 @@ class Test_DeregisterVmsInLoadBalancer(OscTestSuite):
                 self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name,
                                                           BackendVmIds=[self.inst_ids[0]])
             except:
-                pass
+                print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
@@ -49,7 +48,7 @@ class Test_DeregisterVmsInLoadBalancer(OscTestSuite):
                 self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name,
                                                           BackendVmIds=[self.inst_ids[0]])
             except:
-                pass
+                print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, invalid loadbalancer name'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5030')
@@ -61,7 +60,7 @@ class Test_DeregisterVmsInLoadBalancer(OscTestSuite):
                 self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name,
                                                           BackendVmIds=[self.inst_ids[0]])
             except:
-                pass
+                print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
@@ -72,7 +71,7 @@ class Test_DeregisterVmsInLoadBalancer(OscTestSuite):
             try:
                 self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name, BackendVmIds=[self.inst_ids[0]])
             except:
-                pass
+                print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, invalid vm id'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5063')
@@ -83,7 +82,7 @@ class Test_DeregisterVmsInLoadBalancer(OscTestSuite):
             try:
                 self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name, BackendVmIds=[self.inst_ids[0]])
             except:
-                pass
+                print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, incorrect parameter type'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
@@ -94,7 +93,7 @@ class Test_DeregisterVmsInLoadBalancer(OscTestSuite):
             try:
                 self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name, BackendVmIds=[self.inst_ids[0]])
             except:
-                pass
+                print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, incorrect parameter type'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')

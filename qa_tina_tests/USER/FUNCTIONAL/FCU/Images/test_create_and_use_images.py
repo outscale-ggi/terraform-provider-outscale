@@ -28,9 +28,8 @@ class Test_create_and_use_images(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -66,9 +65,9 @@ class Test_create_and_use_images(OscTestSuite):
                 try:
                     delete_instances(self.a1_r1, info)
                 except:
-                    pass
+                    print('Could not delete instances')
             if image_id:
                 try:
                     cleanup_images(self.a1_r1, image_id_list=[image_id], force=True)
                 except:
-                    pass
+                    print('Could not delete images')

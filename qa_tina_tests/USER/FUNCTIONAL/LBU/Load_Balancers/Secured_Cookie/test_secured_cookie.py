@@ -31,16 +31,8 @@ class Test_secured_cookie(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_secured_cookie, cls).teardown_class()
+            finally:
+                raise
 
     def test_T4598_modify_attribute_secured_cookie_true(self):
         ret_lbu = None
@@ -89,12 +81,12 @@ class Test_secured_cookie(OscTestSuite):
                 try:
                     delete_lbu(self.a1_r1, lbu_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
             if ret_up:
                 try:
                     self.a1_r1.eim.DeleteServerCertificate(ServerCertificateName=name)
                 except:
-                    pass
+                    print('Could not delete server certificate')
             if crtpath:
                 os.remove(crtpath)
             if keypath:

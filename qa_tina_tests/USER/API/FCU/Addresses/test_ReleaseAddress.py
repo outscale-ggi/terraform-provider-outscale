@@ -52,9 +52,8 @@ class Test_ReleaseAddress(OscTestSuite):
         except Exception as error:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise error
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:

@@ -14,7 +14,7 @@ def pytest_runtest_setup(item):
     try:
         cur_region_features_tickets = cur_region.get_info(constants.FEATURES_TICKETS)
     except ValueError:
-        pass
+        cur_region_features_tickets = []
 
     # cur_test --> list needed feature
     cur_test_features = [mark.name for mark in item.iter_markers() if 'region_' in mark.name]

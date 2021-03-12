@@ -32,9 +32,7 @@ class Test_fcu_throttling(OscTestSuite):
                     max_dist_success = max(max_dist_success, tmp_time-last_success)
                 last_success = tmp_time
             except OscApiException as error:
-                if hasattr(error, 'status_code') and error.status_code == 503:
-                    pass
-                else:
+                if not hasattr(error, 'status_code') or error.status_code != 503:
                     errs.handle_api_exception(error)
             except OscTestException as error:
                 errs.add_unexpected_error(error)

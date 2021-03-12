@@ -19,17 +19,8 @@ class Test_CreateFlexibleGpu(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception as err:
-                raise err
             finally:
                 raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_CreateFlexibleGpu, cls).teardown_class()
 
     def test_T4180_missing_model_name(self):
         try:

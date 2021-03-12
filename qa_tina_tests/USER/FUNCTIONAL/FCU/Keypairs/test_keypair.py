@@ -16,25 +16,6 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, NAME, PATH, PUBLIC,
 
 class Test_keypair(OscTestSuite):
 
-    @classmethod
-    def setup_class(cls):
-        super(Test_keypair, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_keypair, cls).teardown_class()
-
     def exec_import_kp_test(self, key_size):
         kp_info = None
         config = None

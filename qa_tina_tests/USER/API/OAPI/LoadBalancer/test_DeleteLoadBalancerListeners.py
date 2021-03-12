@@ -34,9 +34,8 @@ class Test_DeleteLoadBalancerListeners(LoadBalancer):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -45,7 +44,7 @@ class Test_DeleteLoadBalancerListeners(LoadBalancer):
                 try:
                     cls.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=cls.lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
         finally:
             super(Test_DeleteLoadBalancerListeners, cls).teardown_class()
 

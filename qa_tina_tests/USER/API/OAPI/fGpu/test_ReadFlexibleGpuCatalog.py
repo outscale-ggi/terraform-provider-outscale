@@ -13,21 +13,6 @@ class Test_ReadFlexibleGpuCatalog(OscTestSuite):
     def setup_class(cls):
         cls.quotas = {'gpu_limit': 4}
         super(Test_ReadFlexibleGpuCatalog, cls).setup_class()
-        try:
-            pass
-        except:
-            try:
-                cls.teardown_class()
-            except:
-                pass
-            raise
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_ReadFlexibleGpuCatalog, cls).teardown_class()
 
     def test_T4405_no_params(self):
         ret = self.a1_r1.oapi.ReadFlexibleGpuCatalog()

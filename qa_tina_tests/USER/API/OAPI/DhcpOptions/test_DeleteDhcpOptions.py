@@ -26,9 +26,8 @@ class Test_DeleteDhcpOptions(OscTestSuite):
         except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

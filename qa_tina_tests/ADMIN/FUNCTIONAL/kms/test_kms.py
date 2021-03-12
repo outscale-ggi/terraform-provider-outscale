@@ -7,38 +7,28 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 
 @pytest.mark.region_kms
 class Test_kms(OscTestSuite):
+
     @classmethod
     def setup_class(cls):
         super(Test_kms, cls).setup_class()
         try:
             cls.account_id = cls.a1_r1.config.account.account_id
             cls.account2_id = cls.a2_r1.config.account.account_id
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception as err:
-                raise err
             finally:
-                raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_kms, cls).teardown_class()
+                raise
 
     def teardown_method(self, method):
         try:
             self.a1_r1.intel.kms.key.delete(owner=self.account_id, force=True)
             self.a1_r1.intel.kms.key.delete(owner=self.account2_id, force=True)
-        except Exception as error:
+        except Exception:
             try:
                 OscTestSuite.teardown_method(self, method)
-            except Exception as err:
-                raise err
             finally:
-                raise error
+                raise
 
     def verify_result(self, ret, **kwargs):
         assert ('bypass_policy' in kwargs and kwargs['bypass_policy'] == ret.bypass_policy) or ret.bypass_policy is False

@@ -267,7 +267,7 @@ class Test_ModifyImageAttribute(OscTestSuite):
         finally:
             if ret:
                 # todo reset initial product code(s)
-                pass
+                print('todo reset initial product code(s)')
 
     def test_T1751_att_value(self):
         ret = None
@@ -279,9 +279,6 @@ class Test_ModifyImageAttribute(OscTestSuite):
             assert resp.description == DESCRIPTION + 'new'
         except OscApiException as error:
             assert_error(error, 400, 'OWS.Error', 'Request is not valid.')
-        finally:
-            if ret:
-                pass
 
     def test_T1752_op_type(self):
         ret = None

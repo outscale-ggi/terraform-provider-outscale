@@ -26,9 +26,8 @@ class Test_UpdateRoutePropagation(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -38,17 +37,17 @@ class Test_UpdateRoutePropagation(OscTestSuite):
                     cls.a1_r1.oapi.UnlinkVirtualGateway(VirtualGatewayId=cls.vgw_id, NetId=cls.vpc_info[VPC_ID])
                     wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='available')
                 except:
-                    pass
+                    print('Could not unlink virtual gateway')
             if cls.vgw_id:
                 try:
                     cls.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=cls.vgw_id)
                 except:
-                    pass
+                    print('Could not delete virtual gateway')
             if cls.vpc_info:
                 try:
                     delete_vpc(cls.a1_r1, cls.vpc_info)
                 except:
-                    pass
+                    print('Could not delete vpc')
         finally:
             super(Test_UpdateRoutePropagation, cls).teardown_class()
 

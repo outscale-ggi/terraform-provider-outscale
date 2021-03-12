@@ -17,9 +17,8 @@ class Test_GenerateDataKey(OKMS):
         except:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -28,7 +27,7 @@ class Test_GenerateDataKey(OKMS):
                 try:
                     cls.a1_r1.oapi.DeleteMasterKey(MasterKeyId=cls.key_id, DaysUntilDeletion=7)
                 except:
-                    pass
+                    print('Could not delete master key')
         finally:
             super(Test_GenerateDataKey, cls).teardown_class()
 

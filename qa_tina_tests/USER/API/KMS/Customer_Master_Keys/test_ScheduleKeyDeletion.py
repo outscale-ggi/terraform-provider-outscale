@@ -11,25 +11,8 @@ class Test_ScheduleKeyDeletion(Kms):
 
     @classmethod
     def setup_class(cls):
-        super(Test_ScheduleKeyDeletion, cls).setup_class()
         cls.key_id = None
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            finally:
-                raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_ScheduleKeyDeletion, cls).teardown_class()
-
-    def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        super(Test_ScheduleKeyDeletion, cls).setup_class()
 
     def teardown_method(self, method):
         try:

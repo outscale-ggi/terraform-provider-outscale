@@ -22,17 +22,8 @@ class Test_volume(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception as err:
-                raise err
             finally:
                 raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_volume, cls).teardown_class()
 
     def test_T4153_deletion_process(self):
         # TODO get period via consul, for now global variable

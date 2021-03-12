@@ -62,9 +62,8 @@ class FgpuLifeCycle(OscTestSuite):
         except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -166,12 +165,12 @@ class FgpuLifeCycle(OscTestSuite):
                 try:
                     delete_instances(self.a1_r1, self.inst_info)
                 except:
-                    pass
+                    print('Could not delete instances')
             if not delete_on_vm_deletion and self.fgpu_id:
                 try:
                     self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=self.fgpu_id)
                 except:
-                    pass
+                    print('Could not delete flexible gpu')
             self.inst_info = None
             self.fgpu_id = None
             raise err

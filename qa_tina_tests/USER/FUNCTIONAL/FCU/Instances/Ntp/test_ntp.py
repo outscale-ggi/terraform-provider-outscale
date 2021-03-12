@@ -31,14 +31,13 @@ class Test_ntp(OscTestSuite):
                 if ubuntu_omi != "None":
                     cls.inst_info[UBUNTU] = create_instances(osc_sdk=cls.a1_r1, omi_id=ubuntu_omi)
             except ValueError:
-                pass
+                print('Could not find ubuntu omi')
             cls.vpc_info = create_vpc(cls.a1_r1, nb_instance=1, state='')
         except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
