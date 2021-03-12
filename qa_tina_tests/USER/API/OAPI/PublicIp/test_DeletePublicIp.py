@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -7,6 +7,12 @@ from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_DeletePublicIp(OscTestSuite):
+
+    @classmethod
+    def setup_class(cls):
+        cls.ip = None
+        cls.ip_id = None
+        super(Test_DeletePublicIp, cls).setup_class()
 
     def setup_method(self, method):
         super(Test_DeletePublicIp, self).setup_method(method)

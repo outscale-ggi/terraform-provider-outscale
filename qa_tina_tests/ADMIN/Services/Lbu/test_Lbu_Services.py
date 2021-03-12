@@ -22,7 +22,7 @@ class Test_Lbu_Services(OscTestSuite):
         super(Test_Lbu_Services, cls).teardown_class()
 
     # Note: the prefix test_ was eared to avoid having it marked as automated
-    def T232_Lbu_python_dependencies(self):
+    def test_T232_lbu_python_dependencies(self):
 
         key_ssh = DEFAULT_VALUE
         user_name = DEFAULT_VALUE
@@ -34,13 +34,13 @@ class Test_Lbu_Services(OscTestSuite):
         sshclient = None
         try:
             sshclient = SshTools.check_connection_paramiko(ip_address=inter, ssh_key=key_ssh, username=user_name, password=passphrase)
-            for vm in VMS:
+            for inst in VMS:
 
                 sshclient_jhost = SshTools.check_connection_paramiko_nested(sshclient=sshclient,
-                                                                            ip_address=vm,
+                                                                            ip_address=inst,
                                                                             ssh_key=key_ssh,
                                                                             local_private_addr=inter,
-                                                                            dest_private_addr=vm,
+                                                                            dest_private_addr=inst,
                                                                             username=user_name,
                                                                             password=passphrase)
                 for key, value in list(DEPENDENCIES.items()):
@@ -50,7 +50,7 @@ class Test_Lbu_Services(OscTestSuite):
                     assert value in out
 
         except AssertionError as _:
-            self.logger("Dependency for key {} expected {} but was {}".format(key, value, out))
+            self.logger("Dependency for key %s expected %s but was %s", key, value, out)
         finally:
             if sshclient:
                 sshclient.close()

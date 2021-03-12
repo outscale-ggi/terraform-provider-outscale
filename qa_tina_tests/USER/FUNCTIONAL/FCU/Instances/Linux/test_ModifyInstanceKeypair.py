@@ -64,4 +64,3 @@ class Test_ModifyInstanceKeypair(OscTestSuite):
             except Exception as error:
                 self.logger.exception(error)
                 raise error
-

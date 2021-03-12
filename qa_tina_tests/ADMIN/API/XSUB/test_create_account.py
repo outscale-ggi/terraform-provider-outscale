@@ -34,6 +34,8 @@ class Test_create_account(OscTestSuite):
             assert_error(err, 400, 'too-many-accounts-created', 'Limit [COUNT_ACCOUNT_CREATED_ACCOUNTS] is exceeded for entity')
         finally:
             if maxaccount:
-                self.a1_r1.identauth.IdauthEntityLimit.putAccountLimits(accountPid=self.a1_r1.config.account.account_id, limits={'items': [{"article": 'COUNT_ACCOUNT_CREATED_ACCOUNTS', "value": maxaccount}]})
+                self.a1_r1.identauth.IdauthEntityLimit.putAccountLimits(accountPid=self.a1_r1.config.account.account_id,
+                                                                        limits={'items': [{"article": 'COUNT_ACCOUNT_CREATED_ACCOUNTS',
+                                                                                           "value": maxaccount}]})
             if pid:
                 delete_account(self.a1_r1, pid)

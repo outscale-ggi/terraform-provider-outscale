@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 import string
 
 import pytest
@@ -13,7 +13,7 @@ class Test_CreateAccount(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.ASQUOTAS = {'COUNT_ACCOUNT_CREATED_ACCOUNTS': 2}
+        cls.asquotas = {'COUNT_ACCOUNT_CREATED_ACCOUNTS': 2}
         super(Test_CreateAccount, cls).setup_class()
 
     @classmethod
@@ -75,7 +75,8 @@ class Test_CreateAccount(OscTestSuite):
             self.a1_r1.icu.CreateAccount(**ret)
             assert False, 'CreateAccount should have failed'
         except OscApiException as error:
-            assert_error(error, 400, "InvalidParameterValue", "Invalid value received for 'EmailAddress': test@test. Supported patterns: ^.+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$")
+            assert_error(error, 400, "InvalidParameterValue",
+                         r"Invalid value received for 'EmailAddress': test@test. Supported patterns: ^.+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$")
 
     # def test_T757_without_quota(self):
     # TODO: change quota of the user to 0 to be able to execute the test

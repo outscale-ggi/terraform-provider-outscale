@@ -10,7 +10,7 @@ class Test_CreateSubnet(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'subnet_limit': 5}
+        cls.quotas = {'subnet_limit': 5}
         cls.vpc_info = None
         super(Test_CreateSubnet, cls).setup_class()
         try:

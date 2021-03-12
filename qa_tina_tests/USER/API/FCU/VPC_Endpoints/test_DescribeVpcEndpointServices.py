@@ -34,7 +34,7 @@ class Test_DescribeVpcEndpointServices(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue', "Invalid value for parameter 'MaxResults': 'toto'")
 
-    def test_T4486_invalid_next_token_value(self):      
+    def test_T4486_invalid_next_token_value(self):
         try:
             self.a1_r1.fcu.DescribeVpcEndpointServices(NextToken=True)
             known_error('TINA-5257', 'DescribeVpcEndpointServices with NextToken attribute')

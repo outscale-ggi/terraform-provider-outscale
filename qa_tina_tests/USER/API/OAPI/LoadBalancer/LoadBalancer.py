@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
@@ -14,7 +14,7 @@ def validate_load_balancer_global_form(lb, **kwargs):
     :param kwargs:
         str lb_type: the Load Balancer type
         str name: the Load Balancer name
-        list[(str, str)]tags: the Load Balancer tags, it's a list of (key, value)
+        lst[(str, str)]tags: the Load Balancer tags, it's a lst of (key, value)
         dict access_log: expected access log
             bool IsEnabled
             str OsuBucketName
@@ -29,12 +29,12 @@ def validate_load_balancer_global_form(lb, **kwargs):
             int Timeout
             int UnhealthyThreshold
         str dns_name: the static part of the dns_name
-        list(dict) lst: the list of listener
+        lst(dict) lst: the lst of listener
             int BackendPort
             str BackendProtocol
             int LoadBalancerPort
             str LoadBalancerProtocol
-            list(str)PolicyNames
+            lst(str)PolicyNames
             str ServerCertificateId
         str net_id: the net_id.
         str subnet_id: the subnet_id.
@@ -43,43 +43,43 @@ def validate_load_balancer_global_form(lb, **kwargs):
     :return:
     """
     assert hasattr(lb, 'AccessLog')
-    al = kwargs.get('access_log')
-    if al:
-        for k, v in al.items():
-            assert getattr(lb.AccessLog, k) == v
+    access_log = kwargs.get('access_log')
+    if access_log:
+        for key, value in access_log.items():
+            assert getattr(lb.AccessLog, key) == value
     assert hasattr(lb, 'ApplicationStickyCookiePolicies')
-    for p in lb.ApplicationStickyCookiePolicies:
-        assert hasattr(p, 'CookieName')
-        assert hasattr(p, 'PolicyName')
+    for pol in lb.ApplicationStickyCookiePolicies:
+        assert hasattr(pol, 'CookieName')
+        assert hasattr(pol, 'PolicyName')
     assert hasattr(lb, 'BackendVmIds')
     assert hasattr(lb, 'DnsName')
     if kwargs.get('dns_name'):
         assert kwargs.get('dns_name') in lb.DnsName
     assert hasattr(lb, 'HealthCheck')
-    hc = kwargs.get('hc')
-    if hc:
-        for k, v in hc.items():
-            assert getattr(lb.HealthCheck, k) == v, ('In HealthCheck, {} is different of expected value {} for key {}'
-                                                     .format(getattr(lb.HealthCheck, k), v, k))
+    health_check = kwargs.get('hc')
+    if health_check:
+        for key, value in health_check.items():
+            assert getattr(lb.HealthCheck, key) == value, ('In HealthCheck, {} is different of expected value {} for key {}'
+                                                     .format(getattr(lb.HealthCheck, key), value, key))
         for attr in lb.HealthCheck.__dict__:
             if not attr.startswith('_'):
-                assert attr in hc, 'In HealthCheck, {} has not been validated'.format(attr)
+                assert attr in health_check, 'In HealthCheck, {} has not been validated'.format(attr)
     assert hasattr(lb, 'Listeners')
     lsts = kwargs.get('lst', [])
     for lst in lsts:
-        for l in lb.Listeners:
-            if l.LoadBalancerPort == lst['LoadBalancerPort']:
-                for k, v in lst.items():
-                    assert getattr(l, k) == v, ('In listener, {} is different of expected value {} for key {}'
-                                                .format(getattr(l, k), v, k))
+        for llst in lb.Listeners:
+            if llst.LoadBalancerPort == lst['LoadBalancerPort']:
+                for key, value in lst.items():
+                    assert getattr(llst, key) == value, ('In listener, {} is different of expected value {} for key {}'
+                                                .format(getattr(llst, key), value, key))
             else:
                 pass
     assert hasattr(lb, 'LoadBalancerName')
     if kwargs.get('name'):
         assert lb.LoadBalancerName == kwargs.get('name')
     assert hasattr(lb, 'LoadBalancerStickyCookiePolicies')
-    for p in lb.LoadBalancerStickyCookiePolicies:
-        assert hasattr(p, 'PolicyName')
+    for pol in lb.LoadBalancerStickyCookiePolicies:
+        assert hasattr(pol, 'PolicyName')
     assert hasattr(lb, 'LoadBalancerType')
     if kwargs.get('lb_type'):
         assert lb.LoadBalancerType == kwargs.get('lb_type')

@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import os
 
 from cryptography.hazmat.primitives.asymmetric import ec

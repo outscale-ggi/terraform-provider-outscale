@@ -14,7 +14,6 @@ from qa_tina_tools.tools.tina.create_tools import create_volumes, attach_volume,
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances_old
 from qa_tina_tools.tools.tina.wait_tools import wait_images_state
 
-
 VOL_SIZE_1 = 11
 VOL_SIZE_2 = 123
 DESCRIPTION = id_generator(prefix="description")
@@ -163,7 +162,7 @@ class Test_DescribeImages(OscTestSuite):
             assert value == image.hypervisor
 
     def test_T833_filter_image_id(self):
-        value = self.a1_r1.config.region._conf[constants.CENTOS7]
+        value = self.a1_r1.config.region.get_info(constants.CENTOS7)
         desc_filter = {"Name": "image-id", "Value": value}
         ret = self.a1_r1.fcu.DescribeImages(Filter=[desc_filter])
         for image in ret.response.imagesSet:
@@ -254,9 +253,9 @@ class Test_DescribeImages(OscTestSuite):
         assert ret.response.imagesSet[0].imageId == self.image1_id, ret.response.display()
 
     def test_T1370_valid_image_id_public_image(self):
-        ret = self.a1_r1.fcu.DescribeImages(ImageId=[self.a1_r1.config.region._conf[constants.CENTOS7]])
+        ret = self.a1_r1.fcu.DescribeImages(ImageId=[self.a1_r1.config.region.get_info(constants.CENTOS7)])
         assert len(ret.response.imagesSet) == 1, ret.response.display()
-        assert ret.response.imagesSet[0].imageId == self.a1_r1.config.region._conf[constants.CENTOS7], ret.response.display()
+        assert ret.response.imagesSet[0].imageId == self.a1_r1.config.region.get_info(constants.CENTOS7), ret.response.display()
 
     def test_T1371_valid_image_id_shared_image(self):
         ret = self.a2_r1.fcu.DescribeImages(ImageId=[self.image1_id])
@@ -318,7 +317,7 @@ class Test_DescribeImages(OscTestSuite):
     def test_T1379_valid_executable_all(self):
         ret = self.a3_r1.fcu.DescribeImages(ExecutableBy=['all'])
         for image in ret.response.imagesSet:
-            assert 'true' == image.isPublic
+            assert image.isPublic == 'true'
 
     def test_T1527_valid_executable_self(self):
         ret = self.a3_r1.fcu.DescribeImages(ExecutableBy=['self'])

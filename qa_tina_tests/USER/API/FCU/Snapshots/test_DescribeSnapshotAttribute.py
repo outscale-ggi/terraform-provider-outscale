@@ -1,10 +1,9 @@
-# pylint: disable=missing-docstring
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state
-
 
 NB_SNAP = 1
 
@@ -36,7 +35,7 @@ class Test_DescribeSnapshotAttribute(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
-            cls.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=cls.snap1_id[0], CreateVolumePermission={'Remove' : [{'UserId': cls.user2_acc_id}]})
+            cls.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=cls.snap1_id[0], CreateVolumePermission={'Remove': [{'UserId': cls.user2_acc_id}]})
             if cls.snap1_id:
                 cls.a1_r1.fcu.DeleteSnapshot(SnapshotId=cls.snap1_id[0])
             if cls.vol1_id:

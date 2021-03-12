@@ -13,7 +13,8 @@ from qa_test_tools.misc import id_generator
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_security_groups
 
 
-ssl._create_default_https_context = ssl._create_unverified_context
+setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 LOGGING_LEVEL = logging.DEBUG
 
@@ -79,41 +80,41 @@ if __name__ == '__main__':
     group_id = oscsdk.fcu.CreateSecurityGroup(GroupName=id_generator(prefix="test_SGload_"), GroupDescription='Description').response.groupId
     try:
 
-        NB_OK = 0
-        NB_KO = 0
+        nb_ok = 0
+        nb_ko = 0
 
-        QUEUE = Queue()
+        queue = Queue()
         processes = []
         i = 0
         logger.info("Start workers")
         for i in range(args.process_number):
-            p = Process(name="load-{}".format(i), target=create_SG_rule, args=[oscsdk, QUEUE, group_id, args.num_sg_rules_per_process])
-            processes.append(p)
+            proc = Process(name="load-{}".format(i), target=create_SG_rule, args=[oscsdk, queue, group_id, args.num_sg_rules_per_process])
+            processes.append(proc)
 
         start = time.time()
-        for i in range(len(processes)):
-            processes[i].start()
+        for proc in processes:
+            proc.start()
 
         logger.info("Wait workers")
-        for i in range(len(processes)):
-            processes[i].join()
+        for proc in processes:
+            proc.join()
         end = time.time()
 
         durations = []
 
         logger.info("Get results")
-        while not QUEUE.empty():
-            res = QUEUE.get()
+        while not queue.empty():
+            res = queue.get()
             for key in res.keys():
                 if key == "status":
                     if res[key] == "OK":
-                        NB_OK += 1
+                        nb_ok += 1
                     else:
-                        NB_KO += 1
+                        nb_ko += 1
                 elif key == 'duration':
                     durations.append(res[key])
             logger.debug(res)
-        logger.info("OK = {} - KO = {}".format(NB_OK, NB_KO))
+        logger.info("OK = {} - KO = {}".format(nb_ok, nb_ko))
         logger.info("durations = {}".format(durations))
         print('duration = {}'.format(end - start))
 

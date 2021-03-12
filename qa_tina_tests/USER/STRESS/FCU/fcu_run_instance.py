@@ -11,7 +11,8 @@ from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
 
 
-ssl._create_default_https_context = ssl._create_unverified_context
+setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 LOGGING_LEVEL = logging.DEBUG
 DEFAULT_VALUE = -1
@@ -77,15 +78,15 @@ if __name__ == '__main__':
                 token = token
             else:
                 token = str(uuid.uuid4())
-            p = Process(name="load-{}".format(i), target=test_Create_Vm, args=[oscsdk, queue, token])
-            processes.append(p)
+            proc = Process(name="load-{}".format(i), target=test_Create_Vm, args=[oscsdk, queue, token])
+            processes.append(proc)
         print("kaka")
-        for i in range(len(processes)):
-            processes[i].start()
+        for proc in processes:
+            proc.start()
 
         logger.info("Wait workers")
-        for i in range(len(processes)):
-            processes[i].join()
+        for proc in processes:
+            proc.join()
 
         while not queue.empty():
             res = queue.get()

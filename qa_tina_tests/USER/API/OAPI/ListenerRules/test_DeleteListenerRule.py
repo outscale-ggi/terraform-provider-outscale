@@ -34,7 +34,6 @@ class Test_DeleteListenerRule(OscTestSuite):
                 pass
             raise error
 
-
     @classmethod
     def teardown_class(cls):
         try:

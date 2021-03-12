@@ -13,8 +13,7 @@ from qa_test_tools.misc import assert_error, assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from specs.check_tools import get_documentation, DOCUMENTATIONS, PATHS
 
-
-MIN_OVERTIME=4
+MIN_OVERTIME = 4
 
 
 class Test_OAPI(OscTestSuite):

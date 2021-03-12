@@ -1,16 +1,15 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vms_state_response
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances, delete_instances, stop_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-
+from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vms_state_response
 
 NUM_INST = 10
 
@@ -47,8 +46,7 @@ class Test_StartVms(OscTestSuite):
         if tmp_num + num <= NUM_INST:
             self.__class__.num_inst += num
             return tmp_num
-        else:
-            raise OscTestException('Could not provide instance, review test')
+        raise OscTestException('Could not provide instance, review test')
 
     def test_T2099_without_ids(self):
         try:
@@ -77,8 +75,8 @@ class Test_StartVms(OscTestSuite):
         wait_instances_state(self.a1_r1, inst_id_list, state='running')
         ret = self.a1_r1.oapi.StartVms(VmIds=inst_id_list).response.Vms
         assert len(ret) == 1
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'VmId': inst_id_list[0],
                 'PreviousState': 'running',
                 'CurrentState': 'running',

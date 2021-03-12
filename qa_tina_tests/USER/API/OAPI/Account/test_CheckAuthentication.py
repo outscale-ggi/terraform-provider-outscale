@@ -9,6 +9,7 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 
 
 class Test_CheckAuthentication(OscTestSuite):
+
     def test_T4895_without_param(self):
         try:
             self.a1_r1.oapi.CheckAuthentication()

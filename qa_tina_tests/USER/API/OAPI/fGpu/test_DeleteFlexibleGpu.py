@@ -4,17 +4,6 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 
-
-#     DeleteFlexibleGpuRequest:
-#       properties:
-#         DryRun: {description: DeleteFlexibleGpuRequest_DryRun, type: boolean}
-#         FlexibleGpuId: {description: DeleteFlexibleGpuRequest_FlexibleGpuId, type: string}
-#       required: [FlexibleGpuId]
-#       type: object
-#     DeleteFlexibleGpuResponse:
-#       properties:
-#         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
-#       type: object
 DEFAULT_GPU_ID = "fgpu-12345678"
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
@@ -23,7 +12,7 @@ class Test_DeleteFlexibleGpu(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'gpu_limit': 4}
+        cls.quotas = {'gpu_limit': 4}
         super(Test_DeleteFlexibleGpu, cls).setup_class()
         try:
             cls.subregionname = cls.a1_r1.config.region.az_name

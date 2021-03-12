@@ -18,7 +18,7 @@ class Test_ModifyNetworkInterfaceAttribute(OscTestSuite):
         super(Test_ModifyNetworkInterfaceAttribute, cls).setup_class()
         try:
             cls.vpc_info = create_vpc(cls.a1_r1, nb_instance=1)
-            cls.ni = cls.a1_r1.fcu.DescribeNetworkInterfaces(Filter=[{'Name': 'vpc-id',
+            cls.net_int = cls.a1_r1.fcu.DescribeNetworkInterfaces(Filter=[{'Name': 'vpc-id',
                                                                       'Value': [cls.vpc_info[VPC_ID]]}]).response.networkInterfaceSet[0]
             cls.sg_pub_id = create_security_group(cls.a1_r1, cls.sg_pub_name, cls.sg_pub_name)
             cls.sg_priv_id = create_security_group(cls.a1_r1, cls.sg_priv_name, cls.sg_priv_name, cls.vpc_info[VPC_ID])
@@ -63,7 +63,7 @@ class Test_ModifyNetworkInterfaceAttribute(OscTestSuite):
             assert_error(error, 400, 'InvalidNetworkInterfaceID.Malformed', 'Invalid ID received: xxx-12345678. Expected format: eni-')
 
     def test_T1957_incorrect_type_ni_id(self):
-        ni_id = self.ni.networkInterfaceId
+        ni_id = self.net_int.networkInterfaceId
         try:
             self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=[ni_id], Description={'Value': 'description'})
             assert False, 'call should not have been successful'
@@ -73,7 +73,7 @@ class Test_ModifyNetworkInterfaceAttribute(OscTestSuite):
 
     def test_T1958_incorrect_type_description(self):
         try:
-            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId, Description='description')
+            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId, Description='description')
             assert False, 'call should not have been successful'
         except OscApiException as error:
             if error.status_code == 500:
@@ -83,7 +83,7 @@ class Test_ModifyNetworkInterfaceAttribute(OscTestSuite):
 
     def test_T1959_incorrect_type_attachment(self):
         try:
-            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId, Attachment='AttachmentId')
+            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId, Attachment='AttachmentId')
             assert False, 'call should not have been successful'
         except OscApiException as error:
             if error.status_code == 500:
@@ -93,28 +93,28 @@ class Test_ModifyNetworkInterfaceAttribute(OscTestSuite):
 
     def test_T1960_empty_sg_ids(self):
         try:
-            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId, SecurityGroupId=[])
+            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId, SecurityGroupId=[])
             assert False, 'call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterCombination', 'No attributes specified.')
 
     def test_T1961_unknown_sg_ids(self):
         try:
-            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId, SecurityGroupId=['sg-12345678'])
+            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId, SecurityGroupId=['sg-12345678'])
             assert False, 'call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidGroup.NotFound', "The security group 'sg-12345678' does not exist.")
 
     def test_T1962_incorrect_sg_ids(self):
         try:
-            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId, SecurityGroupId=['xxx-12345678'])
+            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId, SecurityGroupId=['xxx-12345678'])
             assert False, 'call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidSecurityGroupID.Malformed', 'Invalid ID received: xxx-12345678. Expected format: sg-')
 
     def test_T1963_incorrect_type_sg_ids(self):
         try:
-            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId,
+            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId,
                                                            SecurityGroupId={'SecurityGroupId': self.vpc_info[SUBNETS][0][SECURITY_GROUP_ID]})
             known_error('TINA-4521', 'Call with incorrect param has been successful')
             assert False, 'call should not have been successful'
@@ -124,45 +124,46 @@ class Test_ModifyNetworkInterfaceAttribute(OscTestSuite):
 
     def test_T1968_pub_sg_id(self):
         try:
-            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId, SecurityGroupId=[self.sg_pub_id])
+            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId, SecurityGroupId=[self.sg_pub_id])
             assert False, 'call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidGroup.NotFound', "The security group '" + self.sg_pub_id + "' does not exist in this VPC.")
 
     def test_T1964_missing_change(self):
         try:
-            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId)
+            self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId)
             assert False, 'call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterCombination', 'No attributes specified.')
 
     def test_T1965_modify_description(self):
-        self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId, Description={'Value': 'description'})
-        ni = self.a1_r1.fcu.DescribeNetworkInterfaces(NetworkInterfaceId=[self.ni.networkInterfaceId]).response.networkInterfaceSet[0]
-        assert check_obj_equal(ni, self.ni, attr=['description'], attr_value=['description'], no_compare=['description'])
+        self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId, Description={'Value': 'description'})
+        net_int = self.a1_r1.fcu.DescribeNetworkInterfaces(NetworkInterfaceId=[self.net_int.networkInterfaceId]).response.networkInterfaceSet[0]
+        assert check_obj_equal(net_int, self.net_int, attr=['description'], attr_value=['description'], no_compare=['description'])
 
     def test_T1966_modify_attachment(self):
         ret = None
         try:
-            ret = self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId,
-                                                                 Attachment={'AttachmentId': self.ni.attachment.attachmentId,
+            ret = self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId,
+                                                                 Attachment={'AttachmentId': self.net_int.attachment.attachmentId,
                                                                              'DeleteOnTermination': False})
-            ni = self.a1_r1.fcu.DescribeNetworkInterfaces(NetworkInterfaceId=[self.ni.networkInterfaceId]).response.networkInterfaceSet[0]
-            assert check_obj_equal(ni, self.ni, no_compare=['description', 'attachment'])
-            assert ni.attachment.deleteOnTermination == 'false'
+            net_int = self.a1_r1.fcu.DescribeNetworkInterfaces(NetworkInterfaceId=[self.net_int.networkInterfaceId]).response.networkInterfaceSet[0]
+            assert check_obj_equal(net_int, self.net_int, no_compare=['description', 'attachment'])
+            assert net_int.attachment.deleteOnTermination == 'false'
         finally:
             if ret:
-                self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId,
-                                                               Attachment={'AttachmentId': self.ni.attachment.attachmentId,
+                self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId,
+                                                               Attachment={'AttachmentId': self.net_int.attachment.attachmentId,
                                                                            'DeleteOnTermination': True})
 
     def test_T1967_modify_security_group(self):
-        current_sg_id = self.ni.groupSet[0].groupId
+        current_sg_id = self.net_int.groupSet[0].groupId
         try:
-            ret = self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId, SecurityGroupId=[self.sg_priv_id])
-            ni = self.a1_r1.fcu.DescribeNetworkInterfaces(NetworkInterfaceId=[self.ni.networkInterfaceId]).response.networkInterfaceSet[0]
-            assert check_obj_equal(ni, self.ni, no_compare=['description', 'attachment', 'groupSet'])
-            assert ni.groupSet[0].groupId == self.sg_priv_id
+            ret = self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId,
+                                                                 SecurityGroupId=[self.sg_priv_id])
+            net_int = self.a1_r1.fcu.DescribeNetworkInterfaces(NetworkInterfaceId=[self.net_int.networkInterfaceId]).response.networkInterfaceSet[0]
+            assert check_obj_equal(net_int, self.net_int, no_compare=['description', 'attachment', 'groupSet'])
+            assert net_int.groupSet[0].groupId == self.sg_priv_id
         finally:
             if ret:
-                self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.ni.networkInterfaceId, SecurityGroupId=[current_sg_id])
+                self.a1_r1.fcu.ModifyNetworkInterfaceAttribute(NetworkInterfaceId=self.net_int.networkInterfaceId, SecurityGroupId=[current_sg_id])

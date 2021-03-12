@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 
 from string import ascii_lowercase
 
@@ -74,7 +74,7 @@ class Test_ModifyLoadBalancerAttributes(OscTestSuite):
         bucket_name = id_generator(prefix="bucket", chars=ascii_lowercase)
         try:
             ret_create_bucket = self.a1_r1.storageservice.create_bucket(Bucket=bucket_name)
-            
+
             access_log = {'S3BucketName': bucket_name, 'S3BucketPrefix': 'prefix', 'EmitInterval': 5, 'Enabled': True}
             self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerAttributes={'AccessLog': access_log}, LoadBalancerName=self.lb_name)
             ret = self.a1_r1.lbu.DescribeLoadBalancerAttributes(LoadBalancerName=self.lb_name)
@@ -92,7 +92,7 @@ class Test_ModifyLoadBalancerAttributes(OscTestSuite):
             if ret_create_bucket:
                 self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
 
-    #def test_T0003_with_access_log(self):
+    # def test_T0003_with_access_log(self):
     #    self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerName=self.lb_name,
     #                                                LoadBalancerAttributes={'AccessLog': {'Enabled': False, 'EmitInterval': 12}})
     #    ret = self.a1_r1.lbu.DescribeLoadBalancerAttributes(LoadBalancerName=self.lb_name)

@@ -1,7 +1,5 @@
-# pylint: disable=missing-docstring
 
 import re
-
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -54,7 +52,8 @@ class Test_DirectLink(OscTestSuite):
             self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 401, "AuthFailure", "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
+            misc.assert_error(error, 401,"AuthFailure",
+                              "Outscale was not able to validate the provided access credentials.Invalid login/password or password has expired.")
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3850_invalid_authentication(self):
@@ -64,7 +63,8 @@ class Test_DirectLink(OscTestSuite):
             self.a1_r1.directlink.DescribeLocations()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 403, "SignatureDoesNotMatch", "The request signature we calculated does not match the signature you provided. " + \
+            misc.assert_error(error, 403, "SignatureDoesNotMatch",
+                              "The request signature we calculated does not match the signature you provided. " + \
                                     "Check your AWS Secret Access Key and signing method. Consult the service documentation for details.")
         finally:
             self.a1_r1.config.account.sk = sk_bkp
@@ -88,20 +88,20 @@ class Test_DirectLink(OscTestSuite):
         assert nb_ko != 0
 
     def test_T4577_with_eim_user(self):
-        UserName = misc.id_generator(prefix='T4577')
-        PolicyName = misc.id_generator(prefix='T4577')
+        user_name = misc.id_generator(prefix='T4577')
+        policy_name = misc.id_generator(prefix='T4577')
         account_sdk = None
         attach_policy = None
         user_info = None
         policy_response = None
         accesskey_info = None
         try:
-            user_info = self.a1_r1.eim.CreateUser(UserName=UserName)
+            user_info = self.a1_r1.eim.CreateUser(UserName=user_name)
             policy_response = self.a1_r1.eim.CreatePolicy(
-                PolicyName=PolicyName,
+                PolicyName=policy_name,
                 PolicyDocument='{"Statement": [{"Action": ["directconnect:*"], "Resource": ["*"], "Effect": "Allow"}]}')
-            attach_policy = self.a1_r1.eim.AttachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=UserName)
-            accesskey_info = self.a1_r1.eim.CreateAccessKey(UserName=UserName)
+            attach_policy = self.a1_r1.eim.AttachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=user_name)
+            accesskey_info = self.a1_r1.eim.CreateAccessKey(UserName=user_name)
             account_sdk = OscSdk(config=OscConfig.get_with_keys(
                 az_name=self.a1_r1.config.region.az_name, ak=accesskey_info.response.CreateAccessKeyResult.AccessKey.AccessKeyId,
                 sk=accesskey_info.response.CreateAccessKeyResult.AccessKey.SecretAccessKey))
@@ -129,10 +129,10 @@ class Test_DirectLink(OscTestSuite):
                 misc.assert_error(error, 401, '4', 'AccessDenied')
         finally:
             if attach_policy:
-                self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=UserName)
+                self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=user_name)
             if policy_response:
                 self.a1_r1.eim.DeletePolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn)
             if accesskey_info:
-                self.a1_r1.eim.DeleteAccessKey(AccessKeyId=accesskey_info.response.CreateAccessKeyResult.AccessKey.AccessKeyId, UserName=UserName)
+                self.a1_r1.eim.DeleteAccessKey(AccessKeyId=accesskey_info.response.CreateAccessKeyResult.AccessKey.AccessKeyId, UserName=user_name)
             if user_info:
-                self.a1_r1.eim.DeleteUser(UserName=UserName)
+                self.a1_r1.eim.DeleteUser(UserName=user_name)

@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -20,6 +20,7 @@ class Test_CreateImage(OscTestSuite):
         cls.image_id = None
         cls.volume_ids = None
         cls.snap_id1 = None
+        cls.ami_name = None
         try:
             _, cls.volume_ids = create_volumes(cls.a1_r1, size=2, count=2)
             wait_volumes_state(cls.a1_r1, cls.volume_ids, state='available')
@@ -77,7 +78,8 @@ class Test_CreateImage(OscTestSuite):
 
     def test_T2677_invalid_parameters_combinations(self):
         try:
-            self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name, SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7))
+            self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name,
+                                        SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
@@ -181,7 +183,7 @@ class Test_CreateImage(OscTestSuite):
         assert ret.BlockDeviceMappings[0].Bsu.VolumeType == 'standard'
         assert ret.Description == ''
         assert ret.ImageName == self.ami_name
-        assert ret.FileLocation is not ''
+        assert ret.FileLocation != ''
         assert not ret.PermissionsToLaunch.GlobalPermission
         assert ret.PermissionsToLaunch.AccountIds == []
         assert ret.ProductCodes is not None
@@ -207,7 +209,7 @@ class Test_CreateImage(OscTestSuite):
         assert ret.BlockDeviceMappings[0].Bsu.VolumeType == 'standard'
         assert ret.Description == 'Hello I am the first AMI created in this test'
         assert ret.ImageName == self.ami_name
-        assert ret.FileLocation is not ''
+        assert ret.FileLocation != ''
         assert not ret.PermissionsToLaunch.GlobalPermission
         assert ret.PermissionsToLaunch.AccountIds == []
         assert ret.ProductCodes is not None
@@ -234,7 +236,7 @@ class Test_CreateImage(OscTestSuite):
         assert ret.BlockDeviceMappings[0].Bsu.VolumeType == 'standard'
         assert ret.Description == 'Hello I am the second AMI created in this test :D'
         assert ret.ImageName == self.ami_name
-        assert ret.FileLocation is not ''
+        assert ret.FileLocation != ''
         assert not ret.PermissionsToLaunch.GlobalPermission
         assert ret.PermissionsToLaunch.AccountIds == []
         assert ret.ProductCodes is not None
@@ -297,7 +299,7 @@ class Test_CreateImage(OscTestSuite):
         assert ret.BlockDeviceMappings[0].Bsu.VolumeType == 'standard'
         assert hasattr(ret, 'Description')  # description in copy case is different between dk/in/dv
         # assert ret.ImageName.startswith('CentOS 7 (20182201)-copy')
-        assert ret.FileLocation is not ''
+        assert ret.FileLocation != ''
         assert ret.PermissionsToLaunch.GlobalPermission
         assert ret.PermissionsToLaunch.AccountIds == []
         assert ret.ProductCodes is not None
@@ -314,7 +316,7 @@ class Test_CreateImage(OscTestSuite):
                                           FileLocation='%s/NewOmi' % self.a1_r1.config.account.account_id).response.Image
         self.image_id = ret.ImageId
         assert self.image_id.startswith('ami-')
-        assert ret.FileLocation is not ''
+        assert ret.FileLocation != ''
 
     def test_T2320_from_snap_valid_bdm_simplest_case(self):
         ret = self.a1_r1.oapi.CreateImage(ImageName=self.ami_name, RootDeviceName='/dev/sda1',
@@ -329,7 +331,7 @@ class Test_CreateImage(OscTestSuite):
         assert ret.BlockDeviceMappings[0].Bsu.DeleteOnVmDeletion
         assert ret.BlockDeviceMappings[0].Bsu.SnapshotId == self.snap1_id
         assert ret.ImageName == self.ami_name
-        assert ret.FileLocation is not ''
+        assert ret.FileLocation != ''
         assert not ret.PermissionsToLaunch.GlobalPermission
         assert ret.PermissionsToLaunch.AccountIds == []
         assert ret.ProductCodes is not None
@@ -362,7 +364,7 @@ class Test_CreateImage(OscTestSuite):
         assert ret.BlockDeviceMappings[0].Bsu.DeleteOnVmDeletion
         assert ret.BlockDeviceMappings[0].Bsu.SnapshotId == self.snap1_id
         assert ret.BlockDeviceMappings[0].Bsu.VolumeType == 'standard'
-        assert ret.FileLocation is not ''
+        assert ret.FileLocation != ''
 
     def test_T2323_from_snap_valid_bdm_volume_size(self):
         ret = self.a1_r1.oapi.CreateImage(ImageName=self.ami_name, RootDeviceName='/dev/sda1', BlockDeviceMappings=[
@@ -374,7 +376,7 @@ class Test_CreateImage(OscTestSuite):
         assert ret.BlockDeviceMappings[0].Bsu.DeleteOnVmDeletion
         assert ret.BlockDeviceMappings[0].Bsu.SnapshotId.startswith('snap-')
         assert ret.BlockDeviceMappings[0].Bsu.VolumeSize == 2
-        assert ret.FileLocation is not ''
+        assert ret.FileLocation != ''
 
     def test_T2324_from_snap_valid_bdm_iops(self):
         ret = self.a1_r1.oapi.CreateImage(ImageName=self.ami_name, RootDeviceName='/dev/sda1', BlockDeviceMappings=[
@@ -389,7 +391,7 @@ class Test_CreateImage(OscTestSuite):
         assert hasattr(ret.BlockDeviceMappings[0].Bsu, 'VolumeSize')
         assert ret.BlockDeviceMappings[0].Bsu.VolumeType == 'io1'
         assert ret.BlockDeviceMappings[0].Bsu.Iops == 100
-        assert ret.FileLocation is not ''
+        assert ret.FileLocation != ''
 
     def test_T2325_from_snap_valid_bdm_virtual_device(self):
         ret = self.a1_r1.oapi.CreateImage(
@@ -402,7 +404,7 @@ class Test_CreateImage(OscTestSuite):
         assert ret.BlockDeviceMappings[0].DeviceName == '/dev/sda1'
         assert ret.BlockDeviceMappings[0].Bsu.DeleteOnVmDeletion
         assert ret.BlockDeviceMappings[0].Bsu.SnapshotId == self.snap1_id
-        assert ret.FileLocation is not ''
+        assert ret.FileLocation != ''
 
     # @pytest.mark.skip('disabled - Needs to be rewritten')
     # def test_T2326_from_snap_valid_bdm_virtual_and_2_physical_device(self):

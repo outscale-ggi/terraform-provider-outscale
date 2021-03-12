@@ -7,8 +7,8 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 
-
 NUM_SUBNETS = 5
+
 
 def check_tags(subnets, key, value):
     for subnet in subnets:
@@ -49,7 +49,6 @@ class Test_ReadSubnets(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
-            pass
             cleanup_vpcs(cls.a1_r1, vpc_id_list=[cls.net_id], force=True)
         except:
             pass

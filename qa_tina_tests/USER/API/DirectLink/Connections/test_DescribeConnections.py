@@ -1,5 +1,3 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 
 import pytest
 
@@ -12,7 +10,7 @@ class Test_DescribeConnections(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
+        cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
         cls.conn_id = None
         cls.connectionName = id_generator(prefix='dl_')
         super(Test_DescribeConnections, cls).setup_class()

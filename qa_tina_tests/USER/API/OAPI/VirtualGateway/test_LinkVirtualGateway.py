@@ -12,6 +12,8 @@ class Test_LinkVirtualGateway(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.net_id = None
+        cls.vgw_id = None
+        cls.ret_link = None
         super(Test_LinkVirtualGateway, cls).setup_class()
         try:
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16')).response.Net.NetId

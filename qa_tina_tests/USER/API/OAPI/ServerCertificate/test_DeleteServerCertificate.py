@@ -8,13 +8,15 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import create_tools
 
 
-#Parameter    In      Type       Required
-#DryRun       body    boolean    false
-#Name         body    string     false
+# Parameter    In      Type       Required
+# DryRun       body    boolean    false
+# Name         body    string     false
 class Test_DeleteServerCertificate(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
+        cls.sc_name = None
+        cls.sc_resp = None
         super(Test_DeleteServerCertificate, cls).setup_class()
         cls.crtpath, cls.keypath = create_tools.create_self_signed_cert()
         cls.key = open(cls.keypath).read()
@@ -27,7 +29,7 @@ class Test_DeleteServerCertificate(OscTestSuite):
                 os.remove(cls.crtpath)
             if cls.keypath:
                 os.remove(cls.keypath)
-        finally:    
+        finally:
             super(Test_DeleteServerCertificate, cls).teardown_class()
 
     def setup_method(self, method):
@@ -54,7 +56,6 @@ class Test_DeleteServerCertificate(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             misc.assert_oapi_error(error, 400, 'MissingParameter', 7000)
-            
 
     def test_T4863_unexisting_name(self):
         try:

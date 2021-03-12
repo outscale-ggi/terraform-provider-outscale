@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 import os
 import random
 import re
@@ -25,7 +25,7 @@ class Test_fw_vgw(OscTestSuite):
         cls.vpn_id = None
         try:
             ret = cls.a1_r1.fcu.CreateCustomerGateway(BgpAsn=65000,
-                                                      IpAddress='.'.join(str(i) for i in random.sample(range(1, 254), 4)),
+                                                      IpAddress='.'.join(str(i) for i in random.sample(list(range(1, 254)), 4)),
                                                       Type='ipsec.1')
             cls.cgw_id = ret.response.customerGateway.customerGatewayId
 
@@ -87,15 +87,13 @@ class Test_fw_vgw(OscTestSuite):
             assert re.search(pattern, out)
 
     def test_T1895_check_ntp(self):
-        retry = 30
-        wait = 30
-        for i in range(retry):
+        for i in range(30):
             out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'ntpq -pn')
             if re.search(r'\*({})'.format('|'.join(self.a1_r1.config.region.get_info(constants.FW_NTP_SERVER_PREFIX))), out):
                 break
-            if i == retry - 1:
+            if i == 30 - 1:
                 pytest.fail("NTP sync failed: {}".format(out))
-            time.sleep(wait)
+            time.sleep(30)
 
     def test_T1897_check_consul(self):
         assert SshTools.check_service(self.sshclient, 'consul')
@@ -109,7 +107,7 @@ class Test_fw_vgw(OscTestSuite):
 
     def test_T1905_check_service(self):
         assert SshTools.check_service(self.sshclient, 'strongswan', pattern_str='.* is running.*')
-            
+
     def test_T1900_check_zebra(self):
         assert SshTools.check_service(self.sshclient, 'zebra')
 

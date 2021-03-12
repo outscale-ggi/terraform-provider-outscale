@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 
 import re
 
@@ -41,7 +41,8 @@ class Test_LBU(OscTestSuite):
             self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 401, "AuthFailure", "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
+            assert_error(error, 401, "AuthFailure",
+                         "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3874_invalid_authentication(self):

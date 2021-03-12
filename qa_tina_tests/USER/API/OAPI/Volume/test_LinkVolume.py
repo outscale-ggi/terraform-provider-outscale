@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -14,8 +14,10 @@ class Test_LinkVolume(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_LinkVolume, cls).setup_class()
         cls.inst_info = None
+        cls.vol_id = None
+        cls.ret_link = None
+        super(Test_LinkVolume, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1)
         except:

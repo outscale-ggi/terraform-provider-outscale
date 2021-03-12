@@ -74,7 +74,7 @@ class Test_CreateNatGateway(OscTestSuite):
             if ng_id:
                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
                 wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
-                
+
     def test_T4089_without_params(self):
         ng_id = None
         try:
@@ -88,7 +88,7 @@ class Test_CreateNatGateway(OscTestSuite):
             if ng_id:
                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
                 wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
-                
+
     def test_T4090_with_invalid_allocation_id(self):
         ng_id = None
         eipalloc = id_generator(size=8, chars=string.ascii_lowercase)
@@ -103,7 +103,7 @@ class Test_CreateNatGateway(OscTestSuite):
             if ng_id:
                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
                 wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
-                
+
     def test_T4091_with_none_allocation_id(self):
         ng_id = None
         try:
@@ -117,7 +117,7 @@ class Test_CreateNatGateway(OscTestSuite):
             if ng_id:
                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
                 wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
-                
+
     def test_T4092_with_empty_allocation_id(self):
         ng_id = None
         try:
@@ -131,7 +131,7 @@ class Test_CreateNatGateway(OscTestSuite):
             if ng_id:
                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
                 wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
-                
+
     def test_T4093_with_empty_subnet_id(self):
         ng_id = None
         try:
@@ -145,7 +145,7 @@ class Test_CreateNatGateway(OscTestSuite):
             if ng_id:
                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
                 wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
-                
+
     def test_T4094_with_none_subnet_id(self):
         ng_id = None
         try:
@@ -159,7 +159,7 @@ class Test_CreateNatGateway(OscTestSuite):
             if ng_id:
                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
                 wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
-                
+
     def test_T4095_with_another_account(self):
         ng_id = None
         try:

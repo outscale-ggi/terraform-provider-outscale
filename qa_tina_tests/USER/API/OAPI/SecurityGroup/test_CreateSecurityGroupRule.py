@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import os
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -76,7 +76,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
         ret.check_response()
         try:
             verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)),'create_rule_with_sg_to_link_param_inbound.json'),
+                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_with_sg_to_link_param_inbound.json'),
                             self.hints)
             assert False, 'Remove known error'
         except OscTestException:
@@ -85,7 +85,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
     def test_T5475_with_sg_to_link_param_outbound(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
             Flow='Outbound',
-            SecurityGroupNameToLink=self.sg3.SecurityGroupId, # The name can be only used in Cloud Public not in Net
+            SecurityGroupNameToLink=self.sg3.SecurityGroupId,  # The name can be only used in Cloud Public not in Net
             SecurityGroupAccountIdToLink=self.a1_r1.config.account.account_id,
             SecurityGroupId=self.sg3.SecurityGroupId)
         ret.check_response()
@@ -250,8 +250,8 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                                 'SecurityGroupId': sg.SecurityGroupId,
                             }],
                             'IpProtocol': 'icmp',
-                            'FromPortRange': -1,
-                            'ToPortRange': -1,
+                            'FromPortRange':-1,
+                            'ToPortRange':-1,
                             'IpRanges': ['10.0.0.12/32']}],
                     SecurityGroupId=sg.SecurityGroupId)
                 self.a1_r1.oapi.DeleteSecurityGroupRule(
@@ -291,8 +291,8 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 },
                 {
                     'IpProtocol': 'icmp',
-                    'FromPortRange': -1,
-                    'ToPortRange': -1,
+                    'FromPortRange':-1,
+                    'ToPortRange':-1,
                     'IpRanges': ['10.0.0.13/32']
                 },
                 {
@@ -333,8 +333,8 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                         },
                         {
                          'IpProtocol': 'icmp',
-                         'FromPortRange': -1,
-                         'ToPortRange': -1,
+                         'FromPortRange':-1,
+                         'ToPortRange':-1,
                          'IpRanges': ['10.0.0.13/32']
                         },
                         {
@@ -367,8 +367,8 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 },
                 {
                     'IpProtocol': 'icmp',
-                    'FromPortRange': -1,
-                    'ToPortRange': -1,
+                    'FromPortRange':-1,
+                    'ToPortRange':-1,
                     'IpRanges': ['10.0.0.13/32']
                 },
                 {
@@ -411,8 +411,8 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                     },
                     {
                         'IpProtocol': 'icmp',
-                        'FromPortRange': -1,
-                        'ToPortRange': -1,
+                        'FromPortRange':-1,
+                        'ToPortRange':-1,
                         'IpRanges': ['10.0.0.13/32']
                     },
                     {

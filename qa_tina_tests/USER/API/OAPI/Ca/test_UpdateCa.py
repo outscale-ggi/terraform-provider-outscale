@@ -15,8 +15,8 @@ class Test_UpdateCa(OscTestSuite):
         cls.ca_id = None
         cls.ca1files = cls.ca2files = cls.ca3files = None
         cls.ca1files, cls.ca2files, cls.ca3files, _, _, _, _, cls.tmp_file_paths = create_certificate_setup()
-        with open(cls.ca1files[1]) as f:
-            cls.ca_id = cls.a1_r1.oapi.CreateCa(CaPem=f.read(), Description='test ca').response.Ca.CaId
+        with open(cls.ca1files[1]) as cafile:
+            cls.ca_id = cls.a1_r1.oapi.CreateCa(CaPem=cafile.read(), Description='test ca').response.Ca.CaId
 
     @classmethod
     def teardown_class(cls):

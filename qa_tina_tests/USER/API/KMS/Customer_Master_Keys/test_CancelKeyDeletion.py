@@ -10,15 +10,8 @@ class Test_CancelKeyDeletion(Kms):
 
     @classmethod
     def setup_class(cls):
+        cls.key_id = None
         super(Test_CancelKeyDeletion, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
 
     @classmethod
     def teardown_class(cls):

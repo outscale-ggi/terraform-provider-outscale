@@ -3,8 +3,8 @@ import os
 from string import ascii_lowercase
 
 from qa_test_tools import misc
-from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tina import storage
+from qa_tina_tests.USER.PERF.perf_common import log_error
 
 
 def func_objects(oscsdk, func, service, logger, size, result):
@@ -69,7 +69,7 @@ def func_objects(oscsdk, func, service, logger, size, result):
             result["get_object" + service + size] = get_object_duration
             logger.debug("end of the get_object")
     except Exception as error:
-        log_error(logger, error, "Unexpected error while executing %s".format("bucket_operations"), result)
+        log_error(logger, error, "Unexpected error while executing {}".format("bucket_operations"), result)
     finally:
         errors = []
         if path_to_file and os.path.isfile(path_to_file):

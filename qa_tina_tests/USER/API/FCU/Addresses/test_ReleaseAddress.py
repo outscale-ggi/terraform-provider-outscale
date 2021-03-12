@@ -14,6 +14,9 @@ class Test_ReleaseAddress(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.inst_info = None
+        cls.ip_list = None
+        cls.ip_account2 = None
+        cls.alloc_id_account2 = None
         super(Test_ReleaseAddress, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1)

@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
@@ -60,8 +60,8 @@ class Test_ReadKeypairs(OscTestSuite):
         assert ret[0].KeypairFingerprint == self.fingerprint1
 
     def test_T3433_dry_run(self):
-        self.a1_r1.oapi.ReadKeypairs(DryRun=True)
-        assert_dry_run
+        ret = self.a1_r1.oapi.ReadKeypairs(DryRun=True)
+        assert_dry_run(ret)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3431_other_account(self):
@@ -75,21 +75,21 @@ class Test_ReadKeypairs(OscTestSuite):
 
     def test_T5095_with_tags_filter(self):
         try:
-            self.a1_r1.oapi.ReadKeypairs(Filters={"Tags": 'key_pair=key_pair_value'}).response.Keypairs
+            self.a1_r1.oapi.ReadKeypairs(Filters={"Tags": 'key_pair=key_pair_value'})
             assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', '3001')
 
     def test_T5096_with_tagskey_filter(self):
         try:
-            self.a1_r1.oapi.ReadKeypairs(Filters={"TagKeys": ['key_pair']}).response.Keypairs
+            self.a1_r1.oapi.ReadKeypairs(Filters={"TagKeys": ['key_pair']})
             assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', '3001')
 
     def test_T5097_with_tagvalues_filter(self):
         try:
-            self.a1_r1.oapi.ReadKeypairs(Filters={"TagValues": ['key_pair_value']}).response.Keypairs
+            self.a1_r1.oapi.ReadKeypairs(Filters={"TagValues": ['key_pair_value']})
             assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', '3001')

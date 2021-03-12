@@ -3,11 +3,11 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.RouteTable.RouteTable import validate_route_table
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, VPC_ID
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state
+from qa_tina_tests.USER.API.OAPI.RouteTable.RouteTable import validate_route_table
 
 
 class Test_UpdateRoutePropagation(OscTestSuite):
@@ -66,7 +66,7 @@ class Test_UpdateRoutePropagation(OscTestSuite):
     def test_T3559_other_account(self):
         try:
             self.a2_r1.oapi.UpdateRoutePropagation(RouteTableId=self.vpc_info[ROUTE_TABLE_ID],
-                                                   VirtualGatewayId=self.vgw_id, Enable=True).response.RouteTable
+                                                   VirtualGatewayId=self.vgw_id, Enable=True)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5046')

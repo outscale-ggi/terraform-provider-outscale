@@ -230,7 +230,8 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
             vpc_id = self.a1_r1.fcu.CreateVpc(CidrBlock=Configuration.get('vpc', '10_0_0_0_16')).response.vpc.vpcId
             subnet_id = self.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_1_0_24'), VpcId=vpc_id).response.subnet.subnetId
             sg_id = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test_sg_description', GroupName=sg_name, VpcId=vpc_id).response.groupId
-            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupName=sg_name, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=Configuration.get('cidr', 'allips'))
+            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupName=sg_name, IpProtocol='tcp', FromPort=22, ToPort=22,
+                                                         CidrIp=Configuration.get('cidr', 'allips'))
         except OscApiException as error:
             if error.status_code == 400 and error.error_code == 'InvalidGroup.NotFound':
                 known_error('TINA-4771', 'AuthorizeSecurityGroupIngress with group name --> error and incorrect message')

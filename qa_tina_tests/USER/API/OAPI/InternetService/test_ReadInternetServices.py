@@ -7,7 +7,6 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state, \
     wait_internet_gateways_state
 
-
 NUM_INTERNET_SERVICES = 3
 
 
@@ -24,7 +23,6 @@ class Test_ReadInternetServices(OscTestSuite):
                 net_id = cls.a1_r1.oapi.CreateInternetService().response.InternetService.InternetServiceId
                 cls.net_ids.append(net_id)
                 cls.a1_r1.oapi.CreateTags(ResourceIds=[net_id], Tags=[{'Key': 'key' + str(i), 'Value': 'value' + str(i)}])
-            pass
 
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16')).response.Net.NetId
             wait_vpcs_state(cls.a1_r1, [cls.net_id], state='available')

@@ -11,6 +11,7 @@ class Test_UndeleteMasterKey(OKMS):
 
     @classmethod
     def setup_class(cls):
+        cls.key_id = None
         super(Test_UndeleteMasterKey, cls).setup_class()
         try:
             pass

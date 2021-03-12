@@ -41,9 +41,9 @@ class Test_ModifyVpcAttribute(OscTestSuite):
             assert_error(error, 400, "OWS.Error", "Request is not valid.")
 
     def test_T1259_with_invalid_vpc_id(self):
-        vpcId = (id_generator(prefix='vpc-', size=10, chars=string.hexdigits)).lower()
+        vpc_id = id_generator(prefix='vpc-', size=10, chars=string.hexdigits).lower()
         try:
-            self.a1_r1.fcu.ModifyVpcAttribute(VpcId=vpcId)
+            self.a1_r1.fcu.ModifyVpcAttribute(VpcId=vpc_id)
             assert False, "Call shouldn't successful"
         except OscApiException as error:
             assert_error(error, 400, "OWS.Error", "Request is not valid.")
@@ -65,12 +65,12 @@ class Test_ModifyVpcAttribute(OscTestSuite):
         self.a1_r1.fcu.ModifyVpcAttribute(VpcId=self.vpc_id, EnableDnsSupport={'Value': True}, EnableDnsHostnames={'Value': True})
 
     def test_T1264_with_valid_attribute_and_invalid_vpc_id(self):
-        vpcId = id_generator(size=10, chars=string.ascii_lowercase)
+        vpc_id = id_generator(size=10, chars=string.ascii_lowercase)
         try:
-            self.a1_r1.fcu.ModifyVpcAttribute(VpcId=vpcId, EnableDnsSupport={'Value': True}, EnableDnsHostnames={'Value': True})
+            self.a1_r1.fcu.ModifyVpcAttribute(VpcId=vpc_id, EnableDnsSupport={'Value': True}, EnableDnsHostnames={'Value': True})
             assert False, "Call shouldn't successful"
         except OscApiException as error:
-            assert_error(error, 400, "InvalidVpcID.NotFound", "The vpc ID '{}' does not exist".format(vpcId))
+            assert_error(error, 400, "InvalidVpcID.NotFound", "The vpc ID '{}' does not exist".format(vpc_id))
 
     def test_T4175_with_dns_support_false(self):
         try:

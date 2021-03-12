@@ -54,7 +54,6 @@ class Test_ReadVmsHealth(OscTestSuite):
         assert len(ret.response.BackendVmHealth) == 2
         ret.check_response()
 
-
     def test_T2946_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.ReadVmsHealth(LoadBalancerName=self.lbu_name, DryRun=True)
         assert_dry_run(ret)

@@ -11,7 +11,7 @@ class Test_CreateAccessKey(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'accesskey_limit': 10}
+        cls.quotas = {'accesskey_limit': 10}
         super(Test_CreateAccessKey, cls).setup_class()
 
     @classmethod

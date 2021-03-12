@@ -7,6 +7,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, SUBNETS, SUBNET_ID
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 class Test_DisassociateAddress(OscTestSuite):
@@ -46,7 +47,7 @@ class Test_DisassociateAddress(OscTestSuite):
                 cls.a1_r1.fcu.ReleaseAddress(PublicIp=cls.standard_eips.publicIp)
             if cls.vpc_eips:
                 cls.a1_r1.fcu.ReleaseAddress(PublicIp=cls.vpc_eips.publicIp)
-            if cls.inst_info_2 :
+            if cls.inst_info_2:
                 delete_instances(cls.a1_r1, cls.inst_info_2)
         finally:
             super(Test_DisassociateAddress, cls).teardown_class()
@@ -64,7 +65,7 @@ class Test_DisassociateAddress(OscTestSuite):
             self.a1_r1.fcu.DisassociateAddress(AssociationId=ret.response.associationId)
         except Exception as error:
             raise error
-        
+
     def test_T4053_with_incorrect_association_id(self):
         assoc_id = id_generator("eipasso-99", 6, chars=(string.hexdigits).lower())
         try:
@@ -72,7 +73,7 @@ class Test_DisassociateAddress(OscTestSuite):
             assert False, "Call shouldn't successful"
         except Exception as error:
             assert_error(error, 400, 'InvalidIpAssociationID.Malformed', "Invalid ID received: {}. Expected format: eipassoc-".format(assoc_id))
-        
+
     def test_T335_with_invalid_association_id(self):
         assoc_id = id_generator("eipassoc-99", 6, chars=(string.hexdigits).lower())
         try:
@@ -80,7 +81,7 @@ class Test_DisassociateAddress(OscTestSuite):
             assert False, "Call shouldn't successful"
         except Exception as error:
             assert_error(error, 400, 'InvalidAssociationID.NotFound', "The association ID does not exist: {}".format(assoc_id))
-        
+
     def test_T4054_with_association_id_and_with_another_account(self):
         try:
             ret = self.a1_r1.fcu.AssociateAddress(NetworkInterfaceId=self.net_id.networkInterfaceId, AllocationId=self.vpc_eips.allocationId)
@@ -93,7 +94,7 @@ class Test_DisassociateAddress(OscTestSuite):
         try:
             self.a1_r1.fcu.DisassociateAddress(AssociationId=None)
             assert False, "Call shouldn't successful"
-        except Exception as error:
+        except OscApiException as error:
             if error.status_code == 400 and error.error_code == 'OWS.Error':
                 known_error('TINA-4988', "Incorrect error code")
             else:
@@ -106,12 +107,12 @@ class Test_DisassociateAddress(OscTestSuite):
             assert False, "Call shouldn't successful"
         except Exception as error:
             assert_error(error, 400, 'MissingParameter', "Insufficient parameters provided out of: Ip, association. Expected at least: 1")
-    
+
     def test_T4057_without_params(self):
         try:
             self.a1_r1.fcu.DisassociateAddress()
             assert False, "Call shouldn't successful"
-        except Exception as error:
+        except OscApiException as error:
             if error.status_code == 400 and error.error_code == 'OWS.Error':
                 known_error('TINA-4988', "Incorrect error code")
             else:
@@ -129,22 +130,22 @@ class Test_DisassociateAddress(OscTestSuite):
         try:
             self.a1_r1.fcu.DisassociateAddress(PublicIp=None)
             assert False, "Call shouldn't successful"
-        except Exception as error:
+        except OscApiException as error:
             if error.status_code == 400 and error.error_code == 'OWS.Error':
                 known_error('TINA-4988', "Incorrect error code")
             else:
                 assert False, 'remove known error code'
                 assert_error(error, 400, '', '')
-        
+
     def test_T4060_local_host_as_public_ip(self):
         try:
             self.a1_r1.fcu.DisassociateAddress(PublicIp="127.0.0.1")
             assert False, "Call shouldn't successful"
         except Exception as error:
             assert_error(error, 400, 'AuthFailure', "The address '127.0.0.1' does not belong to you.")
-        
+
     def test_T4061_private_ip_classe_a_as_public_ip(self):
-        public_ip = '10.{}.{}.{}'.format(*random.sample(range(1, 254), 3))
+        public_ip = '10.{}.{}.{}'.format(*random.sample(list(range(1, 254)), 3))
         try:
             self.a1_r1.fcu.DisassociateAddress(PublicIp=public_ip)
             assert False, "Call shouldn't successful"
@@ -152,7 +153,7 @@ class Test_DisassociateAddress(OscTestSuite):
             assert_error(error, 400, 'AuthFailure', "The address '{}' does not belong to you.".format(public_ip))
 
     def test_T4062_private_ip_classe_b_as_public_ip(self):
-        public_ip = '172.{}.{}.{}'.format(*random.sample(range(16, 31), 1), *random.sample(range(1, 254), 2))
+        public_ip = '172.{}.{}.{}'.format(*random.sample(list(range(16, 31)), 1), *random.sample(list(range(1, 254)), 2))
         try:
             self.a1_r1.fcu.DisassociateAddress(PublicIp=public_ip)
             assert False, "Call shouldn't successful"
@@ -160,7 +161,7 @@ class Test_DisassociateAddress(OscTestSuite):
             assert_error(error, 400, 'AuthFailure', "The address '{}' does not belong to you.".format(public_ip))
 
     def test_T4063_private_ip_classe_c_as_public_ip(self):
-        public_ip = '192.168.{}.{}'.format(*random.sample(range(1, 254), 2))
+        public_ip = '192.168.{}.{}'.format(*random.sample(list(range(1, 254)), 2))
         try:
             self.a1_r1.fcu.DisassociateAddress(PublicIp=public_ip)
             assert False, "Call shouldn't successful"
@@ -173,17 +174,17 @@ class Test_DisassociateAddress(OscTestSuite):
             assert False, "Call shouldn't successful"
         except Exception as error:
             assert_error(error, 400, 'AuthFailure', "The address '0.0.0.0' does not belong to you.")
-        
+
     def test_T4065_incorrect_syntaxe_public_ip(self):
-        public_ip = '{}.{}'.format(*random.sample(range(256, 999), 2))
+        public_ip = '{}.{}'.format(*random.sample(list(range(256, 999)), 2))
         try:
             self.a1_r1.fcu.DisassociateAddress(PublicIp=public_ip)
             assert False, "Call shouldn't successful"
         except Exception as error:
             assert_error(error, 400, 'InvalidParameterValue', "Invalid IPv4 address: {}".format(public_ip))
-        
+
     def test_T4066_out_of_range_public_ip(self):
-        public_ip = '{}.{}.{}.{}'.format(*random.sample(range(256, 999), 4))
+        public_ip = '{}.{}.{}.{}'.format(*random.sample(list(range(256, 999)), 4))
         try:
             self.a1_r1.fcu.DisassociateAddress(PublicIp=public_ip)
             assert False, "Call shouldn't successful"
@@ -191,7 +192,7 @@ class Test_DisassociateAddress(OscTestSuite):
             assert_error(error, 400, 'InvalidParameterValue', "Invalid IPv4 address: {}".format(public_ip))
 
     def test_T4068_non_existent_public_ip(self):
-        public_ip = '{}.{}.{}.{}'.format(*random.sample(range(193, 240), 4))
+        public_ip = '{}.{}.{}.{}'.format(*random.sample(list(range(193, 240)), 4))
         try:
             self.a1_r1.fcu.DisassociateAddress(PublicIp=public_ip)
             assert False, "Call shouldn't successful"

@@ -7,17 +7,6 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 
-
-#     UnlinkFlexibleGpuRequest:
-#       properties:
-#         DryRun: {description: UnlinkFlexibleGpuRequest_DryRun, type: boolean}
-#         FlexibleGpuId: {description: UnlinkFlexibleGpuRequest_FlexibleGpuId, type: string}
-#       required: [FlexibleGpuId]
-#       type: object
-#     UnlinkFlexibleGpuResponse:
-#       properties:
-#         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
-#       type: object
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
 
@@ -26,7 +15,7 @@ class Test_UnlinkFlexibleGpu(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'gpu_limit': 4}
+        cls.quotas = {'gpu_limit': 4}
         cls.inst_info = None
         cls.fg_id = None
         cls.ret_link = None
@@ -102,7 +91,6 @@ class Test_UnlinkFlexibleGpu(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
-
 
     def test_T4213_valid_params(self):
         ret_unlink = self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id)

@@ -4,6 +4,34 @@ from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 
+def validate_snasphot(snap, **kwargs):
+    """
+    :param snap:
+    :param kwargs:
+        expected_snap
+        permission
+    :return:
+    """
+    expected_snap = kwargs.get('expected_snap', {})
+    for key, value in expected_snap.items():
+        assert getattr(snap, key) == value, (
+            'In Snapshot, {} is different of expected value {} for key {}'
+            .format(getattr(snap, key), value, key))
+    assert snap.SnapshotId.startswith('snap-')
+    assert snap.State in ['completed', 'pending', 'pending/queued']
+    assert isinstance(snap.Progress, int)
+    assert 0 <= snap.Progress <= 100
+    permission = kwargs.get('permission')
+    if permission:
+        if hasattr(permission, 'AccountIds'):
+            assert len(permission.AccountIds) == len(snap.PermissionsToCreateVolume.AccountIds[0])
+            assert snap.PermissionsToCreateVolume.AccountIds[0] in permission.AccountIds
+        if hasattr(permission, 'GlobalPermission'):
+            assert snap.PermissionsToCreateVolume.GlobalPermission == permission.GlobalPermission
+    else:
+        assert hasattr(snap, 'PermissionsToCreateVolume')
+
+
 class Snapshot(OscTestSuite):
 
     @classmethod
@@ -33,30 +61,3 @@ class Snapshot(OscTestSuite):
                 cls.volume_id2 = None
         finally:
             super(Snapshot, cls).teardown_class()
-
-    def validate_snasphot(self, snap, **kwargs):
-        """
-        :param snap:
-        :param kwargs:
-            expected_snap
-            permission
-        :return:
-        """
-        expected_snap = kwargs.get('expected_snap', {})
-        for k, v in expected_snap.items():
-            assert getattr(snap, k) == v, (
-                'In Snapshot, {} is different of expected value {} for key {}'
-                .format(getattr(snap, k), v, k))
-        assert snap.SnapshotId.startswith('snap-')
-        assert snap.State in ['completed', 'pending', 'pending/queued']
-        assert isinstance(snap.Progress, int)
-        assert 0 <= snap.Progress <= 100
-        permission = kwargs.get('permission')
-        if permission:
-            if hasattr(permission, 'AccountIds'):
-                assert len(permission.AccountIds) == len(snap.PermissionsToCreateVolume.AccountIds[0])
-                assert snap.PermissionsToCreateVolume.AccountIds[0] in permission.AccountIds
-            if hasattr(permission, 'GlobalPermission'):
-                assert snap.PermissionsToCreateVolume.GlobalPermission == permission.GlobalPermission
-        else:
-            assert hasattr(snap, 'PermissionsToCreateVolume')

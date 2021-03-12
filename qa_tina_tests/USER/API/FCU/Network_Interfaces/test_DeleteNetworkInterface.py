@@ -12,6 +12,7 @@ class Test_DeleteNetworkInterface(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.vpc_info = None
+        cls.network_interface_id = None
         super(Test_DeleteNetworkInterface, cls).setup_class()
         try:
             # create VPC
@@ -30,7 +31,7 @@ class Test_DeleteNetworkInterface(OscTestSuite):
                 delete_vpc(cls.a1_r1, cls.vpc_info)
         finally:
             super(Test_DeleteNetworkInterface, cls).teardown_class()
-            
+
     def setup_method(self, method):
         self.network_interface_id = None
         try:
@@ -39,18 +40,18 @@ class Test_DeleteNetworkInterface(OscTestSuite):
             self.network_interface_id = res_create.response.networkInterface.networkInterfaceId
         finally:
             OscTestSuite.setup_method(self, method)
-        
+
     def teardown_method(self, method):
         try:
             if self.network_interface_id:
                 self.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId=self.network_interface_id)
         finally:
             OscTestSuite.teardown_method(self, method)
-            
+
     def test_T4036_valid_params(self):
         self.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId=self.network_interface_id)
         self.network_interface_id = None
-        
+
     def test_T4037_empty_network_interface_id(self):
         try:
             self.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId="")
@@ -58,7 +59,7 @@ class Test_DeleteNetworkInterface(OscTestSuite):
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "MissingParameter", "Parameter cannot be empty: NetworkInterfaceId")
-    
+
     def test_T4038_none_network_interface_id(self):
         try:
             self.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId=None)
@@ -74,15 +75,16 @@ class Test_DeleteNetworkInterface(OscTestSuite):
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "MissingParameter", "Parameter cannot be empty: NetworkInterfaceId")
-    
+
     def test_T4040_with_another_account(self):
         try:
             self.a2_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId=self.network_interface_id)
             self.network_interface_id = None
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
-            assert_error(error, 400, "InvalidNetworkInterfaceID.NotFound", "The networkInterface ID '{}' does not exist".format(self.network_interface_id))
-    
+            assert_error(error, 400,
+                         "InvalidNetworkInterfaceID.NotFound", "The networkInterface ID '{}' does not exist".format(self.network_interface_id))
+
     def test_T4041_non_existent_network_interface_id(self):
         try:
             self.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId="eni-01234567")
@@ -90,7 +92,7 @@ class Test_DeleteNetworkInterface(OscTestSuite):
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "InvalidNetworkInterfaceID.NotFound", "The networkInterface ID 'eni-01234567' does not exist")
-            
+
     def test_T4042_invalid_network_interface_id(self):
         try:
             self.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId="XYZ0123456789")

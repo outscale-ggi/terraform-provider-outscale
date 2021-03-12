@@ -20,6 +20,7 @@ class Test_secured_cookie(OscTestSuite):
 
     @classmethod
     def setup_class(cls, ):
+        cls.registered = True
         super(Test_secured_cookie, cls).setup_class()
         cls.instance_info_a1 = None
         try:

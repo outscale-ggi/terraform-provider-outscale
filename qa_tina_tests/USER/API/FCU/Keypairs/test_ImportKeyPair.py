@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
 import base64
 
@@ -21,9 +20,9 @@ class Test_ImportKeyPair(OscTestSuite):
         cls.pk_material = None
         try:
             cls.kp_info = generate_key(cls.key_name)
-            fp = open(cls.kp_info[PUBLIC])
-            cls.pk_material = fp.read()
-            fp.close()
+            file = open(cls.kp_info[PUBLIC])
+            cls.pk_material = file.read()
+            file.close()
         except Exception as error:
             try:
                 cls.teardown_class()

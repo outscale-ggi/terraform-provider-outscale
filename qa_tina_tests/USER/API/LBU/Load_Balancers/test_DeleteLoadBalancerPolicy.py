@@ -41,7 +41,7 @@ class Test_DeleteLoadBalancerPolicy(OscTestSuite):
         except:
             try:
                 OscTestSuite.teardown_method(self, method)
-            except :
+            except:
                 pass
             raise
 
@@ -50,8 +50,8 @@ class Test_DeleteLoadBalancerPolicy(OscTestSuite):
             try:
                 self.a1_r1.lbu.DeleteLoadBalancerPolicy(LoadBalancerName=self.lbu_name, PolicyName=self.policy_name)
             finally:
-                OscTestSuite.teardown_method(self, method) 
-            
+                OscTestSuite.teardown_method(self, method)
+
     def test_T4017_valid_params(self):
         self.a1_r1.lbu.DeleteLoadBalancerPolicy(LoadBalancerName=self.lbu_name, PolicyName=self.policy_name)
         self.deleted_policy = True
@@ -62,7 +62,7 @@ class Test_DeleteLoadBalancerPolicy(OscTestSuite):
             assert False, "Call souldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "ValidationError", "The request must contain the parameter PolicyName")
-    
+
     def test_T4019_without_load_balancer_name(self):
         try:
             self.a1_r1.lbu.DeleteLoadBalancerPolicy(PolicyName='policynameforlbu1')
@@ -83,22 +83,22 @@ class Test_DeleteLoadBalancerPolicy(OscTestSuite):
             assert False, "Call souldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "MissingParameter", "Parameter cannot be empty: PolicyName")
-            
+
     def test_T4022_empty_loadbalancer_name(self):
         try:
             self.a1_r1.lbu.DeleteLoadBalancerPolicy(LoadBalancerName='', PolicyName=self.policy_name)
             assert False, "Call souldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "MissingParameter", "Parameter cannot be empty: LoadBalancerName")
-            
+
     def test_T4023_none_policy_name(self):
         try:
             self.a1_r1.lbu.DeleteLoadBalancerPolicy(LoadBalancerName=self.lbu_name, PolicyName=None)
             assert False, "Call souldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "ValidationError", "The request must contain the parameter PolicyName")
-            
-    def test_T4024_none_loadbalancer_name(self): 
+
+    def test_T4024_none_loadbalancer_name(self):
         try:
             self.a1_r1.lbu.DeleteLoadBalancerPolicy(LoadBalancerName=None, PolicyName=self.policy_name)
             assert False, "Call souldn't be successful"
@@ -111,14 +111,14 @@ class Test_DeleteLoadBalancerPolicy(OscTestSuite):
             assert False, "Call souldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "PolicyNotFound", "There is no policy with name XXXXXXX for load balancer {}".format(self.lbu_name))
-    
-    def test_T4026_non_existent_loadbalancer_name(self): 
+
+    def test_T4026_non_existent_loadbalancer_name(self):
         try:
             self.a1_r1.lbu.DeleteLoadBalancerPolicy(LoadBalancerName="XXXXX", PolicyName=self.policy_name)
             assert False, "Call souldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "LoadBalancerNotFound", "There is no ACTIVE Load Balancer named 'XXXXX'")
-     
+
     def test_T4027_with_another_account(self):
         try:
             self.a2_r1.lbu.DeleteLoadBalancerPolicy(LoadBalancerName=self.lbu_name, PolicyName=self.policy_name)

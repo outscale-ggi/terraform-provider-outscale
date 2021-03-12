@@ -36,5 +36,5 @@ class Test_find(OscTestSuite):
         resp = self.a1_r1.intel.volume.find(limit=20, orders=[('id', 'ASC')], owner=self.a1_r1.config.account.account_id).response
         vol_ids = [vol.id for vol in resp.result.results]
         assert len(vol_ids) == VOLUME_NUMBER
-        assert(sorted(vol_ids) == vol_ids)
-        assert(sorted(self.vol_ids) == sorted(vol_ids))
+        assert sorted(vol_ids) == vol_ids
+        assert sorted(self.vol_ids) == sorted(vol_ids)

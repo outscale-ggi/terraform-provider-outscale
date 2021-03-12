@@ -5,7 +5,7 @@ from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 
 
 class Test_DescribeLoadBalancerAttributes(OscTestSuite):
-    
+
     @classmethod
     def setup_class(cls):
         super(Test_DescribeLoadBalancerAttributes, cls).setup_class()
@@ -28,11 +28,11 @@ class Test_DescribeLoadBalancerAttributes(OscTestSuite):
                 cls.a1_r1.lbu.DeleteLoadBalancer(LoadBalancerName=cls.lbu_name)
         finally:
             super(Test_DescribeLoadBalancerAttributes, cls).teardown_class()
-        
+
     def test_T4013_valid_param(self):
         ret = self.a1_r1.lbu.DescribeLoadBalancerAttributes(LoadBalancerName=self.lbu_name).response
         assert ret.DescribeLoadBalancerAttributesResult.LoadBalancerAttributes.AccessLog
-        
+
     def test_T4014_not_existing_name(self):
         try:
             self.a1_r1.lbu.DescribeLoadBalancerAttributes(LoadBalancerName='XXXXXX')
@@ -48,7 +48,7 @@ class Test_DescribeLoadBalancerAttributes(OscTestSuite):
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, 'ValidationError', "The request must contain the parameter LoadBalancerName")
-            
+
     def test_T4016_with_another_account(self):
         try:
             self.a2_r1.lbu.DescribeLoadBalancerAttributes(LoadBalancerName=self.lbu_name)

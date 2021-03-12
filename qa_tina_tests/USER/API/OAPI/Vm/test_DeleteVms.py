@@ -1,14 +1,14 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vms_state_response
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vms_state_response
 
 
 class Test_DeleteVms(OscTestSuite):
@@ -78,8 +78,8 @@ class Test_DeleteVms(OscTestSuite):
         wait_instances_state(self.a1_r1, [vm_id], state='ready')
         ret = self.a1_r1.oapi.DeleteVms(VmIds=[vm_id]).response.Vms
         assert len(ret) == len([vm_id])
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'VmId': vm_id,
                 'PreviousState': 'running',
                 'CurrentState': 'shutting-down',
@@ -90,8 +90,8 @@ class Test_DeleteVms(OscTestSuite):
         vm_id = self.info[INSTANCE_ID_LIST][1]
         self.a1_r1.fcu.StopInstances(InstanceId=[vm_id], Force=False)
         ret = self.a1_r1.oapi.DeleteVms(VmIds=[vm_id]).response.Vms
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'VmId': vm_id,
                 'PreviousState': 'stopping',
                 'CurrentState': 'shutting-down',
@@ -104,8 +104,8 @@ class Test_DeleteVms(OscTestSuite):
         vm_id = self.info[INSTANCE_ID_LIST][2]
         stop_instances(self.a1_r1, [vm_id])
         ret = self.a1_r1.oapi.DeleteVms(VmIds=[vm_id]).response.Vms
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'VmId': vm_id,
                 'PreviousState': 'stopped',
                 'CurrentState': 'shutting-down',  # TODO: open a Bug and add known_error ?
@@ -116,8 +116,8 @@ class Test_DeleteVms(OscTestSuite):
         vm_id = self.info[INSTANCE_ID_LIST][3]
         terminate_instances(self.a1_r1, [vm_id])
         ret = self.a1_r1.oapi.DeleteVms(VmIds=[vm_id]).response.Vms
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'VmId': vm_id,
                 'PreviousState': 'terminated',
                 'CurrentState': 'terminated',
@@ -144,8 +144,8 @@ class Test_DeleteVms(OscTestSuite):
     def test_T2052_with_multiple_valid_instances(self):
         vm_id = self.info[INSTANCE_ID_LIST][5:7]
         ret = self.a1_r1.oapi.DeleteVms(VmIds=vm_id).response.Vms
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'PreviousState': 'running',
                 'CurrentState': 'shutting-down',
             })

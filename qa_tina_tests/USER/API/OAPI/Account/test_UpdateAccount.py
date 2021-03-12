@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
@@ -65,4 +65,3 @@ class Test_UpdateAccount(OscTestSuite):
         assert ret.response.Account.FirstName == account_info['FirstName']
         assert ret.response.Account.LastName == account_info['LastName']
         assert ret.response.Account.ZipCode == account_info['ZipCode']
-

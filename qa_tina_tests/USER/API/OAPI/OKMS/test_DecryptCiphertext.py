@@ -20,7 +20,8 @@ class Test_DecryptCiphertext(OKMS):
             cls.data1 = base64.b64encode(id_generator(size=128).encode('utf-8')).decode('utf-8')
             cls.encrypt_data1 = cls.a1_r1.oapi.EncryptPlaintext(MasterKeyId=cls.master_key_id, Plaintext=cls.data1).response
             cls.data2 = base64.b64encode(id_generator(size=128).encode('utf-8')).decode('utf-8')
-            cls.encrypt_data2 = cls.a1_r1.oapi.EncryptPlaintext(MasterKeyId=cls.master_key_id, Plaintext=cls.data2, EncryptionContext={'name': 'value'}).response
+            cls.encrypt_data2 = cls.a1_r1.oapi.EncryptPlaintext(MasterKeyId=cls.master_key_id, Plaintext=cls.data2,
+                                                                EncryptionContext={'name': 'value'}).response
             cls.data3 = base64.b64encode(id_generator(size=128).encode('utf-8')).decode('utf-8')
             cls.encrypt_data3 = cls.a1_r1.oapi.EncryptPlaintext(MasterKeyId=cls.master_key_id, Plaintext=cls.data3).response
 

@@ -221,7 +221,6 @@ class Test_ImportSnapshot(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: snapshotSize')
 
-
     def test_T1050_with_valid_params(self):
         if self.has_setup_error:
             known_error(self.has_setup_error, 'Unexpected error during setup')

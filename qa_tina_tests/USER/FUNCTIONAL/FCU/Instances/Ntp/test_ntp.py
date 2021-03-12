@@ -26,8 +26,12 @@ class Test_ntp(OscTestSuite):
         super(Test_ntp, cls).setup_class()
         try:
             cls.inst_info[CENTOS] = create_instances(osc_sdk=cls.a1_r1, omi_id=cls.a1_r1.config.region.get_info(constants.CENTOS7))
-            if constants.UBUNTU in cls.a1_r1.config.region._conf.keys() and cls.a1_r1.config.region.get_info(constants.UBUNTU) != "None":
-                cls.inst_info[UBUNTU] = create_instances(osc_sdk=cls.a1_r1, omi_id=cls.a1_r1.config.region.get_info(constants.UBUNTU))
+            try:
+                ubuntu_omi = cls.a1_r1.config.region.get_info(constants.UBUNTU)
+                if ubuntu_omi != "None":
+                    cls.inst_info[UBUNTU] = create_instances(osc_sdk=cls.a1_r1, omi_id=ubuntu_omi)
+            except ValueError:
+                pass
             cls.vpc_info = create_vpc(cls.a1_r1, nb_instance=1, state='')
         except Exception:
             try:
@@ -47,14 +51,15 @@ class Test_ntp(OscTestSuite):
         finally:
             super(Test_ntp, cls).teardown_class()
 
-    def _test_centos_ntp(self, osc_sdk, inst_id, ipAddress, keyPath):
-        sshclient = check_tools.check_ssh_connection(osc_sdk, inst_id, ipAddress, keyPath, username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        # sshclient = SshTools.check_connection_paramiko(ipAddress, keyPath, username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+    def my_test_centos_ntp(self, osc_sdk, inst_id, ip_address, key_path):
+        sshclient = check_tools.check_ssh_connection(osc_sdk, inst_id, ip_address, key_path,
+                                                     username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        # sshclient = SshTools.check_connection_paramiko(ipAddress, keyPath,
+        # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         retry = 3
         missing = False
         for _ in range(retry):
             out, _, _ = SshTools.exec_command_paramiko(sshclient, 'chronyc -n sources')
-            self.logger.info('output --> {}'.format(out))
             for ipaddress in self.a1_r1.config.region.get_info(constants.NTP_SERVERS):
                 if not re.search(r'(\*|-|\+) ({})'.format(ipaddress), out):
                     missing = True
@@ -68,29 +73,33 @@ class Test_ntp(OscTestSuite):
     @pytest.mark.tag_redwire
     def test_T1567_ntp_centos7(self):
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_info[CENTOS][INSTANCE_ID_LIST][0]], state='ready')
-        self._test_centos_ntp(self.a1_r1, self.inst_info[CENTOS][INSTANCE_ID_LIST][0], ipAddress=self.inst_info[CENTOS][INSTANCE_SET][0]['ipAddress'], keyPath=self.inst_info[CENTOS][KEY_PAIR][PATH])
+        self.my_test_centos_ntp(self.a1_r1, self.inst_info[CENTOS][INSTANCE_ID_LIST][0],
+                                ip_address=self.inst_info[CENTOS][INSTANCE_SET][0]['ipAddress'],
+                                key_path=self.inst_info[CENTOS][KEY_PAIR][PATH])
 
     @pytest.mark.tag_redwire
     def test_T3584_ntp_centos7_vpc(self):
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0]], state='ready')
-        self._test_centos_ntp(self.a1_r1, self.inst_info[CENTOS][INSTANCE_ID_LIST][0], ipAddress=self.vpc_info[SUBNETS][0][EIP]['publicIp'], keyPath=self.vpc_info[KEY_PAIR][PATH])
+        self.my_test_centos_ntp(self.a1_r1, self.inst_info[CENTOS][INSTANCE_ID_LIST][0], ip_address=self.vpc_info[SUBNETS][0][EIP]['publicIp'],
+                                key_path=self.vpc_info[KEY_PAIR][PATH])
 
     @pytest.mark.tag_redwire
     @pytest.mark.region_ubuntu
     def test_T1568_ntp_ubuntu(self):
         # check anyway
-        if not UBUNTU in self.inst_info:
+        if UBUNTU not in self.inst_info:
             pytest.skip('Platform does not support ubuntu')
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_info[UBUNTU][INSTANCE_ID_LIST][0]], state='ready')
-        sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_info[UBUNTU][INSTANCE_ID_LIST][0], self.inst_info[UBUNTU][INSTANCE_SET][0]['ipAddress'], self.inst_info[UBUNTU][KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.UBUNTU_USER))
-        # sshclient = SshTools.check_connection_paramiko(self.inst_info[UBUNTU][INSTANCE_SET][0]['ipAddress'], self.inst_info[UBUNTU][KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.UBUNTU_USER))
+        sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_info[UBUNTU][INSTANCE_ID_LIST][0],
+                                                     self.inst_info[UBUNTU][INSTANCE_SET][0]['ipAddress'],
+                                                     self.inst_info[UBUNTU][KEY_PAIR][PATH],
+                                                     username=self.a1_r1.config.region.get_info(constants.UBUNTU_USER))
+        # sshclient = SshTools.check_connection_paramiko(self.inst_info[UBUNTU][INSTANCE_SET][0]['ipAddress'], self.inst_info[UBUNTU][KEY_PAIR][PATH],
+        # username=self.a1_r1.config.region.get_info(constants.UBUNTU_USER))
         cmd = "sudo cat /run/systemd/timesyncd.conf.d/01-dhclient.conf"
         SshTools.exec_command_paramiko(sshclient, "sudo dhclient -v", expected_status=-1)
         sleep(10)
-        out, status, err = SshTools.exec_command_paramiko(sshclient, cmd, expected_status=-1)
-        self.logger.info('output --> {}'.format(out))
-        self.logger.info('status --> {}'.format(status))
-        self.logger.info('err --> {}'.format(err))
+        out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, expected_status=-1)
         if re.search('# NTP server entries received from DHCP server', out):
             for addr in self.a1_r1.config.region.get_info(constants.NTP_SERVERS):
                 if not addr in out:

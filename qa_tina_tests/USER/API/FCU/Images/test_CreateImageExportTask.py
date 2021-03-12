@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 """
     This module describe all test cases for CreateVolume
 """
@@ -14,9 +14,9 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_images_state
 
-
 NUM_EXPORT_TASK = 5
 NUM_IMAGES = NUM_EXPORT_TASK * 5
+
 
 class Test_CreateImageExportTask(OscTestSuite):
     """
@@ -25,7 +25,7 @@ class Test_CreateImageExportTask(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'image_export_limit': NUM_EXPORT_TASK}
+        cls.quotas = {'image_export_limit': NUM_EXPORT_TASK}
         cls.image_ids = []
         cls.inst_info = None
         super(Test_CreateImageExportTask, cls).setup_class()
@@ -62,29 +62,29 @@ class Test_CreateImageExportTask(OscTestSuite):
             pytest.fail("CreateImageExportTask should not have exceeded")
         except OscApiException as error:
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: ImageId')
- 
+
     def test_T741_without_disk_image_format(self):
         try:
             self.a1_r1.fcu.CreateImageExportTask(ImageId=self.image_ids[0], ExportToOsu={'OsuBucket': 'test'})
             pytest.fail("CreateImageExportTask should not have exceeded")
         except OscApiException as error:
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: DiskImageFormat')
- 
+
     def test_T742_without_osu_bucket(self):
         try:
             self.a1_r1.fcu.CreateImageExportTask(ImageId=self.image_ids[0], ExportToOsu={'DiskImageFormat': 'qcow2'})
             pytest.fail("CreateImageExportTask should not have exceeded")
         except OscApiException as error:
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: OsuBucket')
- 
+
     def test_T582_public_image(self):
         try:
-            self.a1_r1.fcu.CreateImageExportTask(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7), ExportToOsu={'DiskImageFormat': 'qcow2',
-                                                                                                                    'OsuBucket': 'test'})
+            self.a1_r1.fcu.CreateImageExportTask(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+                                                 ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test'})
             pytest.fail("CreateImageExportTask should not have exceeded")
         except OscApiException as error:
             assert_error(error, 400, 'OperationNotPermitted', 'Public or shared images cannot be exported')
- 
+
     def test_T583_shared_image(self):
         try:
             self.a2_r1.fcu.CreateImageExportTask(ImageId=self.image_ids[0], ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test'})
@@ -98,8 +98,10 @@ class Test_CreateImageExportTask(OscTestSuite):
     def test_T3304_too_many_export_tasks(self):
         for i in range(NUM_IMAGES):
             try:
-                self.a1_r1.fcu.CreateImageExportTask(ImageId=self.image_ids[i], ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test{}'.format(i)})
+                self.a1_r1.fcu.CreateImageExportTask(ImageId=self.image_ids[i],
+                                                     ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test{}'.format(i)})
             except OscApiException as error:
-                assert_error(error, 400, 'PendingImageLimitExceeded', 'The limit has exceeded: {}.Limit for Image Exports has been reached.'.format(NUM_EXPORT_TASK))
+                assert_error(error, 400, 'PendingImageLimitExceeded',
+                             'The limit has exceeded: {}.Limit for Image Exports has been reached.'.format(NUM_EXPORT_TASK))
                 return
         assert False, 'Call should not have been successful'

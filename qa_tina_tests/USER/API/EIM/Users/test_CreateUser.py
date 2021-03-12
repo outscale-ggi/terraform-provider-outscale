@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 
 import re
 
@@ -63,7 +63,8 @@ class Test_CreateUser(OscTestSuite):
                 assert False, "CreateUser must fail with invalid UserName"
             except OscApiException as error:
                 if char == ':':
-                    assert_error(error, 400, "ValidationError", 'Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: Invalid composite name part]')
+                    assert_error(error, 400, "ValidationError", "Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: " + \
+                                 "Invalid composite name part]")
                     known_error('TINA-5761', 'Unexpected error message')
                 else:
                     assert_error(error, 400, "ValidationError",
@@ -99,8 +100,7 @@ class Test_CreateUser(OscTestSuite):
                 assert False, "CreateUser must fail with invalid Path {}".format(path)
             except OscApiException as error:
                 assert_error(error, 400, "ValidationError",
-                            "Invalid IdauthUser: [path: must begin and end with / and contain only alphanumeric characters " \
-                            +"and/or /_ characters]")
+                            "Invalid IdauthUser: [path: must begin and end with / and contain only alphanumeric characters and/or /_ characters]")
         char_list = "!\"#$%&'()*+,-.;<=>?@[\\]^`{|}~:"
         for char in char_list:
             try:
@@ -111,7 +111,8 @@ class Test_CreateUser(OscTestSuite):
                 assert False, "CreateUser must fail with invalid Path {}".format(path)
             except OscApiException as error:
                 if char == ':':
-                    assert_error(error, 400, "ValidationError", 'Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: Invalid composite name part]')
+                    assert_error(error, 400, "ValidationError",
+                                 'Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: Invalid composite name part]')
                     known_error('TINA-5761', 'Unexpected error message')
                 else:
                     assert_error(error, 400, "ValidationError",

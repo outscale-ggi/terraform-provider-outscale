@@ -14,7 +14,7 @@ class Test_ReadMasterKeys(OKMS):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'cmk_limit': 102}
+        cls.quotas = {'cmk_limit': 102}
         cls.known_error = False
         cls.key_ids = []
         super(Test_ReadMasterKeys, cls).setup_class()
@@ -52,26 +52,26 @@ class Test_ReadMasterKeys(OKMS):
         descriptions = ['description0', 'description2']
         ret = self.a1_r1.oapi.ReadMasterKeys(Filters={'Descriptions': descriptions})
         assert len(ret.response.MasterKeys) == 2
-        assert set([key.Description for key in ret.response.MasterKeys]) == set(descriptions)
+        assert {[key.Description for key in ret.response.MasterKeys]} == {descriptions}
 
     def test_T5198_with_filter_keyid(self):
         keyids = [self.key_ids[0], self.key_ids[2]]
         ret = self.a1_r1.oapi.ReadMasterKeys(Filters={'MasterKeyIds': keyids})
         assert len(ret.response.MasterKeys) == 2
-        assert set([key.MasterKeyId for key in ret.response.MasterKeys]) == set(keyids)
+        assert {[key.MasterKeyId for key in ret.response.MasterKeys]} == {keyids}
 
     def test_T5199_with_filter_states(self):
         states = ['disabled', 'pending/deletion']
         ret = self.a1_r1.oapi.ReadMasterKeys(Filters={'States': states})
         assert len(ret.response.MasterKeys) == self.disabled_num + self.deleted_num
-        assert set([key.State for key in ret.response.MasterKeys]) == set(states)
+        assert {[key.State for key in ret.response.MasterKeys]} == {states}
 
     def test_T5200_with_filter_two_criteria(self):
         states = ['disabled', 'pending/deletion']
         descriptions = ['description0', 'description2']
         ret = self.a1_r1.oapi.ReadMasterKeys(Filters={'States': states, 'Descriptions': descriptions})
         assert len(ret.response.MasterKeys) == 2
-        assert set([key.MasterKeyId for key in ret.response.MasterKeys]) == set([self.key_ids[0], self.key_ids[2]])
+        assert {[key.MasterKeyId for key in ret.response.MasterKeys]} == {[self.key_ids[0], self.key_ids[2]]}
 
     def test_T5201_with_invalid_filter(self):
         try:
@@ -88,7 +88,7 @@ class Test_ReadMasterKeys(OKMS):
     def test_T5203_dry_run(self):
         ret = self.a1_r1.oapi.ReadMasterKeys(DryRun=True)
         assert_dry_run(ret)
-        
+
     def test_T5204_other_account(self):
         ret = self.a2_r1.oapi.ReadMasterKeys()
         assert len(ret.response.MasterKeys) == 1

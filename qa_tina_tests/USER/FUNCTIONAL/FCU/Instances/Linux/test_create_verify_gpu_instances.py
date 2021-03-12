@@ -13,7 +13,7 @@ class Test_create_verify_gpu_instances(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'gpu_limit': 4}
+        cls.quotas = {'gpu_limit': 4}
         super(Test_create_verify_gpu_instances, cls).setup_class()
 
     @classmethod

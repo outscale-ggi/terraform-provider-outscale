@@ -17,7 +17,7 @@ class Test_lan_sg_tags(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'bypass_group_limit': 5}
+        cls.quotas = {'bypass_group_limit': 5}
         cls.vpc_info_empty = None
         cls.vpc_info_full_default = None
         cls.vpc_info_full_enable = None
@@ -87,8 +87,7 @@ class Test_lan_sg_tags(OscTestSuite):
         except OscCommandError as error:
             if success:
                 raise error
-            else:
-                return
+            return
         if not success:
             assert False, 'Ping should not have been successful'
         assert '5 received' in out

@@ -13,6 +13,8 @@ class Test_UnlinkVirtualGateway(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.net_id = None
+        cls.vgw_id = None
+        cls.ret_link = None
         super(Test_UnlinkVirtualGateway, cls).setup_class()
         try:
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16')).response.Net.NetId

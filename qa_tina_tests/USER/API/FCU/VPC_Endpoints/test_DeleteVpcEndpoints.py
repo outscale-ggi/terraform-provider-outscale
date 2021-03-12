@@ -82,7 +82,8 @@ class Test_DeleteVpcEndpoints(OscTestSuite):
             ret = self.a1_r1.fcu.DescribeVpcEndpointServices()
             if not ret.response.serviceNameSet:
                 pytest.skip('VpcEndpoints not supported on {}'.format(self.a1_r1.config.region.name))
-            ret = self.a1_r1.fcu.CreateVpcEndpoint(VpcId=self.vpc_info[VPC_ID], ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name))
+            ret = self.a1_r1.fcu.CreateVpcEndpoint(VpcId=self.vpc_info[VPC_ID],
+                                                   ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name))
             wait_vpc_endpoints_state(self.a1_r1, [ret.response.vpcEndpoint.vpcEndpointId], state='available')
             res = self.a2_r1.fcu.DeleteVpcEndpoints(VpcEndpointId=[ret.response.vpcEndpoint.vpcEndpointId])
             assert res.status_code == 200

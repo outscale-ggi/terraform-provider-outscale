@@ -1,10 +1,10 @@
-# -*- coding:utf-8 -*-
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import  assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import validate_vpn_connection
 from qa_tina_tools.tina import wait
+from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import validate_vpn_connection
 
 
 class Test_CreateVpnConnection(OscTestSuite):
@@ -51,9 +51,6 @@ class Test_CreateVpnConnection(OscTestSuite):
             pass
         finally:
             super(Test_CreateVpnConnection, cls).teardown_class()
-
-    def setup_method(self, method):
-        super(Test_CreateVpnConnection, self).setup_method(method)
 
     def teardown_method(self, method):
         try:
@@ -156,4 +153,3 @@ class Test_CreateVpnConnection(OscTestSuite):
             'ConnectionType': 'ipsec.1',
         })
         assert hasattr(ret, 'ClientGatewayConfiguration')
-

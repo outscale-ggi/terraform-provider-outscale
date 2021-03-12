@@ -1,16 +1,17 @@
-# -*- coding:utf-8 -*-
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
+from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
 
 
 class Test_CreateVolume(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
+        cls.vol_ids = None
         super(Test_CreateVolume, cls).setup_class()
 
     @classmethod
@@ -190,66 +191,64 @@ class Test_CreateVolume(OscTestSuite):
             assert False, 'Error should not occurs'
 
     def test_T2961_valid_from_snapshot_id_of_volume_standard(self):
-        self.snap_id = None
+        snap_id = None
         try:
             ret = self.a1_r1.oapi.CreateVolume(VolumeType='standard', SubregionName=self.azs[0], Size=2).response.Volume
             self.vol_ids.append(ret.VolumeId)
             wait_volumes_state(self.a1_r1, [ret.VolumeId], state='available')
             ret_snap = self.a1_r1.oapi.CreateSnapshot(VolumeId=ret.VolumeId).response.Snapshot
-            self.snap_id = ret_snap.SnapshotId
-            ret_vol2 = self.a1_r1.oapi.CreateVolume(SnapshotId=self.snap_id, SubregionName=self.azs[0]).response.Volume
+            snap_id = ret_snap.SnapshotId
+            ret_vol2 = self.a1_r1.oapi.CreateVolume(SnapshotId=snap_id, SubregionName=self.azs[0]).response.Volume
             self.vol_ids.append(ret_vol2.VolumeId)
-            validate_volume_response(ret_vol2, az=self.azs[0], volume_type='standard', snapshot_id=self.snap_id)
+            validate_volume_response(ret_vol2, az=self.azs[0], volume_type='standard', snapshot_id=snap_id)
         finally:
-            if self.snap_id:
-                self.a1_r1.oapi.DeleteSnapshot(SnapshotId=self.snap_id)
+            if snap_id:
+                self.a1_r1.oapi.DeleteSnapshot(SnapshotId=snap_id)
 
     def test_T5231_valid_from_snapshot_id_of_volume_standard_with_an_inferior_size(self):
-        self.snap_id = None
+        snap_id = None
         ret_vol2 = None
         try:
             ret = self.a1_r1.oapi.CreateVolume(VolumeType='standard', SubregionName=self.azs[0], Size=2).response.Volume
             self.vol_ids.append(ret.VolumeId)
             wait_volumes_state(self.a1_r1, [ret.VolumeId], state='available')
             ret_snap = self.a1_r1.oapi.CreateSnapshot(VolumeId=ret.VolumeId).response.Snapshot
-            self.snap_id = ret_snap.SnapshotId
-            ret_vol2 = self.a1_r1.oapi.CreateVolume(SnapshotId=self.snap_id, SubregionName=self.azs[0], Size=1).response.Volume
+            snap_id = ret_snap.SnapshotId
+            ret_vol2 = self.a1_r1.oapi.CreateVolume(SnapshotId=snap_id, SubregionName=self.azs[0], Size=1).response.Volume
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', 4125)
         finally:
             if ret_vol2:
                 self.a1_r1.oapi.DeleteVolume(VolumeId=ret_vol2.VolumeId)
-            if self.snap_id:
-                self.a1_r1.oapi.DeleteSnapshot(SnapshotId=self.snap_id)
-
+            if snap_id:
+                self.a1_r1.oapi.DeleteSnapshot(SnapshotId=snap_id)
 
     def test_T2962_valid_from_snapshot_id_of_volume_gp2(self):
-        self.snap_id = None
+        snap_id = None
         try:
             ret = self.a1_r1.oapi.CreateVolume(VolumeType='gp2', SubregionName=self.azs[0], Size=2).response.Volume
             self.vol_ids.append(ret.VolumeId)
             wait_volumes_state(self.a1_r1, [ret.VolumeId], state='available')
             ret_snap = self.a1_r1.oapi.CreateSnapshot(VolumeId=ret.VolumeId).response.Snapshot
-            self.snap_id = ret_snap.SnapshotId
-            ret_vol2 = self.a1_r1.oapi.CreateVolume(SnapshotId=self.snap_id, SubregionName=self.azs[0]).response.Volume
+            snap_id = ret_snap.SnapshotId
+            ret_vol2 = self.a1_r1.oapi.CreateVolume(SnapshotId=snap_id, SubregionName=self.azs[0]).response.Volume
             self.vol_ids.append(ret_vol2.VolumeId)
-            validate_volume_response(ret_vol2, az=self.azs[0], volume_type='standard', snapshot_id=self.snap_id)
+            validate_volume_response(ret_vol2, az=self.azs[0], volume_type='standard', snapshot_id=snap_id)
         finally:
-            if self.snap_id:
-                self.a1_r1.oapi.DeleteSnapshot(SnapshotId=self.snap_id)
+            if snap_id:
+                self.a1_r1.oapi.DeleteSnapshot(SnapshotId=snap_id)
 
     def test_T2963_valid_from_snapshot_id_of_volume_io1(self):
-        self.snap_id = None
+        snap_id = None
         try:
-            ret = self.a1_r1.oapi.CreateVolume(VolumeType='io1', SubregionName=self.azs[0], Size=4, Iops=100
-                                               ).response.Volume
+            ret = self.a1_r1.oapi.CreateVolume(VolumeType='io1', SubregionName=self.azs[0], Size=4, Iops=100).response.Volume
             self.vol_ids.append(ret.VolumeId)
             wait_volumes_state(self.a1_r1, [ret.VolumeId], state='available')
             ret_snap = self.a1_r1.oapi.CreateSnapshot(VolumeId=ret.VolumeId).response.Snapshot
-            self.snap_id = ret_snap.SnapshotId
-            ret_vol2 = self.a1_r1.oapi.CreateVolume(SnapshotId=self.snap_id, SubregionName=self.azs[0]).response.Volume
+            snap_id = ret_snap.SnapshotId
+            ret_vol2 = self.a1_r1.oapi.CreateVolume(SnapshotId=snap_id, SubregionName=self.azs[0]).response.Volume
             self.vol_ids.append(ret_vol2.VolumeId)
-            validate_volume_response(ret_vol2, az=self.azs[0], volume_type='standard', snapshot_id=self.snap_id)
+            validate_volume_response(ret_vol2, az=self.azs[0], volume_type='standard', snapshot_id=snap_id)
         finally:
-            if self.snap_id:
-                self.a1_r1.oapi.DeleteSnapshot(SnapshotId=self.snap_id)
+            if snap_id:
+                self.a1_r1.oapi.DeleteSnapshot(SnapshotId=snap_id)

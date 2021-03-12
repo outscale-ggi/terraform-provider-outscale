@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 from datetime import datetime, timedelta
 
 import pytest
@@ -104,7 +104,6 @@ class Test_ReadVmsState(OscTestSuite):
             assert ret.response.VmStates[i].VmState == 'running', "State of the vm should be running"
         # check size of the list
         assert len(ret.response.VmStates) == 2
-
 
     def test_T2074_with_vm_id(self):
         result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[INSTANCE_SET][0]['instanceId']]})

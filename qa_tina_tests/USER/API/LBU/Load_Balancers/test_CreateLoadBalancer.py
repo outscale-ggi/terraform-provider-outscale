@@ -205,7 +205,7 @@ class Test_CreateLoadBalancer(OscTestSuite):
             assert False, "Call should not have been successful, request must contain valid security group param"
         except OscApiException as err:
             assert_error(err, 400, 'InvalidSecurityGroup', None)
-            # TODO check error message 
+            # TODO check error message
         try:
             self.a1_r1.lbu.CreateLoadBalancer(LoadBalancerName='lb1',
                                               Listeners=[{'InstancePort': '80', 'LoadBalancerPort': '80', 'Protocol': 'HTTP'}],

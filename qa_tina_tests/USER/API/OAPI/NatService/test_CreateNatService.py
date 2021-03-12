@@ -1,5 +1,5 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+
+
 import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException

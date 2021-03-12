@@ -66,16 +66,17 @@ class Test_DescribeVpcEndpoints(OscTestSuite):
         assert len(ret.response.vpcEndpointSet) == 2
 
     def test_T4475_filter_servicename(self):
-        ret = self.a1_r1.fcu.DescribeVpcEndpoints(Filter=[{'Name':'service-name', 'Value':'com.outscale.{}.api'.format(self.a1_r1.config.region.name)}])
+        ret = self.a1_r1.fcu.DescribeVpcEndpoints(
+            Filter=[{'Name':'service-name', 'Value':'com.outscale.{}.api'.format(self.a1_r1.config.region.name)}])
         assert len(ret.response.vpcEndpointSet) == 2
 
     def test_T4476_filter_invalid_servicename(self):
         ret = self.a1_r1.fcu.DescribeVpcEndpoints(Filter=[{'Name':'service-name', 'Value':'foo'}])
-        assert ret.response.vpcEndpointSet == None
+        assert ret.response.vpcEndpointSet is None
 
     def test_T4477_filter_invalid_net_id(self):
         ret = self.a1_r1.fcu.DescribeVpcEndpoints(Filter=[{'Name':'vpc-id', 'Value':'vpc-xxxxxxx'}])
-        assert ret.response.vpcEndpointSet == None
+        assert ret.response.vpcEndpointSet is None
 
     def test_T4478_filter_vpcendpointid(self):
         ret = self.a1_r1.fcu.DescribeVpcEndpoints(Filter=[{'Name':'vpc-endpoint-id', 'Value':self.vpcendpointid1}])
@@ -88,11 +89,11 @@ class Test_DescribeVpcEndpoints(OscTestSuite):
 
     def test_T4479_filter_invalid_vpcendpointid(self):
         ret = self.a1_r1.fcu.DescribeVpcEndpoints(Filter=[{'Name':'vpc-endpoint-id', 'Value':'vpc-xxxxxxx'}])
-        assert ret.response.vpcEndpointSet == None
+        assert ret.response.vpcEndpointSet is None
 
     def test_T4480_filter_vpcendpointstate(self):
         ret = self.a1_r1.fcu.DescribeVpcEndpoints(Filter=[{'Name':'vpc-endpoint-state', 'Value':'available'}])
-        assert len(ret.response.vpcEndpointSet) == 2      
+        assert len(ret.response.vpcEndpointSet) == 2
         self.a1_r1.fcu.DeleteVpcEndpoints(VpcEndpointId=[self.vpcendpointid1])
         wait_vpc_endpoints_state(self.a1_r1, [self.vpcendpointid1], state='deleted')
         ret = self.a1_r1.fcu.DescribeVpcEndpoints(Filter=[{'Name':'vpc-endpoint-state', 'Value':'deleted'}])
@@ -100,5 +101,4 @@ class Test_DescribeVpcEndpoints(OscTestSuite):
 
     def test_T4481_filter_invalid_vpcendpointstate(self):
         ret = self.a1_r1.fcu.DescribeVpcEndpoints(Filter=[{'Name':'vpc-endpoint-state', 'Value':'attaching'}])
-        assert ret.response.vpcEndpointSet == None
-
+        assert ret.response.vpcEndpointSet is None

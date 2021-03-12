@@ -17,9 +17,8 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -62,7 +61,6 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as err:
             assert_error(err, 400, 'ValidationError', "The request must contain the parameter Instances")
-        pass
 
     def test_T1549_incorrect_instances(self):
         try:

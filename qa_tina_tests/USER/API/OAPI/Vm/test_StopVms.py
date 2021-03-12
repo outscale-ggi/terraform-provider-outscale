@@ -1,15 +1,15 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vms_state_response
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vms_state_response
 
 
 class Test_StopVms(OscTestSuite):
@@ -60,8 +60,8 @@ class Test_StopVms(OscTestSuite):
         vm_id = self.info[INSTANCE_ID_LIST][0]
         ret = self.a1_r1.oapi.StopVms(VmIds=[vm_id]).response.Vms
         assert len(ret) == 1
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'VmId': vm_id,
                 'PreviousState': 'running',
                 'CurrentState': 'stopping',
@@ -74,8 +74,8 @@ class Test_StopVms(OscTestSuite):
         vm_id = self.info[INSTANCE_ID_LIST][1]
         ret = self.a1_r1.oapi.StopVms(VmIds=[vm_id], ForceStop=True).response.Vms
         assert len(ret) == 1
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'VmId': vm_id,
                 'PreviousState': 'running',
                 'CurrentState': 'stopping',
@@ -94,8 +94,8 @@ class Test_StopVms(OscTestSuite):
         wait_instances_state(self.a1_r1, instance_id_list=[vm_id], state='ready')
         ret = self.a1_r1.oapi.StopVms(VmIds=[vm_id]).response.Vms
         assert len(ret) == 1
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'VmId': vm_id,
                 'PreviousState': 'running',
                 'CurrentState': 'stopping',
@@ -107,8 +107,8 @@ class Test_StopVms(OscTestSuite):
         self.a1_r1.fcu.StopInstances(InstanceId=[vm_id])
         ret = self.a1_r1.oapi.StopVms(VmIds=[vm_id]).response.Vms
         assert len(ret) == 1
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'VmId': vm_id,
                 'PreviousState': 'stopping',
                 'CurrentState': 'stopping',
@@ -122,8 +122,8 @@ class Test_StopVms(OscTestSuite):
         stop_instances(self.a1_r1, [vm_id])
         ret = self.a1_r1.oapi.StopVms(VmIds=[vm_id]).response.Vms
         assert len(ret) == 1
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'VmId': vm_id,
                 'PreviousState': 'stopped',
                 'CurrentState': 'stopped',
@@ -168,8 +168,8 @@ class Test_StopVms(OscTestSuite):
         vm_ids = self.info[INSTANCE_ID_LIST][7:9]
         ret = self.a1_r1.oapi.StopVms(VmIds=vm_ids).response.Vms
         assert len(ret) == 2
-        for vm in ret:
-            validate_vms_state_response(vm, state={
+        for inst in ret:
+            validate_vms_state_response(inst, state={
                 'PreviousState': 'running',
                 'CurrentState': 'stopping',
             })

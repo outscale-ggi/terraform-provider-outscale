@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.test_base import OscTestSuite
@@ -10,18 +10,18 @@ def validate_vpn_connection(vpn, **kwargs):
     expected_vpn = kwargs.get('expected_vpn')
     routes = kwargs.get('routes')
     if expected_vpn:
-        for k, v in expected_vpn.items():
-            assert getattr(vpn, k) == v, (
+        for key, value in expected_vpn.items():
+            assert getattr(vpn, key) == value, (
                 'In VpnConnection, {} is different of expected value {} for key {}'
-                .format(getattr(vpn, k), v, k))
+                .format(getattr(vpn, key), value, key))
     if routes:
         for route in vpn.Routes:
             for exp_route in routes:
                 if exp_route.get('DestinationIpRange') == route.DestinationIpRange:
-                    for k, v in exp_route.items():
-                        assert getattr(route, k) == v, (
+                    for key, value in exp_route.items():
+                        assert getattr(route, key) == value, (
                             'In VpnConnection, {} is different of expected value {} for key {}'
-                            .format(getattr(route, k), v, k))
+                            .format(getattr(route, key), value, key))
     assert vpn.VpnConnectionId.startswith('vpn-')
 
 

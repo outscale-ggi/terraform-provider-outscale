@@ -19,6 +19,7 @@ def compare_validate_volumes(before_volume, after_volume, **kwargs):
         if not attr.startswith('_') and attr not in kwargs:
             assert getattr(before_volume, attr) == getattr(after_volume, attr)
 
+
 class Test_UpdateVolume(OscTestSuite):
 
     @classmethod
@@ -108,7 +109,6 @@ class Test_UpdateVolume(OscTestSuite):
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId)
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
-
 
     def test_T5238_with_invalid_size(self):
         try:

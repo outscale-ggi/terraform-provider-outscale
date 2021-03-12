@@ -8,19 +8,21 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import create_tools
 
 
-#Parameter     In      Type       Required
-#DryRun        body    boolean    false
-#FirstResult   body    integer    false
-#MaxResults    body    integer    false
-#Path          body    string     false
+# Parameter     In      Type       Required
+# DryRun        body    boolean    false
+# FirstResult   body    integer    false
+# MaxResults    body    integer    false
+# Path          body    string     false
 class Test_ReadServerCertificates(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
+
         def create_sc(osc_sdk, cert, key, path):
             name = misc.id_generator('sc_')
             osc_sdk.oapi.CreateServerCertificate(Name=name, Body=cert, PrivateKey=key, Path=path)
             return name
+
         super(Test_ReadServerCertificates, cls).setup_class()
         cls.crtpath, cls.keypath = create_tools.create_self_signed_cert()
         cls.key = open(cls.keypath).read()

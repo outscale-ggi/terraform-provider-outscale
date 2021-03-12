@@ -1,11 +1,11 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_tina_tools.tools.tina import create_tools
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
-from qa_tina_tools.tools.tina import create_tools
 
 
 class Test_DeleteApiAccessRule(ApiAccessRule):
-    
+
     @classmethod
     def setup_class(cls):
         super(Test_DeleteApiAccessRule, cls).setup_class()
@@ -14,11 +14,12 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
     @classmethod
     def teardown_class(cls):
         super(Test_DeleteApiAccessRule, cls).teardown_class()
-        
+
     def my_setup(self):
         self.api_access_rule_id = None
-        resp = self.osc_sdk.oapi.CreateApiAccessRule(Description='description', CaIds=self.ca_ids,
-                                                   Cns=[create_tools.CLIENT_CERT_CN1, create_tools.CLIENT_CERT_CN2], IpRanges=["1.1.1.1/32", "2.2.2.2/32"]).response
+        resp = self.osc_sdk.oapi.CreateApiAccessRule(
+            Description='description', CaIds=self.ca_ids,
+            Cns=[create_tools.CLIENT_CERT_CN1, create_tools.CLIENT_CERT_CN2], IpRanges=["1.1.1.1/32", "2.2.2.2/32"]).response
         self.api_access_rule_id = resp.ApiAccessRule.ApiAccessRuleId
 
     def teardown_method(self, method):
@@ -29,7 +30,7 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
             pass
         finally:
             ApiAccessRule.teardown_method(self, method)
-    
+
     def test_T5259_valid_params(self):
         self.my_setup()
         ret = self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=self.api_access_rule_id)
@@ -37,14 +38,14 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
 
     def test_T5260_unknown_id(self):
         try:
-            self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId='ca-12345678').response
+            self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId='ca-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
 
     def test_T5261_invalid_id(self):
         try:
-            self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId='toto').response
+            self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
@@ -61,7 +62,7 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
     def test_T5263_other_account(self):
         self.my_setup()
         try:
-            self.a2_r1.oapi.DeleteApiAccessRule(ApiAccessRuleId=self.api_access_rule_id).response
+            self.a2_r1.oapi.DeleteApiAccessRule(ApiAccessRuleId=self.api_access_rule_id)
             self.api_access_rule_id = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:

@@ -14,7 +14,8 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, SUBNETS, SUBNET
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
-ssl._create_default_https_context = ssl._create_unverified_context
+setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 LOGGING_LEVEL = logging.DEBUG
 TYPE = 'Type'
@@ -80,37 +81,7 @@ CREATE_INFOS = [
     ]
 
 
-if __name__ == '__main__':
-
-    logger = logging.getLogger('perf')
-
-    log_handler = logging.StreamHandler()
-    log_handler.setFormatter(
-        logging.Formatter('[%(asctime)s] ' +
-                          '[%(levelname)8s]' +
-                          '[%(threadName)s] ' +
-                          '[%(module)s.%(funcName)s():%(lineno)d]: ' +
-                          '%(message)s', '%m/%d/%Y %H:%M:%S'))
-
-    logger.setLevel(level=LOGGING_LEVEL)
-    logger.addHandler(log_handler)
-
-    logging.getLogger('tools').addHandler(log_handler)
-    logging.getLogger('tools').setLevel(level=LOGGING_LEVEL)
-
-    args_p = argparse.ArgumentParser(description="Test vm types",
-                                     formatter_class=argparse.RawTextHelpFormatter)
-
-    args_p.add_argument('-r', '--region-az', dest='az', action='store',
-                        required=True, type=str, help='Selected Outscale region AZ for the test')
-    args_p.add_argument('-a', '--account', dest='account', action='store',
-                        required=True, type=str, help='Set account used for the test')
-    args_p.add_argument('-kn', '--key_name', dest='key_name', action='store',
-                        required=True, type=str, help='Private key name')
-    args_p.add_argument('-kp', '--key_path', dest='key_path', action='store',
-                        required=True, type=str, help='Private key location')
-    args = args_p.parse_args()
-
+def run(args):
     config = OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE)
     osc_sdk = OscSdk(config)
 
@@ -144,7 +115,7 @@ if __name__ == '__main__':
 
         wait_instances_state(osc_sdk, inst_ids, state='running')
 
-        for i in range(len(CREATE_INFOS)):
+        for i, _ in enumerate(CREATE_INFOS):
             if CREATE_INFOS[i][STATE] == STOPPED:
                 stop_instances(osc_sdk, inst_ids[i:i+1])
             if CREATE_INFOS[i][FNI] is True:
@@ -158,8 +129,40 @@ if __name__ == '__main__':
         print("Instances creation took -> {}".format(datetime.datetime.now() - start))
 
     except Exception as error:
-        pass
-    finally:
-        pass
+        print(error)
 
     pprint(infos)
+
+
+if __name__ == '__main__':
+
+    logger = logging.getLogger('perf')
+
+    log_handler = logging.StreamHandler()
+    log_handler.setFormatter(
+        logging.Formatter('[%(asctime)s] ' +
+                          '[%(levelname)8s]' +
+                          '[%(threadName)s] ' +
+                          '[%(module)s.%(funcName)s():%(lineno)d]: ' +
+                          '%(message)s', '%m/%d/%Y %H:%M:%S'))
+
+    logger.setLevel(level=LOGGING_LEVEL)
+    logger.addHandler(log_handler)
+
+    logging.getLogger('tools').addHandler(log_handler)
+    logging.getLogger('tools').setLevel(level=LOGGING_LEVEL)
+
+    args_p = argparse.ArgumentParser(description="Test vm types",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+
+    args_p.add_argument('-r', '--region-az', dest='az', action='store',
+                        required=True, type=str, help='Selected Outscale region AZ for the test')
+    args_p.add_argument('-a', '--account', dest='account', action='store',
+                        required=True, type=str, help='Set account used for the test')
+    args_p.add_argument('-kn', '--key_name', dest='key_name', action='store',
+                        required=True, type=str, help='Private key name')
+    args_p.add_argument('-kp', '--key_path', dest='key_path', action='store',
+                        required=True, type=str, help='Private key location')
+    main_args = args_p.parse_args()
+
+    run(main_args)

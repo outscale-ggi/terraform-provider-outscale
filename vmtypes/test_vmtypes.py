@@ -1,3 +1,5 @@
+from __future__ import division
+
 import argparse
 import logging
 from pprint import pprint
@@ -16,7 +18,8 @@ from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
 from vmtypes import INST_TYPE_MATRIX
 
 
-ssl._create_default_https_context = ssl._create_unverified_context
+setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 LOGGING_LEVEL = logging.DEBUG
 
@@ -62,7 +65,8 @@ def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
         expected = int(out[0]) / 1024
     else:
         expected = int(out[0])
-    assert len(set([expected, ram, int(inst.specs.memory / (1024*1024*1024))])) == 1, "Ram values are not all equal, {} {} {}".format(expected, ram, int(inst.specs.memory / (1024*1024*1024)))
+    msg = "Ram values are not all equal, {} {} {}".format(expected, ram, int(inst.specs.memory / (1024*1024*1024)))
+    assert len(set([expected, ram, int(inst.specs.memory / (1024*1024*1024))])) == 1, msg
 
     cmd = "sudo lshw -C display | grep -c '*-display'"
     out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd, expected_status=-1)
@@ -76,49 +80,20 @@ def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
             cmd = "sudo fdisk -l /dev/xvd{} | grep /dev/xvd{}".format(chr(98 + i), chr(98 + i))
             out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
-            assert type_info.storage_size * 1024 * 1024 == int(out.strip().split()[4]), "Ephemeral storage size are not equal, {} {}".format(type_info.storage_size * 1024 * 1024, out.strip().split()[4])
+            msg = "Ephemeral storage size are not equal, {} {}".format(type_info.storage_size * 1024 * 1024, out.strip().split()[4])
+            assert type_info.storage_size * 1024 * 1024 == int(out.strip().split()[4]), msg
 
     if type_info.max_nics > 1:
-            cmd = 'sudo yum install pciutils -y'
-            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
-            assert not status, "SSH command was not executed correctly on the remote host"
-            cmd = 'sudo lspci | grep -c Ethernet '
-            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
-            assert not status, "SSH command was not executed correctly on the remote host"
-            assert int(out.strip()) == type_info.max_nics, 'Nic number are not equal, {} {}'.format(int(out.strip()), type_info.max_nics)
+        cmd = 'sudo yum install pciutils -y'
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
+        assert not status, "SSH command was not executed correctly on the remote host"
+        cmd = 'sudo lspci | grep -c Ethernet '
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+        assert not status, "SSH command was not executed correctly on the remote host"
+        assert int(out.strip()) == type_info.max_nics, 'Nic number are not equal, {} {}'.format(int(out.strip()), type_info.max_nics)
 
 
-if __name__ == '__main__':
-
-    logger = logging.getLogger('perf')
-
-    log_handler = logging.StreamHandler()
-    log_handler.setFormatter(
-        logging.Formatter('[%(asctime)s] ' +
-                          '[%(levelname)8s]' +
-                          '[%(threadName)s] ' +
-                          '[%(module)s.%(funcName)s():%(lineno)d]: ' +
-                          '%(message)s', '%m/%d/%Y %H:%M:%S'))
-
-    logger.setLevel(level=LOGGING_LEVEL)
-    logger.addHandler(log_handler)
-
-    logging.getLogger('tools').addHandler(log_handler)
-    logging.getLogger('tools').setLevel(level=LOGGING_LEVEL)
-
-    args_p = argparse.ArgumentParser(description="Test vm types",
-                                     formatter_class=argparse.RawTextHelpFormatter)
-
-    args_p.add_argument('-r', '--region-az', dest='az', action='store',
-                        required=True, type=str, help='Selected Outscale region AZ for the test')
-    args_p.add_argument('-a', '--account', dest='account', action='store',
-                        required=True, type=str, help='Set account used for the test')
-    args_p.add_argument('-kn', '--key_name', dest='key_name', action='store',
-                        required=True, type=str, help='Private key name')
-    args_p.add_argument('-kp', '--key_path', dest='key_path', action='store',
-                        required=True, type=str, help='Private key location')
-    args = args_p.parse_args()
-
+def run(args):
     config = OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE)
     osc_sdk = OscSdk(config)
 
@@ -134,7 +109,7 @@ if __name__ == '__main__':
         eip = osc_sdk.fcu.AllocateAddress(Domain='vpc').response
         ret = osc_sdk.intel.instance.get_available_types().response.result
         for attr in ret.__dict__:
-            if not type(getattr(ret, attr)) is OscObjectDict:
+            if not isinstance(getattr(ret, attr), OscObjectDict):
                 continue
             type_info = getattr(ret, attr)
             parts = type_info.name.split('.')
@@ -142,7 +117,6 @@ if __name__ == '__main__':
                 families[parts[0]] = []
             families[parts[0]].append(type_info)
         for family in families:
-            continue
             for type_info in families[family]:
                 inst_info = None
                 try:
@@ -150,9 +124,10 @@ if __name__ == '__main__':
                         raise OscTestException('Could not find type {} in matrix'.format(type_info.name))
                     infos.append('Create instance with type {}'.format(type_info.name))
                     try:
-                        inst_info = create_instances(osc_sdk, inst_type=type_info.name, key_name=args.key_name, state='ready',
-                                                     nb_ephemeral=len(type_info.storage), wait_time=5, threshold=24,
-                                                     subnet_id=(vpc_info[info_keys.SUBNETS][0][info_keys.SUBNET_ID] if type_info.max_nics > 1 else None))
+                        inst_info = create_instances(
+                            osc_sdk, inst_type=type_info.name, key_name=args.key_name, state='ready',
+                            nb_ephemeral=len(type_info.storage), wait_time=5, threshold=24,
+                            subnet_id=(vpc_info[info_keys.SUBNETS][0][info_keys.SUBNET_ID] if type_info.max_nics > 1 else None))
                     except AssertionError as error:
                         if 'stopped' in str(error):
                             raise OscTestException("Could not start instance -> stopped")
@@ -160,9 +135,11 @@ if __name__ == '__main__':
                     if type_info.max_nics > 1:
                         osc_sdk.fcu.AssociateAddress(AllocationId=eip.allocationId, InstanceId=inst_info[info_keys.INSTANCE_ID_LIST][0])
                         for i in range(type_info.max_nics - 1):
-                            fni_id = osc_sdk.fcu.CreateNetworkInterface(SubnetId=vpc_info[info_keys.SUBNETS][0][info_keys.SUBNET_ID]).response.networkInterface.networkInterfaceId
+                            fni_id = osc_sdk.fcu.CreateNetworkInterface(
+                                SubnetId=vpc_info[info_keys.SUBNETS][0][info_keys.SUBNET_ID]).response.networkInterface.networkInterfaceId
                             fni_ids.append(fni_id)
-                            osc_sdk.fcu.AttachNetworkInterface(DeviceIndex=1+i, InstanceId=inst_info[info_keys.INSTANCE_ID_LIST][0], NetworkInterfaceId=fni_id)
+                            osc_sdk.fcu.AttachNetworkInterface(DeviceIndex=1+i, InstanceId=inst_info[info_keys.INSTANCE_ID_LIST][0],
+                                                               NetworkInterfaceId=fni_id)
                     infos.append('Check instance with type {}'.format(type_info.name))
                     check_instance(osc_sdk, type_info, inst_info, args.key_path, ip_address=(eip.publicIp if type_info.max_nics > 2 else None))
                 except OscApiException as error:
@@ -194,3 +171,37 @@ if __name__ == '__main__':
     pprint(unexpected_errors)
     print("insufficient infos")
     pprint(infos)
+
+
+if __name__ == '__main__':
+
+    logger = logging.getLogger('perf')
+
+    log_handler = logging.StreamHandler()
+    log_handler.setFormatter(
+        logging.Formatter('[%(asctime)s] ' +
+                          '[%(levelname)8s]' +
+                          '[%(threadName)s] ' +
+                          '[%(module)s.%(funcName)s():%(lineno)d]: ' +
+                          '%(message)s', '%m/%d/%Y %H:%M:%S'))
+
+    logger.setLevel(level=LOGGING_LEVEL)
+    logger.addHandler(log_handler)
+
+    logging.getLogger('tools').addHandler(log_handler)
+    logging.getLogger('tools').setLevel(level=LOGGING_LEVEL)
+
+    args_p = argparse.ArgumentParser(description="Test vm types",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+
+    args_p.add_argument('-r', '--region-az', dest='az', action='store',
+                        required=True, type=str, help='Selected Outscale region AZ for the test')
+    args_p.add_argument('-a', '--account', dest='account', action='store',
+                        required=True, type=str, help='Set account used for the test')
+    args_p.add_argument('-kn', '--key_name', dest='key_name', action='store',
+                        required=True, type=str, help='Private key name')
+    args_p.add_argument('-kp', '--key_path', dest='key_path', action='store',
+                        required=True, type=str, help='Private key location')
+    main_args = args_p.parse_args()
+
+    run(main_args)

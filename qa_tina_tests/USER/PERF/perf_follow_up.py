@@ -94,7 +94,7 @@ if __name__ == '__main__':
         cleanup_keypairs(oscsdk)
         logger.info("Stop cleanup")
 
-    QUEUE = Queue()
+    queue = Queue()
     threads = []
     FINAL_STATUS = 0
     METHOD = None
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     for i in range(args.nb_worker):
         t = Thread(name="{}-{}".format(args.perf_type, i),
                    target=METHOD[1],
-                   args=[oscsdk, logger, QUEUE, args])
+                   args=[oscsdk, logger, queue, args])
         threads.append(t)
         t.start()
 
@@ -123,9 +123,9 @@ if __name__ == '__main__':
     logger.info("Get results")
     timestamp = int(time.time())
     i = 0
-    while not QUEUE.empty():
+    while not queue.empty():
         i += 1
-        res = QUEUE.get()
+        res = queue.get()
         import pprint
         pprint.pprint(res)
         if res['status'] != 'OK':

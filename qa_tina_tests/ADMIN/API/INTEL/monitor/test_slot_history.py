@@ -21,7 +21,7 @@ class Test_slot_history(OscTestSuite):
         pytest.skip('Too many data, timeout')
         ret = self.a1_r1.intel.monitor.slot_history()
         assert len(ret.response.result), 'Could not find any history'
-        
+
     def test_T5349_only_dates(self):
         ret = self.a1_r1.intel.monitor.slot_history(dt1=self.start_date, dt2=self.end_date)
         assert len(ret.response.result), 'Could not find any history'

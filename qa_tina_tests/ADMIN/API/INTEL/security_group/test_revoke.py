@@ -13,6 +13,6 @@ class Test_revoke(OscTestSuite):
                                                    authorizations=[{'protocol': '-1', 'ports': (-1, -1), 'cidrs': ['0.0.0.0/32'], 'way': 'in'}])
         except Exception as error:
             raise error
-        finally: 
+        finally:
             if group_id:
                 self.a1_r1.intel.security_group.delete(owner=self.a1_r1.config.account.account_id , group_id=group_id)

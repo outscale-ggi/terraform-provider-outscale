@@ -102,4 +102,5 @@ class Test_ScheduleKeyDeletion(Kms):
             self.a1_r1.kms.ScheduleKeyDeletion(KeyId=self.key_id, PendingWindowInDays=15)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'KMSInvalidStateException', 'Invalid state to perform this action: {}. State: pending/deletion'.format(self.key_id))
+            assert_error(error, 400,
+                         'KMSInvalidStateException', 'Invalid state to perform this action: {}. State: pending/deletion'.format(self.key_id))

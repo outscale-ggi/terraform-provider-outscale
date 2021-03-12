@@ -1,9 +1,9 @@
 
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 from qa_tina_tools.tools.tina.create_tools import start_instances
 from qa_tina_tools.tools.tina.delete_tools import stop_instances
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 
 
 class Test_verify_response(OscTestSuite):
@@ -50,7 +50,9 @@ class Test_verify_response(OscTestSuite):
         assert ret.response.Vms[0].Performance == new_perf
 
     def test_T4350_t2small_to_cxrypz(self):
-        self.verif_instance_type(instanceid=self.inst_info1, default_type=self.default_type, converted_type=self.converted_type, default_perf='medium', new_perf='highest')
+        self.verif_instance_type(instanceid=self.inst_info1, default_type=self.default_type, converted_type=self.converted_type,
+                                 default_perf='medium', new_perf='highest')
 
     def test_T4351_cxrypz_to_t2small(self):
-        self.verif_instance_type(instanceid=self.inst_info2, default_type=self.converted_type, converted_type=self.default_type, default_perf='highest', new_perf='medium')
+        self.verif_instance_type(instanceid=self.inst_info2, default_type=self.converted_type, converted_type=self.default_type,
+                                 default_perf='highest', new_perf='medium')

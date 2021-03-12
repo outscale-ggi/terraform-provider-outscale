@@ -54,13 +54,13 @@ class Test_over_fill_kvm(OscTestSuite):
         try:
             self.logger.info("Start workers")
             for i in range(THREAD_NUM):
-                t = Process(name="{}-{}".format('slot_test', i), target=create_inst, args=[self.a1_r1, i, return_dict, INST_TYPE, INST_NUM, ITER])
-                threads.append(t)
-            for t in threads:
-                t.start()
+                proc = Process(name="{}-{}".format('slot_test', i), target=create_inst, args=[self.a1_r1, i, return_dict, INST_TYPE, INST_NUM, ITER])
+                threads.append(proc)
+            for proc in threads:
+                proc.start()
             self.logger.info("Wait workers")
-            for i in range(len(threads)):
-                threads[i].join()
+            for proc in threads:
+                proc.join()
             self.logger.info("Get results")
             for _, ids in return_dict.items():
                 inst_ids.extend(ids)

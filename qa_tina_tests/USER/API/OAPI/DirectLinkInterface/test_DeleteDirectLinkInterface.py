@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import string
 
 import pytest
@@ -12,7 +12,7 @@ class Test_DeleteDirectLinkInterface(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
+        cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
         cls.virtual_gateway_id = None
         super(Test_DeleteDirectLinkInterface, cls).setup_class()
         try:

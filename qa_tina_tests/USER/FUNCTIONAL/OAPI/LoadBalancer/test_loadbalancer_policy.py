@@ -69,7 +69,7 @@ class Test_loadbalancer_policy(OscTestSuite):
             session = requests.session()
             for _ in range(5):
                 response = session.get("http://{}".format(lbu_info[info_keys.LBU_DNS]))
-                if response.status_code == 200 and len(response.cookies._cookies) >= 1:
+                if response.status_code == 200 and len(getattr(response.cookies, '_cookies')) >= 1:
                     cookie_found = True
                     break
                 time.sleep(2)
@@ -87,8 +87,8 @@ class Test_loadbalancer_policy(OscTestSuite):
             session = requests.session()
             for _ in range(5):
                 response = session.get("http://{}".format(lbu_info[info_keys.LBU_DNS]))
-                if response.status_code == 200 and len(response.cookies._cookies) >= 1:
-                    if len(response.cookies._cookies) >= 1:
+                if response.status_code == 200 and len(getattr(response.cookies, '_cookies')) >= 1:
+                    if len(getattr(response.cookies, '_cookies')) >= 1:
                         cookie_found = True
                         assert False, 'cookie found after its deletion '
                     else:

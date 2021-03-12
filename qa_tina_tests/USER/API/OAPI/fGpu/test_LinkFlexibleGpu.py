@@ -8,18 +8,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 
-
-#     LinkFlexibleGpuRequest:
-#       properties:
-#         DryRun: {description: LinkFlexibleGpuRequest_DryRun, type: boolean}
-#         FlexibleGpuId: {description: LinkFlexibleGpuRequest_FlexibleGpuId, type: string}
-#         VmId: {description: LinkFlexibleGpuRequest_VmId, type: string}
-#       required: [FlexibleGpuId, VmId]
-#       type: object
-#     LinkFlexibleGpuResponse:
-#       properties:
-#         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
-#       type: object
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
 
@@ -28,7 +16,7 @@ class Test_LinkFlexibleGpu(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'gpu_limit': 4}
+        cls.quotas = {'gpu_limit': 4}
         cls.inst_info = None
         cls.fg_id = None
         super(Test_LinkFlexibleGpu, cls).setup_class()

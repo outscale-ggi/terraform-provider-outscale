@@ -1,13 +1,13 @@
-# -*- coding:utf-8 -*-
+
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
-def create_vms(ocs_sdk, image_id=None, state='running', VmType=None, **kwargs):
+def create_vms(ocs_sdk, image_id=None, state='running', vm_type=None, **kwargs):
     if not image_id:
         image_id = ocs_sdk.config.region.get_info(constants.CENTOS7)
-    if VmType:
-        ret_value = ocs_sdk.oapi.CreateVms(ImageId=image_id, VmType=VmType, **kwargs)
+    if vm_type:
+        ret_value = ocs_sdk.oapi.CreateVms(ImageId=image_id, VmType=vm_type, **kwargs)
     else:
         ret_value = ocs_sdk.oapi.CreateVms(ImageId=image_id, **kwargs)
     vm_id_list = [vm.VmId for vm in ret_value.response.Vms]
@@ -22,7 +22,7 @@ def create_vms(ocs_sdk, image_id=None, state='running', VmType=None, **kwargs):
     return ret_value, vm_id_list
 
 
-def validate_vm_response(vm, **kwargs):
+def validate_vm_response(vm_ret, **kwargs):
     """
     :param vm:
     :param kwargs:
@@ -62,26 +62,26 @@ def validate_vm_response(vm, **kwargs):
             list(str, str) tags
     :return:
     """
-    assert vm.VmId.startswith('i-')
+    assert vm_ret.VmId.startswith('i-')
     expected_vm = kwargs.get('expected_vm')
     if expected_vm:
-        for k, v in expected_vm.items():
-            if k == 'PrivateDnsName' or k == 'PublicDnsName':
-                assert v in getattr(vm, k)
+        for key, value in expected_vm.items():
+            if key in ['PrivateDnsName', 'PublicDnsName']:
+                assert value in getattr(vm_ret, key)
             else:
-                assert hasattr(vm, k) and v is None or getattr(vm, k) == v, (
-                    'In Main Vm, {} is different of expected value {} for key {}'.format(getattr(vm, k), v, k))
+                assert hasattr(vm_ret, key) and value is None or getattr(vm_ret, key) == value, (
+                    'In Main Vm, {} is different of expected value {} for key {}'.format(getattr(vm_ret, key), value, key))
     bdms = kwargs.get('bdm', [])
     for exp_bdm in bdms:
-        for vm_bdm in vm.BlockDeviceMappings:
+        for vm_bdm in vm_ret.BlockDeviceMappings:
             if vm_bdm.DeviceName == exp_bdm['DeviceName']:
-                for k, v in exp_bdm.get('Bsu', {}).items():
-                    if k == 'VolumeId':
-                        assert getattr(vm_bdm.Bsu, k).startswith('vol-')
+                for key, value in exp_bdm.get('Bsu', {}).items():
+                    if key == 'VolumeId':
+                        assert getattr(vm_bdm.Bsu, key).startswith('vol-')
                     else:
-                        assert getattr(vm_bdm.Bsu, k) == v, (
+                        assert getattr(vm_bdm.Bsu, key) == value, (
                             'In BlockDeviceMapping, {} is different of expected value {} for key {}'
-                            .format(getattr(vm_bdm.Bsu, k), v, k))
+                            .format(getattr(vm_bdm.Bsu, key), value, key))
             else:
                 pass
     nics = kwargs.get('nic', [])
@@ -90,58 +90,58 @@ def validate_vm_response(vm, **kwargs):
         if 'NicId' in nic:
             local_nic_id = nic['NicId']
         found_nic = False
-        for vm_nic in vm.Nics:
+        for vm_nic in vm_ret.Nics:
             assert getattr(vm_nic, 'NicId').startswith('eni-')
             if local_nic_id and vm_nic.NicId != local_nic_id:
                 continue
             if 'NicId' in nic:
                 assert nic['NicId'] == vm_nic.NicId, 'Incorrect nicid'
-            for k, v in nic.items():
-                if k == 'NicId':
+            for key, value in nic.items():
+                if key == 'NicId':
                     continue
-                elif k == 'PrivateIps':
-                    validate_private_ips_response(vm_nic.PrivateIps, v)
-                elif k == 'LinkNic':
-                    assert v.get('DeviceNumber') in range(8)
+                if key == 'PrivateIps':
+                    validate_private_ips_response(vm_nic.PrivateIps, value)
+                elif key == 'LinkNic':
+                    assert value.get('DeviceNumber') in range(8)
                     assert vm_nic.LinkNic.LinkNicId.startswith('eni-attach')
                 #    break
-                elif k in ['SubnetId', 'NetId']:
-                    assert getattr(vm_nic, k) == v, ('In Vms[].Nics, {} is different of expected value {} for key {}'
-                                                          .format(getattr(vm_nic, k), v, k))
+                elif key in ['SubnetId', 'NetId']:
+                    assert getattr(vm_nic, key) == value, ('In Vms[].Nics, {} is different of expected value {} for key {}'
+                                                          .format(getattr(vm_nic, key), value, key))
                 else:
-                    assert False, 'Incorrect nic specification, unknown property {}'.format(k)
+                    assert False, 'Incorrect nic specification, unknown property {}'.format(key)
             found_nic = True
             break
         assert found_nic
     placement = kwargs.get('placement')
     if placement:
-        for k, v in placement.items():
-            assert getattr(vm.Placement, k) == v
+        for key, value in placement.items():
+            assert getattr(vm_ret.Placement, key) == value
     sgs = kwargs.get('sgs', [])
     for sg in sgs:
-        for vm_sg in vm.SecurityGroups:
-            for k, v in sg.items():
-                assert getattr(vm_sg, k) == v
+        for vm_sg in vm_ret.SecurityGroups:
+            for key, value in sg.items():
+                assert getattr(vm_sg, key) == value
     tags = kwargs.get('tags')
     if tags:
-        assert len(vm.Tags) == len(tags)
-        for tag in vm.Tags:
+        assert len(vm_ret.Tags) == len(tags)
+        for tag in vm_ret.Tags:
             assert (tag.Key, tag.Value) in tags
 
 
-def validate_vms_state_response(vm, **kwargs):
+def validate_vms_state_response(vm_ret, **kwargs):
     state = kwargs.get('state')
     if state:
-        for k, v in state.items():
-            assert getattr(vm, k) == v, ('In Vms[].State, {} is different of expected value {} for key {}'
-                                         .format(getattr(state, k), v, k))
+        for key, value in state.items():
+            assert getattr(vm_ret, key) == value, ('In Vms[].State, {} is different of expected value {} for key {}'
+                                         .format(getattr(state, key), value, key))
 
 
 def validate_private_ips_response(private_ips, expected_private_ips):
     for private_ip in private_ips:
         for epi in expected_private_ips:
             if private_ip.PrivateIp == epi['PrivateIp']:
-                for k, v in epi.items():
-                    assert getattr(private_ip, k) == v, (
+                for key, value in epi.items():
+                    assert getattr(private_ip, key) == value, (
                         'In Vms[].Nics[].PrivateIps, {} is different of expected value {} for key {}'
-                        .format(getattr(private_ips, k), v, k))
+                        .format(getattr(private_ips, key), value, key))

@@ -15,6 +15,14 @@ from qa_test_tools.test_base import OscTestSuite
 class Test_Strong_Password(OscTestSuite):
 
     @classmethod
+    def setup_class(cls):
+        cls.user = None
+        cls.email = None
+        cls.password = None
+        cls.rettoken = None
+        cls.icu = None
+        super(Test_Strong_Password, cls).setup_class()
+
     def setup_method(self, method):
         self.user = None
         OscTestSuite.setup_method(self, method)
@@ -26,16 +34,16 @@ class Test_Strong_Password(OscTestSuite):
             self.rettoken = self.a1_r1.identauth.IdauthPasswordToken.createAccountPasswordToken(accountEmail=self.email, account_id=self.user)
             ret = self.a1_r1.intel.accesskey.find_by_user(owner=self.user)
             keys = ret.response.result[0]
-            config = DefaultPubConfig(account=DefaultAccount(ak=keys.name, sk=keys.secret, login=self.email, password=self.password), region=DefaultRegion(name=self.a1_r1.config.region.name))
+            config = DefaultPubConfig(account=DefaultAccount(ak=keys.name, sk=keys.secret, login=self.email, password=self.password),
+                                      region=DefaultRegion(name=self.a1_r1.config.region.name))
             self.icu = OscIcuApi(service='icu', config=config)
         except:
             try:
-                self.teardown_method()
+                self.teardown_method(method)
             except:
                 pass
             raise
 
-    @classmethod
     def teardown_method(self, method):
         try:
             if self.user:
@@ -46,7 +54,8 @@ class Test_Strong_Password(OscTestSuite):
     def test_T4330_too_weak_password_with_pattern(self):
         new_password = "totototo1234(!)"
         try:
-            self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=new_password)
+            self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
+                                          Token=self.rettoken.response.passwordToken, Password=new_password)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'PasswordPolicyViolation', 'Password strength score (3) is too low: at least 4 out'
@@ -61,7 +70,8 @@ class Test_Strong_Password(OscTestSuite):
     def test_T4331_too_weak_password_too_short(self):
         try:
             new_password = "toTO93(!)"
-            self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=new_password)
+            self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
+                                          Token=self.rettoken.response.passwordToken, Password=new_password)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'PasswordPolicyViolation', 'Password strength score (3) is too low: at least 4 out'
@@ -69,20 +79,25 @@ class Test_Strong_Password(OscTestSuite):
 
     def test_T4332_too_weak_password_missing_sc(self):
         new_password = "lflfljkhfLFKJHFJH093540733"
-        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=new_password)
+        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
+                                      Token=self.rettoken.response.passwordToken, Password=new_password)
 
     def test_T4333_too_weak_password_missing_chars(self):
         new_password = "(!)FKJHFJH093540733"
-        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=new_password)
+        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
+                                      Token=self.rettoken.response.passwordToken, Password=new_password)
 
     def test_T4334_too_weak_password_missing_upper_chars(self):
         new_password = "lflfljkhf(!)093540733"
-        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=new_password)
+        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
+                                      Token=self.rettoken.response.passwordToken, Password=new_password)
 
     def test_T4335_too_weak_password_missing_number(self):
         new_password = "lflfljkhfLFKJHFJH(!)"
-        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=new_password)
+        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
+                                      Token=self.rettoken.response.passwordToken, Password=new_password)
 
     def test_T4336_too_weak_password_only_chars(self):
         new_password = "aqszrfegdtyrufidsksd"
-        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Token=self.rettoken.response.passwordToken, Password=new_password)
+        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
+                                      Token=self.rettoken.response.passwordToken, Password=new_password)

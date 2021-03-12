@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -130,7 +130,7 @@ class Test_ReadImages(OscTestSuite):
     def test_T5545_filters_hypervisors(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'Hypervisors': ['xen']})
         assert len(ret.response.Images) >= 3
-        #TODO add the verify response
+        # TODO add the verify response
         # verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
         #                                                   'read_image_hypervisors_filter.json'),
         #                        None), 'Could not verify response content.'

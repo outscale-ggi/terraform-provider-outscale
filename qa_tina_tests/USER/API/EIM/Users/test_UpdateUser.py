@@ -32,11 +32,11 @@ class Test_UpdateUser(OscTestSuite):
             OscTestSuite.teardown_method(self, method)
 
     def test_T3740_with_user_name_param(self):
-        tmpUserName = self.user.UserName
-        tmpUserPath = self.user.Path
+        tmp_user_name = self.user.UserName
+        tmp_user_path = self.user.Path
         self.a1_r1.eim.UpdateUser(UserName=self.user.UserName)
-        assert self.user.UserName == tmpUserName
-        assert self.user.Path == tmpUserPath
+        assert self.user.UserName == tmp_user_name
+        assert self.user.Path == tmp_user_path
 
     def test_T3741_with_new_path(self):
         newpath = '/SecondPath/'

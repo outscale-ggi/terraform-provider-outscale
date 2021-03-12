@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import os
 
 import pytest
@@ -7,8 +7,8 @@ from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.compare_objects import verify_response
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import known_error
-from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
+from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
 
 
 class Test_ReadSecurityGroups(SecurityGroup):

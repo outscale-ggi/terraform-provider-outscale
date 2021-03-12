@@ -14,8 +14,9 @@ class Test_DeleteDhcpOptions(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_DeleteDhcpOptions, cls).setup_class()
+        cls.dhcp_id = None
         cls.vpc_info = None
+        super(Test_DeleteDhcpOptions, cls).setup_class()
         try:
             cls.vpc_info = create_vpc(cls.a1_r1, igw=False)
             ret = cls.a1_r1.fcu.DescribeVpcs(VpcId=[cls.vpc_info[VPC_ID]])

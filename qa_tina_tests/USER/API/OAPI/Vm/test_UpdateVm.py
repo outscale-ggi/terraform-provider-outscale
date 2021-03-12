@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import base64
 
 import pytest
@@ -6,12 +6,11 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, id_generator, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_security_group
-from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instances, \
-    terminate_instances
+from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_instances_state
+from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 
 
 class Test_UpdateVm(OscTestSuite):
@@ -356,7 +355,7 @@ class Test_UpdateVm(OscTestSuite):
                 self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
 
     def test_T4899_base64_userdata(self):
-        userdata= """I2Nsb3VkLWNvbmZpZwpjbG91ZF9jb25maWdfbW9kdWxlczoKLSBydW5jbWQKCnJ1bmNtZDoKLSB0b
+        userdata = """I2Nsb3VkLWNvbmZpZwpjbG91ZF9jb25maWdfbW9kdWxlczoKLSBydW5jbWQKCnJ1bmNtZDoKLSB0b
         3VjaCAvdG1wL3FhLXZhbGlkLXRlcnJhZm9ybS11c2VyLWRhdGEtY2xvdWQtaW5pdAotIGVjaG8gImJsYWJsYSIgPj4gL2Rldi90dHlTMAo="""
         try:
             inst_info = create_instances(self.a1_r1)

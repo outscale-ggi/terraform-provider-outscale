@@ -5,10 +5,10 @@ import time
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
-from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state, \
     wait_keypairs_state, wait_security_groups_state, wait_snapshots_state
+from qa_tina_tests.USER.PERF.perf_common import log_error
 
 
 MAX_WAIT_TIME = 1800
@@ -29,15 +29,15 @@ def perf_snapshot(oscsdk, logger, queue, args):
 
     if not args.omi:
         logger.debug("OMI not specified, select default OMI")
-        OMI = oscsdk.config.region.get_info(constants.CENTOS7)
+        omi = oscsdk.config.region.get_info(constants.CENTOS7)
     else:
-        OMI = args.omi
+        omi = args.omi
 
     if not args.inst_type:
         logger.debug("Instance type not specified, select default instance type")
-        INST_TYPE = oscsdk.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
+        inst_type = oscsdk.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
     else:
-        INST_TYPE = args.inst_type
+        inst_type = args.inst_type
 
     result = {'status': 'OK'}
 
@@ -85,7 +85,7 @@ def perf_snapshot(oscsdk, logger, queue, args):
                         if i.instanceState.name == 'running':
                             inst = i
                             break
-                        elif i.instanceState.name == 'stopped':
+                        if i.instanceState.name == 'stopped':
                             oscsdk.fcu.StartInstances(InstanceId=[i.instanceId])
                             wait_instances_state(oscsdk, [i.instanceId], state='ready')
                             inst = i
@@ -128,7 +128,7 @@ def perf_snapshot(oscsdk, logger, queue, args):
 
         logger.debug("Run instance")
         try:
-            inst = oscsdk.fcu.RunInstances(ImageId=OMI, MinCount=1, MaxCount=1, InstanceType=INST_TYPE,
+            inst = oscsdk.fcu.RunInstances(ImageId=omi, MinCount=1, MaxCount=1, InstanceType=inst_type,
                                            SecurityGroup=[sg], KeyName=kp_name, Placement={'AvailabilityZone':args.az}).response.instancesSet[0]
             wait_instances_state(oscsdk, [inst.instanceId], state='ready')
             oscsdk.fcu.CreateTags(ResourceId=inst.instanceId, Tag=[{'Key': 'Name', 'Value': inst_name}])
@@ -170,23 +170,22 @@ def perf_snapshot(oscsdk, logger, queue, args):
         if ret.response.snapshotSet:
             snap_list = [s.snapshotId for s in ret.response.snapshotSet]
 
-        for i in range(len(volume_id_list)):
-            volume_id = volume_id_list[i]
+        for i, volume_id in enumerate(volume_id_list):
 
             logger.info("Snapshot volume")
             try:
-                snapId = None
+                snap_id = None
                 start_status_snapshot = datetime.now()
                 ret = oscsdk.fcu.CreateSnapshot(VolumeId=volume_id)
                 time_snap = (datetime.now() - start_status_snapshot).total_seconds()
                 result['snap_call_%s' % (i)] = time_snap
-                snapId = ret.response.snapshotId
-                ret = oscsdk.fcu.DescribeSnapshots(Filter=[{'Name': 'snapshot-id', 'Value': snapId}])
+                snap_id = ret.response.snapshotId
+                ret = oscsdk.fcu.DescribeSnapshots(Filter=[{'Name': 'snapshot-id', 'Value': snap_id}])
                 prev_state = ret.response.snapshotSet[0].status
                 logger.debug("*** INIT STATUS: %s", prev_state)
                 stop_states = ['completed', 'error']
                 while (datetime.now() - start_status_snapshot).total_seconds() < MAX_WAIT_TIME:
-                    ret = oscsdk.fcu.DescribeSnapshots(Filter=[{'Name': 'snapshot-id', 'Value': snapId}])
+                    ret = oscsdk.fcu.DescribeSnapshots(Filter=[{'Name': 'snapshot-id', 'Value': snap_id}])
                     status_snap = ret.response.snapshotSet[0].status
                     logger.debug("*** ACTUAL STATUS: %s", status_snap)
                     if status_snap != prev_state:
@@ -207,8 +206,8 @@ def perf_snapshot(oscsdk, logger, queue, args):
             except Exception as error:
                 log_error(logger, error, "Error occurred while snapshotting ...", result)
 
-        for s in snap_list:
-            ret = oscsdk.fcu.DeleteSnapshot(SnapshotId=s)
-            wait_snapshots_state(osc_sdk=oscsdk, snapshot_id_list=[s], cleanup=True)
+        for snap in snap_list:
+            ret = oscsdk.fcu.DeleteSnapshot(SnapshotId=snap)
+            wait_snapshots_state(osc_sdk=oscsdk, snapshot_id_list=[snap], cleanup=True)
 
     queue.put(result.copy())

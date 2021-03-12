@@ -97,7 +97,8 @@ class Test_UpdateAccessKey(OscTestSuite):
         ak = None
         try:
             ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
-            self.a1_r1.oapi.UpdateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=ak, State='ACTIVE')
+            self.a1_r1.oapi.UpdateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+                                            AccessKeyId=ak, State='ACTIVE')
             assert False, 'remove known error'
         except OscSdkException:
             known_error('GTW-1240', 'SDK implementation ')
@@ -108,7 +109,7 @@ class Test_UpdateAccessKey(OscTestSuite):
     def test_T5063_with_dry_run(self):
         try:
             ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
-            ret = self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', DryRun = True)
+            ret = self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', DryRun=True)
             assert_dry_run(ret)
         finally:
             if ak:

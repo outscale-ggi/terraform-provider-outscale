@@ -32,7 +32,8 @@ class Test_UnlinkRouteTable(OscTestSuite):
         try:
             self.net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16')).response.Net.NetId
             wait_vpcs_state(self.a1_r1, [self.net_id], state='available')
-            self.subnet_id = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id, IpRange=Configuration.get('subnet', '10_0_1_0_24')).response.Subnet.SubnetId
+            self.subnet_id = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id,
+                                                          IpRange=Configuration.get('subnet', '10_0_1_0_24')).response.Subnet.SubnetId
             self.rt_id = self.a1_r1.oapi.CreateRouteTable(NetId=self.net_id).response.RouteTable.RouteTableId
 
             self.link_id = self.a1_r1.oapi.LinkRouteTable(SubnetId=self.subnet_id, RouteTableId=self.rt_id).response.LinkRouteTableId

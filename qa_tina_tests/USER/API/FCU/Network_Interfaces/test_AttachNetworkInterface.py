@@ -13,6 +13,7 @@ class Test_AttachNetworkInterface(OscTestSuite):
     def setup_class(cls):
         cls.vpc_info = None
         cls.ni_id = None
+        cls.att_id = None
         super(Test_AttachNetworkInterface, cls).setup_class()
         try:
             cls.vpc_info = create_vpc(cls.a1_r1, igw=False, nb_instance=1)

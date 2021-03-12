@@ -1,13 +1,13 @@
-# -*- coding:utf-8 -*-
+
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import get_data_file_chain, get_md5sum, write_and_snap
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_snapshots_state, wait_volumes_state
+from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import get_data_file_chain, get_md5sum, write_and_snap
 
 
 # Snapshots creation:

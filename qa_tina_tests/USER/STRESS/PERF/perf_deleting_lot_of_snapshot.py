@@ -35,7 +35,9 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR,
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
 
 
-ssl._create_default_https_context = ssl._create_unverified_context
+setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
+# ssl._create_default_https_context = ssl._create_unverified_context
+
 LOGGING_LEVEL = logging.DEBUG
 OSC_CREDENTIALS = "~/.osc_credentials"
 OSC_LIB = "boto"
@@ -63,18 +65,18 @@ def delete_snapshot(oscsdk, snap_ids, queue):
     try:
         tmp = datetime.now()
         for snap_id in snap_ids:
-            oscsdk.fcu.DeleteSnapshot(SnapshotId=snap_id).response
+            oscsdk.fcu.DeleteSnapshot(SnapshotId=snap_id)
         result['time'] = (datetime.now() - tmp).total_seconds()
     except Exception:
         result = {'status': 'KO'}
     queue.put(result)
 
 
-def create_snapshot(oscsdk, kp_info, inst_info, volId, VOLDEVice, args, queue):
+def create_snapshot(oscsdk, kp_info, inst_info, vol_id, device, args, queue):
     thread_name = current_thread().name
     logger.info("Start test: %s", thread_name)
     result = {'status': 'OK'}
-    waitingSnapshots = []
+    waiting_snapshots = []
     snap_ids = []
 
     try:
@@ -106,7 +108,7 @@ def create_snapshot(oscsdk, kp_info, inst_info, volId, VOLDEVice, args, queue):
                 write_errors = 0
                 logger.info("Snapshot volume")
                 try:
-                    snap = oscsdk.fcu.CreateSnapshot(VolumeId=volId).response
+                    snap = oscsdk.fcu.CreateSnapshot(VolumeId=vol_id).response
                     snap_ids.append(snap.snapshotId)
                     num += 1
                     try:
@@ -114,8 +116,8 @@ def create_snapshot(oscsdk, kp_info, inst_info, volId, VOLDEVice, args, queue):
                     except AssertionError as error:
                         logger.info('Error occurred while waiting snapshot status ... ')
                         logger.info(str(error))
-                        waitingSnapshots.append(snap.snapshotId)
-                except Exception as error:
+                        waiting_snapshots.append(snap.snapshotId)
+                except OscApiException as error:
                     if hasattr(error, 'error_code') and error.error_code == 'ConcurrentSnapshotLimitExceeded':
                         time.sleep(1)
                     else:
@@ -135,9 +137,171 @@ def create_snapshot(oscsdk, kp_info, inst_info, volId, VOLDEVice, args, queue):
 
     # snapshot volume (delay 200 ms, to be refined)
 
-    result['waiting'] = waitingSnapshots
+    result['waiting'] = waiting_snapshots
     result['snap_ids'] = snap_ids
     queue.put(result)
+
+
+def run(args):
+    logger.info("Initialize environment")
+    oscsdk = OscSdk(config=OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE))
+
+#     if not args.omi:
+#         logger.debug("OMI not specified, select default OMI")
+#         omi = oscsdk.config.region.get_info(constants.DEFAULT_AMI)
+#     else:
+#         omi = args.omi
+#
+#     if not args.instance_type:
+#         logger.debug("Instance type not specified, select default instance type")
+#         inst_type = oscsdk.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
+#     else:
+#         inst_type = args.instance_type
+
+    # logger.info("Clean all remaining resources")
+    # CONN.tools.cleanupInstances()
+    # CONN.tools.cleanupSnapshots()
+    # CONN.tools.cleanupVolumes()
+    # CONN.tools.cleanupSecurityGroups()
+    # CONN.tools.cleanupKeyPairs()
+    # logger.info("Stop cleanup")
+
+    init_error = None
+    if not args.no_init:
+        logger.info("check_existing resources")
+        snap_number = 0
+        try:
+            ret = oscsdk.fcu.DescribeSnapshots(Owner=[oscsdk.config.account.account_id]).response
+            snap_number = len(ret.snapshotSet)
+        except Exception as error:
+            pass
+
+        inst_info = None
+
+        if snap_number < args.snap_number:
+            diff = args.snap_number - snap_number
+            if diff < args.volume_number:
+                setattr(args, 'volume_number', diff)
+                setattr(args, 'write_number', 1)
+            else:
+                setattr(args, 'write_number', diff // args.volume_number)
+
+            logger.info("Start initializing test setup")
+
+            # result = {'status': 'OK'}
+
+            #thread_name = 'tss'
+            volume_ids = []
+            volume_device = {}
+
+            try:
+                logger.debug("Create instance")
+                inst_info = create_instances(oscsdk, nb=args.volume_number)
+
+                logger.debug("Create volumes")
+                _, volume_ids = create_volumes(oscsdk, count=args.volume_number, state='available')
+
+                logger.debug("Attach volume(s)")
+                for i in range(args.volume_number):
+                    device = DEV + chr(START_DEV_CHAR + i)
+                    oscsdk.fcu.AttachVolume(Device=device, InstanceId=inst_info[INSTANCE_ID_LIST][i], VolumeId=volume_ids[i])
+                    volume_device[volume_ids[i]] = device
+
+                logger.debug("Wait volume attachement")
+                wait_volumes_state(oscsdk, volume_ids, state='in-use', cleanup=False)
+
+            except Exception as error:
+                logger.info("Error occurred while initializing test setup")
+                init_error = error
+
+            logger.info("Stop initializing test setup")
+
+            nb_ok = 0
+            nb_ko = 0
+
+            if not init_error:
+                queue = Queue()
+                threads = []
+                i = 0
+                logger.info("Start workers")
+                for i in range(args.volume_number):
+                    # def test_snapshot(conn, keyPath, ipAddress, volId, device, args, queue):
+                    proc = Thread(name="pfsbu-{}".format(i), target=create_snapshot, args=[oscsdk, inst_info[KEY_PAIR], inst_info[INSTANCE_SET][i],
+                                                                                        volume_ids[i], volume_device[volume_ids[i]], args, queue])
+                    threads.append(proc)
+                    proc.start()
+
+                logger.info("Wait workers")
+                for proc in threads:
+                    proc.join()
+
+                waiting_snapshots = []
+                snapshot_ids = []
+
+                logger.info("Get results")
+                while not queue.empty():
+                    res = queue.get()
+                    for key in res.keys():
+                        if key == "status":
+                            if res[key] == "OK":
+                                nb_ok += 1
+                            else:
+                                nb_ko += 1
+                        elif key == 'waiting':
+                            waiting_snapshots.append(res[key])
+                        elif key == 'snap_ids':
+                            snapshot_ids.append(res[key])
+                    logger.debug(res)
+                logger.info("OK = %d - KO = %d", nb_ok, nb_ko)
+                logger.info("nb waitingSnapshots = %d", waiting_snapshots)
+
+        logger.info("Start deleting test setup")
+        try:
+            if volume_ids:
+                for vol_id in volume_ids:
+                    oscsdk.fcu.DetachVolume(VolumeId=vol_id)
+                wait_volumes_state(oscsdk, volume_ids, state='available')
+                delete_volumes(oscsdk, volume_ids)
+            if inst_info:
+                delete_instances(oscsdk, inst_info)
+        except Exception as error:
+            logger.info('Error occurred while deleting test setup')
+        logger.info("End deleting test setup")
+
+        if not init_error:
+            queue = Queue()
+            threads = []
+            i = 0
+            logger.info("Start workers")
+            for ids in snapshot_ids:
+                # def test_snapshot(conn, keyPath, ipAddress, volId, device, args, queue):
+                proc = Thread(name="pfsbu-{}".format(i), target=delete_snapshot, args=[oscsdk, ids, queue])
+                i = i+1
+                threads.append(proc)
+                proc.start()
+
+            logger.info("Wait workers")
+            for proc in threads:
+                proc.join()
+            if args.snap_gc:
+                for _ in range(10):
+                    try:
+                        oscsdk.intel.snapshot.gc()
+                    except OscApiException as error:
+                        print(error)
+                        assert_error(error, 200, 0, 'locked')
+
+            logger.info("Get results")
+            while not queue.empty():
+                res = queue.get()
+                for key in res.keys():
+                    if key == "status":
+                        if res[key] == "OK":
+                            nb_ok += 1
+                        else:
+                            nb_ko += 1
+                logger.debug(res)
+            logger.info("OK = %d - KO = %d", nb_ok, nb_ko)
 
 
 if __name__ == '__main__':
@@ -186,164 +350,6 @@ if __name__ == '__main__':
                         required=False, help='No snapshots will be created')
     args_p.add_argument('-gc', '--snap_gc', dest='snap_gc', action='store',
                         required=False, type=bool, default=1, help='execute snapshot gc or no')
-    args = args_p.parse_args()
+    main_args = args_p.parse_args()
 
-    logger.info("Initialize environment")
-    oscsdk = OscSdk(config=OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE))
-
-    if not args.omi:
-        logger.debug("OMI not specified, select default OMI")
-        OMI = oscsdk.config.region.get_info(constants.DEFAULT_AMI)
-    else:
-        OMI = args.omi
-
-    if not args.instance_type:
-        logger.debug("Instance type not specified, select default instance type")
-        INST_TYPE = oscsdk.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
-    else:
-        INST_TYPE = args.instance_type
-
-    # logger.info("Clean all remaining resources")
-    # CONN.tools.cleanupInstances()
-    # CONN.tools.cleanupSnapshots()
-    # CONN.tools.cleanupVolumes()
-    # CONN.tools.cleanupSecurityGroups()
-    # CONN.tools.cleanupKeyPairs()
-    # logger.info("Stop cleanup")
-
-    init_error = None
-    if not args.no_init:
-        logger.info("check_existing resources")
-        snap_number = 0
-        try:
-            ret = oscsdk.fcu.DescribeSnapshots(Owner=[oscsdk.config.account.account_id]).response
-            snap_number = len(ret.snapshotSet)
-        except Exception as error:
-            pass
-
-        inst_info = None
-
-        if snap_number < args.snap_number:
-            diff = args.snap_number - snap_number
-            if diff < args.volume_number:
-                setattr(args, 'volume_number', diff)
-                setattr(args, 'write_number', 1)
-            else:
-                setattr(args, 'write_number', diff // args.volume_number)
-
-            logger.info("Start initializing test setup")
-
-            # result = {'status': 'OK'}
-
-            thread_name = 'tss'
-            VOLUME_IDS = []
-            VOLDEV = {}
-
-            try:
-                logger.debug("Create instance")
-                inst_info = create_instances(oscsdk, nb=args.volume_number)
-
-                logger.debug("Create volumes")
-                _, VOLUME_IDS = create_volumes(oscsdk, count=args.volume_number, state='available')
-
-                logger.debug("Attach volume(s)")
-                for i in range(args.volume_number):
-                    device = DEV + chr(START_DEV_CHAR + i)
-                    oscsdk.fcu.AttachVolume(Device=device, InstanceId=inst_info[INSTANCE_ID_LIST][i], VolumeId=VOLUME_IDS[i])
-                    VOLDEV[VOLUME_IDS[i]] = device
-
-                logger.debug("Wait volume attachement")
-                wait_volumes_state(oscsdk, VOLUME_IDS, state='in-use', cleanup=False)
-
-            except Exception as error:
-                logger.info("Error occurred while initializing test setup")
-                init_error = error
-
-            logger.info("Stop initializing test setup")
-
-            NB_OK = 0
-            NB_KO = 0
-
-            if not init_error:
-                QUEUE = Queue()
-                threads = []
-                i = 0
-                logger.info("Start workers")
-                for i in range(args.volume_number):
-                    # def test_snapshot(conn, keyPath, ipAddress, volId, device, args, queue):
-                    t = Thread(name="pfsbu-{}".format(i), target=create_snapshot, args=[oscsdk, inst_info[KEY_PAIR], inst_info[INSTANCE_SET][i],
-                                                                                        VOLUME_IDS[i], VOLDEV[VOLUME_IDS[i]], args, QUEUE])
-                    threads.append(t)
-                    t.start()
-
-                logger.info("Wait workers")
-                for i in range(len(threads)):
-                    threads[i].join()
-
-                waitingSnapshots = []
-                Snapshot_ids = []
-
-                logger.info("Get results")
-                while not QUEUE.empty():
-                    res = QUEUE.get()
-                    for key in res.keys():
-                        if key == "status":
-                            if res[key] == "OK":
-                                NB_OK += 1
-                            else:
-                                NB_KO += 1
-                        elif key == 'waiting':
-                            waitingSnapshots.append(res[key])
-                        elif key == 'snap_ids':
-                            Snapshot_ids.append(res[key])
-                    logger.debug(res)
-                logger.info("OK = {} - KO = {}".format(NB_OK, NB_KO))
-                logger.info("nb waitingSnapshots = {}".format(waitingSnapshots))
-
-        logger.info("Start deleting test setup")
-        try:
-            if VOLUME_IDS:
-                for volId in VOLUME_IDS:
-                    oscsdk.fcu.DetachVolume(VolumeId=volId)
-                wait_volumes_state(oscsdk, VOLUME_IDS, state='available')
-                delete_volumes(oscsdk, VOLUME_IDS)
-            if inst_info:
-                delete_instances(oscsdk, inst_info)
-        except Exception as error:
-            logger.info('Error occurred while deleting test setup')
-        logger.info("End deleting test setup")
-
-        if not init_error:
-            QUEUE = Queue()
-            threads = []
-            i = 0
-            logger.info("Start workers")
-            for ids in Snapshot_ids:
-                # def test_snapshot(conn, keyPath, ipAddress, volId, device, args, queue):
-                t = Thread(name="pfsbu-{}".format(i), target=delete_snapshot, args=[oscsdk, ids, QUEUE])
-                i = i+1
-                threads.append(t)
-                t.start()
-
-            logger.info("Wait workers")
-            for i in range(len(threads)):
-                threads[i].join()
-            if args.snap_gc:
-                for _ in range(10):
-                    try:
-                        oscsdk.intel.snapshot.gc()
-                    except OscApiException as error:
-                        print(error)
-                        assert_error(error, 200, 0, 'locked')
-
-            logger.info("Get results")
-            while not QUEUE.empty():
-                res = QUEUE.get()
-                for key in res.keys():
-                    if key == "status":
-                        if res[key] == "OK":
-                            NB_OK += 1
-                        else:
-                            NB_KO += 1
-                logger.debug(res)
-            logger.info("OK = {} - KO = {}".format(NB_OK, NB_KO))
+    run(main_args)

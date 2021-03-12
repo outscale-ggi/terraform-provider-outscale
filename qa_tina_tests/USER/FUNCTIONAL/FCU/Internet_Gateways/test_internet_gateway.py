@@ -33,8 +33,8 @@ class Test_internet_gateway(OscTestSuite):
         cls.rt_asso1_id = None
         cls.eip_allo_id = None
         try:
-            Instance_Type = cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
-            IP_Ingress = Configuration.get('cidr', 'allips')
+            instance_type = cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
+            ip_ingress = Configuration.get('cidr', 'allips')
             time_now = datetime.datetime.now()
             unique_id = time_now.strftime('%Y%m%d%H%M%S')
             cls.sg_name = 'sg_test_int_conn_IGW_{}'.format(unique_id)
@@ -55,7 +55,7 @@ class Test_internet_gateway(OscTestSuite):
             ret = cls.a1_r1.fcu.CreateRouteTable(VpcId=cls.vpc_id)
             cls.rtb1 = ret.response.routeTable.routeTableId
             # authorize rules
-            cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.sg_id, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=IP_Ingress)
+            cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.sg_id, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=ip_ingress)
             # create subnet 1
             ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_1_0_24'), VpcId=cls.vpc_id)
             cls.subnet1_id = ret.response.subnet.subnetId
@@ -66,7 +66,7 @@ class Test_internet_gateway(OscTestSuite):
             inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS7), MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[NAME],
-                                              InstanceType=Instance_Type, SubnetId=cls.subnet1_id)
+                                              InstanceType=instance_type, SubnetId=cls.subnet1_id)
             cls.inst1_id = inst.response.instancesSet[0].instanceId
             # wait instance to become ready
             wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst1_id], state='ready')
@@ -113,8 +113,10 @@ class Test_internet_gateway(OscTestSuite):
         # add route RTB1
         self.a1_r1.fcu.CreateRoute(DestinationCidrBlock=cidr, GatewayId=self.igw_id, RouteTableId=self.rtb1)
         self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst1_id)
-        sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst1_id, self.eip.response.publicIp, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        # sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst1_id, self.eip.response.publicIp, self.kp_info[PATH],
+                                                     username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        # sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[PATH],
+        # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         if Feature.INTERNET in self.a1_r1.config.region.get_info(constants.FEATURES):
             target_ip = Configuration.get('ipaddress', 'dns_google')
         else:

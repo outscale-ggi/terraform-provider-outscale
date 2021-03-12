@@ -11,6 +11,19 @@ from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 
 
+def check_snapshot_res(res, volume_id, description, owner):
+    assert res.snapshotId.startswith('snap-')
+    assert len(res.snapshotId) == 13
+    assert res.description == description
+    assert res.ownerId == owner
+    assert res.progress.endswith('%')
+    assert float(res.progress[:-1]) >= 0 and float(res.progress[:-1]) <= 100
+    assert res.startTime is not None
+    assert res.status in ['in-queue', 'pending', 'completed']
+    assert res.volumeId == volume_id
+    assert res.volumeSize == '10'
+
+
 class Test_ModifySnapshotAttribute(OscTestSuite):
 
     @classmethod
@@ -43,18 +56,6 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
         finally:
             OscTestSuite.teardown_method(self, method)
 
-    def check_snapshot_res(self, res, volume_id, description, owner):
-        assert res.snapshotId.startswith('snap-')
-        assert len(res.snapshotId) == 13
-        assert res.description == description
-        assert res.ownerId == owner
-        assert res.progress.endswith('%')
-        assert float(res.progress[:-1]) >= 0 and float(res.progress[:-1]) <= 100
-        assert res.startTime is not None
-        assert res.status in ['in-queue', 'pending', 'completed']
-        assert res.volumeId == volume_id
-        assert res.volumeSize == '10'
-
     def test_T4172_with_invalid_len_snapshot_id(self):
         snp_id = id_generator(prefix="snap-", size=15, chars=string.hexdigits)
         try:
@@ -67,7 +68,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
         res = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id, Description="description").response
         self.snap_id = res.snapshotId
         wait_snapshots_state(self.a1_r1, [self.snap_id], state='completed')
-        self.check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
+        check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
                                                CreateVolumePermission={'Add': [{'UserId': self.a2_r1.config.account.account_id}]})
 
@@ -75,7 +76,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
         res = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id, Description="description").response
         self.snap_id = res.snapshotId
         wait_snapshots_state(self.a1_r1, [self.snap_id], state='completed')
-        self.check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
+        check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
                                                CreateVolumePermission={'Add': [{'UserId': self.a1_r1.config.account.account_id}]})
 
@@ -83,7 +84,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
         res = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id, Description="description").response
         self.snap_id = res.snapshotId
         wait_snapshots_state(self.a1_r1, [self.snap_id], state='completed')
-        self.check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
+        check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
         try:
             self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id, CreateVolumePermission={'Add': [{'UserId': "xxxxxxxxx"}]})
             assert False, "Call shouldn't be successful"
@@ -96,7 +97,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
         res = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id, Description="description").response
         self.snap_id = res.snapshotId
         wait_snapshots_state(self.a1_r1, [self.snap_id], state='completed')
-        self.check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
+        check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
                                                CreateVolumePermission={'Add': [{'UserId': self.a2_r2.config.account.account_id}]})
 
@@ -117,8 +118,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
                                                    CreateVolumePermission={'Add': [{'UserId': self.a2_r1.config.account.account_id}]})
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
-            assert_error(error, 400, "InvalidSnapshotID.Malformed",
-                         "Invalid ID received: {}. Expected format: snap-".format(snp_id, self.a1_r1.config.account.account_id))
+            assert_error(error, 400, "InvalidSnapshotID.Malformed", "Invalid ID received: {}. Expected format: snap-".format(snp_id))
 
     @pytest.mark.tag_sec_confidentiality
     def test_T1066_with_snapshot_from_another_account(self):
@@ -129,7 +129,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
             res = self.a2_r1.fcu.CreateSnapshot(VolumeId=vol_id_user_2, Description="description").response
             snap_id_user2 = res.snapshotId
             wait_snapshots_state(self.a2_r1, [snap_id_user2], state='completed')
-            self.check_snapshot_res(res, vol_id_user_2, 'description', self.a2_r1.config.account.account_id)
+            check_snapshot_res(res, vol_id_user_2, 'description', self.a2_r1.config.account.account_id)
             self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=snap_id_user2,
                                                    CreateVolumePermission={'Add': [{'UserId': self.a3_r1.config.account.account_id}]})
             assert False, "Call shouldn't be successful"
@@ -146,7 +146,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
         res = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id, Description="description").response
         self.snap_id = res.snapshotId
         wait_snapshots_state(self.a1_r1, [self.snap_id], state='completed')
-        self.check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
+        check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
                                                CreateVolumePermission={'Add': [{'UserId': self.a2_r1.config.account.account_id}]})
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
@@ -156,7 +156,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
         res = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id, Description="description").response
         self.snap_id = res.snapshotId
         wait_snapshots_state(self.a1_r1, [self.snap_id], state='completed')
-        self.check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
+        check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
         try:
             self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
                                                    CreateVolumePermission={'Remove': [{'UserId': "xxxxxxxxx"}]})
@@ -170,7 +170,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
         res = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id, Description="description").response
         self.snap_id = res.snapshotId
         wait_snapshots_state(self.a1_r1, [self.snap_id], state='completed')
-        self.check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
+        check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
                                                CreateVolumePermission={'Remove': [{'UserId': self.a2_r2.config.account.account_id}]})
 
@@ -178,7 +178,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
         res = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id, Description="description").response
         self.snap_id = res.snapshotId
         wait_snapshots_state(self.a1_r1, [self.snap_id], state='completed')
-        self.check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
+        check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
                                                CreateVolumePermission={'Add': [{'UserId': self.a2_r1.config.account.account_id}]})
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
@@ -188,7 +188,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
         res = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id, Description="description").response
         self.snap_id = res.snapshotId
         wait_snapshots_state(self.a1_r1, [self.snap_id], state='completed')
-        self.check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
+        check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
         try:
             self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id, CreateVolumePermission='')
             assert False, "Call shouldn't successful"
@@ -199,7 +199,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
         res = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id, Description="description").response
         self.snap_id = res.snapshotId
         wait_snapshots_state(self.a1_r1, [self.snap_id], state='completed')
-        self.check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
+        check_snapshot_res(res, self.vol_id, 'description', self.a1_r1.config.account.account_id)
         try:
             self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id, CreateVolumePermission={'Invalid attribute': ""})
             assert False, "Call shouldn't successful"
@@ -232,7 +232,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
             res = self.a2_r1.fcu.CreateSnapshot(VolumeId=vol_id, Description="description").response
             snap_id = res.snapshotId
             wait_snapshots_state(self.a2_r1, [snap_id], state='completed')
-            self.check_snapshot_res(res, vol_id, 'description', self.a2_r1.config.account.account_id)
+            check_snapshot_res(res, vol_id, 'description', self.a2_r1.config.account.account_id)
             self.a2_r1.fcu.ModifySnapshotAttribute(SnapshotId=snap_id,
                                                    CreateVolumePermission={'Add': [{'UserId': self.a3_r1.config.account.account_id}]})
             self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=snap_id,

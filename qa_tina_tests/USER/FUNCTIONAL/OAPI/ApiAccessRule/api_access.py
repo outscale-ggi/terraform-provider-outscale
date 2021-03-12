@@ -66,25 +66,25 @@ WRONG_IPS_BIS = ['3.3.3.3/32', '4.4.4.0/24']
 
 
 class ConfName(Enum):
-    No = 'No'
-    IpOK = 'IpOK'
-    IpKO = 'IpKO'
-    Ca = 'Ca'
-    CaCn = 'CaCn'
-    IpOKCa = 'IpOKCa'
-    IpKOCa = 'IpKOCa'
-    IpOKCaCn = 'IpOKCaCn'
-    IpKOCaCn = 'IpKOCaCn'
-    IpOK_IpKO = 'IpOK_IpKO'
-    IpKO_IpKO = 'IpKO_IpKO'
-    IpOK_Ca = 'IpOK_Ca'
-    IpKO_Ca = 'IpKO_Ca'
-    IpOK_CaCn = 'IpOK_CaCn'
-    IpKO_CaCn = 'IpKO_CaCn'
-    Ca_Ca = 'Ca_Ca'
-    Ca_CaCn = 'Ca_CaCn'
-    Ca_CaCnTest = 'Ca_CaCn'
-    CaCn_CaCn = 'CaCnOK_CaCn'
+    NO = 'No'
+    IPOK = 'IpOK'
+    IPKO = 'IpKO'
+    CA = 'Ca'
+    CACN = 'CaCn'
+    IPOKCA = 'IpOKCa'
+    IPKOCA = 'IpKOCa'
+    IPOKCACN = 'IpOKCaCn'
+    IPKOCACN = 'IpKOCaCn'
+    IPOK_IPKO = 'IpOK_IpKO'
+    IPKO_IPKO = 'IpKO_IpKO'
+    IPOK_CA = 'IpOK_Ca'
+    IPKO_CA = 'IpKO_Ca'
+    IPOK_CACN = 'IpOK_CaCn'
+    IPKO_CACN = 'IpKO_CaCn'
+    CA_CA = 'Ca_Ca'
+    CA_CACN = 'Ca_CaCn'
+    CA_CACNTEST = 'Ca_CaCn'
+    CACN_CACN = 'CaCnOK_CaCn'
 
 
 PASS = 0
@@ -239,25 +239,25 @@ class ApiAccess(OscTestSuite):
                                                                   casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale3.com"')
             cls.tmp_file_paths.extend(cls.ca3files)
 
-            cls.certfiles_ca1cn1 = create_tools.create_clientCertificate_files(
+            cls.certfiles_ca1cn1 = create_tools.create_client_certificate_files(
                 cls.ca1files[0], cls.ca1files[1],
                 root='.', clientkey='ca1cn1.key', clientcsr='ca1cn1.csr', clientcrt='ca1cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
             cls.tmp_file_paths.extend(cls.certfiles_ca1cn1)
 
-            cls.certfiles_ca2cn1 = create_tools.create_clientCertificate_files(
+            cls.certfiles_ca2cn1 = create_tools.create_client_certificate_files(
                 cls.ca2files[0], cls.ca2files[1],
                 root='.', clientkey='ca2cn1.key', clientcsr='ca2cn1.csr', clientcrt='ca2cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
             cls.tmp_file_paths.extend(cls.certfiles_ca2cn1)
 
-            cls.certfiles_ca1cn2 = create_tools.create_clientCertificate_files(
+            cls.certfiles_ca1cn2 = create_tools.create_client_certificate_files(
                 cls.ca1files[0], cls.ca1files[1],
                 root='.', clientkey='ca1cn2.key', clientcsr='ca1cn2.csr', clientcrt='ca1cn2.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN2))
             cls.tmp_file_paths.extend(cls.certfiles_ca1cn2)
 
-            cls.certfiles_ca3cn1 = create_tools.create_clientCertificate_files(
+            cls.certfiles_ca3cn1 = create_tools.create_client_certificate_files(
                 cls.ca3files[0], cls.ca3files[1],
                 root='.', clientkey='ca3cn1.key', clientcsr='ca3cn1.csr', clientcrt='ca3cn1.crt',
                 clientsubject='/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN={}'.format(CLIENT_CERT_CN1))
@@ -304,39 +304,39 @@ class ApiAccess(OscTestSuite):
             # create configurations
             cls.my_ips = ['172.19.142.254/32']
             cls.configs = {
-                ConfName.No: [],
+                ConfName.NO: [],
                 # IpCriterion
-                ConfName.IpOK: [{IP_COND: cls.my_ips, DESC: ConfName.IpOK.value}],
-                ConfName.IpKO: [{IP_COND: WRONG_IPS, DESC: ConfName.IpKO.value}],
+                ConfName.IPOK: [{IP_COND: cls.my_ips, DESC: ConfName.IPOK.value}],
+                ConfName.IPKO: [{IP_COND: WRONG_IPS, DESC: ConfName.IPKO.value}],
                 # CaCriterion
-                ConfName.Ca: [{CA_COND: [cls.ca1_pid], DESC: ConfName.Ca.value}],
+                ConfName.CA: [{CA_COND: [cls.ca1_pid], DESC: ConfName.CA.value}],
                 # CaCriterion + CnCriterion
-                ConfName.CaCn: [{CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CaCn.value}],
+                ConfName.CACN: [{CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CACN.value}],
                 # IpCriterion + CaCriterion
-                ConfName.IpOKCa: [{IP_COND: cls.my_ips, CA_COND: [cls.ca1_pid], DESC: ConfName.IpOKCa.value}],
-                ConfName.IpKOCa: [{IP_COND: WRONG_IPS, CA_COND: [cls.ca1_pid], DESC: ConfName.IpKOCa.value}],
+                ConfName.IPOKCA: [{IP_COND: cls.my_ips, CA_COND: [cls.ca1_pid], DESC: ConfName.IPOKCA.value}],
+                ConfName.IPKOCA: [{IP_COND: WRONG_IPS, CA_COND: [cls.ca1_pid], DESC: ConfName.IPKOCA.value}],
                 # IpCriterion + CaCriterion + CnCriterion
-                ConfName.IpOKCaCn: [{IP_COND: cls.my_ips, CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IpOKCaCn.value}],
-                ConfName.IpKOCaCn: [{IP_COND: WRONG_IPS, CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IpKOCaCn.value}],
+                ConfName.IPOKCACN: [{IP_COND: cls.my_ips, CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IPOKCACN.value}],
+                ConfName.IPKOCACN: [{IP_COND: WRONG_IPS, CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IPKOCACN.value}],
                 # IpCritrerion1 , IpCriterion2
-                ConfName.IpOK_IpKO: [{IP_COND: cls.my_ips, DESC: ConfName.IpOK_IpKO.value}, {IP_COND: WRONG_IPS, DESC: ConfName.IpOK_IpKO.value}],
-                ConfName.IpKO_IpKO: [{IP_COND: WRONG_IPS, DESC: ConfName.IpKO_IpKO.value}, {IP_COND: WRONG_IPS_BIS, DESC: ConfName.IpKO_IpKO.value}],
+                ConfName.IPOK_IPKO: [{IP_COND: cls.my_ips, DESC: ConfName.IPOK_IPKO.value}, {IP_COND: WRONG_IPS, DESC: ConfName.IPOK_IPKO.value}],
+                ConfName.IPKO_IPKO: [{IP_COND: WRONG_IPS, DESC: ConfName.IPKO_IPKO.value}, {IP_COND: WRONG_IPS_BIS, DESC: ConfName.IPKO_IPKO.value}],
                 # IpCriterion, CaCriterion
-                ConfName.IpOK_Ca: [{IP_COND: cls.my_ips, DESC: ConfName.IpOK_Ca.value}, {CA_COND: [cls.ca1_pid], DESC: ConfName.IpOK_Ca.value}],
-                ConfName.IpKO_Ca: [{IP_COND: WRONG_IPS, DESC: ConfName.IpKO_Ca.value}, {CA_COND: [cls.ca1_pid], DESC: ConfName.IpKO_Ca.value}],
+                ConfName.IPOK_CA: [{IP_COND: cls.my_ips, DESC: ConfName.IPOK_CA.value}, {CA_COND: [cls.ca1_pid], DESC: ConfName.IPOK_CA.value}],
+                ConfName.IPKO_CA: [{IP_COND: WRONG_IPS, DESC: ConfName.IPKO_CA.value}, {CA_COND: [cls.ca1_pid], DESC: ConfName.IPKO_CA.value}],
                 # IpCriterion, CaCriterion + CnCriterion
-                ConfName.IpOK_CaCn: [{IP_COND: cls.my_ips, DESC: ConfName.IpOK_CaCn.value},
-                                     {CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IpOK_CaCn.value}],
-                ConfName.IpKO_CaCn: [{IP_COND: WRONG_IPS, DESC: ConfName.IpKO_CaCn.value},
-                                     {CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IpKO_CaCn.value}],
+                ConfName.IPOK_CACN: [{IP_COND: cls.my_ips, DESC: ConfName.IPOK_CACN.value},
+                                     {CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IPOK_CACN.value}],
+                ConfName.IPKO_CACN: [{IP_COND: WRONG_IPS, DESC: ConfName.IPKO_CACN.value},
+                                     {CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.IPKO_CACN.value}],
                 # CaCriterion1, CaCrierion2
-                ConfName.Ca_Ca: [{CA_COND: [cls.ca1_pid], DESC: ConfName.Ca_Ca.value}, {CA_COND: [cls.ca2_pid], DESC: ConfName.Ca_Ca.value}],
+                ConfName.CA_CA: [{CA_COND: [cls.ca1_pid], DESC: ConfName.CA_CA.value}, {CA_COND: [cls.ca2_pid], DESC: ConfName.CA_CA.value}],
                 # caCriterion1, caCriterion2 + CnCriterion
-                ConfName.Ca_CaCn: [{CA_COND: [cls.ca1_pid], DESC: ConfName.Ca_CaCn.value},
-                                   {CA_COND: [cls.ca2_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.Ca_CaCn.value}],
+                ConfName.CA_CACN: [{CA_COND: [cls.ca1_pid], DESC: ConfName.CA_CACN.value},
+                                   {CA_COND: [cls.ca2_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CA_CACN.value}],
                 # caCriterion1 + cnCriterion1, caCriterion2 + CnCriterion2
-                ConfName.CaCn_CaCn: [{CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CaCn_CaCn.value},
-                                     {CA_COND: [cls.ca2_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CaCn_CaCn.value}],
+                ConfName.CACN_CACN: [{CA_COND: [cls.ca1_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CACN_CACN.value},
+                                     {CA_COND: [cls.ca2_pid], CN_COND: [CLIENT_CERT_CN1], DESC: ConfName.CACN_CACN.value}],
                 }
 
         except Exception as error:

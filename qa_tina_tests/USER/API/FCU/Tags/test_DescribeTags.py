@@ -17,7 +17,7 @@ class Test_DescribeTags(OscTestSuite):
             cls.res_id2 = cls.a1_r1.fcu.CreateInternetGateway().response.internetGateway.internetGatewayId
             cls.res_id3 = cls.a2_r1.fcu.CreateSecurityGroup(GroupDescription='description', GroupName='Test_DescribeTags3').response.groupId
             for i in range(5):
-                cls.a1_r1.fcu.CreateTags(ResourceId=[cls.res_id1], Tag=[{'Key': 'key{}'.format(i+1), 'Value': 'value{}'.format(i+1)}])
+                cls.a1_r1.fcu.CreateTags(ResourceId=[cls.res_id1], Tag=[{'Key': 'key{}'.format(i + 1), 'Value': 'value{}'.format(i + 1)}])
             cls.a1_r1.fcu.CreateTags(ResourceId=[cls.res_id1], Tag=[{'Key': 'key6', 'Value': 'value1'}])
             cls.a1_r1.fcu.CreateTags(ResourceId=[cls.res_id2], Tag=[{'Key': 'key1', 'Value': 'value1'}])
             cls.a2_r1.fcu.CreateTags(ResourceId=[cls.res_id3], Tag=[{'Key': 'key1', 'Value': 'value1'}])
@@ -79,7 +79,7 @@ class Test_DescribeTags(OscTestSuite):
     def test_T5039_with_filter_keys(self):
         tags = self.a1_r1.fcu.DescribeTags(Filter=[{'Name': 'key', 'Value': ['key1', 'key2']}]).response.tagSet
         assert len(tags) == 3
-        
+
     def test_T5040_with_filter_value(self):
         tags = self.a1_r1.fcu.DescribeTags(Filter=[{'Name': 'value', 'Value': ['value1']}]).response.tagSet
         assert len(tags) == 3
@@ -133,7 +133,7 @@ class Test_DescribeTags(OscTestSuite):
 
     def test_T5050_with_incorrect_filter_type(self):
         try:
-            self.a1_r1.fcu.DescribeTags(Filter='toto').response.tagSet
+            self.a1_r1.fcu.DescribeTags(Filter='toto')
             if get_export_value('OSC_USE_GATEWAY'):
                 known_error('GTW-1364', 'Incorrect filter should be an error')
             assert False, 'Call should not have been successful'
@@ -142,7 +142,7 @@ class Test_DescribeTags(OscTestSuite):
                 assert_error(error, 500, 'InternalError', None)
                 known_error('TINA-5749', 'Unexpected internal error')
                 assert_error(error, 400, '', '')
-                
+
     def test_T5051_with_incorrect_filter_only_name(self):
         try:
             tags = self.a1_r1.fcu.DescribeTags(Filter=[{'Name': 'key'}]).response.tagSet
@@ -157,7 +157,7 @@ class Test_DescribeTags(OscTestSuite):
 
     def test_T5052_with_incorrect_filter_only_value(self):
         try:
-            self.a1_r1.fcu.DescribeTags(Filter=[{'Value': ['value1']}]).response.tagSet
+            self.a1_r1.fcu.DescribeTags(Filter=[{'Value': ['value1']}])
             assert False, 'Call should not be successful'
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY'):
@@ -171,7 +171,7 @@ class Test_DescribeTags(OscTestSuite):
 
     def test_T5053_with_incorrect_filter_content(self):
         try:
-            self.a1_r1.fcu.DescribeTags(Filter=[{'toto': 'resource-type', 'tutu': ['security-group']}]).response.tagSet
+            self.a1_r1.fcu.DescribeTags(Filter=[{'toto': 'resource-type', 'tutu': ['security-group']}])
             assert False, 'Call should not be successful'
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY'):
@@ -190,4 +190,3 @@ class Test_DescribeTags(OscTestSuite):
     def test_T5055_with_filter_unknown_resource_id(self):
         tags = self.a1_r1.fcu.DescribeTags(Filter=[{'Name': 'resource-id', 'Value': ['i-12345678']}]).response.tagSet
         assert not tags
-        

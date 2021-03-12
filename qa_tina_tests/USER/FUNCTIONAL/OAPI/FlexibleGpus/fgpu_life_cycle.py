@@ -43,12 +43,19 @@ def check_gpu_instance(osc_sdk, inst_id, ip_address, key_path, user_name, logger
     assert not err, "The total GPU does not match "
 
 
-class Fgpu_life_cycle(OscTestSuite):
+class FgpuLifeCycle(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'gpu_limit': 4}
-        super(Fgpu_life_cycle, cls).setup_class()
+        cls.quotas = {'gpu_limit': 4}
+        cls.inst_info = None
+        cls.vm_id = None
+        cls.fgpu_id = None
+        cls.ret_link = None
+        cls.ret_unlink = None
+        cls.dovd = False
+        cls.num_gpus =  0
+        super(FgpuLifeCycle, cls).setup_class()
         try:
             # get max fgpu available
             cls.max_fgpu = 4
@@ -66,7 +73,7 @@ class Fgpu_life_cycle(OscTestSuite):
             for fgpu in ret.response.result.flexible_gpus:
                 cls.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=fgpu.flexible_gpu.flexible_gpu_id)
         except:
-            super(Fgpu_life_cycle, cls).teardown_class()
+            super(FgpuLifeCycle, cls).teardown_class()
 
     def setup_method(self, method):
         OscTestSuite.setup_method(self, method)
@@ -113,26 +120,29 @@ class Fgpu_life_cycle(OscTestSuite):
         reserved_fgpu_error = (num_fgpus != reserved_fgpu)
         gpu_in_use_error = (num_used_gpus != gpu_in_use + self.num_gpus)
 
-        states = set([fgpu.state for fgpu in ret2.response.result.flexible_gpus])
+        states = {[fgpu.state for fgpu in ret2.response.result.flexible_gpus]}
         fgpu_state_error = fgpu_state and (len(states) != 1 or fgpu_state not in states)
 
         if reserved_fgpu_error or gpu_in_use_error or fgpu_state_error:
-            raise OscTestException('Unexpected value for number of in-use gpu/reserved fgpu ({} -> {}, {} -> {}) or fgpu state ({} -> {})'.format(gpu_in_use + self.num_gpus, num_used_gpus, reserved_fgpu, num_fgpus, fgpu_state, states))
+            raise OscTestException(
+                'Unexpected value for number of in-use gpu/reserved fgpu ({} -> {}, {} -> {}) or fgpu state ({} -> {})'.format(
+                    gpu_in_use + self.num_gpus, num_used_gpus, reserved_fgpu, num_fgpus, fgpu_state, states))
 
-    def init_test(self, state, inst_type=DEFAULT_TYPE, deleteOnVmDeletion=False, create=True, stop=False,
+    def init_test(self, state, inst_type=DEFAULT_TYPE, delete_on_vm_deletion=False, create=True, stop=False,
                   terminate=False, istate1='running', istate2='running', create_gpu=True):
-        self.dovd = deleteOnVmDeletion
+        self.dovd = delete_on_vm_deletion
         try:
             if create:
                 self.inst_info = create_instances(self.a1_r1, inst_type=inst_type, state=istate1)
                 self.vm_id = self.inst_info[INSTANCE_ID_LIST][0]
             if state > 1 and create_gpu:
                 # call intel update as Create call does not support DeleteOnVmDelete
-                # self.a1_r1.oapi.CreateFlexibleGpu(DeleteOnVmDeletion=deleleOnVmDeletion, ModelName=MODEL_NAME, SubregionName=self.a1_r1.config.region.az_name)
+                # self.a1_r1.oapi.CreateFlexibleGpu(DeleteOnVmDeletion=deleleOnVmDeletion,
+                # ModelName=MODEL_NAME, SubregionName=self.a1_r1.config.region.az_name)
                 ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=MODEL_NAME, SubregionName=self.a1_r1.config.region.az_name)
                 self.fgpu_id = ret.response.FlexibleGpu.FlexibleGpuId
                 self.a1_r1.intel.pci.update_flexible_gpu(owner_id=self.a1_r1.config.account.account_id,
-                                                         flexible_gpu_id=self.fgpu_id, delete_on_vm_deletion=deleteOnVmDeletion)
+                                                         flexible_gpu_id=self.fgpu_id, delete_on_vm_deletion=delete_on_vm_deletion)
                 wait_flexible_gpu_state(self.a1_r1, [self.fgpu_id], state='allocated')
             if state > 2:
                 self.ret_link = self.a1_r1.oapi.LinkFlexibleGpu(VmId=self.vm_id, FlexibleGpuId=self.fgpu_id)
@@ -157,7 +167,7 @@ class Fgpu_life_cycle(OscTestSuite):
                     delete_instances(self.a1_r1, self.inst_info)
                 except:
                     pass
-            if not deleteOnVmDeletion and self.fgpu_id:
+            if not delete_on_vm_deletion and self.fgpu_id:
                 try:
                     self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=self.fgpu_id)
                 except:

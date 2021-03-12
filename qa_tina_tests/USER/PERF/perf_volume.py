@@ -2,9 +2,9 @@ from datetime import datetime
 from threading import current_thread
 
 from qa_test_tools.config import config_constants as constants
-from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state, wait_keypairs_state
+from qa_tina_tests.USER.PERF.perf_common import log_error
 
 
 VOL_DEVICE = "/dev/xvdd"
@@ -19,15 +19,15 @@ def perf_volume(oscsdk, logger, queue, args):
 
     if not args.omi:
         logger.debug("OMI not specified, select default OMI")
-        OMI = oscsdk.config.region.get_info(constants.CENTOS7)
+        omi = oscsdk.config.region.get_info(constants.CENTOS7)
     else:
-        OMI = args.omi
+        omi = args.omi
 
     if not args.inst_type:
         logger.debug("Instance type not specified, select default instance type")
-        INST_TYPE = oscsdk.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
+        inst_type = oscsdk.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
     else:
-        INST_TYPE = args.inst_type
+        inst_type = args.inst_type
 
     result = {'status': 'OK'}
 
@@ -59,7 +59,7 @@ def perf_volume(oscsdk, logger, queue, args):
                         if i.instanceState.name == 'running':
                             inst = i.instanceId
                             break
-                        elif i.instanceState.name == 'stopped':
+                        if i.instanceState.name == 'stopped':
                             oscsdk.fcu.StartInstances(InstanceId=[i.instanceId])
                             wait_instances_state(oscsdk, [i.instanceId], state='ready')
                             inst = i.instanceId
@@ -78,7 +78,7 @@ def perf_volume(oscsdk, logger, queue, args):
 
         logger.debug("Run instance")
         try:
-            inst = oscsdk.fcu.RunInstances(ImageId=OMI, MinCount=1, MaxCount=1, InstanceType=INST_TYPE,
+            inst = oscsdk.fcu.RunInstances(ImageId=omi, MinCount=1, MaxCount=1, InstanceType=inst_type,
                                            KeyName=kp_name).response.instancesSet[0].instanceId
             wait_instances_state(oscsdk, [inst], state='ready')
             oscsdk.fcu.CreateTags(ResourceId=inst, Tag=[{'Key': 'Name', 'Value': inst_name}])
@@ -86,18 +86,18 @@ def perf_volume(oscsdk, logger, queue, args):
         except Exception as error:
             log_error(logger, error, "Unexpected error while creating test instance", result)
 
-    volumeId = None
+    volume_id = None
     if result['status'] != "KO":
         try:
             logger.debug("Create volume")
             start_create_vol = datetime.now()
             vol = oscsdk.fcu.CreateVolume(AvailabilityZone=args.az, Size=args.volume_size, VolumeType=args.volume_type)
             # time_create_vol = (datetime.now() - start_create_vol).total_seconds()
-            volumeId = vol.response.volumeId
+            volume_id = vol.response.volumeId
             # result['vol_create'] = time_create_vol
             # logger.debug("Volume creation time: %.2f", time_create_vol)
             logger.debug("Wait volume initialization")
-            wait_volumes_state(oscsdk, [volumeId], state='available')
+            wait_volumes_state(oscsdk, [volume_id], state='available')
             time_vol_init = (datetime.now() - start_create_vol).total_seconds()
             result['vol_create'] = time_vol_init
             logger.debug("Volume initialization time: %.2f", time_vol_init)
@@ -106,22 +106,22 @@ def perf_volume(oscsdk, logger, queue, args):
             log_error(logger, error, "Unexpected error while creating volume", result)
 
     if result['status'] != "KO":
-        if volumeId:
+        if volume_id:
             try:
                 logger.debug("Attach volume")
                 start_vol_attach = datetime.now()
-                oscsdk.fcu.AttachVolume(Device=VOL_DEVICE, InstanceId=inst, VolumeId=volumeId)
+                oscsdk.fcu.AttachVolume(Device=VOL_DEVICE, InstanceId=inst, VolumeId=volume_id)
                 logger.debug("Wait volume attachement")
-                wait_volumes_state(oscsdk, [volumeId], state='in-use')
+                wait_volumes_state(oscsdk, [volume_id], state='in-use')
                 time_vol_attach = (datetime.now() - start_vol_attach).total_seconds()
                 result['vol_attach'] = time_vol_attach
                 logger.debug("Volume attachement time: %.2f", time_vol_attach)
 
                 logger.debug("Detach volume")
                 start_vol_detach = datetime.now()
-                oscsdk.fcu.DetachVolume(VolumeId=volumeId)
+                oscsdk.fcu.DetachVolume(VolumeId=volume_id)
                 logger.debug("Wait volume detachement")
-                wait_volumes_state(oscsdk, [volumeId], state='available')
+                wait_volumes_state(oscsdk, [volume_id], state='available')
                 time_vol_detach = (datetime.now() - start_vol_detach).total_seconds()
                 result['vol_detach'] = time_vol_detach
                 logger.debug("Volume detachement time: %.2f", time_vol_detach)
@@ -129,12 +129,12 @@ def perf_volume(oscsdk, logger, queue, args):
             except Exception as error:
                 log_error(logger, error, "Unexpected error while doing volume handling", result)
 
-    if volumeId:
+    if volume_id:
         try:
             logger.debug("Delete Volume")
             start_vol_deletion_time = datetime.now()
-            oscsdk.fcu.DeleteVolume(VolumeId=volumeId)
-            wait_volumes_state(oscsdk, [volumeId], cleanup=True)
+            oscsdk.fcu.DeleteVolume(VolumeId=volume_id)
+            wait_volumes_state(oscsdk, [volume_id], cleanup=True)
             vol_deletion_time = (datetime.now() - start_vol_deletion_time).total_seconds()
             result['vol_delete'] = vol_deletion_time
         except Exception as error:

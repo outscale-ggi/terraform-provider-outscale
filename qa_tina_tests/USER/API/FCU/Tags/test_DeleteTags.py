@@ -55,12 +55,12 @@ class Test_DeleteTags(OscTestSuite):
             OscTestSuite.teardown_method(self, method)
 
     def check_vol_tags(self, data):
-        for volId in data:
-            tagSet = self.a1_r1.fcu.DescribeTags(Filter=[{'Name': 'resource-id', 'Value': [volId]}]).response.tagSet
-            assert (not tagSet and len(data[volId]) == 0) or len(tagSet) == len(data[volId])
-            if tagSet:
-                keys = [tag.key for tag in tagSet]
-                assert keys == data[volId]
+        for vol_id in data:
+            tag_set = self.a1_r1.fcu.DescribeTags(Filter=[{'Name': 'resource-id', 'Value': [vol_id]}]).response.tagSet
+            assert (not tag_set and len(data[vol_id]) == 0) or len(tag_set) == len(data[vol_id])
+            if tag_set:
+                keys = [tag.key for tag in tag_set]
+                assert keys == data[vol_id]
 
     def test_T1781_missing_resource_id(self):
         try:

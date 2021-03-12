@@ -12,7 +12,7 @@ class Test_instance_metadata(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.URL = 'http://169.254.169.254/latest/meta-data/'
+        cls.url = 'http://169.254.169.254/latest/meta-data/'
         cls.kp_info = None
         cls.inst_info = None
         super(Test_instance_metadata, cls).setup_class()
@@ -23,7 +23,8 @@ class Test_instance_metadata(OscTestSuite):
             cls.a1_r1.fcu.CreateTags(ResourceId=[inst['instanceId']], Tag=[{'Key': 'key1', 'Value': 'value1'},
                                                                            {'Key': 'key2', 'Value': 'value2'},
                                                                            {'Key': 'key3', 'Value': ''}])
-            cls.connection = SshTools.check_connection_paramiko(inst['ipAddress'], cls.kp_info[PATH], cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            cls.connection = SshTools.check_connection_paramiko(inst['ipAddress'], cls.kp_info[PATH],
+                                                                cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -41,8 +42,8 @@ class Test_instance_metadata(OscTestSuite):
         finally:
             super(Test_instance_metadata, cls).teardown_class()
 
-    def check(self, metadata_category, expected_response, URL):
-        command = 'curl {}/{} 2> /dev/null'.format(URL, metadata_category)
+    def check(self, metadata_category, expected_response, url):
+        command = 'curl {}/{} 2> /dev/null'.format(url, metadata_category)
         output, _, _ = SshTools.exec_command_paramiko(self.connection, command)
         if expected_response:
             assert output.strip() == expected_response
@@ -71,8 +72,8 @@ class Test_instance_metadata(OscTestSuite):
     def test_T1780_metadata_access(self):
         out, _, _ = SshTools.exec_command_paramiko(self.connection, 'curl http://169.254.169.254/')
         values = out.split()
-        assert '1.0' == values[0]
-        assert 'latest' == values[len(values) - 1]
+        assert values[0] == '1.0'
+        assert values[len(values) - 1] == 'latest'
 
     def test_T1779_latest_access(self):
         out, _, _ = SshTools.exec_command_paramiko(self.connection, 'curl http://169.254.169.254/latest/')
@@ -101,10 +102,10 @@ class Test_instance_metadata(OscTestSuite):
             ('reservation-id', instance.reservation),
             ('security-groups', instance.groups[0].name),
         ]:
-            self.check(metadata_category, expected_msg, self.URL)
+            self.check(metadata_category, expected_msg, self.url)
         nic0 = instance.nics[0]
         # NIC checks
-        self.URL += 'network/interfaces/macs/{}/'.format(nic0.macaddr)
+        self.url += 'network/interfaces/macs/{}/'.format(nic0.macaddr)
         for metadata_category, expected_msg in [
             ('device-number', 0),
             ('interface-id', nic0.id),
@@ -120,4 +121,4 @@ class Test_instance_metadata(OscTestSuite):
             ('security-group-ids', nic0.groups[0].id),
             ('subnet-id', nic0.private_subnet),
         ]:
-            self.check(metadata_category, expected_msg, self.URL)
+            self.check(metadata_category, expected_msg, self.url)

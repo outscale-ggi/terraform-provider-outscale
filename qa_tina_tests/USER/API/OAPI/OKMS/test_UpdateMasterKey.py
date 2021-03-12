@@ -78,7 +78,7 @@ class Test_UpdateMasterKey(OKMS):
     def test_T5230_two_updates(self):
         self.mysetup()
         resp = self.a1_r1.oapi.UpdateMasterKey(MasterKeyId=self.key.MasterKeyId, Description='toto', Enabled=False).response
-        compare_validate_objects(self.key, resp.MasterKey,Description='toto', State='disabled')
+        compare_validate_objects(self.key, resp.MasterKey, Description='toto', State='disabled')
 
     def test_T5223_incorrect_description_type(self):
         self.mysetup()

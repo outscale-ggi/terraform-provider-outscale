@@ -17,7 +17,8 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.error import error_type, load_errors
 
 
-ssl._create_default_https_context = ssl._create_unverified_context
+setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 LOGGING_LEVEL = logging.DEBUG
 
@@ -111,24 +112,24 @@ if __name__ == '__main__':
             osc_sdk = OscSdk(config=OscConfig.get_with_keys(az_name=args.az, ak=keys.name, sk=keys.secret, account_id=pid,
                                                             login=email, password=password))
 
-        NB_OK = 0
-        NB_KO = 0
+        nb_ok = 0
+        nb_ko = 0
 
-        QUEUE = Queue()
+        queue = Queue()
         processes = []
         i = 0
         logger.info("Start workers")
         for i in range(args.process_number):
-            p = Process(name="load-{}".format(i), target=create_key, args=[osc_sdk, QUEUE, args])
-            processes.append(p)
+            proc = Process(name="load-{}".format(i), target=create_key, args=[osc_sdk, queue, args])
+            processes.append(proc)
 
         start = time.time()
-        for i in range(len(processes)):
-            processes[i].start()
+        for proc in processes:
+            proc.start()
 
         logger.info("Wait workers")
-        for i in range(len(processes)):
-            processes[i].join()
+        for proc in processes:
+            proc.join()
         end = time.time()
 
         durations = []
@@ -136,14 +137,14 @@ if __name__ == '__main__':
         nums = []
 
         logger.info("Get results")
-        while not QUEUE.empty():
-            res = QUEUE.get()
+        while not queue.empty():
+            res = queue.get()
             for key in res.keys():
                 if key == "status":
                     if res[key] == "OK":
-                        NB_OK += 1
+                        nb_ok += 1
                     else:
-                        NB_KO += 1
+                        nb_ko += 1
                 elif key == 'duration':
                     durations.append(res[key])
                 elif key == 'error':
@@ -151,7 +152,7 @@ if __name__ == '__main__':
                 elif key == 'num':
                     nums.append(res[key])
             logger.debug(res)
-        logger.info("OK = {} - KO = {}".format(NB_OK, NB_KO))
+        logger.info("OK = {} - KO = {}".format(nb_ok, nb_ko))
         logger.info("durations = {}".format(durations))
         logger.info("nums = {}".format(nums))
         print('duration = {}'.format(end - start))

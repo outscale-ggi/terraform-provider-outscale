@@ -1,5 +1,3 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 
 import pytest
 
@@ -14,7 +12,7 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.conn_id = None
-        cls.QUOTAS = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
+        cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
         super(Test_AllocatePrivateVirtualInterface, cls).setup_class()
         ret = cls.a1_r1.directlink.DescribeLocations()
         ret = cls.a1_r1.directlink.CreateConnection(location=ret.response.locations[0].locationCode,
@@ -42,7 +40,7 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=ret.response.virtualInterfaceId)
 
     @pytest.mark.region_directlink
-    def test_T4637_without_newPrivateVirtualInterfaceAllocation(self):
+    def test_T4637_without_allocation(self):
         ret = None
         try:
             ret = self.a1_r1.directlink.AllocatePrivateVirtualInterface(connectionId=self.conn_id, ownerAccount=self.a1_r1.config.account.account_id)
@@ -54,12 +52,12 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=ret.response.virtualInterfaceId)
 
     @pytest.mark.region_directlink
-    def test_T4638_without_connectionId(self):
+    def test_T4638_without_connection_id(self):
         ret = None
         try:
-            newPrivateVirtualInterfaceAllocation = {'asn': '11111', 'virtualInterfaceName': 'test', 'vlan': 's'}
+            allocation = {'asn': '11111', 'virtualInterfaceName': 'test', 'vlan': 's'}
             ret = self.a1_r1.directlink.AllocatePrivateVirtualInterface(ownerAccount=self.a1_r1.config.account.account_id,
-                                                                        newPrivateVirtualInterfaceAllocation=newPrivateVirtualInterfaceAllocation)
+                                                                        newPrivateVirtualInterfaceAllocation=allocation)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, "DirectConnectClientException", "Field connectionId is required")
@@ -68,12 +66,12 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=ret.response.virtualInterfaceId)
 
     @pytest.mark.region_directlink
-    def test_T4639_without_ownerAccount(self):
+    def test_T4639_without_owner_account(self):
         ret = None
-        newPrivateVirtualInterfaceAllocation = {'asn': '11111', 'virtualInterfaceName': 'test', 'vlan': 's'}
+        allocation = {'asn': '11111', 'virtualInterfaceName': 'test', 'vlan': 's'}
         try:
             ret = self.a1_r1.directlink.AllocatePrivateVirtualInterface(connectionId=self.conn_id,
-                                                                        newPrivateVirtualInterfaceAllocation=newPrivateVirtualInterfaceAllocation)
+                                                                        newPrivateVirtualInterfaceAllocation=allocation)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, "DirectConnectClientException", "Field ownerAccount is required")
@@ -84,10 +82,10 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
     @pytest.mark.region_directlink
     def test_T1914_required_param(self):
         ret = None
-        newPrivateVirtualInterfaceAllocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
+        allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         try:
             ret = self.a1_r1.directlink.AllocatePrivateVirtualInterface(
-                connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=newPrivateVirtualInterfaceAllocation,
+                connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=allocation,
                 ownerAccount=self.a1_r1.config.account.account_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -100,11 +98,11 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
     @pytest.mark.region_directlink
     def test_T4652_valid_connection_state(self):
         ret = None
-        newPrivateVirtualInterfaceAllocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
+        allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         try:
             self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
             ret = self.a1_r1.directlink.AllocatePrivateVirtualInterface(
-                connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=newPrivateVirtualInterfaceAllocation,
+                connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=allocation,
                 ownerAccount=self.a1_r1.config.account.account_id)
             assert ret.response.virtualInterfaceState == 'confirming'
             assert ret.response.asn == 11111

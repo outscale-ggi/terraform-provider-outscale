@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -107,14 +107,14 @@ class Test_RebootVms(OscTestSuite):
 
     @pytest.mark.tag_sec_confidentiality
     def test_T2096_with_instance_from_another_account(self):
-        self.infouser2 = create_instances(self.a2_r1, state='running')
+        infouser2 = create_instances(self.a2_r1, state='running')
         try:
-            self.a1_r1.oapi.RebootVms(VmIds=[self.infouser2[INSTANCE_ID_LIST][0]])
+            self.a1_r1.oapi.RebootVms(VmIds=[infouser2[INSTANCE_ID_LIST][0]])
             assert False, 'Call with instance from another account should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5063')
         finally:
-            delete_instances(self.a2_r1, self.infouser2)
+            delete_instances(self.a2_r1, infouser2)
 
     def test_T2097_with_multiple_valid_instances(self):
         self.a1_r1.oapi.RebootVms(VmIds=self.info[INSTANCE_ID_LIST][6:8])

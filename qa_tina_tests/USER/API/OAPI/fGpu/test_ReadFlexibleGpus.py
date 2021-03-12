@@ -10,46 +10,12 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 
 
-#     ReadFlexibleGpusRequest:
-#       properties:
-#         DryRun: {description: ReadGpuRequest_DryRun, type: boolean}
-#         Filters: {$ref: '#/components/schemas/FiltersFlexibleGpu'}
-#       type: object
-#     ReadFlexibleGpusResponse:
-#       properties:
-#         FlexibleGpus:
-#           description: ReadGpuResponse_FlexibleGpus
-#           items: {$ref: '#/components/schemas/FlexibleGpu'}
-#           type: array
-#         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
-#       type: object
-#     FiltersFlexibleGpu:
-#       description: FiltersFlexibleGpu
-#       properties:
-#         DeleteOnVmDeletion: {description: FiltersFlexibleGpu_DeleteOnVmDeletion, type: boolean}
-#         ModelNames:
-#           description: FiltersFlexibleGpu_ModelNames
-#           items: {type: string}
-#           type: array
-#         States:
-#           description: FiltersFlexibleGpu_States
-#           items: {type: string}
-#           type: array
-#         SubregionNames:
-#           description: FiltersFlexibleGpu_SubregionNames
-#           items: {type: string}
-#           type: array
-#         VmIds:
-#           description: FiltersFlexibleGpu_VmIds
-#           items: {type: string}
-#           type: array
-#       type: object
 @pytest.mark.region_gpu
 class Test_ReadFlexibleGpus(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'gpu_limit': 4}
+        cls.quotas = {'gpu_limit': 4}
         super(Test_ReadFlexibleGpus, cls).setup_class()
         try:
             cls.max_fgpu = 4

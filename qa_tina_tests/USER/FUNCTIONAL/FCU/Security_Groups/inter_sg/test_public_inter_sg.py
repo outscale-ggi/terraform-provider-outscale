@@ -28,7 +28,7 @@ class Test_public_inter_sg(OscTestSuite):
         cls.sg1_id = None
         cls.sg2_id = None
         cls.missing = False
-        # cls.QUOTAS = {'vm_limit': NUM_PER_TRY * NUM_TRY + 1}
+        # cls.quotas = {'vm_limit': NUM_PER_TRY * NUM_TRY + 1}
         super(Test_public_inter_sg, cls).setup_class()
         try:
             cls.kp_info = create_keypair(cls.a1_r1)
@@ -51,7 +51,8 @@ class Test_public_inter_sg(OscTestSuite):
                     userdata = """-----BEGIN OUTSCALE SECTION-----
                     tags.osc.internal.private-subnet-id-force={}
                     -----END OUTSCALE SECTION-----""".format(subnet.id)
-                    ret, _ = create_instances_old(cls.a1_r1, security_group_id_list=[getattr(cls, 'sg{}_id'.format(sg_id))], key_name=cls.kp_info[NAME],
+                    ret, _ = create_instances_old(cls.a1_r1, security_group_id_list=[getattr(cls, 'sg{}_id'.format(sg_id))],
+                                                  key_name=cls.kp_info[NAME],
                                                   user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'), state='running')
                     cls.instances.append(ret.response.reservationSet[0].instancesSet[0])
                     sg_id += 1
@@ -63,7 +64,7 @@ class Test_public_inter_sg(OscTestSuite):
                 cls.logger.info("Test can not be executed")
                 cls.missing = True
                 return
-                
+
             cls.inst1 = cls.instances[0]
             cls.inst2 = cls.instances[1]
             cls.sshclient = SshTools.check_connection_paramiko(cls.inst1.ipAddress, cls.kp_info[PATH],

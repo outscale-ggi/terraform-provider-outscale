@@ -9,7 +9,7 @@ class Test_delete_recursive(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'vpnc_limit': 1}
+        cls.quotas = {'vpnc_limit': 1}
         super(Test_delete_recursive, cls).setup_class()
 
     @classmethod
@@ -27,7 +27,8 @@ class Test_delete_recursive(OscTestSuite):
             wait_vpn_gateways_state(self.a1_r1, [vgw_id], state='available')
             self.a1_r1.fcu.AttachVpnGateway(VpcId=vpc_id, VpnGatewayId=vgw_id)
             wait_vpn_gateways_attachment_state(self.a1_r1, [vgw_id], 'attached')
-            cgw_id = self.a1_r1.fcu.CreateCustomerGateway(BgpAsn=65000, IpAddress=get_random_public_ip(), Type='ipsec.1').response.customerGateway.customerGatewayId
+            cgw_id = self.a1_r1.fcu.CreateCustomerGateway(BgpAsn=65000, IpAddress=get_random_public_ip(),
+                                                          Type='ipsec.1').response.customerGateway.customerGatewayId
             wait_customer_gateways_state(self.a1_r1, [cgw_id], state='available')
             vpn_conn_id = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=cgw_id, Type='ipsec.1', VpnGatewayId=vgw_id,
                                                              Options={'StaticRoutesOnly': True}).response.vpnConnection.vpnConnectionId
@@ -60,12 +61,12 @@ class Test_delete_recursive(OscTestSuite):
             resp = self.a1_r1.fcu.DescribeVpcs(VpcId=[vpc_id]).response
             if resp.vpcSet:
                 try:
-                    self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)    
+                    self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
                 except:
                     pass
             resp = self.a1_r1.fcu.DescribeVpnConnections().response
-            states = set([v.state for v in resp.vpnConnectionSet])
+            states = {[v.state for v in resp.vpnConnectionSet]}
             assert not resp.vpnConnectionSet or (len(states) == 1 and states.pop() == 'deleted')
             resp = self.a1_r1.fcu.DescribeVpnGateways().response
-            states = set([v.state for v in resp.vpnGatewaySet])
+            states = {[v.state for v in resp.vpnGatewaySet]}
             assert not resp.vpnGatewaySet or (len(states) == 1 and states.pop() == 'deleted')

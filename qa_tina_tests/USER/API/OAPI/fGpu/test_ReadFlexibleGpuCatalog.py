@@ -6,24 +6,12 @@ from qa_test_tools.misc import assert_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 
 
-#     ReadGpuCatalogRequest:
-#       properties:
-#         DryRun: {description: ReadGpuCatalogRequest_DryRun, type: boolean}
-#       type: object
-#     ReadGpuCatalogResponse:
-#       properties:
-#         GpuCatalogs:
-#           description: ReadGpuCatalogResponse_GpuCatalogs
-#           items: {$ref: '#/components/schemas/GpuCatalog'}
-#           type: array
-#         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
-#       type: object
 @pytest.mark.region_gpu
 class Test_ReadFlexibleGpuCatalog(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'gpu_limit': 4}
+        cls.quotas = {'gpu_limit': 4}
         super(Test_ReadFlexibleGpuCatalog, cls).setup_class()
         try:
             pass

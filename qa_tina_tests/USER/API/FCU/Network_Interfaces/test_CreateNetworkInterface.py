@@ -93,7 +93,7 @@ class Test_CreateNetworkInterface(OscTestSuite):
         finally:
             if subnet_id:
                 try:
-                    delete_subnet(self.a1_r1, self.subnet_id)
+                    delete_subnet(self.a1_r1, subnet_id)
                 except Exception:
                     pass
             if vpc_id:

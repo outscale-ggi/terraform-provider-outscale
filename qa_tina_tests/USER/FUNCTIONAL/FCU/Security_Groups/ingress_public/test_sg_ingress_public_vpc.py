@@ -14,6 +14,19 @@ from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_k
 from qa_tina_tools.tools.tina.delete_tools import delete_subnet, delete_instances_old, delete_keypair
 
 
+def ping(host):
+    """
+    Returns True if host (str) responds to a ping request.
+    Remember that some hosts may not respond to a ping request even if the host name is valid.
+    """
+
+    # Ping parameters as function of OS
+    parameters = "-n 1" if system_name().lower() == "windows" else "-c 1"
+
+    # Pinging
+    return system_call("ping " + parameters + " " + host) == 0
+
+
 class Test_sg_ingress_public_vpc(OscTestSuite):
     """
         check that from a set of regions
@@ -143,18 +156,6 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
         self.logger.info(out)
         assert not status
 
-    def ping(self, host):
-        """
-        Returns True if host (str) responds to a ping request.
-        Remember that some hosts may not respond to a ping request even if the host name is valid.
-        """
-
-        # Ping parameters as function of OS
-        parameters = "-n 1" if system_name().lower() == "windows" else "-c 1"
-
-        # Pinging
-        return system_call("ping " + parameters + " " + host) == 0
-
     def create_rules(self, sg_id):
         self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg_id, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=self.cidr)
         self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg_id, IpProtocol='icmp', FromPort=-1, ToPort=-1, CidrIp=self.cidr)
@@ -182,7 +183,7 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             # validate tcp
 
             # validate ICMP
-            assert self.ping(host=public_ip_inst)
+            assert ping(host=public_ip_inst)
 
             sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
@@ -261,7 +262,7 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             assert lines[0].strip() == text_to_check
 
             # validate ICMP
-            assert self.ping(host=public_ip_inst)
+            assert ping(host=public_ip_inst)
 
         finally:
             try:

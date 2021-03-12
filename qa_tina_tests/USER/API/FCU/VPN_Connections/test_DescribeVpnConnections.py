@@ -7,7 +7,6 @@ from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, VPC_ID
 
-
 NUM_VPN_CONNS = 3
 
 
@@ -77,7 +76,7 @@ class Test_DescribeVpnConnections(OscTestSuite):
 
     def test_T3277_no_params(self):
         ret = self.a1_r1.fcu.DescribeVpnConnections()
-        assert len(set([vpnconn.vpnConnectionId for vpnconn in ret.response.vpnConnectionSet])) == NUM_VPN_CONNS
+        assert len({vpnconn.vpnConnectionId for vpnconn in ret.response.vpnConnectionSet}) == NUM_VPN_CONNS
         for vpnconn in ret.response.vpnConnectionSet:
             assert vpnconn.vpnConnectionId in self.vpn_connection_ids
 
@@ -96,7 +95,7 @@ class Test_DescribeVpnConnections(OscTestSuite):
         ret = self.a1_r1.fcu.DescribeVpnConnections(VpnConnectionId=[self.vpn_connection_ids[0]])
         assert len(ret.response.vpnConnectionSet) == 1
         assert ret.response.vpnConnectionSet[0].vpnConnectionId == self.vpn_connection_ids[0]
- 
+
     def test_T3281_with_filter_vpn_connection_id(self):
         ret = self.a1_r1.fcu.DescribeVpnConnections(Filter=[{'Name': 'vpn-connection-id', 'Value': [self.vpn_connection_ids[0]]}])
         assert len(ret.response.vpnConnectionSet) == 1
