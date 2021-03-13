@@ -181,8 +181,8 @@ class Test_UpdateVm(OscTestSuite):
             assert_oapi_error(error, 409, 'InvalidState', '6003')
 
     def test_T2139_GroupId(self):
-        sg_id = None
-        ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
+        # sg_id = None
+        # ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
         sg_id = create_security_group(self.a1_r1, id_generator(prefix='T2139'), 'desc')
         self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], SecurityGroupIds=[sg_id])
         ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]

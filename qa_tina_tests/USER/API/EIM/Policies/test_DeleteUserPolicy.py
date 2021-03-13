@@ -26,7 +26,7 @@ class Test_DeleteUserPolicy(OscTestSuite):
             try:
                 cls.teardown_class()
             finally:
-             raise error
+                raise error
 
     @classmethod
     def teardown_class(cls):
