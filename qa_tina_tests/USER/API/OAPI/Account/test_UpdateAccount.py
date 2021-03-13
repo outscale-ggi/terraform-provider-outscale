@@ -49,8 +49,9 @@ class Test_UpdateAccount(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
 
     def test_T4916_with_invalid_parameter(self):
+        passwd = "toto"
         try:
-            self.a1_r1.oapi.UpdateAccount(Password="toto")
+            self.a1_r1.oapi.UpdateAccount(Password=passwd)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', 3001)
