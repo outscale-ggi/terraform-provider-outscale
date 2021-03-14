@@ -28,7 +28,7 @@ def ping(host):
 
     args = ['ping', '-n', '1', host] if system_name().lower() == "windows" else ['ping', '-c', '1', host]
     try:
-        subprocess.check_call(args)
+        subprocess.check_call(args, shell=True)
         return True
     except CalledProcessError:
         return False
@@ -207,13 +207,13 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             # validate UDP
             #cmd = "echo \"get demo.txt\" \'/tmp/demo.txt\' | tftp {}".format(public_ip_inst)
             #os.system(cmd)
-            args = ["echo 'get demo.txt /tmp/demo.txt' | tftp {}".format(public_ip_inst)]
+            args = ["echo 'get demo.txt demo.out.txt' | tftp {}".format(public_ip_inst)]
             try:
-                subprocess.check_call(args)
+                subprocess.check_call(args, shell=True)
             except CalledProcessError:
                 print('Could not execute command')
 
-            demo_file = open('/tmp/demo.txt', 'r')
+            demo_file = open('demo.out.txt', 'r')
             lines = demo_file.readlines()
             assert lines[0].strip() == text_to_check
 
@@ -270,7 +270,7 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             # os.system(cmd)
             args = ["echo 'get demo.txt demo.out.txt' | tftp {}".format(public_ip_inst)]
             try:
-                subprocess.check_call(args)
+                subprocess.check_call(args, shell=True)
             except CalledProcessError:
                 print('Could not execute command')
 

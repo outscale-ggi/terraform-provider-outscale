@@ -129,7 +129,7 @@ def perf_sg(oscsdk, logger, queue, args):
             while not success and (datetime.now() - start_ping).total_seconds() < MAX_WAIT_TIME:
                 args = ["ping", "-c", "5", inst.ipAddress]
                 try:
-                    subprocess.check_call(args)
+                    subprocess.check_call(args, shell=True)
                     success = True
                 except CalledProcessError:
                     success = False
@@ -160,7 +160,7 @@ def perf_sg(oscsdk, logger, queue, args):
             while not success and (datetime.now() - start_ping).total_seconds() < MAX_WAIT_TIME:
                 args = ["ping", "-c", "5", inst.ipAddress]
                 try:
-                    subprocess.check_call(args)
+                    subprocess.check_call(args, shell=True)
                     success = False
                 except CalledProcessError:
                     success = True
