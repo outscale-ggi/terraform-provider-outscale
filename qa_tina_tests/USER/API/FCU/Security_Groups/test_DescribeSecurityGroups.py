@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
@@ -24,20 +24,20 @@ class Test_DescribeSecurityGroups(OscTestSuite):
         cls.vpc_info = None
         try:
             cls.vpc_info = create_vpc(cls.a1_r1)
-            cls.sg_names= []
+            cls.sg_names = []
             for _ in range(max(NB_PUB_SG, NB_PRIV_SG)):
                 cls.sg_names.append(id_generator(prefix='sgname', chars=string.digits))
             for i in range(NB_PUB_SG):
-                cls.pub_sg_ids.append(create_security_group(cls.a1_r1, name=cls.sg_names[i], desc="desc{}".format(i+1)))
+                cls.pub_sg_ids.append(create_security_group(cls.a1_r1, name=cls.sg_names[i], desc="desc{}".format(i + 1)))
             for i in range(NB_PRIV_SG):
-                cls.priv_sg_ids.append(create_security_group(cls.a1_r1, name=cls.sg_names[i], desc="desc{}".format(i+1), vpc_id=cls.vpc_info[info_keys.VPC_ID]))
+                cls.priv_sg_ids.append(create_security_group(cls.a1_r1, name=cls.sg_names[i], desc="desc{}".format(i + 1),
+                                                             vpc_id=cls.vpc_info[info_keys.VPC_ID]))
             cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.pub_sg_ids[0], SourceSecurityGroupName=cls.sg_names[1])
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -58,7 +58,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_error(error, 400, "InvalidGroup.NotFound", "The security group '{}' does not exist".format(self.pub_sg_ids[0]))
-            
+
     def test_T5398_no_params(self):
         ret = self.a1_r1.fcu.DescribeSecurityGroups()
         assert len(ret.response.securityGroupInfo) == NB_PUB_SG + NB_PRIV_SG + 1 + 1
@@ -67,7 +67,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
             assert False, 'Remove known error'
         except OscSdkException:
             known_error('API-156', 'incorrect response structure')
- 
+
     def test_T5399_with_invalid_group_id(self):
         try:
             self.a1_r1.fcu.DescribeSecurityGroups(GroupId=['toto'])
@@ -95,17 +95,17 @@ class Test_DescribeSecurityGroups(OscTestSuite):
         ret = self.a1_r1.fcu.DescribeSecurityGroups(GroupId=self.pub_sg_ids)
         # ret.check_response()
         assert len(ret.response.securityGroupInfo) == NB_PUB_SG
-  
+
     def test_T5403_with_private_group_id(self):
         ret = self.a1_r1.fcu.DescribeSecurityGroups(GroupId=self.priv_sg_ids)
         # ret.check_response()
         assert len(ret.response.securityGroupInfo) == NB_PRIV_SG
-  
+
     def test_T5404_with_mixed_group_id(self):
         ret = self.a1_r1.fcu.DescribeSecurityGroups(GroupId=[self.pub_sg_ids[0], self.priv_sg_ids[0]])
         # ret.check_response()
         assert len(ret.response.securityGroupInfo) == 2
-  
+
     def test_T5405_with_nonexisting_group_name(self):
         try:
             self.a1_r1.fcu.DescribeSecurityGroups(GroupName=['foobar'])
@@ -126,14 +126,14 @@ class Test_DescribeSecurityGroups(OscTestSuite):
         ret = self.a1_r1.fcu.DescribeSecurityGroups(GroupName=self.sg_names[0:NB_PUB_SG])
         # ret.check_response()
         assert len(ret.response.securityGroupInfo) == NB_PUB_SG
-  
+
     def test_T5408_with_private_group_name(self):
         try:
-            self.a1_r1.fcu.DescribeSecurityGroups(GroupName=self.sg_names[NB_PUB_SG:NB_PUB_SG+NB_PRIV_SG])
+            self.a1_r1.fcu.DescribeSecurityGroups(GroupName=self.sg_names[NB_PUB_SG:NB_PUB_SG + NB_PRIV_SG])
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_error(error, 400, "InvalidGroup.NotFound", None)
-          
+
     def test_T5409_with_mixed_group_name(self):
         try:
             self.a1_r1.fcu.DescribeSecurityGroups(GroupName=self.sg_names)
@@ -142,7 +142,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
             assert_error(error, 500, "InternalError", None)
             known_error('TINA-6072', 'Unexpected internal error')
             assert_error(error, 400, "InvalidGroup.NotFound", None)
-  
+
     def test_T5410_with_public_group_name_and_id(self):
         try:
             self.a1_r1.fcu.DescribeSecurityGroups(GroupId=self.pub_sg_ids, GroupName=self.sg_names[0:1])
@@ -151,14 +151,14 @@ class Test_DescribeSecurityGroups(OscTestSuite):
             assert_error(error, 500, "InternalError", None)
             known_error('TINA-6072', 'Unexpected internal error')
             assert_error(error, 400, "InvalidGroup.NotFound", None)
-  
+
     def test_T5411_with_private_group_name_and_id(self):
         try:
             self.a1_r1.fcu.DescribeSecurityGroups(GroupId=self.priv_sg_ids, GroupName=self.sg_names[NB_PUB_SG:NB_PRIV_SG])
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_error(error, 400, "InvalidGroup.NotFound", None)
-  
+
     def test_T5412_with_mixed_group_name_and_id(self):
         ids = []
         ids.extend(self.pub_sg_ids)
@@ -170,7 +170,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
             assert_error(error, 500, "InternalError", None)
             known_error('TINA-6072', 'Unexpected internal error')
             assert_error(error, 400, "InvalidGroup.NotFound", None)
-    
+
     # filters (from documentation)
     # description: The description of the security group.
     # group-id: The ID of the security group.
@@ -187,7 +187,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
     # tag-value: The value of a tag associated with the resource. WILL NOT BE TESTED HERE
     # tag:XXXX: The value of a tag associated with the resource, where XXXX is the key of the tag. WILL NOT BE TESTED HERE
     # vpc-id: The ID of the VPC specified when the security group was created.
-    
+
     def test_T5413_filter_description(self):
         ret = self.a1_r1.fcu.DescribeSecurityGroups(Filter=[{'Name': 'description', 'Value': ['desc1']}])
         assert len(ret.response.securityGroupInfo) == 2
@@ -279,7 +279,7 @@ class Test_DescribeSecurityGroups(OscTestSuite):
     def test_T5421_filter_ip_permission_user_id(self):
         sg2_name = id_generator(prefix='sg2_name', chars=string.digits)
         try:
-            self.sg2_id = create_security_group(self.a2_r1, name=sg2_name, desc=sg2_name)
+            sg2_id = create_security_group(self.a2_r1, name=sg2_name, desc=sg2_name)
             for sg_id in self.pub_sg_ids:
                 self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg_id,
                                                              SourceSecurityGroupOwnerId=self.a2_r1.config.account.account_id,
@@ -290,16 +290,16 @@ class Test_DescribeSecurityGroups(OscTestSuite):
             for sg_info in ret.response.securityGroupInfo:
                 for perm in sg_info.ipPermissions:
                     if hasattr(perm, 'groups') and getattr(perm, 'groups') is not None:
-                            for group in perm.groups:
-                                if hasattr(group, 'groupName') and group.groupName == sg2_name:
-                                    assert hasattr(group, 'userId') and group.userId == user_id
+                        for group in perm.groups:
+                            if hasattr(group, 'groupName') and group.groupName == sg2_name:
+                                assert hasattr(group, 'userId') and group.userId == user_id
         finally:
             for sg_id in self.pub_sg_ids:
                 self.a1_r1.fcu.RevokeSecurityGroupIngress(GroupId=sg_id,
                                                           SourceSecurityGroupOwnerId=self.a2_r1.config.account.account_id,
                                                           SourceSecurityGroupName=sg2_name)
-            if self.sg2_id:
-                delete_security_group(self.a2_r1, self.sg2_id)
+            if sg2_id:
+                delete_security_group(self.a2_r1, sg2_id)
 
     def test_T5422_filter_owner_id(self):
         account_id = self.a1_r1.config.account.account_id

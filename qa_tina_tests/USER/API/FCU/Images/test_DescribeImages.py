@@ -57,12 +57,11 @@ class Test_DescribeImages(OscTestSuite):
             assert len(cls.img2_snap_id_list) == 3, 'Could not find snapshots created when creating image'
             launch_permissions = {'Add': [{'UserId': str(cls.a2_r1.config.account.account_id)}]}
             cls.a1_r1.fcu.ModifyImageAttribute(ImageId=cls.image2_id, LaunchPermission=launch_permissions)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -162,7 +161,7 @@ class Test_DescribeImages(OscTestSuite):
             assert value == image.hypervisor
 
     def test_T833_filter_image_id(self):
-        value = self.a1_r1.config.region._conf[constants.CENTOS7]
+        value = self.a1_r1.config.region.get_info(constants.CENTOS7)
         desc_filter = {"Name": "image-id", "Value": value}
         ret = self.a1_r1.fcu.DescribeImages(Filter=[desc_filter])
         for image in ret.response.imagesSet:
@@ -253,9 +252,9 @@ class Test_DescribeImages(OscTestSuite):
         assert ret.response.imagesSet[0].imageId == self.image1_id, ret.response.display()
 
     def test_T1370_valid_image_id_public_image(self):
-        ret = self.a1_r1.fcu.DescribeImages(ImageId=[self.a1_r1.config.region._conf[constants.CENTOS7]])
+        ret = self.a1_r1.fcu.DescribeImages(ImageId=[self.a1_r1.config.region.get_info(constants.CENTOS7)])
         assert len(ret.response.imagesSet) == 1, ret.response.display()
-        assert ret.response.imagesSet[0].imageId == self.a1_r1.config.region._conf[constants.CENTOS7], ret.response.display()
+        assert ret.response.imagesSet[0].imageId == self.a1_r1.config.region.get_info(constants.CENTOS7), ret.response.display()
 
     def test_T1371_valid_image_id_shared_image(self):
         ret = self.a2_r1.fcu.DescribeImages(ImageId=[self.image1_id])
@@ -317,7 +316,7 @@ class Test_DescribeImages(OscTestSuite):
     def test_T1379_valid_executable_all(self):
         ret = self.a3_r1.fcu.DescribeImages(ExecutableBy=['all'])
         for image in ret.response.imagesSet:
-            assert 'true' == image.isPublic
+            assert image.isPublic == 'true'
 
     def test_T1527_valid_executable_self(self):
         ret = self.a3_r1.fcu.DescribeImages(ExecutableBy=['self'])

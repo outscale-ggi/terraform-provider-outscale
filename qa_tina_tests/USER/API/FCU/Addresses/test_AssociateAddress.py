@@ -7,7 +7,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
 from qa_tina_tools.tools.tina.info_keys import SUBNET_ID, SUBNETS, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_addresses_state
 
-
 NUM_STANDARD_EIPS = 1
 NUM_VPC_EIPS = 10
 
@@ -35,9 +34,8 @@ class Test_AssociateAddress(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -80,16 +78,16 @@ class Test_AssociateAddress(OscTestSuite):
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[0].publicIp)
 
     def test_T1604_with_priv_inst_alloc_id(self):
-        associationId = None
+        association_id = None
         try:
             ret = self.a1_r1.fcu.AssociateAddress(InstanceId=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0],
                                                   AllocationId=self.vpc_eips[1].allocationId)
-            associationId = ret.response.associationId
+            association_id = ret.response.associationId
         # for debug purposes
         except Exception as error:
             raise error
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[1].publicIp)
 
     def test_T1605_with_ni_pub_ip(self):
@@ -104,15 +102,15 @@ class Test_AssociateAddress(OscTestSuite):
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[2].publicIp)
 
     def test_T1606_with_ni_alloc_id(self):
-        associationId = None
+        association_id = None
         try:
             ret = self.a1_r1.fcu.AssociateAddress(NetworkInterfaceId=self.net1.networkInterfaceId, AllocationId=self.vpc_eips[3].allocationId)
-            associationId = ret.response.associationId
+            association_id = ret.response.associationId
         # for debug purposes
         except Exception as error:
             raise error
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[3].publicIp)
 
     def test_T1607_no_element_pub_ip(self):
@@ -127,41 +125,41 @@ class Test_AssociateAddress(OscTestSuite):
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[4].publicIp)
 
     def test_T1608_no_element_alloc_id(self):
-        associationId = None
+        association_id = None
         try:
             ret = self.a1_r1.fcu.AssociateAddress(AllocationId=self.vpc_eips[5].allocationId)
-            associationId = ret.response.associationId
+            association_id = ret.response.associationId
             assert False, 'Call should not have been successful'
         except Exception as error:
             assert_error(error, 400, 'OWS.Error', 'Request is not valid.')
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[5].publicIp)
 
     def test_T1609_with_priv_inst_empty_ni_alloc_id(self):
-        associationId = None
+        association_id = None
         try:
             ret = self.a1_r1.fcu.AssociateAddress(InstanceId=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0],
                                                   NetworkInterfaceId='', AllocationId=self.vpc_eips[6].allocationId)
-            associationId = ret.response.associationId
+            association_id = ret.response.associationId
         # for debug purposes
         except Exception as error:
             assert_error(error, 400, 'MissingParameter', 'Insufficient parameters provided out of: Vm, nic. Expected at least: 1')
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[6].publicIp)
 
     def test_T1610_with_ni_empty_priv_inst_alloc_id(self):
-        associationId = None
+        association_id = None
         try:
             ret = self.a1_r1.fcu.AssociateAddress(InstanceId='',
                                                   NetworkInterfaceId=self.net1.networkInterfaceId, AllocationId=self.vpc_eips[7].allocationId)
-            associationId = ret.response.associationId
+            association_id = ret.response.associationId
         # for debug purposes
         except Exception as error:
             raise error
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[7].publicIp)
 
     def test_T1688_reassoc_pub_none(self):
@@ -216,9 +214,7 @@ class Test_AssociateAddress(OscTestSuite):
                                                            AllocationId=eip.allocationId, AllowReassociation=None).response.associationId
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                if error.status_code == 400 and error.error_code == 'InvalidIPAddress.InUse':
-                    pass
-                else:
+                if error.status_code != 400 or error.error_code != 'InvalidIPAddress.InUse':
                     raise error
         # for debug purposes
         except Exception as error:
@@ -242,9 +238,7 @@ class Test_AssociateAddress(OscTestSuite):
                                                            AllocationId=eip.allocationId, AllowReassociation=False).response.associationId
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                if error.status_code == 400 and error.error_code == 'InvalidIPAddress.InUse':
-                    pass
-                else:
+                if error.status_code != 400 or error.error_code != 'InvalidIPAddress.InUse':
                     raise error
         # for debug purposes
         except Exception as error:

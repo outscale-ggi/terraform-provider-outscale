@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error, assert_dry_run
@@ -28,9 +28,8 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -39,12 +38,12 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
                 try:
                     cls.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=ret_lbu.LoadBalancerName)
                 except:
-                    pass
+                    print('Could not delete lbu')
             for ret_lbu in cls.ret_lbu_a2:
                 try:
                     cls.a2_r1.oapi.DeleteLoadBalancer(LoadBalancerName=ret_lbu.LoadBalancerName)
                 except:
-                    pass
+                    print('Could not delete lbu')
         finally:
             super(Test_DeleteLoadBalancerTags, cls).teardown_class()
 
@@ -132,10 +131,10 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
     def teardown_tags(self):
         ret = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName, self.ret_lbu_a1[1].LoadBalancerName])
         self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName, self.ret_lbu_a1[1].LoadBalancerName],
-                                               Tags=[{'Key': key} for key in set([tag.Key for tag in ret.response.Tags])])
+                                               Tags=[{'Key': key} for key in {[tag.Key for tag in ret.response.Tags]}])
         ret = self.a2_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a2[0].LoadBalancerName])
         self.a2_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a2[0].LoadBalancerName],
-                                               Tags=[{'Key': key} for key in set([tag.Key for tag in ret.response.Tags])])
+                                               Tags=[{'Key': key} for key in {[tag.Key for tag in ret.response.Tags]}])
 
     def test_T4724_valid_params(self):
         try:

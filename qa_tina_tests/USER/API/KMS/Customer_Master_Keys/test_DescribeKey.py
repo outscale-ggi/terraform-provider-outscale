@@ -10,28 +10,20 @@ class Test_DescribeKey(Kms):
 
     @classmethod
     def setup_class(cls):
-        cls.known_error = False
         super(Test_DescribeKey, cls).setup_class()
         try:
             cls.key_id = cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='EXTERNAL').response.KeyMetadata.KeyId
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            if error.status_code == 500 and error.error_code == 'KMSServerException':
-                cls.known_error = True
-            else:
+            finally:
                 raise error
 
     @classmethod
     def teardown_class(cls):
         try:
             if cls.key_id:
-                try:
-                    cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_id, PendingWindowInDays=7)
-                except:
-                    pass
+                cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_id, PendingWindowInDays=7)
         finally:
             super(Test_DescribeKey, cls).teardown_class()
 

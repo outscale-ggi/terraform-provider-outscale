@@ -25,7 +25,7 @@ class Test_CreateInternetService(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteInternetService(InternetServiceId=net_id)
                 except:
-                    pass
+                    print('Could not delete internet service')
 
     def test_T2239_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.CreateInternetService(DryRun=True)

@@ -13,21 +13,6 @@ class Test_ReadConsumptionAccount(OscTestSuite):
     def setup_class(cls):
         super(Test_ReadConsumptionAccount, cls).setup_class()
         cls.start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=10)
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_ReadConsumptionAccount, cls).teardown_class()
 
     def test_T1613_correct_dates(self):
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=3)

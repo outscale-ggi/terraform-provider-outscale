@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 import base64
 
 import pytest

@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.exceptions.test_exceptions import OscTestException
@@ -74,7 +74,6 @@ class Test_CreateKeypair(OscTestSuite):
         finally:
             if ret:
                 self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
-
 
     def test_T2354_invalid_public_key(self):
         self.keypair_name = None

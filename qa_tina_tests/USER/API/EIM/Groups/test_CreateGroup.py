@@ -62,7 +62,8 @@ class Test_CreateGroup(OscTestSuite):
                 assert False, "CreateGroup must fail with invalid groupName"
             except OscApiException as error:
                 if char == ':':
-                    assert_error(error, 400, "ValidationError", 'Invalid arguments for isAuthorized(): [arg0.resources[].relativeId: Invalid composite name part]')
+                    assert_error(error, 400, "ValidationError", "Invalid arguments for isAuthorized(): " + \
+                                 "[arg0.resources[].relativeId: Invalid composite name part]")
                     known_error('TINA-5761', 'Unexpected error message')
                 else:
                     assert_error(error, 400, "ValidationError",

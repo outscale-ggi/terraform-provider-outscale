@@ -12,6 +12,13 @@ from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instanc
 @pytest.mark.region_admin
 class Test_modify_pin_state(OscTestSuite):
 
+    @classmethod
+    def setup_class(cls):
+        cls.info = None
+        cls.cluster_pz = None
+        cls.server_name = None
+        super(Test_modify_pin_state, cls).setup_class()
+
     def setup_method(self, method):
         super(Test_modify_pin_state, self).setup_method(method)
         self.info = None
@@ -25,9 +32,8 @@ class Test_modify_pin_state(OscTestSuite):
         except Exception as error:
             try:
                 self.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:

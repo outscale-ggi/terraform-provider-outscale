@@ -1,5 +1,6 @@
-import requests
 import time
+
+import requests
 
 from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
@@ -9,17 +10,6 @@ from qa_tina_tools.tina import oapi, wait, info_keys, setup_tools
 
 
 class Test_loadbalancer_policy(OscTestSuite):
-
-    @classmethod
-    def setup_class(cls, ):
-        super(Test_loadbalancer_policy, cls).setup_class()
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_loadbalancer_policy, cls).teardown_class()
 
     def test_T5343_lbu_policy(self):
         try:
@@ -68,7 +58,7 @@ class Test_loadbalancer_policy(OscTestSuite):
             session = requests.session()
             for _ in range(5):
                 response = session.get("http://{}".format(lbu_info[info_keys.LBU_DNS]))
-                if response.status_code == 200 and len(response.cookies._cookies) >= 1:
+                if response.status_code == 200 and len(getattr(response.cookies, '_cookies')) >= 1:
                     cookie_found = True
                     break
                 time.sleep(2)
@@ -86,8 +76,8 @@ class Test_loadbalancer_policy(OscTestSuite):
             session = requests.session()
             for _ in range(5):
                 response = session.get("http://{}".format(lbu_info[info_keys.LBU_DNS]))
-                if response.status_code == 200 and len(response.cookies._cookies) >= 1:
-                    if len(response.cookies._cookies) >= 1:
+                if response.status_code == 200 and len(getattr(response.cookies, '_cookies')) >= 1:
+                    if len(getattr(response.cookies, '_cookies')) >= 1:
                         cookie_found = True
                         assert False, 'cookie found after its deletion '
                     else:

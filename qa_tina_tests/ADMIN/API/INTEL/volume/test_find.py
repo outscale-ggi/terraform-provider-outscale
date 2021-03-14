@@ -17,9 +17,8 @@ class Test_find(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -28,7 +27,7 @@ class Test_find(OscTestSuite):
                 try:
                     cls.a1_r1.oapi.DeleteVolume(VolumeId=vol_id)
                 except:
-                    pass
+                    print('Could not delete volume')
         finally:
             super(Test_find, cls).teardown_class()
 
@@ -36,5 +35,5 @@ class Test_find(OscTestSuite):
         resp = self.a1_r1.intel.volume.find(limit=20, orders=[('id', 'ASC')], owner=self.a1_r1.config.account.account_id).response
         vol_ids = [vol.id for vol in resp.result.results]
         assert len(vol_ids) == VOLUME_NUMBER
-        assert(sorted(vol_ids) == vol_ids)
-        assert(sorted(self.vol_ids) == sorted(vol_ids))
+        assert sorted(vol_ids) == vol_ids
+        assert sorted(self.vol_ids) == sorted(vol_ids)

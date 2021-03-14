@@ -27,9 +27,8 @@ class Test_ReadNets(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -38,7 +37,7 @@ class Test_ReadNets(OscTestSuite):
                 try:
                     cls.a1_r1.oapi.DeleteNet(NetId=net_id)
                 except:
-                    pass
+                    print('Could not delete net')
         finally:
             super(Test_ReadNets, cls).teardown_class()
 

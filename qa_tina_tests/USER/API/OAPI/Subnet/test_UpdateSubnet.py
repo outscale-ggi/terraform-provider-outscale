@@ -19,9 +19,8 @@ class Test_UpdateSubnet(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -30,14 +29,12 @@ class Test_UpdateSubnet(OscTestSuite):
                 try:
                     cls.a1_r1.oapi.DeleteSubnet(SubnetId=cls.subnet_id)
                 except:
-                    pass
+                    print('Could not delete subnet')
             if cls.net_id:
                 try:
                     cls.a1_r1.oapi.DeleteNet(NetId=cls.net_id)
                 except:
-                    pass
-        except:
-            pass
+                    print('Could not delete net')
         finally:
             super(Test_UpdateSubnet, cls).teardown_class()
 

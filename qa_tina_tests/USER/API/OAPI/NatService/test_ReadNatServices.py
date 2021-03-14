@@ -1,5 +1,5 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+
+
 import pytest
 
 from qa_test_tools.misc import assert_dry_run
@@ -23,9 +23,8 @@ class Test_ReadNatServices(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

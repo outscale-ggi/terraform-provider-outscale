@@ -4,6 +4,7 @@ import pytest
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.test_base import OscTestSuite
 
+
 VMS = ['in2-pr-intel-main-1', 'in2-pr-intel-main-2', 'in2-pr-intel-main-3', 'in2-pr-intel-main-cron-1']
 DEPENDENCIES = {'SQLAlchemy': '1.2', 'alembic': '0.8.10', 'amqp': '2.2.2', 'circus': '0.14.0',
                 'cryptography': '1.7.1', 'elasticsearch': '5.0.1', 'futures': '3.0.5', 'iso8601': '0.1.10',
@@ -25,7 +26,7 @@ class Test_Intel_Services(OscTestSuite):
         super(Test_Intel_Services, cls).teardown_class()
 
     # Note: the prefix test_ was eared to avoid having it marked as automated
-    def T228_Intel_python_dependencies(self):
+    def test_T228_intel_python_dependencies(self):
 
         key_ssh = DEFAULT_VALUE
         user_name = DEFAULT_VALUE
@@ -37,13 +38,13 @@ class Test_Intel_Services(OscTestSuite):
         sshclient = None
         try:
             sshclient = SshTools.check_connection_paramiko(ip_address=inter, ssh_key=key_ssh, username=user_name, password=passphrase)
-            for vm in VMS:
+            for inst in VMS:
 
                 sshclient_jhost = SshTools.check_connection_paramiko_nested(sshclient=sshclient,
-                                                                            ip_address=vm,
+                                                                            ip_address=inst,
                                                                             ssh_key=key_ssh,
                                                                             local_private_addr=inter,
-                                                                            dest_private_addr=vm,
+                                                                            dest_private_addr=inst,
                                                                             username=user_name,
                                                                             password=passphrase)
                 for key, value in list(DEPENDENCIES.items()):
@@ -53,7 +54,7 @@ class Test_Intel_Services(OscTestSuite):
                     assert value in out
 
         except AssertionError as _:
-            self.logger.info("Dependency for key {} expected {} but was {}".format(key, value, out))
+            self.logger.info("Dependency for key %s expected %s but was %s", key, value, out)
         finally:
             if sshclient:
                 sshclient.close()

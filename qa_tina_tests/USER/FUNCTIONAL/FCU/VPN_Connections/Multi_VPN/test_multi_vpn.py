@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import re
 from datetime import datetime
-
+import re
 import time
 
 from qa_common_tools.ssh import SshTools

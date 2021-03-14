@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 import json
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -25,9 +25,8 @@ class Test_PutGroupPolicy(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):

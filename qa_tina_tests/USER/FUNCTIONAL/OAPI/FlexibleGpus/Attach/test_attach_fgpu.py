@@ -3,16 +3,15 @@ import sys
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state, wait_instances_state
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
-from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state, \
-    wait_instances_state
 
 
 class Test_attach_fgpu(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'gpu_limit': 4}
+        cls.quotas = {'gpu_limit': 4}
         cls.GROUPS = ['PRODUCTION', 'NVIDIA']
         cls.vm_id = None
         cls.fgpu_id = None

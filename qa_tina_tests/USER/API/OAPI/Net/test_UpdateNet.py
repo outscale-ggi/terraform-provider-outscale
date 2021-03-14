@@ -24,9 +24,8 @@ class Test_UpdateNet(OscTestSuite):
         except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -93,7 +92,7 @@ class Test_UpdateNet(OscTestSuite):
     def test_T3481_other_account(self):
         dopt_id = self.a2_r1.oapi.CreateDhcpOptions(DomainName='outscale.qa').response.DhcpOptionsSet.DhcpOptionsSetId
         try:
-            self.a2_r1.oapi.UpdateNet(DhcpOptionsSetId=dopt_id, NetId=self.vpc_id).response.Net
+            self.a2_r1.oapi.UpdateNet(DhcpOptionsSetId=dopt_id, NetId=self.vpc_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', 5065)

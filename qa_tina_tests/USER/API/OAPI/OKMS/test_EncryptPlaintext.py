@@ -20,9 +20,8 @@ class Test_EncryptPlaintext(OKMS):
         except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -31,7 +30,7 @@ class Test_EncryptPlaintext(OKMS):
                 try:
                     cls.a1_r1.oapi.DeleteMasterKey(MasterKeyId=cls.master_key.MasterKeyId, PendingWindowInDays=7)
                 except:
-                    pass
+                    print('Could not delete master key')
         finally:
             super(Test_EncryptPlaintext, cls).teardown_class()
 

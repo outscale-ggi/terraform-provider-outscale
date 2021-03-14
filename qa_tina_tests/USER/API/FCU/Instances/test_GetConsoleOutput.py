@@ -2,9 +2,9 @@ import base64
 import binascii
 import datetime
 import re
+import time
 
 import pytest
-import time
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
@@ -15,6 +15,17 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 TIMESTAMP_REGEX = r'(^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$)'
+
+
+def check_response_output(ret, inst_id, empty=False):
+    assert (empty and not ret.response.output) or (not empty and ret.response.output)
+    if ret.response.output:
+        try:
+            base64.b64decode(ret.response.output)
+        except binascii.Error:
+            assert False, "Response output is not base64"
+    assert ret.response.instanceId == inst_id
+    assert ret.response.timestamp and re.match(TIMESTAMP_REGEX, ret.response.timestamp)
 
 
 class Test_GetConsoleOutput(OscTestSuite):
@@ -29,12 +40,11 @@ class Test_GetConsoleOutput(OscTestSuite):
             cls.instance_info_a2 = create_instances(cls.a2_r1, state=None)
             wait_instances_state(cls.a1_r1, cls.instance_info_a1[INSTANCE_ID_LIST], state='running')
             wait_instances_state(cls.a2_r1, cls.instance_info_a2[INSTANCE_ID_LIST], state='running')
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -46,16 +56,6 @@ class Test_GetConsoleOutput(OscTestSuite):
         finally:
             super(Test_GetConsoleOutput, cls).teardown_class()
 
-    def check_response_output(self, ret, inst_id, empty=False):
-        assert (empty and not ret.response.output) or (not empty and ret.response.output)
-        if ret.response.output:
-            try:
-                base64.b64decode(ret.response.output)
-            except binascii.Error:
-                assert False, "Response output is not base64"
-        assert ret.response.instanceId == inst_id
-        assert ret.response.timestamp and re.match(TIMESTAMP_REGEX, ret.response.timestamp)
-
     def test_T4360_with_valid_params(self):
         inst_id = self.instance_info_a1[INSTANCE_ID_LIST][0]
         start = datetime.datetime.now()
@@ -65,7 +65,7 @@ class Test_GetConsoleOutput(OscTestSuite):
             if ret.response.output:
                 break
             time.sleep(3)
-        self.check_response_output(ret, inst_id)
+        check_response_output(ret, inst_id)
 
     def test_T4359_with_incorrect_id(self):
         try:
@@ -93,10 +93,10 @@ class Test_GetConsoleOutput(OscTestSuite):
         inst_id = self.instance_info_a1[INSTANCE_ID_LIST][1]
         terminate_instances(self.a1_r1, [inst_id])
         ret = self.a1_r1.fcu.GetConsoleOutput(InstanceId=inst_id)
-        self.check_response_output(ret, inst_id, empty=True)
+        check_response_output(ret, inst_id, empty=True)
 
     def test_T4355_with_stopped_instance(self):
         inst_id = self.instance_info_a1[INSTANCE_ID_LIST][2]
         stop_instances(self.a1_r1, [inst_id])
         ret = self.a1_r1.fcu.GetConsoleOutput(InstanceId=inst_id)
-        self.check_response_output(ret, inst_id)
+        check_response_output(ret, inst_id)

@@ -1,5 +1,3 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 
 import pytest
 
@@ -13,7 +11,7 @@ class Test_DeleteConnection(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
+        cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
         cls.conn_id = None
         super(Test_DeleteConnection, cls).setup_class()
         ret = cls.a1_r1.directlink.DescribeLocations()

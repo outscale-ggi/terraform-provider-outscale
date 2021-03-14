@@ -9,6 +9,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import PATH, KEY_PAIR, INSTANCE_SET
 
+
 METADATA_PLACEMENT = 'curl http://169.254.169.254/latest/meta-data/placement/'
 INSTANCE_TYPE = 'tinav3.c1r1p1'
 

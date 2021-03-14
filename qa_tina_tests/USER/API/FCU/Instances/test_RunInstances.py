@@ -18,6 +18,7 @@ class Test_RunInstances(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
+        cls.quotas = {}
         super(Test_RunInstances, cls).setup_class()
 
     @classmethod
@@ -36,7 +37,8 @@ class Test_RunInstances(OscTestSuite):
             assert ret.status_code == status_code
         except OscApiException as error:
             assert_error(error, status_code, error_code,
-                         "Value of parameter \'InstanceInitiatedShutdownBehavior\' is not valid: shutdown. Supported values: restart, stop, terminate")
+                         "Value of parameter \'InstanceInitiatedShutdownBehavior\' is not valid: " + \
+                         "shutdown. Supported values: restart, stop, terminate")
         if inst_id:
             self.a1_r1.fcu.StopInstances(InstanceId=[inst_id])
             if value is None or value == 'stop':
@@ -118,21 +120,21 @@ private_only=true
     @pytest.mark.region_admin
     def test_T3014_with_insufficient_quotas(self):
         inst_info = None
-        self.QUOTAS = {'gpu_limit': 2}
+        self.quotas = {'gpu_limit': 2}
         try:
             ret = self.a1_r1.icu.ReadQuotas()
-            MaxQuotaValue = ret.response.ReferenceQuota[0].Quotas[4].MaxQuotaValue
-            for quota in self.QUOTAS:
-                self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: self.QUOTAS[quota]})
+            max_quota_value = ret.response.ReferenceQuota[0].Quotas[4].MaxQuotaValue
+            for quota in self.quotas:
+                self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: self.quotas[quota]})
             inst_info = create_instances(self.a1_r1, inst_type='g3.8xlarge')
         except OscApiException as err:
             assert_error(err, 500, 'InsufficientInstanceCapacity', 'Insufficient Capacity')
         finally:
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)
-            self.QUOTAS = {'gpu_limit': MaxQuotaValue}
-            for quota in self.QUOTAS:
-                self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: self.QUOTAS[quota]})
+            self.quotas = {'gpu_limit': max_quota_value}
+            for quota in self.quotas:
+                self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: self.quotas[quota]})
 
     def test_T3048_with_invalid_private_address(self):
         vpc_info = None
@@ -140,8 +142,8 @@ private_only=true
             vpc_info = create_vpc(self.a1_r1, igw=False)
             ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7), MaxCount=1, MinCount=1,
                                               cidr_prefix="10.0", PrivateIpAddress='21.22.23.24')
-            instanceIds = [inst.instanceId for inst in ret.response.instancesSet]
-            terminate_instances(self.a1_r1, instanceIds)
+            instance_ids = [inst.instanceId for inst in ret.response.instancesSet]
+            terminate_instances(self.a1_r1, instance_ids)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterCombination',
@@ -157,7 +159,8 @@ private_only=true
         ret1 = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
                                            InstanceType='t2.nano', MaxCount=1, MinCount=1, ClientToken=token)
 
-        responses_describe = self.a1_r1.fcu.DescribeInstances(InstanceId=[ret.response.instancesSet[0].instanceId, ret1.response.instancesSet[0].instanceId])
+        responses_describe = self.a1_r1.fcu.DescribeInstances(InstanceId=[ret.response.instancesSet[0].instanceId,
+                                                                          ret1.response.instancesSet[0].instanceId])
         assert len(responses_describe.response.reservationSet) == 1
         terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
 

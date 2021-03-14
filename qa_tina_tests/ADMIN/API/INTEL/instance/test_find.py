@@ -27,9 +27,8 @@ class Test_find(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -76,7 +75,8 @@ class Test_find(OscTestSuite):
 
     def test_T4316_check_response(self):
         attributes = ['allocate_console', 'allocated_pci', 'api_termination', 'architecture', 'asked_type', 'az', 'boot_on_creation',
-                     'cdrom_attach', 'core', 'creation', 'creation_date', 'destruction_date', 'ephemerals', 'gateway_ip', 'groups', 'id', 'image', 'imaging',
+                     'cdrom_attach', 'core', 'creation', 'creation_date', 'destruction_date', 'ephemerals', 'gateway_ip', 'groups', 'id', 'image',
+                     'imaging',
                      'in_vpc', 'inconsistent', 'keypair', 'keypairs', 'launch_index', 'lifecycle', 'mac_addr', 'mapping', 'memory', 'migration',
                      'network', 'nics', 'owner', 'platform', 'private_dns', 'private_ip', 'private_only', 'product_types', 'public_dns', 'public_ip',
                      'pvops_enabled', 'quarantine', 'required_pci', 'reservation', 'root_device', 'root_type', 'rstate', 'run', 'servers',

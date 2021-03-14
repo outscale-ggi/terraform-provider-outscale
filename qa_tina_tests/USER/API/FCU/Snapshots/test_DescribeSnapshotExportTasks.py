@@ -33,16 +33,16 @@ class Test_DescribeSnapshotExportTasks(OscTestSuite):
             # export snapshot
             cls.bucket_name = id_generator(prefix='snap_', chars=ascii_lowercase)
             for _ in range(3):
-                ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=snap_id, ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': cls.bucket_name})
+                ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=snap_id,
+                                                             ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': cls.bucket_name})
                 task_id = ret.response.snapshotExportTask.snapshotExportTaskId
                 cls.task_ids.append(task_id)
             wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
         finally:
             if snap_id:
                 # remove snapshot

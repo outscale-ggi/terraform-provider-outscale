@@ -8,7 +8,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_subnet
 
 
 class Test_UnassignPrivateIpAddresses(OscTestSuite):
-    
+
     @classmethod
     def setup_class(cls):
         cls.subnet_id = None
@@ -25,12 +25,11 @@ class Test_UnassignPrivateIpAddresses(OscTestSuite):
             res_ni = cls.a1_r1.fcu.CreateNetworkInterface(SubnetId=cls.subnet_id,
                                                        PrivateIpAddress=Configuration.get('ipaddress', '10_0_1_4'))
             cls.ni_id = res_ni.response.networkInterface.networkInterfaceId
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -40,7 +39,7 @@ class Test_UnassignPrivateIpAddresses(OscTestSuite):
                 try:
                     cls.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId=cls.ni_id)
                 except Exception as error:
-                    err = error  
+                    err = error
             if cls.subnet_id:
                 try:
                     delete_subnet(cls.a1_r1, cls.subnet_id)
@@ -57,13 +56,13 @@ class Test_UnassignPrivateIpAddresses(OscTestSuite):
             super(Test_UnassignPrivateIpAddresses, cls).teardown_class()
 
     def test_T4100_valid_params(self):
-        private_ip = '10.0.1.{}'.format(*random.sample(range(10, 100), 1))
+        private_ip = '10.0.1.{}'.format(*random.sample(list(range(10, 100)), 1))
         self.a1_r1.fcu.AssignPrivateIpAddresses(NetworkInterfaceId=self.ni_id, PrivateIpAddress=private_ip)
         res = self.a1_r1.fcu.UnassignPrivateIpAddresses(NetworkInterfaceId=self.ni_id, PrivateIpAddress=private_ip)
         assert res.response.osc_return
-    
+
     def test_T4101_without_params(self):
         try:
             self.a1_r1.fcu.UnassignPrivateIpAddresses()
         except OscApiException as error:
-            assert_error(error, 400, "MissingParameter", "Parameter cannot be empty: NetworkInterfaceId") 
+            assert_error(error, 400, "MissingParameter", "Parameter cannot be empty: NetworkInterfaceId")

@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -8,11 +8,9 @@ from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, KEY_PAIR, PATH
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_snapshots_state, wait_volumes_state
-
+from qa_common_tools.ssh import SshTools  # isort:skip
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import assert_streaming_state, get_data_file_chain, wait_streaming_state, write_data
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming_hot.base import StreamingBaseHot
-
-from qa_common_tools.ssh import SshTools  # isort:skip
 
 
 @pytest.mark.region_admin

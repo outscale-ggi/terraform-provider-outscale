@@ -1,9 +1,10 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
+from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot,\
+    validate_snasphot
 
 
 class Test_ReadSnapshots(Snapshot):
@@ -25,9 +26,8 @@ class Test_ReadSnapshots(Snapshot):
         except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -51,13 +51,13 @@ class Test_ReadSnapshots(Snapshot):
         ret = self.a1_r1.oapi.ReadSnapshots().response.Snapshots
         assert len(ret) >= 3
         for snap in ret:
-            self.validate_snasphot(snap)
+            validate_snasphot(snap)
 
     def test_T2189_filters_account_ids(self):
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={'AccountIds': [self.a1_r1.config.account.account_id]}).response.Snapshots
         assert len(ret) == 3
         for snap in ret:
-            self.validate_snasphot(snap, expected_snap={
+            validate_snasphot(snap, expected_snap={
                 'AccountId': self.a1_r1.config.account.account_id,
             })
             assert snap.SnapshotId in [self.snap1_id, self.snap2_id, self.snap3_id]
@@ -65,7 +65,7 @@ class Test_ReadSnapshots(Snapshot):
     def test_T2190_filters_snap_id1(self):
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={'SnapshotIds': [self.snap1_id]}).response.Snapshots
         assert len(ret) == 1
-        self.validate_snasphot(ret[0], expected_snap={
+        validate_snasphot(ret[0], expected_snap={
             'Description': '',
             'AccountId': self.a1_r1.config.account.account_id,
             'SnapshotId': self.snap1_id,
@@ -77,7 +77,7 @@ class Test_ReadSnapshots(Snapshot):
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={'States': ['pending/queued']}).response.Snapshots
         assert len(ret) >= 0
         for snap in ret:
-            self.validate_snasphot(snap, expected_snap={
+            validate_snasphot(snap, expected_snap={
                 'State': 'pending/queued',
                 'Progress': 0,
             })
@@ -86,7 +86,7 @@ class Test_ReadSnapshots(Snapshot):
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={'States': ['completed']}).response.Snapshots
         assert len(ret) >= 0
         for snap in ret:
-            self.validate_snasphot(snap, expected_snap={
+            validate_snasphot(snap, expected_snap={
                 'State': 'completed',
                 'Progress': 100,
             })
@@ -101,7 +101,7 @@ class Test_ReadSnapshots(Snapshot):
                                                      [self.a2_r1.config.account.account_id]}).response.Snapshots
         assert len(ret) == 1
         for snap in ret:
-            self.validate_snasphot(snap, expected_snap={
+            validate_snasphot(snap, expected_snap={
                 'SnapshotId': self.snap2_id,
             }, permission={'AccountIds': [self.a2_r1.config.account.account_id]})
 
@@ -115,7 +115,7 @@ class Test_ReadSnapshots(Snapshot):
                                                      [self.a2_r1.config.account.account_id]}).response.Snapshots
         assert len(ret) == 1
         for snap in ret:
-            self.validate_snasphot(snap, expected_snap={
+            validate_snasphot(snap, expected_snap={
                 'SnapshotId': self.snap2_id,
             }, permission={'AccountIds': [self.a2_r1.config.account.account_id]})
 
@@ -123,12 +123,12 @@ class Test_ReadSnapshots(Snapshot):
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={'PermissionsToCreateVolumeGlobalPermission': True}).response.Snapshots
         assert len(ret) >= 1
         for snap in ret:
-            self.validate_snasphot(snap, permission={'GlobalPermission': True})
+            validate_snasphot(snap, permission={'GlobalPermission': True})
 
     def test_T3082_filters_a1_permissions_global_permission_false(self):
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={'PermissionsToCreateVolumeGlobalPermission': False}).response.Snapshots
         for snap in ret:
-            self.validate_snasphot(snap, permission={'GlobalPermission': False})
+            validate_snasphot(snap, permission={'GlobalPermission': False})
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3434_with_other_account(self):
@@ -145,7 +145,7 @@ class Test_ReadSnapshots(Snapshot):
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={'Descriptions': ['1..2..3']}).response.Snapshots
         assert len(ret) == 1
         for snap in ret:
-            self.validate_snasphot(snap, expected_snap={
+            validate_snasphot(snap, expected_snap={
                 'SnapshotId': self.snap2_id,
                 'Description': '1..2..3',
             })
@@ -153,21 +153,21 @@ class Test_ReadSnapshots(Snapshot):
     def test_T3534_filters_progresses_100(self):
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={'Progresses': [100]}).response.Snapshots
         for snap in ret:
-            self.validate_snasphot(snap, expected_snap={
+            validate_snasphot(snap, expected_snap={
                 'Progress': 100,
             })
 
     def test_T3535_filters_progresses_0(self):
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={'Progresses': [0]}).response.Snapshots
         for snap in ret:
-            self.validate_snasphot(snap, expected_snap={
+            validate_snasphot(snap, expected_snap={
                 'Progress': 0,
             })
 
     def test_T3536_filters_volume_ids(self):
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={'VolumeIds': [self.volume_id2]}).response.Snapshots
         for snap in ret:
-            self.validate_snasphot(snap, expected_snap={
+            validate_snasphot(snap, expected_snap={
                 'SnapshotId': self.snap2_id,
                 'VolumeId': self.volume_id2,
             })
@@ -176,7 +176,7 @@ class Test_ReadSnapshots(Snapshot):
         try:
             ret = self.a1_r1.oapi.ReadSnapshots(Filters={'VolumeSizes': [2]}).response.Snapshots
             for snap in ret:
-                self.validate_snasphot(snap, expected_snap={
+                validate_snasphot(snap, expected_snap={
                     'VolumeSize': 2,
                 })
         except OscApiException as error:

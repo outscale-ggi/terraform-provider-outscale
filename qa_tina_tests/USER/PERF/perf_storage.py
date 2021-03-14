@@ -8,6 +8,7 @@ from qa_tina_tests.USER.PERF.perf_common import log_error
 
 
 def perf_storage(oscsdk, service, logger, queue, args):
+    print(args)
     result = {'status': 'OK'}
     connector = getattr(oscsdk, service)
     try:
@@ -42,7 +43,7 @@ def perf_storage(oscsdk, service, logger, queue, args):
         connector.list_objects(Bucket=bucket_names[0])
         result["list_objects"+service] = (datetime.now() - start_desc).total_seconds()
     except Exception as error:
-        log_error(logger, error, "Unexpected error while executing %s".format("bucket_operations"), result)
+        log_error(logger, error, "Unexpected error while executing {}".format("bucket_operations"), result)
     finally:
         if obj_names:
             durations = []
@@ -63,7 +64,7 @@ def perf_storage(oscsdk, service, logger, queue, args):
                     durations.append((datetime.now() - start_desc).total_seconds())
                     num += 1
                 except Exception as error:
-                    log_error(logger, error, "Unexpected error while executing %s".format("delete_bucket"), result)
+                    log_error(logger, error, "Unexpected error while executing {}".format("delete_bucket"), result)
             result["delete_bucket"+service] = numpy.array(durations).mean()
 
     queue.put(result.copy())

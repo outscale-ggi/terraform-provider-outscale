@@ -1,5 +1,5 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+
+
 
 import pytest
 
@@ -11,18 +11,17 @@ class Test_DescribeVirtualInterfaces(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
+        cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
         cls.ret_loc = None
         cls.ret_alloc = None
         super(Test_DescribeVirtualInterfaces, cls).setup_class()
         try:
             cls.ret_loc = cls.a1_r1.directlink.DescribeLocations()
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

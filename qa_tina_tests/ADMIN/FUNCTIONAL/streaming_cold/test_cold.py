@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -6,7 +6,6 @@ from qa_test_tools.misc import assert_error
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state
-
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.base import StreamingBase
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import assert_streaming_state, get_data_file_chain, wait_streaming_state
 
@@ -31,24 +30,6 @@ class Test_cold(StreamingBase):
         cls.inst_stopped = True
         cls.check_data = False  # TODO: change...
         super(Test_cold, cls).setup_class()
-
-    def setup_method(self, method):
-        super(Test_cold, self).setup_method(method)
-        try:
-            pass
-        except Exception as error:
-            try:
-                self.teardown_method(method)
-            except Exception as err:
-                raise err
-            finally:
-                raise error
-
-    def teardown_method(self, method):
-        try:
-            pass
-        finally:
-            super(Test_cold, self).teardown_method(method)
 
     def test_T3123_cold_vol_full(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)

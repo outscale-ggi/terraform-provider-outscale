@@ -18,7 +18,7 @@ class Test_DescribeImageExportTasks(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'image_export_limit': NUM_EXPORT_TASK + 1}
+        cls.quotas = {'image_export_limit': NUM_EXPORT_TASK + 1}
         cls.image_ids = []
         cls.inst_info = None
         cls.image_exp_ids = []
@@ -33,16 +33,16 @@ class Test_DescribeImageExportTasks(OscTestSuite):
                 cls.image_ids.append(image_id)
                 bucket_name = id_generator(prefix='bucket', chars=ascii_lowercase)
                 cls.bucket_names.append(bucket_name)
-                image_export = cls.a1_r1.fcu.CreateImageExportTask(ImageId=image_id, ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name})
+                image_export = cls.a1_r1.fcu.CreateImageExportTask(ImageId=image_id,
+                                                                   ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name})
                 image_export_id = image_export.response.imageExportTask.imageExportTaskId
                 cls.image_exp_ids.append(image_export_id)
 
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

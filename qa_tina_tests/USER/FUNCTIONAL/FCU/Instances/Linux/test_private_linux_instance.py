@@ -3,10 +3,10 @@ import pytest
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
-from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tina.info_keys import PATH
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_subnet
+from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
 
 
 class Test_private_linux_instance(Test_linux_instance):
@@ -14,7 +14,7 @@ class Test_private_linux_instance(Test_linux_instance):
     @classmethod
     def setup_class(cls):
         super(Test_private_linux_instance, cls).setup_class()
-        IP_Ingress = Configuration.get('cidr', 'allips')
+        ip_ingress = Configuration.get('cidr', 'allips')
         cls.subnet1_id = None
         cls.rtb1 = None
         cls.vpc_id = None
@@ -34,7 +34,7 @@ class Test_private_linux_instance(Test_linux_instance):
             sg_response = cls.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test_sg_description_vpc', GroupName=cls.sg_name_vpc, VpcId=cls.vpc_id)
             cls.sg_vpc_id = sg_response.response.groupId
             # authorize rules
-            cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.sg_vpc_id, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=IP_Ingress)
+            cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.sg_vpc_id, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=ip_ingress)
             # create subnet 1
             ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_1_0_24'), VpcId=cls.vpc_id)
             cls.subnet1_id = ret.response.subnet.subnetId
@@ -49,13 +49,12 @@ class Test_private_linux_instance(Test_linux_instance):
             ret = cls.a1_r1.fcu.AssociateRouteTable(RouteTableId=cls.rtb1, SubnetId=cls.subnet1_id)
             cls.rt_asso1_id = ret.response.associationId
             # add route RTB1
-            ret = cls.a1_r1.fcu.CreateRoute(DestinationCidrBlock=IP_Ingress, GatewayId=cls.igw_id, RouteTableId=cls.rtb1)
+            ret = cls.a1_r1.fcu.CreateRoute(DestinationCidrBlock=ip_ingress, GatewayId=cls.igw_id, RouteTableId=cls.rtb1)
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -80,10 +79,13 @@ class Test_private_linux_instance(Test_linux_instance):
     def test_T112_create_using_linux_instance_vpc(self):
         inst_id = None
         try:
-            inst_id, inst_public_ip = self.create_instance(subnet=self.subnet1_id, security_group_id=self.sg_vpc_id)
+            inst_id, inst_public_ip = self.create_instance(subnet=self.subnet1_id, security_group_id=self.sg_vpc_id,
+                                                           eip_alloc_id=self.eip_allo_id,public_ip=self.eip.response.publicIp)
             if inst_id:
-                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
+                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
                 self.logger.info(out)

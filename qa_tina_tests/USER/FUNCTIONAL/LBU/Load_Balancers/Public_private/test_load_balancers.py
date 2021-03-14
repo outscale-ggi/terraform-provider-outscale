@@ -1,10 +1,10 @@
 import socket
-
-import pytest
 import time
 
-from qa_common_tools.ssh import SshTools
+import pytest
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
@@ -12,34 +12,15 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tina.check_tools import wait_health, dns_test
 from qa_tina_tools.tina.setup_tools import start_http_server, install_udp_server
+from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer, create_instances, create_vpc, \
     create_security_group
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc, delete_security_group_old, delete_lbu
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_tina_tools.tools.tina import info_keys
 
 
 class Test_load_balancers(OscTestSuite):
-
-    @classmethod
-    def setup_class(cls):
-        super(Test_load_balancers, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_load_balancers, cls).teardown_class()
 
     @pytest.mark.tag_redwire
     def test_T1573_public_lbu(self):
@@ -58,7 +39,8 @@ class Test_load_balancers(OscTestSuite):
                                                          FromPort=443, ToPort=443, CidrIp=Configuration.get('cidr', 'allips'))
             insts = []
             for inst in ci_info[info_keys.INSTANCE_SET]:
-                start_http_server(inst['ipAddress'], ci_info[info_keys.KEY_PAIR][info_keys.PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+                start_http_server(inst['ipAddress'], ci_info[info_keys.KEY_PAIR][info_keys.PATH],
+                                  self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                   text='ins{}'.format(inst['instanceId']))
 
                 insts.append({'InstanceId': inst['instanceId']})
@@ -93,7 +75,8 @@ class Test_load_balancers(OscTestSuite):
                                                          FromPort=80, ToPort=80, CidrIp=Configuration.get('cidr', 'allips'))
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=vpc_subnet[info_keys.SECURITY_GROUP_ID], IpProtocol='tcp',
                                                          FromPort=443, ToPort=443, CidrIp=Configuration.get('cidr', 'allips'))
-            ret_lb = create_load_balancer(self.a1_r1, lb_name, subnets=[vpc_subnet[info_keys.SUBNET_ID]], scheme='internal').response.CreateLoadBalancerResult
+            ret_lb = create_load_balancer(self.a1_r1, lb_name, subnets=[vpc_subnet[info_keys.SUBNET_ID]],
+                                          scheme='internal').response.CreateLoadBalancerResult
             health_check = {'HealthyThreshold': 2, 'Interval': 20, 'Target': 'HTTP:80/index.html', 'Timeout': 10, 'UnhealthyThreshold': 2}
             self.a1_r1.lbu.ConfigureHealthCheck(LoadBalancerName=lb_name, HealthCheck=health_check)
             for i in range(3):
@@ -102,15 +85,19 @@ class Test_load_balancers(OscTestSuite):
             insts = []
             for i in range(2):
                 inst = vpc_insts[i]
-                start_http_server(eips[i].publicIp, vpc_info[info_keys.KEY_PAIR][info_keys.PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                start_http_server(eips[i].publicIp, vpc_info[info_keys.KEY_PAIR][info_keys.PATH],
+                                  self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 insts.append({'InstanceId': inst['instanceId']})
             self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=lb_name, Instances=insts)
             wait_health(self.a1_r1, lb_name, insts, 'InService')
             # yum install wget
             # run command on instance wget -o /tmp/toto.txt http://....
             # check output file for http response status (regex)
-            sshclient = check_tools.check_ssh_connection(self.a1_r1, vpc_insts[2], eips[2].publicIp, vpc_info[info_keys.KEY_PAIR][info_keys.PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-            # sshclient = SshTools.check_connection_paramiko(eips[2].publicIp, vpc_info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, vpc_insts[2], eips[2].publicIp,
+                                                         vpc_info[info_keys.KEY_PAIR][info_keys.PATH],
+                                                         username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            # sshclient = SshTools.check_connection_paramiko(eips[2].publicIp, vpc_info[KEY_PAIR][PATH],
+            # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             SshTools.exec_command_paramiko(sshclient, "sudo yum install -y bind-utils", eof_time_out=300)
             SshTools.exec_command_paramiko(sshclient, "nslookup {}".format(ret_lb.DNSName), retry=6, timeout=10)
             SshTools.exec_command_paramiko(sshclient, "sudo curl -v -o /tmp/out.html {} &> /tmp/out.log".format(ret_lb.DNSName))
@@ -157,7 +144,8 @@ class Test_load_balancers(OscTestSuite):
             insts = []
             for i in range(2):
                 inst = vpc_insts[i]
-                start_http_server(eips[i].publicIp, vpc_info[info_keys.KEY_PAIR][info_keys.PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                start_http_server(eips[i].publicIp, vpc_info[info_keys.KEY_PAIR][info_keys.PATH],
+                                  self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 insts.append({'InstanceId': inst['instanceId']})
             self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=lb_name, Instances=insts)
             wait_health(self.a1_r1, lb_name, insts, 'InService')
@@ -187,13 +175,14 @@ class Test_load_balancers(OscTestSuite):
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=inst_info[info_keys.SECURITY_GROUP_ID], IpProtocol='udp',
                                                          FromPort=12000, ToPort=12000, CidrIp=Configuration.get('cidr', 'allips'))
             wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=inst_info[info_keys.INSTANCE_ID_LIST], state='ready')
-            install_udp_server(inst_info[info_keys.INSTANCE_SET][0]['ipAddress'], inst_info[info_keys.KEY_PAIR][info_keys.PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            install_udp_server(inst_info[info_keys.INSTANCE_SET][0]['ipAddress'], inst_info[info_keys.KEY_PAIR][info_keys.PATH],
+                               self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             for pings in range(10):
                 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 client_socket.settimeout(1.0)
                 message = b'test'
                 addr = ("{}".format(inst_info[info_keys.INSTANCE_SET][0]['ipAddress']), 12000)
-            
+
                 start = time.time()
                 client_socket.sendto(message, addr)
                 try:
@@ -226,14 +215,15 @@ class Test_load_balancers(OscTestSuite):
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=ci_info[info_keys.SECURITY_GROUP_ID], IpProtocol='tcp',
                                                          FromPort=443, ToPort=443, CidrIp=Configuration.get('cidr', 'allips'))
             insts = ci_info[info_keys.INSTANCE_SET][0]
-            start_http_server(insts['ipAddress'], ci_info[info_keys.KEY_PAIR][info_keys.PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            start_http_server(insts['ipAddress'], ci_info[info_keys.KEY_PAIR][info_keys.PATH],
+                              self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                               text='ins{}'.format(insts['instanceId']))
-            insts=[{'InstanceId': insts['instanceId']}]
+            insts = [{'InstanceId': insts['instanceId']}]
             self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=lb_name, Instances=insts)
             wait_health(self.a1_r1, lb_name, insts, 'InService')
-            dns_test(self.a1_r1, ret_lb.response.CreateLoadBalancerResult.DNSName)            
+            dns_test(self.a1_r1, ret_lb.response.CreateLoadBalancerResult.DNSName)
             self.a1_r1.lbu.CreateAppCookieStickinessPolicy(LoadBalancerName=lb_name, PolicyName='my-app-cookie-policy', CookieName=lb_name)
-            self.a1_r1.lbu.SetLoadBalancerPoliciesOfListener(LoadBalancerName=lb_name , LoadBalancerPort = 80, PolicyNames=['my-app-cookie-policy'])
+            self.a1_r1.lbu.SetLoadBalancerPoliciesOfListener(LoadBalancerName=lb_name , LoadBalancerPort=80, PolicyNames=['my-app-cookie-policy'])
             wait_health(self.a1_r1, lb_name, insts, 'InService')
             dns_test(self.a1_r1, dns_name=ret_lb.response.CreateLoadBalancerResult.DNSName)
         except Exception as error:

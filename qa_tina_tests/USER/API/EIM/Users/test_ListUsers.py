@@ -3,6 +3,7 @@ from datetime import datetime
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
 
+
 NUM_USERS = 3
 
 
@@ -24,9 +25,8 @@ class Test_ListUsers(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):

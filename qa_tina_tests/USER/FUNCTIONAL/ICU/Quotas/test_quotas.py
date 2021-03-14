@@ -7,26 +7,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 class Test_quotas(OscTestSuite):
 
-    @classmethod
-    def setup_class(cls):
-        super(Test_quotas, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_quotas, cls).teardown_class()
-
-    def test_T1621_init_sg_rule_count_(self):
+    def test_T1621_init_sg_rule_count(self):
         sg_id = None
         sg_name = id_generator(prefix="group")
         try:
@@ -42,7 +23,7 @@ class Test_quotas(OscTestSuite):
             if sg_id:
                 self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
 
-    def test_T1612_sg_rule_count_(self):
+    def test_T1612_sg_rule_count(self):
         # HACK this test only works for new accounts or account with some rules in at least one security group
         sg_id = None
         sg_name = id_generator(prefix="group")

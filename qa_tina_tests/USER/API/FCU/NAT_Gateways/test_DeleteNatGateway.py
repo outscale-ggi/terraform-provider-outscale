@@ -13,16 +13,16 @@ class Test_DeleteNatGateway(OscTestSuite):
     def setup_class(cls):
         cls.vpc_info = None
         cls.eip = None
+        cls.ng_id = None
         super(Test_DeleteNatGateway, cls).setup_class()
         try:
             cls.vpc_info = create_vpc(cls.a1_r1)
             cls.eip = cls.a1_r1.fcu.AllocateAddress(Domain='vpc').response
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -43,11 +43,10 @@ class Test_DeleteNatGateway(OscTestSuite):
             wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[self.ng_id], state='available')
         except:
             try:
-                OscTestSuite.teardown_method(self, method) 
-            except:
-                pass
-            raise
-        
+                OscTestSuite.teardown_method(self, method)
+            finally:
+                raise
+
     def teardown_method(self, method):
         try:
             if self.ng_id:
@@ -59,7 +58,7 @@ class Test_DeleteNatGateway(OscTestSuite):
         self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=self.ng_id)
         wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[self.ng_id], state='deleted')
         self.ng_id = None
-        
+
     def test_T4029_without_param(self):
         try:
             self.a1_r1.fcu.DeleteNatGateway()
@@ -67,7 +66,7 @@ class Test_DeleteNatGateway(OscTestSuite):
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "MissingParameter", "Request is missing the following parameter: NatGatewayId")
-    
+
     def test_T4030_none_nat_gateway_id(self):
         try:
             self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=None)

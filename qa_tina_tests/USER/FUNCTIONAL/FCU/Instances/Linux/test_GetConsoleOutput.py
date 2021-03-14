@@ -1,7 +1,6 @@
 import base64
 import datetime
 import string
-
 import time
 
 from qa_common_tools.ssh import SshTools
@@ -24,9 +23,8 @@ class Test_GetConsoleOutput(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):

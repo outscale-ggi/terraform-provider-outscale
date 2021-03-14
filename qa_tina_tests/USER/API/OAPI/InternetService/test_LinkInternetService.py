@@ -33,17 +33,17 @@ class Test_LinkInternetService(OscTestSuite):
                 try:
                     self.a1_r1.oapi.UnlinkInternetService(InternetServiceId=inet_id, NetId=net_id)
                 except:
-                    pass
+                    print('Could not unlink internet service')
             if inet_id:
                 try:
                     self.a1_r1.oapi.DeleteInternetService(InternetServiceId=inet_id)
                 except:
-                    pass
+                    print('Could not delete internet service')
             if net_id:
                 try:
                     self.a1_r1.oapi.DeleteNet(NetId=net_id)
                 except:
-                    pass
+                    print('Could not delete vpc')
 
     def test_T2245_valid_params_dry_run(self):
         net_id = None
@@ -60,12 +60,12 @@ class Test_LinkInternetService(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteInternetService(InternetServiceId=inet_id)
                 except:
-                    pass
+                    print('Could not delete internet service')
             if net_id:
                 try:
                     self.a1_r1.oapi.DeleteNet(NetId=net_id)
                 except:
-                    pass
+                    print('Could not delete vpc')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3464_other_account(self):
@@ -86,14 +86,14 @@ class Test_LinkInternetService(OscTestSuite):
                 try:
                     self.a2_r1.oapi.UnlinkInternetService(InternetServiceId=inet_id, NetId=net_id)
                 except:
-                    pass
+                    print('Could not unlink internet service')
             if inet_id:
                 try:
                     self.a1_r1.oapi.DeleteInternetService(InternetServiceId=inet_id)
                 except:
-                    pass
+                    print('Could not delete internet service')
             if net_id:
                 try:
                     self.a1_r1.oapi.DeleteNet(NetId=net_id)
                 except:
-                    pass
+                    print('Could not delete vpc')

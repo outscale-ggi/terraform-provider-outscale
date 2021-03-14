@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import os
 
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -10,6 +10,7 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tina import info_keys, oapi
 from qa_tina_tools.tina.info_keys import PRIVATE, PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_ed25519_key, generate_key
+
 
 from qa_common_tools.ssh import KeyType, OscSshError, SshTools  # isort:skip
 

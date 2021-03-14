@@ -1,7 +1,7 @@
 from qa_test_tools.test_base import OscTestSuite
 
-
 SERVICE_NAMES = ['fcu', 'lbu', 'eim', 'icu', 'directlink', 'api', 'kms', 'oos']
+
 
 class Test_ReadNetAccessPointServices(OscTestSuite):
 

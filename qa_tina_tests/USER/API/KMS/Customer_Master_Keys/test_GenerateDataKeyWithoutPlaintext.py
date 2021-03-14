@@ -17,9 +17,8 @@ class Test_GenerateDataKeyWithoutPlaintext(Kms):
         except:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -28,7 +27,7 @@ class Test_GenerateDataKeyWithoutPlaintext(Kms):
                 try:
                     cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_metadata.KeyId, PendingWindowInDays=7)
                 except:
-                    pass
+                    print('Could not schedule key deletion')
         finally:
             super(Test_GenerateDataKeyWithoutPlaintext, cls).teardown_class()
 

@@ -7,25 +7,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 
 class Test_LoadBalancer(OscTestSuite):
 
-    @classmethod
-    def setup_class(cls):
-        super(Test_LoadBalancer, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_LoadBalancer, cls).teardown_class()
-
     def test_T1830_create_delete(self):
         name = id_generator(prefix='lbu-crud-')
         num = 20

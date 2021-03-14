@@ -17,21 +17,14 @@ class Test_DisableKey(Kms):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            if error.status_code == 500 and error.error_code == 'KMSServerException':
-                cls.known_error = True
-            else:
+            finally:
                 raise error
 
     @classmethod
     def teardown_class(cls):
         try:
             if cls.key_id:
-                try:
-                    cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_id, PendingWindowInDays=7)
-                except:
-                    pass
+                cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_id, PendingWindowInDays=7)
         finally:
             super(Test_DisableKey, cls).teardown_class()
 

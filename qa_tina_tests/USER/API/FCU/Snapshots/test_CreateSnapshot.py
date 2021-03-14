@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -70,9 +70,8 @@ class Test_CreateSnapshot(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

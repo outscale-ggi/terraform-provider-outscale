@@ -1,8 +1,8 @@
-# pylint: disable=missing-docstring
 
-import random
+
 import string
 
+from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
@@ -19,21 +19,6 @@ class Test_Attachement(OscTestSuite):
         cls.vol_id = None
         cls.loop = 50
         cls.nb_test = 0
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_Attachement, cls).teardown_class()
 
     def setup_method(self, method):
         super(Test_Attachement, self).setup_method(method)
@@ -96,10 +81,14 @@ class Test_Attachement(OscTestSuite):
 
     def test_T3692_multi_attach_detach_with_diff_device_name(self):
         for _ in range(self.loop):
-            device = '/dev/xvd{}'.format(random.choice(string.ascii_lowercase[1:]))
-            self.attach_detach(device)
+            letter = id_generator(size=1, chars=string.ascii_lowercase)
+            if letter != 'a':
+                device = '/dev/xvd{}'.format(letter)
+                self.attach_detach(device)
 
     def test_T3693_multi_attach_detach_with_diff_device_name_and_snap_creation(self):
         for _ in range(self.loop):
-            device = '/dev/xvd{}'.format(random.choice(string.ascii_lowercase[1:]))
-            self.attach_detach(device, True)
+            letter = id_generator(size=1, chars=string.ascii_lowercase)
+            if letter != 'a':
+                device = '/dev/xvd{}'.format(letter)
+                self.attach_detach(device, True)

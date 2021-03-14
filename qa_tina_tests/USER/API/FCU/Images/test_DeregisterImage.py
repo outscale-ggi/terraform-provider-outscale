@@ -21,9 +21,8 @@ class Test_DeregisterImage(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -32,7 +31,7 @@ class Test_DeregisterImage(OscTestSuite):
                 delete_instances(cls.a1_r1, cls.inst_info)
         finally:
             super(Test_DeregisterImage, cls).teardown_class()
-    
+
     def test_T1543_test_delete_image(self):
         img_name = id_generator(prefix="omi-", size=8, chars=string.ascii_lowercase)
         img_id = self.a1_r1.fcu.CreateImage(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Name=img_name).response.imageId

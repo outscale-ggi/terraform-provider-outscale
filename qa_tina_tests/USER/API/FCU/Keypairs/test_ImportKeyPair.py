@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
 import base64
 
@@ -21,15 +20,14 @@ class Test_ImportKeyPair(OscTestSuite):
         cls.pk_material = None
         try:
             cls.kp_info = generate_key(cls.key_name)
-            fp = open(cls.kp_info[PUBLIC])
-            cls.pk_material = fp.read()
-            fp.close()
-        except Exception as error:
+            file = open(cls.kp_info[PUBLIC])
+            cls.pk_material = file.read()
+            file.close()
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -56,7 +54,7 @@ class Test_ImportKeyPair(OscTestSuite):
             try:
                 self.a1_r1.DeleteKeyPair(KeyName=self.key_name)
             except Exception:
-                pass
+                print('Could not delete key pair')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', default_value=False):
@@ -81,7 +79,7 @@ class Test_ImportKeyPair(OscTestSuite):
             try:
                 self.a1_r1.fcu.DeleteKeyPair(KeyName=name)
             except Exception:
-                pass
+                print('Could not delete key pair')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue',
@@ -93,7 +91,7 @@ class Test_ImportKeyPair(OscTestSuite):
             try:
                 self.a1_r1.DeleteKeyPair(KeyName=self.key_name)
             except Exception:
-                pass
+                print('Could not delete key pair')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', default_value=False):
@@ -107,7 +105,7 @@ class Test_ImportKeyPair(OscTestSuite):
             try:
                 self.a1_r1.fcu.DeleteKeyPair(KeyName=self.key_name)
             except Exception:
-                pass
+                print('Could not delete key pair')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', default_value=False):
@@ -128,4 +126,4 @@ class Test_ImportKeyPair(OscTestSuite):
                 try:
                     self.a1_r1.fcu.DeleteKeyPair(KeyName=ret1.response.keyName)
                 except Exception:
-                    pass
+                    print('Could not delete key pair')

@@ -5,6 +5,7 @@ from qa_test_tools.error import group_errors, error_type
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.test_base import OscTestSuite
 
+
 CALL_NUMBER = 2000
 
 
@@ -30,7 +31,7 @@ class Test_fcu_errors(OscTestSuite):
                 ret = self.a1_r1.fcu.CreateInternetGateway()
                 igw_id = ret.response.internetGateway.internetGatewayId
             except OscApiException as error:
-                errs.handle_api_exception(error, error_type.Create)
+                errs.handle_api_exception(error)
             except OscTestException as error:
                 errs.add_unexpected_error(error, error_type.Create)
             finally:
@@ -48,7 +49,7 @@ class Test_fcu_errors(OscTestSuite):
                         self.a1_r1.fcu.DeleteInternetGateway(InternetGatewayId=igw_id)
                         igw_id = None
                     except OscApiException as error:
-                        errs.handle_api_exception(error, error_type.Delete)
+                        errs.handle_api_exception(error)
                     except OscTestException as error:
                         errs.add_unexpected_error(error)
                     finally:

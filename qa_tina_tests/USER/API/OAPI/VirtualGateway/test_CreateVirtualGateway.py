@@ -21,7 +21,7 @@ class Test_CreateVirtualGateway(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=vgw_id)
                 except:
-                    pass
+                    print('Could not delete virtual gateway')
 
     def test_T2368_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.CreateVirtualGateway(ConnectionType='ipsec.1', DryRun=True)

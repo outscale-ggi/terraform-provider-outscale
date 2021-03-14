@@ -21,9 +21,8 @@ class Test_DeleteVolume(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -75,7 +74,7 @@ class Test_DeleteVolume(OscTestSuite):
         rslt_attach = self.a1_r1.fcu.AttachVolume(VolumeId=volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")
         wait_volumes_state(self.a1_r1, volume_id_list=volume_ids, state="in-use")
         try:
-            self.result_delete_volume_standard = self.a1_r1.fcu.DeleteVolume(VolumeId=volume_ids[0])
+            self.a1_r1.fcu.DeleteVolume(VolumeId=volume_ids[0])
             wait_volumes_state(self.a1_r1, volume_id_list=volume_ids, cleanup=True)
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
@@ -98,7 +97,7 @@ class Test_DeleteVolume(OscTestSuite):
         rslt_attach = self.a1_r1.fcu.AttachVolume(VolumeId=volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdc")
         wait_volumes_state(self.a1_r1, volume_id_list=volume_ids, state="in-use")
         try:
-            self.result_delete_volume_gp2 = self.a1_r1.fcu.DeleteVolume(VolumeId=volume_ids[0])
+            self.a1_r1.fcu.DeleteVolume(VolumeId=volume_ids[0])
             wait_volumes_state(self.a1_r1, volume_id_list=volume_ids, cleanup=True)
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
@@ -121,7 +120,7 @@ class Test_DeleteVolume(OscTestSuite):
         rslt_attach = self.a1_r1.fcu.AttachVolume(VolumeId=volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdd")
         wait_volumes_state(self.a1_r1, volume_id_list=volume_ids, state="in-use")
         try:
-            self.result_delete_volume_io1 = self.a1_r1.fcu.DeleteVolume(VolumeId=volume_ids[0])
+            self.a1_r1.fcu.DeleteVolume(VolumeId=volume_ids[0])
             wait_volumes_state(self.a1_r1, volume_id_list=volume_ids, cleanup=True)
             assert False, "Call shouldn't be successful"
         except OscApiException as error:

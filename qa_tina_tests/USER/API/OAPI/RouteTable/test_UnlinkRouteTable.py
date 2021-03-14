@@ -32,16 +32,16 @@ class Test_UnlinkRouteTable(OscTestSuite):
         try:
             self.net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16')).response.Net.NetId
             wait_vpcs_state(self.a1_r1, [self.net_id], state='available')
-            self.subnet_id = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id, IpRange=Configuration.get('subnet', '10_0_1_0_24')).response.Subnet.SubnetId
+            self.subnet_id = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id,
+                                                          IpRange=Configuration.get('subnet', '10_0_1_0_24')).response.Subnet.SubnetId
             self.rt_id = self.a1_r1.oapi.CreateRouteTable(NetId=self.net_id).response.RouteTable.RouteTableId
 
             self.link_id = self.a1_r1.oapi.LinkRouteTable(SubnetId=self.subnet_id, RouteTableId=self.rt_id).response.LinkRouteTableId
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:
@@ -49,22 +49,22 @@ class Test_UnlinkRouteTable(OscTestSuite):
                 try:
                     self.a1_r1.oapi.UnlinkRouteTable(LinkRouteTableId=self.link_id)
                 except:
-                    pass
+                    print('Could not unlink route table')
             if self.rt_id:
                 try:
                     self.a1_r1.oapi.DeleteRouteTable(RouteTableId=self.rt_id)
                 except:
-                    pass
+                    print('Could not delete route table')
             if self.subnet_id:
                 try:
                     self.a1_r1.oapi.DeleteSubnet(SubnetId=self.subnet_id)
                 except:
-                    pass
+                    print('Could not delete subnet')
             if self.net_id:
                 try:
                     self.a1_r1.oapi.DeleteNet(NetId=self.net_id)
                 except:
-                    pass
+                    print('Could not delete net')
         finally:
             OscTestSuite.teardown_method(self, method)
 

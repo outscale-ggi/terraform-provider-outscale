@@ -6,14 +6,14 @@ import subprocess
 
 import pytest
 
-import qa_sdk_pub.osc_api as osc_api
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscException
+import qa_sdk_pub.osc_api as osc_api
 from specs.check_tools import get_documentation, DOCUMENTATIONS, PATHS
 from qa_test_tools import misc
 from qa_test_tools.misc import assert_error, assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 
-MIN_OVERTIME=4
+MIN_OVERTIME = 4
 
 
 class Test_OAPI(OscTestSuite):

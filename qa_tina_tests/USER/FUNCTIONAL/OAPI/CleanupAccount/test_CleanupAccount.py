@@ -4,11 +4,11 @@ from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_CleanupAccount(OscTestSuite):
-    
+
     @classmethod
     def setup_class(cls):
         super(Test_CleanupAccount, cls).setup_class()
-        if not os.getenv('OSC_CU', False):
+        if not os.getenv('OSC_CU', None):
             return
         try:
             # create items
@@ -49,9 +49,9 @@ class Test_CleanupAccount(OscTestSuite):
             # CreateVolumeRequest
             # CreateVpnConnectionRequest
             # CreateVpnConnectionRouteRequest
-            
-            pass
+
         except:
+            print('Caught exception')
             raise
 
 #     def test_TXXX_cleanup_account(self):

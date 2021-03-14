@@ -40,4 +40,5 @@ class Test_ReadCatalog(OscTestSuite):
             self.a1_r1.icu.ReadCatalog(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Should not have succeeded'
         except OscApiException as error:
-            assert_error(error, 401, 'AuthFailure', 'Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.')
+            assert_error(error, 401, 'AuthFailure',
+                         'Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.')

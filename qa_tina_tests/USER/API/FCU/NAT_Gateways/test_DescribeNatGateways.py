@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
@@ -23,12 +23,11 @@ class Test_DescribeNatGateways(OscTestSuite):
             cls.ng_id = cls.a1_r1.fcu.CreateNatGateway(AllocationId=cls.eip,
                                                        SubnetId=cls.vpc_info[SUBNETS][0][SUBNET_ID]).response.natGateway.natGatewayId
             wait_nat_gateways_state(cls.a1_r1, nat_gateway_id_list=[cls.ng_id], state='available')
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -52,10 +51,10 @@ class Test_DescribeNatGateways(OscTestSuite):
     def test_T4034_valid_param(self):
         ret = self.a1_r1.fcu.DescribeNatGateways(NatGatewayId=self.ng_id)
         assert len(ret.response.natGatewaySet) == 1 and ret.response.natGatewaySet[0].natGatewayId == self.ng_id
-            
+
     def test_T4035_non_existent_nat_gateway_id(self):
         try:
             self.a1_r1.fcu.DescribeNatGateways(NatGatewayId="ng-12345678")
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'NatGatewayNotFound', "The NAT gateway 'ng-12345678' does not exist")        
+            assert_error(error, 400, 'NatGatewayNotFound', "The NAT gateway 'ng-12345678' does not exist")

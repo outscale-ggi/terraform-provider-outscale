@@ -26,9 +26,8 @@ class Test_CreateVpcEndpoint(OscTestSuite):
         except Exception as error:
             try:
                 self.teardown_method(method)
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:
@@ -43,14 +42,15 @@ class Test_CreateVpcEndpoint(OscTestSuite):
         wait_vpc_endpoints_state(self.a1_r1, [ret.response.vpcEndpoint.vpcEndpointId], state='available')
 
     def test_T2608_with_same_route_table(self):
-        rtb_id = self.a1_r1.fcu.DescribeRouteTables(Filter=[{'Name': 'vpc-id', 'Value': [self.vpc_info[VPC_ID]]}]).response.routeTableSet[0].routeTableId
+        rtb_id = self.a1_r1.fcu.DescribeRouteTables(Filter=[{'Name': 'vpc-id',
+                                                             'Value': [self.vpc_info[VPC_ID]]}]).response.routeTableSet[0].routeTableId
         # rtb_id = self.a1_r1.oapi.ReadRouteTables(Filters={'NetIds': [self.net_id]}).response.RouteTables[0].RouteTableId
         ret = self.a1_r1.fcu.CreateVpcEndpoint(VpcId=self.vpc_info[VPC_ID], ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
                                                RouteTableId=rtb_id)
         wait_vpc_endpoints_state(self.a1_r1, [ret.response.vpcEndpoint.vpcEndpointId], state='available')
         try:
-            ret = self.a1_r1.fcu.CreateVpcEndpoint(VpcId=self.vpc_info[VPC_ID], ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
-                                                   RouteTableId=rtb_id)
+            ret = self.a1_r1.fcu.CreateVpcEndpoint(VpcId=self.vpc_info[VPC_ID],
+                                                   ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name), RouteTableId=rtb_id)
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             msg = "VPC endpoint already exists for ServiceName: com.outscale.{}.api, RouteTablesIDs: {}"
@@ -103,10 +103,12 @@ class Test_CreateVpcEndpoint(OscTestSuite):
 
     def test_T4499_existing_vpcendpoint(self):
         try:
-            ret = self.a1_r1.fcu.CreateVpcEndpoint(VpcId=self.vpc_info[VPC_ID], ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
-                                               RouteTableId=self.vpc_info[ROUTE_TABLE_ID])
+            ret = self.a1_r1.fcu.CreateVpcEndpoint(VpcId=self.vpc_info[VPC_ID],
+                                                   ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
+                                                   RouteTableId=self.vpc_info[ROUTE_TABLE_ID])
             wait_vpc_endpoints_state(self.a1_r1, [ret.response.vpcEndpoint.vpcEndpointId], state='available')
-            ret = self.a1_r1.fcu.CreateVpcEndpoint(VpcId=self.vpc_info[VPC_ID], ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
+            ret = self.a1_r1.fcu.CreateVpcEndpoint(VpcId=self.vpc_info[VPC_ID],
+                                                   ServiceName='com.outscale.{}.api'.format(self.a1_r1.config.region.name),
                                                    RouteTableId=self.vpc_info[ROUTE_TABLE_ID])
             wait_vpc_endpoints_state(self.a1_r1, [ret.response.vpcEndpoint.vpcEndpointId], state='available')
         except OscApiException as err:

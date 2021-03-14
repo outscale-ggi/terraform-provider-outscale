@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 from time import sleep
 
 import pytest
@@ -9,7 +9,6 @@ from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_snapshots_state, wait_volumes_state
-
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.base import StreamingBase
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import assert_streaming_state, get_data_file_chain, get_streaming_operation, wait_streaming_state
 

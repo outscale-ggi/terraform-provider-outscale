@@ -1,20 +1,21 @@
-# -*- coding:utf-8 -*-
+
 
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
-from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
 
 
 class Test_CreateLoadBalancer(LoadBalancer):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'lb_limit': 20}
+        cls.quotas = {'lb_limit': 20}
+        cls.lb_names = None
         super(Test_CreateLoadBalancer, cls).setup_class()
 
     def setup_method(self, method):
@@ -27,7 +28,8 @@ class Test_CreateLoadBalancer(LoadBalancer):
                 try:
                     self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
+
         finally:
             super(Test_CreateLoadBalancer, self).teardown_method(method)
 
@@ -72,7 +74,6 @@ class Test_CreateLoadBalancer(LoadBalancer):
             finally:
                 if ret:
                     self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=group_name)
-
 
     def test_T2582_with_empty_listener(self):
         try:
@@ -347,8 +348,8 @@ class Test_CreateLoadBalancer(LoadBalancer):
             LoadBalancerName=name, LoadBalancerType='internal', Subnets=[self.subnet_id],
         ).response.LoadBalancer
         assert len(ret.SecurityGroups) == 2
-        for x in ret.SecurityGroups:
-            assert x in [self.sg_id, self.sg_id_2]
+        for sec_grp in ret.SecurityGroups:
+            assert sec_grp in [self.sg_id, self.sg_id_2]
         assert ret.Subnets == [self.subnet_id]
         self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
 
@@ -500,9 +501,6 @@ class Test_CreateLoadBalancer(LoadBalancer):
         )
         self.lb_names.append(name)
 
-
-
-
     def test_T2601_private_with_security_group(self):
         name = id_generator(prefix='lbu-')
         ret = self.a1_r1.oapi.CreateLoadBalancer(
@@ -549,8 +547,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(
                 Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                LoadBalancerName=name, SecurityGroups=[self.sg_id], Subnets=[self.subnet_id], SubregionNames=[self.a1_r2.config.region.az_name]
-            ).response.LoadBalancer
+                LoadBalancerName=name, SecurityGroups=[self.sg_id], Subnets=[self.subnet_id], SubregionNames=[self.a1_r2.config.region.az_name])
             self.lb_names.append(name)
             assert False, "Call should not have been successful, subregion and subnet are incompatible"
         except OscApiException as error:
@@ -575,9 +572,9 @@ class Test_CreateLoadBalancer(LoadBalancer):
                 try:
                     self.a2_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
                 except:
-                    pass
+                    print('Could not delete lbu')
             if ret_create_lbu2:
                 try:
                     self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
                 except:
-                    pass
+                    print('Could not delete lbu')

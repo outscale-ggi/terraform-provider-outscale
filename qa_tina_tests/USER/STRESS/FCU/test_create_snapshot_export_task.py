@@ -1,8 +1,8 @@
-import string
 from pprint import pprint
+import string
+import time
 
 import pytest
-import time
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.error import group_errors, error_type
@@ -13,6 +13,7 @@ from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_buckets
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_snapshot_export_tasks_state
 
+
 CALL_NUMBER = 50
 
 
@@ -22,7 +23,7 @@ class Test_create_snapshot_export_task(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'snapshot_export_limit': 10}
+        cls.quotas = {'snapshot_export_limit': 10}
         super(Test_create_snapshot_export_task, cls).setup_class()
         cls.snap_ids = []
         cls.vol_ids = None
@@ -34,9 +35,8 @@ class Test_create_snapshot_export_task(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -69,7 +69,7 @@ class Test_create_snapshot_export_task(OscTestSuite):
                     task_ids.append(ret.response.snapshotExportTask.snapshotExportTaskId)
                     bucket_names.append(bucket_name)
                 except OscApiException as error:
-                    errs.handle_api_exception(error, error_type.Create)
+                    errs.handle_api_exception(error)
                 except OscTestException as error:
                     errs.add_unexpected_error(error, error_type.Create)
 
@@ -82,7 +82,7 @@ class Test_create_snapshot_export_task(OscTestSuite):
                 error_wait = True
             if error_wait:
                 ret = self.a1_r1.fcu.DescribeSnapshotExportTasks(SnapshotExportTaskId=task_ids)
-                states = set([task.state for task in ret.response.snapshotExportTaskSet])
+                states = {[task.state for task in ret.response.snapshotExportTaskSet]}
                 pprint(states)
                 for task in ret.response.snapshotExportTask:
                     if task.state != 'completed' or task.completion != '100':
@@ -115,7 +115,7 @@ class Test_create_snapshot_export_task(OscTestSuite):
                     task_ids.append(ret.response.snapshotExportTask.snapshotExportTaskId)
                     bucket_names.append(bucket_name)
                 except OscApiException as error:
-                    errs.handle_api_exception(error, error_type.Create)
+                    errs.handle_api_exception(error)
                 except OscTestException as error:
                     errs.add_unexpected_error(error, error_type.Create)
 
@@ -128,7 +128,7 @@ class Test_create_snapshot_export_task(OscTestSuite):
                 error_wait = True
             if error_wait:
                 ret = self.a1_r1.fcu.DescribeSnapshotExportTasks(SnapshotExportTaskId=task_ids)
-                states = set([task.state for task in ret.response.snapshotExportTaskSet])
+                states = {[task.state for task in ret.response.snapshotExportTaskSet]}
                 pprint(states)
                 for task in ret.response.snapshotExportTask:
                     if task.state != 'completed' or task.completion != '100':

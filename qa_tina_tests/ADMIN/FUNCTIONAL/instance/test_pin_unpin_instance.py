@@ -15,18 +15,6 @@ class Test_pin_unpin_instance(OscTestSuite):
         cls.inst_id = None
         cls.server = None
         super(Test_pin_unpin_instance, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            cls.teardown_class()
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_pin_unpin_instance, cls).teardown_class()
 
     def setup_method(self, method):
         OscTestSuite.setup_method(self, method)
@@ -38,13 +26,11 @@ class Test_pin_unpin_instance(OscTestSuite):
             stop_instances(self.a1_r1, [self.inst_id])
             self.a1_r1.intel.instance.pin(vmid=self.inst_id, target=self.server)
             start_instances(self.a1_r1, [self.inst_id])
-        except OscApiException as error:
+        except:
             try:
                 self.teardown_method(method)
-            except Exception as err:
-                raise err
             finally:
-                raise error
+                raise
 
     def teardown_method(self, method):
         try:

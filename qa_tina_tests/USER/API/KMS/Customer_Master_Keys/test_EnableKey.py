@@ -10,18 +10,13 @@ class Test_EnableKey(Kms):
 
     @classmethod
     def setup_class(cls):
-        cls.known_error = False
         super(Test_EnableKey, cls).setup_class()
         try:
             cls.key_id = cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='OKMS').response.KeyMetadata.KeyId
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            if error.status_code == 500 and error.error_code == 'KMSServerException':
-                cls.known_error = True
-            else:
+            finally:
                 raise error
 
     @classmethod
@@ -31,7 +26,7 @@ class Test_EnableKey(Kms):
                 try:
                     cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_id, PendingWindowInDays=7)
                 except:
-                    pass
+                    print('Could not schedule key deletion.')
         finally:
             super(Test_EnableKey, cls).teardown_class()
 

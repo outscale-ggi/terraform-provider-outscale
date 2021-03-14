@@ -33,9 +33,8 @@ class Test_DeregisterInstancesFromListenerRule(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -70,7 +69,7 @@ class Test_DeregisterInstancesFromListenerRule(OscTestSuite):
 
     def test_T1764_empty_instances(self):
         try:
-            self.a1_r1.icu.DeregisterInstancesFromListenerRule(RuleName=self.rule_name, Instances=[]).response.Instances
+            self.a1_r1.icu.DeregisterInstancesFromListenerRule(RuleName=self.rule_name, Instances=[])
             assert False, 'Call should not have been successful, empty Instances parameter'
         except OscApiException as error:
             assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: Instances')
@@ -120,16 +119,16 @@ class Test_DeregisterInstancesFromListenerRule(OscTestSuite):
 
     def test_T1762_stopped_instance_state(self):
         try:
-            instId = self.inst_info[INSTANCE_ID_LIST][0]
-            stop_instances(self.a1_r1, [instId])
-            ret = self.a1_r1.icu.DeregisterInstancesFromListenerRule(RuleName=self.rule_name, Instances=[{'InstanceId': instId}])
+            inst_id = self.inst_info[INSTANCE_ID_LIST][0]
+            stop_instances(self.a1_r1, [inst_id])
+            ret = self.a1_r1.icu.DeregisterInstancesFromListenerRule(RuleName=self.rule_name, Instances=[{'InstanceId': inst_id}])
             assert len(ret.response.Instances) == 2
             inst_ids = [inst.InstanceId for inst in ret.response.Instances]
             assert self.inst_info[INSTANCE_ID_LIST][1] in inst_ids
             assert self.inst_info[INSTANCE_ID_LIST][2] in inst_ids
         finally:
-            self.a1_r1.fcu.StartInstances(InstanceId=[instId])
-            self.a1_r1.icu.RegisterInstancesWithListenerRule(RuleName=self.rule_name, Instances=[{'InstanceId': instId}])
+            self.a1_r1.fcu.StartInstances(InstanceId=[inst_id])
+            self.a1_r1.icu.RegisterInstancesWithListenerRule(RuleName=self.rule_name, Instances=[{'InstanceId': inst_id}])
 
     def test_T1763_invalid_instance_in_list(self):
         try:

@@ -10,7 +10,7 @@ class Test_DeleteAccessKey(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'accesskey_limit': 10}
+        cls.quotas = {'accesskey_limit': 10}
         super(Test_DeleteAccessKey, cls).setup_class()
 
     @classmethod
@@ -117,7 +117,8 @@ class Test_DeleteAccessKey(OscTestSuite):
         try:
             ret_create = self.a1_r1.icu.CreateAccessKey()
             ak = ret_create.response.accessKey.accessKeyId
-            ret_delete = self.a1_r1.icu.DeleteAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=ak)
+            ret_delete = self.a1_r1.icu.DeleteAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+                                                        AccessKeyId=ak)
             assert ret_delete.response
         finally:
             if ret_create and not ret_delete:

@@ -10,15 +10,18 @@ from qa_tina_tools.tina import wait
 from qa_tina_tools.tools.tina import create_tools
 
 
-#Parameter    In      Type      Required
-#DryRun       body    boolean   false
-#Name         body    string    false
-#NewName      body    string    false
-#NewPath      body    string    false
+# Parameter    In      Type      Required
+# DryRun       body    boolean   false
+# Name         body    string    false
+# NewName      body    string    false
+# NewPath      body    string    false
 class Test_UpdateServerCertificate(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
+        cls.sc_name = None
+        cls.sc_path = None
+        cls.sc_resp = None
         super(Test_UpdateServerCertificate, cls).setup_class()
         cls.crtpath, cls.keypath = create_tools.create_self_signed_cert()
         cls.key = open(cls.keypath).read()
@@ -31,7 +34,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
                 os.remove(cls.crtpath)
             if cls.keypath:
                 os.remove(cls.keypath)
-        finally:    
+        finally:
             super(Test_UpdateServerCertificate, cls).teardown_class()
 
     def setup_method(self, method):
@@ -47,7 +50,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteServerCertificate(Name=self.sc_name)
                 except:
-                    pass
+                    print('Could not delete server certificate')
         finally:
             OscTestSuite.teardown_method(self, method)
 
@@ -74,7 +77,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
     def test_T4883_missing_name(self):
         new_name = misc.id_generator(prefix='sc-')
         try:
-            self.a1_r1.oapi.UpdateServerCertificate(NewName=new_name, NewPath='/toto/').response
+            self.a1_r1.oapi.UpdateServerCertificate(NewName=new_name, NewPath='/toto/')
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -84,7 +87,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
         invalid_name = '@&é"(§è!çà)'
         new_name = misc.id_generator(prefix='sc-')
         try:
-            self.a1_r1.oapi.UpdateServerCertificate(Name=invalid_name, NewName=new_name, NewPath='/toto/').response
+            self.a1_r1.oapi.UpdateServerCertificate(Name=invalid_name, NewName=new_name, NewPath='/toto/')
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -93,7 +96,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
     def test_T4885_invalid_name_type(self):
         new_name = misc.id_generator(prefix='sc-')
         try:
-            self.a1_r1.oapi.UpdateServerCertificate(Name=[self.sc_name], NewName=new_name, NewPath='/toto/').response
+            self.a1_r1.oapi.UpdateServerCertificate(Name=[self.sc_name], NewName=new_name, NewPath='/toto/')
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -103,7 +106,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
         incorrect_name = 'incorrect_name'
         new_name = misc.id_generator(prefix='sc-')
         try:
-            self.a1_r1.oapi.UpdateServerCertificate(Name=incorrect_name, NewName=new_name, NewPath='/toto/').response
+            self.a1_r1.oapi.UpdateServerCertificate(Name=incorrect_name, NewName=new_name, NewPath='/toto/')
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -117,7 +120,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
     def test_T4888_invalid_new_name(self):
         new_name = '@&é"(§è!çà)'
         try:
-            self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name, NewPath='/toto/').response
+            self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name, NewPath='/toto/')
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -126,7 +129,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
     def test_T4889_invalid_new_name_type(self):
         new_name = misc.id_generator(prefix='sc-')
         try:
-            self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=[new_name], NewPath='/toto/').response
+            self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=[new_name], NewPath='/toto/')
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -135,7 +138,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
     def test_T4890_invalid_new_path(self):
         new_name = misc.id_generator(prefix='sc-')
         try:
-            self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name, NewPath='/toto').response
+            self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name, NewPath='/toto')
             self.sc_name = new_name
             assert False, 'Remove known error'
             assert False, 'Call should not have been successful'
@@ -145,7 +148,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
     def test_T4891_invalid_new_path_type(self):
         new_name = misc.id_generator(prefix='sc-')
         try:
-            self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name, NewPath=['/toto/']).response
+            self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewName=new_name, NewPath=['/toto/'])
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -159,7 +162,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
         if not hasattr(self, 'a2_r1'):
             pytest.skip('This test requires two users')
         try:
-            self.a2_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewPath='/toto/').response
+            self.a2_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewPath='/toto/')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)

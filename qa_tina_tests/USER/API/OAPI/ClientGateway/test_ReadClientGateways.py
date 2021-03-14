@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_test_tools.misc import assert_dry_run
@@ -29,13 +29,13 @@ class Test_ReadClientGateways(OscTestSuite):
     def test_T3319_empty_filters(self):
         ret = self.a1_r1.oapi.ReadClientGateways().response.ClientGateways
         assert len(ret) >= 2
-        for cg in ret:
-            validate_client_gateway(cg)
+        for cgtw in ret:
+            validate_client_gateway(cgtw)
 
     def test_T3320_filters_client_gateway_ids_id1(self):
         ret = self.a1_r1.oapi.ReadClientGateways(Filters={'ClientGatewayIds': [self.cg_id1]}).response.ClientGateways
-        for cg in ret:
-            validate_client_gateway(cg, expected_cg={
+        for cgtw in ret:
+            validate_client_gateway(cgtw, expected_cg={
                 'PublicIp': '172.10.8.9',
                 'BgpAsn': 65002,
                 'ConnectionType': 'ipsec.1',
@@ -44,8 +44,8 @@ class Test_ReadClientGateways(OscTestSuite):
 
     def test_T3321_filters_client_gateway_ids_id2(self):
         ret = self.a1_r1.oapi.ReadClientGateways(Filters={'ClientGatewayIds': [self.cg_id2]}).response.ClientGateways
-        for cg in ret:
-            validate_client_gateway(cg, expected_cg={
+        for cgtw in ret:
+            validate_client_gateway(cgtw, expected_cg={
                 'PublicIp': '192.10.8.9',
                 'BgpAsn': 2578,
                 'ConnectionType': 'ipsec.1',
@@ -54,22 +54,22 @@ class Test_ReadClientGateways(OscTestSuite):
 
     def test_T3322_filters_bgp_asn(self):
         ret = self.a1_r1.oapi.ReadClientGateways(Filters={'BgpAsns': [65002]}).response.ClientGateways
-        for cg in ret:
-            validate_client_gateway(cg, expected_cg={
+        for cgtw in ret:
+            validate_client_gateway(cgtw, expected_cg={
                 'BgpAsn': 65002,
             })
 
     def test_T3323_filters_connection_types(self):
         ret = self.a1_r1.oapi.ReadClientGateways(Filters={'ConnectionTypes': ['ipsec.1']}).response.ClientGateways
-        for cg in ret:
-            validate_client_gateway(cg, expected_cg={
+        for cgtw in ret:
+            validate_client_gateway(cgtw, expected_cg={
                 'ConnectionType': 'ipsec.1',
             })
 
     def test_T3324_filters_public_ips(self):
         ret = self.a1_r1.oapi.ReadClientGateways(Filters={'PublicIps': ['172.10.8.9']}).response.ClientGateways
-        for cg in ret:
-            validate_client_gateway(cg, expected_cg={
+        for cgtw in ret:
+            validate_client_gateway(cgtw, expected_cg={
                 'PublicIp': '172.10.8.9',
             })
 
@@ -79,13 +79,13 @@ class Test_ReadClientGateways(OscTestSuite):
 
     def test_T3326_filters_state_available(self):
         ret = self.a1_r1.oapi.ReadClientGateways(Filters={'States': ['available']}).response.ClientGateways
-        for cg in ret:
-            validate_client_gateway(cg, expected_cg={'State': 'available'})
+        for cgtw in ret:
+            validate_client_gateway(cgtw, expected_cg={'State': 'available'})
 
     def test_T3327_filters_state_deleted(self):
         ret = self.a1_r1.oapi.ReadClientGateways(Filters={'States': ['deleted']}).response.ClientGateways
-        for cg in ret:
-            validate_client_gateway(cg, expected_cg={'State': 'deleted'})
+        for cgtw in ret:
+            validate_client_gateway(cgtw, expected_cg={'State': 'deleted'})
 
     def test_T3697_dry_run(self):
         ret = self.a1_r1.oapi.ReadClientGateways(DryRun=True)

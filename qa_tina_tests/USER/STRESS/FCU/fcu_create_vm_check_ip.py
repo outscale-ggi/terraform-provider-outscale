@@ -1,10 +1,10 @@
+# pylint: disable=exception-escape
 
 import argparse
 import logging
+from multiprocessing import Queue, Process
 import multiprocessing
 import ssl
-from multiprocessing import Queue, Process
-
 import time
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -17,7 +17,9 @@ from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import id_generator
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
 
-ssl._create_default_https_context = ssl._create_unverified_context
+
+setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
+#ssl._create_default_https_context = ssl._create_unverified_context
 
 LOGGING_LEVEL = logging.DEBUG
 DEFAULT_VALUE = -1
@@ -41,14 +43,14 @@ def make_read_file(osc_sdk, index, num_call):
         print('{}-{} --- terminated = {}'.format(index, num_call, states.count('terminated')))
         print('{}-{} --- ips({}) = {}'.format(index, num_call, len(ips), ips))
         print('{}-{} --- dups({}) = {}'.format(index, num_call, len(dups), dups))
-        filename = '/tmp/test_create_vms_{}.txt'.format(id_generator())
+        filename = 'test_create_vms_{}.txt'.format(id_generator())
         print('{}-{} --- writing to file {}'.format(index, num_call, filename))
-        with open(filename, 'w') as f:
-            f.write('ips = {}\n'.format(ips))
-            f.write('dups = {}\n'.format(dups))
-            f.write('describe = {}'.format(ret.display()))
+        with open(filename, 'w') as file:
+            file.write('ips = {}\n'.format(ips))
+            file.write('dups = {}\n'.format(dups))
+            file.write('describe = {}'.format(ret.display()))
     except:
-        pass
+        print('error occurred in make_read_file')
 
 
 def wait_vm_ip_address(osc_sdk, vm_id, max_wait=60, sleep_duration=2):
@@ -64,7 +66,7 @@ def wait_vm_ip_address(osc_sdk, vm_id, max_wait=60, sleep_duration=2):
     raise OscTestException('Could not find vm public ip.')
 
 
-def test_Create_Vm(osc_sdk, queue, args, shared_vm_ips, index):
+def create_vm(osc_sdk, queue, args, index):
     result = {'status': 'OK', 'duplicate': False}
     start = time.time()
     errs = load_errors()
@@ -124,6 +126,60 @@ def test_Create_Vm(osc_sdk, queue, args, shared_vm_ips, index):
     queue.put(result)
 
 
+def run(args):
+    logger.info("Initialize environment")
+    oscsdk = OscSdk(config=OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE))
+
+    nb_ok = 0
+    nb_ko = 0
+
+    queue = Queue()
+    for smi in range(args.process_number * args.num_call_per_process):
+        shared_vm_ips[smi] = DEFAULT_VALUE
+
+    processes = []
+    i = 0
+    logger.info("Start workers")
+    for i in range(args.process_number):
+        proc = Process(name="load-{}".format(i), target=create_vm, args=[oscsdk, queue, args, i])
+        processes.append(proc)
+
+    start = time.time()
+    for proc in processes:
+        proc.start()
+
+    logger.info("Wait workers")
+    for proc in processes:
+        proc.join()
+    end = time.time()
+
+    durations = []
+    errors = load_errors()
+    created = 0
+
+    logger.info("Get results")
+    while not queue.empty():
+        res = queue.get()
+        for key in res.keys():
+            if key == "status":
+                if res[key] == "OK":
+                    nb_ok += 1
+                else:
+                    nb_ko += 1
+            elif key == 'duration':
+                durations.append(res[key])
+            elif key == 'error':
+                errors.add(res[key])
+            elif key == 'created':
+                created += res[key]
+        logger.debug(res)
+    logger.info("OK = %d - KO = %d", nb_ok, nb_ko)
+    logger.info("durations = %s", durations)
+    logger.info("created = %d", created)
+    print('duration = {}'.format(end - start))
+    errors.print_errors()
+
+
 if __name__ == '__main__':
 
     logger = logging.getLogger('perf')
@@ -154,61 +210,8 @@ if __name__ == '__main__':
                         required=False, type=int, default=10, help='number of processes, default 10')
     args_p.add_argument('-nc', '--num_call', dest='num_call_per_process', action='store',
                         required=False, type=int, default=40, help='number of read calls per process, default 500')
-    args = args_p.parse_args()
+    main_args = args_p.parse_args()
 
-    logger.info("Initialize environment")
-    oscsdk = OscSdk(config=OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE))
-    try:
+    shared_vm_ips = multiprocessing.Array('i', main_args.process_number * main_args.num_call_per_process)
 
-        NB_OK = 0
-        NB_KO = 0
-
-        QUEUE = Queue()
-        shared_vm_ips = multiprocessing.Array('i', args.process_number * args.num_call_per_process)
-        for smi in range(args.process_number * args.num_call_per_process):
-            shared_vm_ips[smi] = DEFAULT_VALUE
-
-        processes = []
-        i = 0
-        logger.info("Start workers")
-        for i in range(args.process_number):
-            p = Process(name="load-{}".format(i), target=test_Create_Vm, args=[oscsdk, QUEUE, args, shared_vm_ips, i])
-            processes.append(p)
-
-        start = time.time()
-        for i in range(len(processes)):
-            processes[i].start()
-
-        logger.info("Wait workers")
-        for i in range(len(processes)):
-            processes[i].join()
-        end = time.time()
-
-        durations = []
-        errors = load_errors()
-        created = 0
-
-        logger.info("Get results")
-        while not QUEUE.empty():
-            res = QUEUE.get()
-            for key in res.keys():
-                if key == "status":
-                    if res[key] == "OK":
-                        NB_OK += 1
-                    else:
-                        NB_KO += 1
-                elif key == 'duration':
-                    durations.append(res[key])
-                elif key == 'error':
-                    errors.add(res[key])
-                elif key == 'created':
-                    created += res[key]
-            logger.debug(res)
-        logger.info("OK = {} - KO = {}".format(NB_OK, NB_KO))
-        logger.info("durations = {}".format(durations))
-        logger.info("created = {}".format(created))
-        print('duration = {}'.format(end - start))
-        errors.print_errors()
-
-    finally:
-        pass
+    run(main_args)

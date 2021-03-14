@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
@@ -18,9 +18,8 @@ class Test_ModifySubnetAttribute(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

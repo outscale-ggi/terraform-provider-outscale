@@ -1,8 +1,8 @@
 
 import pytest
 
-from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
+from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
 
 
 class Test_CreateSnapshotExportTask(Snapshot):

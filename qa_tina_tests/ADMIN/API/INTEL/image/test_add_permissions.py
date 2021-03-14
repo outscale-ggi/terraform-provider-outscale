@@ -24,7 +24,7 @@ class Test_add_permissions(OscTestSuite):
             if cls.inst_id:
                 delete_instances_old(cls.a1_r1, [cls.inst_info])
             if cls.image_id:
-                cleanup_images(cls.a1_r1, image_id_list=[cls.image1_id], force=True)
+                cleanup_images(cls.a1_r1, image_id_list=[cls.image_id], force=True)
         except Exception as error:
             cls.logger.exception(error)
         finally:

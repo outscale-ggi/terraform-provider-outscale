@@ -1,5 +1,4 @@
 import string
-
 import time
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -23,9 +22,8 @@ class Test_DeleteSubnet(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -59,17 +57,17 @@ class Test_DeleteSubnet(OscTestSuite):
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                 except Exception:
-                    pass
+                    print('Could not delete security group')
             if subnet_id:
                 try:
                     self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id)
                 except Exception:
-                    pass
+                    print('Could not delete subnet')
             if vpc_id:
                 try:
                     self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
                 except Exception:
-                    pass
+                    print('Could not delete vpc')
 
     def test_T1946_with_subnet_id_list(self):
         try:
@@ -90,7 +88,7 @@ class Test_DeleteSubnet(OscTestSuite):
             self.a1_r1.fcu.DeleteSubnet()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-                assert_error(error, 400, 'MissingParameter', "Parameter cannot be empty: SubnetID")
+            assert_error(error, 400, 'MissingParameter', "Parameter cannot be empty: SubnetID")
 
     def test_T4047_with_another_account(self):
         vpc_info = None
@@ -105,32 +103,29 @@ class Test_DeleteSubnet(OscTestSuite):
         finally:
             if vpc_info:
                 delete_vpc(self.a1_r1, vpc_info)
-                
+
     def test_T4048_empty_subnet_id(self):
         try:
             self.a1_r1.fcu.DeleteSubnet(SubnetId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-                assert_error(error, 400, 'MissingParameter', "Parameter cannot be empty: SubnetID")
-                
+            assert_error(error, 400, 'MissingParameter', "Parameter cannot be empty: SubnetID")
+
     def test_T4049_none_subnet_id(self):
         try:
             self.a1_r1.fcu.DeleteSubnet(SubnetId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-                assert_error(error, 400, 'MissingParameter', "Parameter cannot be empty: SubnetID")
-                
+            assert_error(error, 400, 'MissingParameter', "Parameter cannot be empty: SubnetID")
+
     def test_T4050_non_existent_subnet_id(self):
         subnet_id = id_generator("subnet-", 8, chars=(string.hexdigits).lower())
         try:
             self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-                assert_error(error, 400, 'InvalidSubnetID.NotFound', "The subnet ID '{}' does not exist".format(subnet_id))
+            assert_error(error, 400, 'InvalidSubnetID.NotFound', "The subnet ID '{}' does not exist".format(subnet_id))
 
     def test_T4051_with_valid_params(self):
-        try:
-            subnet_id = self.a1_r1.fcu.CreateSubnet(VpcId=self.vpc_info[VPC_ID], CidrBlock='10.0.1.0/24').response.subnet.subnetId
-            self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id)
-        finally:
-            pass
+        subnet_id = self.a1_r1.fcu.CreateSubnet(VpcId=self.vpc_info[VPC_ID], CidrBlock='10.0.1.0/24').response.subnet.subnetId
+        self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id)

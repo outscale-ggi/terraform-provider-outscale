@@ -1,8 +1,7 @@
 import argparse
 import logging
-import ssl
 from multiprocessing import Queue, Process
-
+import ssl
 import time
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -13,12 +12,14 @@ from qa_test_tools.config import OscConfig
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.error import error_type, load_errors
 
-ssl._create_default_https_context = ssl._create_unverified_context
+
+setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 LOGGING_LEVEL = logging.DEBUG
 
 
-def test_Create_Read_Delete(osc_sdk, queue, args):
+def create_read_delete(osc_sdk, queue, args):
     result = {'status': 'OK'}
     disable_throttling()
     start = time.time()
@@ -40,7 +41,8 @@ def test_Create_Read_Delete(osc_sdk, queue, args):
         if net_id:
             try:
                 call_number += 1
-                ret = osc_sdk.oapi.ReadInternetServices(Filters={'InternetServiceIds': [net_id]}, exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}, DryRun=args.dry_run)
+                ret = osc_sdk.oapi.ReadInternetServices(
+                    Filters={'InternetServiceIds': [net_id]}, exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}, DryRun=args.dry_run)
                 if not args.dry_run:
                     ret = ret.response.InternetServices
                 if not ret:
@@ -63,6 +65,59 @@ def test_Create_Read_Delete(osc_sdk, queue, args):
     result['duration'] = end - start
     result['error'] = errs.get_dict()
     queue.put(result)
+
+
+def run(args):
+
+    logger.info("Initialize environment")
+    oscsdk = OscSdk(config=OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE))
+
+    nb_ok = 0
+    nb_ko = 0
+
+    queue = Queue()
+    processes = []
+    i = 0
+    logger.info("Start workers")
+    for i in range(args.process_number):
+        proc = Process(name="load-{}".format(i), target=create_read_delete, args=[oscsdk, queue, args])
+        processes.append(proc)
+
+    start = time.time()
+    for proc in processes:
+        proc.start()
+
+    logger.info("Wait workers")
+    for proc in processes:
+        proc.join()
+    end = time.time()
+
+    durations = []
+    errors = load_errors()
+    nums = []
+
+    logger.info("Get results")
+    while not queue.empty():
+        res = queue.get()
+        for key in res.keys():
+            if key == "status":
+                if res[key] == "OK":
+                    nb_ok += 1
+                else:
+                    nb_ko += 1
+            elif key == 'duration':
+                durations.append(res[key])
+            elif key == 'error':
+                errors.add(res[key])
+            elif key == 'num':
+                nums.append(res[key])
+        logger.debug(res)
+    logger.info("OK = %d - KO = %d", nb_ok, nb_ko)
+    logger.info("durations = %s", durations)
+    logger.info("nums = %d", nums)
+    print('duration = {}'.format(end - start))
+    print('calls number = {}'.format(sum(nums)))
+    errors.print_errors()
 
 
 if __name__ == '__main__':
@@ -97,58 +152,6 @@ if __name__ == '__main__':
                         required=False, type=int, default=500, help='number of read calls per process, default 500')
     args_p.add_argument('-dr', '--dry_run', dest='dry_run', action='store',
                         required=False, type=bool, default=False, help='uses the dry run mode if set')
-    args = args_p.parse_args()
+    main_args = args_p.parse_args()
 
-    logger.info("Initialize environment")
-    oscsdk = OscSdk(config=OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE))
-    try:
-
-        NB_OK = 0
-        NB_KO = 0
-
-        QUEUE = Queue()
-        processes = []
-        i = 0
-        logger.info("Start workers")
-        for i in range(args.process_number):
-            p = Process(name="load-{}".format(i), target=test_Create_Read_Delete, args=[oscsdk, QUEUE, args])
-            processes.append(p)
-
-        start = time.time()
-        for i in range(len(processes)):
-            processes[i].start()
-
-        logger.info("Wait workers")
-        for i in range(len(processes)):
-            processes[i].join()
-        end = time.time()
-
-        durations = []
-        errors = load_errors()
-        nums = []
-
-        logger.info("Get results")
-        while not QUEUE.empty():
-            res = QUEUE.get()
-            for key in res.keys():
-                if key == "status":
-                    if res[key] == "OK":
-                        NB_OK += 1
-                    else:
-                        NB_KO += 1
-                elif key == 'duration':
-                    durations.append(res[key])
-                elif key == 'error':
-                    errors.add(res[key])
-                elif key == 'num':
-                    nums.append(res[key])
-            logger.debug(res)
-        logger.info("OK = {} - KO = {}".format(NB_OK, NB_KO))
-        logger.info("durations = {}".format(durations))
-        logger.info("nums = {}".format(nums))
-        print('duration = {}'.format(end - start))
-        print('calls number = {}'.format(sum(nums)))
-        errors.print_errors()
-
-    finally:
-        pass
+    run(main_args)
