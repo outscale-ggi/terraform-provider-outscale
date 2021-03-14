@@ -56,7 +56,7 @@ class ApiAccessRule(OscTestSuite):
                 try:
                     os.remove(tmp_file_path)
                 except:
-                    pass
+                    print('Could not remove file')
             if cls.account_pid:
                 delete_account(cls.a1_r1, cls.account_pid)
         finally:

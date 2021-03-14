@@ -1,7 +1,8 @@
-from os import system as system_call
-import os
+
 from platform import system as system_name
 
+import subprocess
+from subprocess import CalledProcessError
 import pytest
 
 from qa_common_tools.ssh import SshTools
@@ -21,10 +22,17 @@ def ping(host):
     """
 
     # Ping parameters as function of OS
-    parameters = "-n 1" if system_name().lower() == "windows" else "-c 1"
-
+    # parameters = "-n 1" if system_name().lower() == "windows" else "-c 1"
     # Pinging
-    return system_call("ping " + parameters + " " + host) == 0
+    # return system_call("ping " + parameters + " " + host) == 0
+
+    args = ['ping', '-n', '1', host] if system_name().lower() == "windows" else ['ping', '-c', '1', host]
+    try:
+        subprocess.check_call(args)
+        return True
+    except CalledProcessError:
+        return False
+    # return subprocess.run(args, stdout=subprocess.PIPE).returncode == 0
 
 
 class Test_sg_ingress_public_vpc(OscTestSuite):
@@ -197,8 +205,13 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             self.config_tftp(sshclient=sshclient, text_to_check=text_to_check)
 
             # validate UDP
-            cmd = "echo \"get demo.txt\" \'/tmp/demo.txt\' | tftp {}".format(public_ip_inst)
-            os.system(cmd)
+            #cmd = "echo \"get demo.txt\" \'/tmp/demo.txt\' | tftp {}".format(public_ip_inst)
+            #os.system(cmd)
+            args = ["echo 'get demo.txt /tmp/demo.txt' | tftp {}".format(public_ip_inst)]
+            try:
+                subprocess.check_call(args)
+            except CalledProcessError:
+                print('Could not execute command')
 
             demo_file = open('/tmp/demo.txt', 'r')
             lines = demo_file.readlines()
@@ -253,10 +266,15 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             self.config_tftp(sshclient=sshclient, text_to_check=text_to_check)
 
             # validate UDP
-            cmd = "echo \"get demo.txt\" \'/tmp/demo.txt\' | tftp {}".format(public_ip_inst)
-            os.system(cmd)
+            # cmd = "echo \"get demo.txt\" \'/tmp/demo.txt\' | tftp {}".format(public_ip_inst)
+            # os.system(cmd)
+            args = ["echo 'get demo.txt demo.out.txt' | tftp {}".format(public_ip_inst)]
+            try:
+                subprocess.check_call(args)
+            except CalledProcessError:
+                print('Could not execute command')
 
-            demo_file = open('/tmp/demo.txt', 'r')
+            demo_file = open('demo.out.txt', 'r')
             lines = demo_file.readlines()
             assert lines[0].strip() == text_to_check
 

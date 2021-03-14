@@ -94,7 +94,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
             protocol = 'http'
             if listener['LoadBalancerPort'] == '443':
                 protocol = 'https'
-            ret = requests.get("{}://{}/proxy_protocol".format(protocol, dns_name), verify=False)
+            ret = requests.get("{}://{}/proxy_protocol".format(protocol, dns_name), verify=listener['verify'])
             assert ret.status_code == 200
             expexted_text = []
             for ip in self.a1_r1.config.region.get_info(constants.MY_IP):
@@ -110,21 +110,25 @@ class Test_lbu_proxy_protocol(OscTestSuite):
     def test_T4443_proxy_protocol_tcp(self):
         self.exec_proxy_protocol_test(listener={'InstancePort': '80',
                                                 'LoadBalancerPort': '80',
-                                                'Protocol': 'TCP'})
+                                                'Protocol': 'TCP',
+                                                'verify': False})
 
     def test_T4535_proxy_protocol_http(self):
         self.exec_proxy_protocol_test(listener={'InstancePort': '80',
                                                 'LoadBalancerPort': '80',
-                                                'Protocol': 'HTTP'})
+                                                'Protocol': 'HTTP',
+                                                'verify': False})
 
     def test_T4536_proxy_protocol_ssl(self):
         self.exec_proxy_protocol_test(listener={'InstancePort': '80',
                                                 'LoadBalancerPort': '443',
                                                 'Protocol': 'SSL',
-                                                'SSLCertificateId': self.cert_arn})
+                                                'SSLCertificateId': self.cert_arn,
+                                                'verify': False})
 
     def test_T4537_proxy_protocol_https(self):
         self.exec_proxy_protocol_test(listener={'InstancePort': '80',
                                                 'LoadBalancerPort': '443',
                                                 'Protocol': 'HTTPS',
-                                                'SSLCertificateId': self.cert_arn})
+                                                'SSLCertificateId': self.cert_arn,
+                                                'verify': False})

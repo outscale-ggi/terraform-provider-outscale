@@ -145,7 +145,7 @@ def perf_snapshot(oscsdk, logger, queue, args):
                 for volumes in ret.response.reservationSet[0].instancesSet[0].blockDeviceMapping:
                     volume_id_list.append(volumes.ebs.volumeId)
                 inst = ret.response.reservationSet[0].instancesSet[0]
-                sshclient = SshTools.check_connection_paramiko(inst.ipAddress, '/tmp/{}.pem'.format(kp_name),
+                sshclient = SshTools.check_connection_paramiko(inst.ipAddress, '{}.pem'.format(kp_name),
                                                                username=oscsdk.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'sudo mkfs.xfs -f {}'.format(DEV)
                 SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=600, retry=1)
@@ -155,7 +155,7 @@ def perf_snapshot(oscsdk, logger, queue, args):
     if result['status'] != "KO":
 
         #print(inst.display())
-        sshclient = SshTools.check_connection_paramiko(inst.ipAddress, '/tmp/{}.pem'.format(kp_name),
+        sshclient = SshTools.check_connection_paramiko(inst.ipAddress, '{}.pem'.format(kp_name),
                                                        username=oscsdk.config.region.get_info(constants.CENTOS_USER))
         cmd = 'sudo mount -o nouuid {} /mnt'.format(DEV)
         SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)

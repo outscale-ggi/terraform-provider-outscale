@@ -1,3 +1,5 @@
+import string
+
 import pytest
 
 from qa_sdk_common.config import DefaultAccount, DefaultRegion
@@ -36,7 +38,7 @@ class Test_Keys_Recovery(OscTestSuite):
             icu = OscIcuApi(service='icu', config=config)
             try:
                 icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
-                                         Token=rettoken.response.passwordToken, Password='toto')
+                                         Token=rettoken.response.passwordToken, Password=id_generator(size=4, chars=string.ascii_lowercase))
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 assert_error(error, 400, 'PasswordPolicyViolation', 'Password strength score (0) is too low: at least 4 '

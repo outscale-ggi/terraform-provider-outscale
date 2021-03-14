@@ -66,13 +66,13 @@ class Test_secured_cookie(OscTestSuite):
 
             self.registered = True
             wait_lbu_backend_state(self.a1_r1, lbu_name)
-            ret = requests.get("https://{}/cookie".format(dns_name), verify=False)
+            ret = requests.get("https://{}/cookie".format(dns_name), verify=False)  # nosec - cannot change this for now, waiting certificate
             assert ret.headers['Set-Cookie'] == 'foo=bar'
             self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerName=lbu_name,
                                                            LoadBalancerAttributes={'AdditionalAttributes': [{
                                                                'Key': 'SecuredCookies', 'Value': True}]})
             time.sleep(30)
-            ret = requests.get("https://{}/cookie".format(dns_name), verify=False)
+            ret = requests.get("https://{}/cookie".format(dns_name), verify=False)  # nosec - cannot change this for now, waiting certificate
             assert ret.headers['Set-Cookie'] == 'foo=bar; Secure'
         except OscApiException as err:
             raise err

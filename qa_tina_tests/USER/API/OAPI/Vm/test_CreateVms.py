@@ -1,6 +1,5 @@
 
 import base64
-import random
 import string
 import zlib
 
@@ -754,7 +753,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
 
     def test_T3173_with_nic_with_sg_ids(self):
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
-            SecurityGroupName=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)),
+            SecurityGroupName=id_generator(size=7, chars=string.ascii_lowercase),
             Description='test', NetId=self.net_id).response.SecurityGroup.SecurityGroupId
         ret, self.vm_id_list = create_vms(
             ocs_sdk=self.a1_r1,
@@ -779,7 +778,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
 
     def test_T3174_with_nic_with_sg_id_in_another_vpc(self):
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
-            SecurityGroupName=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)),
+            SecurityGroupName=id_generator(size=7, chars=string.ascii_lowercase),
             Description='test').response.SecurityGroup.SecurityGroupId
         try:
             _, self.vm_id_list = create_vms(
@@ -923,7 +922,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
 
     def test_T3178_with_subnet_and_sg_ids(self):
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
-            SecurityGroupName=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)),
+            SecurityGroupName=id_generator(size=7, chars=string.ascii_lowercase),
             Description='test', NetId=self.net_id).response.SecurityGroup.SecurityGroupId
         ret, self.vm_id_list = create_vms(
             ocs_sdk=self.a1_r1,
@@ -940,7 +939,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
 
     def test_T3179_with_sg_ids_in_specific_vpc(self):
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
-            SecurityGroupName=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)),
+            SecurityGroupName=id_generator(size=7, chars=string.ascii_lowercase),
             Description='test', NetId=self.net_id).response.SecurityGroup.SecurityGroupId
         ret, self.vm_id_list = create_vms(
             ocs_sdk=self.a1_r1,
@@ -957,7 +956,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
 
     def test_T3180_with_sg_id(self):
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
-            SecurityGroupName=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)),
+            SecurityGroupName=id_generator(size=7, chars=string.ascii_lowercase),
             Description='test').response.SecurityGroup.SecurityGroupId
         ret, self.vm_id_list = create_vms(
             ocs_sdk=self.a1_r1,
@@ -969,7 +968,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         )
 
     def test_T3181_with_subnet_and_sg_names(self):
-        name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        name = id_generator(size=7, chars=string.ascii_lowercase)
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
             SecurityGroupName=name,
             Description='test', NetId=self.net_id).response.SecurityGroup.SecurityGroupId
@@ -987,7 +986,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         )
 
     def test_T3182_with_sg_names_in_specific_vpc(self):
-        name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        name = id_generator(size=7, chars=string.ascii_lowercase)
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
             SecurityGroupName=name,
             Description='test', NetId=self.net_id).response.SecurityGroup.SecurityGroupId
@@ -1005,7 +1004,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         )
 
     def test_T3183_with_sg_names(self):
-        name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        name = id_generator(size=7, chars=string.ascii_lowercase)
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
             SecurityGroupName=name,
             Description='test').response.SecurityGroup.SecurityGroupId

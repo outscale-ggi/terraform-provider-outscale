@@ -2,8 +2,11 @@ import base64
 import datetime
 import time
 
-from Crypto.Cipher import PKCS1_v1_5
-from Crypto.PublicKey import RSA
+#from Crypto.Cipher import PKCS1_v1_5
+#from Crypto.PublicKey import RSA
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+
 import pytest
 
 from qa_test_tools.config.configuration import Configuration
@@ -166,9 +169,9 @@ class Test_create_using_instance(OscTestSuite):
         inst_1_pub_ip = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
 
         passwd_data = self.a1_r1.fcu.GetPasswordData(InstanceId=self.inst_1_id)
-
-        password = PKCS1_v1_5.new(RSA.importKey(open(self.kp_info[PATH]).read())).decrypt(
-            base64.b64decode(passwd_data.response.passwordData), None).decode("utf-8")
+        with open(self.kp_info[PATH], "rb") as key_file:
+            private_key = serialization.load_pem_private_key(key_file.read(), password=None)
+            password = private_key.decrypt(base64.b64decode(passwd_data.response.passwordData), padding.PKCS1v15())
 
         # self.logger.info("ip : {0}".format(inst_1_pub_IP))
         # self.logger.info("Login Administrator / password {0}".format(password))
@@ -185,8 +188,9 @@ class Test_create_using_instance(OscTestSuite):
         inst_2_pub_ip = self.eip.response.publicIp
 
         passwd_data = self.a1_r1.fcu.GetPasswordData(InstanceId=self.inst_2_id)
-        password = PKCS1_v1_5.new(RSA.importKey(open(self.kp_info[PATH]).read())).decrypt(
-            base64.b64decode(passwd_data.response.passwordData), None).decode("utf-8")
+        with open(self.kp_info[PATH], "rb") as key_file:
+            private_key = serialization.load_pem_private_key(key_file.read(), password=None)
+            password = private_key.decrypt(base64.b64decode(passwd_data.response.passwordData), padding.PKCS1v15())
 
         # self.logger.info("ip : {0}".format(inst_2_pub_IP))
         # self.logger.info("Login Administrator / password {0}".format(password))

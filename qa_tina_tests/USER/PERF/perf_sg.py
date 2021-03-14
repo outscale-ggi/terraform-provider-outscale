@@ -1,5 +1,6 @@
 from datetime import datetime
-from subprocess import call
+import subprocess
+from subprocess import CalledProcessError
 from threading import current_thread
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -124,9 +125,15 @@ def perf_sg(oscsdk, logger, queue, args):
     if result['status'] != "KO":
         logger.debug("Ping instance with ICMP rule")
         try:
-            while ret != 0 and (datetime.now() - start_ping).total_seconds() < MAX_WAIT_TIME:
-                ret = call(["ping", "-c", "5", "%s" % inst.ipAddress])
-            if ret == 0:
+            success = False
+            while not success and (datetime.now() - start_ping).total_seconds() < MAX_WAIT_TIME:
+                args = ["ping", "-c", "5", inst.ipAddress]
+                try:
+                    subprocess.check_call(args)
+                    success = True
+                except CalledProcessError:
+                    success = False
+            if success:
                 ping_suceed = (datetime.now() - start_ping).total_seconds()
                 result['sg_rule_add'] = ping_suceed
             else:
@@ -149,10 +156,15 @@ def perf_sg(oscsdk, logger, queue, args):
     if result['status'] != "KO":
         logger.debug("Ping instance without ICMP rule")
         try:
-            ret = 0
-            while ret == 0 and (datetime.now() - start_ping).total_seconds() < MAX_WAIT_TIME:
-                ret = call(["ping", "-c", "5", "%s" % inst.ipAddress])
-            if ret != 0:
+            success = False
+            while not success and (datetime.now() - start_ping).total_seconds() < MAX_WAIT_TIME:
+                args = ["ping", "-c", "5", inst.ipAddress]
+                try:
+                    subprocess.check_call(args)
+                    success = False
+                except CalledProcessError:
+                    success = True
+            if success:
                 ping_failed = (datetime.now() - start_ping).total_seconds()
                 result['sg_rule_del'] = ping_failed
             else:

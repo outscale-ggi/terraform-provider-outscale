@@ -43,7 +43,7 @@ def make_read_file(osc_sdk, index, num_call):
         print('{}-{} --- terminated = {}'.format(index, num_call, states.count('terminated')))
         print('{}-{} --- ips({}) = {}'.format(index, num_call, len(ips), ips))
         print('{}-{} --- dups({}) = {}'.format(index, num_call, len(dups), dups))
-        filename = '/tmp/test_create_vms_{}.txt'.format(id_generator())
+        filename = 'test_create_vms_{}.txt'.format(id_generator())
         print('{}-{} --- writing to file {}'.format(index, num_call, filename))
         with open(filename, 'w') as file:
             file.write('ips = {}\n'.format(ips))

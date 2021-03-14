@@ -122,7 +122,7 @@ def run(args):
             print('ips({}) = {}'.format(len(ips), ips))
             print('dups({}) = {}'.format(len(dups), dups))
             if dups:
-                filename = '/tmp/test_create_vms_{}.txt'.format(id_generator())
+                filename = 'test_create_vms_{}.txt'.format(id_generator())
                 print('writing to file {}'.format(filename))
                 with open(filename, 'w') as file:
                     file.write('ips = {}\n'.format(ips))

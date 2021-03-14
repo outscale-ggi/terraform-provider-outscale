@@ -147,7 +147,7 @@ class Test_CreateNet(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteNet(NetId=net_id)
                 except:
-                    pass
+                    print('Could not delete net')
         net_id = None
         try:
             net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc_invalid', '0_0_0_0_17')).response.Net.NetId

@@ -27,7 +27,7 @@ def create_sg_rule(osc_sdk, queue, group_id, num_sg_rules_per_process):
     ports = set([])
     for _ in range(num_sg_rules_per_process):
         try:
-            port = randint(1000, 8000)
+            port = randint(1000, 8000)  # no-sec - not applicable
             osc_sdk.fcu.AuthorizeSecurityGroupIngress(GroupId=group_id, IpProtocol='tcp', FromPort=port, ToPort=port)
             ports.add(port)
         except Exception:
