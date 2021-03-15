@@ -52,6 +52,7 @@ class Test_create_image_from_snapshot(OscTestSuite):
             image_name = id_generator(prefix='img_')
             ret_ri = self.a1_r1.fcu.RegisterImage(BlockDeviceMapping=[{'Ebs': {'SnapshotId': ret_cs.response.snapshotId}, 'DeviceName': '/dev/sda1'}],
                                                   Name=image_name, RootDeviceName='/dev/sda1', Architecture='x86_64')
+            wait_images_state(self.a1_r1, [ret_ri.response.imageId], 'available')
             # run instance with new omi
             ci2_info = create_instances(self.a1_r1, state='ready', omi_id=ret_ri.response.imageId)
             assert len(ci2_info[INSTANCE_SET]) == 1
