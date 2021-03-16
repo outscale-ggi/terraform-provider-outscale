@@ -1,7 +1,8 @@
-import os
-from os import system as system_call
+
 from platform import system as system_name
 
+import subprocess
+from subprocess import CalledProcessError
 import pytest
 
 from qa_common_tools.ssh import SshTools
@@ -12,6 +13,26 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_subnet, delete_instances_old, delete_keypair
+
+
+def ping(host):
+    """
+    Returns True if host (str) responds to a ping request.
+    Remember that some hosts may not respond to a ping request even if the host name is valid.
+    """
+
+    # Ping parameters as function of OS
+    # parameters = "-n 1" if system_name().lower() == "windows" else "-c 1"
+    # Pinging
+    # return system_call("ping " + parameters + " " + host) == 0
+
+    args = ['ping', '-n', '1', host] if system_name().lower() == "windows" else ['ping', '-c', '1', host]
+    try:
+        subprocess.check_call(args, shell=True)
+        return True
+    except CalledProcessError:
+        return False
+    # return subprocess.run(args, stdout=subprocess.PIPE).returncode == 0
 
 
 class Test_sg_ingress_public_vpc(OscTestSuite):
@@ -68,9 +89,8 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -143,18 +163,6 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
         self.logger.info(out)
         assert not status
 
-    def ping(self, host):
-        """
-        Returns True if host (str) responds to a ping request.
-        Remember that some hosts may not respond to a ping request even if the host name is valid.
-        """
-
-        # Ping parameters as function of OS
-        parameters = "-n 1" if system_name().lower() == "windows" else "-c 1"
-
-        # Pinging
-        return system_call("ping " + parameters + " " + host) == 0
-
     def create_rules(self, sg_id):
         self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg_id, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=self.cidr)
         self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg_id, IpProtocol='icmp', FromPort=-1, ToPort=-1, CidrIp=self.cidr)
@@ -182,7 +190,7 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             # validate tcp
 
             # validate ICMP
-            assert self.ping(host=public_ip_inst)
+            assert ping(host=public_ip_inst)
 
             sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
@@ -197,10 +205,15 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             self.config_tftp(sshclient=sshclient, text_to_check=text_to_check)
 
             # validate UDP
-            cmd = "echo \"get demo.txt\" \'/tmp/demo.txt\' | tftp {}".format(public_ip_inst)
-            os.system(cmd)
+            #cmd = "echo \"get demo.txt\" \'/tmp/demo.txt\' | tftp {}".format(public_ip_inst)
+            #os.system(cmd)
+            args = ["echo 'get demo.txt demo.out.txt' | tftp {}".format(public_ip_inst)]
+            try:
+                subprocess.check_call(args, shell=True)
+            except CalledProcessError:
+                print('Could not execute command')
 
-            demo_file = open('/tmp/demo.txt', 'r')
+            demo_file = open('demo.out.txt', 'r')
             lines = demo_file.readlines()
             assert lines[0].strip() == text_to_check
 
@@ -210,13 +223,13 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
                     try:
                         delete_instances_old(self.a1_r1, [inst_id])
                     except Exception:
-                        pass
+                        print('Could not delete instances')
 
                 if sg_id:
                     try:
                         self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                     except Exception:
-                        pass
+                        print('Could not delete security group')
 
             except:
                 pytest.fail("An error happened deleting resources in the test")
@@ -253,15 +266,20 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             self.config_tftp(sshclient=sshclient, text_to_check=text_to_check)
 
             # validate UDP
-            cmd = "echo \"get demo.txt\" \'/tmp/demo.txt\' | tftp {}".format(public_ip_inst)
-            os.system(cmd)
+            # cmd = "echo \"get demo.txt\" \'/tmp/demo.txt\' | tftp {}".format(public_ip_inst)
+            # os.system(cmd)
+            args = ["echo 'get demo.txt demo.out.txt' | tftp {}".format(public_ip_inst)]
+            try:
+                subprocess.check_call(args, shell=True)
+            except CalledProcessError:
+                print('Could not execute command')
 
-            demo_file = open('/tmp/demo.txt', 'r')
+            demo_file = open('demo.out.txt', 'r')
             lines = demo_file.readlines()
             assert lines[0].strip() == text_to_check
 
             # validate ICMP
-            assert self.ping(host=public_ip_inst)
+            assert ping(host=public_ip_inst)
 
         finally:
             try:
@@ -269,13 +287,13 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
                     try:
                         delete_instances_old(self.a1_r1, [inst_id])
                     except Exception:
-                        pass
+                        print('Could not delete instances')
 
                 if sg_id:
                     try:
                         self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                     except Exception:
-                        pass
+                        print('Could not delete security group')
 
             except:
                 pytest.fail("An error happened deleting resources in the test")

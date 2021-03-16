@@ -10,7 +10,6 @@ from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_image, create_instances_old
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old
 
-
 UNSUPPORTED_ATT_NAMES = ['kernel', 'ramdisk', 'productCodes', 'sriovNetSupport']
 SUPPORTED_ATT_NAMES = ['description', 'launchPermission', 'blockDeviceMapping']
 TEST_NAMES = {'description': 1725, 'launchPermission': 1726, 'blockDeviceMapping': 1727,
@@ -36,12 +35,11 @@ class Test_DescribeImageAttribute(OscTestSuite):
             assert len(cls.img1_snap_id_list) == 1, 'Could not find snapshots created when creating image'
             launch_permissions = {'Add': [{'UserId': str(cls.a2_r1.config.account.account_id)}, {'Group': 'all'}]}
             cls.a1_r1.fcu.ModifyImageAttribute(ImageId=cls.image_id, LaunchPermission=launch_permissions)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

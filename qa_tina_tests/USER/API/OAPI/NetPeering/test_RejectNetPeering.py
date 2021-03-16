@@ -1,5 +1,5 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -72,27 +72,25 @@ class Test_RejectNetPeering(OscTestSuite):
             assert_oapi_error(error, 400, 'OperationNotSupported', '8011')
 
     def test_T3199_with_peering_between_two_account(self):
-        self.a1_vpc = None
-        self.a2_vpc = None
-        self.a1_peering = None
+        a1_vpc = None
+        a2_vpc = None
+        a1_peering = None
         try:
-            self.a1_vpc = self.a1_r1.oapi.CreateNet(IpRange="10.1.0.0/16").response.Net.NetId
-            self.a2_vpc = self.a2_r1.oapi.CreateNet(IpRange="10.2.0.0/16").response.Net.NetId
-            self.a1_peering = self.a1_r1.oapi.CreateNetPeering(
-                SourceNetId=self.a1_vpc, AccepterNetId=self.a2_vpc,
-            ).response.NetPeering.NetPeeringId
-            self.a2_r1.oapi.RejectNetPeering(NetPeeringId=self.a1_peering)
-            ret = self.a2_r1.oapi.ReadNetPeerings(Filters={'NetPeeringIds': [self.a1_peering]}).response.NetPeerings[0]
+            a1_vpc = self.a1_r1.oapi.CreateNet(IpRange="10.1.0.0/16").response.Net.NetId
+            a2_vpc = self.a2_r1.oapi.CreateNet(IpRange="10.2.0.0/16").response.Net.NetId
+            a1_peering = self.a1_r1.oapi.CreateNetPeering(SourceNetId=a1_vpc, AccepterNetId=a2_vpc).response.NetPeering.NetPeeringId
+            self.a2_r1.oapi.RejectNetPeering(NetPeeringId=a1_peering)
+            ret = self.a2_r1.oapi.ReadNetPeerings(Filters={'NetPeeringIds': [a1_peering]}).response.NetPeerings[0]
             if ret.State.Name == 'rejected':
-                self.a1_peering = None
+                a1_peering = None
             else:
                 assert False, 'Invalid expected state'
         except:
             assert False, 'No Error should occurs'
         finally:
-            if self.a1_peering:
-                self.a1_r1.oapi.DeleteNetPeering(NetPeeringId=self.a1_peering)
-            if self.a1_vpc:
-                self.a1_r1.oapi.DeleteNet(NetId=self.a1_vpc)
-            if self.a2_vpc:
-                self.a2_r1.oapi.DeleteNet(NetId=self.a2_vpc)
+            if a1_peering:
+                self.a1_r1.oapi.DeleteNetPeering(NetPeeringId=a1_peering)
+            if a1_vpc:
+                self.a1_r1.oapi.DeleteNet(NetId=a1_vpc)
+            if a2_vpc:
+                self.a2_r1.oapi.DeleteNet(NetId=a2_vpc)

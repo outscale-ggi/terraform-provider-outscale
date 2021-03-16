@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import base64
 
 import pytest
@@ -6,12 +6,11 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, id_generator, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_security_group
-from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instances, \
-    terminate_instances
+from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_instances_state
+from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 
 
 class Test_UpdateVm(OscTestSuite):
@@ -40,12 +39,13 @@ class Test_UpdateVm(OscTestSuite):
             cls.a1_r1.fcu.AttachVolume(Device="/dev/xvdb", InstanceId=cls.vm_ids[0], VolumeId=cls.vol_ids[0])
             cls.a1_r1.fcu.AttachVolume(Device="/dev/xvdc", InstanceId=cls.vm_ids[0], VolumeId=cls.vol_ids[1])
             wait_volumes_state(cls.a1_r1, cls.vol_ids, 'in-use')
-        except:
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -114,10 +114,10 @@ class Test_UpdateVm(OscTestSuite):
         ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
         assert ret.VmId == self.vm_ids[0]
         assert len(ret.BlockDeviceMappings) == 3
-        assert True if "/dev/xvdb" in (x.DeviceName for x in ret.BlockDeviceMappings) else False
-        assert True if "/dev/xvdc" in (x.DeviceName for x in ret.BlockDeviceMappings) else False
-        assert True if "/dev/sda1" in (x.DeviceName for x in ret.BlockDeviceMappings) else False
-        assert True if self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.BlockDeviceMappings) else False
+        assert "/dev/xvdb" in (x.DeviceName for x in ret.BlockDeviceMappings)
+        assert "/dev/xvdc" in (x.DeviceName for x in ret.BlockDeviceMappings)
+        assert "/dev/sda1" in (x.DeviceName for x in ret.BlockDeviceMappings)
+        assert self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.BlockDeviceMappings)
 
     def test_T2133_BlockMappingDevice_missing_device_name(self):
         try:
@@ -140,10 +140,10 @@ class Test_UpdateVm(OscTestSuite):
             ret = self.a1_r1.oapi.ReadVmAttribute(VmId=self.vm_ids[0], Attribute='BlockDeviceMappings')
             assert ret.response.VmId == self.vm_ids[0]
             assert len(ret.response.BlockDeviceMappings) == 3
-            assert True if "/dev/xvdb" in (x.DeviceName for x in ret.response.BlockDeviceMappings) else False
-            assert True if "/dev/xvdc" in (x.DeviceName for x in ret.response.BlockDeviceMappings) else False
-            assert True if "/dev/sda1" in (x.DeviceName for x in ret.response.BlockDeviceMappings) else False
-            assert True if self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.response.BlockDeviceMappings) else False
+            assert "/dev/xvdb" in (x.DeviceName for x in ret.response.BlockDeviceMappings)
+            assert "/dev/xvdc" in (x.DeviceName for x in ret.response.BlockDeviceMappings)
+            assert "/dev/sda1" in (x.DeviceName for x in ret.response.BlockDeviceMappings)
+            assert self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.response.BlockDeviceMappings)
 
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
@@ -181,18 +181,15 @@ class Test_UpdateVm(OscTestSuite):
             assert_oapi_error(error, 409, 'InvalidState', '6003')
 
     def test_T2139_GroupId(self):
-        sg_id = None
-        try:
-            ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
-            sg_id = create_security_group(self.a1_r1, id_generator(prefix='T2139'), 'desc')
-            self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], SecurityGroupIds=[sg_id])
-            ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
-            assert ret.VmId == self.vm_ids[0]
-            assert ret.DeletionProtection is False
-            assert isinstance(ret.SecurityGroups, list)
-            assert ret.SecurityGroups[0].SecurityGroupId == sg_id
-        finally:
-            pass
+        # sg_id = None
+        # ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
+        sg_id = create_security_group(self.a1_r1, id_generator(prefix='T2139'), 'desc')
+        self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], SecurityGroupIds=[sg_id])
+        ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[0]]}).response.Vms[0]
+        assert ret.VmId == self.vm_ids[0]
+        assert ret.DeletionProtection is False
+        assert isinstance(ret.SecurityGroups, list)
+        assert ret.SecurityGroups[0].SecurityGroupId == sg_id
 
     def test_T2140_IISB(self):
         self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], VmInitiatedShutdownBehavior='stop')
@@ -244,9 +241,9 @@ class Test_UpdateVm(OscTestSuite):
     def test_T2147_user_data_private_only_true_false(self):
         inst_info = None
         try:
-            data_true = base64.encodestring(
+            data_true = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodestring(
+            data_false = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_true)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -280,9 +277,9 @@ class Test_UpdateVm(OscTestSuite):
     def test_T2148_user_data_private_only_false_true(self):
         inst_info = None
         try:
-            data_true = base64.encodestring(
+            data_true = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodestring(
+            data_false = base64.encodebytes(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_false)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -355,7 +352,7 @@ class Test_UpdateVm(OscTestSuite):
                 self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
 
     def test_T4899_base64_userdata(self):
-        userdata= """I2Nsb3VkLWNvbmZpZwpjbG91ZF9jb25maWdfbW9kdWxlczoKLSBydW5jbWQKCnJ1bmNtZDoKLSB0b
+        userdata = """I2Nsb3VkLWNvbmZpZwpjbG91ZF9jb25maWdfbW9kdWxlczoKLSBydW5jbWQKCnJ1bmNtZDoKLSB0b
         3VjaCAvdG1wL3FhLXZhbGlkLXRlcnJhZm9ybS11c2VyLWRhdGEtY2xvdWQtaW5pdAotIGVjaG8gImJsYWJsYSIgPj4gL2Rldi90dHlTMAo="""
         try:
             inst_info = create_instances(self.a1_r1)

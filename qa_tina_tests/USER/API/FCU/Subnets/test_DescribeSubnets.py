@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
@@ -51,9 +51,8 @@ class Test_DescribeSubnets(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -133,7 +132,7 @@ class Test_DescribeSubnets(OscTestSuite):
 
     def test_T2167_without_param(self):
         ret = self.a1_r1.fcu.DescribeSubnets().response.subnetSet
-        assert len(set([subnet.subnetId for subnet in ret])) == len(self.subnet_id_list)
+        assert len({subnet.subnetId for subnet in ret}) == len(self.subnet_id_list)
         for subnet in ret:
             assert subnet.mapPublicIpOnLaunch == "false"
             assert subnet.subnetId in self.subnet_id_list

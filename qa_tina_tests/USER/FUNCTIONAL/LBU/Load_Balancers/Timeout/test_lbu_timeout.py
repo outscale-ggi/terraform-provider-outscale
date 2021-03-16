@@ -1,7 +1,8 @@
-# pylint: disable=missing-docstring
+
+
+import time
 
 import requests
-import time
 
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
@@ -32,9 +33,8 @@ class Test_lbu_timeout(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -66,9 +66,8 @@ class Test_lbu_timeout(OscTestSuite):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:

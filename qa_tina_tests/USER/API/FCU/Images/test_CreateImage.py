@@ -20,9 +20,8 @@ class Test_CreateImage(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -33,7 +32,8 @@ class Test_CreateImage(OscTestSuite):
             super(Test_CreateImage, cls).teardown_class()
 
     # parameter Name constraints
-    # AWS ==>3-128 alphanumeric characters, parentheses (()), square brackets ([]), spaces ( ), periods (.), slashes (/), dashes (-), single quotes ('), at-signs (@), or underscores(_)
+    # AWS ==>3-128 alphanumeric characters, parentheses (()), square brackets ([]), spaces ( ), periods (.),
+    # slashes (/), dashes (-), single quotes ('), at-signs (@), or underscores(_)
     # TINA ==> [a-zA-Z0-9_ ()/.-] , length: (3, 128)
 
     def test_T2279_name_too_short(self):
@@ -42,7 +42,8 @@ class Test_CreateImage(OscTestSuite):
         try:
             img_id = self.a1_r1.fcu.CreateImage(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Name=name).response.imageId
         except OscApiException as err:
-            assert_error(err, 400, "InvalidAMIName.Malformed", "AMI names must be between 3 and 128 characters long, and may contain letters, numbers, '(', ')', '.', '-', '/' and '_'")
+            assert_error(err, 400, "InvalidAMIName.Malformed",
+                         "AMI names must be between 3 and 128 characters long, and may contain letters, numbers, '(', ')', '.', '-', '/' and '_'")
         finally:
             if img_id:
                 self.a1_r1.fcu.DeregisterImage(ImageId=img_id)
@@ -75,7 +76,8 @@ class Test_CreateImage(OscTestSuite):
         try:
             img_id = self.a1_r1.fcu.CreateImage(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Name=name).response.imageId
         except OscApiException as err:
-            assert_error(err, 400, 'InvalidAMIName.Malformed', "AMI names must be between 3 and 128 characters long, and may contain letters, numbers, '(', ')', '.', '-', '/' and '_'")
+            assert_error(err, 400, 'InvalidAMIName.Malformed',
+                         "AMI names must be between 3 and 128 characters long, and may contain letters, numbers, '(', ')', '.', '-', '/' and '_'")
         finally:
             if img_id:
                 self.a1_r1.fcu.DeregisterImage(ImageId=img_id)
@@ -86,7 +88,9 @@ class Test_CreateImage(OscTestSuite):
         try:
             img_id = self.a1_r1.fcu.CreateImage(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Name=name).response.imageId
         except OscApiException as err:
-            assert_error(err, 400, 'InvalidAMIName.Malformed', "AMI names must be between 3 and 128 characters long, and may contain letters, numbers, \'(\', \')\', \'.\', \'-\', \'/\' and \'_\'")
+            assert_error(err, 400, 'InvalidAMIName.Malformed',
+                         "AMI names must be between 3 and 128 characters long, " + \
+                         "and may contain letters, numbers, \'(\', \')\', \'.\', \'-\', \'/\' and \'_\'")
         finally:
             if img_id:
                 self.a1_r1.fcu.DeregisterImage(ImageId=img_id)
@@ -115,7 +119,7 @@ class Test_CreateImage(OscTestSuite):
                 self.a1_r1.fcu.DeregisterImage(ImageId=img_id)
             self.a1_r1.fcu.StartInstances(InstanceId=self.inst_info[INSTANCE_ID_LIST])
             wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.inst_info[INSTANCE_ID_LIST], state='running')
-            
+
     def test_T4077_check_img_id_start_with_ami(self):
         try:
             img_name = id_generator(prefix="omi-", size=8, chars=string.ascii_lowercase)

@@ -124,4 +124,3 @@ class Test_CopyImage(OscTestSuite):
         finally:
             if img_id:
                 self.a1_r1.fcu.DeregisterImage(ImageId=img_id)
-

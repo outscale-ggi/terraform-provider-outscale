@@ -14,8 +14,9 @@ class Test_DeleteCustomerGateway(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_DeleteCustomerGateway, cls).setup_class()
+        cls.gateway_id_list = None
         cls.cgw_ip = Configuration.get('ipaddress', 'cgw_ip')
+        super(Test_DeleteCustomerGateway, cls).setup_class()
 
     @classmethod
     def teardown_class(cls):
@@ -35,9 +36,8 @@ class Test_DeleteCustomerGateway(OscTestSuite):
         except AssertionError as error:
             try:
                 self.teardown_method(method)
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:

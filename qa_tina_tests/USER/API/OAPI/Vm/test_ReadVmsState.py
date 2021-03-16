@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 from datetime import datetime, timedelta
 
 import pytest
@@ -7,10 +7,10 @@ import pytz
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST
-from qa_tina_tools.tools.tina import info_keys
 
 
 class Test_ReadVmsState(OscTestSuite):
@@ -69,7 +69,6 @@ class Test_ReadVmsState(OscTestSuite):
 
     @pytest.mark.region_admin
     def test_T5544_filters_maintenance(self):
-        event_id = None
         start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(
             seconds=10)
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=2)
@@ -105,7 +104,6 @@ class Test_ReadVmsState(OscTestSuite):
             assert ret.response.VmStates[i].VmState == 'running', "State of the vm should be running"
         # check size of the list
         assert len(ret.response.VmStates) == 2
-
 
     def test_T2074_with_vm_id(self):
         result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[INSTANCE_SET][0]['instanceId']]})

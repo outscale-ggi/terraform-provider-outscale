@@ -1,3 +1,4 @@
+from __future__ import division
 import base64
 import sys
 
@@ -15,21 +16,6 @@ def evaluate_server(server):
 
 
 class Test_min_max_behavior(OscTestSuite):
-    @classmethod
-    def setup_class(cls):
-        super(Test_min_max_behavior, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            cls.teardown_class()
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_min_max_behavior, cls).teardown_class()
 
     @pytest.mark.region_admin
     def test_T4517_min_max_count_behavior(self):
@@ -58,7 +44,7 @@ class Test_min_max_behavior(OscTestSuite):
             inst_ids = None
             try:
                 core_per_inst = int(kvm_selected.available_core//10)
-                ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region._conf[constants.CENTOS7], MaxCount=20,
+                ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7), MaxCount=20,
                                                   MinCount=5,
                                                   InstanceType='tinav1.c{}r1'.format(core_per_inst),
                                                   UserData=userdata)
@@ -66,7 +52,7 @@ class Test_min_max_behavior(OscTestSuite):
                 assert len(inst_ids) == int(kvm_selected.available_core / core_per_inst)
                 wait_instances_state(self.a1_r1, inst_ids, state='running')
                 ret = self.a1_r1.intel.instance.find(owner=self.a1_r1.config.account.account_id, state='running')
-                kvms = set([inst.servers[0].server for inst in ret.response.result])
+                kvms = {[inst.servers[0].server for inst in ret.response.result]}
                 assert len(kvms) == 1 and kvms.pop() == kvm_selected.name
             finally:
                 if inst_ids:

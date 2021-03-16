@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
@@ -25,9 +25,8 @@ class Test_AddUserToGroup(OscTestSuite):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:

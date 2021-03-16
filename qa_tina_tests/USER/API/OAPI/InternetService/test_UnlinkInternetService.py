@@ -35,17 +35,17 @@ class Test_UnlinkInternetService(OscTestSuite):
                 try:
                     self.a1_r1.oapi.UnlinkInternetService(InternetServiceId=inet_id, NetId=net_id)
                 except:
-                    pass
+                    print('Could not unlink internet service')
             if inet_id:
                 try:
                     self.a1_r1.oapi.DeleteInternetService(InternetServiceId=inet_id)
                 except:
-                    pass
+                    print('Could not delete internet service')
             if net_id:
                 try:
                     self.a1_r1.oapi.DeleteNet(NetId=net_id)
                 except:
-                    pass
+                    print('Could not delete net')
 
     def test_T2247_valid_params_dry_run(self):
         net_id = None
@@ -64,17 +64,17 @@ class Test_UnlinkInternetService(OscTestSuite):
                 try:
                     self.a1_r1.oapi.UnlinkInternetService(InternetServiceId=inet_id, NetId=net_id)
                 except:
-                    pass
+                    print('Could not unlink internet service')
             if inet_id:
                 try:
                     self.a1_r1.oapi.DeleteInternetService(InternetServiceId=inet_id)
                 except:
-                    pass
+                    print('Could not delete internet service')
             if net_id:
                 try:
                     self.a1_r1.oapi.DeleteNet(NetId=net_id)
                 except:
-                    pass
+                    print('Could not delete net')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3466_other_account(self):
@@ -96,14 +96,14 @@ class Test_UnlinkInternetService(OscTestSuite):
                 try:
                     self.a1_r1.oapi.UnlinkInternetService(InternetServiceId=inet_id, NetId=net_id)
                 except:
-                    pass
+                    print('Could not unlink internet service')
             if inet_id:
                 try:
                     self.a1_r1.oapi.DeleteInternetService(InternetServiceId=inet_id)
                 except:
-                    pass
+                    print('Could not delete internet service')
             if net_id:
                 try:
                     self.a1_r1.oapi.DeleteNet(NetId=net_id)
                 except:
-                    pass
+                    print('Could not delete net')

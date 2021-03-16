@@ -34,9 +34,8 @@ class Test_UnlinkPublicIp(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -146,30 +145,31 @@ class Test_UnlinkPublicIp(OscTestSuite):
 
     def test_T2818_with_ni_pub_ip(self):
         ret = None
+        association_id = None
         try:
             ret = self.a1_r1.oapi.LinkPublicIp(NicId=self.net1.networkInterfaceId, PublicIp=self.vpc_eips[2].publicIp)
-            associationId = ret.response.LinkPublicIpId
+            association_id = ret.response.LinkPublicIpId
             self.a1_r1.oapi.UnlinkPublicIp(PublicIp=self.vpc_eips[2].publicIp)
-            associationId = None
+            association_id = None
         # for debug purposes
         except Exception as error:
             raise error
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[2].publicIp)
 
     def test_T2819_with_ni_link_id(self):
-        associationId = None
+        association_id = None
         try:
             ret = self.a1_r1.oapi.LinkPublicIp(NicId=self.net1.networkInterfaceId, PublicIpId=self.vpc_eips[3].allocationId)
-            associationId = ret.response.LinkPublicIpId
-            self.a1_r1.oapi.UnlinkPublicIp(LinkPublicIpId=associationId)
-            associationId = None
+            association_id = ret.response.LinkPublicIpId
+            self.a1_r1.oapi.UnlinkPublicIp(LinkPublicIpId=association_id)
+            association_id = None
         # for debug purposes
         except Exception as error:
             raise error
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[3].publicIp)
 
     def test_T3521_dry_run(self):

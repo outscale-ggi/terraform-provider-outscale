@@ -1,5 +1,6 @@
-import pytest
 import time
+
+import pytest
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
@@ -17,6 +18,7 @@ def compare_validate_volumes(before_volume, after_volume, **kwargs):
     for attr in before_volume.__dict__:
         if not attr.startswith('_') and attr not in kwargs:
             assert getattr(before_volume, attr) == getattr(after_volume, attr)
+
 
 class Test_UpdateVolume(OscTestSuite):
 
@@ -38,9 +40,8 @@ class Test_UpdateVolume(OscTestSuite):
         except:
             try:
                 self.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:
@@ -107,7 +108,6 @@ class Test_UpdateVolume(OscTestSuite):
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol.VolumeId)
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
-
 
     def test_T5238_with_invalid_size(self):
         try:

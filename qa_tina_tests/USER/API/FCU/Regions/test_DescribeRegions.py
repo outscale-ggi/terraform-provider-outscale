@@ -1,11 +1,18 @@
-# pylint: disable=missing-docstring
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
 
-
 ATTRIBUTES = ['regionName', 'regionEndpoint']
+
+
+def verify_response(response):
+    for reg in response.regionInfo:
+        assert hasattr(reg, 'regionName'), "Missing attribute 'regionName' in response"
+        assert hasattr(reg, 'regionEndpoint'), "Missing attribute 'regionEndpoint' in response"
+    assert len(response.regionInfo) == len({reg.regionName for reg in response.regionInfo}), "Duplicate(s) in region names"
+    assert len(response.regionInfo) == len({reg.regionEndpoint for reg in response.regionInfo}), 'Duplicate(s) in region endpoints'
 
 
 class Test_DescribeRegions(OscTestSuite):
@@ -18,20 +25,13 @@ class Test_DescribeRegions(OscTestSuite):
     def teardown_class(cls):
         super(Test_DescribeRegions, cls).teardown_class()
 
-    def verify_response(self, response):
-        for reg in response.regionInfo:
-            assert hasattr(reg, 'regionName'), "Missing attribute 'regionName' in response"
-            assert hasattr(reg, 'regionEndpoint'), "Missing attribute 'regionEndpoint' in response"
-        assert len(response.regionInfo) == len(set([reg.regionName for reg in response.regionInfo])), "Duplicate(s) in region names"
-        assert len(response.regionInfo) == len(set([reg.regionEndpoint for reg in response.regionInfo])), 'Duplicate(s) in region endpoints'
-
     def test_T3124_no_params(self):
         ret = self.a1_r1.fcu.DescribeRegions().response
-        self.verify_response(ret)
+        verify_response(ret)
 
     def test_T3380_no_authorization(self):
         ret = self.a1_r1.fcu.DescribeRegions(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}).response
-        self.verify_response(ret)
+        verify_response(ret)
 
     # RegionName, Filter --> region-name, endpoint
 

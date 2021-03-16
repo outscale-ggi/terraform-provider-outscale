@@ -35,9 +35,8 @@ class Test_LinkPublicIp(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -61,10 +60,8 @@ class Test_LinkPublicIp(OscTestSuite):
         ret = None
         try:
             ret = self.a1_r1.oapi.LinkPublicIp(VmId=self.inst_info[INSTANCE_ID_LIST][0], PublicIp=self.standard_eips[0].publicIp)
-            assert ret.response.LinkPublicIpId and type(ret.response.LinkPublicIpId) is str, "Missing/Incorrect response element 'LinkPublicIpId'."
-        # for debug purposes
-        except Exception as error:
-            raise error
+            assert ret.response.LinkPublicIpId and \
+                isinstance(ret.response.LinkPublicIpId, str), "Missing/Incorrect response element 'LinkPublicIpId'."
         finally:
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.standard_eips[0].publicIp)
@@ -81,15 +78,15 @@ class Test_LinkPublicIp(OscTestSuite):
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[0].publicIp)
 
     def test_T2767_with_priv_inst_alloc_id(self):
-        associationId = None
+        association_id = None
         try:
             ret = self.a1_r1.oapi.LinkPublicIp(VmId=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0], PublicIpId=self.vpc_eips[1].allocationId)
-            associationId = ret.response.LinkPublicIpId
+            association_id = ret.response.LinkPublicIpId
         # for debug purposes
         except Exception as error:
             raise error
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[1].publicIp)
 
     def test_T2768_with_ni_pub_ip(self):
@@ -104,15 +101,15 @@ class Test_LinkPublicIp(OscTestSuite):
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[2].publicIp)
 
     def test_T2769_with_ni_alloc_id(self):
-        associationId = None
+        association_id = None
         try:
             ret = self.a1_r1.oapi.LinkPublicIp(NicId=self.net1.networkInterfaceId, PublicIpId=self.vpc_eips[3].allocationId)
-            associationId = ret.response.LinkPublicIpId
+            association_id = ret.response.LinkPublicIpId
         # for debug purposes
         except Exception as error:
             raise error
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[3].publicIp)
 
     def test_T2770_no_element_pub_ip(self):
@@ -127,41 +124,41 @@ class Test_LinkPublicIp(OscTestSuite):
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[4].publicIp)
 
     def test_T2771_no_element_alloc_id(self):
-        associationId = None
+        association_id = None
         try:
             ret = self.a1_r1.oapi.LinkPublicIp(PublicIpId=self.vpc_eips[5].allocationId)
-            associationId = ret.response.LinkPublicIpId
+            association_id = ret.response.LinkPublicIpId
             assert False, 'Call should not have been successful'
         except Exception as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[5].publicIp)
 
     def test_T2772_with_priv_inst_empty_ni_alloc_id(self):
-        associationId = None
+        association_id = None
         try:
             ret = self.a1_r1.oapi.LinkPublicIp(VmId=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0],
                                                NicId='',
                                                PublicIpId=self.vpc_eips[6].allocationId)
-            associationId = ret.response.LinkPublicIpId
+            association_id = ret.response.LinkPublicIpId
         # for debug purposes
         except Exception as error:
             assert_oapi_error(error, 400, 'MissingParameter', None)
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[6].publicIp)
 
     def test_T2773_with_ni_empty_priv_inst_alloc_id(self):
-        associationId = None
+        association_id = None
         try:
             ret = self.a1_r1.oapi.LinkPublicIp(VmId='', NicId=self.net1.networkInterfaceId, PublicIpId=self.vpc_eips[7].allocationId)
-            associationId = ret.response.LinkPublicIpId
+            association_id = ret.response.LinkPublicIpId
         # for debug purposes
         except Exception as error:
             raise error
         finally:
-            if associationId:
+            if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[7].publicIp)
 
     def test_T2774_reassoc_pub_none(self):
@@ -217,7 +214,7 @@ class Test_LinkPublicIp(OscTestSuite):
             try:
                 self.a1_r1.oapi.LinkPublicIp(VmId=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][1],
                                              PublicIpId=eip.allocationId,
-                                             AllowRelink=None).response.LinkPublicIpId
+                                             AllowRelink=None)
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')

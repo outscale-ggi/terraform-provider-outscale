@@ -10,25 +10,6 @@ from qa_tina_tools.tools.tina.info_keys import PATH, INSTANCE_ID_LIST, INSTANCE_
 
 class Test_ModifyInstanceKeypair(OscTestSuite):
 
-    @classmethod
-    def setup_class(cls):
-        super(Test_ModifyInstanceKeypair, cls).setup_class()
-        try:
-            pass
-        except:
-            try:
-                cls.teardown_class()
-            except:
-                pass
-            raise
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_ModifyInstanceKeypair, cls).teardown_class()
-
     def test_T4137_create_and_modify_instance_keypair(self):
         kp_info = None
         inst_info = None
@@ -64,4 +45,3 @@ class Test_ModifyInstanceKeypair(OscTestSuite):
             except Exception as error:
                 self.logger.exception(error)
                 raise error
-

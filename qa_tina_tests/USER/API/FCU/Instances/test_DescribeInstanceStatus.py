@@ -31,12 +31,11 @@ class Test_DescribeInstanceStatus(OscTestSuite):
             terminate_instances(cls.a1_r1, [cls.inst4_id_terminated])
             cls.inst_info_2 = create_instances(cls.a2_r1)
             cls.inst_account2 = cls.inst_info_2[INSTANCE_ID_LIST][0]
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -75,10 +74,8 @@ class Test_DescribeInstanceStatus(OscTestSuite):
     def test_T910_with_instance_ids(self):
         ret = self.a1_r1.fcu.DescribeInstanceStatus(InstanceId=[self.inst_id_running, self.inst1_id_running])
         assert len(ret.response.instanceStatusSet) == 2
-        assert True if self.inst_id_running in (instanceset.instanceId for instanceset in
-                                                ret.response.instanceStatusSet) else False
-        assert True if self.inst1_id_running in (instanceset.instanceId for instanceset in
-                                                 ret.response.instanceStatusSet) else False
+        assert self.inst_id_running in (instanceset.instanceId for instanceset in ret.response.instanceStatusSet)
+        assert self.inst1_id_running in (instanceset.instanceId for instanceset in ret.response.instanceStatusSet)
 
     # def test_T911_filter_availability_zone(self):
 
@@ -105,16 +102,16 @@ class Test_DescribeInstanceStatus(OscTestSuite):
 
     def test_T917_filter_instance_state_name(self):
         # check running
-        code_Name = 'running'
-        ret = self.a1_r1.fcu.DescribeInstanceStatus(Filter=[{'Name': 'instance-state-name', 'Value': code_Name}])
+        code_name = 'running'
+        ret = self.a1_r1.fcu.DescribeInstanceStatus(Filter=[{'Name': 'instance-state-name', 'Value': code_name}])
         assert len(ret.response.instanceStatusSet) == 3
         for i in range(3):
-            assert ret.response.instanceStatusSet[i].instanceState.name == code_Name
+            assert ret.response.instanceStatusSet[i].instanceState.name == code_name
         # check stopped
-        code_Name = 'stopped'
-        ret = self.a1_r1.fcu.DescribeInstanceStatus(Filter=[{'Name': 'instance-state-name', 'Value': code_Name}], IncludeAllInstances=True)
+        code_name = 'stopped'
+        ret = self.a1_r1.fcu.DescribeInstanceStatus(Filter=[{'Name': 'instance-state-name', 'Value': code_name}], IncludeAllInstances=True)
         assert ret.response.instanceStatusSet and len(ret.response.instanceStatusSet) == 1
-        assert ret.response.instanceStatusSet[0].instanceState.name == code_Name
+        assert ret.response.instanceStatusSet[0].instanceState.name == code_name
 
     # def test_T918_multiple_filters(self):
 

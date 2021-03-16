@@ -20,9 +20,8 @@ class Test_UpdateGroup(OscTestSuite):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:
@@ -32,11 +31,11 @@ class Test_UpdateGroup(OscTestSuite):
             OscTestSuite.teardown_method(self, method)
 
     def test_T3932_with_only_group_name_param(self):
-        tmpGroupName = self.group.GroupName
-        tmpGroupPath = self.group.Path
+        tmp_group_name = self.group.GroupName
+        tmp_group_path = self.group.Path
         self.a1_r1.eim.UpdateGroup(GroupName=self.group.GroupName)
-        assert self.group.GroupName == tmpGroupName
-        assert self.group.Path == tmpGroupPath
+        assert self.group.GroupName == tmp_group_name
+        assert self.group.Path == tmp_group_path
 
     def test_T3934_with_new_path(self):
         newpath = '/SecondPath/'

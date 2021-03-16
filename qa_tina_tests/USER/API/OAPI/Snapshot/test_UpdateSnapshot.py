@@ -1,10 +1,10 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
+from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
 
 
 class Test_UpdateSnapshot(Snapshot):
@@ -21,9 +21,8 @@ class Test_UpdateSnapshot(Snapshot):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):

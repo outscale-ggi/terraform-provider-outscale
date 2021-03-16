@@ -24,9 +24,9 @@ class Test_find_for_account(OscTestSuite):
             assert i.display_name
             assert i.description
             assert i.name
-            assert type(i.used_quota_value) == int
+            assert isinstance(i.used_quota_value, int)
             assert i.group_name
-            assert type(i.max_quota_value) == int
+            assert isinstance(i.max_quota_value, int)
             assert i.owner_id
         assert getattr(ret.response.result.limits, 'accesskey_limit')
         assert getattr(ret.response.result.limits, 'bypass_group_limit')

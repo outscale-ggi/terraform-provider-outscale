@@ -3,6 +3,7 @@ import sys
 
 from setuptools import find_packages, setup
 
+
 if 1 + 1:
     sys.path.insert(0, os.path.abspath('.'))
     from qa_tina_tests import version

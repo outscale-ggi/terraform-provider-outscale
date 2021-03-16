@@ -1,10 +1,10 @@
-# pylint: disable=missing-docstring
+
 import os
 import re
-
-import pytest
 import time
+
 from netaddr import IPNetwork, IPAddress
+import pytest
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
@@ -42,12 +42,11 @@ class Test_fw_lbu(OscTestSuite):
                                                                username='root',
                                                                retry=30,
                                                                timeout=10)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

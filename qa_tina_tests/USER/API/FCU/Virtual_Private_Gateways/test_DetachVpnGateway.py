@@ -24,9 +24,8 @@ class Test_DetachVpnGateway(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def setup_method(self, method):
         try:
@@ -49,7 +48,7 @@ class Test_DetachVpnGateway(OscTestSuite):
                     cls.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=cls.vgw_id)
                     wait_vpn_gateways_state(cls.a1_r1, [cls.vgw_id], state='deleted')
                 except:
-                    pass
+                    print('Could not delete vpn gateway')
             if cls.vpc_infos:
                 delete_vpc(cls.a1_r1, cls.vpc_infos)
         finally:

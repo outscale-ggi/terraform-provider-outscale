@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import string
 
 import pytest
@@ -13,7 +13,8 @@ class Test_CreateDirectLink(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
+        cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
+        cls.direct_link_id = None
         super(Test_CreateDirectLink, cls).setup_class()
         cls.location = None
         ret = cls.a1_r1.oapi.ReadLocations()

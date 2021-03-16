@@ -29,7 +29,6 @@ class Test_auto_sync_account_state(OscTestSuite):
                         principal={"accountPid": user})
                 except OscException as error:
                     errors.append(user)
-                    pass
             ret = self.a1_r1.xsub.auto_sync_account_state()
             for user in users:
                 ret = self.a1_r1.xsub.get_account(pid=user)
@@ -38,7 +37,7 @@ class Test_auto_sync_account_state(OscTestSuite):
                     if ret.response.result.account.status.identauth != 'INACTIVE' or ret.response.result.account.status.intel != 'disabled':
                         errors.append(user)
             if errors:
-                self.logger.info("Some users ({}) could not be disabled : {}".format(len(errors), errors))
+                # self.logger.info("Some users ({}) could not be disabled : {}".format(len(errors), errors))
                 raise OscTestException("Error(s) occurred while disabling users.")
         except OscException as error:
             raise error

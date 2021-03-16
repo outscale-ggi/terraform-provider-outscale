@@ -1,16 +1,20 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+
 
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
-from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
 from qa_tina_tools.constants import CODE_INJECT
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
+from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot, validate_snasphot
 
 
 class Test_CreateSnapshot(Snapshot):
+
+    @classmethod
+    def setup_class(cls):
+        cls.snap_ids = None
+        super(Test_CreateSnapshot, cls).setup_class()
 
     def setup_method(self, method):
         super(Test_CreateSnapshot, self).setup_method(method)
@@ -95,7 +99,7 @@ class Test_CreateSnapshot(Snapshot):
     def test_T2182_valid_case_from_volume(self):
         ret = self.a1_r1.oapi.CreateSnapshot(VolumeId=self.volume_id1).response.Snapshot
         self.snap_ids.append(ret.SnapshotId)
-        self.validate_snasphot(ret, expected_snap={
+        validate_snasphot(ret, expected_snap={
             'Description': '',
             'AccountId': self.a1_r1.config.account.account_id,
             'VolumeId': self.volume_id1,
@@ -105,7 +109,7 @@ class Test_CreateSnapshot(Snapshot):
     def test_T2183_valid_case_with_description(self):
         ret = self.a1_r1.oapi.CreateSnapshot(VolumeId=self.volume_id2, Description='hello').response.Snapshot
         self.snap_ids.append(ret.SnapshotId)
-        self.validate_snasphot(ret, expected_snap={
+        validate_snasphot(ret, expected_snap={
             'Description': 'hello',
             'AccountId': self.a1_r1.config.account.account_id,
             'VolumeId': self.volume_id2,
@@ -117,7 +121,7 @@ class Test_CreateSnapshot(Snapshot):
         for desc in CODE_INJECT:
             ret = self.a1_r1.oapi.CreateSnapshot(VolumeId=self.volume_id2, Description=desc).response.Snapshot
             self.snap_ids.append(ret.SnapshotId)
-            self.validate_snasphot(ret, expected_snap={
+            validate_snasphot(ret, expected_snap={
                 'Description': desc,
                 'AccountId': self.a1_r1.config.account.account_id,
                 'VolumeId': self.volume_id2,
@@ -159,7 +163,7 @@ class Test_CreateSnapshot(Snapshot):
         wait_snapshots_state(self.a1_r1, self.snap_ids, state='completed')
         ret = self.a1_r1.oapi.CreateSnapshot(SourceSnapshotId=id1, SourceRegionName=self.a1_r1.config.region.name).response.Snapshot
         self.snap_ids.append(ret.SnapshotId)
-        self.validate_snasphot(ret, expected_snap={
+        validate_snasphot(ret, expected_snap={
             'Description': 'hello',
             'AccountId': self.a1_r1.config.account.account_id,
             'VolumeSize': 4,

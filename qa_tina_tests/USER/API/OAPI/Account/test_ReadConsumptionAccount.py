@@ -12,22 +12,6 @@ class Test_ReadConsumptionAccount(OscTestSuite):
         super(Test_ReadConsumptionAccount, cls).setup_class()
         cls.start_date = (datetime.utcnow() - timedelta(weeks=20)).isoformat().split('T')[0]
         cls.end_date = (datetime.utcnow() - timedelta(weeks=10)).isoformat().split('T')[0]
-        try:
-            pass
-        except Exception as error1:
-            try:
-                cls.teardown_class()
-            except Exception as error2:
-                raise error2
-            finally:
-                raise error1
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_ReadConsumptionAccount, cls).teardown_class()
 
     def test_T4762_correct_dates(self):
         ret = self.a1_r1.oapi.ReadConsumptionAccount(FromDate=self.start_date, ToDate=self.end_date)

@@ -17,9 +17,8 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -36,7 +35,7 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
             try:
                 self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=self.lbu_name, Instances=[{'InstanceId': self.inst_ids[0]}])
             except Exception:
-                pass
+                print('Could not register instances.')
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as err:
             assert_error(err, 400, 'ValidationError', 'The request must contain the parameter LoadBalancerName')
@@ -47,7 +46,7 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
             try:
                 self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=self.lbu_name, Instances=[{'InstanceId': self.inst_ids[0]}])
             except Exception:
-                pass
+                print('Could not register instances.')
             assert False, 'Call should not have been successful, invalid loadbalancer name'
         except OscApiException as err:
             assert_error(err, 400, 'LoadBalancerNotFound', "There is no ACTIVE Load Balancer named 'foobar'")
@@ -58,11 +57,10 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
             try:
                 self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=self.lbu_name, Instances=[{'InstanceId': self.inst_ids[0]}])
             except Exception:
-                pass
+                print('Could not register instances.')
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as err:
             assert_error(err, 400, 'ValidationError', "The request must contain the parameter Instances")
-        pass
 
     def test_T1549_incorrect_instances(self):
         try:
@@ -70,7 +68,7 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
             try:
                 self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=self.lbu_name, Instances=[{'InstanceId': self.inst_ids[0]}])
             except Exception:
-                pass
+                print('Could not register instances.')
             assert False, 'Call should not have been successful, invalid instance id'
         except OscApiException as err:
             assert_error(err, 400, 'InvalidInstance', 'Instance i-12345678 is not a valid instance')
@@ -81,7 +79,7 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
             try:
                 self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=self.lbu_name, Instances=[{'InstanceId': self.inst_ids[0]}])
             except Exception:
-                pass
+                print('Could not register instances.')
             assert False, 'Call should not have been successful, incorrect parameter type'
         except OscApiException as err:
             assert_error(err, 400, 'ValidationError', 'Loadbalancer name does not have the good format')
@@ -92,7 +90,7 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
             try:
                 self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=self.lbu_name, Instances=[{'InstanceId': self.inst_ids[0]}])
             except Exception:
-                pass
+                print('Could not register instances.')
             assert False, 'Call should not have been successful, incorrect parameter type'
         except OscApiException as err:
             assert_error(err, 400, 'OWS.Error', 'Request is not valid.')
@@ -103,7 +101,7 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
             try:
                 self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=self.lbu_name, Instances=[{'InstanceId': self.inst_ids[0]}])
             except Exception:
-                pass
+                print('Could not register instances.')
             assert False, 'Call should not have been successful, incorrect parameter type'
         except OscApiException as err:
             assert_error(err, 400, 'OWS.Error', 'Request is not valid.')

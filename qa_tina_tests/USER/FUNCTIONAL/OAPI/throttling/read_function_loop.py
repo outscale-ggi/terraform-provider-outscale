@@ -1,24 +1,23 @@
 import argparse
 import logging
+from multiprocessing import Queue, Process
 import ssl
 import string
-from multiprocessing import Queue, Process
-
 import time
 
-from qa_sdk_as import OscSdkAs
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_priv.osc_api.osc_priv_api import OscPrivApi
 from qa_sdk_pub.osc_api import disable_throttling
+from specs.check_tools import get_documentation, DOCUMENTATIONS, SCHEMAS
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account
 from qa_test_tools.config import OscConfig
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.error import error_type, load_errors
-from specs.check_tools import get_documentation, DOCUMENTATIONS, SCHEMAS
 
-ssl._create_default_https_context = ssl._create_unverified_context
+setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 LOGGING_LEVEL = logging.DEBUG
 
@@ -55,6 +54,101 @@ def read_function_loop(osc_sdk, queue, args, api_read, throtting_account=False):
     queue.put(result)
 
 
+def run(args):
+    logger.info("Initialize environment")
+    config = OscConfig.get(account_name=args.account, az_name=args.az,
+                           credentials=constants.CREDENTIALS_CONFIG_FILE)
+    # xsub = OscPrivApi(service='xsub', config=config)
+    intel = OscPrivApi(service='intel', config=config)
+    # osc_sdk_as = OscSdkAs(config.region.get_info(constants.AS_IDAUTH_ID), config.region.name)
+    account_sdk = None
+
+    get_documentation('opai')
+    oapi_schemas = DOCUMENTATIONS['oapi'][SCHEMAS]
+    api_read = []
+    pids = []
+    for i, j in oapi_schemas.items():
+        if i.startswith('Read') and 'required' not in j and i.endswith('Request') and not i.startswith('ReadApiLogs'):
+            api_read.append(i[:-7])
+    nb_ok = 0
+    nb_ko = 0
+    queue = Queue()
+    processes = []
+    for i in range(args.process_number):
+        if args.account:
+            if not account_sdk:
+                account_sdk = OscSdk(config=config)
+            osc_sdk_i = account_sdk
+        else:
+            email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='test_throttling_read').lower())
+            password = misc.id_generator(size=8, chars=string.digits)
+            account_info = {'city': 'Saint_Cloud', 'company_name': 'Outscale', 'country': 'France',
+                            'email_address': email, 'firstname': 'Test_user', 'lastname': 'Test_Last_name',
+                            'password': password, 'zipcode': '92210'}
+            pid = create_account(OscSdk(config=config), account_info=account_info)
+            pids.append(pid)
+            ret = intel.accesskey.find_by_user(owner=pid)
+            keys = ret.response.result[0]
+            osc_sdk_i = OscSdk(config=OscConfig.get_with_keys(az_name=args.az, ak=keys.name, sk=keys.secret, account_id=pid,
+                                                              login=email, password=password))
+
+        proc = Process(name="load-{}".format(i), target=read_function_loop, args=[osc_sdk_i, queue, args, api_read])
+        processes.append(proc)
+
+    start = time.time()
+    for proc in processes:
+        proc.start()
+
+    logger.info("Wait workers")
+    for proc in processes:
+        proc.join()
+    end = time.time()
+
+    durations = []
+    errors = load_errors()
+    nums = []
+    nb_throttling = []
+
+    logger.info("Get results")
+    while not queue.empty():
+        res = queue.get()
+        for key in res.keys():
+            if key == "status":
+                if res[key] == "OK":
+                    nb_ok += 1
+                else:
+                    nb_ko += 1
+            elif key == 'duration':
+                durations.append(res[key])
+            elif key == 'error':
+                errors.add(res[key])
+            elif key == 'num':
+                nums.append(res[key])
+            elif key == 'nb_throttling_error':
+                nb_throttling.append(res[key])
+        logger.debug(res)
+    logger.info("OK = %d - KO = %d", nb_ok, nb_ko)
+    logger.info("nb_throttling_error = %d", nb_throttling)
+    logger.info("durations = %d", durations)
+    logger.info("nums = %d", nums)
+    print('duration = {}'.format(end - start))
+    print('calls number = {}'.format(sum(nums)))
+    print('throttling error number = {}'.format(sum(nb_throttling)))
+    errors.print_errors()
+
+    # for user in pids:
+    #     try:
+    #         xsub.terminate_account(pid=user)
+    #     except OscException as error:
+    #         logger.error("Error occurred while terminating user {} : {}".format(user, str(error)))
+    #     try:
+    #         intel.user.delete(username=user)
+    #         intel.user.gc(username=user)
+    #         osc_sdk_as.identauth.IdauthAccountAdmin.deleteAccount(principal={"accountPid": user}, forceRemoval="true")
+    #     except OscException as error:
+    #         logger.error("Error occurred while deleting user {} : {}".format(user, str(error)))
+
+
 if __name__ == '__main__':
 
     logger = logging.getLogger('perf')
@@ -89,98 +183,6 @@ if __name__ == '__main__':
                         required=False, type=int, default=50, help='number of read calls per process, default 500')
     args_p.add_argument('-dr', '--dry_run', dest='dry_run', action='store',
                         required=False, type=bool, default=False, help='uses the dry run mode if set')
-    args = args_p.parse_args()
+    main_args = args_p.parse_args()
 
-    logger.info("Initialize environment")
-    config = OscConfig.get(account_name=args.account, az_name=args.az,
-                           credentials=constants.CREDENTIALS_CONFIG_FILE)
-    xsub = OscPrivApi(service='xsub', config=config)
-    intel = OscPrivApi(service='intel', config=config)
-    osc_sdk_as = OscSdkAs(config.region.get_info(constants.AS_IDAUTH_ID), config.region.name)
-    account_sdk = None
-
-    get_documentation('opai')
-    OAPI_SCHEMAS = DOCUMENTATIONS['oapi'][SCHEMAS]
-    api_read = []
-    pids = []
-    for i, j in OAPI_SCHEMAS.items():
-        if i.startswith('Read') and 'required' not in j and i.endswith('Request') and not i.startswith('ReadApiLogs'):
-            api_read.append(i[:-7])
-    NB_OK = 0
-    NB_KO = 0
-    QUEUE = Queue()
-    processes = []
-    for i in range(args.process_number):
-        if args.account:
-            if not account_sdk:
-                account_sdk = OscSdk(config=config)
-            osc_sdk_i = account_sdk
-        else:
-            email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='test_throttling_read').lower())
-            password = misc.id_generator(size=8, chars=string.digits)
-            account_info = {'city': 'Saint_Cloud', 'company_name': 'Outscale', 'country': 'France',
-                            'email_address': email, 'firstname': 'Test_user', 'lastname': 'Test_Last_name',
-                            'password': password, 'zipcode': '92210'}
-            pid = create_account(OscSdk(config=config), account_info=account_info)
-            pids.append(pid)
-            ret = intel.accesskey.find_by_user(owner=pid)
-            keys = ret.response.result[0]
-            osc_sdk_i = OscSdk(config=OscConfig.get_with_keys(az_name=args.az, ak=keys.name, sk=keys.secret, account_id=pid,
-                                                              login=email, password=password))
-
-        p = Process(name="load-{}".format(i), target=read_function_loop, args=[osc_sdk_i, QUEUE, args, api_read])
-        processes.append(p)
-
-    start = time.time()
-    for i in range(len(processes)):
-        processes[i].start()
-
-    logger.info("Wait workers")
-    for i in range(len(processes)):
-        processes[i].join()
-    end = time.time()
-
-    durations = []
-    errors = load_errors()
-    nums = []
-    nb_throttling = []
-
-    logger.info("Get results")
-    while not QUEUE.empty():
-        res = QUEUE.get()
-        for key in res.keys():
-            if key == "status":
-                if res[key] == "OK":
-                    NB_OK += 1
-                else:
-                    NB_KO += 1
-            elif key == 'duration':
-                durations.append(res[key])
-            elif key == 'error':
-                errors.add(res[key])
-            elif key == 'num':
-                nums.append(res[key])
-            elif key == 'nb_throttling_error':
-                nb_throttling.append(res[key])
-        logger.debug(res)
-    logger.info("OK = {} - KO = {}".format(NB_OK, NB_KO))
-    logger.info("nb_throttling_error = {}".format(nb_throttling))
-    logger.info("durations = {}".format(durations))
-    logger.info("nums = {}".format(nums))
-    print('duration = {}'.format(end - start))
-    print('calls number = {}'.format(sum(nums)))
-    print('throttling error number = {}'.format(sum(nb_throttling)))
-    errors.print_errors()
-
-    # for user in pids:
-    #     try:
-    #         xsub.terminate_account(pid=user)
-    #     except OscException as error:
-    #         logger.error("Error occurred while terminating user {} : {}".format(user, str(error)))
-    #     try:
-    #         intel.user.delete(username=user)
-    #         intel.user.gc(username=user)
-    #         osc_sdk_as.identauth.IdauthAccountAdmin.deleteAccount(principal={"accountPid": user}, forceRemoval="true")
-    #     except OscException as error:
-    #         logger.error("Error occurred while deleting user {} : {}".format(user, str(error)))
-
+    run(main_args)

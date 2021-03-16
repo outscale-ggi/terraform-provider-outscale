@@ -1,12 +1,15 @@
 from datetime import datetime
-from subprocess import call
+import subprocess
+from subprocess import CalledProcessError
 from threading import current_thread
 
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
-from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_security_groups_state, wait_keypairs_state, wait_instances_state
+from qa_tina_tests.USER.PERF.perf_common import log_error
+
 
 MAX_WAIT_TIME = 120
 
@@ -22,15 +25,15 @@ def perf_sg(oscsdk, logger, queue, args):
 
     if not args.omi:
         logger.debug("OMI not specified, select default OMI")
-        OMI = oscsdk.config.region.get_info(constants.CENTOS7)
+        omi = oscsdk.config.region.get_info(constants.CENTOS7)
     else:
-        OMI = args.omi
+        omi = args.omi
 
     if not args.inst_type:
         logger.debug("Instance type not specified, select default instance type")
-        INST_TYPE = oscsdk.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
+        inst_type = oscsdk.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
     else:
-        INST_TYPE = args.inst_type
+        inst_type = args.inst_type
 
     result = {'status': 'OK'}
 
@@ -67,7 +70,7 @@ def perf_sg(oscsdk, logger, queue, args):
                         if i.instanceState.name == 'running':
                             inst = i
                             break
-                        elif i.instanceState.name == 'stopped':
+                        if i.instanceState.name == 'stopped':
                             oscsdk.fcu.StartInstances(InstanceId=[i.instanceId])
                             wait_instances_state(oscsdk, [i.instanceId], state='ready')
                             inst = i
@@ -95,7 +98,7 @@ def perf_sg(oscsdk, logger, queue, args):
 
         logger.debug("Run instance")
         try:
-            ret = oscsdk.fcu.RunInstances(ImageId=OMI, MinCount=1, MaxCount=1, InstanceType=INST_TYPE, SecurityGroup=[sg], KeyName=kp_name)
+            ret = oscsdk.fcu.RunInstances(ImageId=omi, MinCount=1, MaxCount=1, InstanceType=inst_type, SecurityGroup=[sg], KeyName=kp_name)
             inst = ret.response.instancesSet[0]
             wait_instances_state(oscsdk, [inst.instanceId], state='ready')
             oscsdk.fcu.CreateTags(ResourceId=inst.instanceId, Tag=[{'Key': 'Name', 'Value': inst_name}])
@@ -111,7 +114,7 @@ def perf_sg(oscsdk, logger, queue, args):
             start_ping = datetime.now()
             oscsdk.fcu.AuthorizeSecurityGroupIngress(GroupId=sg, FromPort=-1, ToPort=-1, IpProtocol='icmp',
                                                      CidrIp=Configuration.get('cidr', 'allips'))
-        except Exception as error:
+        except OscApiException as error:
             logger.error("Unexpected error while creating ICMP rule.")
             logger.debug('Error: {}'.format(error))
             if 'Duplicate CIDR' in error.message:
@@ -122,9 +125,15 @@ def perf_sg(oscsdk, logger, queue, args):
     if result['status'] != "KO":
         logger.debug("Ping instance with ICMP rule")
         try:
-            while ret != 0 and (datetime.now() - start_ping).total_seconds() < MAX_WAIT_TIME:
-                ret = call(["ping", "-c", "5", "%s" % inst.ipAddress])
-            if ret == 0:
+            success = False
+            while not success and (datetime.now() - start_ping).total_seconds() < MAX_WAIT_TIME:
+                args = ["ping", "-c", "5", inst.ipAddress]
+                try:
+                    subprocess.check_call(args, shell=True)
+                    success = True
+                except CalledProcessError:
+                    success = False
+            if success:
                 ping_suceed = (datetime.now() - start_ping).total_seconds()
                 result['sg_rule_add'] = ping_suceed
             else:
@@ -147,15 +156,20 @@ def perf_sg(oscsdk, logger, queue, args):
     if result['status'] != "KO":
         logger.debug("Ping instance without ICMP rule")
         try:
-            ret = 0
-            while ret == 0 and (datetime.now() - start_ping).total_seconds() < MAX_WAIT_TIME:
-                ret = call(["ping", "-c", "5", "%s" % inst.ipAddress])
-            if ret != 0:
+            success = False
+            while not success and (datetime.now() - start_ping).total_seconds() < MAX_WAIT_TIME:
+                args = ["ping", "-c", "5", inst.ipAddress]
+                try:
+                    subprocess.check_call(args, shell=True)
+                    success = False
+                except CalledProcessError:
+                    success = True
+            if success:
                 ping_failed = (datetime.now() - start_ping).total_seconds()
                 result['sg_rule_del'] = ping_failed
             else:
                 result['status'] = "KO"
-        except Exception:
+        except Exception as error:
             log_error(logger, error, "Unexpected error while ping instance without ICMP rule", result)
 
     queue.put(result.copy())

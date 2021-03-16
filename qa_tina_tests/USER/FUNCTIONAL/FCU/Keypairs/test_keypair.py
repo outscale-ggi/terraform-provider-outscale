@@ -16,25 +16,6 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, NAME, PATH, PUBLIC,
 
 class Test_keypair(OscTestSuite):
 
-    @classmethod
-    def setup_class(cls):
-        super(Test_keypair, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_keypair, cls).teardown_class()
-
     def exec_import_kp_test(self, key_size):
         kp_info = None
         config = None
@@ -44,16 +25,18 @@ class Test_keypair(OscTestSuite):
             key_name = id_generator(prefix='kp_')
             kp_info = generate_key(key_name, key_size=key_size)
             # import key pair
-            fp = open(kp_info[PUBLIC])
-            public_key_material = fp.read()
+            file = open(kp_info[PUBLIC])
+            public_key_material = file.read()
             imp = self.a1_r1.fcu.ImportKeyPair(KeyName=key_name,
                                                PublicKeyMaterial=base64.b64encode(public_key_material.encode('utf-8')).decode('utf-8'))
             # create instance with key
             config = create_instances(self.a1_r1, key_name=key_name, state='ready')
             ip_address = config[INSTANCE_SET][0]['ipAddress']
             # access instance using key
-            check_tools.check_ssh_connection(self.a1_r1, config[INSTANCE_ID_LIST][0], ip_address, kp_info[PRIVATE], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-            # SshTools.check_connection_paramiko(ip_address, kp_info[PRIVATE], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            check_tools.check_ssh_connection(self.a1_r1, config[INSTANCE_ID_LIST][0], ip_address, kp_info[PRIVATE],
+                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            # SshTools.check_connection_paramiko(ip_address, kp_info[PRIVATE],
+            # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
             if config:
                 delete_instances(self.a1_r1, config)

@@ -12,6 +12,7 @@ class Test_AssociateDhcpOptions(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.vpc_id = None
+        cls.dhcp_id = None
         super(Test_AssociateDhcpOptions, cls).setup_class()
         try:
             ret = create_vpc_old(cls.a1_r1, Configuration.get('vpc', '10_0_0_0_16'))

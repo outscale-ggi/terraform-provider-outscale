@@ -1,11 +1,10 @@
-# pylint: disable=missing-docstring
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
-
 
 NB_SNAP = 1
 
@@ -23,12 +22,11 @@ class Test_DescribeSnapshots(OscTestSuite):
                 snap_id = cls.a1_r1.fcu.CreateSnapshot(VolumeId=cls.vol1_id).response.snapshotId
                 cls.snap1_id.append(snap_id)
                 wait_snapshots_state(cls.a1_r1, [snap_id], state="completed")
-        except Exception as error:
+        except:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

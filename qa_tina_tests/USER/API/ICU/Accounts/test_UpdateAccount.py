@@ -1,4 +1,5 @@
-# pylint: disable=missing-docstring
+
+import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
@@ -48,8 +49,9 @@ class Test_UpdateAccount(OscTestSuite):
             assert_error(error, 400, 'InvalidParameterValue', 'Email has invalid format.')
 
     def test_T4318_with_invalid_password(self):
+        passwd = id_generator(size=4, chars=string.ascii_lowercase)
         try:
-            self.a1_r1.icu.UpdateAccount(Password="toto")
+            self.a1_r1.icu.UpdateAccount(Password=passwd)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'PasswordPolicyViolation', 'Password strength score (0) is too low: at least 4 out '

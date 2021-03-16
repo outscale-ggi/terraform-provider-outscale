@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
@@ -21,9 +21,8 @@ class Test_CreateLoadBalancerListeners(LoadBalancer):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -32,7 +31,7 @@ class Test_CreateLoadBalancerListeners(LoadBalancer):
                 try:
                     cls.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=cls.lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
         finally:
             super(Test_CreateLoadBalancerListeners, cls).teardown_class()
 

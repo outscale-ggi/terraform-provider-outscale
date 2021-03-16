@@ -10,7 +10,7 @@ class Test_CreateVpnConnection(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'vpnc_limit': 1}
+        cls.quotas = {'vpnc_limit': 1}
         super(Test_CreateVpnConnection, cls).setup_class()
         cls.cgw_id1 = None
         cls.vgw_id = None
@@ -24,8 +24,6 @@ class Test_CreateVpnConnection(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
             finally:
                 raise error
 

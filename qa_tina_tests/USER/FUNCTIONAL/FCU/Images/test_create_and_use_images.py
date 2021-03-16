@@ -28,9 +28,8 @@ class Test_create_and_use_images(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -55,8 +54,8 @@ class Test_create_and_use_images(OscTestSuite):
             info = create_instances(self.a1_r1, omi_id=image_id, state='ready')
             public_ip_inst = info[INSTANCE_SET][0]['ipAddress']
 
-            sshclient = check_tools.check_ssh_connection(self.a1_r1, info[INSTANCE_ID_LIST][0], public_ip_inst, info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-            # sshclient = SshTools.check_connection_paramiko(public_ip_inst, info[KEY_PAIR][PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, info[INSTANCE_ID_LIST][0], public_ip_inst, info[KEY_PAIR][PATH],
+                                                         username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             out, status, _ = SshTools.exec_command_paramiko(sshclient, 'pwd')
             self.logger.info(out)
             assert not status, "SSH command was not executed correctly on the remote host"
@@ -66,9 +65,9 @@ class Test_create_and_use_images(OscTestSuite):
                 try:
                     delete_instances(self.a1_r1, info)
                 except:
-                    pass
+                    print('Could not delete instances')
             if image_id:
                 try:
                     cleanup_images(self.a1_r1, image_id_list=[image_id], force=True)
                 except:
-                    pass
+                    print('Could not delete images')

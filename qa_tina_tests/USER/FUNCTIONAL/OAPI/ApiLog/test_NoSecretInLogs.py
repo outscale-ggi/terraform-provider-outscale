@@ -1,10 +1,10 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+
+
 
 import string
+import time
 
 import pytest
-import time
 
 from qa_sdk_common.config import DefaultAccount, DefaultRegion
 from qa_sdk_pub.osc_api import AuthMethod
@@ -20,7 +20,7 @@ class Test_NoSecretInLogs(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.ASQUOTAS = {'COUNT_ACCOUNT_CREATED_ACCOUNTS': 1}
+        cls.asquotas = {'COUNT_ACCOUNT_CREATED_ACCOUNTS': 1}
         super(Test_NoSecretInLogs, cls).setup_class()
 
     @classmethod
@@ -68,7 +68,8 @@ class Test_NoSecretInLogs(OscTestSuite):
             pid = create_account(self.a1_r1, account_info={'email_address': email, 'password': password})
             self.a1_r1.icu.SendResetPasswordEmail(Email=email)
             rettoken = self.a1_r1.identauth.IdauthPasswordToken.createAccountPasswordToken(accountEmail=email, account_id=pid)
-            config = DefaultPubConfig(account=DefaultAccount(login=email, password=password), region=DefaultRegion(name=self.a1_r1.config.region.name))
+            config = DefaultPubConfig(account=DefaultAccount(login=email, password=password),
+                                      region=DefaultRegion(name=self.a1_r1.config.region.name))
             icu = OscIcuApi(service='icu', config=config)
             new_password = id_generator(size=20)
             icu.ResetAccountPassword(auth=AuthMethod.Empty, Token=rettoken.response.passwordToken, Password=new_password)

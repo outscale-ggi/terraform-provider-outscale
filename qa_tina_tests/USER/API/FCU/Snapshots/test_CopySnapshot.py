@@ -1,7 +1,7 @@
 import string
+from time import sleep
 
 import pytest
-from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
@@ -26,9 +26,8 @@ class Test_CopySnapshot(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -70,24 +69,24 @@ class Test_CopySnapshot(OscTestSuite):
         self.snap_copies_ids.append(res2.response.snapshotId)
 
     def test_T1009_invalid_snapshot_id(self):
-        snapshotId = id_generator(prefix="inv-", size=10, chars=string.hexdigits)
+        snapshot_id = id_generator(prefix="inv-", size=10, chars=string.hexdigits)
         try:
-            res = self.a1_r1.fcu.CopySnapshot(SourceSnapshotId=snapshotId, SourceRegion=self.a1_r1.config.region.name)
+            res = self.a1_r1.fcu.CopySnapshot(SourceSnapshotId=snapshot_id, SourceRegion=self.a1_r1.config.region.name)
             wait_snapshots_state(self.a1_r1, [res.response.snapshotId], state='completed')
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "InvalidParameterValue",
-                         "Value ({}) for parameter sourceSnapshotId is invalid. Expected: 'snap-...'.".format(snapshotId))
+                         "Value ({}) for parameter sourceSnapshotId is invalid. Expected: 'snap-...'.".format(snapshot_id))
 
     def test_T1010_unexisting_snapshot_id(self):
-        snapshotId = id_generator(prefix="snap-9", size=7, chars=(string.hexdigits).lower())
+        snapshot_id = id_generator(prefix="snap-9", size=7, chars=(string.hexdigits).lower())
         try:
-            res = self.a1_r1.fcu.CopySnapshot(SourceSnapshotId=snapshotId, SourceRegion=self.a1_r1.config.region.name)
+            res = self.a1_r1.fcu.CopySnapshot(SourceSnapshotId=snapshot_id, SourceRegion=self.a1_r1.config.region.name)
             wait_snapshots_state(self.a1_r1, [res.response.snapshotId], state='completed')
             assert False, "Call shouldn't successful"
         except OscApiException as error:
             assert_error(error, 400, "InvalidSnapshot.NotFound",
-                         "The Snapshot ID does not exist: {}, for account: {}".format(snapshotId, self.a1_r1.config.account.account_id))
+                         "The Snapshot ID does not exist: {}, for account: {}".format(snapshot_id, self.a1_r1.config.account.account_id))
 
     def test_T1007_from_another_account(self):
         res = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id, Description="description").response

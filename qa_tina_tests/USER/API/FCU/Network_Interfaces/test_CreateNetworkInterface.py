@@ -22,12 +22,11 @@ class Test_CreateNetworkInterface(OscTestSuite):
             # create subnet 1
             ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_1_0_24'), VpcId=cls.vpc_id)
             cls.subnet1_id = ret.response.subnet.subnetId
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -93,16 +92,16 @@ class Test_CreateNetworkInterface(OscTestSuite):
         finally:
             if subnet_id:
                 try:
-                    delete_subnet(self.a1_r1, self.subnet_id)
+                    delete_subnet(self.a1_r1, subnet_id)
                 except Exception:
-                    pass
+                    print('Could not delete subnet')
             if vpc_id:
                 try:
                     self.a1_r1.fcu.DeleteVpc(VpcId=vpc_id)
                 except Exception:
-                    pass
+                    print('Could not delete vpc')
             if sg_id:
                 try:
                     self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
                 except Exception:
-                    pass
+                    print('Could not delete security group')

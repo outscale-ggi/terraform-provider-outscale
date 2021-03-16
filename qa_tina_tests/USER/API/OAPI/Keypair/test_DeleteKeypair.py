@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -48,7 +48,7 @@ class Test_DeleteKeypair(OscTestSuite):
         finally:
             if kp_info:
                 delete_keypair(self.a1_r1, kp_info)
- 
+
     def test_T3463_valid_params_dry_run(self):
         try:
             kp_info = create_keypair(self.a1_r1)
@@ -59,7 +59,7 @@ class Test_DeleteKeypair(OscTestSuite):
                 try:
                     delete_keypair(self.a1_r1, kp_info)
                 except:
-                    pass
+                    print('Could not delete keypair')
 
     def test_T3465_invalid_dry_run(self):
         try:
@@ -74,4 +74,4 @@ class Test_DeleteKeypair(OscTestSuite):
                 try:
                     delete_keypair(self.a1_r1, kp_info)
                 except:
-                    pass
+                    print('Could not delete keypair')

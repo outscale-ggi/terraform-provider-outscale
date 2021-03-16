@@ -14,15 +14,17 @@ class Test_ReleaseAddress(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.inst_info = None
+        cls.ip_list = None
+        cls.ip_account2 = None
+        cls.alloc_id_account2 = None
         super(Test_ReleaseAddress, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -50,9 +52,8 @@ class Test_ReleaseAddress(OscTestSuite):
         except Exception as error:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise error
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:

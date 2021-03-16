@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import re
 from datetime import datetime
-
+import re
 import time
 
 from qa_common_tools.ssh import SshTools, OscCommandError
@@ -20,9 +19,50 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SEC
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 
 
+def upgrade_ike_to_v2(sshclient, leftid, rightid):
+    cmd = """
+        sudo sed -i  's/^            keyexchange=.*/            keyexchange=ikev2/g'  /etc/strongswan/ipsec.conf;
+        sudo sed -i '$a{}' /etc/strongswan/ipsec.conf;
+        sudo sed -i '$a{}' /etc/strongswan/ipsec.conf;
+        sudo systemctl stop strongswan; sudo systemctl start strongswan;""".format(leftid, rightid)
+    _, _, _ = SshTools.exec_command_paramiko(
+    sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+    cmd = 'sudo strongswan statusall | grep  -E "IKEv2"'
+    out, _, _ = SshTools.exec_command_paramiko(
+        sshclient, cmd, retry=20, timeout=10)
+    assert out
+
+def update_cgw_config(option, sshclient):
+    cmd = """
+        sudo sed -i  's/^            ike=.*/            ike={1}/g'  /etc/strongswan/ipsec.conf ;
+        sudo sed -i  's/^            esp=.*/            esp={1}/g'  /etc/strongswan/ipsec.conf;
+        sudo systemctl stop strongswan;""".format(option)
+    _, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+
+    out, _, _ = SshTools.exec_command_paramiko(
+    sshclient, "sudo systemctl start strongswan;", retry=20, timeout=10, eof_time_out=60)
+
+    regex = r"([a-z]*)([0-9]*)"
+
+    matches = re.finditer(regex, option, re.MULTILINE)
+    for _, match in enumerate(matches, start=1):
+        opt = "{}.*{}".format((match.group(1)).upper(), match.group(2))
+        cmd = 'sudo strongswan statusall | grep  -E "{}"'.format(opt)
+        out, _, _ = SshTools.exec_command_paramiko(
+        sshclient, cmd, retry=20, timeout=10)
+        assert out
+
+def ping(sshclient, cgw_priv_ip, vpc_inst_ip):
+    try:
+        out, _, _ = SshTools.exec_command_paramiko(
+            sshclient, 'ping -I {} -W 1 -c 1 {}'.format(cgw_priv_ip, vpc_inst_ip), retry=20, timeout=10)
+        assert "1 packets transmitted, 1 received, 0% packet loss" in out
+    except OscCommandError as error:
+        raise error
+
+
 class Vpn(OscTestSuite):
 
-        
     @classmethod
     def setup_class(cls):
         super(Vpn, cls).setup_class()
@@ -34,48 +74,6 @@ class Vpn(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         super(Vpn, cls).teardown_class()
-
-    def upgrade_ike_to_v2(self, sshclient, leftid, rightid):
-        cmd = """
-            sudo sed -i  's/^            keyexchange=.*/            keyexchange=ikev2/g'  /etc/strongswan/ipsec.conf;
-            sudo sed -i '$a{}' /etc/strongswan/ipsec.conf;
-            sudo sed -i '$a{}' /etc/strongswan/ipsec.conf;
-            sudo systemctl stop strongswan; sudo systemctl start strongswan;""".format(leftid, rightid)
-        _, _, _ = SshTools.exec_command_paramiko(
-        sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
-        cmd = 'sudo strongswan statusall | grep  -E "IKEv2"'
-        out, _, _ = SshTools.exec_command_paramiko(
-            sshclient, cmd, retry=20, timeout=10)
-        assert out
-    def update_cgw_config(self, option, sshclient):
-        cmd = """
-        sudo sed -i  's/^            ike=.*/            ike={}/g'  /etc/strongswan/ipsec.conf ;
-        sudo sed -i  's/^            esp=.*/            esp={}/g'  /etc/strongswan/ipsec.conf; 
-        sudo systemctl stop strongswan;""".format(option, option)
-        _, _, _ = SshTools.exec_command_paramiko(
-        sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
-        
-        out, _, _ = SshTools.exec_command_paramiko(
-        sshclient, "sudo systemctl start strongswan;", retry=20, timeout=10, eof_time_out=60)
-    
-        regex = r"([a-z]*)([0-9]*)"
-    
-        matches = re.finditer(regex, option, re.MULTILINE)
-        for _, match in enumerate(matches, start=1):
-            opt = "{}.*{}".format((match.group(1)).upper(), match.group(2))
-            cmd = 'sudo strongswan statusall | grep  -E "{}"'.format(opt)
-            out, _, _ = SshTools.exec_command_paramiko(
-            sshclient, cmd, retry=20, timeout=10)
-            assert out
-    
-    def ping(self, sshclient, cgw_priv_ip, vpc_inst_ip):
-        try:
-            out, _, _ = SshTools.exec_command_paramiko(
-                sshclient, 'ping -I {} -W 1 -c 1 {}'.format(cgw_priv_ip, vpc_inst_ip), retry=20, timeout=10)
-            assert "1 packets transmitted, 1 received, 0% packet loss" in out
-        except OscCommandError as error:
-            raise error
-
 
     def setup_method(self, method):
         super(Vpn, self).setup_method(method)
@@ -183,33 +181,35 @@ class Vpn(OscTestSuite):
 
             inst1 = self.inst_cgw_info[INSTANCE_SET][0]
             inst2 = self.vpc_info[SUBNETS][0][INSTANCE_SET][0]
-            self.logger.info("inst cgw -> : {} -- {}".format(inst1['ipAddress'], inst1['privateIpAddress']))
-            self.logger.info("inst vpc -> : None -- {}".format(inst2['privateIpAddress']))
+            self.logger.info("inst cgw -> : %s -- %s", inst1['ipAddress'], inst1['privateIpAddress'])
+            self.logger.info("inst vpc -> : None -- %s", inst2['privateIpAddress'])
 
             # try to make ping from CGW to VPC instance
-            self.ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'], self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
+            ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
+                      self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
             if options:
                 for option in options:
-                    self.update_cgw_config(option, sshclient)
-                    self.ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'], self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
+                    update_cgw_config(option, sshclient)
+                    ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
+                              self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
             if migration:
-                leftid = "\            leftid={}".format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'])
-                rightid = "\            rightid={}".format(vgw_ip)
-                self.upgrade_ike_to_v2(sshclient, leftid, rightid)
-                self.ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'], self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
+                leftid = "            leftid={}".format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'])
+                rightid = "            rightid={}".format(vgw_ip)
+                upgrade_ike_to_v2(sshclient, leftid, rightid)
+                ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
+                          self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
 
             start = datetime.now()
             while (datetime.now() - start).total_seconds() < 60:
                 try:
                     ret = self.a1_r1.fcu.DescribeVpnConnections(VpnConnectionId=[vpn_id])
-                    self.logger.info('state = {}'.format(ret.response.vpnConnectionSet[0].state))
-                    self.logger.info('telemetry = {}'.format(ret.response.vpnConnectionSet[0].vgwTelemetry[0].status))
+                    self.logger.info('state = %s', ret.response.vpnConnectionSet[0].state)
+                    self.logger.info('telemetry = %s', ret.response.vpnConnectionSet[0].vgwTelemetry[0].status)
                     assert ret.response.vpnConnectionSet[0].state == 'available'
                     assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].status == 'UP'
                     break
                 except Exception:
                     time.sleep(5)
-                    pass
 
         finally:
             # delete VPN connection

@@ -22,16 +22,8 @@ class Test_GetBillableDigest(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_GetBillableDigest, cls).teardown_class()
+            finally:
+                raise error
 
     @pytest.mark.region_getbillabledigest
     def test_T1681_correct_dates(self):

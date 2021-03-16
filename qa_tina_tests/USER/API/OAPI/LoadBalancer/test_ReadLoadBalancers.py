@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_test_tools.misc import id_generator
@@ -50,9 +50,8 @@ class Test_ReadLoadBalancers(LoadBalancer):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -61,12 +60,12 @@ class Test_ReadLoadBalancers(LoadBalancer):
                 try:
                     cls.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
             for lb_name in cls.lb_names_a2:
                 try:
                     cls.a2_r1.oapi.DeleteLoadBalancer(LoadBalancerName=lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
         finally:
             super(Test_ReadLoadBalancers, cls).teardown_class()
 
@@ -163,8 +162,10 @@ class Test_ReadLoadBalancers(LoadBalancer):
         try:
             policy_name_lb = id_generator(prefix='policy-')
             policy_name_lb2 = id_generator(prefix='policy-')
-            lb_policy = self.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=self.lb_names_a1[0],PolicyName=policy_name_lb,PolicyType="load_balancer")
-            lb_policy2 = self.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=self.lb_names_a1[0],PolicyName=policy_name_lb2,PolicyType="load_balancer")
+            lb_policy = self.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=self.lb_names_a1[0],
+                                                                 PolicyName=policy_name_lb, PolicyType="load_balancer")
+            lb_policy2 = self.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=self.lb_names_a1[0],
+                                                                  PolicyName=policy_name_lb2, PolicyType="load_balancer")
 
             ret_up = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_names_a1[0], PolicyNames=[policy_name_lb2], LoadBalancerPort=80)
             ret = self.a1_r1.oapi.ReadLoadBalancers(Filters={'LoadBalancerNames': [self.lb_names_a1[0]]}).response.LoadBalancers
@@ -173,7 +174,7 @@ class Test_ReadLoadBalancers(LoadBalancer):
             assert ret[0].Listeners[0].PolicyNames[0] == policy_name_lb2
 
             assert len(ret[0].LoadBalancerStickyCookiePolicies) == 2
-            assert set([pol.PolicyName for pol in ret[0].LoadBalancerStickyCookiePolicies]) == set([policy_name_lb, policy_name_lb2])
+            assert {[pol.PolicyName for pol in ret[0].LoadBalancerStickyCookiePolicies]} == {[policy_name_lb, policy_name_lb2]}
 
         finally:
             if ret_up:

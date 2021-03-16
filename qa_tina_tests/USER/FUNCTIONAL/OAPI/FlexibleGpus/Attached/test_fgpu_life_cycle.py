@@ -1,15 +1,15 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_tina_tests.USER.FUNCTIONAL.OAPI.FlexibleGpus import fgpu_life_cycle
-from qa_tina_tests.USER.FUNCTIONAL.OAPI.FlexibleGpus.fgpu_life_cycle import Fgpu_life_cycle
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
+from qa_tina_tests.USER.FUNCTIONAL.OAPI.FlexibleGpus import fgpu_life_cycle
+from qa_tina_tests.USER.FUNCTIONAL.OAPI.FlexibleGpus.fgpu_life_cycle import FgpuLifeCycle
 
 
-class Test_fgpu_life_cycle(Fgpu_life_cycle):
+class Test_fgpu_life_cycle(FgpuLifeCycle):
 
     def test_T4288_attached_terminate_dovd(self):
         # create, link, delete, check
-        self.init_test(state=4, terminate=True, deleteOnVmDeletion=True)
+        self.init_test(state=4, terminate=True, delete_on_vm_deletion=True)
         wait_flexible_gpu_state(self.a1_r1, [self.fgpu_id], cleanup=True)
         self.check_gpu_fgpu_status(gpu_in_use=0, reserved_fgpu=0)
 

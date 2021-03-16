@@ -1,15 +1,14 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
+from qa_test_tools.exceptions import OscTestException
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_test_tools.exceptions import OscTestException
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
-
 
 
 class Test_ReadImages(OscTestSuite):
@@ -131,8 +130,8 @@ class Test_ReadImages(OscTestSuite):
     def test_T5545_filters_hypervisors(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'Hypervisors': ['xen']})
         assert len(ret.response.Images) >= 3
-        #TODO add the verify response
-        # assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+        # TODO add the verify response
+        # verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
         #                                                   'read_image_hypervisors_filter.json'),
         #                        None), 'Could not verify response content.'
 

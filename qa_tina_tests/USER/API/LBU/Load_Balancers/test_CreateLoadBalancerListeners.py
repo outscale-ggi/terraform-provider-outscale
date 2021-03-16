@@ -42,6 +42,7 @@ class Test_CreateLoadBalancerListeners(OscTestSuite):
                                                                'Protocol': 'HTTP',
                                                                'LoadBalancerPort': 8080,
                                                                'SSLCertificateId': None}])
+
     def test_T5430_with_ssl_certificate_id(self):
         orn = None
         sc_name = misc.id_generator(prefix='sc-')
@@ -56,7 +57,6 @@ class Test_CreateLoadBalancerListeners(OscTestSuite):
                                                                    'Protocol': 'HTTPS',
                                                                    'LoadBalancerPort': 8084,
                                                                    'SSLCertificateId': orn}])
-
 
     def test_T1302_with_only_lb_name(self):
         try:

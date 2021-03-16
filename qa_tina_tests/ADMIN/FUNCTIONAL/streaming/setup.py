@@ -12,8 +12,8 @@ from qa_tina_tools.tools.tina.create_tools import create_instances, create_volum
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
-
 from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import snap_exist, write_and_snap
+
 
 DEFAULT_SNAP_CFG = [
     # nb_snap, vol_size, w_size, fio

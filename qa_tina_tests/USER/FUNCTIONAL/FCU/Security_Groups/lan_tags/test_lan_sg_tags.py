@@ -1,15 +1,14 @@
 from time import sleep
 
-from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_vpc, start_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, stop_instances
-from qa_tina_tools.tools.tina.info_keys import VPC_ID, INSTANCE_SET, SUBNETS, KEY_PAIR, EIP, PATH, SECURITY_GROUP_ID, \
-    INSTANCE_ID_LIST
+from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
@@ -17,7 +16,7 @@ class Test_lan_sg_tags(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'bypass_group_limit': 5}
+        cls.quotas = {'bypass_group_limit': 5}
         cls.vpc_info_empty = None
         cls.vpc_info_full_default = None
         cls.vpc_info_full_enable = None
@@ -30,14 +29,13 @@ class Test_lan_sg_tags(OscTestSuite):
                                                    tags=[{'Key': 'osc.fcu.disable_lan_security_groups', 'Value': '0'}], no_ping=True)
             cls.vpc_info_full_enable = create_vpc(cls.a1_r1, cidr_prefix='50.0', nb_subnet=2, nb_instance=3, igw=True, state='running',
                                                   tags=[{'Key': 'osc.fcu.enable_lan_security_groups', 'Value': '0'}], no_ping=True)
-            cls.vpc_ids = [cls.vpc_info_empty[VPC_ID], cls.vpc_info_full_disable[VPC_ID],
-                           cls.vpc_info_full_disable[VPC_ID], cls.vpc_info_full_enable[VPC_ID]]
+            cls.vpc_ids = [cls.vpc_info_empty[info_keys.VPC_ID], cls.vpc_info_full_disable[info_keys.VPC_ID],
+                           cls.vpc_info_full_disable[info_keys.VPC_ID], cls.vpc_info_full_enable[info_keys.VPC_ID]]
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -81,14 +79,15 @@ class Test_lan_sg_tags(OscTestSuite):
 
     def check_ping(self, vpc_info, success):
         try:
-            out, _, _ = SshTools.run_command_paramiko(vpc_info[SUBNETS][0][EIP]['publicIp'], vpc_info[KEY_PAIR][PATH],
-                                                        'ping -c 5 {}'.format(vpc_info[SUBNETS][0][INSTANCE_SET][1]['privateIpAddress']),
-                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            out, _, _ = SshTools.run_command_paramiko(
+                vpc_info[info_keys.SUBNETS][0][info_keys.EIP]['publicIp'],
+                vpc_info[info_keys.KEY_PAIR][info_keys.PATH],
+                'ping -c 5 {}'.format(vpc_info[info_keys.SUBNETS][0][info_keys.INSTANCE_SET][1]['privateIpAddress']),
+                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except OscCommandError as error:
             if success:
                 raise error
-            else:
-                return
+            return
         if not success:
             assert False, 'Ping should not have been successful'
         assert '5 received' in out
@@ -98,13 +97,13 @@ class Test_lan_sg_tags(OscTestSuite):
         self.a1_r1.fcu.DeleteTags(ResourceId=[res_id], Tag=[{'Key': key, 'Value': value}])
 
     def test_T1930_set_disable_empty(self):
-        self.add_tag(self.vpc_info_empty[VPC_ID], 'osc.fcu.disable_lan_security_groups', '1')
+        self.add_tag(self.vpc_info_empty[info_keys.VPC_ID], 'osc.fcu.disable_lan_security_groups', '1')
 
     def test_T1931_set_disable_full_disable(self):
-        self.add_tag(self.vpc_info_full_disable[VPC_ID], 'osc.fcu.disable_lan_security_groups', '1')
+        self.add_tag(self.vpc_info_full_disable[info_keys.VPC_ID], 'osc.fcu.disable_lan_security_groups', '1')
 
     def test_T1932_set_disable_full_enable(self):
-        vpc_id = self.vpc_info_full_enable[VPC_ID]
+        vpc_id = self.vpc_info_full_enable[info_keys.VPC_ID]
         try:
             self.add_tag(vpc_id, 'osc.fcu.disable_lan_security_groups', '1')
             assert False, 'Call should not have been successful'
@@ -115,13 +114,13 @@ class Test_lan_sg_tags(OscTestSuite):
             assert_error(error, 400, 'InvalidVpcState', 'The vpc is not in a valid state for this operation: {}.'.format(vpc_id))
 
     def test_T1933_set_enable_empty(self):
-        self.add_tag(self.vpc_info_empty[VPC_ID], 'osc.fcu.enable_lan_security_groups', '1')
+        self.add_tag(self.vpc_info_empty[info_keys.VPC_ID], 'osc.fcu.enable_lan_security_groups', '1')
 
     def test_T1934_set_enable_full_enable(self):
-        self.add_tag(self.vpc_info_full_enable[VPC_ID], 'osc.fcu.enable_lan_security_groups', '1')
+        self.add_tag(self.vpc_info_full_enable[info_keys.VPC_ID], 'osc.fcu.enable_lan_security_groups', '1')
 
     def test_T1935_set_enable_full_disable(self):
-        vpc_id = self.vpc_info_full_disable[VPC_ID]
+        vpc_id = self.vpc_info_full_disable[info_keys.VPC_ID]
         try:
             self.add_tag(vpc_id, 'osc.fcu.enable_lan_security_groups', '1')
             assert False, 'Call should not have been successful'
@@ -133,13 +132,13 @@ class Test_lan_sg_tags(OscTestSuite):
 
     def test_T1936_check_ping_disable(self):
         info = self.vpc_info_full_disable
-        wait_instances_state(self.a1_r1, info[SUBNETS][0][INSTANCE_ID_LIST], 'ready')
+        wait_instances_state(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], 'ready')
         # on subnet ping from instance to another
         self.multi_check_ping(info, True)
 
     def test_T1937_check_ping_enable_without_rule(self):
         info = self.vpc_info_full_enable
-        wait_instances_state(self.a1_r1, info[SUBNETS][0][INSTANCE_ID_LIST], 'ready')
+        wait_instances_state(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], 'ready')
         # on subnet ping from instance to another
         self.multi_check_ping(info, False)
 
@@ -147,20 +146,22 @@ class Test_lan_sg_tags(OscTestSuite):
         ret = None
         info = self.vpc_info_full_enable
         try:
-            ret = self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=info[SUBNETS][0][SECURITY_GROUP_ID], IpProtocol='icmp', FromPort=-1, ToPort=-1,
+            ret = self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=info[info_keys.SUBNETS][0][info_keys.SECURITY_GROUP_ID],
+                                                               IpProtocol='icmp', FromPort=-1, ToPort=-1,
                                                                CidrIp=Configuration.get('cidr', 'allips'))
             sleep(60)
-            wait_instances_state(self.a1_r1, info[SUBNETS][0][INSTANCE_ID_LIST], 'ready')
+            wait_instances_state(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], 'ready')
             # on subnet ping from instance to another
             self.multi_check_ping(info, True)
         finally:
             if ret:
-                ret = self.a1_r1.fcu.RevokeSecurityGroupIngress(GroupId=info[SUBNETS][0][SECURITY_GROUP_ID], IpProtocol='icmp',
-                                                                FromPort=-1, ToPort=-1, CidrIp=Configuration.get('cidr', 'allips'))
+                ret = self.a1_r1.fcu.RevokeSecurityGroupIngress(GroupId=info[info_keys.SUBNETS][0][info_keys.SECURITY_GROUP_ID],
+                                                                IpProtocol='icmp', FromPort=-1, ToPort=-1,
+                                                                CidrIp=Configuration.get('cidr', 'allips'))
 
     def test_T1939_check_ping_disable_inst_tag_diff(self):
         info = self.vpc_info_full_disable
-        insts = info[SUBNETS][0][INSTANCE_SET]
+        insts = info[info_keys.SUBNETS][0][info_keys.INSTANCE_SET]
         try:
             ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
             ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.enable_lan_security_groups', '2')
@@ -177,7 +178,7 @@ class Test_lan_sg_tags(OscTestSuite):
 
     def test_T1940_check_ping_disable_inst_tag_same(self):
         info = self.vpc_info_full_disable
-        insts = info[SUBNETS][0][INSTANCE_SET]
+        insts = info[info_keys.SUBNETS][0][info_keys.INSTANCE_SET]
         try:
             ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
             ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
@@ -194,7 +195,7 @@ class Test_lan_sg_tags(OscTestSuite):
 
     def test_T1941_check_ping_enable_inst_tag_diff(self):
         info = self.vpc_info_full_enable
-        insts = info[SUBNETS][0][INSTANCE_SET]
+        insts = info[info_keys.SUBNETS][0][info_keys.INSTANCE_SET]
         try:
             ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
             ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.disable_lan_security_groups', '2')
@@ -211,7 +212,7 @@ class Test_lan_sg_tags(OscTestSuite):
 
     def test_T1942_check_ping_enable_inst_tag_same(self):
         info = self.vpc_info_full_enable
-        insts = info[SUBNETS][0][INSTANCE_SET]
+        insts = info[info_keys.SUBNETS][0][info_keys.INSTANCE_SET]
         try:
             ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
             ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')

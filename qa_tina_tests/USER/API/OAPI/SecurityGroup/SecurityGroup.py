@@ -1,9 +1,9 @@
-# -*- coding:utf-8 -*-
+
 
 import time
 
-from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.compare_objects import create_hints
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import VPC_ID

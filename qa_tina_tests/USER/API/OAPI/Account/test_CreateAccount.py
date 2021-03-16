@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -10,7 +10,7 @@ class Test_CreateAccount(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.ASQUOTAS = {'COUNT_ACCOUNT_CREATED_ACCOUNTS': 2}
+        cls.asquotas = {'COUNT_ACCOUNT_CREATED_ACCOUNTS': 2}
         super(Test_CreateAccount, cls).setup_class()
 
     @classmethod
@@ -42,7 +42,7 @@ class Test_CreateAccount(OscTestSuite):
         try:
             ret = self.a1_r1.oapi.CreateAccount(**account_info)
             ret.check_response()
-            for attr in account_info.keys():
+            for attr in account_info:
                 if not hasattr(ret.response.Account, attr):
                     assert False, 'Could not find attribute {} in response'.format(attr)
         finally:

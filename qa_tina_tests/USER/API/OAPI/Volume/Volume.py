@@ -1,18 +1,17 @@
-# -*- coding:utf-8 -*-
 
 
 def validate_volume_response(volume, **kwargs):
     """
-        int iops, 
-        str az, 
-        str volume_type, 
-        str snapshot_id, 
+        int iops,
+        str az,
+        str volume_type,
+        str snapshot_id,
         str volume_id,
         str state
         list(str, str) tags
-    :param volume: 
-    :param kwargs: 
-    :volumeurn: 
+    :param volume:
+    :param kwargs:
+    :volumeurn:
     """
     assert volume.VolumeId.startswith('vol-')
     assert hasattr(volume, 'Size')
@@ -21,7 +20,7 @@ def validate_volume_response(volume, **kwargs):
     assert hasattr(volume, 'Tags')
     assert hasattr(volume, 'SubregionName')
     assert hasattr(volume, 'LinkedVolumes')
-    
+
     vol_id = kwargs.get('volume_id')
     iops = kwargs.get('iops')
     az = kwargs.get('az')
@@ -31,10 +30,10 @@ def validate_volume_response(volume, **kwargs):
     state = kwargs.get('state')
     tags = kwargs.get('tags')
     linked_volumes = kwargs.get('linked_volumes')
-    
+
     if vol_id:
         assert volume.VolumeId == vol_id
-    if volume_type: 
+    if volume_type:
         assert volume.VolumeType == volume_type
     if volume_type == 'io1':
         assert hasattr(volume, 'Iops')
@@ -55,9 +54,9 @@ def validate_volume_response(volume, **kwargs):
     if linked_volumes:
         for link in volume.LinkedVolumes:
             for expected_link in linked_volumes:
-                for k, v in expected_link.items():
-                    assert getattr(link, k) == v, (
+                for key, value in expected_link.items():
+                    assert getattr(link, key) == value, (
                         'In Main LinkedVolumes, {} is different of expected value {} for key {}'
-                            .format(getattr(link, k), v, k))
+                            .format(getattr(link, key), value, key))
     if size:
         assert volume.Size == size

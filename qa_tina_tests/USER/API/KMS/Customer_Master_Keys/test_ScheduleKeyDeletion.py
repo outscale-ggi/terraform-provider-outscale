@@ -11,26 +11,8 @@ class Test_ScheduleKeyDeletion(Kms):
 
     @classmethod
     def setup_class(cls):
-        super(Test_ScheduleKeyDeletion, cls).setup_class()
         cls.key_id = None
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_ScheduleKeyDeletion, cls).teardown_class()
-
-    def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        super(Test_ScheduleKeyDeletion, cls).setup_class()
 
     def teardown_method(self, method):
         try:
@@ -38,7 +20,7 @@ class Test_ScheduleKeyDeletion(Kms):
                 try:
                     self.a1_r1.kms.ScheduleKeyDeletion(KeyId=self.key_id, PendingWindowInDays=7)
                 except:
-                    pass
+                    print('Could not schedule key deletion.')
         finally:
             OscTestSuite.teardown_method(self, method)
 
@@ -102,4 +84,5 @@ class Test_ScheduleKeyDeletion(Kms):
             self.a1_r1.kms.ScheduleKeyDeletion(KeyId=self.key_id, PendingWindowInDays=15)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'KMSInvalidStateException', 'Invalid state to perform this action: {}. State: pending/deletion'.format(self.key_id))
+            assert_error(error, 400,
+                         'KMSInvalidStateException', 'Invalid state to perform this action: {}. State: pending/deletion'.format(self.key_id))

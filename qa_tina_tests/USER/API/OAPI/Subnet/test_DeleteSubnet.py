@@ -19,16 +19,13 @@ class Test_DeleteSubnet(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
         try:
             cleanup_vpcs(cls.a1_r1, vpc_id_list=[cls.vpc_info[VPC_ID]], force=True)
-        except:
-            pass
         finally:
             super(Test_DeleteSubnet, cls).teardown_class()
 

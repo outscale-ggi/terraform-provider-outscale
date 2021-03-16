@@ -1,10 +1,10 @@
-# -*- coding:utf-8 -*-
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import  assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import validate_vpn_connection
 from qa_tina_tools.tina import wait
+from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import validate_vpn_connection
 
 
 class Test_CreateVpnConnection(OscTestSuite):
@@ -27,9 +27,8 @@ class Test_CreateVpnConnection(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -38,22 +37,19 @@ class Test_CreateVpnConnection(OscTestSuite):
                 cls.a1_r1.oapi.DeleteVpnConnection(VpnConnectionId=cls.vpn_id)
                 wait.wait_VpnConnections_state(cls.a1_r1, [cls.vpn_id], state='deleted', cleanup=True)
         except:
-            pass
+            print('Could not delete vpn connection')
         try:
             if cls.vg_id:
                 cls.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=cls.vg_id)
         except:
-            pass
+            print('Could not delete virtual gateway')
         try:
             if cls.cg_id:
                 cls.a1_r1.oapi.DeleteClientGateway(ClientGatewayId=cls.cg_id)
         except:
-            pass
+            print('Could not delete client gateway')
         finally:
             super(Test_CreateVpnConnection, cls).teardown_class()
-
-    def setup_method(self, method):
-        super(Test_CreateVpnConnection, self).setup_method(method)
 
     def teardown_method(self, method):
         try:
@@ -156,4 +152,3 @@ class Test_CreateVpnConnection(OscTestSuite):
             'ConnectionType': 'ipsec.1',
         })
         assert hasattr(ret, 'ClientGatewayConfiguration')
-

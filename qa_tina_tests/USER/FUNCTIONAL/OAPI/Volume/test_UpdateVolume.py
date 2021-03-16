@@ -57,9 +57,8 @@ class Test_UpdateVolume(OscTestSuite):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:

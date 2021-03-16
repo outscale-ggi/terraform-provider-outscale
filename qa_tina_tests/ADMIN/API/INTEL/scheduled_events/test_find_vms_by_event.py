@@ -2,8 +2,7 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_find_vms_by_event(OscTestSuite):
@@ -14,12 +13,13 @@ class Test_find_vms_by_event(OscTestSuite):
         try:
             cls.events = []
 
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as error2:
+                raise error2
+            finally:
+                raise error1
 
     @classmethod
     def teardown_class(cls):
@@ -53,9 +53,6 @@ class Test_find_vms_by_event(OscTestSuite):
             # event_id = ret.response.result[0].id
             ret = self.a1_r1.intel.scheduled_events.find_vms_by_event(event_id=event_id)
             assert len(ret.response.result) > 0
-        except Exception as error:
-            assert_error(error, 200, -32603, 'Internal error.')
-            known_error('TINA-5768', 'Unexpected internal error')
         finally:
             if event_id:
                 self.a1_r1.intel.scheduled_events.finish(event_id=event_id)

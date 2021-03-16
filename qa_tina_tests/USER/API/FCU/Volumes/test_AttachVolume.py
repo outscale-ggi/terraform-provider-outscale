@@ -15,6 +15,7 @@ class Test_AttachVolume(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.inst_info = None
+        cls.attached = None
         super(Test_AttachVolume, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1)
@@ -28,10 +29,9 @@ class Test_AttachVolume(OscTestSuite):
             wait_volumes_state(cls.a1_r1, cls.standard_volume_ids, 'available')
         except:
             try:
-                cls.teardown_class() 
-            except:
-                pass
-            raise 
+                cls.teardown_class()
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -64,12 +64,12 @@ class Test_AttachVolume(OscTestSuite):
             OscTestSuite.teardown_method(self, method)
 
     def test_T1077_standard_on_running_instance(self):
-        self.a1_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0],Device="/dev/xvdb")
+        self.a1_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")
         self.attached[self.standard_volume_ids[0]] = self.inst_info[INSTANCE_ID_LIST][0]
         wait_tools.wait_volumes_state(self.a1_r1, [self.standard_volume_ids[0]], 'in-use')
 
     def test_T1079_gp2_on_running_instance(self):
-        self.a1_r1.fcu.AttachVolume(VolumeId=self.gp2_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0],Device="/dev/xvdc")
+        self.a1_r1.fcu.AttachVolume(VolumeId=self.gp2_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdc")
         self.attached[self.gp2_volume_ids[0]] = self.inst_info[INSTANCE_ID_LIST][0]
         wait_tools.wait_volumes_state(self.a1_r1, [self.gp2_volume_ids[0]], 'in-use')
 
@@ -96,7 +96,7 @@ class Test_AttachVolume(OscTestSuite):
     def test_T3953_incorrect_type_volume_id(self):
         vol_id = id_generator(size=8, chars=string.digits)
         try:
-            self.a1_r1.fcu.AttachVolume(VolumeId=float(vol_id),InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")
+            self.a1_r1.fcu.AttachVolume(VolumeId=float(vol_id), InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")
             self.attached[vol_id] = self.inst_info[INSTANCE_ID_LIST][0]
             assert False, "Call should not be successful"
         except OscApiException as error:
@@ -141,7 +141,7 @@ class Test_AttachVolume(OscTestSuite):
 
     def test_T1093_with_already_attached_volume_id(self):
         try:
-            self.a1_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0],Device="/dev/xvdg")
+            self.a1_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdg")
             self.attached[self.standard_volume_ids[0]] = self.inst_info[INSTANCE_ID_LIST][0]
         except OscApiException as error:
             if get_export_value('OSC_USE_GATEWAY', False):

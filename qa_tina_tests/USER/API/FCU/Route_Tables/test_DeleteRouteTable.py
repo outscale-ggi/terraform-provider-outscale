@@ -6,7 +6,7 @@ from qa_test_tools.test_base import OscTestSuite
 
 # author:Emanuel Dias
 class Test_DeleteRouteTable(OscTestSuite):
-    
+
     @classmethod
     def setup_class(cls):
         cls.vpc_id = None
@@ -15,12 +15,11 @@ class Test_DeleteRouteTable(OscTestSuite):
             # create VPC
             vpc = cls.a1_r1.fcu.CreateVpc(CidrBlock=Configuration.get('vpc', '10_0_0_0_16'))
             cls.vpc_id = vpc.response.vpc.vpcId
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -40,7 +39,7 @@ class Test_DeleteRouteTable(OscTestSuite):
             assert False, 'Deletion of mainRouteTable should have failed'
         except OscApiException as error:
             assert_error(error, 400, 'DependencyViolation', "The route table '{}' has dependencies and cannot be deleted.".format(main_rtb_id))
-    
+
     def test_T594_no_param(self):
         try:
             self.a1_r1.fcu.DeleteRouteTable()

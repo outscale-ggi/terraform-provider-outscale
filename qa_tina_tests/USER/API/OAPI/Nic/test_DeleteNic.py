@@ -1,11 +1,11 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 
 
 class Test_DeleteNic(Nic):
@@ -22,9 +22,8 @@ class Test_DeleteNic(Nic):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

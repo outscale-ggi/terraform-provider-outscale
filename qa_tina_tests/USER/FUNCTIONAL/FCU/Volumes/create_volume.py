@@ -23,7 +23,7 @@ class CreateVolume(OscTestSuite):
         super(CreateVolume, cls).setup_class()
         unique_id = id_generator()
         cls.sg_name = 'sg_test_T55_{}'.format(unique_id)
-        IP_Ingress = Configuration.get('cidr', 'allips')
+        ip_ingress = Configuration.get('cidr', 'allips')
 
         cls.public_ip_inst = None
         cls.inst_id = None
@@ -39,7 +39,7 @@ class CreateVolume(OscTestSuite):
             sg_id = sg_response.response.groupId
 
             # authorize rules
-            cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupName=cls.sg_name, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=IP_Ingress)
+            cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupName=cls.sg_name, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=ip_ingress)
 
             # create key pair
             cls.kp_info = create_keypair(cls.a1_r1)
@@ -56,9 +56,8 @@ class CreateVolume(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
