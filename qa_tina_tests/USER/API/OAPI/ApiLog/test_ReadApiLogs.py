@@ -133,7 +133,7 @@ class Test_ReadApiLogs(OscTestSuite):
     def test_T3209_invalid_QueryApiNames_value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryApiNames": ["fcu", "lbu", "directlink", "eim", "icu"]})
         assert not ret.response.Logs
-        
+
     def test_T3210_valid_filter_QueryIpAddresses(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryIpAddresses": ["169.254.232.245"]})
         assert len(ret.response.Logs) != 0
@@ -264,12 +264,12 @@ class Test_ReadApiLogs(OscTestSuite):
 
     def test_T5550_valid_filter_multiple_QueryCallNames(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryCallNames": ["ReadVms", "DescribeConnections"]})
-        assert len(ret.response.Logs)
+        assert len(ret.response.Logs) != 0
         assert {"ReadVms", "DescribeConnections"} == {call.QueryCallName for call in ret.response.Logs}
 
     def test_T5551_valid_filter_multiple_QueryAccessKeys(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryAccessKeys": [self.a1_r1.config.account.ak, self.a2_r1.config.account.ak]})
-        assert len(ret.response.Logs)
+        assert len(ret.response.Logs) != 0
         assert {self.a1_r1.config.account.ak} == {call.QueryAccessKey for call in ret.response.Logs}
 
     def test_T5552_empty_With(self):
