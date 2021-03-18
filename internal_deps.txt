@@ -1,5 +1,5 @@
 # Versionning informations
 qa_tina_tools=master
 qa_common_tools=master
-qa_test_tools=f9fe8ebd9687b7f5f9c582f1015450694a1b67f7
+qa_test_tools=master
 qa_sdks=master
