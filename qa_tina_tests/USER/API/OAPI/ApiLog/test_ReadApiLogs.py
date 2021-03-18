@@ -2,8 +2,6 @@ from datetime import datetime, timedelta
 
 import time
 
-import pytest
-
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator
 from qa_test_tools.test_base import OscTestSuite, known_error
@@ -112,8 +110,9 @@ class Test_ReadApiLogs(OscTestSuite):
     def test_T3205_verify_fcu_call(self):
         self.a1_r1.fcugtw.DescribeInstances()
         time.sleep(30)
-        ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=100, Filters={'QueryDateAfter': 
-                                                                       (datetime.utcnow() - timedelta(seconds=100)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
+        ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=100,
+                                          Filters={'QueryDateAfter':
+                                                   (datetime.utcnow() - timedelta(seconds=100)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
         assert 'DescribeInstances' in [call.QueryCallName for call in ret.response.Logs]
 
     def test_T3206_valid_filter_QueryCallNames(self):
@@ -133,7 +132,7 @@ class Test_ReadApiLogs(OscTestSuite):
 
     def test_T3209_invalid_QueryApiNames_value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryApiNames": ["fcu", "lbu", "directlink", "eim", "icu"]})
-        assert not ret.response.Logs 
+        assert not ret.response.Logs
         
     def test_T3210_valid_filter_QueryIpAddresses(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryIpAddresses": ["169.254.232.245"]})
@@ -150,7 +149,7 @@ class Test_ReadApiLogs(OscTestSuite):
             misc.assert_oapi_error(error, 404, 'InvalidAction', 12000)
         time.sleep(20)
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409]})
-        assert len(ret.response.Logs) != 0 
+        assert len(ret.response.Logs) != 0
 
     def test_T3214_valid_filter_QueryDateBefore(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateBefore': (datetime.utcnow()).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
