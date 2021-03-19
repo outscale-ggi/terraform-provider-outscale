@@ -1,5 +1,4 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -40,9 +39,10 @@ class Test_ReadNetPeerings(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -99,7 +99,7 @@ class Test_ReadNetPeerings(OscTestSuite):
         assert len(ret.response.NetPeerings) == 1
 
     def test_T2001_with_valid_filter_state_mesages(self):
-        ret = self.a1_r1.oapi.ReadNetPeerings(Filters={'StateMessages': ["Pending accceptance by {}".format(
+        ret = self.a1_r1.oapi.ReadNetPeerings(Filters={'StateMessages': ["Pending acceptance by {}".format(
             self.a2_r1.config.account.account_id)]})
         assert len(ret.response.NetPeerings) == 1
 

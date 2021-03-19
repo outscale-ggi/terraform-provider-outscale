@@ -1,7 +1,7 @@
 import datetime
+import time
 
 import pytest
-import time
 
 from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as constants
@@ -13,6 +13,7 @@ from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_keypair, delete_subnet
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+
 
 RETRY = 5
 TIMEOUT = 2
@@ -47,9 +48,9 @@ class Test_NAT_gateway(OscTestSuite):
 
         try:
 
-            Instance_Type = cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
+            instance_type = cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
 
-            IP_Ingress = Configuration.get('cidr', 'allips')
+            ip_ingress = Configuration.get('cidr', 'allips')
             time_now = datetime.datetime.now()
             unique_id = time_now.strftime('%Y%m%d%H%M%S')
             cls.sg_name = 'sg_test_int_conn_NGW_{}'.format(unique_id)
@@ -89,7 +90,7 @@ class Test_NAT_gateway(OscTestSuite):
             cls.rtb2 = ret.response.routeTable.routeTableId
 
             # authorize rules
-            cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.sg_id, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=IP_Ingress)
+            cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.sg_id, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=ip_ingress)
 
             # create subnet 1
             ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_1_0_24'), VpcId=cls.vpc_id)
@@ -120,7 +121,7 @@ class Test_NAT_gateway(OscTestSuite):
             inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS7), MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[info_keys.NAME],
-                                              InstanceType=Instance_Type, SubnetId=cls.subnet1_id)
+                                              InstanceType=instance_type, SubnetId=cls.subnet1_id)
 
             cls.inst1_id = inst.response.instancesSet[0].instanceId
             cls.inst1_local_addr = inst.response.instancesSet[0].privateIpAddress
@@ -129,7 +130,7 @@ class Test_NAT_gateway(OscTestSuite):
             inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS7), MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[info_keys.NAME],
-                                              InstanceType=Instance_Type, SubnetId=cls.subnet2_id)
+                                              InstanceType=instance_type, SubnetId=cls.subnet2_id)
 
             cls.inst2_id = inst.response.instancesSet[0].instanceId
             cls.inst2_local_addr = inst.response.instancesSet[0].privateIpAddress
@@ -140,9 +141,8 @@ class Test_NAT_gateway(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -204,8 +204,10 @@ class Test_NAT_gateway(OscTestSuite):
 
             self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst1_id)
 
-            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst1_id, self.eip.response.publicIp, self.kp_info[info_keys.PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=6, timeout=10)
-            # sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[info_keys.PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=6, timeout=10)
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst1_id, self.eip.response.publicIp, self.kp_info[info_keys.PATH],
+                                                         username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=6, timeout=10)
+            # sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[info_keys.PATH],
+            # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=6, timeout=10)
             # read file and save it on distant machine
             with open(self.kp_info[info_keys.PATH], 'r') as content_file:
                 content = content_file.read()
@@ -243,7 +245,7 @@ class Test_NAT_gateway(OscTestSuite):
                             success = True
                             break
                     except OscCommandError:
-                        pass
+                        print('Could not execute command')
                 if success:
                     break
                 time.sleep(TIMEOUT)

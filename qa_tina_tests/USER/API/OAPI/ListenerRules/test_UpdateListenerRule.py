@@ -32,9 +32,8 @@ class Test_UpdateListenerRule(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -61,7 +60,7 @@ class Test_UpdateListenerRule(OscTestSuite):
             self.a1_r1.oapi.UpdateListenerRule()
             assert False, 'call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400,  '7000', 'MissingParameter')
+            misc.assert_error(error, 400, '7000', 'MissingParameter')
 
     def test_T4807_with_valid_HostPattern(self):
         ret = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, HostPattern="*.abc.?.abc.*.com")
@@ -70,10 +69,10 @@ class Test_UpdateListenerRule(OscTestSuite):
 
     def test_T4808_with_invalid_HostPattern(self):
         try:
-            self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, HostPattern=["*.abc.?.abc.*.com"]).response
+            self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, HostPattern=["*.abc.?.abc.*.com"])
             assert False, 'call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400,  '4110', 'InvalidParameterValue')
+            misc.assert_error(error, 400, '4110', 'InvalidParameterValue')
 
     def test_T4809_with_valid_PathPattern(self):
         ret = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, PathPattern="/.com")
@@ -81,7 +80,7 @@ class Test_UpdateListenerRule(OscTestSuite):
 
     def test_T4810_with_invalid_PathPattern(self):
         try:
-            self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, PathPattern=["/.com"]).response
+            self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, PathPattern=["/.com"])
             assert False, 'call should not have been successful'
         except OscApiException as error:
             misc.assert_error(error, 400, '4110', 'InvalidParameterValue')

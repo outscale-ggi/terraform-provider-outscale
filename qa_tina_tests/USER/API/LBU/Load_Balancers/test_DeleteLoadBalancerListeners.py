@@ -12,25 +12,6 @@ from qa_tina_tools.tools.tina.wait_tools import wait_load_balancer_state
 
 class Test_DeleteLoadBalancerListeners(OscTestSuite):
 
-    @classmethod
-    def setup_class(cls):
-        super(Test_DeleteLoadBalancerListeners, cls).setup_class()
-        try:
-            pass
-        except:
-            try:
-                cls.teardown_class()
-            except:
-                pass
-            raise
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_DeleteLoadBalancerListeners, cls).teardown_class()
-
     def test_T4007_with_ssl_listener(self):
         ret_lbu = None
         ret_up = None
@@ -63,12 +44,12 @@ class Test_DeleteLoadBalancerListeners(OscTestSuite):
                 try:
                     delete_lbu(self.a1_r1, lbu_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
             if ret_up:
                 try:
                     self.a1_r1.eim.DeleteServerCertificate(ServerCertificateName=name)
                 except:
-                    pass
+                    print('Could not delete server certificate')
             if crtpath:
                 os.remove(crtpath)
             if keypath:
@@ -96,7 +77,7 @@ class Test_DeleteLoadBalancerListeners(OscTestSuite):
                 try:
                     delete_lbu(self.a1_r1, lbu_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
 
     def test_T4009_with_tcp_listener(self):
         ret_lbu = None
@@ -120,7 +101,7 @@ class Test_DeleteLoadBalancerListeners(OscTestSuite):
                 try:
                     delete_lbu(self.a1_r1, lbu_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
 
     def test_T4010_with_https_listener(self):
         ret_lbu = None
@@ -155,12 +136,12 @@ class Test_DeleteLoadBalancerListeners(OscTestSuite):
                 try:
                     delete_lbu(self.a1_r1, lbu_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
             if ret_up:
                 try:
                     self.a1_r1.eim.DeleteServerCertificate(ServerCertificateName=name)
                 except:
-                    pass
+                    print('Could not delete server certificate')
             if crtpath:
                 os.remove(crtpath)
             if keypath:
@@ -193,7 +174,7 @@ class Test_DeleteLoadBalancerListeners(OscTestSuite):
                     delete_lbu(self.a1_r1, lbuname)
                 delete_lbu(self.a2_r1, lbu_name3)
             except:
-                pass
+                print('Could not delete lbu')
 
     def test_T4312_with_udp_listener(self):
         ret_lbu = None
@@ -217,4 +198,4 @@ class Test_DeleteLoadBalancerListeners(OscTestSuite):
                 try:
                     delete_lbu(self.a1_r1, lbu_name)
                 except:
-                    pass
+                    print('Could not delete lbu')

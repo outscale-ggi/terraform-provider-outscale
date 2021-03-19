@@ -36,7 +36,7 @@ class Test_UploadServerCertificate(OscTestSuite):
                 try:
                     self.a1_r1.eim.DeleteServerCertificate(ServerCertificateName=name)
                 except:
-                    pass
+                    print('Could not delete server certificate')
             if crtpath:
                 os.remove(crtpath)
             if keypath:

@@ -4,11 +4,11 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_error, id_generator
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina.info_keys import SECURITY_GROUP_ID, SUBNETS, SUBNET_ID
+from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_instances, \
     create_load_balancer, create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
-from qa_tina_tools.tina.info_keys import SECURITY_GROUP_ID, SUBNETS, SUBNET_ID
-from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 
 
@@ -33,7 +33,6 @@ class Test_DeleteSecurityGroup(OscTestSuite):
 
     @classmethod
     def teardown_class(cls):
-        super(Test_DeleteSecurityGroup, cls).teardown_class()
         try:
             if cls.instance_info_a1:
                 delete_instances(cls.a1_r1, cls.instance_info_a1)

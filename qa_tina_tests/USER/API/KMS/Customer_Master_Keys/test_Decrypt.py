@@ -12,7 +12,6 @@ class Test_Decrypt(Kms):
 
     @classmethod
     def setup_class(cls):
-        cls.known_error = False
         super(Test_Decrypt, cls).setup_class()
         cls.key_metadata = None
         try:
@@ -27,21 +26,14 @@ class Test_Decrypt(Kms):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            if error.status_code == 500 and error.error_code == 'KMSServerException':
-                cls.known_error = True
-            else:
+            finally:
                 raise error
 
     @classmethod
     def teardown_class(cls):
         try:
             if cls.key_metadata:
-                try:
-                    cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_metadata.KeyId, PendingWindowInDays=7)
-                except:
-                    pass
+                cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_metadata.KeyId, PendingWindowInDays=7)
         finally:
             super(Test_Decrypt, cls).teardown_class()
 

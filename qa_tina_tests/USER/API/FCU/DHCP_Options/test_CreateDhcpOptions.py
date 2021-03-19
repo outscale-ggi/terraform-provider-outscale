@@ -5,6 +5,20 @@ from qa_test_tools.test_base import OscTestSuite, known_error, assert_code
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
 
 
+def validate_dhcp_options(ret, dhcp_conf):
+    try:
+        # get the domain-name-server configuration
+        configuration_set = next((conf for conf in ret.response.dhcpOptions.dhcpConfigurationSet if conf.key == dhcp_conf['Key']))
+        assert configuration_set, "No configuration found for the key {}".format(dhcp_conf['Key'])
+        assert configuration_set.key == dhcp_conf['Key']
+        # check length
+        assert len(configuration_set.valueSet) == len(dhcp_conf['Value'])
+        for i in range(len(configuration_set.valueSet)):
+            assert configuration_set.valueSet[i].value == dhcp_conf['Value'][i]
+    except AssertionError as error:
+        raise error
+
+
 class Test_CreateDhcpOptions(OscTestSuite):
 
     @classmethod
@@ -19,19 +33,6 @@ class Test_CreateDhcpOptions(OscTestSuite):
                 cleanup_dhcp_options(osc_sdk=cls.a1_r1, dhcpOptionsIds=cls.dhcp_options_list)
         finally:
             super(Test_CreateDhcpOptions, cls).teardown_class()
-
-    def validate_dhcp_options(self, ret, dhcp_conf):
-        try:
-            # get the domain-name-server configuration
-            configuration_set = next((conf for conf in ret.response.dhcpOptions.dhcpConfigurationSet if conf.key == dhcp_conf['Key']))
-            assert configuration_set, "No configuration found for the key {}".format(dhcp_conf['Key'])
-            assert configuration_set.key == dhcp_conf['Key']
-            # check length
-            assert len(configuration_set.valueSet) == len(dhcp_conf['Value'])
-            for i in range(len(configuration_set.valueSet)):
-                assert configuration_set.valueSet[i].value == dhcp_conf['Value'][i]
-        except AssertionError as error:
-            raise error
 
     def add_to_dhcp_list(self, ret):
         dhcp_id = ret.response.dhcpOptions.dhcpOptionsId
@@ -65,7 +66,7 @@ class Test_CreateDhcpOptions(OscTestSuite):
         dhcpconf = {'Key': 'domain-name-servers', 'Value': [Configuration.get('ipaddress', 'dns_google')]}
         ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf])
         self.add_to_dhcp_list(ret=ret)
-        self.validate_dhcp_options(ret, dhcpconf)
+        validate_dhcp_options(ret, dhcpconf)
 
     def test_T1487_with_max_domain_name_servers(self):
         dhcpconf = {'Key': 'domain-name-servers', 'Value': [Configuration.get('domain_name_servers', 'server1'), Configuration.get(
@@ -73,7 +74,7 @@ class Test_CreateDhcpOptions(OscTestSuite):
             Configuration.get('domain_name_servers', 'server4')]}
         ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf])
         self.add_to_dhcp_list(ret=ret)
-        self.validate_dhcp_options(ret, dhcpconf)
+        validate_dhcp_options(ret, dhcpconf)
 
     def test_T1488_with_outranged_domain_name_servers(self):
         dhcpconf = {'Key': 'domain-name-servers', 'Value': [Configuration.get('domain_name_servers', 'server1'), Configuration.get(
@@ -82,32 +83,32 @@ class Test_CreateDhcpOptions(OscTestSuite):
                 'domain_name_servers', 'server5')]}
         ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf])
         self.add_to_dhcp_list(ret=ret)
-        self.validate_dhcp_options(ret, dhcpconf)
+        validate_dhcp_options(ret, dhcpconf)
 
     def test_T1489_with_domain_name(self):
         dhcpconf = {'Key': 'domain-name', 'Value': ['outscale.qa']}
         ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf])
         self.add_to_dhcp_list(ret=ret)
-        self.validate_dhcp_options(ret, dhcpconf)
+        validate_dhcp_options(ret, dhcpconf)
 
     def test_T1490_with_domain_mulitple_name(self):
         dhcpconf = {'Key': 'domain-name', 'Value': ['outscale1.qa outscale2.qa outscale3.qa outscale4.qa']}
         ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf])
         self.add_to_dhcp_list(ret=ret)
-        self.validate_dhcp_options(ret, dhcpconf)
+        validate_dhcp_options(ret, dhcpconf)
 
     def test_T1492_with_ntp_server(self):
         dhcpconf = {'Key': 'ntp-servers', 'Value': [Configuration.get('ntp_servers', 'fr1')]}
         ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf])
         self.add_to_dhcp_list(ret=ret)
-        self.validate_dhcp_options(ret, dhcpconf)
+        validate_dhcp_options(ret, dhcpconf)
 
     def test_T1499_with_ntp_server_dns(self):
         try:
             dhcpconf = {'Key': 'ntp-servers', 'Value': ['ntp1.outscale.net']}
             ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf])
             self.add_to_dhcp_list(ret=ret)
-            self.validate_dhcp_options(ret, dhcpconf)
+            validate_dhcp_options(ret, dhcpconf)
             assert False, 'Remove known error code'
         except OscApiException as error:
             known_error('TINA-4056', error)
@@ -117,7 +118,7 @@ class Test_CreateDhcpOptions(OscTestSuite):
                                                     Configuration.get('ntp_servers', 'fr3'), Configuration.get('ntp_servers', 'fr4')]}
         ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf])
         self.add_to_dhcp_list(ret=ret)
-        self.validate_dhcp_options(ret, dhcpconf)
+        validate_dhcp_options(ret, dhcpconf)
 
     def test_T1496_with_outranged_ntp_servers(self):
         dhcpconf = {'Key': 'ntp-servers', 'Value': [Configuration.get('ntp_servers', 'fr1'), Configuration.get('ntp_servers', 'fr2'),
@@ -125,14 +126,14 @@ class Test_CreateDhcpOptions(OscTestSuite):
                                                     Configuration.get('ntp_servers', 'fr5')]}
         ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf])
         self.add_to_dhcp_list(ret=ret)
-        self.validate_dhcp_options(ret, dhcpconf)
+        validate_dhcp_options(ret, dhcpconf)
 
     def test_T1497_with_invalid_value_ntp_servers(self):
         try:
             dhcpconf = {'Key': 'ntp-servers', 'Value': ['foo']}
             ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf])
             self.add_to_dhcp_list(ret=ret)
-            self.validate_dhcp_options(ret, dhcpconf)
+            validate_dhcp_options(ret, dhcpconf)
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue', "Invalid IPv4 address: foo")
 
@@ -144,6 +145,6 @@ class Test_CreateDhcpOptions(OscTestSuite):
         dhcpconf2 = {'Key': 'domain-name', 'Value': ['outscale.qa']}
         ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf, dhcpconf1, dhcpconf2])
         self.add_to_dhcp_list(ret=ret)
-        self.validate_dhcp_options(ret, dhcpconf)
-        self.validate_dhcp_options(ret, dhcpconf1)
-        self.validate_dhcp_options(ret, dhcpconf2)
+        validate_dhcp_options(ret, dhcpconf)
+        validate_dhcp_options(ret, dhcpconf1)
+        validate_dhcp_options(ret, dhcpconf2)

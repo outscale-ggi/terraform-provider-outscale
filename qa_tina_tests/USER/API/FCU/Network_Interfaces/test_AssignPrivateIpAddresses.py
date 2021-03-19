@@ -24,12 +24,11 @@ class Test_AssignPrivateIpAddresses(OscTestSuite):
             cls.subnet_id = res_snet.response.subnet.subnetId
             res_ni = cls.a1_r1.fcu.CreateNetworkInterface(SubnetId=cls.subnet_id, PrivateIpAddress=Configuration.get('ipaddress', '10_0_1_4'))
             cls.ni_id = res_ni.response.networkInterface.networkInterfaceId
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -39,7 +38,7 @@ class Test_AssignPrivateIpAddresses(OscTestSuite):
                 try:
                     cls.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId=cls.ni_id)
                 except Exception as error:
-                    err = error  
+                    err = error
             if cls.subnet_id:
                 try:
                     delete_subnet(cls.a1_r1, cls.subnet_id)
@@ -56,13 +55,13 @@ class Test_AssignPrivateIpAddresses(OscTestSuite):
             super(Test_AssignPrivateIpAddresses, cls).teardown_class()
 
     def test_T4096_valid_params_with_private_ip(self):
-        private_ip = '10.0.1.{}'.format(*random.sample(range(10, 100), 1))
+        private_ip = '10.0.1.{}'.format(*random.sample(list(range(10, 100)), 1))
         try:
             res = self.a1_r1.fcu.AssignPrivateIpAddresses(NetworkInterfaceId=self.ni_id, PrivateIpAddress=private_ip)
             assert res.response.osc_return
         finally:
             self.a1_r1.fcu.UnassignPrivateIpAddresses(NetworkInterfaceId=self.ni_id, PrivateIpAddress=private_ip)
-            
+
     def test_T4097_valid_params_with_second_ip_in_range(self):
         res = self.a1_r1.fcu.AssignPrivateIpAddresses(NetworkInterfaceId=self.ni_id, SecondaryPrivateIpAddressCount=2)
         assert res.response.osc_return

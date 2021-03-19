@@ -13,7 +13,7 @@ class Test_CreateCa(OscTestSuite):
         cls.cas = []
         cls.ca1files = cls.ca2files = cls.ca3files = None
         cls.ca1files, cls.ca2files, cls.ca3files, _, _, _, _, cls.tmp_file_paths = create_certificate_setup()
-        
+
     @classmethod
     def teardown_class(cls):
         try:
@@ -37,8 +37,8 @@ class Test_CreateCa(OscTestSuite):
             assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T5301_required_params(self):
-        with open(self.ca1files[1]) as f:
-            ret = self.a1_r1.oapi.CreateCa(CaPem=f.read(), Description='test ca')
+        with open(self.ca1files[1]) as cafile:
+            ret = self.a1_r1.oapi.CreateCa(CaPem=cafile.read(), Description='test ca')
         ret.check_response()
         self.cas.append(ret.response.Ca.CaId)
 
@@ -50,11 +50,11 @@ class Test_CreateCa(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4124')
 
     def test_T5303_dry_run(self):
-        with open(self.ca1files[1]) as f:
-            ret = self.a1_r1.oapi.CreateCa(CaPem=f.read(), Description='test ca', DryRun=True)
+        with open(self.ca1files[1]) as cafile:
+            ret = self.a1_r1.oapi.CreateCa(CaPem=cafile.read(), Description='test ca', DryRun=True)
             assert_dry_run(ret)
 
     def test_T5304_dry_run_false(self):
-        with open(self.ca1files[1]) as f:
-            ret = self.a1_r1.oapi.CreateCa(CaPem=f.read(), Description='test ca', DryRun=False)
+        with open(self.ca1files[1]) as cafile:
+            ret = self.a1_r1.oapi.CreateCa(CaPem=cafile.read(), Description='test ca', DryRun=False)
         self.cas.append(ret.response.Ca.CaId)

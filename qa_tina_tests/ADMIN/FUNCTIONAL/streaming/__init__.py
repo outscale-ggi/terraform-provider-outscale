@@ -1,15 +1,20 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import write_on_device, read_on_device, assert_streaming_state, wait_streaming_state, get_streaming_operation, \
-    get_data_file_chain
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH
-from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state, wait_instances_state
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_snapshots_state, wait_volumes_state
+from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import (
+    assert_streaming_state,
+    get_data_file_chain,
+    get_streaming_operation,
+    read_on_device,
+    wait_streaming_state,
+    write_on_device,
+)
 
 
 class StreamingBase(OscTestSuite):
@@ -75,8 +80,11 @@ class StreamingBase(OscTestSuite):
             wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=cls.inst_info[INSTANCE_ID_LIST], state='ready')
 
             # init ssh
-            cls.sshclient = SshTools.check_connection_paramiko(cls.inst_info[INSTANCE_SET][0]['ipAddress'], cls.inst_info[KEY_PAIR][PATH],
-                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            cls.sshclient = SshTools.check_connection_paramiko(
+                cls.inst_info[INSTANCE_SET][0]['ipAddress'],
+                cls.inst_info[KEY_PAIR][PATH],
+                username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            )
             if cls.with_fio:
                 cmd = 'sudo yum install -y epel-release'
                 SshTools.exec_command_paramiko(cls.sshclient, cmd)
@@ -90,16 +98,23 @@ class StreamingBase(OscTestSuite):
             # loop
             for i in range(cls.s_len):
                 # mount / write / umount
-                md5sum = write_on_device(sshclient=cls.sshclient, device='/dev/xvdb', folder='/mnt', f_num=i, size=cls.w_size,
-                                         with_md5sum=cls.with_md5sum, with_fio=cls.with_fio)
+                md5sum = write_on_device(
+                    sshclient=cls.sshclient,
+                    device='/dev/xvdb',
+                    folder='/mnt',
+                    f_num=i,
+                    size=cls.w_size,
+                    with_md5sum=cls.with_md5sum,
+                    with_fio=cls.with_fio,
+                )
                 # snap
                 snap_id = cls.a1_r1.fcu.CreateSnapshot(VolumeId=cls.vol_id).response.snapshotId
                 wait_snapshots_state(osc_sdk=cls.a1_r1, state='completed', snapshot_id_list=[snap_id])
                 ret = cls.a1_r1.intel.snapshot.find(id=snap_id)
                 ret = cls.a1_r1.intel.storage.get_data_file_chain(file_id=ret.response.result[0].data_file)
-                datafiles = [i.id for i in ret.response.result]
+                datafiles = [df.id for df in ret.response.result]
                 cls.data['snap_{}'.format(i)] = {'id': snap_id, 'md5sum': md5sum, 'datafiles': datafiles}
-                if cls.branch and i > 0 and i < 4:
+                if cls.branch and 0 < i < 4:
                     _, vol_id_list = create_volumes(cls.a1_r1, snapshot_id=snap_id, size=cls.v_size, volume_type=cls.vol_type, iops=cls.iops)
                     vol_id = vol_id_list[0]
                     wait_volumes_state(cls.a1_r1, [vol_id], 'available', nb_check=5)
@@ -107,22 +122,31 @@ class StreamingBase(OscTestSuite):
                     wait_volumes_state(cls.a1_r1, [vol_id], state='in-use', nb_check=5)
 
                     for j in range(1):
-                        md5sum = write_on_device(sshclient=cls.sshclient, device='/dev/xvdc', folder='/mnt', f_num=i * 100 + j, size=cls.w_size,
-                                                 with_md5sum=cls.with_md5sum, with_fio=cls.with_fio)
+                        md5sum = write_on_device(
+                            sshclient=cls.sshclient,
+                            device='/dev/xvdc',
+                            folder='/mnt',
+                            f_num=i * 100 + j,
+                            size=cls.w_size,
+                            with_md5sum=cls.with_md5sum,
+                            with_fio=cls.with_fio,
+                        )
                         snap_id = cls.a1_r1.fcu.CreateSnapshot(VolumeId=vol_id).response.snapshotId
                         wait_snapshots_state(osc_sdk=cls.a1_r1, state='completed', snapshot_id_list=[snap_id])
                         ret = cls.a1_r1.intel.snapshot.find(id=snap_id)
                         ret = cls.a1_r1.intel.storage.get_data_file_chain(file_id=ret.response.result[0].data_file)
-                        datafiles = [i.id for i in ret.response.result]
+                        datafiles = [df.id for df in ret.response.result]
                         cls.data['snap_{}'.format(i * 100 + j)] = {'id': snap_id, 'md5sum': md5sum, 'datafiles': datafiles}
                     cls.a1_r1.fcu.DetachVolume(VolumeId=vol_id)
                     wait_volumes_state(cls.a1_r1, [vol_id], 'available', nb_check=5)
                     delete_volumes(cls.a1_r1, [vol_id])
 
             wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=cls.test_inst_info[INSTANCE_ID_LIST], state='ready')
-            cls.test_sshclient = SshTools.check_connection_paramiko(cls.test_inst_info[INSTANCE_SET][0]['ipAddress'],
-                                                                    cls.test_inst_info[KEY_PAIR][PATH],
-                                                                    username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            cls.test_sshclient = SshTools.check_connection_paramiko(
+                cls.test_inst_info[INSTANCE_SET][0]['ipAddress'],
+                cls.test_inst_info[KEY_PAIR][PATH],
+                username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            )
             if cls.with_fio:
                 cmd = 'sudo yum install -y epel-release'
                 SshTools.exec_command_paramiko(cls.test_sshclient, cmd)
@@ -136,9 +160,10 @@ class StreamingBase(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -179,14 +204,22 @@ class StreamingBase(OscTestSuite):
         self.vol_id_test = None
         self.data_file_before = []
         try:
-            _, vol_id_list = create_volumes(self.a1_r1, snapshot_id=self.data['snap_{}'.format(self.s_len - 1)]['id'], size=self.v_size,
-                                            volume_type=self.vol_type, iops=self.iops)
+            _, vol_id_list = create_volumes(
+                self.a1_r1, snapshot_id=self.data['snap_{}'.format(self.s_len - 1)]['id'], size=self.v_size, volume_type=self.vol_type, iops=self.iops
+            )
             self.vol_id_test = vol_id_list[0]
             wait_volumes_state(self.a1_r1, [self.vol_id_test], 'available', nb_check=5)
             self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], VolumeId=self.vol_id_test, Device='/dev/xvdc')
             wait_volumes_state(self.a1_r1, [self.vol_id_test], state='in-use', nb_check=5)
-            md5sum = write_on_device(sshclient=self.sshclient, device='/dev/xvdc', folder='/mnt', f_num=self.s_len, size=self.w_size,
-                                     with_md5sum=self.with_md5sum, with_fio=self.with_fio)
+            md5sum = write_on_device(
+                sshclient=self.sshclient,
+                device='/dev/xvdc',
+                folder='/mnt',
+                f_num=self.s_len,
+                size=self.w_size,
+                with_md5sum=self.with_md5sum,
+                with_fio=self.with_fio,
+            )
             snap_id = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_id_test).response.snapshotId
             wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=[snap_id])
             datafiles = get_data_file_chain(self.a1_r1, res_id=snap_id)
@@ -198,25 +231,28 @@ class StreamingBase(OscTestSuite):
             wait_volumes_state(self.a1_r1, [self.vol_id_test], state='in-use', nb_check=5)
 
             ret = wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.test_inst_info[INSTANCE_ID_LIST], state='ready')
-            self.test_sshclient = SshTools.check_connection_paramiko(ret.response.reservationSet[0].instancesSet[0].ipAddress,
-                                                                     self.test_inst_info[KEY_PAIR][PATH],
-                                                                     username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            self.test_sshclient = SshTools.check_connection_paramiko(
+                ret.response.reservationSet[0].instancesSet[0].ipAddress,
+                self.test_inst_info[KEY_PAIR][PATH],
+                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
+            )
             cmd = 'sudo mkdir -p /vol; sudo mount -o nouuid /dev/xvdb /vol'
             SshTools.exec_command_paramiko(self.test_sshclient, cmd)
 
             self.data_file_before = get_data_file_chain(self.a1_r1, res_id=self.vol_id_test)
             assert len(self.data_file_before) > 1
 
-        except:
+        except Exception as error:
             try:
                 out, status, err = SshTools.exec_command_paramiko(self.test_sshclient, "sudo dmesg")
                 self.logger.debug(out)
                 self.logger.debug(status)
                 self.logger.debug(err)
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:
@@ -302,4 +338,3 @@ class StreamingBase(OscTestSuite):
             assert data_file_after[3] == self.data['snap_2']['datafiles'][1]
             assert data_file_after[4] == self.data['snap_2']['datafiles'][2]
             assert data_file_after[5] == self.data['snap_2']['datafiles'][3]
-

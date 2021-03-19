@@ -1,29 +1,28 @@
-# -*- coding:utf-8 -*-
+
 import base64
-import random
 import string
 import zlib
 
-from qa_common_tools.ssh import SshTools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response, create_vms
 from qa_tina_tools.tina.info_keys import KEY_PAIR, PATH
 from qa_tina_tools.tina.oapi import delete_Vms, create_Vms
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state, \
-    wait_security_groups_state
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state, wait_security_groups_state
+from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response, create_vms
 
 
 class Test_CreateVms(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_CreateVms, cls).setup_class()
         cls.user_data = '''#!/usr/bin/bash
 echo "yes" > /tmp/userdata.txt
 '''
+        cls.info = None
+        super(Test_CreateVms, cls).setup_class()
 
     @classmethod
     def teardown_class(cls):
@@ -42,6 +41,7 @@ echo "yes" > /tmp/userdata.txt
                 wait_instances_state(self.a1_r1, self.info, state='terminated')
         finally:
             super(Test_CreateVms, self).teardown_method(method)
+
     def check_user_data(self, vm_info, gzip=False, decode=True):
         sshclient = SshTools.check_connection_paramiko(vm_info['vms'][0]['PublicIp'], vm_info[KEY_PAIR][PATH],
                                                        username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
@@ -159,9 +159,9 @@ echo "yes" > /tmp/userdata.txt
     def test_T2041_two_vms(self):
         ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None, MaxVmsCount=2, MinVmsCount=2)
         assert len(self.info) == 2
-        for vm in ret.response.Vms:
+        for inst in ret.response.Vms:
             validate_vm_response(
-                vm,
+                inst,
                 expected_vm={
                     'Architecture': 'x86_64',
                     'BsuOptimized': False,
@@ -447,9 +447,9 @@ echo "yes" > /tmp/userdata.txt
     def test_T3398_with_bdm(self):
         ret, self.info = create_vms(ocs_sdk=self.a1_r1, BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 2}}])
         assert len(self.info) == 1
-        for vm in ret.response.Vms:
+        for inst in ret.response.Vms:
             validate_vm_response(
-                vm,
+                inst,
                 bdm=[{
                     'DeviceName': '/dev/sda',
                     'Bsu': {
@@ -472,9 +472,9 @@ echo "yes" > /tmp/userdata.txt
         ret, self.info = create_vms(ocs_sdk=self.a1_r1,
                                     BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 2, 'VolumeType': 'gp2'}}])
         assert len(self.info) == 1
-        for vm in ret.response.Vms:
+        for inst in ret.response.Vms:
             validate_vm_response(
-                vm,
+                inst,
                 bdm=[{
                     'DeviceName': '/dev/sdb',
                     'Bsu': {
@@ -489,9 +489,9 @@ echo "yes" > /tmp/userdata.txt
         ret, self.info = create_vms(ocs_sdk=self.a1_r1,
                                     BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'Iops': 100, 'VolumeSize': 4, 'VolumeType': 'io1'}}])
         assert len(self.info) == 1
-        for vm in ret.response.Vms:
+        for inst in ret.response.Vms:
             validate_vm_response(
-                vm,
+                inst,
                 bdm=[{
                     'DeviceName': '/dev/sdb',
                     'Bsu': {
@@ -506,9 +506,9 @@ echo "yes" > /tmp/userdata.txt
         ret, self.info = create_vms(ocs_sdk=self.a1_r1, BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 4, 'VolumeType': ''}}])
         assert len(self.info) == 1
 
-        for vm in ret.response.Vms:
+        for inst in ret.response.Vms:
             validate_vm_response(
-                vm,
+                inst,
                 bdm=[{
                     'DeviceName': '/dev/sdb',
                     'Bsu': {
@@ -542,7 +542,7 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T5072_userdata_base64_gzip(self):
         vm_info = None
-        user_data=base64.b64encode(zlib.compress(self.user_data.encode('utf-8'))).decode('utf-8')
+        user_data = base64.b64encode(zlib.compress(self.user_data.encode('utf-8'))).decode('utf-8')
         try:
             vm_info = create_Vms(osc_sdk=self.a1_r1, state='ready',
                                          user_data=user_data)
@@ -551,6 +551,7 @@ echo "yes" > /tmp/userdata.txt
             if vm_info:
                 delete_Vms(self.a1_r1, vm_info)
 
+
 class Test_CreateVmsWithSubnet(OscTestSuite):
 
     @classmethod
@@ -558,16 +559,17 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         super(Test_CreateVmsWithSubnet, cls).setup_class()
         cls.net_id = None
         cls.subnet_id = None
+        cls.nic_id = None
+        cls.vm_id_list = None
+        cls.sg_id = None
         try:
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange='10.1.0.0/16').response.Net.NetId
-            cls.subnet_id = cls.a1_r1.oapi.CreateSubnet(NetId=cls.net_id,
-                                                        IpRange='10.1.0.0/24').response.Subnet.SubnetId
+            cls.subnet_id = cls.a1_r1.oapi.CreateSubnet(NetId=cls.net_id, IpRange='10.1.0.0/24').response.Subnet.SubnetId
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -648,15 +650,13 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
     def test_T3170_with_nic_invalid_sg_id(self):
         # invalid id
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[
-                {'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['tata-12345678']}])
+            create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['tata-12345678']}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
         # malformed id
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[
-                {'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['sg-1234567']}])
+            create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['sg-1234567']}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
@@ -686,7 +686,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
             self.nic_id = self.a1_r1.oapi.CreateNic(SubnetId=self.subnet_id).response.Nic.NicId
             nic_id2 = self.a1_r1.oapi.CreateNic(SubnetId=subnet_id2).response.Nic.NicId
             ret, self.vm_id_list = create_vms(
-                ocs_sdk=self.a1_r1, VmType='tinav4.c2r4p1', 
+                ocs_sdk=self.a1_r1, VmType='tinav4.c2r4p1',
                 Nics=[{'DeviceNumber': 0, 'NicId': self.nic_id}, {'DeviceNumber': 1, 'NicId': nic_id2}]
             )
             validate_vm_response(
@@ -716,7 +716,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         subnet_id1 = None
         try:
             self.nic_id = self.a1_r1.oapi.CreateNic(SubnetId=self.subnet_id).response.Nic.NicId
-    
+
             subnet_id1 = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id,
                                                       IpRange='10.1.1.0/24').response.Subnet.SubnetId
             nic_id1 = self.a1_r1.oapi.CreateNic(SubnetId=subnet_id1).response.Nic.NicId
@@ -753,7 +753,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
 
     def test_T3173_with_nic_with_sg_ids(self):
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
-            SecurityGroupName=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)),
+            SecurityGroupName=id_generator(size=7, chars=string.ascii_lowercase),
             Description='test', NetId=self.net_id).response.SecurityGroup.SecurityGroupId
         ret, self.vm_id_list = create_vms(
             ocs_sdk=self.a1_r1,
@@ -778,7 +778,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
 
     def test_T3174_with_nic_with_sg_id_in_another_vpc(self):
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
-            SecurityGroupName=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)),
+            SecurityGroupName=id_generator(size=7, chars=string.ascii_lowercase),
             Description='test').response.SecurityGroup.SecurityGroupId
         try:
             _, self.vm_id_list = create_vms(
@@ -922,7 +922,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
 
     def test_T3178_with_subnet_and_sg_ids(self):
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
-            SecurityGroupName=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)),
+            SecurityGroupName=id_generator(size=7, chars=string.ascii_lowercase),
             Description='test', NetId=self.net_id).response.SecurityGroup.SecurityGroupId
         ret, self.vm_id_list = create_vms(
             ocs_sdk=self.a1_r1,
@@ -939,7 +939,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
 
     def test_T3179_with_sg_ids_in_specific_vpc(self):
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
-            SecurityGroupName=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)),
+            SecurityGroupName=id_generator(size=7, chars=string.ascii_lowercase),
             Description='test', NetId=self.net_id).response.SecurityGroup.SecurityGroupId
         ret, self.vm_id_list = create_vms(
             ocs_sdk=self.a1_r1,
@@ -956,7 +956,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
 
     def test_T3180_with_sg_id(self):
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
-            SecurityGroupName=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)),
+            SecurityGroupName=id_generator(size=7, chars=string.ascii_lowercase),
             Description='test').response.SecurityGroup.SecurityGroupId
         ret, self.vm_id_list = create_vms(
             ocs_sdk=self.a1_r1,
@@ -968,7 +968,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         )
 
     def test_T3181_with_subnet_and_sg_names(self):
-        name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        name = id_generator(size=7, chars=string.ascii_lowercase)
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
             SecurityGroupName=name,
             Description='test', NetId=self.net_id).response.SecurityGroup.SecurityGroupId
@@ -986,7 +986,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         )
 
     def test_T3182_with_sg_names_in_specific_vpc(self):
-        name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        name = id_generator(size=7, chars=string.ascii_lowercase)
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
             SecurityGroupName=name,
             Description='test', NetId=self.net_id).response.SecurityGroup.SecurityGroupId
@@ -1004,7 +1004,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         )
 
     def test_T3183_with_sg_names(self):
-        name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7))
+        name = id_generator(size=7, chars=string.ascii_lowercase)
         self.sg_id = self.a1_r1.oapi.CreateSecurityGroup(
             SecurityGroupName=name,
             Description='test').response.SecurityGroup.SecurityGroupId
@@ -1022,7 +1022,5 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         userdata = """# autoexecutepowershellnopasswd
             Write-Host '{}'
             # autoexecutepowershellnopasswd""".format(msg)
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                    UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
-        validate_vm_response(ret.response.Vms[0],
-                             expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        ret, _ = create_vms(ocs_sdk=self.a1_r1, UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+        validate_vm_response(ret.response.Vms[0], expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})

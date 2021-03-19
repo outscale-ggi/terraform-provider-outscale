@@ -10,18 +10,20 @@ from qa_tina_tools.tools.tina import create_tools
 
 
 # from osc_common.exceptions.osc_exceptions import OscApiException
-#Parameter    In      Type       Required
-#Body         body    string     true
-#Chain        body    string     false
-#DryRun       body    boolean    false
-#Name         body    string     true
-#Path         body    string     false
-#PrivateKey   body    string     true
+# Parameter    In      Type       Required
+# Body         body    string     true
+# Chain        body    string     false
+# DryRun       body    boolean    false
+# Name         body    string     true
+# Path         body    string     false
+# PrivateKey   body    string     true
 # Note: only tested with self signed certificates
 class Test_CreateServerCertificate(OscTestSuite):
-    
+
     @classmethod
     def setup_class(cls):
+        cls.sc_name = None
+        cls.sc_resp = None
         super(Test_CreateServerCertificate, cls).setup_class()
         cls.crtpath, cls.keypath = create_tools.create_self_signed_cert()
         cls.key = open(cls.keypath).read()
@@ -34,7 +36,7 @@ class Test_CreateServerCertificate(OscTestSuite):
                 os.remove(cls.crtpath)
             if cls.keypath:
                 os.remove(cls.keypath)
-        finally:    
+        finally:
             super(Test_CreateServerCertificate, cls).teardown_class()
 
     def setup_method(self, method):
@@ -48,11 +50,11 @@ class Test_CreateServerCertificate(OscTestSuite):
                 self.a1_r1.oapi.DeleteServerCertificate(Name=self.sc_name)
         finally:
             OscTestSuite.teardown_method(self, method)
-        
+
     def test_T4846_with_valid_param(self):
-        self.ret = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key)
-        self.ret.check_response()
-        assert self.sc_name == self.ret.response.ServerCertificate.Name
+        ret = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key)
+        ret.check_response()
+        assert self.sc_name == ret.response.ServerCertificate.Name
 
     def test_T4847_missing_body(self):
         try:
@@ -123,9 +125,9 @@ class Test_CreateServerCertificate(OscTestSuite):
         misc.assert_dry_run(dr_ret)
 
     def test_T4857_with_path(self):
-        self.ret = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key, Path='/toto/')
-        self.ret.check_response()
-        assert self.sc_name == self.ret.response.ServerCertificate.Name
+        ret = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key, Path='/toto/')
+        ret.check_response()
+        assert self.sc_name == ret.response.ServerCertificate.Name
 
     def test_T4858_with_invalid_path(self):
         try:
@@ -140,13 +142,14 @@ class Test_CreateServerCertificate(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
-    
+
     def test_T4860_twice_with_same_name(self):
         resp = None
         try:
             resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key).response
             try:
-                self.resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key, Path='/test/').response
+                resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert,
+                                                               PrivateKey=self.key, Path='/test/').response
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 misc.assert_oapi_error(error, 409, 'ResourceConflict', 9073)

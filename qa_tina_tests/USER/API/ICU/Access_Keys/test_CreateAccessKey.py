@@ -1,5 +1,4 @@
 import re
-
 from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -12,7 +11,7 @@ class Test_CreateAccessKey(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'accesskey_limit': 10}
+        cls.quotas = {'accesskey_limit': 10}
         super(Test_CreateAccessKey, cls).setup_class()
 
     @classmethod
@@ -40,6 +39,7 @@ class Test_CreateAccessKey(OscTestSuite):
             ret_create = self.a1_r1.icu.CreateAccessKey()
             ak = ret_create.response.accessKey.accessKeyId
             sk = ret_create.response.accessKey.secretAccessKey
+            assert ret_create.response.accessKey.ownerId
             assert re.search(r"([A-Z0-9]{20})", ak), "AK format is not correct"
             assert re.search(r"([A-Z0-9]{40})", sk), "SK format is not correct"
             assert ret_create.response.accessKey.status == 'ACTIVE'
@@ -197,8 +197,6 @@ class Test_CreateAccessKey(OscTestSuite):
             sk = id_generator(size=30)
             ak = id_generator(size=10)
             ret_create = self.a1_r1.icu.CreateAccessKey(SecretAccessKey=sk, AccessKeyId=ak)
-            ret_create.response.accessKey.secretAccessKey
-            ret_create.response.accessKey.accessKeyId
             known_error('TINA-3930', 'test should have failed')
         except OscApiException as error:
             assert False, 'Remove known error code'
@@ -215,8 +213,6 @@ class Test_CreateAccessKey(OscTestSuite):
             sk = id_generator(size=40)
             ak = id_generator(size=10)
             ret_create = self.a1_r1.icu.CreateAccessKey(SecretAccessKey=sk, AccessKeyId=ak)
-            ret_create.response.accessKey.secretAccessKey
-            ret_create.response.accessKey.accessKeyId
             known_error('TINA-3930', 'test should have failed')
         except OscApiException as error:
             assert False, 'Remove known error code'

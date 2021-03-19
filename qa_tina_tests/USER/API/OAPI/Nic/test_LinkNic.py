@@ -1,23 +1,23 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, \
-    wait_network_interfaces_state
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state
+from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 
 
 class Test_LinkNic(Nic):
 
     @classmethod
     def setup_class(cls):
-        super(Test_LinkNic, cls).setup_class()
         cls.nic_ids = []
         cls.inst_info = None
+        cls.nic_link_ids = None
+        super(Test_LinkNic, cls).setup_class()
         try:
             cls.vpc_inst_info = create_instances(cls.a1_r1, 7, subnet_id=cls.subnet_id1, sg_id_list=[cls.firewall_id1])
             cls.inst_info = create_instances(cls.a1_r1, 6)
@@ -26,9 +26,8 @@ class Test_LinkNic(Nic):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -38,18 +37,18 @@ class Test_LinkNic(Nic):
                     cls.a1_r1.oapi.DeleteNic(NicId=nic_id)
                     wait_network_interfaces_state(cls.a1_r1, [nic_id], cleanup=True)
                 except:
-                    pass
+                    print('Could not delete nic')
 
             if cls.inst_info:
                 try:
                     delete_instances(cls.a1_r1, cls.inst_info)
                 except:
-                    pass
+                    print('Could not delete instances')
             if cls.vpc_inst_info:
                 try:
                     delete_instances(cls.a1_r1, cls.vpc_inst_info)
                 except:
-                    pass
+                    print('Could not delete instances')
         finally:
             super(Test_LinkNic, cls).teardown_class()
 
@@ -63,7 +62,7 @@ class Test_LinkNic(Nic):
                 try:
                     self.a1_r1.oapi.UnlinkNic(LinkNicId=nic_link_id)
                 except:
-                    pass
+                    print('Could not unlink nic')
         finally:
             super(Test_LinkNic, self).teardown_method(method)
 
@@ -79,7 +78,7 @@ class Test_LinkNic(Nic):
         vm_ids = [self.vpc_inst_info[INSTANCE_ID_LIST][1]]
         wait_instances_state(self.a1_r1, vm_ids, state='running')
         for i in range(7):
-            self.nic_link_ids.append(self.a1_r1.oapi.LinkNic(DeviceNumber=i+1, VmId=vm_ids[0], NicId=self.nic_ids[10+i]).response.LinkNicId)
+            self.nic_link_ids.append(self.a1_r1.oapi.LinkNic(DeviceNumber=i + 1, VmId=vm_ids[0], NicId=self.nic_ids[10 + i]).response.LinkNicId)
         try:
             self.nic_link_ids.append(self.a1_r1.oapi.LinkNic(DeviceNumber=9, VmId=vm_ids[0], NicId=self.nic_ids[17]).response.LinkNicId)
             assert False, 'Call should not have been successful'

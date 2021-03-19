@@ -6,7 +6,6 @@ from qa_tina_tools.tools.tina import create_tools, wait_tools, info_keys, delete
 
 
 class Test_GetPasswordData(OscTestSuite):
-    pass
 
     @classmethod
     def setup_class(cls):
@@ -16,18 +15,17 @@ class Test_GetPasswordData(OscTestSuite):
         try:
             cls.kp_info_a1 = create_tools.create_keypair(cls.a1_r1)
             cls.kp_info_a2 = create_tools.create_keypair(cls.a2_r1)
-            cls.instance_info_a1 = create_tools.create_instances(cls.a1_r1, state=None, omi_id=cls.a1_r1.config.region._conf['windows_2016'],
+            cls.instance_info_a1 = create_tools.create_instances(cls.a1_r1, state=None, omi_id=cls.a1_r1.config.region.get_info('windows_2016'),
                                                     inst_type='c4.large', key_name=cls.kp_info_a1[info_keys.NAME], nb=3)
-            cls.instance_info_a2 = create_tools.create_instances(cls.a2_r1, state=None, omi_id=cls.a2_r1.config.region._conf['windows_2016'],
+            cls.instance_info_a2 = create_tools.create_instances(cls.a2_r1, state=None, omi_id=cls.a2_r1.config.region.get_info('windows_2016'),
                                                     inst_type='c4.large', key_name=cls.kp_info_a2[info_keys.NAME])
             wait_tools.wait_instances_state(cls.a1_r1, cls.instance_info_a1[info_keys.INSTANCE_ID_LIST], state='ready', threshold=150)
             wait_tools.wait_instances_state(cls.a2_r1, cls.instance_info_a2[info_keys.INSTANCE_ID_LIST], state='ready', threshold=150)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

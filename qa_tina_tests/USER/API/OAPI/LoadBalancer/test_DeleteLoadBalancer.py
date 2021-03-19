@@ -1,11 +1,11 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
-from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
+from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer
 
 
 class Test_DeleteLoadBalancer(LoadBalancer):
@@ -13,7 +13,7 @@ class Test_DeleteLoadBalancer(LoadBalancer):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'lb_limit': 10}
+        cls.quotas = {'lb_limit': 10}
         super(Test_DeleteLoadBalancer, cls).setup_class()
 
     def setup_method(self, method):
@@ -26,9 +26,8 @@ class Test_DeleteLoadBalancer(LoadBalancer):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:
@@ -36,7 +35,7 @@ class Test_DeleteLoadBalancer(LoadBalancer):
                 try:
                     delete_lbu(self.a1_r1, lbu_name=self.lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
         finally:
             super(Test_DeleteLoadBalancer, self).teardown_method(method)
 

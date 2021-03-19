@@ -11,6 +11,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instanc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_instances_state
 
+
 NB_VOL = 10
 CMD = 'ls -lsa /dev/x*'
 
@@ -32,9 +33,8 @@ class Test_attach_detach(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

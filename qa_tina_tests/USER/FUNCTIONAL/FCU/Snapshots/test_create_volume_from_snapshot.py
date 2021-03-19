@@ -1,13 +1,13 @@
 import datetime
-import uuid
 from string import ascii_lowercase
+import uuid
 
 import pytest
 
 from qa_common_tools.ssh import SshTools
-from qa_test_tools.misc import id_generator
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tina.check_tools import create_text_file_volume, format_mount_volume, read_text_file_volume
@@ -186,7 +186,7 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             url = self.a1_r1.storageservice.generate_presigned_url(ClientMethod='get_object', Params=params,
                                                                    ExpiresIn=3600)
             ret = self.a1_r1.fcu.DescribeSnapshots(SnapshotId=[snap_id])
-            size = ret.response.snapshotSet[0].volume_size
+            size = ret.response.snapshotSet[0].volumeSize
             gb_to_byte = int(size) * pow(1024, 3)
             ret = self.a1_r1.fcu.ImportSnapshot(snapshotLocation=url, snapshotSize=gb_to_byte,
                                                 description='This is a snapshot test')

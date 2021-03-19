@@ -1,7 +1,6 @@
-# -*- coding:utf-8 -*-
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import known_error
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 
 
@@ -15,9 +14,6 @@ class Test_CreateNic(Nic):
     @classmethod
     def teardown_class(cls):
         super(Test_CreateNic, cls).teardown_class()
-
-    def setup_method(self, method):
-        super(Test_CreateNic, self).setup_method(method)
 
     def teardown_method(self, method):
         try:
@@ -115,19 +111,18 @@ class Test_CreateNic(Nic):
             self.nic_id = self.a1_r1.oapi.CreateNic(PrivateIps=[{'IsPrimary': True}], SubnetId=self.subnet_id1).response.Nic.NicId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('TINA-6048', 'Incorrect internal error')
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T5330_with_private_ips_missing_is_primary(self):
         ret = self.a1_r1.oapi.CreateNic(PrivateIps=[{'PrivateIp': '10.0.1.20'}], SubnetId=self.subnet_id1)
         self.nic_id = ret.response.Nic.NicId
-        assert ret.response.Nic.PrivateIps[1].IsPrimary == False
+        assert not ret.response.Nic.PrivateIps[1].IsPrimary
         assert ret.response.Nic.PrivateIps[1].PrivateIp == '10.0.1.20'
 
     def test_T2638_with_private_ips_invalid_ip1(self):
         try:
-            self.nic_id = self.a1_r1.oapi.CreateNic(PrivateIps=[{'IsPrimary': True, 'PrivateIp': 'tata'}], SubnetId=self.subnet_id1).response.Nic.NicId
+            self.nic_id = self.a1_r1.oapi.CreateNic(PrivateIps=[{'IsPrimary': True, 'PrivateIp': 'tata'}],
+                                                     SubnetId=self.subnet_id1).response.Nic.NicId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')

@@ -28,7 +28,7 @@ class Test_DeleteVirtualGateway(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=vgw_id)
                 except:
-                    pass
+                    print('Could not delete virtual gateway')
 
     def test_T2370_valid_params_dry_run(self):
         vgw_id = None
@@ -42,7 +42,7 @@ class Test_DeleteVirtualGateway(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=vgw_id)
                 except:
-                    pass
+                    print('Could not delete virtual gateway')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3538_with_other_user(self):
@@ -59,7 +59,7 @@ class Test_DeleteVirtualGateway(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=vgw_id)
                 except:
-                    pass
+                    print('Could not delete virtual gateway')
 
     def test_T3539_without_params(self):
         vgw_id = None
@@ -74,4 +74,4 @@ class Test_DeleteVirtualGateway(OscTestSuite):
                 try:
                     self.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=vgw_id)
                 except:
-                    pass
+                    print('Could not delete virtual gateway')

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
@@ -6,7 +6,6 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
-
 
 NUM_INST = 2
 
@@ -19,12 +18,11 @@ class Test_DescribeInstances(OscTestSuite):
         cls.instance_info_a1 = None
         try:
             cls.instance_info_a1 = create_instances(cls.a1_r1, nb=NUM_INST)
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

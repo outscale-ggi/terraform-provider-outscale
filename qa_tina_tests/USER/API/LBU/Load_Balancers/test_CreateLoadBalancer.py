@@ -45,9 +45,8 @@ class Test_CreateLoadBalancer(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -56,19 +55,17 @@ class Test_CreateLoadBalancer(OscTestSuite):
                 try:
                     delete_lbu(cls.a1_r1, cls.lb_name)
                 except:
-                    pass
+                    print('Could not delete lbu.')
             if cls.sg_id_3:
                 try:
                     cls.a1_r1.fcu.DeleteSecurityGroup(GroupId=cls.sg_id_3)
                 except:
-                    pass
+                    print('Could not delete security group.')
             if cls.vpc_id:
                 try:
                     cleanup_vpcs(cls.a1_r1, vpc_id_list=[cls.vpc_id], force=True)
                 except:
-                    pass
-        except Exception as error:
-            raise error
+                    print('Could not delete vpcs.')
         finally:
             super(Test_CreateLoadBalancer, cls).teardown_class()
 
@@ -205,7 +202,7 @@ class Test_CreateLoadBalancer(OscTestSuite):
             assert False, "Call should not have been successful, request must contain valid security group param"
         except OscApiException as err:
             assert_error(err, 400, 'InvalidSecurityGroup', None)
-            # TODO check error message 
+            # TODO check error message
         try:
             self.a1_r1.lbu.CreateLoadBalancer(LoadBalancerName='lb1',
                                               Listeners=[{'InstancePort': '80', 'LoadBalancerPort': '80', 'Protocol': 'HTTP'}],

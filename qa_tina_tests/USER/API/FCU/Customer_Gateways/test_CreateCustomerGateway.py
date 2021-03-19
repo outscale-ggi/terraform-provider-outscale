@@ -41,7 +41,7 @@ class Test_CreateCustomerGateway(OscTestSuite):
         try:
             create_customer_gateway(self.a1_r1, bgp_asn=12, ip_address='462311478', typ='ipsec.1')
             assert False, 'Call should not have been successful, invalid ip address'
-        except OscApiException as error: 
+        except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue', 'Invalid IPv4 address: 462311478')
 
     def test_T761_invalid_type(self):

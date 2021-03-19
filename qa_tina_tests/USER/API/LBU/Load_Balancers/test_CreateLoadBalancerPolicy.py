@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 
 import pytest
 
@@ -26,9 +26,8 @@ class Test_CreateLoadBalancerPolicy(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -37,7 +36,6 @@ class Test_CreateLoadBalancerPolicy(OscTestSuite):
                 delete_lbu(cls.a1_r1, cls.lbu_name)
         finally:
             super(Test_CreateLoadBalancerPolicy, cls).teardown_class()
-
 
     def test_T4452_default_param(self):
         policy_name = id_generator('policy')

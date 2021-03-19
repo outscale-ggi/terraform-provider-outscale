@@ -14,12 +14,11 @@ class Test_GenerateDataKey(Kms):
         cls.key_metadata = None
         try:
             cls.key_metadata = cls.a1_r1.kms.CreateKey().response.KeyMetadata
-        except:
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -28,7 +27,7 @@ class Test_GenerateDataKey(Kms):
                 try:
                     cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_metadata.KeyId, PendingWindowInDays=7)
                 except:
-                    pass
+                    print('Could not schedule key deletion.')
         finally:
             super(Test_GenerateDataKey, cls).teardown_class()
 
@@ -100,7 +99,8 @@ class Test_GenerateDataKey(Kms):
             assert False, 'Call should not have been successful, nob too big'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue',
-                         """Value of parameter 'NumberOfBytes' is not valid: 1025. Supported values: (1, 1024), please interpret 'None' as no-limit.""")
+                         """Value of parameter 'NumberOfBytes' is not valid: 1025. Supported values: (1, 1024), " + \
+                         "please interpret 'None' as no-limit.""")
 
     def test_T3633_nob_and_key_spec(self):
         try:

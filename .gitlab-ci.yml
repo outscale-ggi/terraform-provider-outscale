@@ -17,19 +17,19 @@ before_script:
 stages:
   - dependencies
   - lint
-  - test
+#  - test
   - security
   - build
-  - deploy
+#  - deploy
 
-todo:
-  stage: dependencies
-  script:
-    - make check-todo
-  only:
-    - /^dev.*$/
-    - master
-  allow_failure: true
+#todo:
+#  stage: dependencies
+#  script:
+#    - make check-todo
+#  only:
+#    - /^dev.*$/
+#    - master
+# allow_failure: true
 
 requirements:
   stage: dependencies
@@ -85,15 +85,15 @@ check_init_deps:
     refs:
       - merge_requests
 
-.test:
-  stage: test
-  needs: []
-  script:
-    - make test
-  only:
-    refs:
-      - /^dev.*$/
-      - master
+#.test:
+#  stage: test
+#  needs: []
+#  script:
+#    - make test
+#  only:
+#    refs:
+#      - /^dev.*$/
+#      - master
 
 .security:
   stage: security
@@ -121,8 +121,8 @@ lint:3.6:
 lint_mr:3.6:
   extends: .lint_mr
 
-test:3.6:
-  extends: .test
+#test:3.6:
+#  extends: .test
 
 security:3.6:
   extends: .security
@@ -138,10 +138,10 @@ lint:3.7:
       - .3.7
       - .lint
 
-test:3.7:
-  extends:
-      - .3.7
-      - .test
+#test:3.7:
+#  extends:
+#      - .3.7
+#      - .test
 
 security:3.7:
   extends:
@@ -156,10 +156,10 @@ lint:3.8:
       - .3.8
       - .lint
 
-test:3.8:
-  extends:
-      - .3.8
-      - .test
+#test:3.8:
+#  extends:
+#      - .3.8
+#      - .test
 
 security:3.8:
   extends:
@@ -174,10 +174,10 @@ lint:3.9:
       - .3.9
       - .lint
 
-test:3.9:
-  extends:
-      - .3.9
-      - .test
+#test:3.9:
+#  extends:
+#      - .3.9
+#      - .test
 
 security:3.9:
   extends:
@@ -193,10 +193,10 @@ lint:rc:
       - .rc
       - .lint
 
-test:rc:
-  extends:
-      - .rc
-      - .test
+#test:rc:
+#  extends:
+#      - .rc
+#      - .test
 
 security:rc:
   extends:
@@ -218,11 +218,11 @@ build:
     - /^TINA-[0-9]+\.[0-9]+\.[0-9]+$/
     - tags
 
-deploy:
-  stage: deploy
-  script:
-    - ./deploy.sh dist/osc_qa_tina_tests*-py3-none-any.whl ~/.ssh/id_rsa
-  only:
-    - /^TINA-[0-9]+\.[0-9]+\.[0-9]\.[0-9]$/
-    - /^TINA-[0-9]+\.[0-9]+\.[0-9]+$/
-    - tags
+#deploy:
+#  stage: deploy
+#  script:
+#    - ./deploy.sh dist/osc_qa_tina_tests*-py3-none-any.whl ~/.ssh/id_rsa
+#  only:
+#    - /^TINA-[0-9]+\.[0-9]+\.[0-9]\.[0-9]$/
+#    - /^TINA-[0-9]+\.[0-9]+\.[0-9]+$/
+#    - tags

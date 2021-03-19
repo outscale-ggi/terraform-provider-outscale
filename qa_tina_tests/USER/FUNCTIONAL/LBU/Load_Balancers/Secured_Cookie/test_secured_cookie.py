@@ -1,7 +1,7 @@
 import os
+import time
 
 import requests
-import time
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
@@ -20,6 +20,7 @@ class Test_secured_cookie(OscTestSuite):
 
     @classmethod
     def setup_class(cls, ):
+        cls.registered = True
         super(Test_secured_cookie, cls).setup_class()
         cls.instance_info_a1 = None
         try:
@@ -30,16 +31,8 @@ class Test_secured_cookie(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_secured_cookie, cls).teardown_class()
+            finally:
+                raise
 
     def test_T4598_modify_attribute_secured_cookie_true(self):
         ret_lbu = None
@@ -73,13 +66,13 @@ class Test_secured_cookie(OscTestSuite):
 
             self.registered = True
             wait_lbu_backend_state(self.a1_r1, lbu_name)
-            ret = requests.get("https://{}/cookie".format(dns_name), verify=False)
+            ret = requests.get("https://{}/cookie".format(dns_name), verify=False)  # nosec - cannot change this for now, waiting certificate
             assert ret.headers['Set-Cookie'] == 'foo=bar'
             self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerName=lbu_name,
                                                            LoadBalancerAttributes={'AdditionalAttributes': [{
                                                                'Key': 'SecuredCookies', 'Value': True}]})
             time.sleep(30)
-            ret = requests.get("https://{}/cookie".format(dns_name), verify=False)
+            ret = requests.get("https://{}/cookie".format(dns_name), verify=False)  # nosec - cannot change this for now, waiting certificate
             assert ret.headers['Set-Cookie'] == 'foo=bar; Secure'
         except OscApiException as err:
             raise err
@@ -88,12 +81,12 @@ class Test_secured_cookie(OscTestSuite):
                 try:
                     delete_lbu(self.a1_r1, lbu_name)
                 except:
-                    pass
+                    print('Could not delete lbu')
             if ret_up:
                 try:
                     self.a1_r1.eim.DeleteServerCertificate(ServerCertificateName=name)
                 except:
-                    pass
+                    print('Could not delete server certificate')
             if crtpath:
                 os.remove(crtpath)
             if keypath:

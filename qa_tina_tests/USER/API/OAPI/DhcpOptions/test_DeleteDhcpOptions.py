@@ -15,8 +15,9 @@ class Test_DeleteDhcpOptions(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_DeleteDhcpOptions, cls).setup_class()
         cls.vpc_id = None
+        cls.dhcp_id = None
+        super(Test_DeleteDhcpOptions, cls).setup_class()
         try:
             ret = create_vpc_old(cls.a1_r1, Configuration.get('vpc', '10_0_0_0_16'))
             cls.vpc_id = ret.response.vpc.vpcId
@@ -25,9 +26,8 @@ class Test_DeleteDhcpOptions(OscTestSuite):
         except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

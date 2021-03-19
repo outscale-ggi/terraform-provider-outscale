@@ -6,14 +6,14 @@ import subprocess
 
 import pytest
 
-import qa_sdk_pub.osc_api as osc_api
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscException
+import qa_sdk_pub.osc_api as osc_api
 from specs.check_tools import get_documentation, DOCUMENTATIONS, PATHS
 from qa_test_tools import misc
 from qa_test_tools.misc import assert_error, assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 
-MIN_OVERTIME=4
+MIN_OVERTIME = 4
 
 
 class Test_OAPI(OscTestSuite):
@@ -183,7 +183,7 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_SIGN: 'FOO'})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert error.get_error_message() == 'Wrong sign method : only OSC/AWS supported.'
+            assert 'Wrong sign method : only OSC/AWS supported.' in error.get_error_message()
 
     def test_T4907_incorrect_content_type(self):
         try:

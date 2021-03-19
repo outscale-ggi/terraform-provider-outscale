@@ -1,5 +1,4 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+
 
 import time
 
@@ -7,11 +6,10 @@ from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.info_keys import VPC_ID, SUBNETS, SUBNET_ID
+from qa_tina_tools.tools.tina.info_keys import SUBNET_ID, SUBNETS, VPC_ID
 
 
 class Test_pending_calls(OscTestSuite):
-
     def test_T5327_create_delete_lbu_in_vpc_without_wait(self):
         vpc_info = None
         lbu_name = None
@@ -20,9 +18,12 @@ class Test_pending_calls(OscTestSuite):
             self.logger.debug("Created VPC: %s", vpc_info[VPC_ID])
 
             name = id_generator(prefix='lb')
-            self.a1_r1.lbu.CreateLoadBalancer(LoadBalancerName=name,
-                                              Listeners=[{'InstancePort': '80', 'LoadBalancerPort': '80', 'Protocol': 'HTTP'}], Scheme='internal',
-                                              Subnets=[vpc_info[SUBNETS][0][SUBNET_ID]])
+            self.a1_r1.lbu.CreateLoadBalancer(
+                LoadBalancerName=name,
+                Listeners=[{'InstancePort': '80', 'LoadBalancerPort': '80', 'Protocol': 'HTTP'}],
+                Scheme='internal',
+                Subnets=[vpc_info[SUBNETS][0][SUBNET_ID]],
+            )
             lbu_name = name
             self.logger.debug("Created LBU: %s", lbu_name)
             time.sleep(2)

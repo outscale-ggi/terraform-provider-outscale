@@ -1,4 +1,3 @@
-
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
@@ -16,17 +15,20 @@ class Test_VPC_Peering(OscTestSuite):
         super(Test_VPC_Peering, cls).setup_class()
 
         try:
-            cls.vpc2_info = create_vpc(cls.a1_r1, nb_instance=1, no_eip=True, cidr_prefix="172.16", igw=False, default_rtb=False, state='running')
-            cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.vpc2_info[SUBNETS][0][SECURITY_GROUP_ID], IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp='10.0.0.0/16')
+            cls.vpc2_info = create_vpc(cls.a1_r1, nb_instance=1, no_eip=True, cidr_prefix="172.16", igw=False,
+                                       default_rtb=False, state='running')
+            cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.vpc2_info[SUBNETS][0][SECURITY_GROUP_ID],
+                                                        IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp='10.0.0.0/16')
 
             cls.vpc1_info = create_vpc(cls.a1_r1, nb_instance=1, cidr_prefix="10.0", default_rtb=False, state='ready')
             cls.vpc1_inst = cls.vpc1_info[SUBNETS][0][INSTANCE_SET][0]
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -67,3 +69,15 @@ class Test_VPC_Peering(OscTestSuite):
             if self.vpc1_info[SUBNETS][0][EIP]['publicIp']:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc1_info[SUBNETS][0][EIP]['publicIp'])
                 self.a1_r1.fcu.ReleaseAddress(PublicIp=self.vpc1_info[SUBNETS][0][EIP]['publicIp'])
+
+    def test_T5542_reverse_peering(self):
+        peering_info2 = None
+        try:
+            peering_info = create_peering(self.a1_r1, state='active', vpc_id=self.vpc1_info[VPC_ID], peer_vpc_id=self.vpc2_info[VPC_ID])
+            assert peering_info[PEERING].status.name == 'active'
+            peering_info2 = self.a1_r1.fcu.CreateVpcPeeringConnection(
+                        VpcId=self.vpc2_info[VPC_ID], PeerVpcId=self.vpc1_info[VPC_ID]).response.vpcPeeringConnection
+            assert peering_info2.status.code == 'rejected'
+        finally:
+            if peering_info[PEERING].id:
+                self.a1_r1.fcu.DeleteVpcPeeringConnection(VpcPeeringConnectionId=peering_info[PEERING].id)

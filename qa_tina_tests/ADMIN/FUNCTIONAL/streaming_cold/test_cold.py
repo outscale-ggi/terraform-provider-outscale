@@ -1,27 +1,24 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.base import StreamingBase
-from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import assert_streaming_state, wait_streaming_state, \
-    get_data_file_chain
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state
+from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.base import StreamingBase
+from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import assert_streaming_state, get_data_file_chain, wait_streaming_state
 
 
 @pytest.mark.region_admin
 @pytest.mark.tag_qemu
 class Test_cold(StreamingBase):
-
     @classmethod
     def setup_class(cls):
         cls.w_size = 20
         cls.v_size = 10
         cls.qemu_version = '2.12'
-        #cls.rebase_enabled = False
+        # cls.rebase_enabled = False
         cls.inst_type = 'c4.large'
         cls.vol_type = 'standard'
         cls.iops = None
@@ -31,37 +28,20 @@ class Test_cold(StreamingBase):
         cls.fio = False
         cls.inst_running = True
         cls.inst_stopped = True
-        cls.check_data = False # TODO: change...
+        cls.check_data = False  # TODO: change...
         super(Test_cold, cls).setup_class()
-
-    def setup_method(self, method):
-        super(Test_cold, self).setup_method(method)
-        try:
-            pass
-        except:
-            try:
-                self.teardown_method(method)
-            except:
-                pass
-            raise
-
-    def teardown_method(self, method):
-        try:
-            pass
-        finally:
-            super(Test_cold, self).teardown_method(method)
 
     def test_T3123_cold_vol_full(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
         if self.rebase_enabled:
             assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
             wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-            self.check_stream_full()
+            self.check_stream_full(mode="COLD")
         else:
             wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
             self.check_no_stream()
 
-    #def test_T0000_cold_vol_inter(self):
+    # def test_T0000_cold_vol_inter(self):
     #    self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id, base_data_file=self.vol_1_df_list[4])
     #    assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
     #    wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
@@ -84,7 +64,7 @@ class Test_cold(StreamingBase):
         else:
             wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
             self.check_no_stream()
-        wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger) # Cancelled
+        wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)  # Cancelled
         delete_volumes(self.a1_r1, [self.vol_1_id])
         self.vol_1_id = None
 
@@ -98,7 +78,7 @@ class Test_cold(StreamingBase):
             self.vol_1_snap_list.remove(snap_id)
             assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
             wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-            self.check_stream_full()
+            self.check_stream_full(mode="COLD")
         else:
             wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
             self.check_no_stream()
@@ -115,7 +95,7 @@ class Test_cold(StreamingBase):
             self.vol_1_snap_list.append(snap_id)
             assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
             wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-            self.check_stream_full(nb_new_snap=1)
+            self.check_stream_full(nb_new_snap=1, mode="COLD")
         else:
             wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
             self.check_no_stream()
@@ -138,7 +118,7 @@ class Test_cold(StreamingBase):
             if self.rebase_enabled:
                 assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
                 wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-                self.check_stream_full()
+                self.check_stream_full(mode="WARM")
         finally:
             if attached:
                 self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_1_id)
@@ -157,17 +137,18 @@ class Test_cold(StreamingBase):
             wait_volumes_state(self.a1_r1, [self.vol_1_id], state='in-use')
             attached = True
             if self.rebase_enabled:
-                assert_streaming_state(self.a1_r1, self.vol_1_id, 'interrupted', self.logger)
-                # TODO: add start all and check streaming
+                wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)  # --> cancelled
+                ret = get_data_file_chain(self.a1_r1, self.vol_1_snap_list[-1])
+                assert ret == self.vol_1_df_list[1:]
         finally:
             if attached:
                 self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_1_id)
                 wait_volumes_state(self.a1_r1, [self.vol_1_id], state='available')
 
-    #def test_T4108_cold_vol_full_and_create_vol_from_snap_and_attach_stopped_inst(self):
+    # def test_T4108_cold_vol_full_and_create_vol_from_snap_and_attach_stopped_inst(self):
     #    pass
 
-    #def test_T4109_cold_vol_full_and_create_vol_from_snap_and_attach_running_inst(self):
+    # def test_T4109_cold_vol_full_and_create_vol_from_snap_and_attach_running_inst(self):
     #    pass
 
     def test_T4110_cold_snap_full(self):
@@ -175,7 +156,7 @@ class Test_cold(StreamingBase):
         if self.rebase_enabled:
             assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
             wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-            self.check_stream_full()
+            self.check_stream_full(mode="COLD")
         else:
             wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
             self.check_no_stream()
@@ -216,7 +197,7 @@ class Test_cold(StreamingBase):
             self.check_no_stream()
         self.a1_r1.fcu.DeleteSnapshot(SnapshotId=self.vol_1_snap_list[-1])
         wait_snapshots_state(osc_sdk=self.a1_r1, cleanup=True, snapshot_id_list=self.vol_1_snap_list[-1])
-        wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger) # Cancelled
+        wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)  # Cancelled
         self.vol_1_snap_list.remove(self.vol_1_snap_list[-1])
 
     def test_T4119_cold_snap_full_and_snap_volume(self):
@@ -226,8 +207,8 @@ class Test_cold(StreamingBase):
             snap_id = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_1_id).response.snapshotId
             wait_snapshots_state(self.a1_r1, [snap_id], state='completed')
             assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
-            wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger) # --> cancelled
-            self.check_stream_full(nb_new_snap=1)
+            wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)  # --> cancelled
+            self.check_stream_full(nb_new_snap=1, mode="COLD")
             self.vol_1_snap_list.append(snap_id)
         else:
             wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
@@ -251,7 +232,7 @@ class Test_cold(StreamingBase):
             if self.rebase_enabled:
                 assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
                 wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-                self.check_stream_full()
+                self.check_stream_full(mode="COLD")
         finally:
             if attached:
                 self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_1_id)
@@ -270,7 +251,7 @@ class Test_cold(StreamingBase):
             wait_volumes_state(self.a1_r1, [self.vol_1_id], state='in-use')
             attached = True
             if self.rebase_enabled:
-                wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger) # --> cancelled
+                wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)  # --> cancelled
                 ret = get_data_file_chain(self.a1_r1, self.vol_1_snap_list[-1])
                 assert ret == self.vol_1_df_list[1:]
         finally:
@@ -278,8 +259,8 @@ class Test_cold(StreamingBase):
                 self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_1_id)
                 wait_volumes_state(self.a1_r1, [self.vol_1_id], state='available')
 
-    #def test_T4116_cold_snap_full_and_create_vol_from_snap_and_attach_stopped_inst(self):
+    # def test_T4116_cold_snap_full_and_create_vol_from_snap_and_attach_stopped_inst(self):
     #    pass
 
-    #def test_T4117_cold_snap_full_and_create_vol_from_snap_and_attach_running_inst(self):
+    # def test_T4117_cold_snap_full_and_create_vol_from_snap_and_attach_running_inst(self):
     #    pass

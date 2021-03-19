@@ -1,11 +1,12 @@
-# -*- coding:utf-8 -*-
+
 import os
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.compare_objects import verify_response
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
-from qa_test_tools.compare_objects import verify_response
 
 
 class Test_DeleteSecurityGroup(OscTestSuite):
@@ -61,15 +62,13 @@ class Test_DeleteSecurityGroup(OscTestSuite):
         ret = self.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=self.sg_id)
         self.sg_id = None
         ret.check_response()
-        assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                          'delete_with_id.json'), None), 'Could not verify response content.'
+        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_with_id.json'), None)
 
     def test_T2736_with_name(self):
         ret = self.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupName='test_delete')
         self.sg_id = None
         ret.check_response()
-        assert verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                          'delete_with_name.json'), None), 'Could not verify response content.'
+        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_with_name.json'), None)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3515_with_other_user(self):

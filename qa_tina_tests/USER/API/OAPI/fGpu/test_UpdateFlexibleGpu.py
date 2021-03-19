@@ -3,17 +3,6 @@ from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 
-
-#     DeleteFlexibleGpuRequest:
-#       properties:
-#         DryRun: {description: DeleteFlexibleGpuRequest_DryRun, type: boolean}
-#         FlexibleGpuId: {description: DeleteFlexibleGpuRequest_FlexibleGpuId, type: string}
-#       required: [FlexibleGpuId]
-#       type: object
-#     DeleteFlexibleGpuResponse:
-#       properties:
-#         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
-#       type: object
 DEFAULT_GPU_ID = "fgpu-12345678"
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
@@ -22,7 +11,7 @@ class Test_UpdateFlexibleGpu(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'gpu_limit': 4}
+        cls.quotas = {'gpu_limit': 4}
         cls.fgpu_id = None
         super(Test_UpdateFlexibleGpu, cls).setup_class()
         try:
@@ -32,9 +21,8 @@ class Test_UpdateFlexibleGpu(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

@@ -7,6 +7,7 @@ from qa_test_tools.error import load_errors, error_type
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.test_base import OscTestSuite
 
+
 CALL_NUMBER = 2000
 
 

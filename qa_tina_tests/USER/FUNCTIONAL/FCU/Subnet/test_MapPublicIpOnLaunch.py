@@ -5,7 +5,7 @@ from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST, PATH, KEY_PAIR
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, SUBNETS, SUBNET_ID
 
 
@@ -26,9 +26,8 @@ class Test_MapPublicIpOnLaunch(OscTestSuite):
         except Exception:
             try:
                 cls.teardown_class()
-            except  :
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -46,7 +45,7 @@ class Test_MapPublicIpOnLaunch(OscTestSuite):
         self.inst_id = self.instance_info[INSTANCE_ID_LIST][0]
         ret = self.a1_r1.fcu.DescribeInstances(InstanceId=self.inst_id)
         ip = ret.response.reservationSet[0].instancesSet[0].ipAddress
-        self.instance_info[INSTANCE_SET][0]
+        # self.instance_info[INSTANCE_SET][0]
         kp_info = self.instance_info[KEY_PAIR]
 
         connection = SshTools.check_connection_paramiko(ip, kp_info[PATH],
@@ -56,4 +55,3 @@ class Test_MapPublicIpOnLaunch(OscTestSuite):
         out, status, _ = SshTools.exec_command_paramiko(connection, cmd)
         self.logger.info(out)
         assert not status, "SSH command was not executed correctly on the remote host"
-

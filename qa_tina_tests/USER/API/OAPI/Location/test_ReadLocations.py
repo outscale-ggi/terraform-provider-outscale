@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 
 from qa_test_tools.test_base import OscTestSuite
 

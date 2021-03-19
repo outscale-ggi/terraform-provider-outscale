@@ -1,3 +1,5 @@
+import pytest
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
@@ -7,6 +9,7 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
+@pytest.mark.region_admin
 class Test_isolate(OscTestSuite):
 
     @classmethod
@@ -20,9 +23,8 @@ class Test_isolate(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -32,7 +34,7 @@ class Test_isolate(OscTestSuite):
                     try:
                         cls.a1_r1.intel.instance.unisolate(owner=cls.a1_r1.config.account.account_id, vmid=inst_id)
                     except:
-                        pass
+                        print('Could not unisolate instance.')
                 delete_instances(cls.a1_r1, cls.inst_info)
         finally:
             super(Test_isolate, cls).teardown_class()

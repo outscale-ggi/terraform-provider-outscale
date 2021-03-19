@@ -17,8 +17,8 @@ class Test_ListResourceTags(Kms):
         except:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -27,7 +27,7 @@ class Test_ListResourceTags(Kms):
                 try:
                     cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=cls.key_id, PendingWindowInDays=7)
                 except:
-                    pass
+                    print('Could not schedule key deletion')
         finally:
             super(Test_ListResourceTags, cls).teardown_class()
 

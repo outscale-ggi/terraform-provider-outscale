@@ -15,12 +15,11 @@ class Test_AuthorizeSecurityGroupEgress(OscTestSuite):
         try:
             ret = cls.a1_r1.fcu.CreateSecurityGroup(GroupName=cls.name, GroupDescription='Description')
             cls.groupId = ret.response.groupId
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

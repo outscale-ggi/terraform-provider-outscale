@@ -1,9 +1,8 @@
-# pylint: disable=missing-docstring
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
-
 
 NUM_ADDR = 3
 
@@ -24,9 +23,8 @@ class Test_DescribeAddresses(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -37,21 +35,13 @@ class Test_DescribeAddresses(OscTestSuite):
         finally:
             super(Test_DescribeAddresses, cls).teardown_class()
 
-    def check_ouput(self, ret, expected_attr={}):
-        for addr in ret:
-            for attr in expected_attr:
-                assert hasattr(addr, attr)
-                value = expected_attr[attr]
-                if value:
-                    assert addr.attr == value
-
     def test_T3085_with_other_account(self):
         ret = self.a2_r1.fcu.DescribeAddresses().response.addressesSet
         assert not ret, 'Unexpected non-empty result'
 
     def test_T3084_no_param(self):
         ret = self.a1_r1.fcu.DescribeAddresses().response.addressesSet
-        assert len(set([addr.publicIp for addr in ret])) == len(self.a1_eips)
+        assert len({addr.publicIp for addr in ret}) == len(self.a1_eips)
         for addr in ret:
             assert addr.publicIp in self.eips_addr
 

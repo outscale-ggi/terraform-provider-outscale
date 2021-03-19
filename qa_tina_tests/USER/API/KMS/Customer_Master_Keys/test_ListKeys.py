@@ -12,19 +12,19 @@ class Test_ListKeys(Kms):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'cmk_limit': 102}
+        cls.quotas = {'cmk_limit': 102}
         cls.known_error = False
         cls.key_ids = []
         super(Test_ListKeys, cls).setup_class()
         try:
             for _ in range(cls.kms_num):
-                cls.key_ids.append(cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT', Origin='OKMS').response.KeyMetadata.KeyId)
+                cls.key_ids.append(cls.a1_r1.kms.CreateKey(Description='description', KeyUsage='ENCRYPT_DECRYPT',
+                                                           Origin='OKMS').response.KeyMetadata.KeyId)
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -33,7 +33,7 @@ class Test_ListKeys(Kms):
                 try:
                     cls.a1_r1.kms.ScheduleKeyDeletion(KeyId=key_id, PendingWindowInDays=7)
                 except:
-                    pass
+                    print('Could not schedule key deletion.')
         finally:
             super(Test_ListKeys, cls).teardown_class()
 

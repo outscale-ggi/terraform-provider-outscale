@@ -96,12 +96,12 @@ class Test_ReadQuotas(OscTestSuite):
                 assert (ref_quota.Reference == 'global') or ref_quota.Reference.startswith('sg-')
                 if ref_quota.Reference == 'global':
                     assert len(ref_quota.Quotas) <= len(self.quotas_info)
-                    for q in ret.response.ReferenceQuota[0].Quotas:
-                        assert q.Name in self.quotas_info
-                        assert q.DisplayName == self.quotas_info[q.Name][0]
-                        assert q.Description == self.quotas_info[q.Name][1]
-                        assert q.GroupName == self.quotas_info[q.Name][2]
-                        assert q.DisplayName
+                    for quota in ret.response.ReferenceQuota[0].Quotas:
+                        assert quota.Name in self.quotas_info
+                        assert quota.DisplayName == self.quotas_info[quota.Name][0]
+                        assert quota.Description == self.quotas_info[quota.Name][1]
+                        assert quota.GroupName == self.quotas_info[quota.Name][2]
+                        assert quota.DisplayName
         except AssertionError as error:
             raise error
 

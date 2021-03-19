@@ -1,11 +1,11 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_tina_tools.tools.tina import create_tools
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
-from qa_tina_tools.tools.tina import create_tools
 
 
 class Test_ReadApiAccessRules(ApiAccessRule):
-    
+
     @classmethod
     def setup_class(cls):
         super(Test_ReadApiAccessRules, cls).setup_class()
@@ -27,13 +27,11 @@ class Test_ReadApiAccessRules(ApiAccessRule):
                 cls.osc_sdk.oapi.CreateApiAccessRule(Description='description_4', CaIds=cls.ca_ids,
                                                      Cns=[create_tools.CLIENT_CERT_CN2],
                                                      IpRanges=["1.1.1.1/32", "2.2.2.2/32", "3.3.3.3/32"]).response.ApiAccessRule.ApiAccessRuleId)
-                
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -42,7 +40,7 @@ class Test_ReadApiAccessRules(ApiAccessRule):
                 cls.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=api_access_rule_id)
         finally:
             super(Test_ReadApiAccessRules, cls).teardown_class()
-        
+
     def test_T5267_no_params(self):
         ret = self.osc_sdk.oapi.ReadApiAccessRules()
         ret.check_response()
@@ -58,7 +56,7 @@ class Test_ReadApiAccessRules(ApiAccessRule):
     def test_T5269_filter_rule_ids(self):
         resp = self.osc_sdk.oapi.ReadApiAccessRules(Filters={'ApiAccessRuleIds': self.api_access_rule_ids[1:3]}).response
         assert len(resp.ApiAccessRules) == 2
-        
+
     def test_T5270_filter_ca_ids(self):
         resp = self.osc_sdk.oapi.ReadApiAccessRules(Filters={'CaIds': self.ca_ids[0:1]}).response
         assert len(resp.ApiAccessRules) == 2
@@ -77,35 +75,35 @@ class Test_ReadApiAccessRules(ApiAccessRule):
 
     def test_T5274_filter_incorrect_type_rule_ids(self):
         try:
-            self.osc_sdk.oapi.ReadApiAccessRules(Filters={'ApiAccessRuleIds': self.api_access_rule_ids[1]}).response
+            self.osc_sdk.oapi.ReadApiAccessRules(Filters={'ApiAccessRuleIds': self.api_access_rule_ids[1]})
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
-        
+
     def test_T5275_filter_incorrect_type_ca_ids(self):
         try:
-            self.osc_sdk.oapi.ReadApiAccessRules(Filters={'CaIds': self.ca_ids[0]}).response
+            self.osc_sdk.oapi.ReadApiAccessRules(Filters={'CaIds': self.ca_ids[0]})
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5276_filter_incorrect_type_cns(self):
         try:
-            self.osc_sdk.oapi.ReadApiAccessRules(Filters={'Cns': create_tools.CLIENT_CERT_CN2}).response
+            self.osc_sdk.oapi.ReadApiAccessRules(Filters={'Cns': create_tools.CLIENT_CERT_CN2})
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5277_filter_incorrect_type_descriptions(self):
         try:
-            self.osc_sdk.oapi.ReadApiAccessRules(Filters={'Descriptions': 'description_2'}).response
+            self.osc_sdk.oapi.ReadApiAccessRules(Filters={'Descriptions': 'description_2'})
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5278_filter_incorrect_type_ip_ranges(self):
         try:
-            self.osc_sdk.oapi.ReadApiAccessRules(Filters={'IpRanges': "1.1.1.1/32"}).response
+            self.osc_sdk.oapi.ReadApiAccessRules(Filters={'IpRanges': "1.1.1.1/32"})
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')

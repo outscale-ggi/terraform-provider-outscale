@@ -1,4 +1,5 @@
 from time import sleep
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
@@ -11,7 +12,7 @@ class Test_DeleteAccessKey(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'accesskey_limit': 10}
+        cls.quotas = {'accesskey_limit': 10}
         super(Test_DeleteAccessKey, cls).setup_class()
 
     @classmethod
@@ -40,7 +41,7 @@ class Test_DeleteAccessKey(OscTestSuite):
             self.a1_r1.oapi.DeleteAccessKey(AccessKeyId='')
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_error(error,  400, '7000', 'MissingParameter')
+            misc.assert_error(error, 400, '7000', 'MissingParameter')
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)

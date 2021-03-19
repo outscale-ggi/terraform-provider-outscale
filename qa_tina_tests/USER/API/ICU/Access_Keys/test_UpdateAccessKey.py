@@ -61,7 +61,8 @@ class Test_UpdateAccessKey(OscTestSuite):
         sleep(30)
         try:
             ak = self.a1_r1.icu.CreateAccessKey().response.accessKey.accessKeyId
-            self.a1_r1.icu.UpdateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=ak, Status='active')
+            self.a1_r1.icu.UpdateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+                                           AccessKeyId=ak, Status='active')
         finally:
             if ak:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)

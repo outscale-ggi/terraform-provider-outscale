@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -23,11 +23,8 @@ class Test_UpdateRoute(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
-        except Exception:
-            super(Test_UpdateRoute, cls).teardown_class()
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):

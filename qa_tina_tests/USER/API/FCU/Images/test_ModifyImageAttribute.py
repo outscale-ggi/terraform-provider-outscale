@@ -7,7 +7,6 @@ from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_image
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old
 
-
 DESCRIPTION = id_generator(prefix="description")
 
 
@@ -19,10 +18,10 @@ class Test_ModifyImageAttribute(OscTestSuite):
         cls.inst_id = None
         cls.image_name = id_generator(prefix='img_')
         cls.image_id = None
-        cls.ADD_USERID = {'Add': [{'UserId': str(cls.a2_r1.config.account.account_id)}]}
-        cls.REMOVE_USERID = {'Remove': [{'UserId': str(cls.a2_r1.config.account.account_id)}]}
-        cls.ADD_GROUP = {'Add': [{'Group': 'all'}]}
-        cls.REMOVE_GROUP = {'Remove': [{'Group': 'all'}]}
+        cls.add_user_id = {'Add': [{'UserId': str(cls.a2_r1.config.account.account_id)}]}
+        cls.remove_user_id = {'Remove': [{'UserId': str(cls.a2_r1.config.account.account_id)}]}
+        cls.add_group = {'Add': [{'Group': 'all'}]}
+        cls.remove_group = {'Remove': [{'Group': 'all'}]}
         try:
             # create 1 instance
             _, inst_id_list = create_instances_old(cls.a1_r1, state='running')
@@ -31,12 +30,11 @@ class Test_ModifyImageAttribute(OscTestSuite):
             ret, cls.image_id = create_image(cls.a1_r1, cls.inst_id, name=cls.image_name, state='available', description=DESCRIPTION)
             cls.img1_snap_id_list = get_snapshot_id_list(ret)
             assert len(cls.img1_snap_id_list) == 1, 'Could not find snapshots created when creating image'
-        except Exception as error:
+        except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -50,21 +48,21 @@ class Test_ModifyImageAttribute(OscTestSuite):
 
     def test_T1737_missing_image_id(self):
         try:
-            self.a1_r1.fcu.ModifyImageAttribute(LaunchPermission=self.ADD_USERID)
+            self.a1_r1.fcu.ModifyImageAttribute(LaunchPermission=self.add_user_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidAMIID.Malformed', "Invalid id: 'None' (expecting 'ami-...')")
 
     def test_T1738_unknown_image_id(self):
         try:
-            self.a1_r1.fcu.ModifyImageAttribute(ImageId='ami-12345678', LaunchPermission=self.ADD_USERID)
+            self.a1_r1.fcu.ModifyImageAttribute(ImageId='ami-12345678', LaunchPermission=self.add_user_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidAMIID.NotFound', "The AMI ID 'ami-12345678' does not exist")
 
     def test_T1739_incorrect_image_id(self):
         try:
-            self.a1_r1.fcu.ModifyImageAttribute(ImageId='xxx-12345678', LaunchPermission=self.ADD_USERID)
+            self.a1_r1.fcu.ModifyImageAttribute(ImageId='xxx-12345678', LaunchPermission=self.add_user_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidAMIID.Malformed', "Invalid id: 'xxx-12345678' (expecting 'ami-...')")
@@ -87,16 +85,17 @@ class Test_ModifyImageAttribute(OscTestSuite):
         msg_part_1 = "{'1': {'Add': {'1': {'UserId': '"
         msg_part_2 = "'}}}}"
         try:
-            self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, LaunchPermission=[self.ADD_USERID])
+            self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, LaunchPermission=[self.add_user_id])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue',
-                         "Value of parameter 'LaunchPermission' is not valid: {}{}{}. Supported values: Add, Remove".format(msg_part_1, self.a2_r1.config.account.account_id, msg_part_2))
+                         "Value of parameter 'LaunchPermission' " + \
+                         "is not valid: {}{}{}. Supported values: Add, Remove".format(msg_part_1, self.a2_r1.config.account.account_id, msg_part_2))
 
     def test_T1540_lp_one_user(self):
         ret = None
         try:
-            ret = self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, LaunchPermission=self.ADD_USERID)
+            ret = self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, LaunchPermission=self.add_user_id)
             assert ret.response.osc_return
             resp = self.a1_r1.fcu.DescribeImageAttribute(ImageId=self.image_id, Attribute='launchPermission').response
             assert hasattr(resp, 'launchPermission')
@@ -106,7 +105,7 @@ class Test_ModifyImageAttribute(OscTestSuite):
             assert resp.launchPermission[0].userId == self.a2_r1.config.account.account_id
         finally:
             if ret:
-                ret = self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, LaunchPermission=self.REMOVE_USERID)
+                ret = self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, LaunchPermission=self.remove_user_id)
                 assert ret.response.osc_return
                 resp = self.a1_r1.fcu.DescribeImageAttribute(ImageId=self.image_id, Attribute='launchPermission').response
                 assert hasattr(resp, 'launchPermission')
@@ -115,7 +114,7 @@ class Test_ModifyImageAttribute(OscTestSuite):
     def test_T1743_lp_one_group(self):
         ret = None
         try:
-            ret = self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, LaunchPermission=self.ADD_GROUP)
+            ret = self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, LaunchPermission=self.add_group)
             assert ret.response.osc_return
             resp = self.a1_r1.fcu.DescribeImageAttribute(ImageId=self.image_id, Attribute='launchPermission').response
             assert hasattr(resp, 'launchPermission')
@@ -125,7 +124,7 @@ class Test_ModifyImageAttribute(OscTestSuite):
             assert resp.launchPermission[0].group == 'all'
         finally:
             if ret:
-                ret = self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, LaunchPermission=self.REMOVE_GROUP)
+                ret = self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, LaunchPermission=self.remove_group)
                 assert ret.response.osc_return
                 resp = self.a1_r1.fcu.DescribeImageAttribute(ImageId=self.image_id, Attribute='launchPermission').response
                 assert hasattr(resp, 'launchPermission')
@@ -144,9 +143,9 @@ class Test_ModifyImageAttribute(OscTestSuite):
             assert len(resp.launchPermission) == 2
             assert hasattr(resp.launchPermission[0], 'userId')
             assert hasattr(resp.launchPermission[1], 'userId')
-            userIds = [perm.userId for perm in resp.launchPermission]
-            assert self.a1_r1.config.account.account_id in userIds
-            assert self.a2_r1.config.account.account_id in userIds
+            user_ids = [perm.userId for perm in resp.launchPermission]
+            assert self.a1_r1.config.account.account_id in user_ids
+            assert self.a2_r1.config.account.account_id in user_ids
         finally:
             if ret:
                 ret = self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id,
@@ -210,19 +209,19 @@ class Test_ModifyImageAttribute(OscTestSuite):
             assert hasattr(resp, 'launchPermission')
             assert isinstance(resp.launchPermission, list)
             assert len(resp.launchPermission) == 2
-            groupIndex = None
-            userIndex = None
+            group_index = None
+            user_index = None
             if hasattr(resp.launchPermission[0], 'userId'):
-                userIndex = 0
+                user_index = 0
             if hasattr(resp.launchPermission[1], 'userId'):
-                userIndex = 1
+                user_index = 1
             if hasattr(resp.launchPermission[0], 'group'):
-                groupIndex = 0
+                group_index = 0
             if hasattr(resp.launchPermission[1], 'group'):
-                groupIndex = 1
-            assert groupIndex is not None and userIndex is not None
-            assert resp.launchPermission[userIndex].userId == self.a2_r1.config.account.account_id
-            assert resp.launchPermission[groupIndex].group == 'all'
+                group_index = 1
+            assert group_index is not None and user_index is not None
+            assert resp.launchPermission[user_index].userId == self.a2_r1.config.account.account_id
+            assert resp.launchPermission[group_index].group == 'all'
         finally:
             if ret:
                 ret = self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id,
@@ -268,7 +267,7 @@ class Test_ModifyImageAttribute(OscTestSuite):
         finally:
             if ret:
                 # todo reset initial product code(s)
-                pass
+                print('todo reset initial product code(s)')
 
     def test_T1751_att_value(self):
         ret = None
@@ -280,9 +279,6 @@ class Test_ModifyImageAttribute(OscTestSuite):
             assert resp.description == DESCRIPTION + 'new'
         except OscApiException as error:
             assert_error(error, 400, 'OWS.Error', 'Request is not valid.')
-        finally:
-            if ret:
-                pass
 
     def test_T1752_op_type(self):
         ret = None
@@ -296,9 +292,9 @@ class Test_ModifyImageAttribute(OscTestSuite):
             assert len(resp.launchPermission) == 2
             assert hasattr(resp.launchPermission[0], 'userId')
             assert hasattr(resp.launchPermission[1], 'userId')
-            userIds = [perm.userId for perm in resp.launchPermission]
-            assert self.a1_r1.config.account.account_id in userIds
-            assert self.a2_r1.config.account.account_id in userIds
+            user_ids = [perm.userId for perm in resp.launchPermission]
+            assert self.a1_r1.config.account.account_id in user_ids
+            assert self.a2_r1.config.account.account_id in user_ids
         finally:
             if ret:
                 ret = self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, OperationType='remove',

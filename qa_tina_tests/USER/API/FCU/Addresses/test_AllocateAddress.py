@@ -8,14 +8,6 @@ class Test_AllocateAddress(OscTestSuite):
     def setup_class(cls):
         super(Test_AllocateAddress, cls).setup_class()
         cls.conn = cls.a1_r1
-        try:
-            pass
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception:
-                pass
-            raise error
 
     @classmethod
     def teardown_class(cls):

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+
 
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
@@ -25,9 +25,8 @@ class Test_ListGroups(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):

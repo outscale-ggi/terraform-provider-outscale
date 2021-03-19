@@ -11,6 +11,7 @@ class Test_DeleteGroupPolicy(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.group_name = None
+        cls.policy_name = None
         super(Test_DeleteGroupPolicy, cls).setup_class()
         try:
             cls.group_name = cls.a1_r1.eim.CreateGroup(GroupName=id_generator(prefix='group_')).response.CreateGroupResult.Group.GroupName
@@ -23,9 +24,8 @@ class Test_DeleteGroupPolicy(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):

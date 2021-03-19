@@ -21,9 +21,8 @@ class Test_verify_response(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -46,11 +45,10 @@ class Test_verify_response(OscTestSuite):
         ret = self.a1_r1.fcu.DescribeInstances(InstanceId=instanceid[0])
         assert ret.response.reservationSet[0].instancesSet[0].instanceType == converted_type
 
-
     def test_T4348_t2nano_to_cxrypz(self):
         default_type = self.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
         self.verif_instance_type(instanceid=self.inst_info1[INSTANCE_ID_LIST], default_type=default_type, converted_type=self.inst_type)
-        
+
     def test_T4349_cxrypz_to_t2nano(self):
         default_type = self.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)
         self.verif_instance_type(instanceid=self.inst_info2[INSTANCE_ID_LIST], default_type=self.inst_type, converted_type=default_type)

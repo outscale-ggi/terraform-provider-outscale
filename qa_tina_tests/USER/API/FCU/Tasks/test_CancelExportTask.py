@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 from string import ascii_lowercase
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException

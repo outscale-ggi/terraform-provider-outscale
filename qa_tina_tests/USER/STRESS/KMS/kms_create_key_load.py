@@ -1,9 +1,8 @@
 import argparse
 import logging
+from multiprocessing import Queue, Process
 import ssl
 import string
-from multiprocessing import Queue, Process
-
 import time
 
 from qa_sdk_as import OscSdkAs
@@ -17,7 +16,9 @@ from qa_test_tools.config import OscConfig
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.error import error_type, load_errors
 
-ssl._create_default_https_context = ssl._create_unverified_context
+
+setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 LOGGING_LEVEL = logging.DEBUG
 
@@ -56,6 +57,83 @@ def create_key(osc_sdk, queue, args):
     queue.put(result)
 
 
+def run(args):
+    pid = None
+    try:
+
+        logger.info("Initialize environment")
+        config = OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE)
+        xsub = OscPrivApi(service='xsub', config=config)
+        intel = OscPrivApi(service='intel', config=config)
+        osc_sdk_as = OscSdkAs(config.region.get_info(constants.AS_IDAUTH_ID), config.region.name)
+        osc_sdk = OscSdk(config=config)
+        if args.create_account:
+            email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='test_kms_create_key_').lower())
+            password = misc.id_generator(size=8, chars=string.digits)
+            account_info = {'city': 'Saint_Cloud', 'company_name': 'Outscale', 'country': 'France',
+                            'email_address': email, 'firstname': 'Test_user', 'lastname': 'Test_Last_name',
+                            'password': password, 'zipcode': '92210'}
+            pid = create_account(OscSdk(config=config), account_info=account_info)
+            ret = intel.accesskey.find_by_user(owner=pid)
+            keys = ret.response.result[0]
+            osc_sdk = OscSdk(config=OscConfig.get_with_keys(az_name=args.az, ak=keys.name, sk=keys.secret, account_id=pid,
+                                                            login=email, password=password))
+
+        nb_ok = 0
+        nb_ko = 0
+
+        queue = Queue()
+        processes = []
+        i = 0
+        logger.info("Start workers")
+        for i in range(args.process_number):
+            proc = Process(name="load-{}".format(i), target=create_key, args=[osc_sdk, queue, args])
+            processes.append(proc)
+
+        start = time.time()
+        for proc in processes:
+            proc.start()
+
+        logger.info("Wait workers")
+        for proc in processes:
+            proc.join()
+        end = time.time()
+
+        durations = []
+        errors = load_errors()
+        nums = []
+
+        logger.info("Get results")
+        while not queue.empty():
+            res = queue.get()
+            for key in res.keys():
+                if key == "status":
+                    if res[key] == "OK":
+                        nb_ok += 1
+                    else:
+                        nb_ko += 1
+                elif key == 'duration':
+                    durations.append(res[key])
+                elif key == 'error':
+                    errors.add(res[key])
+                elif key == 'num':
+                    nums.append(res[key])
+            logger.debug(res)
+        logger.info("OK = %d - KO = %d", nb_ok, nb_ko)
+        logger.info("durations = %d", durations)
+        logger.info("nums = %s", nums)
+        print('duration = {}'.format(end - start))
+        print('calls number = {}'.format(sum(nums)))
+        errors.print_errors()
+
+    finally:
+        if pid:
+            xsub.terminate_account(pid=pid)
+            intel.user.delete(username=pid)
+            intel.user.gc(username=pid)
+            osc_sdk_as.identauth.IdauthAccountAdmin.deleteAccount(principal={"accountPid": pid}, forceRemoval="true")
+
+
 if __name__ == '__main__':
 
     logger = logging.getLogger('perf')
@@ -88,79 +166,6 @@ if __name__ == '__main__':
                         required=False, type=int, default=500, help='number of read calls per process, default 500')
     args_p.add_argument('-ca', '--create_account', dest='create_account', action='store_true',
                         required=False, help='create account instead of using account')
-    args = args_p.parse_args()
+    main_args = args_p.parse_args()
 
-    pid = None
-    try:
-
-        logger.info("Initialize environment")
-        config = OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE)
-        xsub = OscPrivApi(service='xsub', config=config)
-        intel = OscPrivApi(service='intel', config=config)
-        osc_sdk_as = OscSdkAs(config.region.get_info(constants.AS_IDAUTH_ID), config.region.name)
-        osc_sdk = OscSdk(config=config)
-        if args.create_account:
-            email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='test_kms_create_key_').lower())
-            password = misc.id_generator(size=8, chars=string.digits)
-            account_info = {'city': 'Saint_Cloud', 'company_name': 'Outscale', 'country': 'France',
-                            'email_address': email, 'firstname': 'Test_user', 'lastname': 'Test_Last_name',
-                            'password': password, 'zipcode': '92210'}
-            pid = create_account(OscSdk(config=config), account_info=account_info)
-            ret = intel.accesskey.find_by_user(owner=pid)
-            keys = ret.response.result[0]
-            osc_sdk = OscSdk(config=OscConfig.get_with_keys(az_name=args.az, ak=keys.name, sk=keys.secret, account_id=pid,
-                                                            login=email, password=password))
-
-        NB_OK = 0
-        NB_KO = 0
-
-        QUEUE = Queue()
-        processes = []
-        i = 0
-        logger.info("Start workers")
-        for i in range(args.process_number):
-            p = Process(name="load-{}".format(i), target=create_key, args=[osc_sdk, QUEUE, args])
-            processes.append(p)
-
-        start = time.time()
-        for i in range(len(processes)):
-            processes[i].start()
-
-        logger.info("Wait workers")
-        for i in range(len(processes)):
-            processes[i].join()
-        end = time.time()
-
-        durations = []
-        errors = load_errors()
-        nums = []
-
-        logger.info("Get results")
-        while not QUEUE.empty():
-            res = QUEUE.get()
-            for key in res.keys():
-                if key == "status":
-                    if res[key] == "OK":
-                        NB_OK += 1
-                    else:
-                        NB_KO += 1
-                elif key == 'duration':
-                    durations.append(res[key])
-                elif key == 'error':
-                    errors.add(res[key])
-                elif key == 'num':
-                    nums.append(res[key])
-            logger.debug(res)
-        logger.info("OK = {} - KO = {}".format(NB_OK, NB_KO))
-        logger.info("durations = {}".format(durations))
-        logger.info("nums = {}".format(nums))
-        print('duration = {}'.format(end - start))
-        print('calls number = {}'.format(sum(nums)))
-        errors.print_errors()
-
-    finally:
-        if pid:
-            xsub.terminate_account(pid=pid)
-            intel.user.delete(username=pid)
-            intel.user.gc(username=pid)
-            osc_sdk_as.identauth.IdauthAccountAdmin.deleteAccount(principal={"accountPid": pid}, forceRemoval="true")
+    run(main_args)

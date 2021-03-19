@@ -1,21 +1,25 @@
+from __future__ import division
+
 import argparse
 import logging
-import ssl
 from pprint import pprint
+import ssl
 
-from qa_common_tools.ssh import SshTools
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_common.objects.osc_objects import OscObjectDict
+from qa_common_tools.ssh import SshTools
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
 from qa_test_tools.config import config_constants as constants
+from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
 from vmtypes import INST_TYPE_MATRIX
-from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.tools.tina import info_keys
 
-ssl._create_default_https_context = ssl._create_unverified_context
+
+setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 LOGGING_LEVEL = logging.DEBUG
 
@@ -61,7 +65,8 @@ def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
         expected = int(out[0]) / 1024
     else:
         expected = int(out[0])
-    assert len(set([expected, ram, int(inst.specs.memory / (1024*1024*1024))])) == 1, "Ram values are not all equal, {} {} {}".format(expected, ram, int(inst.specs.memory / (1024*1024*1024)))
+    msg = "Ram values are not all equal, {} {} {}".format(expected, ram, int(inst.specs.memory / (1024*1024*1024)))
+    assert len(set([expected, ram, int(inst.specs.memory / (1024*1024*1024))])) == 1, msg
 
     cmd = "sudo lshw -C display | grep -c '*-display'"
     out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd, expected_status=-1)
@@ -75,16 +80,97 @@ def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
             cmd = "sudo fdisk -l /dev/xvd{} | grep /dev/xvd{}".format(chr(98 + i), chr(98 + i))
             out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
-            assert type_info.storage_size * 1024 * 1024 == int(out.strip().split()[4]), "Ephemeral storage size are not equal, {} {}".format(type_info.storage_size * 1024 * 1024, out.strip().split()[4])
+            msg = "Ephemeral storage size are not equal, {} {}".format(type_info.storage_size * 1024 * 1024, out.strip().split()[4])
+            assert type_info.storage_size * 1024 * 1024 == int(out.strip().split()[4]), msg
 
     if type_info.max_nics > 1:
-            cmd = 'sudo yum install pciutils -y'
-            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
-            assert not status, "SSH command was not executed correctly on the remote host"
-            cmd = 'sudo lspci | grep -c Ethernet '
-            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
-            assert not status, "SSH command was not executed correctly on the remote host"
-            assert int(out.strip()) == type_info.max_nics, 'Nic number are not equal, {} {}'.format(int(out.strip()), type_info.max_nics)
+        cmd = 'sudo yum install pciutils -y'
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
+        assert not status, "SSH command was not executed correctly on the remote host"
+        cmd = 'sudo lspci | grep -c Ethernet '
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+        assert not status, "SSH command was not executed correctly on the remote host"
+        assert int(out.strip()) == type_info.max_nics, 'Nic number are not equal, {} {}'.format(int(out.strip()), type_info.max_nics)
+
+
+def run(args):
+    config = OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE)
+    osc_sdk = OscSdk(config)
+
+    vpc_info = None
+    eip = None
+    families = {}
+    insuficient_capacity = []
+    unexpected_errors = {}
+    fni_ids = []
+    infos = []
+    try:
+        vpc_info = create_vpc(osc_sdk)
+        eip = osc_sdk.fcu.AllocateAddress(Domain='vpc').response
+        ret = osc_sdk.intel.instance.get_available_types().response.result
+        for attr in ret.__dict__:
+            if not isinstance(getattr(ret, attr), OscObjectDict):
+                continue
+            type_info = getattr(ret, attr)
+            parts = type_info.name.split('.')
+            if not parts[0] in families:
+                families[parts[0]] = []
+            families[parts[0]].append(type_info)
+        for family in families:
+            for type_info in families[family]:
+                inst_info = None
+                try:
+                    if type_info.name not in INST_TYPE_MATRIX:
+                        raise OscTestException('Could not find type {} in matrix'.format(type_info.name))
+                    infos.append('Create instance with type {}'.format(type_info.name))
+                    try:
+                        inst_info = create_instances(
+                            osc_sdk, inst_type=type_info.name, key_name=args.key_name, state='ready',
+                            nb_ephemeral=len(type_info.storage), wait_time=5, threshold=24,
+                            subnet_id=(vpc_info[info_keys.SUBNETS][0][info_keys.SUBNET_ID] if type_info.max_nics > 1 else None))
+                    except AssertionError as error:
+                        if 'stopped' in str(error):
+                            raise OscTestException("Could not start instance -> stopped")
+                        raise error
+                    if type_info.max_nics > 1:
+                        osc_sdk.fcu.AssociateAddress(AllocationId=eip.allocationId, InstanceId=inst_info[info_keys.INSTANCE_ID_LIST][0])
+                        for i in range(type_info.max_nics - 1):
+                            fni_id = osc_sdk.fcu.CreateNetworkInterface(
+                                SubnetId=vpc_info[info_keys.SUBNETS][0][info_keys.SUBNET_ID]).response.networkInterface.networkInterfaceId
+                            fni_ids.append(fni_id)
+                            osc_sdk.fcu.AttachNetworkInterface(DeviceIndex=1+i, InstanceId=inst_info[info_keys.INSTANCE_ID_LIST][0],
+                                                               NetworkInterfaceId=fni_id)
+                    infos.append('Check instance with type {}'.format(type_info.name))
+                    check_instance(osc_sdk, type_info, inst_info, args.key_path, ip_address=(eip.publicIp if type_info.max_nics > 2 else None))
+                except OscApiException as error:
+                    if error.status_code == 500 and error.error_code == 'InsuficientCapacity':
+                        insuficient_capacity.append(type_info.name)
+                    else:
+                        unexpected_errors[type_info.name] = error
+                except Exception as error:
+                    unexpected_errors[type_info.name] = error
+                finally:
+                    try:
+                        if inst_info:
+                            delete_instances(osc_sdk, inst_info)
+                        for fni_id in fni_ids:
+                            osc_sdk.fcu.DeleteNetworkInterface(NetworkInterfaceId=fni_id)
+                    except:
+                        print('Could not delete instances/nics')
+    except Exception as error:
+        unexpected_errors[None] = error
+    finally:
+        if eip:
+            osc_sdk.fcu.ReleaseAddress(AllocationId=eip.allocationId)
+        if vpc_info:
+            delete_vpc(osc_sdk, vpc_info)
+
+    print("insufficient capa")
+    pprint(insuficient_capacity)
+    print("unexpected errors")
+    pprint(unexpected_errors)
+    print("insufficient infos")
+    pprint(infos)
 
 
 if __name__ == '__main__':
@@ -116,80 +202,6 @@ if __name__ == '__main__':
                         required=True, type=str, help='Private key name')
     args_p.add_argument('-kp', '--key_path', dest='key_path', action='store',
                         required=True, type=str, help='Private key location')
-    args = args_p.parse_args()
+    main_args = args_p.parse_args()
 
-    config = OscConfig.get(account_name=args.account, az_name=args.az, credentials=constants.CREDENTIALS_CONFIG_FILE)
-    osc_sdk = OscSdk(config)
-
-    vpc_info = None
-    eip = None
-    families = {}
-    insuficient_capacity = []
-    unexpected_errors = {}
-    fni_ids = []
-    infos = []
-    try:
-        vpc_info = create_vpc(osc_sdk)
-        eip = osc_sdk.fcu.AllocateAddress(Domain='vpc').response
-        ret = osc_sdk.intel.instance.get_available_types().response.result
-        for attr in ret.__dict__:
-            if not type(getattr(ret, attr)) is OscObjectDict:
-                continue
-            type_info = getattr(ret, attr)
-            parts = type_info.name.split('.')
-            if not parts[0] in families:
-                families[parts[0]] = []
-            families[parts[0]].append(type_info)
-        for family in families:
-            continue
-            for type_info in families[family]:
-                inst_info = None
-                try:
-                    if type_info.name not in INST_TYPE_MATRIX:
-                        raise OscTestException('Could not find type {} in matrix'.format(type_info.name))
-                    infos.append('Create instance with type {}'.format(type_info.name))
-                    try:
-                        inst_info = create_instances(osc_sdk, inst_type=type_info.name, key_name=args.key_name, state='ready',
-                                                     nb_ephemeral=len(type_info.storage), wait_time=5, threshold=24,
-                                                     subnet_id=(vpc_info[info_keys.SUBNETS][0][info_keys.SUBNET_ID] if type_info.max_nics > 1 else None))
-                    except AssertionError as error:
-                        if 'stopped' in str(error):
-                            raise OscTestException("Could not start instance -> stopped")
-                        raise error
-                    if type_info.max_nics > 1:
-                        osc_sdk.fcu.AssociateAddress(AllocationId=eip.allocationId, InstanceId=inst_info[info_keys.INSTANCE_ID_LIST][0])
-                        for i in range(type_info.max_nics - 1):
-                            fni_id = osc_sdk.fcu.CreateNetworkInterface(SubnetId=vpc_info[info_keys.SUBNETS][0][info_keys.SUBNET_ID]).response.networkInterface.networkInterfaceId
-                            fni_ids.append(fni_id)
-                            osc_sdk.fcu.AttachNetworkInterface(DeviceIndex=1+i, InstanceId=inst_info[info_keys.INSTANCE_ID_LIST][0], NetworkInterfaceId=fni_id)
-                    infos.append('Check instance with type {}'.format(type_info.name))
-                    check_instance(osc_sdk, type_info, inst_info, args.key_path, ip_address=(eip.publicIp if type_info.max_nics > 2 else None))
-                except OscApiException as error:
-                    if error.status_code == 500 and error.error_code == 'InsuficientCapacity':
-                        insuficient_capacity.append(type_info.name)
-                    else:
-                        unexpected_errors[type_info.name] = error
-                except Exception as error:
-                    unexpected_errors[type_info.name] = error
-                finally:
-                    try:
-                        if inst_info:
-                            delete_instances(osc_sdk, inst_info)
-                        for fni_id in fni_ids:
-                            osc_sdk.fcu.DeleteNetworkInterface(NetworkInterfaceId=fni_id)
-                    except:
-                        pass
-    except Exception as error:
-        unexpected_errors[None] = error
-    finally:
-        if eip:
-            osc_sdk.fcu.ReleaseAddress(AllocationId=eip.allocationId)
-        if vpc_info:
-            delete_vpc(osc_sdk, vpc_info)
-
-    print("insufficient capa")
-    pprint(insuficient_capacity)
-    print("unexpected errors")
-    pprint(unexpected_errors)
-    print("insufficient infos")
-    pprint(infos)
+    run(main_args)

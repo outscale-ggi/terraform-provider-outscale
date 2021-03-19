@@ -66,9 +66,8 @@ class Test_ReadTags(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -77,44 +76,44 @@ class Test_ReadTags(OscTestSuite):
                 try:
                     cls.a1_r1.oapi.DeleteVpnConnection(VpnConnectionId=cls.vpn_id)
                 except:
-                    pass
+                    print('Could not delete vpn connection')
             if cls.cgw_id:
                 try:
                     cls.a1_r1.oapi.DeleteClientGateway(ClientGatewayId=cls.cgw_id)
                 except:
-                    pass
+                    print('Could not delete client gateway')
             if cls.vgw_id:
                 try:
                     cls.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=cls.vgw_id)
                 except:
-                    pass
+                    print('Could not delete virtual gateway')
             if cls.nic_id:
                 try:
                     cls.a1_r1.oapi.DeleteNic(NicId=cls.nic_id)
                 except:
-                    pass
+                    print('Could not delete nic')
             if cls.subnet_id:
                 try:
                     cls.a1_r1.oapi.DeleteSubnet(SubnetId=cls.subnet_id)
                 except:
-                    pass
+                    print('Could not delete subnet')
             if cls.vm_info:
                 delete_instances(cls.a1_r1, cls.vm_info)
             for net_id in cls.net_id_list:
                 try:
                     cls.a1_r1.oapi.DeleteNet(NetId=net_id)
                 except:
-                    pass
+                    print('Could not delete net')
             for vol_id in cls.vol_id_list:
                 try:
                     cls.a1_r1.oapi.DeleteVolume(VolumeId=vol_id)
                 except:
-                    pass
+                    print('Could not delete volume')
             if cls.internet_service_id:
                 try:
                     cls.a1_r1.oapi.DeleteInternetService(InternetServiceId=cls.internet_service_id)
                 except:
-                    pass
+                    print('Could not delete internet service')
         finally:
             super(Test_ReadTags, cls).teardown_class()
 

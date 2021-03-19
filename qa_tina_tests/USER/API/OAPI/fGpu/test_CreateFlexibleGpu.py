@@ -4,20 +4,6 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 
-#     CreateFlexibleGpuRequest:
-#       properties:
-#         DeleteOnVmDeletion: {default: false, description: CreateFlexibleGpuRequest_DeleteOnVmDeletion,
-#           type: boolean}
-#         DryRun: {description: CreateFlexibleGpuRequest_DryRun, type: boolean}
-#         ModelName: {description: CreateFlexibleGpuRequest_ModelName, type: string}
-#         SubregionName: {description: CreateFlexibleGpuRequest_SubregionName, type: string}
-#       required: [ModelName, SubregionName]
-#       type: object
-#     CreateFlexibleGpuResponse:
-#       properties:
-#         FlexibleGpu: {$ref: '#/components/schemas/FlexibleGpu'}
-#         ResponseContext: {$ref: '#/components/schemas/ResponseContext'}
-#       type: object
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
 
@@ -25,24 +11,16 @@ class Test_CreateFlexibleGpu(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'gpu_limit': 4}
+        cls.quotas = {'gpu_limit': 4}
         super(Test_CreateFlexibleGpu, cls).setup_class()
         try:
             cls.subregionname = cls.a1_r1.config.region.az_name
             cls.modelname = DEFAULT_MODEL_NAME
-        except:
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_CreateFlexibleGpu, cls).teardown_class()
+            finally:
+                raise error
 
     def test_T4180_missing_model_name(self):
         try:
@@ -146,12 +124,17 @@ class Test_CreateFlexibleGpu(OscTestSuite):
         assert_dry_run(ret)
 
     def test_T4743_dry_run_false(self):
-        ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DryRun=False)
-        assert_dry_run(ret)
+        ret = None
+        try:
+            ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DryRun=False)
+            assert_dry_run(ret)
+        finally:
+            if ret:
+                self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=ret.response.FlexibleGpu.FlexibleGpuId)
 
     @pytest.mark.region_gpu
     def test_T4898_with_generation(self):
-        resp = None
+        ret = None
         try:
             ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation='v4')
             ret.check_response()
@@ -162,8 +145,8 @@ class Test_CreateFlexibleGpu(OscTestSuite):
             assert ret.response.FlexibleGpu.State == 'allocated'
             assert not hasattr(ret.response.FlexibleGpu, 'VmId')
         finally:
-            if resp:
-                self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=resp.FlexibleGpu.FlexibleGpuId)
+            if ret:
+                self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=ret.response.FlexibleGpu.FlexibleGpuId)
 
     @pytest.mark.region_gpu
     def test_T4902_with_unsupported_generation(self):

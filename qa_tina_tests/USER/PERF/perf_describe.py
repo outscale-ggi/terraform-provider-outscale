@@ -18,11 +18,12 @@ def test_func(func, logger, key, result):
                 if error.status_code != 503:
                     raise error
     except Exception as error:
-        log_error(logger, error, "Unexpected error while executing %s".format(str(func)), result)
+        log_error(logger, error, "Unexpected error while executing {}".format(str(func)), result)
 
 
 def perf_describe(oscsdk, logger, queue, args):
 
+    print(args)
     result = {'status': 'OK'}
 
     test_func(oscsdk.fcu.DescribeInstances, logger, 'desc_inst', result)

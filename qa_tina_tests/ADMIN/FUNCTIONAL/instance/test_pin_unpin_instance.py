@@ -4,29 +4,17 @@ from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, start_instances
-from qa_tina_tools.tools.tina.delete_tools import terminate_instances, stop_instances
+from qa_tina_tools.tools.tina.delete_tools import stop_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 
 
 class Test_pin_unpin_instance(OscTestSuite):
-
     @classmethod
     def setup_class(cls):
         cls.inst_info = None
         cls.inst_id = None
+        cls.server = None
         super(Test_pin_unpin_instance, cls).setup_class()
-        try:
-            pass
-        except Exception as error:
-            cls.teardown_class()
-            raise error
-
-    @classmethod
-    def teardown_class(cls):
-        try:
-            pass
-        finally:
-            super(Test_pin_unpin_instance, cls).teardown_class()
 
     def setup_method(self, method):
         OscTestSuite.setup_method(self, method)
@@ -38,12 +26,11 @@ class Test_pin_unpin_instance(OscTestSuite):
             stop_instances(self.a1_r1, [self.inst_id])
             self.a1_r1.intel.instance.pin(vmid=self.inst_id, target=self.server)
             start_instances(self.a1_r1, [self.inst_id])
-        except OscApiException as error:
+        except:
             try:
                 self.teardown_method(method)
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:

@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -7,6 +7,11 @@ from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 
 
 class Test_UnlinkPrivateIps(Nic):
+
+    @classmethod
+    def setup_class(cls):
+        cls.nic_id = None
+        super(Test_UnlinkPrivateIps, cls).setup_class()
 
     def setup_method(self, method):
         super(Test_UnlinkPrivateIps, self).setup_method(method)
@@ -18,9 +23,8 @@ class Test_UnlinkPrivateIps(Nic):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:

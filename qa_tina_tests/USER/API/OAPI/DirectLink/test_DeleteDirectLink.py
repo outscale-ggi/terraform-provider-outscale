@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import string
 
 import pytest
@@ -12,7 +12,7 @@ class Test_DeleteDirectLink(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
+        cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
         super(Test_DeleteDirectLink, cls).setup_class()
 
     def test_T3901_empty_param(self):

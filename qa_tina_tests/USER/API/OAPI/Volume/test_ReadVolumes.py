@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+
 import datetime
 
 import pytest
@@ -6,8 +6,8 @@ import pytest
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state, wait_snapshots_state
+from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
 
 
 @pytest.mark.region_oapi
@@ -29,14 +29,14 @@ class Test_ReadVolumes(OscTestSuite):
             wait_snapshots_state(cls.a1_r1, [cls.snap_id], state='completed')
             cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(SnapshotId=cls.snap_id, SubregionName=cls.azs[0]).response.Volume.VolumeId)
             image_id = cls.a1_r1.config.region.get_info(constants.CENTOS7)
-            cls.vms = cls.a1_r1.oapi.CreateVms(ImageId=image_id, VmType=cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)).response.Vms
+            cls.vms = cls.a1_r1.oapi.CreateVms(ImageId=image_id,
+                                               VmType=cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)).response.Vms
             wait_instances_state(cls.a1_r1, [cls.vms[0].VmId], state='running')
         except Exception:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -50,7 +50,7 @@ class Test_ReadVolumes(OscTestSuite):
                     cls.a1_r1.oapi.DeleteVms(VmIds=[cls.vms[0].VmId])
                     wait_instances_state(cls.a1_r1, [cls.vms[0].VmId], state='terminated')
                 except:
-                    pass
+                    print('Could not delete instances')
         finally:
             super(Test_ReadVolumes, cls).teardown_class()
 
@@ -177,7 +177,8 @@ class Test_ReadVolumes(OscTestSuite):
             validate_volume_response(volume, linked_volume={'DeviceName': '/dev/sda1'})
 
     def test_T3563_filters_link_dates(self):
-        ret = self.a1_r1.oapi.ReadVolumes(Filters={'LinkVolumeLinkDates': [datetime.datetime(2019, 2, 4, 7, 56, 19, 749052).strftime("%Y-%m-%dT%H:%M:%SZ")]}).response.Volumes
+        ret = self.a1_r1.oapi.ReadVolumes(
+            Filters={'LinkVolumeLinkDates': [datetime.datetime(2019, 2, 4, 7, 56, 19, 749052).strftime("%Y-%m-%dT%H:%M:%SZ")]}).response.Volumes
         assert len(ret) == 0
 
     def test_T3564_filters_link_states(self):

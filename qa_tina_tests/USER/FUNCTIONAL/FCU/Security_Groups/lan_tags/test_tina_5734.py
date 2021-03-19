@@ -30,7 +30,7 @@ class Test_tina_5734(OscTestSuite):
             -----END OUTSCALE SECTION-----""".format(resp.result[0].servers[0].server)
 
             # run instance
-            inst = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region._conf[cfg_constants.CENTOS7],
+            inst = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info[cfg_constants.CENTOS7],
                                                InstanceType=self.a1_r1.config.region.get_info(cfg_constants.DEFAULT_INSTANCE_TYPE),
                                                MaxCount='1',
                                                MinCount='1',

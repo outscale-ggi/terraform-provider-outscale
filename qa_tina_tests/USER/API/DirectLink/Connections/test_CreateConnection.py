@@ -1,5 +1,3 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
 
 import pytest
 
@@ -12,7 +10,7 @@ class Test_CreateConnection(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
+        cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
         super(Test_CreateConnection, cls).setup_class()
         ret = cls.a1_r1.directlink.DescribeLocations()
         cls.location = ret.response.locations[0].locationCode
@@ -24,12 +22,12 @@ class Test_CreateConnection(OscTestSuite):
     @pytest.mark.region_directlink
     def test_T1908_required_param(self):
         conn_id = None
-        connectionName = id_generator(prefix='dl_')
+        connection_name = id_generator(prefix='dl_')
         try:
-            ret = self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps', connectionName=connectionName)
+            ret = self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps', connectionName=connection_name)
             conn_id = ret.response.connectionId
             assert ret.response.bandwidth == '1Gbps'
-            assert ret.response.connectionName == connectionName
+            assert ret.response.connectionName == connection_name
             assert ret.response.connectionState == 'requested'
             assert ret.response.location == self.location
             assert ret.response.ownerAccount == self.a1_r1.config.account.account_id

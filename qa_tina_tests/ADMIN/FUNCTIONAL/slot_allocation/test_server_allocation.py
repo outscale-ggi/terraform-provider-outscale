@@ -1,7 +1,7 @@
 import base64
 
-from qa_common_tools.ssh import SshTools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
@@ -9,8 +9,10 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import PATH, KEY_PAIR, INSTANCE_SET
 
-METADATA_PACEMENT = 'curl http://169.254.169.254/latest/meta-data/placement/'
+
+METADATA_PLACEMENT = 'curl http://169.254.169.254/latest/meta-data/placement/'
 INSTANCE_TYPE = 'tinav3.c1r1p1'
+
 
 class Test_server_allocation(OscTestSuite):
 
@@ -29,14 +31,15 @@ class Test_server_allocation(OscTestSuite):
             cls.inst_info = create_instances(cls.a1_r1, state='ready', user_data=cls.userdata, inst_type=INSTANCE_TYPE)
             connection = SshTools.check_connection_paramiko(cls.inst_info[INSTANCE_SET][0]['ipAddress'], cls.inst_info[KEY_PAIR][PATH],
                                                             cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
-            cls.server, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PACEMENT + 'server')
-            cls.cluster, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PACEMENT + 'cluster')
-        except:
+            cls.server, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PLACEMENT + 'server')
+            cls.cluster, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PLACEMENT + 'cluster')
+        except Exception as error:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -49,8 +52,8 @@ class Test_server_allocation(OscTestSuite):
     def check_placement(self, ref_cluster, ref_server, inst_info, same_server, same_cluster):
         connection = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        server, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PACEMENT + 'server')
-        cluster, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PACEMENT + 'cluster')
+        server, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PLACEMENT + 'server')
+        cluster, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PLACEMENT + 'cluster')
         # print('CHECK PLACEMENT {} {}'.format(same_cluster, same_server))
         # print('inst1 --> {} {}'.format(ref_cluster, ref_server))
         # print('inst2 --> {} {}'.format(cluster, server))

@@ -7,7 +7,7 @@ class Test_access_keys(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'accesskey_limit': 1000}
+        cls.quotas = {'accesskey_limit': 1000}
         super(Test_access_keys, cls).setup_class()
 
     def test_T5323_parallel_loop(self):

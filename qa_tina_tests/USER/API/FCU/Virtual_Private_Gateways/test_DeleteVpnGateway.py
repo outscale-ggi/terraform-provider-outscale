@@ -20,10 +20,9 @@ class Test_DeleteVpnGateway(OscTestSuite):
             self.vpn_gateway_id = self.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1').response.vpnGateway.vpnGatewayId
         except Exception:
             try:
-                self.teardown_class()
-            except:
-                pass
-            raise
+                self.teardown_method(method)
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:

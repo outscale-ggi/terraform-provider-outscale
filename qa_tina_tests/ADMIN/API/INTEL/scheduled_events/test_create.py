@@ -1,5 +1,5 @@
-# -*- coding:utf-8 -*-
-# pylint: disable=missing-docstring
+
+
 
 import datetime
 import re
@@ -52,9 +52,8 @@ class Test_create(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -343,12 +342,13 @@ class Test_create(OscTestSuite):
         events = ((5,25), (5, 15), (15, 25), (12, 18))
         for i,j in events:
             try:
-                ret = self.a1_r1.intel.scheduled_events.create(event_type='hardware-change',
-                                                               resource_type='server',
-                                                               targets=[self.kvm],
-                                                               start_date=(datetime.datetime.now() + datetime.timedelta(days=i)).strftime("%Y-%m-%d %H:%M:%S"),
-                                                               end_date=(datetime.datetime.now() + datetime.timedelta(days=j)).strftime("%Y-%m-%d %H:%M:%S")
-                                                               )
+                ret = self.a1_r1.intel.scheduled_events.create(
+                    event_type='hardware-change',
+                    resource_type='server',
+                    targets=[self.kvm],
+                    start_date=(datetime.datetime.now() + datetime.timedelta(days=i)).strftime("%Y-%m-%d %H:%M:%S"),
+                    end_date=(datetime.datetime.now() + datetime.timedelta(days=j)).strftime("%Y-%m-%d %H:%M:%S")
+                    )
                 self.events.append(ret.response.result.id)
                 assert False, 'Call should not have been successful'
             except OscApiException as error:

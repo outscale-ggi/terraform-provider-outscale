@@ -1,17 +1,18 @@
 import pytest
 
-from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.config.region import Feature
 from qa_test_tools.test_base import known_error
-from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tina.check_tools import check_volume
 from qa_tina_tools.tina.info_keys import PATH
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
+
 
 # EPH_TYPES = ['m3.medium', 'm3.large', 'm3.xlarge', 'm3.2xlarge', 'r3.large', 'r3.xlarge', 'r3.2xlarge', 'r3.4xlarge', 'r3.8xlarge', 'g2.2xlarge',
 #              'mv3.large', 'mv3.xlarge', 'mv3.2xlarge', 'og4.xlarge', 'og4.2xlarge', 'og4.4xlarge', 'og4.8xlarge', 'io5.2xlarge', 'io5.4xlarge',
@@ -23,7 +24,7 @@ class Test_public_linux_instance(Test_linux_instance):
 
     @classmethod
     def setup_class(cls):
-        cls.QUOTAS = {'gpu_limit': 4}
+        cls.quotas = {'gpu_limit': 4}
         cls.GROUPS = ['PRODUCTION', 'NVIDIA']
         super(Test_public_linux_instance, cls).setup_class()
 
@@ -37,8 +38,10 @@ class Test_public_linux_instance(Test_linux_instance):
         try:
             inst_id, inst_public_ip = self.create_instance()
             if inst_id:
-                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
+                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
                 self.logger.info(out)
@@ -66,15 +69,17 @@ class Test_public_linux_instance(Test_linux_instance):
     @pytest.mark.tag_redwire
     @pytest.mark.region_gpu
     def test_T98_create_use_linux_GPU_instance(self):
-        Instance_Type='mv3.large'
+        instance_type='mv3.large'
         if self.a1_r1.config.region.name in ['cn-southeast-1']:
-            Instance_Type = 'og4.xlarge'
+            instance_type = 'og4.xlarge'
         inst_id = None
         try:
-            inst_id, inst_public_ip = self.create_instance(Instance_Type=Instance_Type)
+            inst_id, inst_public_ip = self.create_instance(instance_type=instance_type)
             if inst_id:
-                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
+                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'sudo pwd'
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
                 self.logger.info(out)
@@ -98,8 +103,10 @@ class Test_public_linux_instance(Test_linux_instance):
         try:
             inst_id, inst_public_ip = self.create_instance(dedicated=True)
             if inst_id:
-                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
+                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
                 self.logger.info(out)
@@ -124,8 +131,10 @@ class Test_public_linux_instance(Test_linux_instance):
                 describe_res = self.a1_r1.fcu.DescribeInstances(Filter=[{'Name': 'instance-id', 'Value': [inst_id]}])
                 public_ip_inst = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
 
-                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, public_ip_inst, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, public_ip_inst, self.kp_info[PATH],
+                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                # sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
+                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
@@ -152,8 +161,10 @@ class Test_public_linux_instance(Test_linux_instance):
 
                 inst_public_ip = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
 
-                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
+                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, 'pwd')
                 self.logger.info(out)
@@ -168,11 +179,11 @@ class Test_public_linux_instance(Test_linux_instance):
         device_name = '/dev/xvdb'
         size = 1
         ebs = {'DeleteOnTermination': 'true', 'VolumeSize': str(size), 'VolumeType': 'standard'}
-        BlockDevice = [{'DeviceName': device_name, 'Ebs': ebs}]
+        block_device = [{'DeviceName': device_name, 'Ebs': ebs}]
 
         try:
 
-            inst_id, inst_public_ip = self.create_instance(Instance_Type='t2.small', BlockDeviceMapping=BlockDevice)
+            inst_id, inst_public_ip = self.create_instance(instance_type='t2.small', bdm=block_device)
             if inst_id:
 
                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
@@ -214,15 +225,17 @@ class Test_public_linux_instance(Test_linux_instance):
         device_name = '/dev/xvdc'
         # size = 128
         size = 32
-        BlockDevice = [{'DeviceName': device_name, 'VirtualName': 'ephemeral0'}]
+        block_device = [{'DeviceName': device_name, 'VirtualName': 'ephemeral0'}]
         placement = None
         if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
             placement = {'AvailabilityZone': 'cn-southeast-1b'}
         try:
-            inst_id, inst_public_ip = self.create_instance(Instance_Type='r3.large', BlockDeviceMapping=BlockDevice, placement=placement)
+            inst_id, inst_public_ip = self.create_instance(instance_type='r3.large', bdm=block_device, placement=placement)
             if inst_id:
-                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
+                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
+                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 check_volume(sshclient, device_name, size, with_format=False)
         except OscApiException as error:
             raise error
@@ -236,12 +249,12 @@ class Test_public_linux_instance(Test_linux_instance):
         device_name = '/dev/xvdc'
         # size = 128
         size = 32
-        BlockDevice = [{'DeviceName': device_name, 'VirtualName': 'ephemeral1'}]
+        block_device = [{'DeviceName': device_name, 'VirtualName': 'ephemeral1'}]
         placement = None
         if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
             placement = {'AvailabilityZone': 'cn-southeast-1b'}
         try:
-            inst_id, inst_public_ip = self.create_instance(Instance_Type='r3.large', BlockDeviceMapping=BlockDevice,
+            inst_id, inst_public_ip = self.create_instance(instance_type='r3.large', bdm=block_device,
                                                            placement=placement)
             if inst_id:
                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],

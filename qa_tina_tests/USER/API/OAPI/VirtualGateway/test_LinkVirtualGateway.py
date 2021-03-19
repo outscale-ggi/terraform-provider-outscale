@@ -12,6 +12,8 @@ class Test_LinkVirtualGateway(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.net_id = None
+        cls.vgw_id = None
+        cls.ret_link = None
         super(Test_LinkVirtualGateway, cls).setup_class()
         try:
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16')).response.Net.NetId
@@ -19,9 +21,8 @@ class Test_LinkVirtualGateway(OscTestSuite):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     @classmethod
     def teardown_class(cls):
@@ -41,9 +42,8 @@ class Test_LinkVirtualGateway(OscTestSuite):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
-            raise
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:
@@ -52,12 +52,12 @@ class Test_LinkVirtualGateway(OscTestSuite):
                     self.a1_r1.oapi.UnlinkVirtualGateway(VirtualGatewayId=self.vgw_id, NetId=self.net_id)
                     wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='available')
                 except:
-                    pass
+                    print('Could not unlink virtual gateway')
             if self.vgw_id:
                 try:
                     self.a1_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=self.vgw_id)
                 except:
-                    pass
+                    print('Could not delete virtual gateway')
         finally:
             OscTestSuite.teardown_method(self, method)
 

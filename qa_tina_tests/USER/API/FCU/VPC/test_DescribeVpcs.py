@@ -1,10 +1,9 @@
-# pylint: disable=missing-docstring
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
-
 
 NB_VPC = 2
 
@@ -30,9 +29,8 @@ class Test_DescribeVpcs(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -44,7 +42,7 @@ class Test_DescribeVpcs(OscTestSuite):
 
     def test_T615_without_param(self):
         ret = self.a1_r1.fcu.DescribeVpcs().response.vpcSet
-        assert len(set([Vpc.vpcId for Vpc in ret])) == len(self.vpc_id_list)
+        assert len({Vpc.vpcId for Vpc in ret}) == len(self.vpc_id_list)
         for vpc in ret:
             assert vpc.cidrBlock in [Configuration.get('vpc', '10_0_0_0_16'), Configuration.get('vpc', '1_0_0_0_16')]
             assert vpc.vpcId in self.vpc_id_list

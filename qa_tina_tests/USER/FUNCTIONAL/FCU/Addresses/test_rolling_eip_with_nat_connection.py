@@ -33,8 +33,8 @@ class Test_rolling_eip_with_nat_connection(OscTestSuite):
             start_http_server(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'], net_info[info_keys.KEY_PAIR][info_keys.PATH],
                               self.a1_r1.config.region.get_info(constants.CENTOS_USER), text='instance1')
             # verify access to first instance http server
-            r = requests.get('http://{}'.format(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp']))
-            assert r.text.strip() == 'instance1'
+            req = requests.get('http://{}'.format(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp']))
+            assert req.text.strip() == 'instance1'
             # move eip of first instance to second instance
             self.a1_r1.oapi.UnlinkPublicIp(LinkPublicIpId=net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_ASSOCIATION_IP])
             net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_ASSOCIATION_IP] =\
@@ -44,8 +44,8 @@ class Test_rolling_eip_with_nat_connection(OscTestSuite):
             start_http_server(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'], net_info[info_keys.KEY_PAIR][info_keys.PATH],
                               self.a1_r1.config.region.get_info(constants.CENTOS_USER), text='instance2')
             # verify access to second instance http server
-            r = requests.get('http://{}'.format(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp']))
-            assert r.text.strip() == 'instance2'
+            req = requests.get('http://{}'.format(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp']))
+            assert req.text.strip() == 'instance2'
         except Exception as error:
             raise error
         finally:

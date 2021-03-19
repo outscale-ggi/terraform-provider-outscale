@@ -1,4 +1,6 @@
-# pylint: disable=missing-docstring
+
+import string
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
@@ -49,8 +51,9 @@ class Test_UpdateAccount(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
 
     def test_T4916_with_invalid_parameter(self):
+        passwd = id_generator(size=4, chars=string.ascii_lowercase)
         try:
-            self.a1_r1.oapi.UpdateAccount(Password="toto")
+            self.a1_r1.oapi.UpdateAccount(Password=passwd)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', 3001)
@@ -65,4 +68,3 @@ class Test_UpdateAccount(OscTestSuite):
         assert ret.response.Account.FirstName == account_info['FirstName']
         assert ret.response.Account.LastName == account_info['LastName']
         assert ret.response.Account.ZipCode == account_info['ZipCode']
-

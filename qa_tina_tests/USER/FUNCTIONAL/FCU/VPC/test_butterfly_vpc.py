@@ -5,7 +5,7 @@ from qa_tina_tools.tools.tina.info_keys import SUBNETS, SUBNET_ID
 
 
 class Test_butterfly_vpc(OscTestSuite):
-    
+
     def test_T5057_butterfly_vpc(self):
         vpc_info = None
         inst_info = None
@@ -18,18 +18,18 @@ class Test_butterfly_vpc(OscTestSuite):
             try:
                 message = error.args[0]
             except:
-                pass
+                print('Could not find message')
             if message and message.startswith('Threshold reach for wait_instances_state'):
                 known_error('TINA-6012', 'Instance did not reach running state')
-            raise error    
+            raise error
         finally:
             if inst_info:
                 try:
                     delete_instances(self.a1_r1, inst_info)
                 except:
-                    pass
+                    print('Could not delete instances')
             if vpc_info:
                 try:
                     delete_vpc(self.a1_r1, vpc_info)
                 except:
-                    pass
+                    print('Could not delete vpc')

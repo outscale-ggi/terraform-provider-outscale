@@ -1,10 +1,13 @@
 import base64
 import datetime
+import time
+
+#from Crypto.Cipher import PKCS1_v1_5
+#from Crypto.PublicKey import RSA
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
 
 import pytest
-import time
-from Crypto.Cipher import PKCS1_v1_5
-from Crypto.PublicKey import RSA
 
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.test_base import OscTestSuite
@@ -29,7 +32,7 @@ class Test_create_using_instance(OscTestSuite):
         unique_id = time_now.strftime('%Y%m%d%H%M%S')
         cls.sg_name = 'sg_use_create_win_{}'.format(unique_id)
         cls.sg_name_vpc = 'sg_use_create_win_vpc_{}'.format(unique_id)
-        IP_Ingress = Configuration.get('cidr', 'allips')
+        ip_ingress = Configuration.get('cidr', 'allips')
 
         cls.kp_info = None
 
@@ -90,25 +93,25 @@ class Test_create_using_instance(OscTestSuite):
             cls.rt_asso1_id = ret.response.associationId
 
             # add route RTB1
-            ret = cls.a1_r1.fcu.CreateRoute(DestinationCidrBlock=IP_Ingress, GatewayId=cls.igw_id, RouteTableId=cls.rtb1)
+            ret = cls.a1_r1.fcu.CreateRoute(DestinationCidrBlock=ip_ingress, GatewayId=cls.igw_id, RouteTableId=cls.rtb1)
 
             # authorize rules
             for sgid in [cls.sg_id, cls.sg_id1]:
-                cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sgid, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=IP_Ingress)
-                cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sgid, IpProtocol='tcp', FromPort=3389, ToPort=3389, CidrIp=IP_Ingress)
-                cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sgid, IpProtocol='tcp', FromPort=5985, ToPort=5985, CidrIp=IP_Ingress)
-                cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sgid, IpProtocol='tcp', FromPort=5986, ToPort=5986, CidrIp=IP_Ingress)
+                cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sgid, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=ip_ingress)
+                cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sgid, IpProtocol='tcp', FromPort=3389, ToPort=3389, CidrIp=ip_ingress)
+                cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sgid, IpProtocol='tcp', FromPort=5985, ToPort=5985, CidrIp=ip_ingress)
+                cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sgid, IpProtocol='tcp', FromPort=5986, ToPort=5986, CidrIp=ip_ingress)
 
             # create keypair
             cls.kp_info = create_keypair(cls.a1_r1)
 
             # run instance
-            inst_1 = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region._conf['windows_2016'], MaxCount='1',
+            inst_1 = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info('windows_2016'), MaxCount='1',
                                                 MinCount='1',
                                                 SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[NAME],
                                                 InstanceType=instance_type, UserData=user_data)
 
-            inst_2 = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region._conf['windows_2016'], MaxCount='1',
+            inst_2 = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info('windows_2016'), MaxCount='1',
                                                 MinCount='1',
                                                 SecurityGroupId=cls.sg_id1, KeyName=cls.kp_info[NAME],
                                                 UserData=user_data, SubnetId=cls.subnet1_id, InstanceType=instance_type)
@@ -119,9 +122,8 @@ class Test_create_using_instance(OscTestSuite):
         except Exception as error:
             try:
                 cls.teardown_class()
-            except Exception:
-                pass
-            raise error
+            finally:
+                raise error
 
     @classmethod
     def teardown_class(cls):
@@ -160,22 +162,22 @@ class Test_create_using_instance(OscTestSuite):
     def test_T65_create_using_public_instance(self):
 
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_1_id], state='ready', threshold=150)
-        
+
         # get public IP
         time.sleep(5)  # this is needed to avoid request exceeded on prod
         describe_res = self.a1_r1.fcu.DescribeInstances(Filter=[{'Name': 'instance-id', 'Value': [self.inst_1_id]}])
-        inst_1_pub_IP = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
+        inst_1_pub_ip = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
 
         passwd_data = self.a1_r1.fcu.GetPasswordData(InstanceId=self.inst_1_id)
+        with open(self.kp_info[PATH], "rb") as key_file:
+            private_key = serialization.load_pem_private_key(key_file.read(), password=None)
+            password = private_key.decrypt(base64.b64decode(passwd_data.response.passwordData), padding.PKCS1v15())
 
-        password = PKCS1_v1_5.new(RSA.importKey(open(self.kp_info[PATH]).read())).decrypt(
-            base64.b64decode(passwd_data.response.passwordData), None).decode("utf-8")
+        # self.logger.info("ip : {0}".format(inst_1_pub_IP))
+        # self.logger.info("Login Administrator / password {0}".format(password))
 
-        self.logger.info("ip : {0}".format(inst_1_pub_IP))
-        self.logger.info("Login Administrator / password {0}".format(password))
-            
         check_data_from_console(self.a1_r1, self.inst_1_id)
-        check_winrm_access(inst_1_pub_IP, password)
+        check_winrm_access(inst_1_pub_ip, password)
 
     @pytest.mark.tag_redwire
     def test_T122_create_using_private_instance_VPC(self):
@@ -183,17 +185,18 @@ class Test_create_using_instance(OscTestSuite):
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_2_id], state='ready', threshold=150)
 
         self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst_2_id)
-        inst_2_pub_IP = self.eip.response.publicIp
+        inst_2_pub_ip = self.eip.response.publicIp
 
         passwd_data = self.a1_r1.fcu.GetPasswordData(InstanceId=self.inst_2_id)
-        password = PKCS1_v1_5.new(RSA.importKey(open(self.kp_info[PATH]).read())).decrypt(
-            base64.b64decode(passwd_data.response.passwordData), None).decode("utf-8")
+        with open(self.kp_info[PATH], "rb") as key_file:
+            private_key = serialization.load_pem_private_key(key_file.read(), password=None)
+            password = private_key.decrypt(base64.b64decode(passwd_data.response.passwordData), padding.PKCS1v15())
 
-        self.logger.info("ip : {0}".format(inst_2_pub_IP))
-        self.logger.info("Login Administrator / password {0}".format(password))
+        # self.logger.info("ip : {0}".format(inst_2_pub_IP))
+        # self.logger.info("Login Administrator / password {0}".format(password))
 
         check_data_from_console(self.a1_r1, self.inst_2_id)
-        check_winrm_access(inst_2_pub_IP, password)
+        check_winrm_access(inst_2_pub_ip, password)
 
     # def test_LARS(self):
     #    self.check_winrm_access('198.18.19.73', 'Ui6EH5I@Yenp68Z')
