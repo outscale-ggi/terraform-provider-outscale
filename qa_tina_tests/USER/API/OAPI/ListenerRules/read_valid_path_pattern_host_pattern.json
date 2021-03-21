@@ -1,0 +1,9 @@
+{"ListenerRule": {"Action": "forward",
+                  "HostNamePattern": "*.abc.?.abc.*.fr",
+                  "ListenerId": ###VALUE5###,
+                  "ListenerRuleId": ###VALUE4###,
+                  "ListenerRuleName": "###VALUE3###",
+                  "PathPattern": "/.be",
+                  "Priority": 100,
+                  "VmIds": ["###VALUE11###", "###VALUE9###", "###VALUE10###", "###VALUE8###", "###VALUE7###", "###VALUE6###"]},
+ "ResponseContext": {"RequestId": "b3159d57-c9de-4eae-8bbd-963e965d3df4"}}
