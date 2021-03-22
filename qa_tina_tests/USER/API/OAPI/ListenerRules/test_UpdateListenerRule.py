@@ -1,4 +1,8 @@
+
+import os
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.compare_objects import verify_response, create_hints
 from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import create_tools, info_keys, delete_tools
@@ -14,7 +18,6 @@ class Test_UpdateListenerRule(OscTestSuite):
         cls.ret_reg = None
         cls.rule_name = misc.id_generator(prefix='rn-')
         cls.inst_id_list = None
-        cls.rname = None
         super(Test_UpdateListenerRule, cls).setup_class()
         try:
             cls.lbu_resp = create_tools.create_load_balancer(cls.a1_r1, cls.lb_name)
@@ -25,10 +28,17 @@ class Test_UpdateListenerRule(OscTestSuite):
             cls.ld = {'LoadBalancerName': cls.lb_name, 'LoadBalancerPort': 80}
             cls.lrd = {'ListenerRuleName': cls.rule_name, 'Priority': 100, 'HostNamePattern': '*.com',
                        'PathPattern': "/.com"}
-            cls.rname = cls.a1_r1.oapi.CreateListenerRule(Listener=cls.ld,
-                                                          ListenerRule=cls.lrd,
-                                                          VmIds=cls.inst_info[
-                                                              info_keys.INSTANCE_ID_LIST]).response.ListenerRule.ListenerRuleName
+            ret = cls.a1_r1.oapi.CreateListenerRule(Listener=cls.ld,
+                                              ListenerRule=cls.lrd,
+                                              VmIds=cls.inst_info[info_keys.INSTANCE_ID_LIST]).response.ListenerRule
+            hints = [cls.a1_r1.config.account.account_id,
+                     cls.a2_r1.config.account.account_id,
+                     cls.lb_name,
+                     cls.rule_name,
+                     str(ret.ListenerRuleId),
+                     str(ret.ListenerId)]
+            hints.extend(cls.inst_info[info_keys.INSTANCE_ID_LIST])
+            cls.hints = create_hints(hints)
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -50,7 +60,7 @@ class Test_UpdateListenerRule(OscTestSuite):
 
     def test_T4805_with_invalid_param(self):
         try:
-            self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname)
+            self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name)
             assert False, 'call should not have been successful'
         except OscApiException as error:
             misc.assert_error(error, 400, '7000', 'MissingParameter')
@@ -63,24 +73,28 @@ class Test_UpdateListenerRule(OscTestSuite):
             misc.assert_error(error, 400, '7000', 'MissingParameter')
 
     def test_T4807_with_valid_HostPattern(self):
-        ret = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, HostPattern="*.abc.?.abc.*.com")
-        self.rname = ret.response.ListenerRule.ListenerRuleName
-        ret.check_response()
+        resp = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, HostPattern="*.abc.?.abc.*.com").response
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_valid_host_pattern.json'), self.hints)
+
 
     def test_T4808_with_invalid_HostPattern(self):
         try:
-            self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, HostPattern=["*.abc.?.abc.*.com"])
+            self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, HostPattern=["*.abc.?.abc.*.com"])
             assert False, 'call should not have been successful'
         except OscApiException as error:
             misc.assert_error(error, 400, '4110', 'InvalidParameterValue')
 
     def test_T4809_with_valid_PathPattern(self):
-        ret = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, PathPattern="/.com")
-        ret.check_response()
+        resp = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, PathPattern="/.fr").response
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_valid_path_pattern.json'), self.hints)
 
     def test_T4810_with_invalid_PathPattern(self):
         try:
-            self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rname, PathPattern=["/.com"])
+            self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, PathPattern=["/.fr"])
             assert False, 'call should not have been successful'
         except OscApiException as error:
             misc.assert_error(error, 400, '4110', 'InvalidParameterValue')
+
+    def test_T5555_with_valid_params(self):
+        resp = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, HostPattern="*.abc.?.abc.*.fr", PathPattern="/.be").response
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_valid_path_pattern_host_pattern.json'), self.hints)

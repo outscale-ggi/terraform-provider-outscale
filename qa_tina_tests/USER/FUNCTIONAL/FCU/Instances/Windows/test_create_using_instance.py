@@ -170,7 +170,7 @@ class Test_create_using_instance(OscTestSuite):
 
         passwd_data = self.a1_r1.fcu.GetPasswordData(InstanceId=self.inst_1_id)
         with open(self.kp_info[PATH], "rb") as key_file:
-            private_key = serialization.load_pem_private_key(key_file.read(), password=None)
+            private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=None)
             password = private_key.decrypt(base64.b64decode(passwd_data.response.passwordData), padding.PKCS1v15())
 
         # self.logger.info("ip : {0}".format(inst_1_pub_IP))
@@ -189,7 +189,7 @@ class Test_create_using_instance(OscTestSuite):
 
         passwd_data = self.a1_r1.fcu.GetPasswordData(InstanceId=self.inst_2_id)
         with open(self.kp_info[PATH], "rb") as key_file:
-            private_key = serialization.load_pem_private_key(key_file.read(), password=None)
+            private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=None)
             password = private_key.decrypt(base64.b64decode(passwd_data.response.passwordData), padding.PKCS1v15())
 
         # self.logger.info("ip : {0}".format(inst_2_pub_IP))
