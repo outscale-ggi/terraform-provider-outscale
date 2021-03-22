@@ -6,11 +6,11 @@ from qa_test_tools.config.configuration import Configuration
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tina.info_keys import PATH
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_subnet
+
 from qa_tina_tests.USER.FUNCTIONAL.FCU.Instances.Linux.linux_instance import Test_linux_instance
 
 
 class Test_private_linux_instance(Test_linux_instance):
-
     @classmethod
     def setup_class(cls):
         super(Test_private_linux_instance, cls).setup_class()
@@ -79,11 +79,13 @@ class Test_private_linux_instance(Test_linux_instance):
     def test_T112_create_using_linux_instance_vpc(self):
         inst_id = None
         try:
-            inst_id, inst_public_ip = self.create_instance(subnet=self.subnet1_id, security_group_id=self.sg_vpc_id,
-                                                           eip_alloc_id=self.eip_allo_id,public_ip=self.eip.response.publicIp)
+            inst_id, inst_public_ip = self.create_instance(
+                subnet=self.subnet1_id, security_group_id=self.sg_vpc_id, eip_alloc_id=self.eip_allo_id, public_ip=self.eip.response.publicIp
+            )
             if inst_id:
-                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
-                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(
+                    self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER)
+                )
                 # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
                 # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'pwd'
