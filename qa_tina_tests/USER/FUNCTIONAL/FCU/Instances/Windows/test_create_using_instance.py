@@ -2,12 +2,9 @@ import base64
 import datetime
 import time
 
-#from Crypto.Cipher import PKCS1_v1_5
-#from Crypto.PublicKey import RSA
+import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
-
-import pytest
 
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.test_base import OscTestSuite
@@ -23,7 +20,6 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 # import winrm
 @pytest.mark.region_windows
 class Test_create_using_instance(OscTestSuite):
-
     @classmethod
     def setup_class(cls):
         super(Test_create_using_instance, cls).setup_class()
@@ -106,15 +102,26 @@ class Test_create_using_instance(OscTestSuite):
             cls.kp_info = create_keypair(cls.a1_r1)
 
             # run instance
-            inst_1 = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info('windows_2016'), MaxCount='1',
-                                                MinCount='1',
-                                                SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[NAME],
-                                                InstanceType=instance_type, UserData=user_data)
+            inst_1 = cls.a1_r1.fcu.RunInstances(
+                ImageId=cls.a1_r1.config.region.get_info('windows_2016'),
+                MaxCount='1',
+                MinCount='1',
+                SecurityGroupId=cls.sg_id,
+                KeyName=cls.kp_info[NAME],
+                InstanceType=instance_type,
+                UserData=user_data,
+            )
 
-            inst_2 = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info('windows_2016'), MaxCount='1',
-                                                MinCount='1',
-                                                SecurityGroupId=cls.sg_id1, KeyName=cls.kp_info[NAME],
-                                                UserData=user_data, SubnetId=cls.subnet1_id, InstanceType=instance_type)
+            inst_2 = cls.a1_r1.fcu.RunInstances(
+                ImageId=cls.a1_r1.config.region.get_info('windows_2016'),
+                MaxCount='1',
+                MinCount='1',
+                SecurityGroupId=cls.sg_id1,
+                KeyName=cls.kp_info[NAME],
+                UserData=user_data,
+                SubnetId=cls.subnet1_id,
+                InstanceType=instance_type,
+            )
 
             cls.inst_1_id = inst_1.response.instancesSet[0].instanceId
             cls.inst_2_id = inst_2.response.instancesSet[0].instanceId
