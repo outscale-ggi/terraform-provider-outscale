@@ -139,6 +139,7 @@ class LoadBalancer(OscTestSuite):
             cls.sg_id_3 = ret.response.groupId
 
             cls.hint_values.extend(cls.inst_info[info_keys.INSTANCE_ID_LIST])
+            cls.hint_values.append(cls.vpc_id)
             cls.hint_values.append(cls.subnet_id)
             cls.hint_values.append(cls.subnet_id2)
             cls.hint_values.append(cls.sg_id)
