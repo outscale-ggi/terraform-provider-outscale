@@ -1,11 +1,42 @@
-{"ResponseContext": {"RequestId": "daf77754-6d6b-48e3-88c9-8a975b40f9cb"},
- "SecurityGroup": {"AccountId": "###VALUE0###",
-                   "Description": "###VALUE14###",
-                   "InboundRules": [],
-                   "NetId": "###VALUE2###",
-                   "OutboundRules": [{"FromPortRange": -1, "IpProtocol": "-1", "IpRanges": ["0.0.0.0/0"], "ToPortRange": -1},
-                                     {"FromPortRange": -1, "IpProtocol": "1", "IpRanges": ["10.0.0.12/32"], "ToPortRange": -1},
-                                     {"FromPortRange": 45, "IpProtocol": "tcp", "IpRanges": ["10.0.0.12/32"], "ToPortRange": 4609}],
-                   "SecurityGroupId": "###VALUE12###",
-                   "SecurityGroupName": "###VALUE13###",
-                   "Tags": []}}
+{
+	"ResponseContext": {
+		"RequestId": "daf77754-6d6b-48e3-88c9-8a975b40f9cb"
+	},
+	"SecurityGroup": {
+		"AccountId": "###VALUE0###",
+		"Description": "###VALUE14###",
+		"InboundRules": [
+		],
+		"NetId": "###VALUE2###",
+		"OutboundRules": [
+			{
+				"FromPortRange": -1,
+				"IpProtocol": "-1",
+				"IpRanges": [
+					"0.0.0.0/0"
+				],
+				"ToPortRange": -1
+			},
+			{
+				"FromPortRange": -1,
+				"IpProtocol": "1",
+				"IpRanges": [
+					"10.0.0.12/32"
+				],
+				"ToPortRange": -1
+			},
+			{
+				"FromPortRange": 45,
+				"IpProtocol": "tcp",
+				"IpRanges": [
+					"10.0.0.12/32"
+				],
+				"ToPortRange": 4609
+			}
+		],
+		"SecurityGroupId": "###VALUE12###",
+		"SecurityGroupName": "###VALUE13###",
+		"Tags": [
+		]
+	}
+}

@@ -1,8 +1,25 @@
-{"ResponseContext": {"RequestId": "e4cdaa72-efb5-4431-96bb-b3d55b1036db"},
- "SecurityGroup": {"AccountId": "###VALUE0###",
-                   "Description": "###VALUE17###",
-                   "InboundRules": [{"FromPortRange": 1234, "IpProtocol": "tcp", "IpRanges": ["10.0.0.12/32"], "ToPortRange": 1234}],
-                   "OutboundRules": [],
-                   "SecurityGroupId": "###VALUE3###",
-                   "SecurityGroupName": "###VALUE16###",
-                   "Tags": []}}
+{
+	"ResponseContext": {
+		"RequestId": "e4cdaa72-efb5-4431-96bb-b3d55b1036db"
+	},
+	"SecurityGroup": {
+		"AccountId": "###VALUE0###",
+		"Description": "###VALUE17###",
+		"InboundRules": [
+			{
+				"FromPortRange": 1234,
+				"IpProtocol": "tcp",
+				"IpRanges": [
+					"10.0.0.12/32"
+				],
+				"ToPortRange": 1234
+			}
+		],
+		"OutboundRules": [
+		],
+		"SecurityGroupId": "###VALUE3###",
+		"SecurityGroupName": "###VALUE16###",
+		"Tags": [
+		]
+	}
+}
