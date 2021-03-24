@@ -34,14 +34,23 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                 name = id_generator(prefix='policy-')
                 cls.policy_name_lb.append(name)
                 cls.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=cls.lb_name, PolicyName=name, PolicyType='load_balancer')
+
+            cls.vpc_lb_name = id_generator(prefix='lbu-')
+            resp_create_vpc_lb = cls.a1_r1.oapi.CreateLoadBalancer(
+                Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
+                           {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
+                LoadBalancerName=cls.vpc_lb_name, Subnets=[cls.subnet_id, cls.subnet_id2],
+            ).response
             for _ in range(3):
-                cls.sg_ids.append(cls.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test',
+                cls.sg_ids.append(cls.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test', NetId=cls.vpc_id,
                                                                     GroupName=id_generator(prefix='sg_name-')).response.groupId)
 
             cls.hint_values.append(cls.lb_name)
             cls.hint_values.append(resp_create_lb.LoadBalancer.DnsName)
             cls.hint_values.extend(cls.policy_name_app)
             cls.hint_values.extend(cls.policy_name_lb)
+            cls.hint_values.append(cls.vpc_lb_name)
+            cls.hint_values.append(resp_create_vpc_lb.LoadBalancer.DnsName)
             cls.hint_values.extend(cls.sg_ids)
             cls.hints = create_hints(cls.hint_values)
         except Exception as error1:
@@ -58,6 +67,11 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             if cls.lb_name:
                 try:
                     cls.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=cls.lb_name)
+                except Exception as error:
+                    raise error
+            if cls.vpc_lb_name:
+                try:
+                    cls.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=cls.vpc_lb_name)
                 except Exception as error:
                     raise error
             for sg_id in cls.sg_ids:
@@ -482,13 +496,13 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                     raise error
 
     def test_T5556_single_sg_sgroup(self):
-        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, SecurityGroups=[self.sg_id[0]]).response
+        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[self.sg_id[0]]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_single_sg_sgroup.json'), self.hints)
-        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, SecurityGroups=[]).response
+        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_rmpty_sg_sgroup.json'), self.hints)
 
     def test_T5557_multi_sg_sgroup(self):
-        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, SecurityGroups=self.sg_id[1:2]).response
+        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=self.sg_id[1:2]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_multi_sg_sgroup.json'), self.hints)
-        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, SecurityGroups=[]).response
+        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_rmpty_sg_sgroup.json'), self.hints)
