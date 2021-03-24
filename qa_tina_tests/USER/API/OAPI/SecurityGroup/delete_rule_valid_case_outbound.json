@@ -1,9 +1,34 @@
-{"ResponseContext": {"RequestId": "9968bac6-4432-400c-b482-7030fc511f0c"},
- "SecurityGroup": {"AccountId": "###VALUE0###",
-                   "Description": "###VALUE11###",
-                   "InboundRules": [{"FromPortRange": 1234, "IpProtocol": "tcp", "IpRanges": ["10.0.0.12/32"], "ToPortRange": 1234}],
-                   "NetId": "###VALUE2###",
-                   "OutboundRules": [{"FromPortRange": -1, "IpProtocol": "-1", "IpRanges": ["0.0.0.0/0"], "ToPortRange": -1}],
-                   "SecurityGroupId": "###VALUE9###",
-                   "SecurityGroupName": "###VALUE10###",
-                   "Tags": []}}
+{
+	"ResponseContext": {
+		"RequestId": "9968bac6-4432-400c-b482-7030fc511f0c"
+	},
+	"SecurityGroup": {
+		"AccountId": "###VALUE0###",
+		"Description": "###VALUE11###",
+		"InboundRules": [
+			{
+				"FromPortRange": 1234,
+				"IpProtocol": "tcp",
+				"IpRanges": [
+					"10.0.0.12/32"
+				],
+				"ToPortRange": 1234
+			}
+		],
+		"NetId": "###VALUE2###",
+		"OutboundRules": [
+			{
+				"FromPortRange": -1,
+				"IpProtocol": "-1",
+				"IpRanges": [
+					"0.0.0.0/0"
+				],
+				"ToPortRange": -1
+			}
+		],
+		"SecurityGroupId": "###VALUE9###",
+		"SecurityGroupName": "###VALUE10###",
+		"Tags": [
+		]
+	}
+}

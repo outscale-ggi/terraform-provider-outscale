@@ -1,28 +1,92 @@
-{"ResponseContext": {"RequestId": "47336530-a36c-43f4-b9eb-4b6a78edb97f"},
- "SecurityGroups": [{"AccountId": "###VALUE0###",
-                     "Description": "###VALUE17###",
-                     "InboundRules": [{"FromPortRange": 1,
-                                       "IpProtocol": "6",
-                                       "SecurityGroupsMembers": [{"AccountId": "###VALUE1###", "SecurityGroupId": "###VALUE15###", "SecurityGroupName": "###VALUE16###"},
-                                                                 {"AccountId": "###VALUE1###", "SecurityGroupId": "###VALUE18###", "SecurityGroupName": "###VALUE19###"}],
-                                       "ToPortRange": 65535},
-                                      {"FromPortRange": 1,
-                                       "IpProtocol": "17",
-                                       "SecurityGroupsMembers": [{"AccountId": "###VALUE1###", "SecurityGroupId": "###VALUE18###", "SecurityGroupName": "###VALUE19###"},
-                                                                 {"AccountId": "###VALUE1###", "SecurityGroupId": "###VALUE15###", "SecurityGroupName": "###VALUE16###"}],
-                                       "ToPortRange": 65535},
-                                      {"FromPortRange": 45,
-                                       "IpProtocol": "6",
-                                       "IpRanges": ["10.0.0.12"],
-                                       "SecurityGroupsMembers": [{"AccountId": "###VALUE0###", "SecurityGroupId": "###VALUE3###", "SecurityGroupName": "###VALUE16###"}],
-                                       "ToPortRange": 4609},
-                                      {"FromPortRange": -1,
-                                       "IpProtocol": "1",
-                                       "IpRanges": ["10.0.0.12"],
-                                       "SecurityGroupsMembers": [{"AccountId": "###VALUE1###", "SecurityGroupId": "###VALUE15###", "SecurityGroupName": "###VALUE16###"},
-                                                                 {"AccountId": "###VALUE1###", "SecurityGroupId": "###VALUE18###", "SecurityGroupName": "###VALUE19###"}],
-                                       "ToPortRange": -1}],
-                     "OutboundRules": [],
-                     "SecurityGroupId": "###VALUE3###",
-                     "SecurityGroupName": "###VALUE16###",
-                     "Tags": [{"Key": "sg_key", "Value": "sg_value"}]}]}
+{
+	"ResponseContext": {
+		"RequestId": "47336530-a36c-43f4-b9eb-4b6a78edb97f"
+	},
+	"SecurityGroups": [
+		{
+			"AccountId": "###VALUE0###",
+			"Description": "###VALUE17###",
+			"InboundRules": [
+				{
+					"FromPortRange": 1,
+					"IpProtocol": "6",
+					"SecurityGroupsMembers": [
+						{
+							"AccountId": "###VALUE1###",
+							"SecurityGroupId": "###VALUE15###",
+							"SecurityGroupName": "###VALUE16###"
+						},
+						{
+							"AccountId": "###VALUE1###",
+							"SecurityGroupId": "###VALUE18###",
+							"SecurityGroupName": "###VALUE19###"
+						}
+					],
+					"ToPortRange": 65535
+				},
+				{
+					"FromPortRange": 1,
+					"IpProtocol": "17",
+					"SecurityGroupsMembers": [
+						{
+							"AccountId": "###VALUE1###",
+							"SecurityGroupId": "###VALUE18###",
+							"SecurityGroupName": "###VALUE19###"
+						},
+						{
+							"AccountId": "###VALUE1###",
+							"SecurityGroupId": "###VALUE15###",
+							"SecurityGroupName": "###VALUE16###"
+						}
+					],
+					"ToPortRange": 65535
+				},
+				{
+					"FromPortRange": 45,
+					"IpProtocol": "6",
+					"IpRanges": [
+						"10.0.0.12"
+					],
+					"SecurityGroupsMembers": [
+						{
+							"AccountId": "###VALUE0###",
+							"SecurityGroupId": "###VALUE3###",
+							"SecurityGroupName": "###VALUE16###"
+						}
+					],
+					"ToPortRange": 4609
+				},
+				{
+					"FromPortRange": -1,
+					"IpProtocol": "1",
+					"IpRanges": [
+						"10.0.0.12"
+					],
+					"SecurityGroupsMembers": [
+						{
+							"AccountId": "###VALUE1###",
+							"SecurityGroupId": "###VALUE15###",
+							"SecurityGroupName": "###VALUE16###"
+						},
+						{
+							"AccountId": "###VALUE1###",
+							"SecurityGroupId": "###VALUE18###",
+							"SecurityGroupName": "###VALUE19###"
+						}
+					],
+					"ToPortRange": -1
+				}
+			],
+			"OutboundRules": [
+			],
+			"SecurityGroupId": "###VALUE3###",
+			"SecurityGroupName": "###VALUE16###",
+			"Tags": [
+				{
+					"Key": "sg_key",
+					"Value": "sg_value"
+				}
+			]
+		}
+	]
+}
