@@ -12,7 +12,7 @@ import pytest
 
 class Test_update_loadbalancer(OscTestSuite):
 
-    def test_update_lbu_sg(self):
+    def test_T5558_update_lbu_sg(self):
         lb_name = id_generator(prefix='lb-')
         lb_info = None
         lb_sg_id = None
