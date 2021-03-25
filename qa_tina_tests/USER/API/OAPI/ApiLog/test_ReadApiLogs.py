@@ -2,11 +2,19 @@ import time
 from datetime import datetime, timedelta
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+<<<<<<< HEAD
 from qa_test_tools import misc
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator
+=======
+from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator,\
+    assert_error
+>>>>>>> branch 'dev_TKA' of https://gitlab.outscale.internal/qa-produit/tests/qa_tina_tests.git
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tina.info_keys import PUBLIC
+<<<<<<< HEAD
 from qa_tina_tools.tools.tina.create_tools import generate_key
+=======
+>>>>>>> branch 'dev_TKA' of https://gitlab.outscale.internal/qa-produit/tests/qa_tina_tests.git
 from qa_sdk_pub import osc_api
 
 param = [
@@ -187,9 +195,17 @@ class Test_ReadApiLogs(OscTestSuite):
         except Exception as error:
             misc.assert_oapi_error(error, 404, 'InvalidAction', 12000)
         time.sleep(20)
+<<<<<<< HEAD
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409, 200]}, ResultsPerPage=1000)
+=======
+        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409, 401, 200, 200]}, ResultsPerPage=1000)
+>>>>>>> branch 'dev_TKA' of https://gitlab.outscale.internal/qa-produit/tests/qa_tina_tests.git
         assert len(ret.response.Logs) != 0
+<<<<<<< HEAD
         assert {409, 200} == {call.ResponseStatusCode for call in ret.response.Logs}
+=======
+        assert {409, 401, 200, 200} == {call.ResponseStatusCode for call in ret.response.Logs}
+>>>>>>> branch 'dev_TKA' of https://gitlab.outscale.internal/qa-produit/tests/qa_tina_tests.git
 
     def test_T3214_valid_filter_QueryDateBefore(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateBefore': (datetime.utcnow()).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
@@ -310,7 +326,6 @@ class Test_ReadApiLogs(OscTestSuite):
     def test_T3201_valid_ResultsPerPage_value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=100)
         assert len(ret.response.Logs) != 0
-        # ret.check_response()
 
     def test_T3202_valid_NextPageToken_value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=2)
