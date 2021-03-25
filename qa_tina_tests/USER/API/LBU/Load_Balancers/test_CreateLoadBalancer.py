@@ -6,6 +6,7 @@ from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer, create_vpc_old
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 from qa_tina_tools.tools.tina.wait_tools import wait_subnets_state, wait_load_balancer_state
+import time
 
 
 class Test_CreateLoadBalancer(OscTestSuite):
@@ -383,3 +384,19 @@ class Test_CreateLoadBalancer(OscTestSuite):
             assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 400, 'ValidationError', "Length of parameter 'LoadBalancerName' is invalid: 37. Expected: set([(1, 32)]).")
+
+    def test_T5560_after_delete_same_name(self):
+        name = id_generator(prefix='lbu-')
+        self.a1_r1.lbu.CreateLoadBalancer(Listeners=[{'InstancePort': 80, 'LoadBalancerPort': 80, 'Protocol': 'HTTP'}],
+                                            LoadBalancerName=name, AvailabilityZones=[self.a1_r1.config.region.az_name])
+        time.sleep(10)  # to make sure lbu is started
+        self.a1_r1.lbu.CreateLoadBalancerPolicy(LoadBalancerName=name, PolicyName=id_generator(prefix='policy-'),
+                                                PolicyTypeName='ProxyProtocolPolicyType')
+        self.a1_r1.lbu.DeleteLoadBalancer(LoadBalancerName=name)
+        try:
+            self.a1_r1.lbu.CreateLoadBalancer(Listeners=[{'InstancePort': 80, 'LoadBalancerPort': 80, 'Protocol': 'HTTP'}],
+                                               LoadBalancerName=name, AvailabilityZones=[self.a1_r1.config.region.az_name])
+            self.a1_r1.lbu.DeleteLoadBalancer(LoadBalancerName=name)
+            assert False, 'Could should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "DuplicateLoadBalancerName", "Load Balancer named '{}' already exists and it is not yet deleted.".format(name))
