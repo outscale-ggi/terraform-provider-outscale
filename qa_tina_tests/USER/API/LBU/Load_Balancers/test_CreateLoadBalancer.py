@@ -1,3 +1,5 @@
+import time
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator, assert_error
@@ -6,7 +8,6 @@ from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer, create_vpc_old
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 from qa_tina_tools.tools.tina.wait_tools import wait_subnets_state, wait_load_balancer_state
-import time
 
 
 class Test_CreateLoadBalancer(OscTestSuite):
