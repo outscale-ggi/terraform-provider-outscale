@@ -1,13 +1,11 @@
 
-import time
+import pytest
 
 from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.misc import id_generator
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.config import config_constants
 from qa_tina_tools.tina import oapi, info_keys, setup_tools, check_tools
-import time
-import pytest
 
 
 class Test_update_loadbalancer(OscTestSuite):
