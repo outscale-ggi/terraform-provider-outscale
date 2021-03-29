@@ -2,7 +2,7 @@ import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
-from qa_test_tools.test_base import OscTestSuite, get_export_value, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances
@@ -54,12 +54,6 @@ class Test_AttachVolume(OscTestSuite):
             for vol_id in self.attached:
                 self.a1_r1.fcu.DetachVolume(VolumeId=vol_id, InstanceId=self.attached[vol_id])
                 wait_volumes_state(self.a1_r1, volume_id_list=[vol_id], state="available")
-        except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'DefaultError', None)
-                assert not error.message
-            else:
-                raise error
         finally:
             OscTestSuite.teardown_method(self, method)
 
@@ -100,10 +94,6 @@ class Test_AttachVolume(OscTestSuite):
             self.attached[vol_id] = self.inst_info[INSTANCE_ID_LIST][0]
             assert False, "Call should not be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1369', 'Incorrect error code and missing error message')
             assert_error(error, 400, "InvalidVolumeID.Malformed", "Invalid ID received: {}. Expected format: vol-".format(float(vol_id)))
 
     def test_T3954_none_volume_id(self):
@@ -111,10 +101,6 @@ class Test_AttachVolume(OscTestSuite):
             self.a1_r1.fcu.AttachVolume(VolumeId=None, InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")
             assert False, "Call should not be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'MissingParameter', None)
-                assert not error.message
-                known_error('GTW-1369', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', "The request must contain the parameter: volume")
 
     def test_T1089_with_nonexisting_volume_id(self):
@@ -122,10 +108,6 @@ class Test_AttachVolume(OscTestSuite):
             self.a1_r1.fcu.AttachVolume(VolumeId="vol-aaaaaaaa", InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")
             assert False, "Call should not be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidVolume.NotFound', None)
-                assert not error.message
-                known_error('GTW-1369', 'Missing error message')
             assert_error(error, 400, 'InvalidVolume.NotFound', "The volume 'vol-aaaaaaaa' does not exist.")
 
     def test_T3955_invalid_volume_id(self):
@@ -133,10 +115,6 @@ class Test_AttachVolume(OscTestSuite):
             self.a1_r1.fcu.AttachVolume(VolumeId="11a11a11", InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")
             assert False, "Call should not be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1369', 'Incorrect error code and missing error message')
             assert_error(error, 400, 'InvalidVolumeID.Malformed', "Invalid ID received: 11a11a11. Expected format: vol-")
 
     def test_T1093_with_already_attached_volume_id(self):
@@ -144,10 +122,6 @@ class Test_AttachVolume(OscTestSuite):
             self.a1_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdg")
             self.attached[self.standard_volume_ids[0]] = self.inst_info[INSTANCE_ID_LIST][0]
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 409, 'InvalidState', None)
-                assert not error.message
-                known_error('GTW-1369', 'Invalid state from previous errors')
             raise error
 
         try:
@@ -159,15 +133,7 @@ class Test_AttachVolume(OscTestSuite):
                                                                                                                self.inst_info[INSTANCE_ID_LIST][0]))
 
     def test_T1092_with_already_used_device_name(self):
-        try:
-            self.a1_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdj")
-            self.attached[self.standard_volume_ids[0]] = self.inst_info[INSTANCE_ID_LIST][0]
-        except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 409, 'InvalidState', None)
-                assert not error.message
-                known_error('GTW-1369', 'Invalid state from previous errors')
-            raise error
+        self.a1_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdj")
         try:
             self.a1_r1.fcu.AttachVolume(VolumeId=self.io1_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdj")
             self.attached[self.io1_volume_ids[0]] = self.inst_info[INSTANCE_ID_LIST][0]
@@ -181,10 +147,6 @@ class Test_AttachVolume(OscTestSuite):
             self.a1_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0], InstanceId="i-aaaaaaaa", Device="/dev/xvdb")
             assert False, "Call should not be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidInstanceID.NotFound', None)
-                assert not error.message
-                known_error('GTW-1369', 'Missing error message')
             assert_error(error, 400, "InvalidInstanceID.NotFound", "The instance IDs do not exist: i-aaaaaaaa")
 
     def test_T3956_missing_device_name(self):
@@ -193,10 +155,6 @@ class Test_AttachVolume(OscTestSuite):
             self.attached[self.standard_volume_ids[0]] = self.inst_info[INSTANCE_ID_LIST][0]
             assert False, "Call should not be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'MissingParameter', None)
-                assert not error.message
-                known_error('GTW-1369', 'Missing error message')
             assert_error(error, 400, "MissingParameter", "The request must contain the parameter: device")
 
     def test_T1090_with_invalid_device_name(self):
@@ -205,10 +163,6 @@ class Test_AttachVolume(OscTestSuite):
             self.attached[self.standard_volume_ids[0]] = self.inst_info[INSTANCE_ID_LIST][0]
             assert False, "Call should not be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidBlockDeviceMapping', None)
-                assert not error.message
-                known_error('GTW-1369', 'Missing error message')
             assert_error(error, 400, "InvalidBlockDeviceMapping", "Value for parameter 'Device' is not a valid BSU device name: invalid name")
 
     def test_T3957_from_another_account(self):
@@ -216,8 +170,4 @@ class Test_AttachVolume(OscTestSuite):
             self.a2_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")
             assert False, "Call should not be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidInstanceID.NotFound', None)
-                assert not error.message
-                known_error('GTW-1369', 'Missing error message')
             assert_error(error, 400, "InvalidInstanceID.NotFound", "The instance IDs do not exist: {}".format(self.inst_info[INSTANCE_ID_LIST][0]))

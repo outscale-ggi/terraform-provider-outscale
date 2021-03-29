@@ -1,24 +1,104 @@
-{"ResponseContext": {"RequestId": "8b7d541b-c899-4ed6-8c94-4820e3836999"},
- "SecurityGroup": {"AccountId": "###VALUE0###",
-                   "Description": "###VALUE14###",
-                   "InboundRules": [{"FromPortRange": -1, "IpProtocol": "1", "IpRanges": ["10.0.0.13/32"], "ToPortRange": -1},
-                                    {"FromPortRange": 1234, "IpProtocol": "tcp", "IpRanges": ["10.0.0.11"], "ToPortRange": 1235},
-                                    {"FromPortRange": 56,
-                                     "IpProtocol": "udp",
-                                     "IpRanges": ["10.0.0.14/32"],
-                                     "SecurityGroupsMembers": [{"AccountId": "###VALUE0###", "SecurityGroupId": "###VALUE9###", "SecurityGroupName": "###VALUE10###"}],
-                                     "ToPortRange": 78},
-                                    {"FromPortRange": 4325, "IpProtocol": "udp", "IpRanges": ["10.0.0.12/32"], "ToPortRange": 6587}],
-                   "NetId": "###VALUE2###",
-                   "OutboundRules": [{"FromPortRange": -1, "IpProtocol": "-1", "IpRanges": ["0.0.0.0/0"], "ToPortRange": -1},
-                                     {"FromPortRange": -1, "IpProtocol": "1", "IpRanges": ["10.0.0.13/32"], "ToPortRange": -1},
-                                     {"FromPortRange": 1234, "IpProtocol": "tcp", "IpRanges": ["10.0.0.11"], "ToPortRange": 1235},
-                                     {"FromPortRange": 56,
-                                      "IpProtocol": "udp",
-                                      "IpRanges": ["10.0.0.14/32"],
-                                      "SecurityGroupsMembers": [{"AccountId": "###VALUE0###", "SecurityGroupId": "###VALUE9###", "SecurityGroupName": "###VALUE10###"}],
-                                      "ToPortRange": 78},
-                                     {"FromPortRange": 4325, "IpProtocol": "udp", "IpRanges": ["10.0.0.12/32"], "ToPortRange": 6587}],
-                   "SecurityGroupId": "###VALUE12###",
-                   "SecurityGroupName": "###VALUE13###",
-                   "Tags": []}}
+{
+	"ResponseContext": {
+		"RequestId": "8b7d541b-c899-4ed6-8c94-4820e3836999"
+	},
+	"SecurityGroup": {
+		"AccountId": "###VALUE0###",
+		"Description": "###VALUE14###",
+		"InboundRules": [
+			{
+				"FromPortRange": -1,
+				"IpProtocol": "1",
+				"IpRanges": [
+					"10.0.0.13/32"
+				],
+				"ToPortRange": -1
+			},
+			{
+				"FromPortRange": 1234,
+				"IpProtocol": "tcp",
+				"IpRanges": [
+					"10.0.0.11"
+				],
+				"ToPortRange": 1235
+			},
+			{
+				"FromPortRange": 56,
+				"IpProtocol": "udp",
+				"IpRanges": [
+					"10.0.0.14/32"
+				],
+				"SecurityGroupsMembers": [
+					{
+						"AccountId": "###VALUE0###",
+						"SecurityGroupId": "###VALUE9###",
+						"SecurityGroupName": "###VALUE10###"
+					}
+				],
+				"ToPortRange": 78
+			},
+			{
+				"FromPortRange": 4325,
+				"IpProtocol": "udp",
+				"IpRanges": [
+					"10.0.0.12/32"
+				],
+				"ToPortRange": 6587
+			}
+		],
+		"NetId": "###VALUE2###",
+		"OutboundRules": [
+			{
+				"FromPortRange": -1,
+				"IpProtocol": "-1",
+				"IpRanges": [
+					"0.0.0.0/0"
+				],
+				"ToPortRange": -1
+			},
+			{
+				"FromPortRange": -1,
+				"IpProtocol": "1",
+				"IpRanges": [
+					"10.0.0.13/32"
+				],
+				"ToPortRange": -1
+			},
+			{
+				"FromPortRange": 1234,
+				"IpProtocol": "tcp",
+				"IpRanges": [
+					"10.0.0.11"
+				],
+				"ToPortRange": 1235
+			},
+			{
+				"FromPortRange": 56,
+				"IpProtocol": "udp",
+				"IpRanges": [
+					"10.0.0.14/32"
+				],
+				"SecurityGroupsMembers": [
+					{
+						"AccountId": "###VALUE0###",
+						"SecurityGroupId": "###VALUE9###",
+						"SecurityGroupName": "###VALUE10###"
+					}
+				],
+				"ToPortRange": 78
+			},
+			{
+				"FromPortRange": 4325,
+				"IpProtocol": "udp",
+				"IpRanges": [
+					"10.0.0.12/32"
+				],
+				"ToPortRange": 6587
+			}
+		],
+		"SecurityGroupId": "###VALUE12###",
+		"SecurityGroupName": "###VALUE13###",
+		"Tags": [
+		]
+	}
+}
