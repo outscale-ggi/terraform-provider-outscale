@@ -29,10 +29,6 @@ class Test_DeleteKeyPair(OscTestSuite):
             self.a1_r1.fcu.DeleteKeyPair()
             pytest.fail("Deleting key pair without key name should not have succeeded")
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'MissingParameter', None)
-                assert not error.message
-                known_error('GTW-1357', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: Name')
 
     def test_T935_with_not_existing_keyname(self):

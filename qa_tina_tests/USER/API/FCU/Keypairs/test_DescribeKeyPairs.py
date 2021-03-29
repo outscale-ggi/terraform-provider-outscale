@@ -43,23 +43,19 @@ class Test_DescribeKeyPairs(OscTestSuite):
     def test_T5069_with_keyname_dict(self):
         try:
             self.a1_r1.fcu.DescribeKeyPairs(KeyName={'toto': self.kp_list[0]['name']})
-            if not os.getenv('OSC_USE_GATEWAY', None):
-                known_error('TINA-5744', 'Call with incorrect argument type does not fail')
+            known_error('TINA-5744', 'Call with incorrect argument type does not fail')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if not os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
+            assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidParameterValue', None)
 
     def test_T5070_with_keyname_string(self):
         try:
             self.a1_r1.fcu.DescribeKeyPairs(KeyName=self.kp_list[0]['name'])
-            if not os.getenv('OSC_USE_GATEWAY', None):
-                known_error('TINA-5744', 'Call with incorrect argument type does not fail')
+            known_error('TINA-5744', 'Call with incorrect argument type does not fail')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if not os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
+            assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidParameterValue', None)
 
     def test_T939_with_valid_keyname(self):
@@ -79,99 +75,43 @@ class Test_DescribeKeyPairs(OscTestSuite):
     def test_T941_with_invalid_keyname(self):
         try:
             self.a1_r1.fcu.DescribeKeyPairs(KeyName=['toto'])
-            if os.getenv('OSC_USE_GATEWAY', None):
-                known_error('GTW-1352', 'Call with incorrect argument type does not fail')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidKeyPair.NotFound', 'The key pair does not exist: toto')
 
     def test_T942_with_keyname_from_another_account(self):
         try:
             self.a1_r1.fcu.DescribeKeyPairs(KeyName=['a2_key_1'])
-            if os.getenv('OSC_USE_GATEWAY', None):
-                known_error('GTW-1352', 'Call with incorrect argument type does not fail')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
             assert_error(error, 400, 'InvalidKeyPair.NotFound', 'The key pair does not exist: a2_key_1')
 
     def test_T943_with_filter_valid_fingerprint(self):
-        try:
-            ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']}])
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
-        except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameterValue", None)
-                known_error('GTW-1352', 'Call with incorrect argument type does not fail')
-            raise error
+        ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']}])
         assert len(ret.response.keySet) == 1
         assert ret.response.keySet[0].keyName == self.kp_list[1]['name']
         assert ret.response.keySet[0].keyFingerprint == self.kp_list[1]['fingerprint']
 
     def test_T944_with_filter_invalid_fingerprint(self):
-        try:
-            ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': 'toto'}])
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
-        except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameterValue", None)
-                known_error('GTW-1352', 'Call with incorrect argument type does not fail')
-            raise error
+        ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': 'toto'}])
         assert not ret.response.keySet
 
     def test_T945_with_filter_fingerprint_from_another_account(self):
-        try:
-            ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': self.fingerprint}])
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
-        except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameterValue", None)
-                known_error('GTW-1352', 'Call with incorrect argument type does not fail')
-            raise error
+        ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': self.fingerprint}])
         assert not ret.response.keySet
 
     def test_T946_with_filter_valid_keyname(self):
-        try:
-            ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'key-name', 'Value': self.kp_list[0]['name']}])
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
-        except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameterValue", None)
-                known_error('GTW-1352', 'Call with incorrect argument type does not fail')
-            raise error
+        ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'key-name', 'Value': self.kp_list[0]['name']}])
         assert len(ret.response.keySet) == 1
         assert ret.response.keySet[0].keyName == self.kp_list[0]['name']
         assert ret.response.keySet[0].keyFingerprint == self.kp_list[0]['fingerprint']
 
     def test_T947_with_filter_invalid_keyname(self):
-        try:
-            ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'key-name', 'Value': 'toto'}])
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
-        except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameterValue", None)
-                known_error('GTW-1352', 'Call with incorrect argument type does not fail')
-            raise error
+        ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'key-name', 'Value': 'toto'}])
         assert not ret.response.keySet
 
     def test_T948_with_filter_keyname_from_another_account(self):
-        try:
-            ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'key-name', 'Value': 'a2_key_1'}])
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
-        except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameterValue", None)
-                known_error('GTW-1352', 'Call with incorrect argument type does not fail')
-            raise error
+        ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'key-name', 'Value': 'a2_key_1'}])
         assert not ret.response.keySet
 
     def test_T949_with_invalid_filter(self):
@@ -179,9 +119,6 @@ class Test_DescribeKeyPairs(OscTestSuite):
             self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'foo', 'Value': 'toto'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameterValue", None)
-                known_error('GTW-1352', 'Incorrect error message')
             assert_error(error, 400, "InvalidFilter", "The filter is invalid: foo")
 
     def test_T1906_with_filter_invalid_tag_key(self):
@@ -189,60 +126,25 @@ class Test_DescribeKeyPairs(OscTestSuite):
             self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'tag:foo', 'Value': 'bar'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameterValue", None)
-                known_error('GTW-1352', 'Incorrect error message')
             assert_error(error, 400, "InvalidFilter", "The filter is invalid: tag:foo")
 
     def test_T950_with_filter_valid_keyname_and_fingerprint(self):
-        try:
-            ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']},
-                                                          {'Name': 'key-name', 'Value': self.kp_list[1]['name']}])
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
-        except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameterValue", None)
-                known_error('GTW-1352', 'Incorrect error message')
-            raise error
+        ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']},
+                                                      {'Name': 'key-name', 'Value': self.kp_list[1]['name']}])
         assert len(ret.response.keySet) == 1
         assert ret.response.keySet[0].keyName == self.kp_list[1]['name']
 
     def test_T951_with_valid_keyname_and_filter_fingerprint(self):
-        try:
-            ret = self.a1_r1.fcu.DescribeKeyPairs(Keyname=self.kp_list[1]['name'],
-                                                  Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']}])
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
-        except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameterValue", None)
-                known_error('GTW-1352', 'Incorrect error message')
-            raise error
+        ret = self.a1_r1.fcu.DescribeKeyPairs(Keyname=self.kp_list[1]['name'],
+                                              Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']}])
         assert len(ret.response.keySet) == 1
         assert ret.response.keySet[0].keyName == self.kp_list[1]['name']
 
     def test_T1389_filter_invalid_kn_fp(self):
-        try:
-            ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']},
-                                                          {'Name': 'key-name', 'Value': self.kp_list[0]['name']}])
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
-        except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameterValue", None)
-                known_error('GTW-1352', 'Incorrect error message')
-            raise error
+        ret = self.a1_r1.fcu.DescribeKeyPairs(Filter=[{'Name': 'fingerprint', 'Value': self.kp_list[1]['fingerprint']},
+                                                      {'Name': 'key-name', 'Value': self.kp_list[0]['name']}])
         assert not ret.response.keySet
 
     def test_T1390_invalid_param(self):
-        try:
-            ret = self.a1_r1.fcu.DescribeKeyPairs(foo='bar')
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert False, 'Remove known error code'
-        except OscApiException as error:
-            if os.getenv('OSC_USE_GATEWAY', None):
-                assert_error(error, 400, "InvalidParameter", None)
-                known_error('GTW-1352', 'Incorrect error message')
-            raise error
+        ret = self.a1_r1.fcu.DescribeKeyPairs(foo='bar')
         assert len(ret.response.keySet) == 3

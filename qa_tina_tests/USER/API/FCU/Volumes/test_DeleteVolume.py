@@ -50,10 +50,6 @@ class Test_DeleteVolume(OscTestSuite):
             self.a1_r1.fcu.DeleteVolume(VolumeId="123456789")
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1367', 'Missing error message')
             assert_error(error, 400, 'InvalidVolumeID.Malformed', "Invalid ID received: 123456789. Expected format: vol-")
 
     def test_T3993_valid_param_gp2_non_attached(self):
@@ -78,10 +74,6 @@ class Test_DeleteVolume(OscTestSuite):
             wait_volumes_state(self.a1_r1, volume_id_list=volume_ids, cleanup=True)
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 409, 'InvalidState', None)
-                assert not error.message
-                known_error('GTW-1367', 'Incorrect error code and status or missing error message')
             assert_error(error, 400, 'VolumeInUse', "Volume '{}' is currently attached to instance: {}".format(volume_ids[0],
                                                                                                                self.inst_info[INSTANCE_ID_LIST][0]))
         finally:
@@ -101,10 +93,6 @@ class Test_DeleteVolume(OscTestSuite):
             wait_volumes_state(self.a1_r1, volume_id_list=volume_ids, cleanup=True)
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 409, 'InvalidState', None)
-                assert not error.message
-                known_error('GTW-1367', 'Incorrect error code and status or missing error message')
             assert_error(error, 400, 'VolumeInUse', "Volume '{}' is currently attached to instance: {}".format(volume_ids[0],
                                                                                                                self.inst_info[INSTANCE_ID_LIST][0]))
         finally:
@@ -124,10 +112,6 @@ class Test_DeleteVolume(OscTestSuite):
             wait_volumes_state(self.a1_r1, volume_id_list=volume_ids, cleanup=True)
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 409, 'InvalidState', None)
-                assert not error.message
-                known_error('GTW-1367', 'Incorrect error code and status or missing error message')
             assert_error(error, 400, 'VolumeInUse', "Volume '{}' is currently attached to instance: {}".format(volume_ids[0],
                                                                                                                self.inst_info[INSTANCE_ID_LIST][0]))
         finally:
