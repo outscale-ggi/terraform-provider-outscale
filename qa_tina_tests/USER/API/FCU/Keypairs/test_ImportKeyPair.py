@@ -4,7 +4,7 @@ import base64
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error, get_export_value
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
 from qa_tina_tools.tools.tina.delete_tools import delete_key
@@ -43,9 +43,6 @@ class Test_ImportKeyPair(OscTestSuite):
             self.a1_r1.fcu.ImportKeyPair(PublicKeyMaterial=base64.b64encode(self.pk_material.encode('utf-8')).decode('utf-8'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'MissingParameter', None)
-                known_error('GTW-1358', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: Name')
 
     def test_T1592_without_material(self):
@@ -57,9 +54,6 @@ class Test_ImportKeyPair(OscTestSuite):
                 print('Could not delete key pair')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'MissingParameter', None)
-                known_error('GTW-1358', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: PublicKeyMaterial')
 
     def test_T1593_without_param(self):
@@ -67,9 +61,6 @@ class Test_ImportKeyPair(OscTestSuite):
             self.a1_r1.fcu.ImportKeyPair()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'MissingParameter', None)
-                known_error('GTW-1358', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: PublicKeyMaterial')
 
     def test_T1594_with_incorrect_keyname(self):
@@ -94,9 +85,6 @@ class Test_ImportKeyPair(OscTestSuite):
                 print('Could not delete key pair')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'InvalidKeyPair.Format', None)
-                known_error('GTW-1358', 'Missing error message')
             assert_error(error, 400, 'InvalidKeyPair.Format', 'Invalid DER encoded key material')
 
     def test_T1597_with_not_encoded_material(self):
@@ -108,9 +96,6 @@ class Test_ImportKeyPair(OscTestSuite):
                 print('Could not delete key pair')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 500, 'InternalError', None)
-                known_error('GTW-1358', 'Unexpected internal error')
             assert_error(error, 400, 'InvalidKeyPair.Format', 'Invalid DER encoded key material')
 
     def test_T1596_with_correct_params(self):

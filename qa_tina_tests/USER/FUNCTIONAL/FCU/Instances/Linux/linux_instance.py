@@ -1,3 +1,4 @@
+
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
@@ -8,6 +9,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
 class Test_linux_instance(OscTestSuite):
+
     @classmethod
     def setup_class(cls):
         super(Test_linux_instance, cls).setup_class()
@@ -38,31 +40,18 @@ class Test_linux_instance(OscTestSuite):
         finally:
             super(Test_linux_instance, cls).teardown_class()
 
-    def create_instance(
-        self, instance_type=None, dedicated=False, subnet=None, bdm=None, security_group_id=None, placement=None, eip_alloc_id=None, public_ip=None
-    ):
+    def create_instance(self, instance_type=None, dedicated=False, subnet=None, bdm=None, security_group_id=None,
+                        placement=None, eip_alloc_id=None, public_ip=None):
         public_ip_inst = None
         inst_id_list = None
         if security_group_id is None:
             security_group_id = self.sg_id
         if dedicated:
-            _, inst_id_list = create_instances_old(
-                self.a1_r1,
-                security_group_id_list=[security_group_id],
-                key_name=self.kp_info[NAME],
-                inst_type=instance_type,
-                placement={'Tenancy': 'dedicated'},
-            )
+            _, inst_id_list = create_instances_old(self.a1_r1, security_group_id_list=[security_group_id], key_name=self.kp_info[NAME],
+                                                   inst_type=instance_type, placement={'Tenancy': 'dedicated'})
         else:
-            _, inst_id_list = create_instances_old(
-                self.a1_r1,
-                security_group_id_list=[security_group_id],
-                key_name=self.kp_info[NAME],
-                inst_type=instance_type,
-                subnet_id=subnet,
-                bdm=bdm,
-                placement=placement,
-            )
+            _, inst_id_list = create_instances_old(self.a1_r1, security_group_id_list=[security_group_id], key_name=self.kp_info[NAME],
+                                                   inst_type=instance_type, subnet_id=subnet, bdm=bdm, placement=placement)
         # get instance ID
         inst_id = inst_id_list[0]
         # wait instance to become ready check for login page

@@ -1,25 +1,76 @@
-{"ResponseContext": {"RequestId": "ca4f09ed-30e6-419e-af1c-850f41d3c3be"},
- "SecurityGroup": {"AccountId": "###VALUE0###",
-                   "Description": "###VALUE17###",
-                   "InboundRules": [{"FromPortRange": -1,
-                                     "IpProtocol": "1",
-                                     "SecurityGroupsMembers": [{"AccountId": "###VALUE0###", "SecurityGroupId": "###VALUE3###", "SecurityGroupName": "###VALUE16###"}],
-                                     "ToPortRange": -1},
-                                    {"FromPortRange": 1,
-                                     "IpProtocol": "tcp",
-                                     "SecurityGroupsMembers": [{"AccountId": "###VALUE0###", "SecurityGroupId": "###VALUE3###", "SecurityGroupName": "###VALUE16###"}],
-                                     "ToPortRange": 65535},
-                                    {"FromPortRange": 45,
-                                     "IpProtocol": "tcp",
-                                     "IpRanges": ["10.0.0.12/32"],
-                                     "SecurityGroupsMembers": [{"AccountId": "###VALUE0###", "SecurityGroupId": "###VALUE3###", "SecurityGroupName": "###VALUE16###"}],
-                                     "ToPortRange": 7890},
-                                    {"FromPortRange": 1234, "IpProtocol": "tcp", "IpRanges": ["10.0.0.12/32"], "ToPortRange": 1234},
-                                    {"FromPortRange": 1,
-                                     "IpProtocol": "udp",
-                                     "SecurityGroupsMembers": [{"AccountId": "###VALUE0###", "SecurityGroupId": "###VALUE3###", "SecurityGroupName": "###VALUE16###"}],
-                                     "ToPortRange": 65535}],
-                   "OutboundRules": [],
-                   "SecurityGroupId": "###VALUE3###",
-                   "SecurityGroupName": "###VALUE16###",
-                   "Tags": []}}
+{
+	"ResponseContext": {
+		"RequestId": "ca4f09ed-30e6-419e-af1c-850f41d3c3be"
+	},
+	"SecurityGroup": {
+		"AccountId": "###VALUE0###",
+		"Description": "###VALUE17###",
+		"InboundRules": [
+			{
+				"FromPortRange": -1,
+				"IpProtocol": "1",
+				"SecurityGroupsMembers": [
+					{
+						"AccountId": "###VALUE0###",
+						"SecurityGroupId": "###VALUE3###",
+						"SecurityGroupName": "###VALUE16###"
+					}
+				],
+				"ToPortRange": -1
+			},
+			{
+				"FromPortRange": 1,
+				"IpProtocol": "tcp",
+				"SecurityGroupsMembers": [
+					{
+						"AccountId": "###VALUE0###",
+						"SecurityGroupId": "###VALUE3###",
+						"SecurityGroupName": "###VALUE16###"
+					}
+				],
+				"ToPortRange": 65535
+			},
+			{
+				"FromPortRange": 45,
+				"IpProtocol": "tcp",
+				"IpRanges": [
+					"10.0.0.12/32"
+				],
+				"SecurityGroupsMembers": [
+					{
+						"AccountId": "###VALUE0###",
+						"SecurityGroupId": "###VALUE3###",
+						"SecurityGroupName": "###VALUE16###"
+					}
+				],
+				"ToPortRange": 7890
+			},
+			{
+				"FromPortRange": 1234,
+				"IpProtocol": "tcp",
+				"IpRanges": [
+					"10.0.0.12/32"
+				],
+				"ToPortRange": 1234
+			},
+			{
+				"FromPortRange": 1,
+				"IpProtocol": "udp",
+				"SecurityGroupsMembers": [
+					{
+						"AccountId": "###VALUE0###",
+						"SecurityGroupId": "###VALUE3###",
+						"SecurityGroupName": "###VALUE16###"
+					}
+				],
+				"ToPortRange": 65535
+			}
+		],
+		"OutboundRules": [
+		],
+		"SecurityGroupId": "###VALUE3###",
+		"SecurityGroupName": "###VALUE16###",
+		"Tags": [
+		]
+	}
+}

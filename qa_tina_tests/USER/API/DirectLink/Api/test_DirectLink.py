@@ -53,7 +53,7 @@ class Test_DirectLink(OscTestSuite):
             assert False, 'Call should have been successful'
         except OscApiException as error:
             misc.assert_error(error, 401,"AuthFailure",
-                              "Outscale was not able to validate the provided access credentials.Invalid login/password or password has expired.")
+                              "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3850_invalid_authentication(self):

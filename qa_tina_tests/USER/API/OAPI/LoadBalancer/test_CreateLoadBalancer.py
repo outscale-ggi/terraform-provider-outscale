@@ -1,4 +1,5 @@
 
+import time
 
 import pytest
 
@@ -561,12 +562,11 @@ class Test_CreateLoadBalancer(LoadBalancer):
             ret_create_lbu1 = self.a2_r1.oapi.CreateLoadBalancer(
                 Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
                            {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
-                LoadBalancerName=name, SubregionNames=[self.a2_r1.config.region.az_name],
-            )
+                LoadBalancerName=name, SubregionNames=[self.a2_r1.config.region.az_name])
             ret_create_lbu2 = self.a1_r1.oapi.CreateLoadBalancer(
                 Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
                            {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
-                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name],)
+                LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name])
         finally:
             if ret_create_lbu1:
                 try:
@@ -578,3 +578,18 @@ class Test_CreateLoadBalancer(LoadBalancer):
                     self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
                 except:
                     print('Could not delete lbu')
+
+    def test_T5559_after_delete_same_name(self):
+        name = id_generator(prefix='lbu-')
+        self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                                            LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name])
+        time.sleep(10)  # to make sure lbu is started
+        self.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=name, PolicyName=id_generator(prefix='policy-'), PolicyType='load_balancer')
+        self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
+        try:
+            self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                                               LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name])
+            self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
+            assert False, 'Could should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 409, "ResourceConflict", '9013')

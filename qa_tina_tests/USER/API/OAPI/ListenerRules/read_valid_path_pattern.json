@@ -1,0 +1,21 @@
+{
+	"ListenerRule": {
+		"Action": "forward",
+		"ListenerId": ###VALUE5###,
+		"ListenerRuleId": ###VALUE4###,
+		"ListenerRuleName": "###VALUE3###",
+		"PathPattern": "/.fr",
+		"Priority": 100,
+		"VmIds": [
+			"###VALUE11###",
+			"###VALUE9###",
+			"###VALUE10###",
+			"###VALUE8###",
+			"###VALUE7###",
+			"###VALUE6###"
+		]
+	},
+	"ResponseContext": {
+		"RequestId": "c41c525f-8e85-4773-9efd-cb99f339f4fa"
+	}
+}

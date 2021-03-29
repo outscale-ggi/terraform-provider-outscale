@@ -1,8 +1,25 @@
-{"ResponseContext": {"RequestId": "4116bfc3-fa69-44a0-9cc5-ea83e1510f0d"},
- "SecurityGroup": {"AccountId": "###VALUE0###",
-                   "Description": "###VALUE17###",
-                   "InboundRules": [{"FromPortRange": 4578, "IpProtocol": "udp", "IpRanges": ["10.0.0.12/32"], "ToPortRange": 4679}],
-                   "OutboundRules": [],
-                   "SecurityGroupId": "###VALUE3###",
-                   "SecurityGroupName": "###VALUE16###",
-                   "Tags": []}}
+{
+	"ResponseContext": {
+		"RequestId": "4116bfc3-fa69-44a0-9cc5-ea83e1510f0d"
+	},
+	"SecurityGroup": {
+		"AccountId": "###VALUE0###",
+		"Description": "###VALUE17###",
+		"InboundRules": [
+			{
+				"FromPortRange": 4578,
+				"IpProtocol": "udp",
+				"IpRanges": [
+					"10.0.0.12/32"
+				],
+				"ToPortRange": 4679
+			}
+		],
+		"OutboundRules": [
+		],
+		"SecurityGroupId": "###VALUE3###",
+		"SecurityGroupName": "###VALUE16###",
+		"Tags": [
+		]
+	}
+}
