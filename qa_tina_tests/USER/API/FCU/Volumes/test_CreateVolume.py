@@ -2,7 +2,7 @@
 from __future__ import division
 import re
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite, get_export_value, known_error
 from qa_tina_tools.constants import VOLUME_MAX_SIZE, VOLUME_SIZES, VOLUME_IOPS, MAX_IO1_RATIO
@@ -79,19 +79,11 @@ class Test_CreateVolume(OscTestSuite):
             if check_iop:
                 min_iops = VOLUME_IOPS[kwargs['VolumeType']]['min_iops']
                 max_iops = VOLUME_IOPS[kwargs['VolumeType']]['max_iops']
-                if get_export_value('OSC_USE_GATEWAY', False) and not error.message:
-                    good_exception_raise = True
-                    known_error('GTW-1366', 'Missing error message')
-                else:
-                    assert error.message == 'Invalid IOPS, min_iops: {}, max_iops: {}'.format(min_iops, max_iops)
+                assert error.message == 'Invalid IOPS, min_iops: {}, max_iops: {}'.format(min_iops, max_iops)
             else:
                 min_size = VOLUME_SIZES[kwargs['VolumeType']]['min_size']
                 max_size = VOLUME_SIZES[kwargs['VolumeType']]['max_size']
-                if get_export_value('OSC_USE_GATEWAY', False) and not error.message:
-                    good_exception_raise = True
-                    known_error('GTW-1366', 'Missing error message')
-                else:
-                    assert error.message == "Volume size must be between '{}' and '{}'".format(min_size, max_size)
+                assert error.message == "Volume size must be between '{}' and '{}'".format(min_size, max_size)
             good_exception_raise = True
         finally:
             if vol_id:
@@ -235,10 +227,6 @@ class Test_CreateVolume(OscTestSuite):
             self.a1_r1.fcu.CreateVolume()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'MissingParameter', None)
-                assert not error.message
-                known_error('GTW-1366', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: zone')
 
     def test_T725_dry_run(self):
@@ -248,10 +236,6 @@ class Test_CreateVolume(OscTestSuite):
                                                                         +"error with the tag: DryRunOpertion, " \
                                                                         +" and should block the volume's creation " \
                                                                         +"operation."
-        except OscSdkException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                known_error('GTW-1366', 'Missing request id in response')
-            raise error
         except OscApiException as error:
             assert error.status_code == 400
             assert error.error_code == 'DryRunOperation'
@@ -261,10 +245,6 @@ class Test_CreateVolume(OscTestSuite):
             self.a1_r1.fcu.CreateVolume(Size=666)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'MissingParameter', None)
-                assert not error.message
-                known_error('GTW-1366', 'Missing error message')
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: zone')
 
     def test_T727_with_valid_snap_id(self):
@@ -275,10 +255,6 @@ class Test_CreateVolume(OscTestSuite):
             self.create_volume_type(VolumeType='standard', Size="1", SnapshotId=self.snap_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'DefaultError', None)
-                assert not error.message
-                known_error('GTW-1366', 'Unexpected default error')
             assert_error(error, 400, 'InvalidParameterValue',
                          'SnapshotId and VolumeSize are specified and are incompatible. {} size (10 GiB) must be less than VolumeSize value (1 GiB)'
                          .format(self.snap_id))
@@ -289,10 +265,6 @@ class Test_CreateVolume(OscTestSuite):
                                         Size='1', SnapshotId="snap-12345678")
             assert False, 'Should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidResource', None)
-                assert not error.message
-                known_error('GTW-1366', 'Incorrect error code, missing error message')
             assert_error(error, 400, 'InvalidSnapshot.NotFound',
                          'The Snapshot ID does not exist: snap-12345678, for account: {}'.format(self.a1_r1.config.account.account_id))
 
@@ -301,10 +273,6 @@ class Test_CreateVolume(OscTestSuite):
             self.a2_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name, VolumeType='standard', Size='1', SnapshotId=self.snap_id)
             assert False, 'Should not have been successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidResource', None)
-                assert not error.message
-                known_error('GTW-1366', 'Incorrect error code, missing error message')
             assert_error(error, 400, 'InvalidSnapshot.NotFound',
                          'The Snapshot ID does not exist: {}, for account: {}'.format(self.snap_id, self.a2_r1.config.account.account_id))
 
@@ -319,10 +287,6 @@ class Test_CreateVolume(OscTestSuite):
                                         Iops=int(((VOLUME_SIZES['io1']['min_size']) * MAX_IO1_RATIO)) + 1)
             assert False, 'Create Volume was not supposed to succeed'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1366', 'Missing error message')
             assert error.status_code == 400
             assert error.error_code == 'InvalidParameterValue'
             msg = 'Iops to volume size ratio is too high: {}. Maximum is: {}.'.format(
@@ -336,10 +300,6 @@ class Test_CreateVolume(OscTestSuite):
                                         Iops=VOLUME_IOPS['io1']['max_iops'])
             assert False, 'Create Volume was not supposed to succeed'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1366', 'Missing error message')
             assert error.status_code == 400
             assert error.error_code == 'InvalidParameterValue'
             ratio = round(VOLUME_IOPS['io1']['max_iops'] / VOLUME_SIZES['io1']['min_size'], 1)
@@ -351,10 +311,6 @@ class Test_CreateVolume(OscTestSuite):
             self.a1_r1.fcu.CreateVolume(AvailabilityZone=self.a1_r1.config.region.az_name, Size=10, VolumeType='foo')
             assert False, 'Create Volume was not supposed to succeed'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1366', 'Missing error message')
             assert_error(error, 400, 'InvalidParameterValue',
                          "Value of parameter \'VolumeType\' is not valid: foo. Supported values: gp2, io1, os1, sc1, "
                          "st1, standard")
