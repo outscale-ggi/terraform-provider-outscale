@@ -289,7 +289,7 @@ class Test_UpdateVolume(OscTestSuite):
             wait_volumes_state(self.a1_r1, [self.vol_ids[2]], state='in-use')
 
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[2], Iops=200)
-            known_error('TINA-6366', 'UpdateVolume ')
+            known_error('TINA-6366', 'UpdateVolume')
             assert False, 'Call should not have been successful'
 
         except OscApiException as error:
