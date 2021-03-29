@@ -186,76 +186,76 @@ class Test_UpdateVolume(OscTestSuite):
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)
 
-    def test_TXX_with_vol_type_std_io1(self):
+    def test_T5592_with_vol_type_std_io1(self):
         ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[0], VolumeType='io1', Iops=200).response
         assert ret.Volume.VolumeType == 'io1'
         assert ret.Volume.Iops == 200
         assert ret.Volume.VolumeId == self.vol_ids[0]
 
-    def test_TXX_with_vol_type_io1_gp2(self):
+    def test_T5593_with_vol_type_io1_gp2(self):
         ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[2], VolumeType='gp2').response
         assert ret.Volume.VolumeType == 'gp2'
         assert ret.Volume.Iops
         assert ret.Volume.VolumeId == self.vol_ids[2]
 
-    def test_TXX_with_vol_type_gp2_std(self):
+    def test_T5594_with_vol_type_gp2_std(self):
         ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[1], VolumeType='standard').response
         assert ret.Volume.VolumeType == 'standard'
         assert ret.Volume.VolumeId == self.vol_ids[1]
 
-    def test_TXX_with_invalid_type_vol_type(self):
+    def test_T5595_with_invalid_type_vol_type(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[0], VolumeType=['io1'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, '4129', 'InvalidParameterValue')
 
-    def test_TXX_with_invalid_vol_type(self):
+    def test_T5596_with_invalid_vol_type(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[0], VolumeType='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, '4129', 'InvalidParameterValue')
 
-    def test_TXX_with_iops(self):
+    def test_T5597_with_iops(self):
         ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[2], Iops=200).response
         assert ret.Volume.VolumeType == 'io1'
         assert ret.Volume.Iops == 200
 
-    def test_TXX_with_invalid_iops(self):
+    def test_T5598_with_invalid_iops(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[2], Iops='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, '4110', 'InvalidParameterValue')
 
-    def test_TXX_with_invalid_iops_type(self):
+    def test_T5599_with_invalid_iops_type(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[2], Iops=[200])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, '4110', 'InvalidParameterValue')
 
-    def test_TXX_with_iops_too_small(self):
+    def test_T5600_with_iops_too_small(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[2], Iops=0)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, '4047', 'InvalidParameterValue')
 
-    def test_TXX_with_iops_too_big(self):
+    def test_T5601_with_iops_too_big(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[2], Iops=13001)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, '4029', 'InvalidParameterValue')
 
-    def test_TXX_with_lower_iops(self):
+    def test_T5602_with_lower_iops(self):
         ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids[2], Iops=100).response
         assert ret.Volume.VolumeType == 'io1'
         assert ret.Volume.Iops == 100
 
-    def test_TXX_with_type_hot_vol(self):
+    def test_T5603_with_type_hot_vol(self):
         linked = None
         inst_info = None
         try:
@@ -278,7 +278,7 @@ class Test_UpdateVolume(OscTestSuite):
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)
 
-    def test_TXX_with_iops_hot_vol(self):
+    def test_T5604_with_iops_hot_vol(self):
         linked = None
         inst_info = None
         try:
