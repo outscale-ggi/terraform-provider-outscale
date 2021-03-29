@@ -46,17 +46,11 @@ class Test_DescribeTags(OscTestSuite):
 
     def test_T5034_with_max_result(self):
         resp = self.a1_r1.fcu.DescribeTags(MaxResults=5).response
-        if get_export_value('OSC_USE_GATEWAY'):
-            assert len(resp.tagSet) == 7
-            known_error('GTW-1364', 'MaxResults parameter not used')
         assert len(resp.tagSet) == 5
         assert resp.nextToken
 
     def test_T5035_with_next_token(self):
         resp = self.a1_r1.fcu.DescribeTags(MaxResults=5).response
-        if get_export_value('OSC_USE_GATEWAY'):
-            assert len(resp.tagSet) == 7
-            known_error('GTW-1364', 'MaxResults parameter not used')
         assert len(resp.tagSet) == 5
         assert resp.nextToken
         resp = self.a1_r1.fcu.DescribeTags(NextToken=resp.nextToken).response
@@ -98,9 +92,6 @@ class Test_DescribeTags(OscTestSuite):
 
     def test_T5044_with_filter_resource_types(self):
         tags = self.a1_r1.fcu.DescribeTags(Filter=[{'Name': 'resource-type', 'Value': ['security-group', 'internet-gateway']}]).response.tagSet
-        if get_export_value('OSC_USE_GATEWAY'):
-            assert len(tags) == 6
-            known_error('GTW-1364', 'Filter is not used')
         assert len(tags) == 7
 
     def test_T5045_with_incorrect_max_result(self):
@@ -121,9 +112,6 @@ class Test_DescribeTags(OscTestSuite):
         try:
             self.a1_r1.fcu.DescribeTags(NextToken=[23]).response.tagSet
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY'):
-                assert_error(error, 500, 'InternalError', None)
-                known_error('GTW-1364', 'Unexpected internal error')
             assert_error(error, 400, 'InvalidnextToken.Malformed', "Invalid value for 'nextToken': 23")
 
     def test_T5049_with_empty_filter(self):
@@ -133,39 +121,22 @@ class Test_DescribeTags(OscTestSuite):
     def test_T5050_with_incorrect_filter_type(self):
         try:
             self.a1_r1.fcu.DescribeTags(Filter='toto')
-            if get_export_value('OSC_USE_GATEWAY'):
-                known_error('GTW-1364', 'Incorrect filter should be an error')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if not get_export_value('OSC_USE_GATEWAY'):
-                assert_error(error, 500, 'InternalError', None)
-                known_error('TINA-5749', 'Unexpected internal error')
-                assert_error(error, 400, '', '')
+            assert_error(error, 500, 'InternalError', None)
+            known_error('TINA-5749', 'Unexpected internal error')
 
     def test_T5051_with_incorrect_filter_only_name(self):
-        try:
-            tags = self.a1_r1.fcu.DescribeTags(Filter=[{'Name': 'key'}]).response.tagSet
-            assert not tags
-            if get_export_value('OSC_USE_GATEWAY'):
-                assert False, 'Remove known error code'
-        except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY'):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1364', 'Missing error message')
+        tags = self.a1_r1.fcu.DescribeTags(Filter=[{'Name': 'key'}]).response.tagSet
+        assert not tags
 
     def test_T5052_with_incorrect_filter_only_value(self):
         try:
             self.a1_r1.fcu.DescribeTags(Filter=[{'Value': ['value1']}])
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY'):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1364', 'Missing error message')
-            else:
-                assert_error(error, 500, 'InternalError', None)
-                known_error('TINA-5749', 'Unexpected internal error')
+            assert_error(error, 500, 'InternalError', None)
+            known_error('TINA-5749', 'Unexpected internal error')
             assert_error(error, 400, '', '')
 
     def test_T5053_with_incorrect_filter_content(self):
@@ -173,13 +144,8 @@ class Test_DescribeTags(OscTestSuite):
             self.a1_r1.fcu.DescribeTags(Filter=[{'toto': 'resource-type', 'tutu': ['security-group']}])
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY'):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1364', 'Missing error message')
-            else:
-                assert_error(error, 500, 'InternalError', None)
-                known_error('TINA-5749', 'Unexpected internal error')
+            assert_error(error, 500, 'InternalError', None)
+            known_error('TINA-5749', 'Unexpected internal error')
             assert_error(error, 400, '', '')
 
     def test_T5054_with_filter_unknown_resource_type(self):
