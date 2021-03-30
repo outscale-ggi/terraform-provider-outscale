@@ -89,7 +89,7 @@ class Test_UpdateVolume(OscTestSuite):
                 break
             time.sleep(2)
         assert resp.Volumes[0].Size == NEW_SIZE
-        compare_validate_volumes(self.vol, resp.Volumes[0], Size=NEW_SIZE, State='available')
+        compare_validate_volumes(self.vol_ids['standard'], resp.Volumes[0], Size=NEW_SIZE, State='available')
 
     def test_T5233_without_params(self):
         try:
