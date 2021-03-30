@@ -52,7 +52,8 @@ class Test_min_max_behavior(OscTestSuite):
                 assert len(inst_ids) == int(kvm_selected.available_core / core_per_inst)
                 wait_instances_state(self.a1_r1, inst_ids, state='running')
                 ret = self.a1_r1.intel.instance.find(owner=self.a1_r1.config.account.account_id, state='running')
-                kvms = {[inst.servers[0].server for inst in ret.response.result]}
+                server_names = [inst.servers[0].server for inst in ret.response.result]
+                kvms = set(server_names)
                 assert len(kvms) == 1 and kvms.pop() == kvm_selected.name
             finally:
                 if inst_ids:
