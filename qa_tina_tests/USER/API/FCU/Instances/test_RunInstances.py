@@ -121,6 +121,7 @@ private_only=true
     def test_T3014_with_insufficient_quotas(self):
         inst_info = None
         self.quotas = {'gpu_limit': 2}
+        max_quota_value = None
         try:
             ret = self.a1_r1.icu.ReadQuotas()
             max_quota_value = ret.response.ReferenceQuota[0].Quotas[4].MaxQuotaValue
@@ -132,9 +133,10 @@ private_only=true
         finally:
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)
-            self.quotas = {'gpu_limit': max_quota_value}
-            for quota in self.quotas:
-                self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: self.quotas[quota]})
+            if max_quota_value:
+                self.quotas = {'gpu_limit': max_quota_value}
+                for quota in self.quotas:
+                    self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: self.quotas[quota]})
 
     def test_T3048_with_invalid_private_address(self):
         vpc_info = None
