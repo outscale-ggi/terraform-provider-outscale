@@ -13,6 +13,7 @@ from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
 from qa_test_tools.account_tools import delete_account, create_account
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
+from qa_sdk_pub import osc_api
 
 
 @pytest.mark.region_cloudtrace
