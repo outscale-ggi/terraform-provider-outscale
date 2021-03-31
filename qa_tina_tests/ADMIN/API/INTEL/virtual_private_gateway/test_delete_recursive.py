@@ -65,8 +65,10 @@ class Test_delete_recursive(OscTestSuite):
                 except:
                     print('Could not delete vpc')
             resp = self.a1_r1.fcu.DescribeVpnConnections().response
-            states = {[v.state for v in resp.vpnConnectionSet]}
+            tmp_list = [v.state for v in resp.vpnConnectionSet]
+            states = set(tmp_list)
             assert not resp.vpnConnectionSet or (len(states) == 1 and states.pop() == 'deleted')
             resp = self.a1_r1.fcu.DescribeVpnGateways().response
-            states = {[v.state for v in resp.vpnGatewaySet]}
+            tmp_list = [v.state for v in resp.vpnGatewaySet]
+            states = set(tmp_list)
             assert not resp.vpnGatewaySet or (len(states) == 1 and states.pop() == 'deleted')

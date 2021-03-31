@@ -82,7 +82,8 @@ class Test_create_snapshot_export_task(OscTestSuite):
                 error_wait = True
             if error_wait:
                 ret = self.a1_r1.fcu.DescribeSnapshotExportTasks(SnapshotExportTaskId=task_ids)
-                states = {[task.state for task in ret.response.snapshotExportTaskSet]}
+                tmp_list = [task.state for task in ret.response.snapshotExportTaskSet]
+                states = set(tmp_list)
                 pprint(states)
                 for task in ret.response.snapshotExportTask:
                     if task.state != 'completed' or task.completion != '100':
@@ -128,7 +129,8 @@ class Test_create_snapshot_export_task(OscTestSuite):
                 error_wait = True
             if error_wait:
                 ret = self.a1_r1.fcu.DescribeSnapshotExportTasks(SnapshotExportTaskId=task_ids)
-                states = {[task.state for task in ret.response.snapshotExportTaskSet]}
+                tmp_list = [task.state for task in ret.response.snapshotExportTaskSet]
+                states = set(tmp_list)
                 pprint(states)
                 for task in ret.response.snapshotExportTask:
                     if task.state != 'completed' or task.completion != '100':
