@@ -51,26 +51,31 @@ class Test_ReadMasterKeys(OKMS):
         descriptions = ['description0', 'description2']
         ret = self.a1_r1.oapi.ReadMasterKeys(Filters={'Descriptions': descriptions})
         assert len(ret.response.MasterKeys) == 2
-        assert {[key.Description for key in ret.response.MasterKeys]} == {descriptions}
+        tmp_list = [key.Description for key in ret.response.MasterKeys]
+        assert set(tmp_list) == set(descriptions)
 
     def test_T5198_with_filter_keyid(self):
         keyids = [self.key_ids[0], self.key_ids[2]]
         ret = self.a1_r1.oapi.ReadMasterKeys(Filters={'MasterKeyIds': keyids})
         assert len(ret.response.MasterKeys) == 2
-        assert {[key.MasterKeyId for key in ret.response.MasterKeys]} == {keyids}
+        tmp_list = [key.MasterKeyId for key in ret.response.MasterKeys]
+        assert set(tmp_list) == set(keyids)
 
     def test_T5199_with_filter_states(self):
         states = ['disabled', 'pending/deletion']
         ret = self.a1_r1.oapi.ReadMasterKeys(Filters={'States': states})
         assert len(ret.response.MasterKeys) == self.disabled_num + self.deleted_num
-        assert {[key.State for key in ret.response.MasterKeys]} == {states}
+        tmp_list = [key.State for key in ret.response.MasterKeys]
+        assert set(tmp_list) == set(states)
 
     def test_T5200_with_filter_two_criteria(self):
         states = ['disabled', 'pending/deletion']
         descriptions = ['description0', 'description2']
         ret = self.a1_r1.oapi.ReadMasterKeys(Filters={'States': states, 'Descriptions': descriptions})
         assert len(ret.response.MasterKeys) == 2
-        assert {[key.MasterKeyId for key in ret.response.MasterKeys]} == {[self.key_ids[0], self.key_ids[2]]}
+        tmp_list1 = [key.MasterKeyId for key in ret.response.MasterKeys]
+        tmp_list2 = [self.key_ids[0], self.key_ids[2]]
+        assert set(tmp_list1) == set(tmp_list2)
 
     def test_T5201_with_invalid_filter(self):
         try:

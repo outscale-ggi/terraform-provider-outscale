@@ -119,7 +119,8 @@ class FgpuLifeCycle(OscTestSuite):
         reserved_fgpu_error = (num_fgpus != reserved_fgpu)
         gpu_in_use_error = (num_used_gpus != gpu_in_use + self.num_gpus)
 
-        states = {[fgpu.state for fgpu in ret2.response.result.flexible_gpus]}
+        tmp_list = [fgpu.state for fgpu in ret2.response.result.flexible_gpus]
+        states = set(tmp_list)
         fgpu_state_error = fgpu_state and (len(states) != 1 or fgpu_state not in states)
 
         if reserved_fgpu_error or gpu_in_use_error or fgpu_state_error:

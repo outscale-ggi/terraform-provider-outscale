@@ -6,8 +6,10 @@ def verify_response(response):
     for reg in response.Regions:
         assert hasattr(reg, 'RegionName'), "Missing attribute 'regionName' in response"
         assert hasattr(reg, 'Endpoint'), "Missing attribute 'regionEndpoint' in response"
-    assert len(response.Regions) == len({[reg.RegionName for reg in response.Regions]}), "Duplicate(s) in region names"
-    assert len(response.Regions) == len({[reg.Endpoint for reg in response.Regions]}), 'Duplicate(s) in region endpoints'
+    region_names = [reg.RegionName for reg in response.Regions]
+    region_endpoints = [reg.Endpoint for reg in response.Regions]
+    assert len(response.Regions) == len(set(region_names)), "Duplicate(s) in region names"
+    assert len(response.Regions) == len(set(region_endpoints)), 'Duplicate(s) in region endpoints'
 
 
 class Test_ReadRegions(OscTestSuite):

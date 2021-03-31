@@ -7,7 +7,7 @@ import time
 import pytest
 
 from qa_sdk_common.config import DefaultAccount, DefaultRegion
-from qa_sdk_pub.osc_api import AuthMethod
+from qa_sdk_pub import osc_api
 from qa_sdk_pub.osc_api import DefaultPubConfig
 from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
 from qa_test_tools.account_tools import delete_account, create_account
@@ -72,7 +72,8 @@ class Test_NoSecretInLogs(OscTestSuite):
                                       region=DefaultRegion(name=self.a1_r1.config.region.name))
             icu = OscIcuApi(service='icu', config=config)
             new_password = id_generator(size=20)
-            icu.ResetAccountPassword(auth=AuthMethod.Empty, Token=rettoken.response.passwordToken, Password=new_password)
+            icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
+                                     Token=rettoken.response.passwordToken, Password=new_password)
             time.sleep(15)
             # TODO: filter by request_id
             ret = self.a1_r1.oapi.ReadApiLogs()
@@ -110,7 +111,7 @@ class Test_NoSecretInLogs(OscTestSuite):
 
     @pytest.mark.tag_sec_confidentiality
     def test_T4325_check_no_password_in_icu_logs_with_password_authent(self):
-        ret = self.a1_r1.icu.ListAccessKeys(auth=AuthMethod.LoginPassword)
+        ret = self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
         self.logger.debug(ret.response.display())
         time.sleep(15)
         # TODO: filter by request_id
