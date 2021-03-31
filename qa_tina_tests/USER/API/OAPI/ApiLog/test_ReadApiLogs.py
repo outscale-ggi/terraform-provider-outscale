@@ -2,20 +2,13 @@ import time
 from datetime import datetime, timedelta
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-<<<<<<< Upstream, based on origin/TINA-2.5.18
 from qa_test_tools import misc
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator
-=======
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator,\
     assert_error
->>>>>>> 65e4aca add new tests
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tina.info_keys import PUBLIC
-<<<<<<< Upstream, based on origin/TINA-2.5.18
 from qa_tina_tools.tools.tina.create_tools import generate_key
-=======
 from qa_sdk_pub import osc_api
->>>>>>> 65e4aca add new tests
 
 param = [
     'AccountId',
@@ -195,9 +188,9 @@ class Test_ReadApiLogs(OscTestSuite):
         except Exception as error:
             misc.assert_oapi_error(error, 404, 'InvalidAction', 12000)
         time.sleep(20)
-        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409, 401, 200, 200]}, ResultsPerPage=1000)
+        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409, 200]}, ResultsPerPage=1000)
         assert len(ret.response.Logs) != 0
-        assert {409, 401, 200, 200} == {call.ResponseStatusCode for call in ret.response.Logs}
+        assert {409, 200} == {call.ResponseStatusCode for call in ret.response.Logs}
 
     def test_T3214_valid_filter_QueryDateBefore(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateBefore': (datetime.utcnow()).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
