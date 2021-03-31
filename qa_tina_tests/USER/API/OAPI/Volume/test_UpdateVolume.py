@@ -165,13 +165,13 @@ class Test_UpdateVolume(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4135')
 
     def test_T5241_with_lower_size(self):
-        try:
-            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=1)
-            known_error('TINA-6368', 'Regression UpdateVolume')
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            assert False, 'Remove known error'
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
+        ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=1)
+        time.sleep(60)
+        resp = self.a1_r1.oapi.ReadVolumes(Filters={'VolumeIds': [ret.response.Volume.VolumeId]}).response
+        if resp.Volumes[0].Size != 1:
+            known_error('TINA-6368', 'UpdateVolume ..')
+        assert False, 'Remove known error'
+        assert resp.Volumes[0].Size == 4
 
     @pytest.mark.tag_sec_confidentiality
     def test_T5242_from_another_account(self):
@@ -297,16 +297,17 @@ class Test_UpdateVolume(OscTestSuite):
 
     def test_T5604_with_iops_hot_vol_running_vm(self):
         linked = None
+        new_iops = 200
         try:
             linked = self.a1_r1.oapi.LinkVolume(VolumeId=self.vol_ids['io1'], VmId=self.vm_info.VmId, DeviceName='/dev/xvdc')
             wait_Volumes_state(self.a1_r1, [self.vol_ids['io1']], 'in-use')
-            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['io1'], Iops=200)
-            known_error('TINA-6366', 'UpdateVolume')
-            assert False, 'Call should not have been successful'
-
-        except OscApiException as error:
-            assert False, 'Remove known error'
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['io1'], Iops=new_iops)
+            time.sleep(60)
+            resp = self.a1_r1.oapi.ReadVolumes(Filters={'VolumeIds': [ret.response.Volume.VolumeId]}).response
+            assert resp.Volumes[0].Iops == new_iops
+            assert resp.Volumes[0].Size == 4
+            assert resp.Volumes[0].State == 'in-use'
+            assert resp.Volumes[0].VolumeType == 'io1'
 
         finally:
             if linked:
