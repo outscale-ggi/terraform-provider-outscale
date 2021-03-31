@@ -13,8 +13,8 @@ class Test_StopInstances(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_StopInstances, cls).setup_class()
         cls.info = None
+        super(Test_StopInstances, cls).setup_class()
 
     @classmethod
     def teardown_class(cls):
