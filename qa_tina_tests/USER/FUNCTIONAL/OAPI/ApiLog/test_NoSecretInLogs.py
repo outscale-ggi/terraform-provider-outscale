@@ -7,13 +7,12 @@ import time
 import pytest
 
 from qa_sdk_common.config import DefaultAccount, DefaultRegion
-from qa_sdk_pub.osc_api import AuthMethod
+from qa_sdk_pub import osc_api
 from qa_sdk_pub.osc_api import DefaultPubConfig
 from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
 from qa_test_tools.account_tools import delete_account, create_account
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
-from qa_sdk_pub import osc_api
 
 
 @pytest.mark.region_cloudtrace
