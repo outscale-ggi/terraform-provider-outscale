@@ -54,11 +54,9 @@ class Test_UpdateAccount(OscTestSuite):
             self.a1_r1.icu.UpdateAccount(Password=passwd)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'PasswordPolicyViolation', 'Password strength score (0) is too low: at least 4 out '
-                                                                'of 4 level is expected. Warning: Repeats like '
-                                                                '"abcabcabc" are only slightly harder to guess than '
-                                                                '"abc".. Suggestions: [Add another word or two. Uncommon'
-                                                                ' words are better.|Avoid repeated words and characters.]')
+            assert_error(error, 400, 'PasswordPolicyViolation', 'Password strength score (1) is too low: at least 4 '
+                                                                'out of 4 level is expected. Suggestions: [Add another word or two.'
+                                                                ' Uncommon words are better.]')
 
     def test_T4317_with_password(self):
         ret = self.a1_r1.icu.UpdateAccount(Password=id_generator(size=20))
