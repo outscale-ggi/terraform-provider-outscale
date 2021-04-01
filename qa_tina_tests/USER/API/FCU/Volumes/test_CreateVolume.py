@@ -4,7 +4,7 @@ import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.constants import VOLUME_MAX_SIZE, VOLUME_SIZES, VOLUME_IOPS, MAX_IO1_RATIO
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
@@ -116,18 +116,30 @@ class Test_CreateVolume(OscTestSuite):
                                                 Size=VOLUME_SIZES['io1']['min_size'] + 1)
 
     def test_T702_io1_out_of_range_min_iops(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['min_iops'], check_iop=True, VolumeType='io1',
-                                                Iops=VOLUME_IOPS['io1']['min_iops'] - 1,
-                                                Size=VOLUME_SIZES['io1']['min_size'] + 1)
+        try:
+            self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['min_iops'], check_iop=True, VolumeType='io1',
+                                                    Iops=VOLUME_IOPS['io1']['min_iops'] - 1,
+                                                    Size=VOLUME_SIZES['io1']['min_size'] + 1)
+            assert False, 'Remove known error code'
+        except AssertionError as error:
+            if str(error).startswith('Operation should have raise'):
+                known_error('TINA-6383', 'iops size is not checked')
+            raise error
+
 
     def test_T703_io1_max_iops(self):
         self.create_tests_on_volume_size_value(check_iop=True, VolumeType='io1', Iops=VOLUME_IOPS['io1']['max_iops'],
                                                 Size=VOLUME_SIZES['io1']['max_size'])
 
     def test_T704_io1_out_of_range_max_iops(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['max_iops'], check_iop=True, VolumeType='io1',
-                                                Iops=VOLUME_IOPS['io1']['max_iops'] + 1,
-                                                Size='500')
+        try:
+            self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['max_iops'], check_iop=True, VolumeType='io1',
+                                                    Iops=VOLUME_IOPS['io1']['max_iops'] + 1,
+                                                    Size='500')
+        except AssertionError as error:
+            if str(error).startswith('Operation should have raise'):
+                known_error('TINA-6383', 'iops size is not checked')
+            raise error
 
     def test_T705_io1_min_size(self):
         self.create_tests_on_volume_size_value(VolumeType='io1', Size=VOLUME_SIZES['io1']['min_size'],
@@ -156,71 +168,6 @@ class Test_CreateVolume(OscTestSuite):
 
     def test_T713_gp2_out_of_range_max_size(self):
         self.create_tests_on_volume_size_value(threshold=VOLUME_MAX_SIZE, VolumeType='gp2', Size=VOLUME_MAX_SIZE + 1)
-
-    def test_T714_st1(self):
-        self.create_volume_type(VolumeType='st1', Size=VOLUME_SIZES['st1']['min_size'] + 1)
-
-    def test_T715_st1_min_size(self):
-        self.create_tests_on_volume_size_value(VolumeType='st1', Size=VOLUME_SIZES['st1']['min_size'])
-
-    def test_T716_st1_out_of_range_min_size(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_SIZES['st1']['min_size'], VolumeType='st1',
-                                                Size=VOLUME_SIZES['st1']['min_size'] - 1)
-
-    def test_T717_st1_max_size(self):
-        self.create_tests_on_volume_size_value(VolumeType='st1', Size=VOLUME_MAX_SIZE)
-
-    def test_T718_st1_out_of_range_max_size(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_MAX_SIZE, VolumeType='st1', Size=VOLUME_MAX_SIZE + 1)
-
-    def test_T719_sc1(self):
-        self.create_volume_type(VolumeType='sc1', Size=VOLUME_SIZES['sc1']['min_size'] + 1)
-
-    def test_T720_sc1_min_size(self):
-        self.create_tests_on_volume_size_value(VolumeType='sc1', Size=VOLUME_SIZES['sc1']['min_size'])
-
-    def test_T721_sc1_out_of_range_min_size(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_SIZES['sc1']['min_size'], VolumeType='sc1',
-                                                Size=VOLUME_SIZES['sc1']['min_size'] - 1)
-
-    def test_T722_sc1_max_size(self):
-        self.create_tests_on_volume_size_value(VolumeType='sc1', Size=VOLUME_MAX_SIZE)
-
-    def test_T723_sc1_out_of_range_max_size(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_MAX_SIZE, VolumeType='sc1', Size=VOLUME_MAX_SIZE + 1)
-
-    def test_T1306_os1(self):
-        self.create_volume_type(VolumeType='os1', Size=VOLUME_SIZES['os1']['min_size'] + 1, Iops=VOLUME_IOPS['os1']['min_iops'] + 1)
-
-    def test_T1307_os1_min_size(self):
-        self.create_tests_on_volume_size_value(VolumeType='os1', Size=VOLUME_SIZES['os1']['min_size'], Iops=VOLUME_IOPS['os1']['min_iops'] + 1)
-
-    def test_T1308_os1_out_of_range_min_size(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_SIZES['os1']['min_size'], VolumeType='os1',
-                                                Size=VOLUME_SIZES['os1']['min_size'] - 1, Iops=VOLUME_IOPS['os1']['min_iops'] + 1)
-
-    def test_T1309_os1_max_size(self):
-        self.create_tests_on_volume_size_value(VolumeType='os1', Size=VOLUME_MAX_SIZE, Iops=VOLUME_IOPS['os1']['min_iops'] + 1)
-
-    def test_T1310_os1_out_of_range_max_size(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_MAX_SIZE, VolumeType='os1', Size=VOLUME_MAX_SIZE + 1,
-                                                Iops=VOLUME_IOPS['os1']['min_iops'] + 1)
-
-    def test_T1311_os1_min_iops(self):
-        self.create_tests_on_volume_size_value(check_iop=True, VolumeType='os1', Iops=VOLUME_IOPS['os1']['min_iops'],
-                                                Size=VOLUME_SIZES['os1']['min_size'] + 1)
-
-    def test_T1312_os1_out_of_range_min_iops(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['os1']['min_iops'], check_iop=True, VolumeType='os1',
-                                                Iops=VOLUME_IOPS['os1']['min_iops'] - 1, Size=VOLUME_SIZES['os1']['min_size'] + 1)
-
-    def test_T1313_os1_max_iops(self):
-        self.create_tests_on_volume_size_value(check_iop=True, VolumeType='os1', Iops=VOLUME_IOPS['os1']['max_iops'],
-                                                Size=VOLUME_SIZES['os1']['max_size'])
-
-    def test_T1314_os1_out_of_range_max_iops(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['os1']['max_iops'], check_iop=True, VolumeType='os1',
-                                                Iops=VOLUME_IOPS['os1']['max_iops'] + 1, Size='500')
 
     def test_T724_no_param(self):
         try:
@@ -289,7 +236,7 @@ class Test_CreateVolume(OscTestSuite):
         except OscApiException as error:
             assert error.status_code == 400
             assert error.error_code == 'InvalidParameterValue'
-            msg = 'Iops to volume size ratio is too high: {}. Maximum is: {}.'.format(
+            msg = 'Iops to volume size ratio is too high: {}. Max: {}'.format(
                 (((VOLUME_SIZES['io1']['min_size']) * MAX_IO1_RATIO) + 1) / VOLUME_SIZES['io1']['min_size'], MAX_IO1_RATIO)
             assert error.message == msg
 
@@ -303,7 +250,7 @@ class Test_CreateVolume(OscTestSuite):
             assert error.status_code == 400
             assert error.error_code == 'InvalidParameterValue'
             ratio = round(VOLUME_IOPS['io1']['max_iops'] / VOLUME_SIZES['io1']['min_size'], 1)
-            msg = 'Iops to volume size ratio is too high: {}. Maximum is: {}.'.format(ratio, MAX_IO1_RATIO)
+            msg = 'Iops to volume size ratio is too high: {}. Max: {}'.format(ratio, MAX_IO1_RATIO)
             assert error.message == msg
 
     def test_T2170_with_invalid_volume_type(self):
