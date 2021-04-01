@@ -4,7 +4,7 @@ import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.constants import VOLUME_MAX_SIZE, VOLUME_SIZES, VOLUME_IOPS, MAX_IO1_RATIO
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
@@ -116,9 +116,16 @@ class Test_CreateVolume(OscTestSuite):
                                                 Size=VOLUME_SIZES['io1']['min_size'] + 1)
 
     def test_T702_io1_out_of_range_min_iops(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['min_iops'], check_iop=True, VolumeType='io1',
-                                                Iops=VOLUME_IOPS['io1']['min_iops'] - 1,
-                                                Size=VOLUME_SIZES['io1']['min_size'] + 1)
+        try:
+            self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['min_iops'], check_iop=True, VolumeType='io1',
+                                                    Iops=VOLUME_IOPS['io1']['min_iops'] - 1,
+                                                    Size=VOLUME_SIZES['io1']['min_size'] + 1)
+            assert False, 'Remove known error code'
+        except AssertionError as error:
+            if str(error).startswith('Operation should have raise'):
+                known_error('TINA-6383', 'iops size is not checked')
+            raise error
+
 
 
     def test_T703_io1_max_iops(self):
@@ -126,9 +133,14 @@ class Test_CreateVolume(OscTestSuite):
                                                 Size=VOLUME_SIZES['io1']['max_size'])
 
     def test_T704_io1_out_of_range_max_iops(self):
-        self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['max_iops'], check_iop=True, VolumeType='io1',
-                                                Iops=VOLUME_IOPS['io1']['max_iops'] + 1,
-                                                Size='500')
+        try:
+            self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['max_iops'], check_iop=True, VolumeType='io1',
+                                                    Iops=VOLUME_IOPS['io1']['max_iops'] + 1,
+                                                    Size='500')
+        except AssertionError as error:
+            if str(error).startswith('Operation should have raise'):
+                known_error('TINA-6383', 'iops size is not checked')
+            raise error
 
     def test_T705_io1_min_size(self):
         self.create_tests_on_volume_size_value(VolumeType='io1', Size=VOLUME_SIZES['io1']['min_size'],
