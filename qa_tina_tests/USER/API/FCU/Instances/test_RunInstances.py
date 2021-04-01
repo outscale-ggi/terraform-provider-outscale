@@ -102,7 +102,7 @@ private_only=true
                                                                            'DeleteOnTermination': True,
                                                                            'Iops': 20000}}])
         except OscApiException as err:
-            assert_error(err, 400, 'InvalidParameterValue', 'Invalid IOPS, min_iops: 100, max_iops: 13000')
+            assert_error(err, 400, 'InvalidParameterValue', 'Invalid IOPS: 20000 Min: 100 Max: 13000')
         finally:
             if ret:
                 self.a1_r1.fcu.TerminateInstances(ret.response.instancesSet[0].instanceID)
