@@ -32,7 +32,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         interface = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         try:
             self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
-                                                                interface=interface)
+                                                                newPrivateVirtualInterface=interface)
         except OscApiException as error:
             assert_error(error, 400, "DirectConnectClientException", "Connection is not available")
 
@@ -43,7 +43,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         try:
             self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
             interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
-                                                                                 interface=interface)
+                                                                                 newPrivateVirtualInterface=interface)
             assert interface_info.response.amazonAddress
             assert interface_info.response.asn == 11111
             assert interface_info.response.connectionId == self.conn_id
@@ -65,7 +65,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         try:
             self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id)
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Field interface is required")
+            assert_error(error, 400, "DirectConnectClientException", "Field newPrivateVirtualInterface is required")
 
     @pytest.mark.region_directlink
     def test_T4660_without_connectionId(self):
@@ -79,36 +79,39 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         interface = {'asn': '11111', 'virtualInterfaceName': 'test', 'vlan': 's'}
         try:
             self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
-                                                                interface=interface)
+                                                                newPrivateVirtualInterface=interface)
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Invalid type, interface.vlan must be an integer")
+            assert_error(error, 400, "DirectConnectClientException",
+                         "Invalid type, newPrivateVirtualInterface.vlan must be an integer")
 
     @pytest.mark.region_directlink
     def test_T4662_invalid_asn(self):
         interface = {'asn': '11111', 'virtualInterfaceName': 'test', 'vlan': 1}
         try:
             self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
-                                                                interface=interface)
+                                                                newPrivateVirtualInterface=interface)
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Invalid type, interface.asn must be an integer")
+            assert_error(error, 400, "DirectConnectClientException",
+                         "Invalid type, newPrivateVirtualInterface.asn must be an integer")
 
     @pytest.mark.region_directlink
     def test_T4663_invalid_virtualInterfaceName(self):
         interface = {'asn': '11111', 'virtualInterfaceName': 123, 'vlan': 1}
         try:
             self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
-                                                                interface=interface)
+                                                                newPrivateVirtualInterface=interface)
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Invalid type, interface.virtualInterfaceName must be a string")
+            assert_error(error, 400, "DirectConnectClientException",
+                         "Invalid type, newPrivateVirtualInterface.virtualInterfaceName must be a string")
 
     @pytest.mark.region_directlink
     def test_T5367_with_existing_virtual_interface(self):
         interface = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
-                                                                             interface=interface)
+                                                                             newPrivateVirtualInterface=interface)
         try:
             interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
-                                                                                 interface=interface)
+                                                                                 newPrivateVirtualInterface=interface)
         except OscApiException as error:
             if error.message == "Internal Error" and error.status_code == 500:
                 known_error("TINA-6132" , "Virtual interface : Error message")
