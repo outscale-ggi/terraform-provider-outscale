@@ -129,7 +129,9 @@ class Test_UpdateAccessKey(OscTestSuite):
             ak_id_account = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
             self.a1_r1.eim.UpdateAccessKey(AccessKeyId=ak_id_account, Status='Inactive')
             ret = self.a1_r1.eim.ListAccessKeys().response.ListAccessKeysResult
-            assert ret.AccessKeyMetadata[-1].Status == "Inactive"
+            for meta in ret.AccessKeyMetadata:
+                if meta.AccessKeyId == ak_id_account:
+                    assert meta.Status == "Inactive"
         finally:
             if ak_id_account:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak_id_account)
