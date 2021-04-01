@@ -240,15 +240,15 @@ class Test_CreateListenerRule(OscTestSuite):
                 self.a1_r1.icu.DeleteListenerRule(RuleName=ret.response.ListenerRule.ListenerRuleDescription.RuleName)
 
     def test_T1845_incorrect_content_lrd_pathpattern(self):
-        msg = r'Invalid value received for \'PathPattern\': ;.com. Supported patterns: ^[\w\_\-\.\$\/\~\\\"\\\'\@\:\+\&\*\?]{,128}$'
+        msg = r"Invalid value received for 'PathPattern': ;.com. Supported patterns: ^[\w\_\-\.\$\/\~\"\'\@\:\+\&\*\?]{,128}$"
         self.check_error(400, 'InvalidParameterValue', msg, list_rule_desc={'RuleName': self.rule_name, 'Priority': 100, 'PathPattern': ';.com'})
         self.check_error(400, 'InvalidParameterValue',
-                         'Invalid value received for \'PathPattern\': *.abc.*.abc.*.abc.*.com. Max wildcards supported: 3',
+                         "Invalid value received for 'PathPattern': *.abc.*.abc.*.abc.*.com. Max wildcards supported: 3",
                          list_rule_desc={'RuleName': self.rule_name, 'Priority': 100, 'PathPattern': "*.abc.*.abc.*.abc.*.com"})
         self.check_error(400, 'InvalidParameterValue',
                          ("Invalid value received for 'PathPattern': 12345678901234567890123456789012345678901234567890123456789"
                           "01234567890123456789012345678901234567890123456789012345678901234567890. Supported patterns:"
-                          r" ^[\w\_\-\.\$\/\~\\\"\\\'\@\:\+\&\*\?]{,128}$"),
+                          r" ^[\w\_\-\.\$\/\~\"\'\@\:\+\&\*\?]{,128}$"),
                          list_rule_desc={'RuleName': self.rule_name, 'Priority': 100, 'PathPattern': "1234567890" * 13})
 
     def test_T1846_valid_lrd_pathpattern(self):
