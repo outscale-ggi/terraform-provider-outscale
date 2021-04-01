@@ -2,7 +2,7 @@ import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST
@@ -59,6 +59,8 @@ class Test_StopInstances(OscTestSuite):
         assert len(ret.response.instancesSet) == len(inst_id_list)
         assert ret.response.instancesSet[0].instanceId == inst_id_list[0]
         assert ret.response.instancesSet[0].previousState.name == 'running'
+        assert ret.response.instancesSet[0].currentState.name == 'running'
+        known_error('TINA-6382', 'Current state is running instead of stopping')
         assert ret.response.instancesSet[0].currentState.name == 'stopping'
         # Instance maybe stays in shutting-down state, we force stop before cleanup
         self.a1_r1.fcu.StopInstances(InstanceId=inst_id_list, Force=True)
@@ -71,6 +73,8 @@ class Test_StopInstances(OscTestSuite):
         assert len(ret.response.instancesSet) == len(inst_id_list)
         assert ret.response.instancesSet[0].instanceId == inst_id_list[0]
         assert ret.response.instancesSet[0].previousState.name == 'running'
+        assert ret.response.instancesSet[0].currentState.name == 'running'
+        known_error('TINA-6382', 'Current state is running instead of stopping')
         assert ret.response.instancesSet[0].currentState.name == 'stopping'
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=inst_id_list, state='stopped')
 
@@ -89,6 +93,8 @@ class Test_StopInstances(OscTestSuite):
         assert len(ret.response.instancesSet) == len(inst_id_list)
         assert ret.response.instancesSet[0].instanceId == inst_id_list[0]
         assert ret.response.instancesSet[0].previousState.name == 'running'
+        assert ret.response.instancesSet[0].currentState.name == 'running'
+        known_error('TINA-6382', 'Current state is running instead of stopping')
         assert ret.response.instancesSet[0].currentState.name == 'stopping'
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=inst_id_list, state='stopped')
 
@@ -136,6 +142,8 @@ class Test_StopInstances(OscTestSuite):
         assert len(ret.response.instancesSet) == len(inst_id_list)
         assert ret.response.instancesSet[0].instanceId == inst_id_list[0]
         assert ret.response.instancesSet[0].previousState.name == 'running'
+        assert ret.response.instancesSet[0].currentState.name == 'running'
+        known_error('TINA-6382', 'Current state is running instead of stopping')
         assert ret.response.instancesSet[0].currentState.name == 'stopping'
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=inst_id_list, state='stopped')
 
@@ -166,6 +174,8 @@ class Test_StopInstances(OscTestSuite):
         for inst in ret.response.instancesSet:
             assert inst.instanceId in inst_id_list
             assert inst.previousState.name == 'running'
+            assert inst.currentState.name == 'running'
+            known_error('TINA-6382', 'Current state is running instead of stopping')
             assert inst.currentState.name == 'stopping'
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=inst_id_list, state='stopped')
 
