@@ -139,8 +139,6 @@ class Test_DescribeSecurityGroups(OscTestSuite):
             self.a1_r1.fcu.DescribeSecurityGroups(GroupName=self.sg_names)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_error(error, 500, "InternalError", None)
-            known_error('TINA-6072', 'Unexpected internal error')
             assert_error(error, 400, "InvalidGroup.NotFound", None)
 
     def test_T5410_with_public_group_name_and_id(self):
@@ -148,8 +146,6 @@ class Test_DescribeSecurityGroups(OscTestSuite):
             self.a1_r1.fcu.DescribeSecurityGroups(GroupId=self.pub_sg_ids, GroupName=self.sg_names[0:1])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_error(error, 500, "InternalError", None)
-            known_error('TINA-6072', 'Unexpected internal error')
             assert_error(error, 400, "InvalidGroup.NotFound", None)
 
     def test_T5411_with_private_group_name_and_id(self):
@@ -167,8 +163,6 @@ class Test_DescribeSecurityGroups(OscTestSuite):
             self.a1_r1.fcu.DescribeSecurityGroups(GroupId=ids, GroupName=self.sg_names)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_error(error, 500, "InternalError", None)
-            known_error('TINA-6072', 'Unexpected internal error')
             assert_error(error, 400, "InvalidGroup.NotFound", None)
 
     # filters (from documentation)
