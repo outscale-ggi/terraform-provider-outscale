@@ -165,13 +165,11 @@ class Test_UpdateVolume(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4135')
 
     def test_T5241_with_lower_size(self):
-        ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=1)
-        time.sleep(60)
-        resp = self.a1_r1.oapi.ReadVolumes(Filters={'VolumeIds': [ret.response.Volume.VolumeId]}).response
-        if resp.Volumes[0].Size != 1:
-            known_error('TINA-6368', 'UpdateVolume ..')
-        assert False, 'Remove known error'
-        assert resp.Volumes[0].Size == 4
+        try:
+            self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=1)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4135')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T5242_from_another_account(self):
