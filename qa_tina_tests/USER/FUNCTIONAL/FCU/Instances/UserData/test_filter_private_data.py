@@ -13,7 +13,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 @pytest.mark.region_admin
 class Test_filter_private_data(OscTestSuite):
 
-
     def test_T5579_filter_private_data(self):
 
         user_data = '-----BEGIN OUTSCALE SECTION-----\nfilter_private_section=true\n-----END OUTSCALE SECTION-----\nThis is some public data'
@@ -29,7 +28,7 @@ class Test_filter_private_data(OscTestSuite):
             out, _, _ = SshTools.exec_command_paramiko(sshclient, 'curl http://169.254.169.254/latest/user-data', decode=True)
 
             print(out)
-            assert False, 'TODO, Check output'
+            assert out == 'This is some public data'
 
         finally:
             if inst_info:
