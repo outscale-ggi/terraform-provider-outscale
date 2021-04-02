@@ -114,10 +114,9 @@ class Test_AuthorizeSecurityGroupIngress(OscTestSuite):
         try:
             sg1_id = self.a1_r1.fcu.CreateSecurityGroup(VpcId=self.vpc_info[VPC_ID], GroupDescription=sg1_name, GroupName=sg1_name).response.groupId
             sg2_id = self.a1_r1.fcu.CreateSecurityGroup(VpcId=self.vpc_info[VPC_ID], GroupDescription=sg2_name, GroupName=sg2_name).response.groupId
-            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg2_id, SourceSecurityGroupid=sg1_id)
+            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg2_id, IpPermissions=[{'Groups': [{'GroupId': sg1_id}]}])
             ret = self.a1_r1.fcu.DescribeSecurityGroups(GroupId=[sg2_id])
-            for i in range(3):
-                assert ret.response.securityGroupInfo[0].ipPermissions[i].groups[0].groupId == sg1_id
+            assert ret.response.securityGroupInfo[0].ipPermissions[0].groups[0].groupId == sg1_id
         finally:
             if sg2_id:
                 try:
