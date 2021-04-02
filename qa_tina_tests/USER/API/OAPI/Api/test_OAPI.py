@@ -3,6 +3,7 @@ import datetime
 import json
 import re
 import subprocess
+from packaging import version
 
 import pytest
 
@@ -115,6 +116,7 @@ class Test_OAPI(OscTestSuite):
         result = subprocess.check_output(batcmd, shell=True)
         result2 = json.loads(result)
         assert 'Version' in result2 and result1['Versions'][0] == "v" + result2['Version'][0]
+        assert version.parse(result2['Version']) == self.version
         assert len(DOCUMENTATIONS['oapi'][self.version][PATHS]) == len(result2['Calls'])
         for call in result2['Calls']:
             assert '/' + call in DOCUMENTATIONS['oapi'][self.version][PATHS]

@@ -64,9 +64,12 @@ class Test_get_accounts(OscTestSuite):
             assert_error(error, 200, '', '')
 
     def test_T5569_with_valid_statuses(self):
-        self.a1_r1.xsub.get_accounts(statuses=['ACTIVE', 'FROZEN'])
-        pytest.fail("TODO check output")
+        ret = self.a1_r1.xsub.get_accounts(statuses=['ACTIVE', 'FROZEN'])
+        for account in ret.response.result.accounts:
+            assert account.status in ['ACTIVE', 'FROZEN']
 
     def test_T5570_with_valid_usernames(self):
-        self.a1_r1.xsub.get_accounts(statuses=[self.a1_r1.config.account.account_id])
-        pytest.fail("TODO check output")
+        ret = self.a1_r1.xsub.get_accounts(usernames=[self.a1_r1.config.account.account_id])
+        assert len(ret.response.result.accounts) == 1
+        assert ret.response.result.accounts[0].username == self.a1_r1.config.account.account_id
+        assert ret.response.result.accounts[0].status == 'ACTIVE'
