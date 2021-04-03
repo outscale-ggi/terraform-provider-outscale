@@ -32,6 +32,7 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
     def test_T5259_valid_params(self):
         self.my_setup()
         ret = self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=self.api_access_rule_id)
+        self.api_access_rule_id = None
         ret.check_response()
 
     def test_T5260_unknown_id(self):
