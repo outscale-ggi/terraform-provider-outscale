@@ -77,12 +77,12 @@ class Test_CreateClientGateway(OscTestSuite):
             self.a1_r1.oapi.CreateClientGateway(BgpAsn=0, PublicIp='2001:0db8:0000:85a3:0000:0000:ac1f:8001', ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
         try:
             self.a1_r1.oapi.CreateClientGateway(BgpAsn=0, PublicIp='241.491.144.2', ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
 
     def test_T3314_valid_case(self):
         ret = self.a1_r1.oapi.CreateClientGateway(
