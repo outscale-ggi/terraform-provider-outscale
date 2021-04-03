@@ -31,7 +31,7 @@ class Test_CreateDhcpOptions(OscTestSuite):
             self.a1_r1.oapi.CreateDhcpOptions()
             assert False, "Not supposed to succeed"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7006')
 
     def test_T2864_with_invalid_value_domain_name_servers(self):
         try:
@@ -91,7 +91,7 @@ class Test_CreateDhcpOptions(OscTestSuite):
             validate_dhcp_options(ret, expected_dhcp={'DomainName': self.default_domain_name, 'NtpServers': ntp_servers,
                                                       'DomainNameServers': ['OutscaleProvidedDNS'], 'Default': False})
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
 
     def test_T2871_with_multiple_ntp_servers(self):
         ntp_servers = [Configuration.get('ntp_servers', 'fr1'), Configuration.get('ntp_servers', 'fr2'),
@@ -117,7 +117,7 @@ class Test_CreateDhcpOptions(OscTestSuite):
             self.add_to_dhcp_list(ret=ret)
             assert False, "Not supposed to succeed"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
 
     def test_T2874_all_param(self):
         ntp_servers = [Configuration.get('ntp_servers', 'fr1')]
