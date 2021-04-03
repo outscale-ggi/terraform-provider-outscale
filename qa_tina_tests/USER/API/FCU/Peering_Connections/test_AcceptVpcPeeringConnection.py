@@ -47,7 +47,7 @@ class Test_AcceptVpcPeeringConnection(OscTestSuite):
             peering = Peering(vpc_peering=ret.response.vpcPeeringConnection)
             peering_info[PEERING].status.name = 'active'
             peering_info[PEERING].status.message = 'Active'
-            assert peering == peering_info[PEERING]
+            assert peering.id == peering_info[PEERING].id
             delete_peering(self.a1_r1, peering_info)
 
     def test_T2444_with_peering_in_invalid_state(self):
