@@ -117,7 +117,11 @@ class Test_OAPI(OscTestSuite):
         result2 = json.loads(result)
         assert 'Version' in result2 and result1['Versions'][0] == "v" + result2['Version'][0]
         assert version.parse(result2['Version']) == self.version
-        assert len(DOCUMENTATIONS['oapi'][self.version][PATHS]) == len(result2['Calls'])
+        try:
+            assert len(DOCUMENTATIONS['oapi'][self.version][PATHS]) == len(result2['Calls'])
+            pytest.fail("Remove known error code")
+        except AssertionError:
+            known_error('GTW-1812', 'not synchronized')
         for call in result2['Calls']:
             assert '/' + call in DOCUMENTATIONS['oapi'][self.version][PATHS]
 
