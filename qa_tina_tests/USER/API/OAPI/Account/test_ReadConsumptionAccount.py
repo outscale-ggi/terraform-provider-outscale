@@ -13,11 +13,6 @@ class Test_ReadConsumptionAccount(OscTestSuite):
         cls.start_date = (datetime.utcnow() - timedelta(weeks=20)).isoformat().split('T')[0]
         cls.end_date = (datetime.utcnow() - timedelta(weeks=10)).isoformat().split('T')[0]
 
-    def test_T4762_correct_dates(self):
-        ret = self.a1_r1.oapi.ReadConsumptionAccount(FromDate=self.start_date, ToDate=self.end_date)
-        # assert ret.response.ConsumptionEntries
-        ret.check_response()
-
     def test_T4763_incorrect_dates(self):
         try:
             self.a1_r1.oapi.ReadConsumptionAccount(ToDate=self.start_date, FromDate=self.end_date)
