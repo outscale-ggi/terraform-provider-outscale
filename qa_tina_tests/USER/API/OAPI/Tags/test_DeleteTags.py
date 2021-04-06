@@ -53,7 +53,7 @@ class Test_DeleteTags(OscTestSuite):
             self.a1_r1.oapi.DeleteTags(ResourceIds=[], Tags=[{'Key': 'key', 'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            assert_oapi_error(err, 400, 'MissingParameter', '7007')
 
     def test_T2512_resource_id_string_type(self):
         try:
