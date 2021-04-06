@@ -84,10 +84,16 @@ class Test_UpdateVolume_Hot(OscTestSuite):
             super(Test_UpdateVolume_Hot, self).teardown_method(method)
 
     def test_T9999_hot_vol_with_size(self):
-        pass
+        self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Size=20)
+        check_volume(self.sshclient, self.dev, 20, with_format=False, text_to_check=self.text_to_check, no_create=True,
+                     volume_type='io1', perf_iops=True, iops_io1=200)
 
     def test_T9999_hot_vol_with_iops(self):
-        pass
+        self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Iops=400)
+        check_volume(self.sshclient, self.dev, self.initial_size, with_format=False, text_to_check=self.text_to_check, no_create=True,
+                     volume_type='io1', perf_iops=True, iops_io1=400)
 
     def test_T9999_hot_vol_with_type(self):
-        pass
+        self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, VolumeType='standard')
+        check_volume(self.sshclient, self.dev, self.initial_size, with_format=False, text_to_check=self.text_to_check,
+                     no_create=True, volume_type='io1', perf_iops=True, iops_io1=200)
