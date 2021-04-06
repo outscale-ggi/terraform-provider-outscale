@@ -6,7 +6,6 @@ import pytest
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.compare_objects import verify_response
 from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import known_error
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
 
@@ -144,9 +143,6 @@ class Test_ReadSecurityGroups(SecurityGroup):
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 1
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_account_ids.json'), self.hints)
-        if int(resp.SecurityGroups[0].InboundRules[0].IpProtocol):
-            known_error("TINA-6173", "[oAPI] ReadSecurityGroups Incorrect value returned for IpProtocol/IpRang")
-        assert False, 'Remove known error code'
 
     def test_T5483_filters_inbound_rule_from_port_ranges(self):
         filters = {'InboundRuleFromPortRanges': [45]}
@@ -158,19 +154,13 @@ class Test_ReadSecurityGroups(SecurityGroup):
     def test_T5484_filters_inbound_rule_ip_ranges(self):
         filters = {'InboundRuleIpRanges': ['10.0.0.12/32']}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
-        if len(resp.SecurityGroups) == 0:
-            known_error('API-173', 'Cannot filter by inbound ip range value')
-        assert False, 'Remove known error'
-        assert len(resp.SecurityGroups) == 1
+        assert len(resp.SecurityGroups) == 2
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_ip_ranges.json'), self.hints)
 
     def test_T5485_filters_inbound_rule_protocols(self):
         filters = {'InboundRuleProtocols': ['udp']}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
-        if len(resp.SecurityGroups) == 0:
-            known_error('API-173', 'Cannot filter by outbound protocol value')
-        assert False, 'Remove known error'
-        assert len(resp.SecurityGroups) == 1
+        assert len(resp.SecurityGroups) == 3
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_protocols.json'), self.hints)
 
     def test_T5486_filters_inbound_rule_sg_ids(self):
@@ -211,18 +201,12 @@ class Test_ReadSecurityGroups(SecurityGroup):
     def test_T5492_filters_outbound_rule_ip_ranges(self):
         filters = {'OutboundRuleIpRanges': ['10.0.0.13/32']}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
-        if len(resp.SecurityGroups) == 0:
-            known_error('API-173', 'Cannot filter by outbound ip range value')
-        assert False, 'Remove known error'
         assert len(resp.SecurityGroups) == 1
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_ip_ranges.json'), self.hints)
 
     def test_T5493_filters_outbound_protocols(self):
         filters = {'OutboundRuleProtocols': ['tcp']}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
-        if len(resp.SecurityGroups) == 0:
-            known_error('API-173', 'Cannot filter by outbound protocol value')
-        assert False, 'Remove known error'
         assert len(resp.SecurityGroups) == 2
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_outbound_rule_protocols.json'), self.hints)
 

@@ -19,6 +19,7 @@ class SecurityGroup(OscTestSuite):
         cls.sg4 = None
         cls.sg5 = None
         cls.sg6 = None
+        cls.vpc_info = None
         super(SecurityGroup, cls).setup_class()
         try:
             cls.sg1 = cls.a1_r1.oapi.CreateSecurityGroup(Description="TEST_SG_DESC_1",
@@ -83,7 +84,8 @@ class SecurityGroup(OscTestSuite):
                         if not teardown_error:
                             teardown_error = error
             time.sleep(10)
-            delete_vpc(cls.a1_r1, cls.vpc_info)
+            if cls.vpc_info:
+                delete_vpc(cls.a1_r1, cls.vpc_info)
             if teardown_error:
                 raise teardown_error
         finally:

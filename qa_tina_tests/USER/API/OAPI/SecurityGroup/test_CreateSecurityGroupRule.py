@@ -42,13 +42,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             IpRange='10.0.0.12/32',
             SecurityGroupId=self.sg1.SecurityGroupId)
         ret.check_response()
-        try:
-            verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_valid_case_inbound.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_valid_case_inbound.json'),
+                        self.hints)
 
     def test_T2722_valid_case_outbound(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -59,13 +55,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             IpRange='10.0.0.12/32',
             SecurityGroupId=self.sg3.SecurityGroupId)
         ret.check_response()
-        try:
-            verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                       'create_rule_valid_case_outbound.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                   'create_rule_valid_case_outbound.json'),
+                        self.hints)
 
     def test_T2723_with_sg_to_link_param_inbound(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -74,13 +66,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             SecurityGroupAccountIdToLink=self.a1_r1.config.account.account_id,
             SecurityGroupId=self.sg1.SecurityGroupId)
         ret.check_response()
-        try:
-            verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_with_sg_to_link_param_inbound.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_with_sg_to_link_param_inbound.json'),
+                        self.hints)
 
     def test_T5475_with_sg_to_link_param_outbound(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -89,13 +77,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             SecurityGroupAccountIdToLink=self.a1_r1.config.account.account_id,
             SecurityGroupId=self.sg3.SecurityGroupId)
         ret.check_response()
-        try:
-            verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_with_sg_to_link_param_outbound.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_with_sg_to_link_param_outbound.json'),
+                        self.hints)
 
     def test_T2724_invalid_ip_range(self):
         for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
@@ -110,7 +94,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+                assert_oapi_error(error, 400, 'InvalidParameterValue', '4134')
 
     def test_T2725_unknown_protocol(self):
         for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
@@ -125,7 +109,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+                assert_oapi_error(error, 400, 'InvalidParameterValue', '4129')
 
     def test_T2726_invalid_port_range(self):
         for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
@@ -174,7 +158,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7006')
         for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
             try:
                 self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -194,7 +178,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+                assert_oapi_error(error, 400, 'InvalidParameterValue', '4134')
 
     def test_T2729_inbound_rules_array_1_element(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -211,13 +195,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                     'IpRanges': ['10.0.0.12/32']}],
             SecurityGroupId=self.sg1.SecurityGroupId)
         ret.check_response()
-        try:
-            verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_inbound_rules_array_1_element.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_inbound_rules_array_1_element.json'),
+                        self.hints)
 
     def test_T2942_outbound_rules_array_1_element(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -230,13 +210,9 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 }],
             SecurityGroupId=self.sg3.SecurityGroupId)
         ret.check_response()
-        try:
-            verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_outbound_rules_array_1_element.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_outbound_rules_array_1_element.json'),
+                        self.hints)
 
     def test_T2730_rules_invalid_array_combination(self):
         for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
@@ -307,14 +283,11 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 }
             ],
             SecurityGroupId=self.sg4.SecurityGroupId)
-        ret.check_response()
         try:
+            ret.check_response()
             verify_response(ret.response,
                             os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_inbound_rules_array_many_element.json'),
                             self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
         finally:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                     Flow='Inbound',
@@ -383,14 +356,11 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 }
             ],
             SecurityGroupId=self.sg4.SecurityGroupId)
-        ret.check_response()
         try:
+            ret.check_response()
             verify_response(ret.response,
                             os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_outbound_rules_array_many_element.json'),
                             self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
         finally:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Outbound',
@@ -454,7 +424,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                         'IpRanges': ['10.0.0.12/32']}],
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
-        except OscTestException as error:
+        except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', 7000)
 
     def test_T4909_member_incorrect_security_group_name(self):

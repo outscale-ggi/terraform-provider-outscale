@@ -3,8 +3,71 @@
     "SecurityGroups": [
         {
             "AccountId": "###VALUE0###",
+            "Description": "default security group",
+            "InboundRules": [
+                {
+                    "FromPortRange": -1,
+                    "IpProtocol": "icmp",
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE0###",
+                            "SecurityGroupId": "sg-318f315b",
+                            "SecurityGroupName": "default"
+                        }
+                    ],
+                    "ToPortRange": -1
+                },
+                {
+                    "FromPortRange": 0,
+                    "IpProtocol": "tcp",
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE0###",
+                            "SecurityGroupId": "sg-318f315b",
+                            "SecurityGroupName": "default"
+                        }
+                    ],
+                    "ToPortRange": 65535
+                },
+                {
+                    "FromPortRange": 0,
+                    "IpProtocol": "udp",
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE0###",
+                            "SecurityGroupId": "sg-318f315b",
+                            "SecurityGroupName": "default"
+                        }
+                    ],
+                    "ToPortRange": 65535
+                }
+            ],
+            "OutboundRules": [],
+            "SecurityGroupId": "sg-318f315b",
+            "SecurityGroupName": "default",
+            "Tags": []
+        },
+        {
+            "AccountId": "###VALUE0###",
             "Description": "###VALUE17###",
             "InboundRules": [
+                {
+                    "FromPortRange": 1,
+                    "IpProtocol": "tcp",
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE1###",
+                            "SecurityGroupId": "###VALUE18###",
+                            "SecurityGroupName": "###VALUE19###"
+                        },
+                        {
+                            "AccountId": "###VALUE1###",
+                            "SecurityGroupId": "###VALUE15###",
+                            "SecurityGroupName": "###VALUE16###"
+                        }
+                    ],
+                    "ToPortRange": 65535
+                },
                 {
                     "FromPortRange": -1,
                     "IpProtocol": "icmp",
@@ -24,23 +87,6 @@
                         }
                     ],
                     "ToPortRange": -1
-                },
-                {
-                    "FromPortRange": 1,
-                    "IpProtocol": "tcp",
-                    "SecurityGroupsMembers": [
-                        {
-                            "AccountId": "###VALUE1###",
-                            "SecurityGroupId": "###VALUE15###",
-                            "SecurityGroupName": "###VALUE16###"
-                        },
-                        {
-                            "AccountId": "###VALUE1###",
-                            "SecurityGroupId": "###VALUE18###",
-                            "SecurityGroupName": "###VALUE19###"
-                        }
-                    ],
-                    "ToPortRange": 65535
                 },
                 {
                     "FromPortRange": 45,
@@ -87,8 +133,17 @@
         },
         {
             "AccountId": "###VALUE0###",
-            "Description": "###VALUE14###",
-            "InboundRules": [],
+            "Description": "###VALUE11###",
+            "InboundRules": [
+                {
+                    "FromPortRange": 1,
+                    "IpProtocol": "udp",
+                    "IpRanges": [
+                        "10.0.0.12/32"
+                    ],
+                    "ToPortRange": 535
+                }
+            ],
             "NetId": "###VALUE2###",
             "OutboundRules": [
                 {
@@ -97,23 +152,30 @@
                     "IpRanges": [
                         "0.0.0.0/0"
                     ],
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE0###",
+                            "SecurityGroupId": "###VALUE12###",
+                            "SecurityGroupName": "###VALUE13###"
+                        }
+                    ],
                     "ToPortRange": -1
                 },
                 {
-                    "FromPortRange": 2345,
+                    "FromPortRange": 1234,
                     "IpProtocol": "tcp",
                     "IpRanges": [
-                        "10.0.0.14/32"
+                        "10.0.0.13/32"
                     ],
-                    "ToPortRange": 2345
+                    "ToPortRange": 1234
                 }
             ],
-            "SecurityGroupId": "###VALUE12###",
-            "SecurityGroupName": "###VALUE13###",
+            "SecurityGroupId": "###VALUE9###",
+            "SecurityGroupName": "###VALUE10###",
             "Tags": [
                 {
-                    "Key": "sg_toto",
-                    "Value": "sg_value"
+                    "Key": "sg_key",
+                    "Value": "sg_toto"
                 }
             ]
         }
