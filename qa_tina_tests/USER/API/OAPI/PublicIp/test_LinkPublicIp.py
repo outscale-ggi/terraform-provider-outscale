@@ -118,7 +118,7 @@ class Test_LinkPublicIp(OscTestSuite):
             ret = self.a1_r1.oapi.LinkPublicIp(PublicIp=self.vpc_eips[4].publicIp)
             assert False, 'Call should not have been successful'
         except Exception as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            assert_oapi_error(error, 400, 'MissingParameter', '7006', None)
         finally:
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[4].publicIp)
@@ -130,7 +130,7 @@ class Test_LinkPublicIp(OscTestSuite):
             association_id = ret.response.LinkPublicIpId
             assert False, 'Call should not have been successful'
         except Exception as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            assert_oapi_error(error, 400, 'MissingParameter', '7006', None)
         finally:
             if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[5].publicIp)
