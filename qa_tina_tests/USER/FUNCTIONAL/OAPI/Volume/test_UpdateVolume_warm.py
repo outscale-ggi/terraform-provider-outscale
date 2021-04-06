@@ -89,10 +89,28 @@ class Test_UpdateVolume_Warm(OscTestSuite):
             super(Test_UpdateVolume_Warm, self).teardown_method(method)
 
     def test_T9999_warm_vol_with_size(self):
-        pass
+        self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Size=20)
+
+        oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
+
+        check_volume(self.sshclient, self.dev, 20, with_format=False, text_to_check=self.text_to_check, no_create=True,
+                     volume_type='io1', perf_iops=True, iops_io1=200)
 
     def test_T9999_warm_vol_with_iops(self):
-        pass
+        self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Iops=400)
+
+        oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
+
+        check_volume(self.sshclient, self.dev, self.initial_size, with_format=False, text_to_check=self.text_to_check, no_create=True,
+                     volume_type='io1', perf_iops=True, iops_io1=400)
 
     def test_T9999_warm_vol_with_type(self):
-        pass
+        self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, VolumeType='standard')
+
+        oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
+
+        check_volume(self.sshclient, self.dev, self.initial_size, with_format=False, text_to_check=self.text_to_check,
+                     no_create=True, volume_type='standard', perf_iops=True, iops_io1=200)
