@@ -96,4 +96,4 @@ class Test_UpdateVolume_Hot(OscTestSuite):
     def test_T9999_hot_vol_with_type(self):
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, VolumeType='standard')
         check_volume(self.sshclient, self.dev, self.initial_size, with_format=False, text_to_check=self.text_to_check,
-                     no_create=True, volume_type='io1', perf_iops=True, iops_io1=200)
+                     no_create=True, volume_type='standard', perf_iops=True, iops_io1=200)
