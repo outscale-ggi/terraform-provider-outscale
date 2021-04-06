@@ -1,21 +1,22 @@
 {
-	"ListenerRule": {
-		"Action": "forward",
-		"ListenerId": ###VALUE5###,
-		"ListenerRuleId": ###VALUE4###,
-		"ListenerRuleName": "###VALUE3###",
-		"PathPattern": "/.fr",
-		"Priority": 100,
-		"VmIds": [
-			"###VALUE11###",
-			"###VALUE9###",
-			"###VALUE10###",
-			"###VALUE8###",
-			"###VALUE7###",
-			"###VALUE6###"
-		]
-	},
-	"ResponseContext": {
-		"RequestId": "c41c525f-8e85-4773-9efd-cb99f339f4fa"
-	}
+    "ListenerRule": {
+        "Action": "forward",
+        "HostNamePattern": "*.abc.?.abc.*.com",
+        "ListenerId": ###VALUE5###,
+        "ListenerRuleId": ###VALUE4###,
+        "ListenerRuleName": "###VALUE3###",
+        "PathPattern": "/.fr",
+        "Priority": 100,
+        "VmIds": [
+            "###VALUE9###",
+            "###VALUE6###",
+            "###VALUE11###",
+            "###VALUE8###",
+            "###VALUE10###",
+            "###VALUE7###"
+        ]
+    },
+    "ResponseContext": {
+        "RequestId": "1b62d8c8-d75c-4565-9485-842b5d1f20a5"
+    }
 }

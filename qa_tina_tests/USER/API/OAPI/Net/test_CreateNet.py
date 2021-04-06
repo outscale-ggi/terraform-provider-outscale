@@ -75,7 +75,7 @@ class Test_CreateNet(OscTestSuite):
             net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16'), Tenancy='toto').response.Net.NetId
             wait_vpcs_state(self.a1_r1, [net_id], state='available')
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4129')
 
         finally:
             if net_id:
@@ -178,7 +178,7 @@ class Test_CreateNet(OscTestSuite):
             net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc_invalid', '10_0_0_0_42')).response.Net.NetId
             assert False, 'Invalid IpRange'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4134')
         finally:
             if net_id:
                 try:
@@ -190,7 +190,7 @@ class Test_CreateNet(OscTestSuite):
             net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc_invalid', '255_255_0_256_16')).response.Net.NetId
             assert False, 'Invalid IpRange'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4134')
         finally:
             if net_id:
                 self.a1_r1.oapi.DeleteNet(NetId=net_id)
@@ -199,7 +199,7 @@ class Test_CreateNet(OscTestSuite):
             net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc_invalid', '105333_0_0_0_16')).response.Net.NetId
             assert False, 'Invalid IpRange'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4134')
         finally:
             if net_id:
                 self.a1_r1.oapi.DeleteNet(NetId=net_id)
