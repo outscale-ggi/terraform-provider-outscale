@@ -91,7 +91,7 @@ class Test_LinkPrivateIps(Nic):
             self.a1_r1.oapi.LinkPrivateIps(NicId=self.nic_id, SecondaryPrivateIpCount=-2)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '4135')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4135')
 
     def test_T2671_with_too_much_ip(self):
         try:
