@@ -33,54 +33,54 @@ class Test_CreateSnapshot(Snapshot):
             self.a1_r1.oapi.CreateSnapshot()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            assert_oapi_error(error, 400, 'MissingParameter', '7006', None)
 
     def test_T2756_invalid_combination(self):
         try:
             self.a1_r1.oapi.CreateSnapshot(VolumeId=self.volume_id1, SourceRegionName=self.a1_r1.config.region.name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
         try:
             self.a1_r1.oapi.CreateSnapshot(VolumeId=self.volume_id1, SourceSnapshotId='snap-123456789')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3008', None)
         try:
             self.a1_r1.oapi.CreateSnapshot(VolumeId=self.volume_id1, SnapshotSize=1)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3008', None)
         try:
             self.a1_r1.oapi.CreateSnapshot(VolumeId=self.volume_id1, SnapshotSize=1, FileLocation='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3008', None)
         try:
             self.a1_r1.oapi.CreateSnapshot(VolumeId=self.volume_id1, FileLocation='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
         try:
             self.a1_r1.oapi.CreateSnapshot(FileLocation='foo', SourceRegionName=self.a1_r1.config.region.name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
         try:
             self.a1_r1.oapi.CreateSnapshot(SnapshotSize=1, SourceRegionName=self.a1_r1.config.region.name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
         try:
             self.a1_r1.oapi.CreateSnapshot(FileLocation='foo', SourceSnapshotId='snap-123456789')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
         try:
             self.a1_r1.oapi.CreateSnapshot(SnapshotSize=1, SourceSnapshotId='snap-123456789')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3008', None)
 
     def test_T2180_invalid_volume_id(self):
         try:
