@@ -48,7 +48,7 @@ class Test_DeleteNic(Nic):
             self.a1_r1.oapi.DeleteNic(NicId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7007')
 
     def test_T2644_with_invalid_nic_id(self):
         try:
