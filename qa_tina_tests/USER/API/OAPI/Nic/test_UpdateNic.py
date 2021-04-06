@@ -56,7 +56,7 @@ class Test_UpdateNic(Nic):
             self.a1_r1.oapi.UpdateNic(NicId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7006')
 
     def test_T2706_with_invalid_nic_id(self):
         try:
@@ -78,7 +78,7 @@ class Test_UpdateNic(Nic):
             self.a1_r1.oapi.UpdateNic(NicId=self.nic_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7006')
 
     def test_T2709_with_description(self):
         self.a1_r1.oapi.UpdateNic(NicId=self.nic_id, Description='new_description')
@@ -88,7 +88,7 @@ class Test_UpdateNic(Nic):
             self.a1_r1.oapi.UpdateNic(NicId=self.nic_id, SecurityGroupIds=[])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7006')
 
     def test_T2711_with_invalid_firewall_rules_set_ids(self):
         try:
