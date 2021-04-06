@@ -46,7 +46,7 @@ class Test_LinkPrivateIps(Nic):
             self.a1_r1.oapi.LinkPrivateIps(NicId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7007')
 
     def test_T2664_with_invalid_nic_id(self):
         try:
@@ -60,28 +60,28 @@ class Test_LinkPrivateIps(Nic):
             self.a1_r1.oapi.LinkPrivateIps(NicId='eni-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7006')
 
     def test_T2666_with_valid_nic_id_but_missing_other_param(self):
         try:
             self.a1_r1.oapi.LinkPrivateIps(NicId=self.nic_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7006')
 
     def test_T2667_with_invalid_private_ip(self):
         try:
             self.a1_r1.oapi.LinkPrivateIps(NicId=self.nic_id, PrivateIps=['toto'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
 
     def test_T2668_with_invalid_private_ip2(self):
         try:
             self.a1_r1.oapi.LinkPrivateIps(NicId=self.nic_id, PrivateIps=['295.0.1.35'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
 
     def test_T2669_with_valid_combination(self):
         self.a1_r1.oapi.LinkPrivateIps(NicId=self.nic_id, PrivateIps=['10.0.1.35'])
@@ -91,7 +91,7 @@ class Test_LinkPrivateIps(Nic):
             self.a1_r1.oapi.LinkPrivateIps(NicId=self.nic_id, SecondaryPrivateIpCount=-2)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterCombination', '4135')
 
     def test_T2671_with_too_much_ip(self):
         try:
@@ -117,7 +117,7 @@ class Test_LinkPrivateIps(Nic):
             self.a1_r1.oapi.LinkPrivateIps(NicId=self.nic_id, PrivateIps=['10.0.1.35'], SecondaryPrivateIpCount=2)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
+            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3008')
 
     def test_T2674_with_valid_combination_allow_relink(self):
         self.a1_r1.oapi.LinkPrivateIps(NicId=self.nic_id2, PrivateIps=['10.0.1.136'], AllowRelink=True)

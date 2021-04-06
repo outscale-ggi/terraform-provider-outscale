@@ -34,7 +34,7 @@ class Test_CreateNic(Nic):
             self.a1_r1.oapi.CreateNic(SubnetId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7006')
 
     def test_T2630_with_invalid_subnet_id(self):
         try:
@@ -111,7 +111,7 @@ class Test_CreateNic(Nic):
             self.nic_id = self.a1_r1.oapi.CreateNic(PrivateIps=[{'IsPrimary': True}], SubnetId=self.subnet_id1).response.Nic.NicId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7007')
 
     def test_T5330_with_private_ips_missing_is_primary(self):
         ret = self.a1_r1.oapi.CreateNic(PrivateIps=[{'PrivateIp': '10.0.1.20'}], SubnetId=self.subnet_id1)
@@ -125,7 +125,7 @@ class Test_CreateNic(Nic):
                                                      SubnetId=self.subnet_id1).response.Nic.NicId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
 
     def test_T2639_with_private_ips_invalid_ip2(self):
         try:
@@ -133,7 +133,7 @@ class Test_CreateNic(Nic):
                                       SubnetId=self.subnet_id1)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
 
     def test_T2640_with_private_ips_1_primary(self):
         ret = self.a1_r1.oapi.CreateNic(PrivateIps=[{'IsPrimary': True, 'PrivateIp': '10.0.1.20'}],
