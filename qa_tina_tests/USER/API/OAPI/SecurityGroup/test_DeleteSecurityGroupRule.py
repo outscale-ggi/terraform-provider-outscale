@@ -5,9 +5,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.compare_objects import verify_response
-from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import known_error
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
 
 
@@ -125,13 +123,9 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             ToPortRange=1234,
             IpRange='10.0.0.12/32',
             SecurityGroupId=self.sg1.SecurityGroupId)
-        try:
-            verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_valid_case_inbound.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_valid_case_inbound.json'),
+                        self.hints)
 
     def test_T2740_valid_case_outbound(self):
         ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
@@ -141,13 +135,9 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             ToPortRange=1234,
             IpRange='10.0.0.12/32',
             SecurityGroupId=self.sg3.SecurityGroupId)
-        try:
-            verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_valid_case_outbound.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_valid_case_outbound.json'),
+                        self.hints)
 
     def test_T2741_with_sg_to_unlink_param_outbound(self):
         ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
@@ -155,13 +145,9 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             SecurityGroupNameToUnlink=self.sg3.SecurityGroupName,
             SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
             SecurityGroupId=self.sg3.SecurityGroupId)
-        try:
-            verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_with_sg_to_unlink_param_outbound.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_with_sg_to_unlink_param_outbound.json'),
+                        self.hints)
 
     def test_T5478_with_sg_to_unlink_param_inbound(self):
         ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
@@ -169,13 +155,9 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             SecurityGroupNameToUnlink=self.sg1.SecurityGroupName,
             SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
             SecurityGroupId=self.sg1.SecurityGroupId)
-        try:
-            verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_with_sg_to_unlink_param_inbound.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_with_sg_to_unlink_param_inbound.json'),
+                        self.hints)
 
     def test_T2742_invalid_ip_range(self):
         try:
@@ -189,7 +171,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4134')
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Inbound',
@@ -201,7 +183,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4134')
 
     def test_T2743_unknown_protocol(self):
         try:
@@ -215,7 +197,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4129')
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Inbound',
@@ -227,7 +209,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4129')
 
     def test_T2744_invalid_port_range_inbound(self):
         try:
@@ -277,7 +259,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7006')
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Inbound',
@@ -295,7 +277,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4134')
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Inbound',
@@ -363,7 +345,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4134')
 
     def test_T2747_inbound_rules_array_1_element(self):
         try:
@@ -397,13 +379,9 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                     'ToPortRange':-1,
                     'IpRanges': ["10.0.0.12/32"]}],
             SecurityGroupId=self.sg1.SecurityGroupId)
-        try:
-            verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                              'delete_rule_rules_array_single_element.json'),
-                                   self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                          'delete_rule_rules_array_single_element.json'),
+                               self.hints)
 
     def test_T2749_rules_array_many_element1(self):
         ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
@@ -423,13 +401,9 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                 }
             ],
             SecurityGroupId=self.sg4.SecurityGroupId)
-        try:
-            verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_rules_array_many_element1.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_rules_array_many_element1.json'),
+                        self.hints)
 
     def test_T5477_rules_array_many_element2(self):
         ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
@@ -453,13 +427,9 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                 }
             ],
             SecurityGroupId=self.sg1.SecurityGroupId)
-        try:
-            verify_response(ret.response,
-                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_rules_array_many_element2.json'),
-                            self.hints)
-            assert False, 'Remove known error'
-        except OscTestException:
-            known_error('API-173', 'Protocols and ip ranges are incorrect.')
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'delete_rule_rules_array_many_element2.json'),
+                        self.hints)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3532_with_other_user(self):

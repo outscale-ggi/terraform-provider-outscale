@@ -1,25 +1,57 @@
 {
-	"ResponseContext": {
-		"RequestId": "6c732f14-49df-4380-a014-846efe6fad5c"
-	},
-	"SecurityGroup": {
-		"AccountId": "###VALUE0###",
-		"Description": "###VALUE17###",
-		"InboundRules": [
-			{
-				"FromPortRange": 4578,
-				"IpProtocol": "udp",
-				"IpRanges": [
-					"10.0.0.12/32"
-				],
-				"ToPortRange": 4679
-			}
-		],
-		"OutboundRules": [
-		],
-		"SecurityGroupId": "###VALUE3###",
-		"SecurityGroupName": "###VALUE16###",
-		"Tags": [
-		]
-	}
+    "ResponseContext": "erased",
+    "SecurityGroup": {
+        "AccountId": "###VALUE0###",
+        "Description": "###VALUE17###",
+        "InboundRules": [
+            {
+                "FromPortRange": -1,
+                "IpProtocol": "icmp",
+                "SecurityGroupsMembers": [
+                    {
+                        "AccountId": "###VALUE0###",
+                        "SecurityGroupId": "###VALUE3###",
+                        "SecurityGroupName": "###VALUE16###"
+                    }
+                ],
+                "ToPortRange": -1
+            },
+            {
+                "FromPortRange": 1,
+                "IpProtocol": "tcp",
+                "SecurityGroupsMembers": [
+                    {
+                        "AccountId": "###VALUE0###",
+                        "SecurityGroupId": "###VALUE3###",
+                        "SecurityGroupName": "###VALUE16###"
+                    }
+                ],
+                "ToPortRange": 65535
+            },
+            {
+                "FromPortRange": 1,
+                "IpProtocol": "udp",
+                "SecurityGroupsMembers": [
+                    {
+                        "AccountId": "###VALUE0###",
+                        "SecurityGroupId": "###VALUE3###",
+                        "SecurityGroupName": "###VALUE16###"
+                    }
+                ],
+                "ToPortRange": 65535
+            },
+            {
+                "FromPortRange": 4578,
+                "IpProtocol": "udp",
+                "IpRanges": [
+                    "10.0.0.12/32"
+                ],
+                "ToPortRange": 4679
+            }
+        ],
+        "OutboundRules": [],
+        "SecurityGroupId": "###VALUE3###",
+        "SecurityGroupName": "###VALUE16###",
+        "Tags": []
+    }
 }
