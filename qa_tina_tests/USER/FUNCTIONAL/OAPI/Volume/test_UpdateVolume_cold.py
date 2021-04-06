@@ -116,4 +116,4 @@ class Test_UpdateVolume_Cold(OscTestSuite):
         wait_Volumes_state(self.a1_r1, [self.vol_id], 'in-use')
         self.is_attached = True
         check_volume(self.sshclient, self.dev, self.initial_size, with_format=False, text_to_check=self.text_to_check,
-                     no_create=True, volume_type='io1', perf_iops=True, iops_io1=200)
+                     no_create=True, volume_type='standard', perf_iops=True, iops_io1=200)
