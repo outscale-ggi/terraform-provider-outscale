@@ -86,7 +86,7 @@ class Test_CreateSubnet(OscTestSuite):
             self.a1_r1.oapi.CreateSubnet(NetId=self.net, IpRange=Configuration.get('subnet_invalid', '10_0_0_0_42'))
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4134')
 
     def test_T2567_unknown_az(self):
         try:
