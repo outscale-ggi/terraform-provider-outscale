@@ -42,7 +42,7 @@ class Test_DeleteSecurityGroup(OscTestSuite):
             self.sg_id = ret.response.SecurityGroup.SecurityGroupId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7006')
 
     def test_T2733_with_wrong_id(self):
         try:
