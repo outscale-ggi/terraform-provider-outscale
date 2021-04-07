@@ -58,7 +58,7 @@ class Test_CreateVpnConnectionRoute(VpnConnection):
             self.a1_r1.oapi.CreateVpnConnectionRoute(VpnConnectionId=self.vpn_id, DestinationIpRange='tata')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
 
     def test_T3353_valid_case(self):
         self.a1_r1.oapi.CreateVpnConnectionRoute(VpnConnectionId=self.vpn_id, DestinationIpRange='172.13.1.4/24')
