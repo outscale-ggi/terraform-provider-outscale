@@ -146,7 +146,7 @@ class Test_UpdateVm(OscTestSuite):
             assert self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.response.BlockDeviceMappings)
 
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            assert_oapi_error(error, 400, 'MissingParameter', '7007')
 
     def test_T2135_DisableApiTermination(self):
         self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], DeletionProtection=True)
@@ -202,7 +202,7 @@ class Test_UpdateVm(OscTestSuite):
             self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], VmInitiatedShutdownBehavior='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4129')
 
     def test_T2142_InstanceType(self):
         self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[1], VmType='m4.xlarge')
