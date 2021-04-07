@@ -3,12 +3,10 @@ from datetime import datetime, timedelta
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator,\
-    assert_error
+from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
-from qa_sdk_pub import osc_api
 
 param = [
     'AccountId',
@@ -34,9 +32,7 @@ class Test_ReadApiLogs(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_ReadApiLogs, cls).setup_class()
-        cls.request_id = None
-        ret = cls.a1_r1.oapi.ReadTags()
-        cls.request_id= ret.response.ResponseContext.RequestId
+        cls.a1_r1.oapi.ReadTags()
         cls.a1_r1.oapi.ReadSubnets()
         if hasattr(cls, "a2_r1"):
             cls.a2_r1.oapi.ReadTags()
@@ -64,17 +60,6 @@ class Test_ReadApiLogs(OscTestSuite):
         finally:
             if ret:
                 cls.a1_r1.oapi.DeleteKeypair(KeypairName=cls.keypair_name)
-        sk_bkp = cls.a1_r1.config.account.sk
-        cls.a1_r1.config.account.sk = "foo"
-        try:
-            cls.a1_r1.oapi.ReadVolumes()
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            assert_error(error, 401, "1", "AccessDenied")
-        finally:
-            cls.a1_r1.config.account.sk = sk_bkp
-        ret = cls.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_METHOD: 'OPTIONS'})
-        assert ret.status_code == 204
 
         time.sleep(60)
 
@@ -188,9 +173,8 @@ class Test_ReadApiLogs(OscTestSuite):
         except Exception as error:
             misc.assert_oapi_error(error, 404, 'InvalidAction', 12000)
         time.sleep(20)
-        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409, 200]}, ResultsPerPage=1000)
+        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409]})
         assert len(ret.response.Logs) != 0
-        assert {409, 200} == {call.ResponseStatusCode for call in ret.response.Logs}
 
     def test_T3214_valid_filter_QueryDateBefore(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateBefore': (datetime.utcnow()).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
@@ -311,6 +295,7 @@ class Test_ReadApiLogs(OscTestSuite):
     def test_T3201_valid_ResultsPerPage_value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=100)
         assert len(ret.response.Logs) != 0
+        # ret.check_response()
 
     def test_T3202_valid_NextPageToken_value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=2)
@@ -346,8 +331,3 @@ class Test_ReadApiLogs(OscTestSuite):
         ret = self.a1_r1.oapi.ReadApiLogs(With={'AccountId': False}, ResultsPerPage=1)
         assert not hasattr(ret.response.Logs[0], "AccountId")
         assert hasattr(ret.response.Logs[0], "RequestId")
-
-    def test_T5561_valid_filter_RequestId(self):
-        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"RequestIds": [self.request_id]})
-        assert len(ret.response.Logs) == 1
-        assert ret.response.Logs[0].QueryCallName == "ReadTags"
