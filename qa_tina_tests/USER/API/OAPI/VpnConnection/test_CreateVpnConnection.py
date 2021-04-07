@@ -91,7 +91,7 @@ class Test_CreateVpnConnection(OscTestSuite):
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId=self.cg_id, VirtualGatewayId=self.vg_id, ConnectionType='tata')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4129')
 
     def test_T3346_invalid_client_gateway_id(self):
         try:
