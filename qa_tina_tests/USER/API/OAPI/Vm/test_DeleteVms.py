@@ -49,7 +49,7 @@ class Test_DeleteVms(OscTestSuite):
             self.a1_r1.oapi.DeleteVms(VmIds=[])
             assert False, 'Call without ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7007')
+            assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T2044_with_invalid_ids(self):
         try:

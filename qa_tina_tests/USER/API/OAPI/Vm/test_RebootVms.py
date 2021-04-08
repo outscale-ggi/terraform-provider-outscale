@@ -45,7 +45,7 @@ class Test_RebootVms(OscTestSuite):
             self.a1_r1.oapi.RebootVms(VmIds=[])
             assert False, 'Call without ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7007')
+            assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T2088_with_invalid_ids(self):
         try:
