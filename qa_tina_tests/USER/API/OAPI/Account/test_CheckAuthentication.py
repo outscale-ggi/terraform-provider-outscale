@@ -15,7 +15,7 @@ class Test_CheckAuthentication(OscTestSuite):
             self.a1_r1.oapi.CheckAuthentication()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
 
     def test_T4744_required_param(self):
         ret = self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login, Password=self.a1_r1.config.account.password)
@@ -26,14 +26,14 @@ class Test_CheckAuthentication(OscTestSuite):
             self.a1_r1.oapi.CheckAuthentication(Password=self.a1_r1.config.account.password)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
 
     def test_T4746_without_password(self):
         try:
             self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
 
     def test_T4747_with_invalid_password(self):
         password = id_generator(size=20)
