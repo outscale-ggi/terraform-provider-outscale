@@ -58,7 +58,7 @@ class Test_DeleteVpnConnectionRoute(VpnConnection):
             self.a1_r1.oapi.DeleteVpnConnectionRoute(VpnConnectionId=self.vpn_id, DestinationIpRange='tata')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T3361_unknown_route(self):
         try:

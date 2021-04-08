@@ -81,26 +81,26 @@ class Test_CreateDirectLinkInterface(OscTestSuite):
                                                       DirectLinkInterface={'VirtualGatewayId': self.virtual_gateway_id})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7007', None)
+            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-12345678',
                                                       DirectLinkInterface={'Vlan': 1, 'VirtualGatewayId': self.virtual_gateway_id})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7007', None)
+            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-12345678',
                                                       DirectLinkInterface={'BgpAsn': 1, 'VirtualGatewayId': self.virtual_gateway_id})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7007', None)
+            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-12345678',
                                                       DirectLinkInterface={'VirtualGatewayId': self.virtual_gateway_id,
                                                                            'DirectLinkInterfaceName': 'a_name'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7007', None)
+            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
 
     def test_T3908_invalid_direct_link_id(self):
         try:

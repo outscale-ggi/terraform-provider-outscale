@@ -41,7 +41,7 @@ class Test_DeletePublicIp(OscTestSuite):
             self.ip = None
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7006')
+            assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T2012_with_invalid_public_ip(self):
         try:
@@ -49,7 +49,7 @@ class Test_DeletePublicIp(OscTestSuite):
             self.ip = None
             assert False, 'Call should not have been successful, invalid public ip'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T2928_with_invalid_public_id(self):
         try:
@@ -73,7 +73,7 @@ class Test_DeletePublicIp(OscTestSuite):
             self.ip = None
             assert False, 'Call should not have been successful, invalid public ip id'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
 
     def test_T3039_with_incoherent_public_ip_id_and_public_ip(self):
         try:
@@ -81,7 +81,7 @@ class Test_DeletePublicIp(OscTestSuite):
             self.ip = None
             assert False, 'Call should not have been successful, invalid public ip id'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
 
     def test_T3553_with_valid_dry_run(self):
         self.a1_r1.oapi.DeletePublicIp(PublicIp=self.ip, DryRun=True)

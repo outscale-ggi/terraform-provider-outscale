@@ -60,7 +60,7 @@ class Test_UnlinkPublicIp(OscTestSuite):
             self.a1_r1.oapi.UnlinkPublicIp()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7006')
+            assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T2812_with_both_compatible_params(self):
         ret = None
@@ -69,7 +69,7 @@ class Test_UnlinkPublicIp(OscTestSuite):
             self.a1_r1.oapi.UnlinkPublicIp(LinkPublicIpId=ret.response.LinkPublicIpId, PublicIp=self.standard_eips[0].publicIp)
             ret = None
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
         finally:
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.standard_eips[0].publicIp)
@@ -84,7 +84,7 @@ class Test_UnlinkPublicIp(OscTestSuite):
             ret2 = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
         finally:
             if ret1:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.standard_eips[0].publicIp)
