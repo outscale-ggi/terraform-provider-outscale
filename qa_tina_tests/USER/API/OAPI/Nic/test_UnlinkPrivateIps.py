@@ -83,14 +83,14 @@ class Test_UnlinkPrivateIps(Nic):
             self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=['tata'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T2699_with_unknown_ips_str(self):
         try:
             self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=['295.16.34.5'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4133')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T2700_with_valid_combination(self):
         assert self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=['10.0.1.35'])

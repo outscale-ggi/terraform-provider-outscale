@@ -41,7 +41,7 @@ class Test_CreateFlexibleGpu(OscTestSuite):
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName='XXXXXXXX', SubregionName=self.subregionname)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4129')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T4183_incorrect_subregion_name(self):
         try:
@@ -154,12 +154,12 @@ class Test_CreateFlexibleGpu(OscTestSuite):
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation='v5')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4129')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
         try:
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation='4')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4129')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
         try:
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation=['v5'])
             assert False, 'Call should not have been successful'
