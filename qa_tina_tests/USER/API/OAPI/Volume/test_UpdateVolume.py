@@ -171,7 +171,7 @@ class Test_UpdateVolume(OscTestSuite):
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=1)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4135')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T5242_from_another_account(self):
