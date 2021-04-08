@@ -66,14 +66,14 @@ class Test_CreateImage(OscTestSuite):
             self.a1_r1.oapi.CreateImage()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7006', None)
+            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
 
     def test_T2318_only_name(self):
         try:
             self.a1_r1.oapi.CreateImage(ImageName=self.ami_name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7006', None)
+            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
 
     def test_T2677_invalid_parameters_combinations(self):
         try:
@@ -81,63 +81,63 @@ class Test_CreateImage(OscTestSuite):
                                         SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
         try:
             self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name, SourceRegionName=self.a1_r1.config.region.name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3008', None)
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
         try:
             self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name,
                                         BlockDeviceMappings=[{'DeviceName': '/dev/sda1', 'Bsu': {'SnapshotId': self.snap1_id}}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3008', None)
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
         try:
             self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name, Architecture='x86')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
         try:
             self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name, RootDeviceName='/dev/sda1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
         try:
             self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
                                         ImageName=self.ami_name, RootDeviceName='/dev/sda1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
         try:
             self.a1_r1.oapi.CreateImage(VmId=self.inst_id, FileLocation='%s/NewOmi' % self.a1_r1.config.account.account_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
         try:
             self.a1_r1.oapi.CreateImage(NoReboot=True, FileLocation='%s/NewOmi' % self.a1_r1.config.account.account_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
         try:
             self.a1_r1.oapi.CreateImage(Architecture='x86', FileLocation='%s/NewOmi' % self.a1_r1.config.account.account_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
         try:
             self.a1_r1.oapi.CreateImage(RootDeviceName='/dev/sda1', FileLocation='%s/NewOmi' % self.a1_r1.config.account.account_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
     def test_T2213_from_vm_valid_params(self):
         self.image_id = self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name).response.Image.ImageId
@@ -166,7 +166,7 @@ class Test_CreateImage(OscTestSuite):
             self.a1_r1.oapi.CreateImage(VmId='i-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterCombination', '3007', None)
+            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
     def test_T2298_from_vm_valid_case(self):
         ret = self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name).response.Image
