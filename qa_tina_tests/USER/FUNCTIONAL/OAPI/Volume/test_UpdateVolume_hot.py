@@ -58,11 +58,13 @@ class Test_UpdateVolume_Hot(OscTestSuite):
             wait_Volumes_state(self.a1_r1, [self.vol_id], 'in-use')
 
             wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
-            self.sshclient = SshTools.check_connection_paramiko(self.vm_info[info_keys.VMS][0][info_keys.PUBLIC_IP], kp_path, username=self.a1_r1.config.region.get_info(
+            self.sshclient = SshTools.check_connection_paramiko(self.vm_info[info_keys.VMS][0][info_keys.PUBLIC_IP], kp_path,
+                                                                username=self.a1_r1.config.region.get_info(
                                                                constants.CENTOS_USER))
 
             self.text_to_check = uuid.uuid4().hex
-            check_volume(self.sshclient, dev=self.dev, size=initial_size, text_to_check=self.text_to_check, volume_type='io1', iops_io1=self.initial_iops)
+            check_volume(self.sshclient, dev=self.dev, size=initial_size, text_to_check=self.text_to_check, volume_type='io1',
+                         iops_io1=self.initial_iops)
 
         except Exception as error:
             try:
