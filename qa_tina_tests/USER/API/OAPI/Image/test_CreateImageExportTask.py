@@ -73,14 +73,14 @@ class Test_CreateImageExportTask(OscTestSuite):
             self.a1_r1.oapi.CreateImageExportTask(ImageId=self.image_id, OsuExport={'OsuBucket': 'test'})
             assert False, "CreateImageExportTask should not have succeeded"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7007', None)
+            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
 
     def test_T2830_without_osu_bucket(self):
         try:
             self.a1_r1.oapi.CreateImageExportTask(ImageId=self.image_id, OsuExport={'DiskImageFormat': 'qcow2'})
             assert False, "CreateImageExportTask should not have succeeded"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7007', None)
+            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
 
     def test_T2831_public_image(self):
         try:

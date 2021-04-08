@@ -95,7 +95,7 @@ class Test_CreateLoadBalancerPolicy(LoadBalancer):
                 LoadBalancerName=self.lb_name, PolicyName=id_generator(prefix='policy-'), PolicyType='invalid')
             assert False, "call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4128')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T4677_multi_lbu_same_name_diff_users(self):
         ret_create_lbu = None
@@ -122,4 +122,4 @@ class Test_CreateLoadBalancerPolicy(LoadBalancer):
             PolicyType='load_balancé')
             assert False, "call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4128')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')

@@ -57,7 +57,7 @@ class Test_UpdateNet(OscTestSuite):
         try:
             self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId='tata', NetId=self.vpc_id)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4138')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
         try:
             self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId='dopt-12345678', NetId=self.vpc_id)
         except OscApiException as error:

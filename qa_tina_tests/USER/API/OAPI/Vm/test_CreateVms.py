@@ -103,13 +103,13 @@ echo "yes" > /tmp/userdata.txt
                                       Nics=[{'NicId': 'eni-12345678'}])
             assert False, "call should not have been successful"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         try:
             self.a1_r1.oapi.CreateVms(ImageId='ami-12345678', SecurityGroupIds=['sg-12345678'],
                                       Nics=[{'NicId': 'eni-12345678'}])
             assert False, "call should not have been successful"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
 
     def test_T2029_no_param(self):
         ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None)
@@ -227,7 +227,7 @@ echo "yes" > /tmp/userdata.txt
             _, self.info = create_vms(ocs_sdk=self.a1_r1, state=None, VmInitiatedShutdownBehavior='shutdown')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4129')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T2040_with_userdata_private_only(self):
         userdata = """-----BEGIN OUTSCALE SECTION-----
@@ -288,7 +288,7 @@ echo "yes" > /tmp/userdata.txt
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'NicId': 'eni-12345678'}])
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7007')
+            assert_oapi_error(err, 400, 'MissingParameter', '7000')
 
     def test_T3166_with_nic_invalid_nic_id(self):
         # invalid id
@@ -337,14 +337,14 @@ echo "yes" > /tmp/userdata.txt
                                                                  'SubnetId': 'subnet-12345678'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         # provide nic id and security_group_ids
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678',
                                                                  'SecurityGroupIds': ['sg-12345678']}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         # provide nic id and private_ips
         try:
             _, self.info = create_vms(
@@ -359,21 +359,21 @@ echo "yes" > /tmp/userdata.txt
             )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         # provide nic id and secondary_ip_count
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678',
                                                                  'SecondaryPrivateIpCount': 50}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         # provide nic id and delete_on_vm_deletion to True
         try:
             _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678',
                                                                  'DeleteOnVmDeletion': True}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         # too much primary ips
         try:
             _, self.info = create_vms(
@@ -395,7 +395,7 @@ echo "yes" > /tmp/userdata.txt
             )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterCombination', '3008')
+            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
 
     def test_T3169_with_nic_invalid_ips(self):
         # private ips not ipv4
@@ -412,7 +412,7 @@ echo "yes" > /tmp/userdata.txt
             )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4133')
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
         # private ips not ipv4
         try:
             _, self.info = create_vms(
@@ -427,7 +427,7 @@ echo "yes" > /tmp/userdata.txt
             )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4133')
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
         # private ips not ipv4
         try:
             _, self.info = create_vms(
@@ -442,7 +442,7 @@ echo "yes" > /tmp/userdata.txt
             )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4133')
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
 
     def test_T3398_with_bdm(self):
         ret, self.info = create_vms(ocs_sdk=self.a1_r1, BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 2}}])
@@ -727,7 +727,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
                     Nics=[{'DeviceNumber': 0, 'NicId': self.nic_id}, {'DeviceNumber': 8, 'NicId': nic_id1}])
                 assert False, 'Call should not have been successful'
             except OscApiException as err:
-                assert_oapi_error(err, 400, 'InvalidParameterValue', '4135')
+                assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
 
         finally:
             if nic_id1:
