@@ -6,7 +6,7 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import oapi, wait, info_keys
 from qa_tina_tools.tina.check_tools import check_volume
-from qa_tina_tools.tina.wait import wait_Volumes_state, wait_Vms_state
+from qa_tina_tools.tina.wait import wait_Volumes_state
 
 
 class Test_UpdateVolume_Hot(OscTestSuite):
