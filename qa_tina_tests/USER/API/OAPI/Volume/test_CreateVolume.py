@@ -165,6 +165,11 @@ class Test_CreateVolume(OscTestSuite):
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4029')
+        try:
+            self.a1_r1.oapi.CreateVolume(VolumeType='io1', Size=4, SubregionName=self.azs[0])
+            assert False, "Call should not have been successful"
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2960_valid_volume_type(self):
         try:
