@@ -58,7 +58,7 @@ class Test_UpdateVolume_Cold(OscTestSuite):
             wait_Volumes_state(self.a1_r1, [self.vol_id], 'in-use')
             self.is_attached = True
             wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
-            self.sshclient = SshTools.check_connection_paramiko(self.vm_info[info_keys.VMS][0][info_keys.PUBLIC_IP], kp_path,
+            self.sshclient = SshTools.check_connection_paramiko(self.vm_info[info_keys.VMS][0]['PublicIp'], kp_path,
                                                                 username=self.a1_r1.config.region.get_info(
                                                                     constants.CENTOS_USER))
             self.text_to_check = uuid.uuid4().hex
@@ -90,12 +90,12 @@ class Test_UpdateVolume_Cold(OscTestSuite):
     def test_T5632_cold_vol_with_size(self):
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Size=20)
         self.a1_r1.oapi.LinkVolume(VolumeId=self.vol_id, VmId=self.vm_info[info_keys.VM_IDS][0],
-                                                 DeviceName=self.dev)
+                                   DeviceName=self.dev)
         wait_Volumes_state(self.a1_r1, [self.vol_id], 'in-use')
         self.is_attached = True
 
         check_volume(self.sshclient, self.dev, 20, with_format=False, text_to_check=self.text_to_check, no_create=True,
-                     volume_type='io1', iops_io1=self.initial_iops)
+                     volume_type='io1', iops_io1=self.initial_iops, extend=True)
 
     def test_T5633_cold_vol_with_iops(self):
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Iops=400)
@@ -105,7 +105,7 @@ class Test_UpdateVolume_Cold(OscTestSuite):
         self.is_attached = True
         check_volume(self.sshclient, self.dev, self.initial_size, with_format=False, text_to_check=self.text_to_check,
                      no_create=True,
-                     volume_type='io1', perf_iops=True, iops_io1=400)
+                     volume_type='io1', perf_iops=True, iops_io1=400, extend=True)
 
     def test_T5634_cold_vol_with_type(self):
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, VolumeType='standard')
@@ -114,4 +114,4 @@ class Test_UpdateVolume_Cold(OscTestSuite):
         wait_Volumes_state(self.a1_r1, [self.vol_id], 'in-use')
         self.is_attached = True
         check_volume(self.sshclient, self.dev, self.initial_size, with_format=False, text_to_check=self.text_to_check,
-                     no_create=True, volume_type='standard', perf_iops=True, iops_io1=150)
+                     no_create=True, volume_type='standard', perf_iops=True, iops_io1=150, extend=True)
