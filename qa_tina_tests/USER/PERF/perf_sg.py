@@ -157,7 +157,6 @@ def perf_sg(oscsdk, logger, queue, args):
         try:
             success = False
             while not success and (datetime.now() - start_ping).total_seconds() < MAX_WAIT_TIME:
-                args = ["ping", "-c", "5", inst.ipAddress]
                 try:
                     subprocess.check_call(["ping -c 5 %s" % inst.ipAddress], shell=True)
                     success = False
