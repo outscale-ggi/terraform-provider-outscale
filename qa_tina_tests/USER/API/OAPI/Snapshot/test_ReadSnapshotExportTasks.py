@@ -1,6 +1,7 @@
 import pytest
 
 from qa_test_tools.misc import assert_dry_run
+from qa_tina_tools.tina import wait
 from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
 
 
@@ -17,6 +18,7 @@ class Test_ReadSnapshotExportTasks(Snapshot):
 
     def test_T3005_empty_filters(self):
         snapshot_id = self.a1_r1.oapi.CreateSnapshot(VolumeId=self.volume_id1).response.Snapshot.SnapshotId
+        wait.wait_Snapshots_state(self.a1_r1, [snapshot_id], 'completed')
         try:
             self.a1_r1.oapi.CreateSnapshotExportTask(SnapshotId=snapshot_id,
                                                      OsuExport={'DiskImageFormat': 'qcow2',
