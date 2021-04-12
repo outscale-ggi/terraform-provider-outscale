@@ -11,6 +11,7 @@ from qa_test_tools.compare_objects import verify_response
 from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tests.USER.API.FCU.Security_Groups.test_RevokeSecurityGroupIngress import to_dict
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
+from qa_test_tools.test_base import known_error
 
 
 def cleanup_sg(osc_sdk, sg_id):
