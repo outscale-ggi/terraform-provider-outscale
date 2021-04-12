@@ -38,23 +38,23 @@ def perf_sg(oscsdk, logger, queue, args):
     result = {'status': 'OK'}
 
     # check key pair
-    kp = False
+    key_pair = False
     if result['status'] != "KO":
         logger.debug("Describe Keypair")
         try:
             ret = oscsdk.fcu.DescribeKeyPairs(Filter=[{'Name': 'key-name', 'Value': kp_name}])
-            kp = ret.response.keySet and len(ret.response.keySet) == 1
+            key_pair = ret.response.keySet and len(ret.response.keySet) == 1
         except Exception as error:
             log_error(logger, error, "Unexpected error while checking key pair", result)
 
     # check security group
-    sg = None
+    sec_group = None
     if result['status'] != "KO":
         logger.debug("Describe Security Group")
         try:
             ret = oscsdk.fcu.DescribeSecurityGroups(Filter=[{'Name': 'group-name', 'Value': sg_name}]).response.securityGroupInfo
             if ret:
-                sg = ret[0].groupId
+                sec_group = ret[0].groupId
         except Exception as error:
             log_error(logger, error, "Unexpected error while checking security group", result)
 
@@ -79,18 +79,18 @@ def perf_sg(oscsdk, logger, queue, args):
         except Exception as error:
             log_error(logger, error, "Unexpected error while checking test instance", result)
 
-    if not kp and result['status'] != "KO":
+    if not key_pair and result['status'] != "KO":
         try:
             create_keypair(oscsdk, name=kp_name)
             wait_keypairs_state(oscsdk, [kp_name])
         except Exception as error:
             log_error(logger, error, "Unexpected error while creating key pair", result)
 
-    if not sg and result['status'] != "KO":
+    if not sec_group and result['status'] != "KO":
         try:
-            sg = oscsdk.fcu.CreateSecurityGroup(GroupName=sg_name,
-                                                GroupDescription='Security_Group_For_{}'.format(thread_name)).response.groupId
-            wait_security_groups_state(oscsdk, [sg])
+            sec_group = oscsdk.fcu.CreateSecurityGroup(GroupName=sg_name,
+                                                       GroupDescription='Security_Group_For_{}'.format(thread_name)).response.groupId
+            wait_security_groups_state(oscsdk, [sec_group])
         except Exception as error:
             log_error(logger, error, "Unexpected error while creating security group", result)
 
@@ -98,7 +98,7 @@ def perf_sg(oscsdk, logger, queue, args):
 
         logger.debug("Run instance")
         try:
-            ret = oscsdk.fcu.RunInstances(ImageId=omi, MinCount=1, MaxCount=1, InstanceType=inst_type, SecurityGroup=[sg], KeyName=kp_name)
+            ret = oscsdk.fcu.RunInstances(ImageId=omi, MinCount=1, MaxCount=1, InstanceType=inst_type, SecurityGroup=[sec_group], KeyName=kp_name)
             inst = ret.response.instancesSet[0]
             wait_instances_state(oscsdk, [inst.instanceId], state='ready')
             oscsdk.fcu.CreateTags(ResourceId=inst.instanceId, Tag=[{'Key': 'Name', 'Value': inst_name}])
@@ -112,13 +112,13 @@ def perf_sg(oscsdk, logger, queue, args):
         logger.debug("Authorize ICMP")
         try:
             start_ping = datetime.now()
-            oscsdk.fcu.AuthorizeSecurityGroupIngress(GroupId=sg, FromPort=-1, ToPort=-1, IpProtocol='icmp',
+            oscsdk.fcu.AuthorizeSecurityGroupIngress(GroupId=sec_group, FromPort=-1, ToPort=-1, IpProtocol='icmp',
                                                      CidrIp=Configuration.get('cidr', 'allips'))
         except OscApiException as error:
             logger.error("Unexpected error while creating ICMP rule.")
             logger.debug('Error: {}'.format(error))
             if 'Duplicate CIDR' in error.message:
-                oscsdk.fcu.RevokeSecurityGroupIngress(GroupId=sg, FromPort=-1, ToPort=-1, IpProtocol='icmp',
+                oscsdk.fcu.RevokeSecurityGroupIngress(GroupId=sec_group, FromPort=-1, ToPort=-1, IpProtocol='icmp',
                                                       CidrIp=Configuration.get('cidr', 'allips'))
             result['status'] = "KO"
 
@@ -138,7 +138,7 @@ def perf_sg(oscsdk, logger, queue, args):
             else:
                 result['sg_rule_add'] = MAX_WAIT_TIME
                 result['status'] = "KO"
-                oscsdk.fcu.RevokeSecurityGroupIngress(GroupId=sg, FromPort=-1, ToPort=-1, IpProtocol='icmp',
+                oscsdk.fcu.RevokeSecurityGroupIngress(GroupId=sec_group, FromPort=-1, ToPort=-1, IpProtocol='icmp',
                                                       CidrIp=Configuration.get('cidr', 'allips'))
         except Exception as error:
             log_error(logger, error, "Unexpected error while ping instance", result)
@@ -147,7 +147,7 @@ def perf_sg(oscsdk, logger, queue, args):
         logger.debug("remove ICMP rule in SG")
         try:
             start_ping = datetime.now()
-            ret = oscsdk.fcu.RevokeSecurityGroupIngress(GroupId=sg, FromPort=-1, ToPort=-1, IpProtocol='icmp',
+            ret = oscsdk.fcu.RevokeSecurityGroupIngress(GroupId=sec_group, FromPort=-1, ToPort=-1, IpProtocol='icmp',
                                                         CidrIp=Configuration.get('cidr', 'allips'))
         except Exception as error:
             log_error(logger, error, "Unexpected error while removing ICMP rule.", result)
