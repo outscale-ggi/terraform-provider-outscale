@@ -21,24 +21,11 @@ class Test_UpdateVolume_Warm(OscTestSuite):
         cls.initial_size = 10
         cls.dev = '/dev/xvdc'
         cls.initial_iops = 200
-        try:
-            cls.vm_info = oapi.create_Vms(cls.a1_r1, state='running')
-
-        except Exception as error:
-            try:
-                cls.teardown_class()
-            except Exception as err:
-                raise err
-            finally:
-                raise error
+        cls.kp_path = None
 
     @classmethod
     def teardown_class(cls):
-        try:
-            if cls.vm_info:
-                oapi.delete_Vms(cls.a1_r1, cls.vm_info)
-        finally:
-            super(Test_UpdateVolume_Warm, cls).teardown_class()
+        super(Test_UpdateVolume_Warm, cls).teardown_class()
 
     def setup_method(self, method):
         # tu pars du principe qu'elle est démarrée ..
@@ -47,8 +34,10 @@ class Test_UpdateVolume_Warm(OscTestSuite):
         self.linked = None
         self.sshclient = None
         self.text_to_check = None
+        self.kp_path = None
         try:
-            kp_path = self.vm_info[info_keys.KEY_PAIR][info_keys.PATH]
+            self.vm_info = oapi.create_Vms(self.a1_r1, state='running')
+            self.kp_path = self.vm_info[info_keys.KEY_PAIR][info_keys.PATH]
             az_name = self.a1_r1.config.region.az_name
             initial_size = 10
             self.vol_id = self.a1_r1.oapi.CreateVolume(VolumeType='io1', Size=initial_size, Iops=self.initial_iops,
@@ -59,7 +48,7 @@ class Test_UpdateVolume_Warm(OscTestSuite):
             wait_Volumes_state(self.a1_r1, [self.vol_id], 'in-use')
 
             wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
-            self.sshclient = SshTools.check_connection_paramiko(self.vm_info[info_keys.VMS][0][info_keys.PUBLIC_IP], kp_path,
+            self.sshclient = SshTools.check_connection_paramiko(self.vm_info[info_keys.VMS][0]['PublicIp'], self.kp_path,
                                                                 username=self.a1_r1.config.region.get_info(
                                                                     constants.CENTOS_USER))
 
@@ -67,7 +56,7 @@ class Test_UpdateVolume_Warm(OscTestSuite):
             check_volume(self.sshclient, dev=self.dev, size=self.initial_size, text_to_check=self.text_to_check,
                          volume_type='io1', iops_io1=self.initial_iops)
 
-            oapi.stop_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+            oapi.stop_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], force=False)
 
         except Exception as error:
             try:
@@ -84,6 +73,8 @@ class Test_UpdateVolume_Warm(OscTestSuite):
                 wait_Volumes_state(self.a1_r1, [self.vol_id], 'available')
             if self.vol_id:
                 self.a1_r1.oapi.DeleteVolume(VolumeId=self.vol_id)
+            if self.vm_info:
+                oapi.delete_Vms(self.a1_r1, self.vm_info)
         finally:
             super(Test_UpdateVolume_Warm, self).teardown_method(method)
 
@@ -91,25 +82,37 @@ class Test_UpdateVolume_Warm(OscTestSuite):
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Size=20)
 
         oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
-        wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
+        ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
+        public_ip = ret.response.Vms[0].PublicIp
+        self.sshclient = SshTools.check_connection_paramiko(public_ip, self.kp_path,
+                                                            username=self.a1_r1.config.region.get_info(
+                                                                constants.CENTOS_USER))
 
         check_volume(self.sshclient, self.dev, 20, with_format=False, text_to_check=self.text_to_check, no_create=True,
-                     volume_type='io1', perf_iops=True, iops_io1=self.initial_iops)
+                     volume_type='io1', perf_iops=True, iops_io1=self.initial_iops, extend=True)
 
     def test_T5627_warm_vol_with_iops(self):
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Iops=400)
 
         oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
-        wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
+        ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
+        public_ip = ret.response.Vms[0].PublicIp
+        self.sshclient = SshTools.check_connection_paramiko(public_ip, self.kp_path,
+                                                            username=self.a1_r1.config.region.get_info(
+                                                                constants.CENTOS_USER))
 
         check_volume(self.sshclient, self.dev, self.initial_size, with_format=False, text_to_check=self.text_to_check, no_create=True,
-                     volume_type='io1', perf_iops=True, iops_io1=400)
+                     volume_type='io1', perf_iops=True, iops_io1=400, extend=True)
 
     def test_T5628_warm_vol_with_type(self):
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, VolumeType='standard')
 
         oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
-        wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
+        ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
+        public_ip = ret.response.Vms[0].PublicIp
+        self.sshclient = SshTools.check_connection_paramiko(public_ip, self.kp_path,
+                                                            username=self.a1_r1.config.region.get_info(
+                                                                constants.CENTOS_USER))
 
         check_volume(self.sshclient, self.dev, self.initial_size, with_format=False, text_to_check=self.text_to_check,
-                     no_create=True, volume_type='standard', perf_iops=True, iops_io1=150)
+                     no_create=True, volume_type='standard', perf_iops=True, iops_io1=150, extend=True)
