@@ -4,22 +4,9 @@
             "IsEnabled": false,
             "PublicationInterval": 60
         },
-        "ApplicationStickyCookiePolicies": [
-            {
-                "CookieName": "###VALUE7###",
-                "PolicyName": "###VALUE12###"
-            },
-            {
-                "CookieName": "###VALUE8###",
-                "PolicyName": "###VALUE13###"
-            },
-            {
-                "CookieName": "###VALUE9###",
-                "PolicyName": "###VALUE14###"
-            }
-        ],
+        "ApplicationStickyCookiePolicies": [],
         "BackendVmIds": [],
-        "DnsName": "###VALUE11###",
+        "DnsName": "###VALUE19###",
         "HealthCheck": {
             "CheckInterval": 30,
             "HealthyThreshold": 10,
@@ -42,24 +29,20 @@
                 "LoadBalancerProtocol": "TCP"
             }
         ],
-        "LoadBalancerName": "###VALUE10###",
-        "LoadBalancerStickyCookiePolicies": [
-            {
-                "PolicyName": "###VALUE15###"
-            },
-            {
-                "PolicyName": "###VALUE16###"
-            },
-            {
-                "PolicyName": "###VALUE17###"
-            }
-        ],
+        "LoadBalancerName": "###VALUE18###",
+        "LoadBalancerStickyCookiePolicies": [],
         "LoadBalancerType": "internet-facing",
+        "NetId": "###VALUE1###",
+        "SecurityGroups": [
+            "###VALUE21###"
+        ],
         "SourceSecurityGroup": {
-            "SecurityGroupAccountId": "outscale-elb",
-            "SecurityGroupName": "outscale-elb-sg"
+            "SecurityGroupAccountId": "501771424591",
+            "SecurityGroupName": "sg_name-CU51LJ"
         },
-        "Subnets": [],
+        "Subnets": [
+            "###VALUE2###"
+        ],
         "SubregionNames": [
             "in-west-2a"
         ],
