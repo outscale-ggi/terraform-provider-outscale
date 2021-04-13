@@ -10,7 +10,6 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST
 
 
 class Test_ReadVmsState(OscTestSuite):
@@ -21,8 +20,8 @@ class Test_ReadVmsState(OscTestSuite):
         cls.info = None
         try:
             cls.info = create_instances(cls.a1_r1, nb=3, state='running')
-            cls.a1_r1.oapi.StopVms(VmIds=[cls.info[INSTANCE_SET][2]['instanceId']], ForceStop=True)
-            cls.a1_r1.oapi.DeleteVms(VmIds=[cls.info[INSTANCE_SET][2]['instanceId']])
+            cls.a1_r1.oapi.StopVms(VmIds=[cls.info[info_keys.INSTANCE_SET][2]['instanceId']], ForceStop=True)
+            cls.a1_r1.oapi.DeleteVms(VmIds=[cls.info[info_keys.INSTANCE_SET][2]['instanceId']])
         except Exception as error1:
             try:
                 cls.teardown_class()
@@ -69,8 +68,7 @@ class Test_ReadVmsState(OscTestSuite):
 
     @pytest.mark.region_admin
     def test_T5544_filters_maintenance(self):
-        start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(
-            seconds=10)
+        start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(seconds=10)
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=2)
         pinkvm = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response.result[0].servers[0].server
         ret = self.a1_r1.intel.scheduled_events.create(event_type='software-upgrade', resource_type='server',
@@ -106,18 +104,18 @@ class Test_ReadVmsState(OscTestSuite):
         assert len(ret.response.VmStates) == 2
 
     def test_T2074_with_vm_id(self):
-        result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[INSTANCE_SET][0]['instanceId']]})
+        result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[info_keys.INSTANCE_SET][0]['instanceId']]})
         assert len(result.response.VmStates) == 1
 
     def test_T2075_with_vm_ids(self):
-        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[INSTANCE_SET][0]['instanceId'],
-                                                              self.info[INSTANCE_SET][1]['instanceId']]})
+        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[info_keys.INSTANCE_SET][0]['instanceId'],
+                                                              self.info[info_keys.INSTANCE_SET][1]['instanceId']]})
         assert len(ret.response.VmStates) == 2
-        assert self.info[INSTANCE_SET][0]['instanceId'] in (vm.VmId for vm in ret.response.VmStates)
-        assert self.info[INSTANCE_SET][1]['instanceId'] in (vm.VmId for vm in ret.response.VmStates)
+        assert self.info[info_keys.INSTANCE_SET][0]['instanceId'] in (vm.VmId for vm in ret.response.VmStates)
+        assert self.info[info_keys.INSTANCE_SET][1]['instanceId'] in (vm.VmId for vm in ret.response.VmStates)
 
     def test_T2077_multiple_filters(self):
-        result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[INSTANCE_SET][0]['instanceId']],
+        result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[info_keys.INSTANCE_SET][0]['instanceId']],
                                                        'VmStates': ['running']})
         assert len(result.response.VmStates) == 1
 
@@ -156,5 +154,5 @@ class Test_ReadVmsState(OscTestSuite):
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3428_other_account_with_filter(self):
-        ret = self.a2_r1.oapi.ReadVmsState(Filters={'VmIds': self.info[INSTANCE_ID_LIST]}).response.VmStates
+        ret = self.a2_r1.oapi.ReadVmsState(Filters={'VmIds': self.info[info_keys.INSTANCE_ID_LIST]}).response.VmStates
         assert not ret
