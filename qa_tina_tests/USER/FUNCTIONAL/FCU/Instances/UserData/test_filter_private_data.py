@@ -2,9 +2,11 @@ import base64
 
 import pytest
 
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools
+from qa_test_tools import misc
 from qa_test_tools.config import config_constants
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
@@ -29,7 +31,9 @@ class Test_filter_private_data(OscTestSuite):
 
             print(out)
             assert out == 'This is some public data'
-
+        except OscApiException as error:
+            misc.assert_error(error, 400, 'OWS.Error', 'Invalid tag name filter_private_section')
+            known_error('TINA-????', 'private section filtering does not function in ows')
         finally:
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)
