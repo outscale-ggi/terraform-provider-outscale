@@ -10,7 +10,6 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 @pytest.mark.region_admin
