@@ -75,4 +75,4 @@ class Test_CreateTags(OscTestSuite):
             self.a1_r1.oapi.CreateTags(ResourceIds=[], Tags=[{'Key': 'key', 'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7007')
+            assert_oapi_error(err, 400, 'MissingParameter', '7000')

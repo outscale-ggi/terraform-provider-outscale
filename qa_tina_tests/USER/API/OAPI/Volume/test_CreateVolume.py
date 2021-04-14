@@ -2,7 +2,7 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
 
@@ -43,7 +43,7 @@ class Test_CreateVolume(OscTestSuite):
         try:
             self.a1_r1.oapi.CreateVolume(SubregionName=self.azs[0])
         except Exception as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7006')
+            assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T2949_missing_param(self):
         try:
@@ -76,7 +76,7 @@ class Test_CreateVolume(OscTestSuite):
             self.a1_r1.oapi.CreateVolume(SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7006')
+            assert_oapi_error(error, 400, 'MissingParameter', '7000')
 
     def test_T2951_invalid_subregion(self):
         try:
@@ -90,7 +90,8 @@ class Test_CreateVolume(OscTestSuite):
             self.a1_r1.oapi.CreateVolume(Size=-1, SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
+            known_error('API-246', 'Error code changed')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2953_invalid_snapshot_id(self):
         try:
@@ -118,7 +119,7 @@ class Test_CreateVolume(OscTestSuite):
             self.a1_r1.oapi.CreateVolume(Size=2, VolumeType='mytype', SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4129')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T2957_volume_type_gp2_invalid_size(self):
         try:
@@ -127,7 +128,8 @@ class Test_CreateVolume(OscTestSuite):
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
+            known_error('API-246', 'Error code changed')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2958_volume_type_io1_invalid_size(self):
         try:
@@ -136,7 +138,8 @@ class Test_CreateVolume(OscTestSuite):
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
+            known_error('API-246', 'Error code changed')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2959_volume_type_io1_invalid_iops(self):
         try:
@@ -165,6 +168,11 @@ class Test_CreateVolume(OscTestSuite):
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4029')
+        try:
+            self.a1_r1.oapi.CreateVolume(VolumeType='io1', Size=4, SubregionName=self.azs[0])
+            assert False, "Call should not have been successful"
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2960_valid_volume_type(self):
         ret = self.a1_r1.oapi.CreateVolume(VolumeType='standard', SubregionName=self.azs[0], Size=2).response.Volume

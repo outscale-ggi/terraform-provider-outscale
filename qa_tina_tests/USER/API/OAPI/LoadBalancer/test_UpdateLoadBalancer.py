@@ -39,11 +39,11 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             resp_create_vpc_lb = cls.a1_r1.oapi.CreateLoadBalancer(
                 Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
                            {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
-                LoadBalancerName=cls.vpc_lb_name, Subnets=[cls.subnet_id, cls.subnet_id2],
+                LoadBalancerName=cls.vpc_lb_name, Subnets=[cls.subnet_id],
             ).response
             for _ in range(3):
-                cls.sg_ids.append(cls.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test', NetId=cls.vpc_id,
-                                                                    GroupName=id_generator(prefix='sg_name-')).response.groupId)
+                cls.sg_ids.append(cls.a1_r1.oapi.CreateSecurityGroup(
+                    Description='test', NetId=cls.vpc_id, SecurityGroupName=id_generator(prefix='sg_name-')).response.SecurityGroup.SecurityGroupId)
 
             cls.hint_values.append(cls.lb_name)
             cls.hint_values.append(resp_create_lb.LoadBalancer.DnsName)
@@ -64,6 +64,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
     @classmethod
     def teardown_class(cls):
         try:
+            for sg_id in cls.sg_ids:
+                cls.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=sg_id)
             if cls.lb_name:
                 try:
                     cls.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=cls.lb_name)
@@ -74,8 +76,6 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                     cls.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=cls.vpc_lb_name)
                 except Exception as error:
                     raise error
-            for sg_id in cls.sg_ids:
-                cls.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId=sg_id)
         finally:
             super(Test_UpdateLoadBalancer, cls).teardown_class()
 
@@ -163,7 +163,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
     # http - app : 0 -> 1 -> 0
     def test_T5331_http_app_single_policy(self):
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
-                                                 PolicyNames=self.policy_name_app[0:1]).response
+                                             PolicyNames=self.policy_name_app[0:1]).response
         self.empty_policies(80)
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_http_app_single_policy.json'), self.hints)
         # validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app[0:1]}])
@@ -197,7 +197,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
     # http - lb : 0 -> 1 -> 0
     def test_T5334_http_lb_policy_single(self):
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
-                                                  PolicyNames=self.policy_name_lb[0:1]).response
+                                              PolicyNames=self.policy_name_lb[0:1]).response
         # validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb[0:1]}])
         self.empty_policies(80)
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_http_lb_policy_single.json'), self.hints)
@@ -376,20 +376,21 @@ class Test_UpdateLoadBalancer(LoadBalancer):
 
     def test_T2627_valid_health_check(self):
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name,
-                                                 HealthCheck={
-                                                     'CheckInterval': 15,
-                                                     'HealthyThreshold': 10,
-                                                     'Port': 80,
-                                                     'Protocol': 'TCP',
-                                                     'Timeout': 10,
-                                                     'UnhealthyThreshold': 3,
-                                                 }).response
+                                             HealthCheck={
+                                                 'CheckInterval': 15,
+                                                 'HealthyThreshold': 10,
+                                                 'Port': 80,
+                                                 'Protocol': 'TCP',
+                                                 'Timeout': 10,
+                                                 'UnhealthyThreshold': 3,
+                                             }).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_1.json'), self.hints)
 #         validate_load_balancer_global_form(
 #             ret,
 #             hc={'CheckInterval': 15, 'HealthyThreshold': 10, 'Port': 80, 'Protocol': 'TCP', 'Timeout': 10,
 #                 'UnhealthyThreshold': 3}
 #         )
+
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name,
                                                  HealthCheck={
                                                      'CheckInterval': 30,
@@ -405,6 +406,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
 #             hc={'CheckInterval': 30, 'HealthyThreshold': 10, 'Port': 65535, 'Protocol': 'TCP', 'Timeout': 5,
 #                 'UnhealthyThreshold': 2}
 #         )
+
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name,
                                                  HealthCheck={
                                                      'CheckInterval': 15,
@@ -421,6 +423,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
 #             hc={'CheckInterval': 15, 'HealthyThreshold': 10, 'Path': '/path', 'Port': 80, 'Protocol': 'HTTP',
 #                 'Timeout': 7, 'UnhealthyThreshold': 3}
 #         )
+
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name,
                                                  HealthCheck={
                                                      'CheckInterval': 15,
@@ -437,6 +440,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
 #             hc={'CheckInterval': 15, 'HealthyThreshold': 5, 'Path': '/path', 'Port': 80, 'Protocol': 'HTTPS',
 #                 'Timeout': 10, 'UnhealthyThreshold': 7}
 #         )
+
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name,
                                                  HealthCheck={
                                                      'CheckInterval': 15,
@@ -452,6 +456,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
 #             hc={'CheckInterval': 15, 'HealthyThreshold': 7, 'Port': 80, 'Protocol': 'HTTPS',
 #                 'Timeout': 15, 'UnhealthyThreshold': 3, 'Path': '/'}
 #         )
+
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name,
                                                  HealthCheck={
                                                      'CheckInterval': 15,
@@ -496,13 +501,13 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                     raise error
 
     def test_T5556_single_sg_sgroup(self):
-        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[self.sg_id[0]]).response
+        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[self.sg_ids[0]]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_single_sg_sgroup.json'), self.hints)
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_rmpty_sg_sgroup.json'), self.hints)
 
     def test_T5557_multi_sg_sgroup(self):
-        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=self.sg_id[1:2]).response
+        resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=self.sg_ids[1:2]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_multi_sg_sgroup.json'), self.hints)
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_rmpty_sg_sgroup.json'), self.hints)
