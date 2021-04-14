@@ -26,7 +26,7 @@ def ping(host):
     # Pinging
     # return system_call("ping " + parameters + " " + host) == 0
 
-    args = ['ping', '-n', '1', host] if system_name().lower() == "windows" else ['ping', '-c', '1', host]
+    args = ['ping -n 1 {}'.format(host)] if system_name().lower() == "windows" else ['ping -c 1 {}'.format(host)]
     try:
         subprocess.check_call(args, shell=True)
         return True
@@ -163,6 +163,47 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
         self.logger.info(out)
         assert not status
 
+    def config_tftp_2(self, sshclient, text_to_check):
+
+        cmd = 'sudo curl -fsSL -O https://bootstrap.pypa.io/pip/2.7/get-pip.py'
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+        self.logger.info(out)
+        assert not status, "get pip package was not installed correctly"
+
+        cmd = 'sudo python get-pip.py --no-python-version-warning && rm -f get-pip.py'
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+        self.logger.info(out)
+        assert not status, "get-pip package was not installed correctly"
+
+        cmd = 'sudo python -m pip install ptftpd'
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+        self.logger.info(out)
+        assert not status, "ptftpd package was not installed correctly"
+
+        # the default folder of the tftp server is located in the directory below
+        cmd = 'sudo touch /tmp/demo.txt'
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+        self.logger.info(out)
+        assert not status
+        cmd = 'sudo chmod 666 /tmp/demo.txt'
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+        self.logger.info(out)
+        assert not status
+        cmd = 'sudo echo \'{}\' > /tmp/demo.txt'.format(text_to_check)
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+        self.logger.info(out)
+        assert not status
+
+        try:
+            # start the service
+            # cmd = 'sudo ptftpd eth0 /tmp/'
+            cmd = 'nohup sudo sh -c "( ( sudo ptftpd eth0 /tmp/ &> /dev/null < /dev/null ) & )"'
+            out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+            self.logger.info(out)
+            assert not status
+        except Exception as error:
+            print(error)
+
     def create_rules(self, sg_id):
         self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg_id, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=self.cidr)
         self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sg_id, IpProtocol='icmp', FromPort=-1, ToPort=-1, CidrIp=self.cidr)
@@ -202,18 +243,19 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
 
             # validate UDP
             # install udp server
-            self.config_tftp(sshclient=sshclient, text_to_check=text_to_check)
+            self.config_tftp_2(sshclient=sshclient, text_to_check=text_to_check)
 
             # validate UDP
             #cmd = "echo \"get demo.txt\" \'/tmp/demo.txt\' | tftp {}".format(public_ip_inst)
             #os.system(cmd)
-            args = ["echo 'get demo.txt demo.out.txt' | tftp {}".format(public_ip_inst)]
+            args = ["echo 'get demo.txt' | tftp {}".format(public_ip_inst)]
             try:
                 subprocess.check_call(args, shell=True)
+                #TODO: check the ret code of the last call
             except CalledProcessError:
                 print('Could not execute command')
 
-            demo_file = open('demo.out.txt', 'r')
+            demo_file = open('demo.txt', 'r')
             lines = demo_file.readlines()
             assert lines[0].strip() == text_to_check
 
