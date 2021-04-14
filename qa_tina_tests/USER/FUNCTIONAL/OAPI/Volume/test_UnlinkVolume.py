@@ -63,7 +63,7 @@ class Test_UnlinkVolume(OscTestSuite):
             try:
                 self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             except:
-                self.logger('Could not unlink volume')
+                self.logger.debug('Could not unlink volume')
             if vol_id:
                 wait.wait_Volumes_state(self.a1_r1, [vol_id], state='available')
                 self.a1_r1.oapi.DeleteVolume(VolumeId=vol_id)
@@ -87,7 +87,7 @@ class Test_UnlinkVolume(OscTestSuite):
             try:
                 self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             except:
-                self.logger('Could not unlink volume')
+                self.logger.debug('Could not unlink volume')
             if vol_id:
                 wait.wait_Volumes_state(self.a1_r1, [vol_id], state='available')
                 self.a1_r1.oapi.DeleteVolume(VolumeId=vol_id)
@@ -112,7 +112,7 @@ class Test_UnlinkVolume(OscTestSuite):
             try:
                 self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             except:
-                self.logger('Could not unlink volume')
+                self.logger.debug('Could not unlink volume')
             if vol_id:
                 wait.wait_Volumes_state(self.a1_r1, [vol_id], state='available')
                 self.a1_r1.oapi.DeleteVolume(VolumeId=vol_id)
