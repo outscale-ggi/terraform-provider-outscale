@@ -16,6 +16,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
         super(Test_UpdateLoadBalancer, cls).setup_class()
         cls.lb_name = None
         cls.sg_ids = []
+        cls.sg_names = []
         try:
             cls.lb_name = id_generator(prefix='lbu-')
             resp_create_lb = cls.a1_r1.oapi.CreateLoadBalancer(
@@ -42,8 +43,10 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                 LoadBalancerName=cls.vpc_lb_name, Subnets=[cls.subnet_id],
             ).response
             for _ in range(3):
+                tmp_name = id_generator(prefix='sg_name-')
+                cls.sg_names.append(tmp_name)
                 cls.sg_ids.append(cls.a1_r1.oapi.CreateSecurityGroup(
-                    Description='test', NetId=cls.vpc_id, SecurityGroupName=id_generator(prefix='sg_name-')).response.SecurityGroup.SecurityGroupId)
+                    Description='test', NetId=cls.vpc_id, SecurityGroupName=tmp_name).response.SecurityGroup.SecurityGroupId)
 
             cls.hint_values.append(cls.lb_name)
             cls.hint_values.append(resp_create_lb.LoadBalancer.DnsName)
@@ -52,6 +55,9 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             cls.hint_values.append(cls.vpc_lb_name)
             cls.hint_values.append(resp_create_vpc_lb.LoadBalancer.DnsName)
             cls.hint_values.extend(cls.sg_ids)
+            cls.hint_values.extend(cls.sg_names)
+            cls.hint_values.append(cls.a1_r1.config.account.account_id)
+            cls.hint_values.append(cls.a1_r1.config.region.az_name)
             cls.hints = create_hints(cls.hint_values)
         except Exception as error1:
             try:
@@ -504,10 +510,10 @@ class Test_UpdateLoadBalancer(LoadBalancer):
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[self.sg_ids[0]]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_single_sg_sgroup.json'), self.hints)
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[]).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_rmpty_sg_sgroup.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_empty_sg_sgroup.json'), self.hints)
 
     def test_T5557_multi_sg_sgroup(self):
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=self.sg_ids[1:2]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_multi_sg_sgroup.json'), self.hints)
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[]).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_rmpty_sg_sgroup.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_empty_sg_sgroup.json'), self.hints)
