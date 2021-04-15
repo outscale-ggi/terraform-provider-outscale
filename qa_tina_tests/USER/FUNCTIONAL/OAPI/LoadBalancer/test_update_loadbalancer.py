@@ -1,7 +1,7 @@
 
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_test_tools.misc import id_generator
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.config import config_constants
@@ -32,9 +32,10 @@ class Test_update_loadbalancer(OscTestSuite):
                                                          'CheckInterval': 20,
                                                          'HealthyThreshold': 2,
                                                          'Port': 80,
-                                                         'Protocol': 'TCP',
+                                                         'Protocol': 'HTTP',
                                                          'Timeout': 10,
                                                          'UnhealthyThreshold': 2,
+                                                         'Path': '/index.html'
                                                      })
             for vm_id in net_vm_ids:
                 eip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp
@@ -46,21 +47,25 @@ class Test_update_loadbalancer(OscTestSuite):
             self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=lb_name, BackendVmIds=net_vm_ids)
             check_tools.check_health(self.a1_r1, lb_name, net_vm_ids, 'UP', threshold=60)
             try:
-                check_tools.dns_test(self.a1_r1, lb_info[info_keys.LBU_DNS], threshold=1)
+                check_tools.dns_test(self.a1_r1, lb_info[info_keys.LBU_DNS], threshold=2)
                 pytest.fail('This should not be successful')
             except AssertionError:
                 print("Could not connect as expected")
 
             lb_sg_id = oapi.create_SecurityGroup(self.a1_r1, net_id=net_info[info_keys.NET_ID])
-            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=lb_sg_id, IpProtocol='tcp',
-                                                         FromPort=80, ToPort=80, CidrIp=Configuration.get('cidr', 'allips'))
-            self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=lb_sg_id, IpProtocol='tcp',
-                                                         FromPort=443, ToPort=443, CidrIp=Configuration.get('cidr', 'allips'))
+            self.a1_r1.oapi.CreateSecurityGroupRule(Flow='Inbound', SecurityGroupId=lb_sg_id, IpProtocol='tcp',
+                                                         FromPortRange=80, ToPortRange=80, IpRange=Configuration.get('cidr', 'allips'))
+
             self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=lb_name, SecurityGroups=[lb_sg_id])
 
-            check_tools.dns_test(self.a1_r1, lb_info[info_keys.LBU_DNS])
+            check_tools.dns_test(self.a1_r1, lb_info[info_keys.LBU_DNS], threshold=2)
 
-            # for debug purposes
+            pytest.fail('Remove known error code')
+        except AssertionError as error:
+            if str(error).startswith('Load balancer {} could not be reached'.format(lb_name)):
+                known_error('TINA-6432', 'New rules do not seem to be pushed')
+            raise error
+        # for debug purposes
         except Exception as error:
             self.logger.exception(str(error))
             raise error
