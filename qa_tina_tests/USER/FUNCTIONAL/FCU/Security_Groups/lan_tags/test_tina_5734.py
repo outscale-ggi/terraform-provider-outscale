@@ -30,15 +30,14 @@ class Test_tina_5734(OscTestSuite):
             -----END OUTSCALE SECTION-----""".format(resp.result[0].servers[0].server)
 
             # run instance
-            inst = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info[cfg_constants.CENTOS7],
+            inst = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(cfg_constants.CENTOS7),
                                                InstanceType=self.a1_r1.config.region.get_info(cfg_constants.DEFAULT_INSTANCE_TYPE),
                                                MaxCount='1',
                                                MinCount='1',
                                                SecurityGroupId=vpc_info[SUBNETS][0][SECURITY_GROUP_ID],
                                                SubnetId=vpc_info[SUBNETS][0][SUBNET_ID],
                                                KeyName=vpc_info[KEY_PAIR][NAME],
-                                               UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
-                                              ).response
+                                               UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8')).response
             eip = self.a1_r1.fcu.AllocateAddress()
             ret = self.a1_r1.fcu.DescribeAddresses(PublicIp=[eip.response.publicIp])
             eip_allo_id = ret.response.addressesSet[0].allocationId
