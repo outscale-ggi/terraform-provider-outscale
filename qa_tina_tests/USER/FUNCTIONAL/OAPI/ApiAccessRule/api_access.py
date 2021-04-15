@@ -24,6 +24,7 @@ API_CALLS = [
             'icu.ReadQuotas',  # with AkSk
             'icu.GetAccount',  # with AkSk
             'icu.CreateAccount',  # with AkSk
+            'icu.SendResetPasswordEmail',  # with AkSk
             'fcu.DescribeRegions',  # without authent
             'fcu.DescribeSecurityGroups',  # with AkSk
             # 'kms.ListKeys',  # with AkSk
@@ -49,11 +50,14 @@ def create_account_params():
             'ZipCode': '92210'}
 
 
+def create_email_params():
+    return {'Email': 'some.mail@outscale.com'}
+
 def delete_account_params(delete_params):
     return {'pid': delete_params.response.Account.AccountPid}
 
 
-API_CREATE_PARAMS = {'icu.CreateAccount': create_account_params}
+API_CREATE_PARAMS = {'icu.CreateAccount': create_account_params, 'icu.SendResetPasswordEmail': create_email_params}
 
 API_DELETE_PARAMS = {'icu.CreateAccount': delete_account_params}
 
