@@ -37,14 +37,14 @@
             "###VALUE20###"
         ],
         "SourceSecurityGroup": {
-            "SecurityGroupAccountId": "501771424591",
-            "SecurityGroupName": "sg_name-6TVYAK"
+            "SecurityGroupAccountId": "###VALUE26###",
+            "SecurityGroupName": "###VALUE23###"
         },
         "Subnets": [
             "###VALUE2###"
         ],
         "SubregionNames": [
-            "in-west-2a"
+            "###VALUE27###"
         ],
         "Tags": []
     },
