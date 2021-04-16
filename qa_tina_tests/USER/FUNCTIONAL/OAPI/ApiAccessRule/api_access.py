@@ -24,7 +24,7 @@ API_CALLS = [
             'icu.ReadQuotas',  # with AkSk
             'icu.GetAccount',  # with AkSk
             'icu.CreateAccount',  # with AkSk
-            'icu.SendResetPasswordEmail',  # with AkSk
+            'icu.SendResetPasswordEmail',  # without authent
             'fcu.DescribeRegions',  # without authent
             'fcu.DescribeSecurityGroups',  # with AkSk
             # 'kms.ListKeys',  # with AkSk
@@ -198,7 +198,7 @@ def setup_api_access_rules(confkey):
                     if unexpected:
                         print('actual   results for conf {} -> {}'.format(confkey, actual))
                         print('expected results for conf {} -> {}'.format(confkey, expected))
-                        for i, val in enumerate(API_CALLS):
+                        for i, val in enumerate(errors):
                             print('{} -> {}'.format(val, errors[i]))
                         raise OscTestException('Unexpected result')
                     if issue_names:
