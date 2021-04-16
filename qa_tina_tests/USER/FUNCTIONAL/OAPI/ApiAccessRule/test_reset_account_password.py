@@ -4,8 +4,8 @@ import pytest
 
 from qa_sdk_pub import osc_api
 from qa_test_tools import misc
-from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, ApiAccess, FAIL, PASS
 from qa_test_tools.config import config_constants
+from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, ApiAccess, FAIL, PASS
 
 
 @pytest.mark.region_admin
