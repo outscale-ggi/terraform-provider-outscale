@@ -4,7 +4,7 @@ from qa_sdk_pub import osc_api
 from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, PASS, FAIL, ApiAccess, KNOWN
 
 
-AK_SK_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, PASS, FAIL, FAIL]
+AK_SK_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, PASS, PASS, FAIL, FAIL, PASS, FAIL, FAIL]
 AK_SK_PASS_LIST = [PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS]
 AK_SK_PASS_LIST_WITH_KNOWN = [PASS, KNOWN, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS]
 
@@ -20,7 +20,7 @@ class Test_api_access_ak_sk(ApiAccess):
     @setup_api_access_rules(ConfName.NO)
     def test_T4927_ak_sk_NO_CONF_EEY(self):
         return self.make_calls({osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
-                               [PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS])
+                               [PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS])
 
     @setup_api_access_rules(ConfName.IPOK)
     def test_T4928_ak_sk_CONF_IPOK_EEY(self):
