@@ -42,13 +42,6 @@ class Test_ReadVmsState(OscTestSuite):
 
     # ATTENTION, this test is better first as terminated vm can 'disappear'
     def test_T2076_filter_vm_state_name(self):
-        # check running
-        code_name = 'running'
-        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_name]})
-        assert ret.status_code == 200, ret.response.display()
-        assert len(ret.response.VmStates) == 2
-        for i in range(len(ret.response.VmStates)):
-            assert ret.response.VmStates[i].VmState == code_name
         # check terminated
         code_name = 'terminated'
         ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_name]})
@@ -58,6 +51,13 @@ class Test_ReadVmsState(OscTestSuite):
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=True, Filters={'VmStates': [code_name]})
         assert len(ret.response.VmStates) == 1
         assert ret.response.VmStates[0].VmState == code_name
+        # check running
+        code_name = 'running'
+        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_name]})
+        assert ret.status_code == 200, ret.response.display()
+        assert len(ret.response.VmStates) == 2
+        for i in range(len(ret.response.VmStates)):
+            assert ret.response.VmStates[i].VmState == code_name
 
     def test_T2071_no_param(self):
         ret = self.a1_r1.oapi.ReadVmsState()
@@ -70,7 +70,8 @@ class Test_ReadVmsState(OscTestSuite):
     def test_T5544_filters_maintenance(self):
         start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(seconds=10)
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=2)
-        pinkvm = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response.result[0].servers[0].server
+        resp = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response
+        pinkvm = resp.result[0].servers[0].server
         ret = self.a1_r1.intel.scheduled_events.create(event_type='software-upgrade', resource_type='server',
                                                        targets=[pinkvm], start_date=str(start_date),
                                                        end_date=str(end_date), description='test')
@@ -93,7 +94,7 @@ class Test_ReadVmsState(OscTestSuite):
 
     def test_T2072_include_all_vms_true(self):
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=True)
-        assert len(ret.response.VmStates) == 3
+        assert len(ret.response.VmStates) in [2, 3]  # depending on whether the terminated has disappeared
 
     def test_T2073_include_all_vms_false(self):
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=False)
