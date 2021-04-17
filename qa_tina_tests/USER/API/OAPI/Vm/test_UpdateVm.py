@@ -395,5 +395,3 @@ class Test_UpdateVm(OscTestSuite):
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
-
-        
