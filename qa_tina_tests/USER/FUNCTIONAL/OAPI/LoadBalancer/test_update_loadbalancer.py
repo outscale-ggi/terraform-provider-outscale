@@ -12,7 +12,7 @@ class Test_update_loadbalancer(OscTestSuite):
 
     def test_T5558_update_lbu_sg(self):
         lb_name = id_generator(prefix='lb-')
-        lb_info = None
+        lb_info = {}
         lb_sg_id = None
         net_info = None
         eips = []
@@ -62,7 +62,7 @@ class Test_update_loadbalancer(OscTestSuite):
 
             pytest.fail('Remove known error code')
         except AssertionError as error:
-            if str(error).startswith('Load balancer {} could not be reached'.format(lb_name)):
+            if str(error).startswith('Load balancer {} could not be reached'.format(lb_info[info_keys.LBU_DNS])):
                 known_error('TINA-6432', 'New rules do not seem to be pushed')
             raise error
         # for debug purposes
