@@ -84,7 +84,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
             policy_name = id_generator('policy')
             self.a1_r1.lbu.CreateLoadBalancerPolicy(LoadBalancerName=lbu_name, PolicyName=policy_name, PolicyTypeName="ProxyProtocolPolicyType")
             self.a1_r1.lbu.SetLoadBalancerPoliciesForBackendServer(LoadBalancerName=lbu_name, InstancePort='80', PolicyNames=[policy_name])
-            time.sleep(15)  # Wait config
+            time.sleep(60)  # Wait config
             wait_lbu_backend_state(self.a1_r1, lbu_name)
             ret = self.a1_r1.intel_lbu.lb.get(owner=self.a1_r1.config.account.account_id,
                                               names=[lbu_name])
@@ -94,7 +94,12 @@ class Test_lbu_proxy_protocol(OscTestSuite):
             protocol = 'http'
             if listener['LoadBalancerPort'] == '443':
                 protocol = 'https'
-            ret = requests.get("{}://{}/proxy_protocol".format(protocol, dns_name), verify=listener['verify'])
+            for _ in range(5):
+                try:
+                    ret = requests.get("{}://{}/proxy_protocol".format(protocol, dns_name), verify=listener['verify'])
+                    break
+                except:
+                    print('Could not reach load balancer')
             assert ret.status_code == 200
             expexted_text = []
             for ip in self.a1_r1.config.region.get_info(constants.MY_IP):
