@@ -46,9 +46,8 @@ class Test_brute_force(OscTestSuite):
 
             for i in range(6):
                 try:
-                    ret = wrong_account_sdk.oapi.ReadVms(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
+                    wrong_account_sdk.oapi.ReadVms(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                     time.sleep(2)
-                    print(ret)
                 except OscApiException as error:
                     assert_oapi_error(error, 401, 'AccessDenied', 1)
                     print(i)
@@ -82,12 +81,11 @@ class Test_brute_force(OscTestSuite):
     def test_T5645_login_password(self):
         for i in range(6):
             try:
-                ret = self.a1_r1.icu.AuthenticateAccount(
+                self.a1_r1.icu.AuthenticateAccount(
                     exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty,
                                osc_api.EXEC_DATA_MAX_RETRY: 0},
                     Login=self.a1_r1.config.account.login, Password=self.a1_r1.config.account.password+'h')
                 time.sleep(2)
-                print(ret)
             except OscApiException as error:
                 assert_error(error, 401, 'AuthFailure', 'Outscale was not able to validate the provided access '
                                                         'credentials. Invalid login/password or password has expired.')
@@ -95,7 +93,7 @@ class Test_brute_force(OscTestSuite):
                 print(error)
         try:
             time.sleep(2)
-            ret = self.a1_r1.icu.AuthenticateAccount(
+            self.a1_r1.icu.AuthenticateAccount(
                 exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty,
                            osc_api.EXEC_DATA_MAX_RETRY: 0},
                 Login=self.a1_r1.config.account.login, Password=self.a1_r1.config.account.password + 'h')
@@ -104,7 +102,7 @@ class Test_brute_force(OscTestSuite):
             print(error)
         try:
             time.sleep(2)
-            ret = self.a1_r1.icu.AuthenticateAccount(
+            self.a1_r1.icu.AuthenticateAccount(
                 exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty,
                            osc_api.EXEC_DATA_MAX_RETRY: 0},
                 Login=self.a1_r1.config.account.login, Password=self.a1_r1.config.account.password + 'h')
