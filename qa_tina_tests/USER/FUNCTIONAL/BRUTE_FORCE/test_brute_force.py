@@ -5,12 +5,12 @@ import pytest
 
 
 from qa_sdk_pub import osc_api
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdks import OscSdk
 
 from qa_test_tools.config import config_constants as constants, OscConfig
 from qa_test_tools.misc import assert_error, assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 @pytest.mark.region_admin
@@ -37,7 +37,7 @@ class Test_brute_force(OscTestSuite):
             az_name=self.a1_r1.config.region.az_name,
             ak=access_key,
             sk=secret_key))
-        ret = account_sdk.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
+        account_sdk.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
         wrong_account_sdk = OscSdk(config=OscConfig.get_with_keys(
             az_name=self.a1_r1.config.region.az_name,
             ak=access_key,
@@ -68,7 +68,8 @@ class Test_brute_force(OscTestSuite):
                              'icu': 'ListAccessKeys', 'lbu': 'DescribeLoadBalancers'}
             for service, call in dict_services.items():
                 try:
-                    eval('account_sdk' + '.' + service + '.' + call)(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
+                    connector = getattr(account_sdk, service)
+                    getattr(connector, call)(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 except OscApiException as error:
                     assert_error(error, 401, 'AuthFailure', 'Outscale was not able to validate the provided access '
                                                             'credentials. Invalid login/password or password has expired.')
