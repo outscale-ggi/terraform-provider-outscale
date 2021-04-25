@@ -6,6 +6,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances, create_keypa
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_keypair
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, NAME, PATH, \
     INSTANCE_ID_LIST
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
 class Test_instance_metadata(OscTestSuite):
@@ -18,11 +19,12 @@ class Test_instance_metadata(OscTestSuite):
         super(Test_instance_metadata, cls).setup_class()
         try:
             cls.kp_info = create_keypair(cls.a1_r1)
-            cls.inst_info = create_instances(cls.a1_r1, state=InstanceState.Ready.value, key_name=cls.kp_info[NAME])
+            cls.inst_info = create_instances(cls.a1_r1, state=InstanceState.Running.value, key_name=cls.kp_info[NAME])
             inst = cls.inst_info[INSTANCE_SET][0]
             cls.a1_r1.fcu.CreateTags(ResourceId=[inst['instanceId']], Tag=[{'Key': 'key1', 'Value': 'value1'},
                                                                            {'Key': 'key2', 'Value': 'value2'},
                                                                            {'Key': 'key3', 'Value': ''}])
+            wait_instances_state(cls.a1_r1, [inst['instanceId']], state='ready')
             cls.connection = SshTools.check_connection_paramiko(inst['ipAddress'], cls.kp_info[PATH],
                                                                 cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except Exception as error:
