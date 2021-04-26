@@ -48,7 +48,7 @@ class Test_attach_detach_volume(OscTestSuite):
                                                         DeviceName=DEVICE_NAME)
             self.is_attached = True
 
-            wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')            
+            wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
 
             self.sshclient = SshTools.check_connection_paramiko(self.vm_info[info_keys.VMS][0]['PublicIp'],
                                                                 self.vm_info[info_keys.KEY_PAIR][info_keys.PATH],
