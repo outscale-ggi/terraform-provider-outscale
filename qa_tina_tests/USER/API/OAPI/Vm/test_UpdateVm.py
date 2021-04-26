@@ -242,9 +242,9 @@ class Test_UpdateVm(OscTestSuite):
     def test_T2147_user_data_private_only_true_false(self):
         inst_info = None
         try:
-            data_true = base64.encodebytes(
+            data_true = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodebytes(
+            data_false = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_true)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -257,10 +257,7 @@ class Test_UpdateVm(OscTestSuite):
             stop_instances(self.a1_r1, instance_id_list=[inst_id])
             self.a1_r1.oapi.UpdateVm(UserData=data_false, VmId=inst_id)
             ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
-            try:
-                assert ret.response.userData.value == data_false, 'Incorrect user data value'
-            except AssertionError:
-                known_error('TINA-6437', 'user data does not correspond to initial one')
+            assert ret.response.userData.value == data_false, 'Incorrect user data value'
             self.a1_r1.oapi.StartVms(VmIds=[inst_id])
             wait_instances_state(self.a1_r1, instance_id_list=[inst_id], state='running')
             ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
@@ -281,9 +278,9 @@ class Test_UpdateVm(OscTestSuite):
     def test_T2148_user_data_private_only_false_true(self):
         inst_info = None
         try:
-            data_true = base64.encodebytes(
+            data_true = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodebytes(
+            data_false = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_false)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -296,10 +293,7 @@ class Test_UpdateVm(OscTestSuite):
             stop_instances(self.a1_r1, instance_id_list=[inst_id])
             self.a1_r1.oapi.UpdateVm(UserData=data_true, VmId=inst_id)
             ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
-            try:
-                assert ret.response.userData.value == data_true, 'Incorrect user data value'
-            except AssertionError:
-                known_error('TINA-6437', 'user data does not correspond to initial one')
+            assert ret.response.userData.value == data_true, 'Incorrect user data value'
             self.a1_r1.oapi.StartVms(VmIds=[inst_id])
             wait_instances_state(self.a1_r1, instance_id_list=[inst_id], state='running')
             ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
@@ -374,18 +368,15 @@ class Test_UpdateVm(OscTestSuite):
     def test_T5642_user_data_twice(self):
         vm_info = None
         try:
-            data_true = base64.encodebytes(
+            data_true = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodebytes(
+            data_false = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             vm_info = oapi.create_Vms(self.a1_r1, user_data=data_true)
             inst_id = vm_info[info_keys.VM_IDS][0]
             oapi.stop_Vms(self.a1_r1, vm_info[info_keys.VM_IDS])
             ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
-            try:
-                assert ret.response.userData.value == data_true, 'Incorrect user data value'
-            except AssertionError:
-                known_error('TINA-6437', 'user data does not correspond to initial one')
+            assert ret.response.userData.value == data_true, 'Incorrect user data value'
             self.a1_r1.oapi.UpdateVm(UserData=ret.response.userData.value, VmId=inst_id)
             ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
             assert ret.response.userData.value == data_true, 'Incorrect user data value'
