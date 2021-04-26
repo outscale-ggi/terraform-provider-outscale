@@ -87,7 +87,7 @@ class Test_attach_detach_volume(OscTestSuite):
         finally:
             super(Test_attach_detach_volume, self).teardown_method(method)
 
-    def test_T0000_multi_snap_and_attach_detach(self):
+    def test_T5649_multi_snap_and_attach_detach(self):
         """
             This test have two goal.
             The first loop aim to create snapshot
@@ -148,7 +148,7 @@ class Test_attach_detach_volume(OscTestSuite):
                     _, status, _ = SshTools.exec_command_paramiko(self.sshclient, CMD, expected_status=2)
                     assert status != 0
 
-    def test_T0000_create_snap_from_attached_volume(self):
+    def test_T5650_create_snap_from_attached_volume(self):
         """
             This test aim to attach a volume and mount it,
             then create a snapshot from attached volume.
@@ -205,7 +205,7 @@ class Test_attach_detach_volume(OscTestSuite):
                 _, status, _ = SshTools.exec_command_paramiko(self.sshclient, CMD, expected_status=2)
                 assert status != 0
 
-    def test_T0000_attach_detach_vol_and_create_snap(self):
+    def test_T5651_attach_detach_vol_and_create_snap(self):
         """
             This test aim to attach a volume and mount it,
             write text file and umount and detach volume,
