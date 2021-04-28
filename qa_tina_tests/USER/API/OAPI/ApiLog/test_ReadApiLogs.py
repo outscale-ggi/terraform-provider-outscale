@@ -190,9 +190,17 @@ class Test_ReadApiLogs(OscTestSuite):
         except Exception as error:
             misc.assert_oapi_error(error, 404, 'InvalidAction', 12000)
         time.sleep(20)
+<<<<<<< Upstream, based on origin/TINA-2.5.18
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409, 401, 200, 200]}, ResultsPerPage=1000)
+=======
+        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409, 200]}, ResultsPerPage=1000)
+>>>>>>> 98e53f9 add new tests
         assert len(ret.response.Logs) != 0
+<<<<<<< Upstream, based on origin/TINA-2.5.18
         assert {409, 401, 200, 200} == {call.ResponseStatusCode for call in ret.response.Logs}
+=======
+        assert {409, 200} == {call.ResponseStatusCode for call in ret.response.Logs}
+>>>>>>> 98e53f9 add new tests
 
     def test_T3214_valid_filter_QueryDateBefore(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateBefore': (datetime.utcnow()).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
