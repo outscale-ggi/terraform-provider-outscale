@@ -55,8 +55,10 @@ class Test_AddTags(OscTestSuite):
 
     def test_T5379_valid_params_dry_run(self):
         tags = {'Key': id_generator("tagkey-"), 'Value': id_generator("tagvalue-")}
-        ret = self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[tags], DryRun=True)
-        assert_dry_run(ret)
+        try:
+            self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[tags], DryRun=True)
+        except OscApiException as error:
+            assert_error(error, 400, 'DryRunOperation', 'Request would have succeeded, but DryRun flag is set.')
 
     def test_T5380_without_tag_field(self):
         try:
