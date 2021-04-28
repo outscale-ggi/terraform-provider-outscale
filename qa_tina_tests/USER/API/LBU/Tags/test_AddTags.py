@@ -1,7 +1,7 @@
 from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_dry_run, assert_error
+from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
@@ -55,8 +55,10 @@ class Test_AddTags(OscTestSuite):
 
     def test_T5379_valid_params_dry_run(self):
         tags = {'Key': id_generator("tagkey-"), 'Value': id_generator("tagvalue-")}
-        ret = self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[tags], DryRun=True)
-        assert_dry_run(ret)
+        try:
+            self.a1_r1.lbu.AddTags(LoadBalancerNames=[self.lbu_name], Tags=[tags], DryRun=True)
+        except OscApiException as error:
+            assert_error(error, 400, 'DryRunOperation', 'Request would have succeeded, but DryRun flag is set.')
 
     def test_T5380_without_tag_field(self):
         try:
