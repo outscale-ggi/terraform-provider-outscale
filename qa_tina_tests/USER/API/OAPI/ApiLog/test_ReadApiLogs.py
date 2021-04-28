@@ -1,5 +1,6 @@
 import time
 from datetime import datetime, timedelta
+import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
@@ -28,6 +29,7 @@ param = [
 ]
 
 
+@pytest.mark.region_cloudtrace
 class Test_ReadApiLogs(OscTestSuite):
     @classmethod
     def setup_class(cls):
