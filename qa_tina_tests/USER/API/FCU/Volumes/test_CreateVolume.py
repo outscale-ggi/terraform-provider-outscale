@@ -79,7 +79,7 @@ class Test_CreateVolume(OscTestSuite):
             if check_iop:
                 min_iops = VOLUME_IOPS[kwargs['VolumeType']]['min_iops']
                 max_iops = VOLUME_IOPS[kwargs['VolumeType']]['max_iops']
-                assert error.message == 'Invalid IOPS, Min: {} Max: {}'.format(min_iops, max_iops)
+                assert error.message == 'Invalid IOPS: {} Min: {} Max: {}'.format(kwargs['Iops'], min_iops, max_iops)
             else:
                 min_size = VOLUME_SIZES[kwargs['VolumeType']]['min_size']
                 max_size = VOLUME_SIZES[kwargs['VolumeType']]['max_size']

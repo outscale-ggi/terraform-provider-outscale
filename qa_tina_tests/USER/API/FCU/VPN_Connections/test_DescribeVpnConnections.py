@@ -81,8 +81,10 @@ class Test_DescribeVpnConnections(OscTestSuite):
             assert vpnconn.vpnConnectionId in self.vpn_connection_ids
 
     def test_T3278_dry_run(self):
-        ret = self.a1_r1.fcu.DescribeVpnConnections(DryRun=True)
-        assert_dry_run(ret)
+        try:
+            ret = self.a1_r1.fcu.DescribeVpnConnections(DryRun=True)
+        except OscApiException as error:
+            assert_error(error, 400, 'DryRunOperation', 'Request would have succeeded, but DryRun flag is set.')
 
     def test_T3279_from_other_account(self):
         try:
