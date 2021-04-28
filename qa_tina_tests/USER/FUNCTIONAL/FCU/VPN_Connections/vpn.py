@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import datetime
 import re
 import time
@@ -122,7 +120,9 @@ class Vpn(OscTestSuite):
         self.a1_r1.fcu.AttachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
 
         # create VPN connection
-        ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw_id, Type='ipsec.1',  VpnGatewayId=self.vgw_id,  Options={'StaticRoutesOnly': static})
+        ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw_id, Type='ipsec.1', 
+                                                 VpnGatewayId=self.vgw_id,
+                                                 Options={'StaticRoutesOnly': static})
         vpn_id = ret.response.vpnConnection.vpnConnectionId
         wait_vpn_connections_state(self.a1_r1, [vpn_id], state='available')
         vpn_cfg = ret.response.vpnConnection.customerGatewayConfiguration
