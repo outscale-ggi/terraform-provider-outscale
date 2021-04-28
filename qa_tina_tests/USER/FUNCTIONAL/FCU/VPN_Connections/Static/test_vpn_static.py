@@ -14,3 +14,9 @@ class Test_vpn_static(Vpn):
 
     def test_T5140_test_vpn_static_strongswan(self):
         self.exec_test_vpn(static=True, racoon=False, default_rtb=True)
+
+    def test_T5653_test_vpn_static_strongswan_vti(self):
+        self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti= True, xfrm=True)
+
+    def test_T5654_test_vpn_static_strongswan_policy(self):
+        self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti= False, xfrm=True)
