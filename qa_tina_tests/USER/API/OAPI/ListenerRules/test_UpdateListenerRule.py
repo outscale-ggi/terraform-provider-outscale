@@ -74,7 +74,7 @@ class Test_UpdateListenerRule(OscTestSuite):
 
     def test_T4807_with_valid_HostPattern(self):
         resp = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, HostPattern="*.abc.?.abc.*.com").response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_valid_host_pattern.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_host_pattern.json'), self.hints)
 
 
     def test_T4808_with_invalid_HostPattern(self):
@@ -86,7 +86,7 @@ class Test_UpdateListenerRule(OscTestSuite):
 
     def test_T4809_with_valid_PathPattern(self):
         resp = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, PathPattern="/.fr").response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_valid_path_pattern.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_path_pattern.json'), self.hints)
 
     def test_T4810_with_invalid_PathPattern(self):
         try:
@@ -97,4 +97,4 @@ class Test_UpdateListenerRule(OscTestSuite):
 
     def test_T5555_with_valid_params(self):
         resp = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, HostPattern="*.abc.?.abc.*.fr", PathPattern="/.be").response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_valid_path_pattern_host_pattern.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_path_pattern_host_pattern.json'), self.hints)

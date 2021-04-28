@@ -14,8 +14,10 @@ class Test_DescribeVpcEndpointServices(OscTestSuite):
         super(Test_DescribeVpcEndpointServices, cls).teardown_class()
 
     def test_T4482_valid_dry_run(self):
-        ret = self.a1_r1.fcu.DescribeVpcEndpointServices(DryRun=True)
-        assert_dry_run(ret)
+        try:
+            ret = self.a1_r1.fcu.DescribeVpcEndpointServices(DryRun=True)
+        except OscApiException as error:
+            assert_error(error, 400, 'DryRunOperation', 'Request would have succeeded, but DryRun flag is set.')
 
     def test_T4483_no_params(self):
         ret = self.a1_r1.fcu.DescribeVpcEndpointServices()
