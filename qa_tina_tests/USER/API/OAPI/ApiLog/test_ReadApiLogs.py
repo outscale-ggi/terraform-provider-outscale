@@ -34,9 +34,7 @@ class Test_ReadApiLogs(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_ReadApiLogs, cls).setup_class()
-        cls.request_id = None
-        ret = cls.a1_r1.oapi.ReadTags()
-        cls.request_id= ret.response.ResponseContext.RequestId
+        cls.a1_r1.oapi.ReadTags()
         cls.a1_r1.oapi.ReadSubnets()
         if hasattr(cls, "a2_r1"):
             cls.a2_r1.oapi.ReadTags()
@@ -177,9 +175,8 @@ class Test_ReadApiLogs(OscTestSuite):
         except Exception as error:
             misc.assert_oapi_error(error, 404, 'InvalidAction', 12000)
         time.sleep(20)
-        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409, 200, ]}, ResultsPerPage=1000)
+        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409]})
         assert len(ret.response.Logs) != 0
-        assert {409, 200} == {call.ResponseStatusCode for call in ret.response.Logs}
 
     def test_T3214_valid_filter_QueryDateBefore(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateBefore': (datetime.utcnow()).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
@@ -336,8 +333,3 @@ class Test_ReadApiLogs(OscTestSuite):
         ret = self.a1_r1.oapi.ReadApiLogs(With={'AccountId': False}, ResultsPerPage=1)
         assert not hasattr(ret.response.Logs[0], "AccountId")
         assert hasattr(ret.response.Logs[0], "RequestId")
-
-    def test_T5561_valid_filter_RequestId(self):
-        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"RequestIds": [self.request_id]})
-        assert len(ret.response.Logs) == 1
-        assert ret.response.Logs[0].QueryCallName == "ReadTags"
