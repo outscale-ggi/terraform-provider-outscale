@@ -81,7 +81,7 @@ class Test_ModifyVpcEndpoint(OscTestSuite):
             self.a1_r1.fcu.ModifyVpcEndpoint(VpcEndpointId=True)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidVpcEndpointID.Malformed', 'Invalid ID received: True. Expected format: vpce-')
+            assert_error(error, 400, 'InvalidVpcEndpointID.Malformed', 'Invalid ID received: true. Expected format: vpce-')
         try:
             self.a1_r1.fcu.ModifyVpcEndpoint(VpcEndpointId='123456')
             assert False, 'Call should not have been successful'
