@@ -82,7 +82,7 @@ class Test_DescribeVpnConnections(OscTestSuite):
 
     def test_T3278_dry_run(self):
         try:
-            ret = self.a1_r1.fcu.DescribeVpnConnections(DryRun=True)
+            self.a1_r1.fcu.DescribeVpnConnections(DryRun=True)
         except OscApiException as error:
             assert_error(error, 400, 'DryRunOperation', 'Request would have succeeded, but DryRun flag is set.')
 
