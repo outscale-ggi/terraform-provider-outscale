@@ -120,7 +120,7 @@ class Vpn(OscTestSuite):
         self.a1_r1.fcu.AttachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
 
         # create VPN connection
-        ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw_id, Type='ipsec.1', 
+        ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw_id, Type='ipsec.1',
                                                  VpnGatewayId=self.vgw_id,
                                                  Options={'StaticRoutesOnly': static})
         vpn_id = ret.response.vpnConnection.vpnConnectionId

@@ -148,7 +148,8 @@ class Test_multi_vpn(OscTestSuite):
                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             setup_customer_gateway(self.a1_r1, sshclient1, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
-                                   self.inst_cgw1_info, vgw1_ip, psk1_key, static, vpn1_id, racoon=racoon, xfrm=xfrm)
+                                   self.inst_cgw1_info, vgw1_ip, psk1_key, static, vpn1_id, index=0, ike="ikev1",
+                                   racoon=racoon, vti=True, xfrm=xfrm)
 
             # wait vpc instance state == ready before try to make ping
             wait_tools.wait_instances_state(self.a1_r1,
@@ -221,7 +222,7 @@ class Test_multi_vpn(OscTestSuite):
             if policy:
                 vti=False
             setup_customer_gateway(self.a1_r1, sshclient2, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
-                                   self.inst_cgw2_info, vgw2_ip, psk2_key, static, vpn2_id, index=1, racoon=racoon, vti=vti, xfrm=xfrm)
+                                   self.inst_cgw2_info, vgw2_ip, psk2_key, static, vpn2_id, index=1, racoon=racoon, ike="ikev1", vti=vti, xfrm=xfrm)
 
             inst2 = self.inst_cgw2_info[INSTANCE_SET][0]
             print("inst2 cgw -> : {} -- {}".format(inst2['ipAddress'], inst2['privateIpAddress']))
