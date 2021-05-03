@@ -254,9 +254,9 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
     def test_T1624_user_data_private_only_true_false(self):
         inst_info = None
         try:
-            data_true = base64.encodebytes(
+            data_true = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodebytes(
+            data_false = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_true)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -269,9 +269,6 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
             stop_instances(self.a1_r1, instance_id_list=[inst_id])
             self.a1_r1.fcu.ModifyInstanceAttribute(UserData={'Value': data_false}, InstanceId=inst_id)
             ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
-            if not ret.response.userData.value == data_false:
-                known_error('TINA-6434', 'incorrect user data value')
-            assert False, 'Remove know error code'
             assert ret.response.userData.value == data_false, 'Incorrect user data value'
             self.a1_r1.fcu.StartInstances(InstanceId=[inst_id])
             wait_instances_state(self.a1_r1, instance_id_list=[inst_id], state='running')
@@ -291,9 +288,9 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
     def test_T1625_user_data_private_only_false_true(self):
         inst_info = None
         try:
-            data_true = base64.encodebytes(
+            data_true = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodebytes(
+            data_false = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_false)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -306,9 +303,6 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
             stop_instances(self.a1_r1, instance_id_list=[inst_id])
             self.a1_r1.fcu.ModifyInstanceAttribute(UserData={'Value': data_true}, InstanceId=inst_id)
             ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
-            if not ret.response.userData.value == data_false:
-                known_error('TINA-6434', 'incorrect user data value')
-            assert False, 'Remove know error code'
             assert ret.response.userData.value == data_true, 'Incorrect user data value'
             self.a1_r1.fcu.StartInstances(InstanceId=[inst_id])
             wait_instances_state(self.a1_r1, instance_id_list=[inst_id], state='running')
@@ -326,7 +320,7 @@ class Test_ModifyInstanceAttribute(OscTestSuite):
                 delete_instances(self.a1_r1, inst_info)
 
     def test_T3987_incorrect_userdata_value(self):
-        user_data = base64.encodebytes('private_only=True'.encode()).decode().strip()
+        user_data = base64.b64encode('private_only=True'.encode()).decode().strip()
         try:
             self.a1_r1.fcu.ModifyInstanceAttribute(InstanceId=self.running_id, UserData=user_data)
             assert False, 'Call should not have been successful'
