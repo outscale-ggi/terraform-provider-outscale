@@ -1,0 +1,12 @@
+{
+    "ResponseContext": "erased",
+    "SecurityGroup": {
+        "AccountId": "###VALUE0###",
+        "Description": "###VALUE17###",
+        "InboundRules": [],
+        "OutboundRules": [],
+        "SecurityGroupId": "###VALUE3###",
+        "SecurityGroupName": "###VALUE16###",
+        "Tags": []
+    }
+}

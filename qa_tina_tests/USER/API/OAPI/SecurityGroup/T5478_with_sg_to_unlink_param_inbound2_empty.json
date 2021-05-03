@@ -2,7 +2,7 @@
     "ResponseContext": "erased",
     "SecurityGroup": {
         "AccountId": "###VALUE0###",
-        "Description": "###VALUE17###",
+        "Description": "###VALUE20###",
         "InboundRules": [
             {
                 "FromPortRange": -1,
@@ -39,19 +39,11 @@
                     }
                 ],
                 "ToPortRange": 65535
-            },
-            {
-                "FromPortRange": 4578,
-                "IpProtocol": "udp",
-                "IpRanges": [
-                    "10.0.0.12/32"
-                ],
-                "ToPortRange": 4679
             }
         ],
         "OutboundRules": [],
-        "SecurityGroupId": "###VALUE3###",
-        "SecurityGroupName": "###VALUE16###",
+        "SecurityGroupId": "###VALUE6###",
+        "SecurityGroupName": "###VALUE19###",
         "Tags": []
     }
 }
