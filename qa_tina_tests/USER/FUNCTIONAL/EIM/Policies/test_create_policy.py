@@ -613,3 +613,37 @@ class Test_create_policy(OscTestSuite):
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
             if policy_response:
                 self.a1_r1.eim.DeletePolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn)
+
+    def test_T5656_read_only_calls(self):
+        policy_name = misc.id_generator(prefix='TestCreatePolicy')
+        attach_policy = None
+        policy_response = None
+        try:
+            policy_response = self.a1_r1.eim.CreatePolicy(
+                PolicyName=policy_name,
+                PolicyDocument='{"Statement": [{"Action": ["*:Read*", "*:Describe*", "*:List*"], "Resource": ["*"], "Effect": "Allow"}]}')
+            attach_policy = self.a1_r1.eim.AttachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
+            self.account_sdk.oapi.ReadVms()
+            self.account_sdk.fcu.DescribeInstanceTypes()
+            self.account_sdk.eim.ListAccessKeys()
+            self.account_sdk.directlink.DescribeLocations()
+            ret = None
+            try:
+                ret = self.account_sdk.fcu.CreateKeyPair(KeyName='toto')
+                known_error('TINA-TODO', 'Policies do not work correctly')
+                assert False, 'Call should not have been successful'
+            except OscApiException as error:
+                assert False, 'Remove known error code'
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:CreateKeyPair'.format(
+                                      self.user_name))
+            finally:
+                if ret:
+                    self.account_sdk.fcu.DeleteKeyPair(KeyName=ret.response.keyName)
+
+        finally:
+            if attach_policy:
+                self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
+            if policy_response:
+                self.a1_r1.eim.DeletePolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn)
+        
