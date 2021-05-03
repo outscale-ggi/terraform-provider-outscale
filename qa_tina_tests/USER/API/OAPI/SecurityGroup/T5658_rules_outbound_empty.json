@@ -13,22 +13,6 @@
                     "0.0.0.0/0"
                 ],
                 "ToPortRange": -1
-            },
-            {
-                "FromPortRange": -1,
-                "IpProtocol": "icmp",
-                "IpRanges": [
-                    "10.0.0.12/32"
-                ],
-                "ToPortRange": -1
-            },
-            {
-                "FromPortRange": 45,
-                "IpProtocol": "tcp",
-                "IpRanges": [
-                    "10.0.0.12/32"
-                ],
-                "ToPortRange": 4609
             }
         ],
         "SecurityGroupId": "###VALUE12###",
