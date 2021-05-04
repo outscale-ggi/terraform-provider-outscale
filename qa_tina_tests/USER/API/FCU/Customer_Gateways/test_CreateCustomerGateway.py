@@ -99,9 +99,9 @@ class Test_CreateCustomerGateway(OscTestSuite):
         create_customer_gateway(self.a1_r1, bgp_asn=12, ip_address='169.1.1.1', typ='ipsec.1')
 
     def test_T5643_large_asn_number(self):
-        ret = create_customer_gateway(self.a1_r1, bgp_asn=2000000000, ip_address=self.cgw_ip, typ='ipsec.1')
+        ret = create_customer_gateway(self.a1_r1, bgp_asn=4000000000, ip_address=self.cgw_ip, typ='ipsec.1')
         wait_customer_gateways_state(self.conns[0], [ret.response.customerGateway.customerGatewayId], state='available')
         assert ret.status_code == 200
-        assert ret.response.customerGateway.bgpAsn == '2000000000'
+        assert ret.response.customerGateway.bgpAsn == '4000000000'
         assert ret.response.customerGateway.ipAddress == self.cgw_ip
         assert ret.response.customerGateway.state == 'available'
