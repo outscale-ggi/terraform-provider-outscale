@@ -52,7 +52,7 @@ class Test_Attachement(OscTestSuite):
                 known_error('TINA-6448', 'Volume remains attaching, cannot delete')
             if remove_known_eror_code:
                 assert False, 'Remove known error code'
-        
+
     def attach_detach(self, device, snap=False):
         self.nb_test += 1
         self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_info[INSTANCE_ID_LIST][0], VolumeId=self.vol_id, Device=device)
