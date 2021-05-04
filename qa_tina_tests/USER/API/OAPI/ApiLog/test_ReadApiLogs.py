@@ -47,6 +47,7 @@ class Test_ReadApiLogs(OscTestSuite):
         cls.a1_r1.oapi.ReadVms()
         cls.a1_r1.fcugtw.DescribeImages()
         cls.a1_r1.directlinkgtw.DescribeConnections()
+        time.sleep(120)
         ret = None
         try:
             cls.keypair_name = id_generator(prefix='keypair_')
@@ -65,7 +66,6 @@ class Test_ReadApiLogs(OscTestSuite):
             if ret:
                 cls.a1_r1.oapi.DeleteKeypair(KeypairName=cls.keypair_name)
 
-        time.sleep(60)
 
     @classmethod
     def teardown_class(cls):
@@ -88,6 +88,8 @@ class Test_ReadApiLogs(OscTestSuite):
         except OscApiException as err:
             if err.status_code == 500 and err.message == 'InternalError':
                 known_error('GTW-1789', 'Internal error when calling ReadApiLogs with incorrect parameter value')
+            if err.status_code == 401 and err.message == 'AuthFailure':
+                known_error('API-253', 'Incorrect error on ReadApiLogs')
             assert False, 'Remove known error code'
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4113', None)
         try:
@@ -112,6 +114,8 @@ class Test_ReadApiLogs(OscTestSuite):
         except OscApiException as err:
             if err.status_code == 500 and err.message == 'InternalError':
                 known_error('GTW-1789', 'Internal error when calling ReadApiLogs with incorrect parameter value')
+            if err.status_code == 403 and err.message == 'MissingLoginPassword':
+                known_error('API-253', 'Incorrect error on ReadApiLogs')
             assert False, 'Remove known error code'
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4114', None)
 
@@ -240,6 +244,8 @@ class Test_ReadApiLogs(OscTestSuite):
         except OscApiException as err:
             if err.status_code == 500 and err.message == 'InternalError':
                 known_error('GTW-1789', 'Internal error when calling ReadApiLogs with incorrect parameter value')
+            if err.status_code == 403 and err.message == 'WrongAuthenticationMethod':
+                known_error('API-253', 'Incorrect error on ReadApiLogs')
             assert False, 'Remove known error code'
             assert_oapi_error(err, 400, 'InvalidParameterValue', "4112")
 
