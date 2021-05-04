@@ -20,8 +20,8 @@ from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 def upgrade_ike_to_v2(sshclient, leftid, rightid):
     cmd = """
         sudo sed -i  's/^            keyexchange=.*/            keyexchange=ikev2/g'  /etc/strongswan/ipsec.conf;
-        sudo sed -i '$a\{}' /etc/strongswan/ipsec.conf;
-        sudo sed -i '$a\{}' /etc/strongswan/ipsec.conf;
+        sudo sed -i '$a\\            {}' /etc/strongswan/ipsec.conf;
+        sudo sed -i '$a\\            {}' /etc/strongswan/ipsec.conf;
         sudo systemctl stop strongswan; sudo systemctl start strongswan;""".format(leftid, rightid)
     _, _, _ = SshTools.exec_command_paramiko(
     sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
@@ -32,9 +32,9 @@ def upgrade_ike_to_v2(sshclient, leftid, rightid):
 
 def update_cgw_config(option, sshclient):
     cmd = """
-        sudo sed -i  's/^            ike=.*/            ike={1}/g'  /etc/strongswan/ipsec.conf ;
-        sudo sed -i  's/^            esp=.*/            esp={1}/g'  /etc/strongswan/ipsec.conf;
-        sudo systemctl stop strongswan;""".format(option,option)
+        sudo sed -i  's/^            ike=.*/            ike={0}/g'  /etc/strongswan/ipsec.conf ;
+        sudo sed -i  's/^            esp=.*/            esp={0}/g'  /etc/strongswan/ipsec.conf;
+        sudo systemctl stop strongswan;""".format(option)
     _, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
 
     out, _, _ = SshTools.exec_command_paramiko(
@@ -191,8 +191,8 @@ class Vpn(OscTestSuite):
                     ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                               self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
             if migration:
-                leftid = "            leftid={}".format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'])
-                rightid = "            rightid={}".format(vgw_ip)
+                leftid = "leftid={}".format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'])
+                rightid = "rightid={}".format(vgw_ip)
                 upgrade_ike_to_v2(sshclient, leftid, rightid)
                 ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                           self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
