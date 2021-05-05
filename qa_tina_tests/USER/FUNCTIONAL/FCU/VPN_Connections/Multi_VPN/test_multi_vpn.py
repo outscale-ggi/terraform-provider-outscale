@@ -89,7 +89,7 @@ class Test_multi_vpn(OscTestSuite):
         finally:
             super(Test_multi_vpn, self).teardown_method(method)
 
-    def exec_test_vpn(self, static, racoon, default_rtb=True, policy=False, xfrm=False):
+    def exec_test_vpn(self, static, racoon, default_rtb=True, vti=True, policy=False, xfrm=False):
 
         # initialize a VPC with 1 subnet, 1 instance and an igw
         self.vpc_info = create_vpc(osc_sdk=self.a1_r1, nb_instance=1, default_rtb=default_rtb)
@@ -218,9 +218,8 @@ class Test_multi_vpn(OscTestSuite):
 
             sshclient2 = SshTools.check_connection_paramiko(self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw2_info[KEY_PAIR][PATH],
                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-            vti=True
             if policy:
-                vti=False
+                    vti = False
             setup_customer_gateway(self.a1_r1, sshclient2, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
                                    self.inst_cgw2_info, vgw2_ip, psk2_key, static, vpn2_id, index=1, racoon=racoon, ike="ikev1", vti=vti, xfrm=xfrm)
 
@@ -288,4 +287,10 @@ class Test_multi_vpn(OscTestSuite):
         self.exec_test_vpn(static=False, racoon=False, default_rtb=True)
 
     def test_T5655_test_vpn_static_strongswan_vti_policy(self):
-        self.exec_test_vpn(static=True, racoon=False, default_rtb=True, policy=True, xfrm=True)
+        self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=True,  policy=True, xfrm=True)
+
+    def test_T5662_test_vpn_static_strongswan_vti_vti(self):
+        self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=True, policy=False, xfrm=True)
+
+    def test_T5663_test_vpn_static_strongswan_policy_policy(self):
+        self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=False, policy=False, xfrm=True)
