@@ -267,4 +267,3 @@ class Test_attach_detach_volume(OscTestSuite):
                 self.logger.exception(error)
                 pytest.fail("An unexpected error happened : " + str(error))
         assert False, "Expected test to fail, Check Code"
-
