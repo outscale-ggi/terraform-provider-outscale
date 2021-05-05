@@ -1,9 +1,8 @@
 
 import string
-import pytest
 
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -35,23 +34,11 @@ class Test_Attachement(OscTestSuite):
                 raise error
 
     def delete_volume(self):
-        has_known_error = False
-        remove_known_eror_code = False
-        try:
-            self.logger.info("stop after %d executions", self.nb_test)
-            if self.vol_id:
-                try:
-                    delete_volumes(self.a1_r1, [self.vol_id])
-                    remove_known_eror_code = True
-                except AssertionError:
-                    has_known_error = True
-            if self.inst_info:
-                delete_instances(self.a1_r1, self.inst_info)
-        finally:
-            if has_known_error:
-                known_error('TINA-6448', 'Volume remains attaching, cannot delete')
-            if remove_known_eror_code:
-                assert False, 'Remove known error code'
+        self.logger.info("stop after %d executions", self.nb_test)
+        if self.vol_id:
+            delete_volumes(self.a1_r1, [self.vol_id])
+        if self.inst_info:
+            delete_instances(self.a1_r1, self.inst_info)
 
     def attach_detach(self, device, snap=False):
         self.nb_test += 1
@@ -75,12 +62,7 @@ class Test_Attachement(OscTestSuite):
             # retry ?
             self.logger.debug("retry detach...")
             self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_id)
-            try:
-                ret = wait_volumes_state(self.a1_r1, [self.vol_id], 'available', nb_check=5)
-                pytest.fail('remove known error code')
-            except AssertionError:
-                known_error('TINA-6448', 'Volume remains attaching, cannot detach')
-            self.logger.debug(ret.response.display())
+            wait_volumes_state(self.a1_r1, [self.vol_id], 'available', nb_check=5)
 
     def test_T3690_multi_attach_detach_with_same_device_name(self):
         device = '/dev/xvdb'
