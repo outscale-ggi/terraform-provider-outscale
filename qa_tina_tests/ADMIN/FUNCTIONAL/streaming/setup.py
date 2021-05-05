@@ -19,7 +19,7 @@ DEFAULT_SNAP_CFG = [
     # nb_snap, vol_size, w_size, fio
     # (10, 10, 100, False),
     # (45, 10, 10, False),
-    (45, 10, 20, False),
+    (34, 10, 20, False),
     # (20, 1000, 200, False)
 ]
 INST_TYPE = 'c4.xlarge'

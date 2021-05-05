@@ -53,15 +53,12 @@ class Test_hot_vol_full(StreamingBaseHot):
     def test_T3301_hot_vol_full_and_detach(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
         self.detach(resource_id=self.vol_1_id)
-        if self.rebase_enabled:
-            self.check_stream_full(mode="COLD")
-        else:
-            self.check_no_stream()
+        self.check_stream_full()
 
     def test_T3302_hot_vol_full_and_stop(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
         self.stop(resource_id=self.vol_1_id)
-        self.check_stream_full(mode="WARM")
+        self.check_stream_full()
 
     def test_T3300_hot_vol_full_and_snapshot(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
@@ -77,7 +74,6 @@ class Test_hot_vol_full(StreamingBaseHot):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
         self.delete_snap(resource_id=self.vol_1_id, snap_id=self.vol_1_snap_list[-1])
         self.check_stream_full()
-        # self.vol_1_snap_list.remove(self.vol_1_snap_list[-1])
 
     def test_T3305_hot_vol_full_and_stream_twice(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
@@ -86,7 +82,7 @@ class Test_hot_vol_full(StreamingBaseHot):
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
             assert False
         except OscApiException as error:
-            assert_error(error, 200, 0, 'invalid-state - Streaming already started')
+            assert_error(error, 200, 0, 'invalid-state - Streaming already started#####')
         assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
         wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
         self.check_stream_full()
