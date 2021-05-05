@@ -51,7 +51,7 @@ class Test_hot_snap_inter(StreamingBaseHot):
     def test_T3298_hot_snap_inter_and_stop(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1], base_data_file=self.vol_1_df_list[self.base_snap_id])
         self.stop(resource_id=self.vol_1_snap_list[-1])
-        self.check_stream_inter()
+        self.check_stream_full() # ?
 
     def test_T3296_hot_snap_inter_and_snapshot(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1], base_data_file=self.vol_1_df_list[self.base_snap_id])

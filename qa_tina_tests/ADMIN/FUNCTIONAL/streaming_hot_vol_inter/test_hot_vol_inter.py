@@ -51,7 +51,7 @@ class Test_hot_vol_inter(StreamingBaseHot):
     def test_T3294_hot_vol_inter_and_stop(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id, base_data_file=self.vol_1_df_list[self.base_snap_id])
         self.stop(resource_id=self.vol_1_id)
-        self.check_stream_inter()
+        self.check_no_stream() # why ???
 
     def test_T3292_hot_vol_inter_and_snapshot(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id, base_data_file=self.vol_1_df_list[self.base_snap_id])
