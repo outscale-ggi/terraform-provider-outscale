@@ -1,6 +1,4 @@
 
-import time
-
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -68,7 +66,7 @@ class Test_hot_snap_full(StreamingBaseHot):
     def test_T4216_hot_snap_full_and_delete_snap(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
         self.delete_snap(resource_id=self.vol_1_snap_list[-1], snap_id=self.vol_1_snap_list[-1])
-        self.check_no_stream()
+        self.check_no_stream() # why ???
 
     def test_T4217_hot_snap_full_and_stream_twice(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
