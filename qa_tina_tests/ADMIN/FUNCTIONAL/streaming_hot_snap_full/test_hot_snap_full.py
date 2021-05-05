@@ -1,6 +1,4 @@
 
-import time
-
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -20,7 +18,7 @@ class Test_hot_snap_full(StreamingBaseHot):
         cls.inst_type = 'c4.xlarge'
         cls.vol_type = 'standard'
         cls.iops = None
-        cls.base_snap_id = 40
+        cls.base_snap_id = 10
         cls.new_snap_count = 1  # > 1
         cls.branch_id = None  # [0, new_snap_count-1]
         cls.fio = False
@@ -48,18 +46,12 @@ class Test_hot_snap_full(StreamingBaseHot):
     def test_T3152_hot_snap_full_and_detach(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
         self.detach(resource_id=self.vol_1_snap_list[-1])
-        if self.rebase_enabled:
-            self.check_stream_full(mode="WARM")
-        else:
-            self.check_no_stream()
+        self.check_stream_full()
 
     def test_T3153_hot_snap_full_and_stop(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
         self.stop(resource_id=self.vol_1_snap_list[-1])
-        if self.rebase_enabled:
-            self.check_stream_full(mode="COLD")
-        else:
-            self.check_no_stream()
+        self.check_stream_full()
 
     def test_T3150_hot_snap_full_and_snapshot(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
@@ -74,9 +66,7 @@ class Test_hot_snap_full(StreamingBaseHot):
     def test_T4216_hot_snap_full_and_delete_snap(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
         self.delete_snap(resource_id=self.vol_1_snap_list[-1], snap_id=self.vol_1_snap_list[-1])
-        self.check_no_stream()
-        time.sleep(60)  # Why ?
-        # self.vol_1_snap_list.remove(self.vol_1_snap_list[-1])
+        self.check_no_stream() # why ???
 
     def test_T4217_hot_snap_full_and_stream_twice(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
@@ -85,7 +75,7 @@ class Test_hot_snap_full(StreamingBaseHot):
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
             assert False
         except OscApiException as error:
-            assert_error(error, 200, 0, 'invalid-state - Streaming already started')
+            assert_error(error, 200, 0, 'invalid-state - Streaming already started#####')
         assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
         wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
         self.check_stream_full()

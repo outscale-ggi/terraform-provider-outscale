@@ -11,12 +11,11 @@ class Test_automatic_multi_az(StreamingBaseHot):
         cls.w_size = 20
         cls.v_size = 10
         cls.qemu_version = '2.12'
-        # cls.rebase_enabled = False
         cls.inst_type = 'tinav1.c2r4p1'
         cls.inst_az = 'b'
         cls.vol_type = 'standard'
         cls.iops = None
-        cls.base_snap_id = 10
+        cls.base_snap_id = 30
         cls.new_snap_count = 10  # > 1
         cls.branch_id = None  # [0, new_snap_count-1]
         cls.fio = False
