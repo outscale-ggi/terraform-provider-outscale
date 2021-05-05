@@ -23,8 +23,14 @@ class Test_slot_history(OscTestSuite):
         assert len(ret.response.result) > 0, 'Could not find any history'
 
     def test_T5349_only_dates(self):
-        ret = self.a1_r1.intel.monitor.slot_history(dt1=self.start_date, dt2=self.end_date)
-        assert len(ret.response.result) > 0, 'Could not find any history'
+        try:
+            ret = self.a1_r1.intel.monitor.slot_history(dt1=self.start_date, dt2=self.end_date)
+            assert False, 'Remove known error code'
+            assert len(ret.response.result) > 0, 'Could not find any history'
+        except OscApiException as error:
+            if error.message == 'Internal error.':
+                known_error('TINA-6464', 'Unexpected internal error')
+            raise error
 
     def test_T5340_server_without_dates(self):
         server_name = self.a1_r1.intel.hardware.get_servers().response.result[0].name
