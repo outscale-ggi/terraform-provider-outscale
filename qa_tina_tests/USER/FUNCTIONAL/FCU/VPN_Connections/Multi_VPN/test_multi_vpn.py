@@ -219,7 +219,7 @@ class Test_multi_vpn(OscTestSuite):
             sshclient2 = SshTools.check_connection_paramiko(self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw2_info[KEY_PAIR][PATH],
                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             if policy:
-                    vti = False
+                vti = False
             setup_customer_gateway(self.a1_r1, sshclient2, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
                                    self.inst_cgw2_info, vgw2_ip, psk2_key, static, vpn2_id, index=1, racoon=racoon, ike="ikev1", vti=vti, xfrm=xfrm)
 
