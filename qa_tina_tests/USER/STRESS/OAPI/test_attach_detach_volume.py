@@ -11,7 +11,7 @@ DEVICE_NAME = '/dev/xvdc'
 CMD = 'ls -lsa /dev/x*'
 
 # NB_ITER is the number of iteration in this test.
-# The assigned value is requested in PQA-2774.
+# The assigned value is requested in pqa-2774.
 NB_ITER_1 = 50
 NB_ITER_2 = 500
 

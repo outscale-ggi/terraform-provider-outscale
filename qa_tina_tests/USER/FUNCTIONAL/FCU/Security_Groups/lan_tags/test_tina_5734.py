@@ -13,7 +13,6 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 class Test_tina_5734(OscTestSuite):
 
     def test_T5059_set_enable_and_reboot_instances(self):
-        # Related to JIRA TINA-5734
         vpc_info = None
         inst = None
         eip = None
