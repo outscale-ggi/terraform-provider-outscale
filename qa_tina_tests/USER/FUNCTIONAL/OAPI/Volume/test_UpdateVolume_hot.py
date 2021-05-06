@@ -11,11 +11,11 @@ from qa_tina_tools.tina.check_tools import check_volume
 from qa_tina_tools.tina.wait import wait_Volumes_state
 
 
-class Test_UpdateVolume_Hot(OscTestSuite):
+class Test_UpdateVolume_hot(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_UpdateVolume_Hot, cls).setup_class()
+        super(Test_UpdateVolume_hot, cls).setup_class()
         cls.vm_info = None
         cls.text_to_check = None
         cls.initial_size = 10
@@ -41,10 +41,10 @@ class Test_UpdateVolume_Hot(OscTestSuite):
             if cls.vm_info:
                 oapi.delete_Vms(cls.a1_r1, cls.vm_info)
         finally:
-            super(Test_UpdateVolume_Hot, cls).teardown_class()
+            super(Test_UpdateVolume_hot, cls).teardown_class()
 
     def setup_method(self, method):
-        super(Test_UpdateVolume_Hot, self).setup_method(method)
+        super(Test_UpdateVolume_hot, self).setup_method(method)
         self.vol_id = None
         self.linked = None
         self.sshclient = None
@@ -84,7 +84,7 @@ class Test_UpdateVolume_Hot(OscTestSuite):
             if self.vol_id:
                 self.a1_r1.oapi.DeleteVolume(VolumeId=self.vol_id)
         finally:
-            super(Test_UpdateVolume_Hot, self).teardown_method(method)
+            super(Test_UpdateVolume_hot, self).teardown_method(method)
 
     def test_T5629_hot_vol_with_size(self):
         try:
