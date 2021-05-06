@@ -20,13 +20,16 @@ class Test_brute_force(OscTestSuite):
     def setup_class(cls):
         super(Test_brute_force, cls).setup_class()
         cls.a1_r1.identauth.IdauthAccount.putAccountBruteForceProtectionPolicy(
-            bruteForceProtectionPolicy={"attemptThreshold": 5})
+            bruteForceProtectionPolicy={"attemptThreshold": 5, "trialPeriodSec": 60, "banCooldownSec": 60})
         cls.a1_r1.identauth__admin.IdauthAdmin.invalidateCache(
             account_id=cls.a1_r1.config.region.get_info(constants.AS_IDAUTH_ID))
 
     @classmethod
     def teardown_class(cls):
         super(Test_brute_force, cls).teardown_class()
+        cls.a1_r1.identauth.IdauthAccount.deleteAccountBruteForceProtectionPolicy()
+        cls.a1_r1.identauth__admin.IdauthAdmin.invalidateCache(
+            account_id=cls.a1_r1.config.region.get_info(constants.AS_IDAUTH_ID))
 
     def test_T5644_ak_sk(self):
         access_key = None
