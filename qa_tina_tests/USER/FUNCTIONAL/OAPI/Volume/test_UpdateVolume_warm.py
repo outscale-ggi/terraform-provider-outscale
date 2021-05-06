@@ -76,7 +76,7 @@ class Test_UpdateVolume_warm(OscTestSuite):
             if self.vm_info:
                 oapi.delete_Vms(self.a1_r1, self.vm_info)
         finally:
-            super(Test_UpdateVolume_Warm, self).teardown_method(method)
+            super(Test_UpdateVolume_warm, self).teardown_method(method)
 
     def test_T5626_warm_vol_with_size(self):
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Size=20)

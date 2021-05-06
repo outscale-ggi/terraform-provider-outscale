@@ -119,13 +119,6 @@ class Test_CreateUser(OscTestSuite):
                              "Invalid IdauthUser: [path: must begin and end with / and contain only alphanumeric characters " \
                              +"and/or /_ characters]")
         assert False, 'Remove known error code'
-#                 if error.status_code == 500 and error.message == 'Internal Error':
-#                     known_error('TINA-5530', 'EIM CreateGroup: Internal error when using a colon in group name')
-#                 assert_error(error, 400, "ValidationError",
-#                              "Invalid IdauthUser: [path: must begin and end with / and contain only alphanumeric characters " \
-#                              +"and/or /_ characters]")
-#         assert False, 'Remove known error code'
-#         known_error("TINA-4045", "Wrong error message")
 
     def test_T3659_with_existing_user_name(self):
         user_name = id_generator(prefix='user_')

@@ -220,7 +220,6 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         # OsuKey not supported by Tina
 
     def test_T3895_with_invalid_osu_prefix(self):
-        known_error('TINA-4950', 'SnapExport: call in error with invalid OsuPrefix')
         try:
             ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                                 'OsuBucket': self.bucket_name,
