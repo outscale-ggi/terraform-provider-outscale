@@ -8,11 +8,11 @@ from qa_tina_tools.tina.check_tools import check_volume
 from qa_tina_tools.tina.wait import wait_Volumes_state
 
 
-class Test_UpdateVolume_Warm(OscTestSuite):
+class Test_UpdateVolume_warm(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_UpdateVolume_Warm, cls).setup_class()
+        super(Test_UpdateVolume_warm, cls).setup_class()
         cls.vm_info = None
         cls.linked = None
         cls.vol_id = None
@@ -25,11 +25,11 @@ class Test_UpdateVolume_Warm(OscTestSuite):
 
     @classmethod
     def teardown_class(cls):
-        super(Test_UpdateVolume_Warm, cls).teardown_class()
+        super(Test_UpdateVolume_warm, cls).teardown_class()
 
     def setup_method(self, method):
         # tu pars du principe qu'elle est démarrée ..
-        super(Test_UpdateVolume_Warm, self).setup_method(method)
+        super(Test_UpdateVolume_warm, self).setup_method(method)
         self.vol_id = None
         self.linked = None
         self.sshclient = None
