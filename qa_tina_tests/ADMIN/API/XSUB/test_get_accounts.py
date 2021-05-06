@@ -1,4 +1,3 @@
-import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.test_base import OscTestSuite
@@ -18,50 +17,37 @@ class Test_get_accounts(OscTestSuite):
         super(Test_get_accounts, cls).teardown_class()
 
     def test_T5562_no_param(self):
-        self.a1_r1.xsub.get_accounts()
-        pytest.fail("TODO check output")
-
-    def test_T5563_with_unknown_param(self):
-        try:
-            self.a1_r1.xsub.get_accounts(unknown=['titi'])
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            assert_error(error, 200, '', '')
+        ret = self.a1_r1.xsub.get_accounts()
+        assert len(ret.response.result.accounts) > 0
 
     def test_T5564_with_incorrect_statuses(self):
         try:
             self.a1_r1.xsub.get_accounts(statuses=['titi'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 200, '', '')
+            assert_error(error, 200, 'invalid-parameter-value', None)
 
     def test_T5565_with_incorrect_statuses_type(self):
         try:
             self.a1_r1.xsub.get_accounts(statuses=5)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 200, '', '')
+            assert_error(error, 200, 'invalid-parameter-type', None)
 
     def test_T5566_with_incorrect_usernames(self):
-        try:
-            self.a1_r1.xsub.get_accounts(usernames=['titi'])
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            assert_error(error, 200, '', '')
+        ret = self.a1_r1.xsub.get_accounts(usernames=['titi'])
+        assert len(ret.response.result.accounts) == 0
 
     def test_T5567_with_incorrect_usernames_type(self):
         try:
             self.a1_r1.xsub.get_accounts(usernames=5)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 200, '', '')
+            assert_error(error, 200, 'invalid-parameter-type', None)
 
     def test_T5568_with_unknown_usernames(self):
-        try:
-            self.a1_r1.xsub.get_accounts(usernames=['556556556'])
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            assert_error(error, 200, '', '')
+        ret = self.a1_r1.xsub.get_accounts(usernames=['556556556'])
+        assert len(ret.response.result.accounts) == 0
 
     def test_T5569_with_valid_statuses(self):
         ret = self.a1_r1.xsub.get_accounts(statuses=['ACTIVE', 'FROZEN'])

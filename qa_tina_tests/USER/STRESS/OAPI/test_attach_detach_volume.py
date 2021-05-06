@@ -11,8 +11,9 @@ DEVICE_NAME = '/dev/xvdc'
 CMD = 'ls -lsa /dev/x*'
 
 # NB_ITER is the number of iteration in this test.
-# The assigned value is requested in PQA-2774.
-NB_ITER = 20
+# The assigned value is requested in pqa-2774.
+NB_ITER_1 = 50
+NB_ITER_2 = 500
 
 class Test_attach_detach_volume(OscTestSuite):
 
@@ -94,7 +95,7 @@ class Test_attach_detach_volume(OscTestSuite):
             The second loop aim to attach a volume and mount it,
             then umount and detach volume.
         """
-        for _ in range(NB_ITER):
+        for _ in range(NB_ITER_1):
             try:
                 ret = self.a1_r1.oapi.CreateSnapshot(VolumeId=self.vol_id, Description='hello').response.Snapshot
                 self.snap_ids.append(ret.SnapshotId)
@@ -111,7 +112,7 @@ class Test_attach_detach_volume(OscTestSuite):
                 self.logger.exception(error)
                 pytest.fail("An unexpected error happened : " + str(error))
 
-        for _ in range(NB_ITER):
+        for _ in range(NB_ITER_1):
             try:
                 self.ret_link = self.a1_r1.oapi.LinkVolume(VolumeId=self.vol_id,
                                                             VmId=self.vm_info[info_keys.VM_IDS][0],
@@ -148,6 +149,8 @@ class Test_attach_detach_volume(OscTestSuite):
                     _, status, _ = SshTools.exec_command_paramiko(self.sshclient, CMD, expected_status=2)
                     assert status != 0
 
+        assert False, "Expected test to fail, Check Code"
+
     def test_T5650_create_snap_from_attached_volume(self):
         """
             This test aim to attach a volume and mount it,
@@ -169,13 +172,13 @@ class Test_attach_detach_volume(OscTestSuite):
             SshTools.exec_command_paramiko(self.sshclient, cmd_mount)
             time.sleep(2)
 
-            for _ in range(NB_ITER):
+            for _ in range(NB_ITER_2):
                 try:
                     ret = self.a1_r1.oapi.CreateSnapshot(VolumeId=self.vol_id, Description='hello').response.Snapshot
                     self.snap_ids.append(ret.SnapshotId)
 
                     try:
-                        wait.wait_Snapshots_state(self.a1_r1, self.snap_ids, state='completed')
+                        wait.wait_Snapshots_state(self.a1_r1, [ret.SnapshotId], state='completed')
                     except:
                         ret = self.a1_r1.oapi.ReadSnapshots(Filters={"SnapshotIds": [ret.SnapshotId]})
                         if ret.response.Snapshots[0].State == "pending":
@@ -211,14 +214,20 @@ class Test_attach_detach_volume(OscTestSuite):
             write text file and umount and detach volume,
             then create a snapshot for volume.
         """
-        for _ in range(NB_ITER):
+        for _ in range(NB_ITER_1):
             try:
                 self.ret_link = self.a1_r1.oapi.LinkVolume(VolumeId=self.vol_id,
                                                             VmId=self.vm_info[info_keys.VM_IDS][0],
                                                             DeviceName=DEVICE_NAME)
                 self.is_attached = True
 
-                wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
+                try:
+                    wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
+                except:
+                    ret = self.a1_r1.oapi.ReadVolumes(Filters={"VolumeIds": [self.vol_id]})
+                    if ret.response.Volumes[0].state == "attaching":
+                        known_error ("TINA-6448", "Volume remains attaching")
+                    raise
 
                 out, status, _ = SshTools.exec_command_paramiko(self.sshclient, CMD)
                 assert status == 0
@@ -257,3 +266,4 @@ class Test_attach_detach_volume(OscTestSuite):
             except Exception as error:
                 self.logger.exception(error)
                 pytest.fail("An unexpected error happened : " + str(error))
+        assert False, "Expected test to fail, Check Code"
