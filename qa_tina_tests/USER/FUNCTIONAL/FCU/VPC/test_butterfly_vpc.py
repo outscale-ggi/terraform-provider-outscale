@@ -1,9 +1,13 @@
-from qa_test_tools.test_base import OscTestSuite, known_error
+
+import pytest
+
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, SUBNET_ID
 
 
+@pytest.mark.region_butterfly
 class Test_butterfly_vpc(OscTestSuite):
 
     def test_T5057_butterfly_vpc(self):
@@ -17,10 +21,9 @@ class Test_butterfly_vpc(OscTestSuite):
             message = None
             try:
                 message = error.args[0]
+                print(message)
             except:
                 print('Could not find message')
-            if message and message.startswith('Threshold reach for wait_instances_state'):
-                known_error('TINA-6012', 'Instance did not reach running state')
             raise error
         finally:
             if inst_info:
