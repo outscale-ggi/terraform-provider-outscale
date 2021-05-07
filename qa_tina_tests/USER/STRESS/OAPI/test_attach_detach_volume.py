@@ -1,6 +1,6 @@
 import time
 import pytest
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.config import config_constants
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tina import wait, oapi, info_keys
