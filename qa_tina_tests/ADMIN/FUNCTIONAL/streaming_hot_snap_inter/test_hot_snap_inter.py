@@ -66,7 +66,7 @@ class Test_hot_snap_inter(StreamingBaseHot):
     def test_T4221_hot_snap_inter_and_delete_snap(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1], base_data_file=self.vol_1_df_list[self.base_snap_id])
         self.delete_snap(resource_id=self.vol_1_snap_list[-1], snap_id=self.vol_1_snap_list[-1])
-        self.check_no_stream() # why ???
+        self.check_stream_inter()
 
     def test_T4222_hot_snap_inter_and_stream_twice(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1], base_data_file=self.vol_1_df_list[self.base_snap_id])
