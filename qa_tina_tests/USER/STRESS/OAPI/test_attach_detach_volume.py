@@ -1,6 +1,6 @@
 import time
 import pytest
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.config import config_constants
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tina import wait, oapi, info_keys
@@ -119,13 +119,8 @@ class Test_attach_detach_volume(OscTestSuite):
                                                             DeviceName=DEVICE_NAME)
                 self.is_attached = True
 
-                try:
-                    wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
-                except:
-                    ret = self.a1_r1.oapi.ReadVolumes(Filters={"VolumeIds": [self.vol_id]})
-                    if ret.response.Volumes[0].state == "attaching":
-                        known_error ("TINA-6448", "Volume remains attaching")
-                    raise
+                wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
+                #known_error ("TINA-6448", "Volume remains attaching")
 
                 out, status, _ = SshTools.exec_command_paramiko(self.sshclient, CMD)
                 assert status == 0
@@ -148,8 +143,6 @@ class Test_attach_detach_volume(OscTestSuite):
 
                     _, status, _ = SshTools.exec_command_paramiko(self.sshclient, CMD, expected_status=2)
                     assert status != 0
-
-        assert False, "Expected test to fail, Check Code"
 
     def test_T5650_create_snap_from_attached_volume(self):
         """
@@ -177,13 +170,8 @@ class Test_attach_detach_volume(OscTestSuite):
                     ret = self.a1_r1.oapi.CreateSnapshot(VolumeId=self.vol_id, Description='hello').response.Snapshot
                     self.snap_ids.append(ret.SnapshotId)
 
-                    try:
-                        wait.wait_Snapshots_state(self.a1_r1, [ret.SnapshotId], state='completed')
-                    except:
-                        ret = self.a1_r1.oapi.ReadSnapshots(Filters={"SnapshotIds": [ret.SnapshotId]})
-                        if ret.response.Snapshots[0].State == "pending":
-                            known_error ("OPS-13374", "Bad file descriptor")
-                        raise
+                    wait.wait_Snapshots_state(self.a1_r1, [ret.SnapshotId], state='completed')
+                    #known_error ("OPS-13374", "Bad file descriptor")
 
                     validate_snasphot(ret, expected_snap={
                         'Description': 'hello',
@@ -221,13 +209,8 @@ class Test_attach_detach_volume(OscTestSuite):
                                                             DeviceName=DEVICE_NAME)
                 self.is_attached = True
 
-                try:
-                    wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
-                except:
-                    ret = self.a1_r1.oapi.ReadVolumes(Filters={"VolumeIds": [self.vol_id]})
-                    if ret.response.Volumes[0].state == "attaching":
-                        known_error ("TINA-6448", "Volume remains attaching")
-                    raise
+                wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
+                #known_error ("TINA-6448", "Volume remains attaching")
 
                 out, status, _ = SshTools.exec_command_paramiko(self.sshclient, CMD)
                 assert status == 0
@@ -266,4 +249,3 @@ class Test_attach_detach_volume(OscTestSuite):
             except Exception as error:
                 self.logger.exception(error)
                 pytest.fail("An unexpected error happened : " + str(error))
-        assert False, "Expected test to fail, Check Code"
