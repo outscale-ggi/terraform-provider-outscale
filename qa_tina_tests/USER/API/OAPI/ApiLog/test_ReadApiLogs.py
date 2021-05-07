@@ -168,7 +168,7 @@ class Test_ReadApiLogs(OscTestSuite):
         assert not ret.response.Logs
 
     def test_T3210_valid_filter_QueryIpAddresses(self):
-        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryIpAddresses": ["169.254.232.245"]})
+        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryIpAddresses": ["172.19.142.254"]})
         assert len(ret.response.Logs) != 0
 
     def test_T3211_valid_filter_QueryUserAgents(self):
