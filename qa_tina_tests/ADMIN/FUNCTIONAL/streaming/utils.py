@@ -205,8 +205,8 @@ def wait_streaming_state(osc_sdk, res_id, state='started', cleanup=False, sleep=
                     elapsed_time = time.time() - start_time
                     logger.debug("Wait streaming %s: %s", state, elapsed_time)
                     return
-                if cleanup and ret.response.result[0].state != 'started':
-                    assert False, "Streaming operation not started"
+                #if cleanup and ret.response.result[0].state != 'started':
+                #    assert False, "Streaming operation not started"
             else:
                 assert False, "Multiple streaming operation on same resource !!!"
         time.sleep(sleep)

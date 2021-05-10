@@ -20,7 +20,7 @@ class Test_find(OscTestSuite):
         _, cls.image_id1 = create_image(cls.a1_r1, cls.inst_id, state='available')
         _, cls.image_id2 = create_image(cls.a1_r1, cls.inst_id, state='available')
         _, cls.image_id3 = create_image(cls.a1_r1, cls.inst_id, state='available')
-        cls.a1_r1.fcu.CreateTags(ResourceId=cls.image_id1, Tag=[{'Key': 'null', 'Value': 'value1'}])
+        cls.a1_r1.fcu.CreateTags(ResourceId=cls.image_id1, Tag=[{'Key': 'key1', 'Value': 'value1'}])
         cls.a1_r1.fcu.CreateTags(ResourceId=cls.image_id2, Tag=[{'Key': 'key1', 'Value': 'value2'}])
         cls.a1_r1.fcu.CreateTags(ResourceId=cls.image_id3, Tag=[{'Key': 'key2', 'Value': 'value2'}])
 
@@ -58,4 +58,4 @@ class Test_find(OscTestSuite):
 
     def test_T5576_with_empty_tags(self):
         ret = self.a1_r1.intel.image.find(tags={})
-        assert len(ret.response.result) == 0
+        assert len(ret.response.result) != 0

@@ -35,7 +35,7 @@ class Test_pending_calls(OscTestSuite):
                 cleanup_vpcs(self.a1_r1, vpc_id_list=[vpc_info[VPC_ID]])
 
         self.logger.debug("Wait...")
-        time.sleep(60)
+        time.sleep(200)
 
         # Check pending calls
         call_found = False

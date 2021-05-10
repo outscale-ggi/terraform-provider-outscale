@@ -1,6 +1,6 @@
 import time
 import pytest
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.config import config_constants
 from qa_common_tools.ssh import SshTools
 from qa_tina_tools.tina import wait, oapi, info_keys
@@ -11,8 +11,9 @@ DEVICE_NAME = '/dev/xvdc'
 CMD = 'ls -lsa /dev/x*'
 
 # NB_ITER is the number of iteration in this test.
-# The assigned value is requested in PQA-2774.
-NB_ITER = 20
+# The assigned value is requested in pqa-2774.
+NB_ITER_1 = 50
+NB_ITER_2 = 500
 
 class Test_attach_detach_volume(OscTestSuite):
 
@@ -94,7 +95,7 @@ class Test_attach_detach_volume(OscTestSuite):
             The second loop aim to attach a volume and mount it,
             then umount and detach volume.
         """
-        for _ in range(NB_ITER):
+        for _ in range(NB_ITER_1):
             try:
                 ret = self.a1_r1.oapi.CreateSnapshot(VolumeId=self.vol_id, Description='hello').response.Snapshot
                 self.snap_ids.append(ret.SnapshotId)
@@ -111,20 +112,15 @@ class Test_attach_detach_volume(OscTestSuite):
                 self.logger.exception(error)
                 pytest.fail("An unexpected error happened : " + str(error))
 
-        for _ in range(NB_ITER):
+        for _ in range(NB_ITER_1):
             try:
                 self.ret_link = self.a1_r1.oapi.LinkVolume(VolumeId=self.vol_id,
                                                             VmId=self.vm_info[info_keys.VM_IDS][0],
                                                             DeviceName=DEVICE_NAME)
                 self.is_attached = True
 
-                try:
-                    wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
-                except:
-                    ret = self.a1_r1.oapi.ReadVolumes(Filters={"VolumeIds": [self.vol_id]})
-                    if ret.response.Volumes[0].state == "attaching":
-                        known_error ("TINA-6448", "Volume remains attaching")
-                    raise
+                wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
+                #known_error ("TINA-6448", "Volume remains attaching")
 
                 out, status, _ = SshTools.exec_command_paramiko(self.sshclient, CMD)
                 assert status == 0
@@ -169,18 +165,13 @@ class Test_attach_detach_volume(OscTestSuite):
             SshTools.exec_command_paramiko(self.sshclient, cmd_mount)
             time.sleep(2)
 
-            for _ in range(NB_ITER):
+            for _ in range(NB_ITER_2):
                 try:
                     ret = self.a1_r1.oapi.CreateSnapshot(VolumeId=self.vol_id, Description='hello').response.Snapshot
                     self.snap_ids.append(ret.SnapshotId)
 
-                    try:
-                        wait.wait_Snapshots_state(self.a1_r1, self.snap_ids, state='completed')
-                    except:
-                        ret = self.a1_r1.oapi.ReadSnapshots(Filters={"SnapshotIds": [ret.SnapshotId]})
-                        if ret.response.Snapshots[0].State == "pending":
-                            known_error ("OPS-13374", "Bad file descriptor")
-                        raise
+                    wait.wait_Snapshots_state(self.a1_r1, [ret.SnapshotId], state='completed')
+                    #known_error ("OPS-13374", "Bad file descriptor")
 
                     validate_snasphot(ret, expected_snap={
                         'Description': 'hello',
@@ -211,7 +202,7 @@ class Test_attach_detach_volume(OscTestSuite):
             write text file and umount and detach volume,
             then create a snapshot for volume.
         """
-        for _ in range(NB_ITER):
+        for _ in range(NB_ITER_1):
             try:
                 self.ret_link = self.a1_r1.oapi.LinkVolume(VolumeId=self.vol_id,
                                                             VmId=self.vm_info[info_keys.VM_IDS][0],
@@ -219,6 +210,7 @@ class Test_attach_detach_volume(OscTestSuite):
                 self.is_attached = True
 
                 wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
+                #known_error ("TINA-6448", "Volume remains attaching")
 
                 out, status, _ = SshTools.exec_command_paramiko(self.sshclient, CMD)
                 assert status == 0

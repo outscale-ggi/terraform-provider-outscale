@@ -18,7 +18,6 @@ class StreamingBase(OscTestSuite):
     w_size = 10
     v_size = 10
     qemu_version = '2.12'
-    rebase_enabled = True
     snap_attached = True
     inst_type = 'c4.large'
     inst_az = 'a'
@@ -65,10 +64,6 @@ class StreamingBase(OscTestSuite):
         if cls.a1_r1.config.region.name == 'in-west-2':
             cls.ref_account_id = '412911315810'  # qa+streaming@outscale.com on IN2
         try:
-            # if cls.a1_r1.config.region.name == 'in-west-2':
-            #    cls.rebase_enabled = True
-            # elif cls.a1_r1.config.region.name == 'in-west-1':
-            #    cls.rebase_enabled = False
             # create inst
             if cls.qemu_version == '2.12':
                 cls.inst_info = create_instances(
@@ -127,9 +122,10 @@ class StreamingBase(OscTestSuite):
     def teardown_class(cls):
         try:
             # unshare snap
-            cls.a1_r1.intel.snapshot.remove_permissions(
-                owner=cls.ref_account_id, snapshot=cls.ref_snap_id, users=[cls.a1_r1.config.account.account_id]
-            )
+            if cls.ref_snap_id:
+                cls.a1_r1.intel.snapshot.remove_permissions(
+                    owner=cls.ref_account_id, snapshot=cls.ref_snap_id, users=[cls.a1_r1.config.account.account_id]
+                )
             # delete inst
             if cls.inst_info:
                 delete_instances(cls.a1_r1, cls.inst_info)
@@ -243,21 +239,15 @@ class StreamingBase(OscTestSuite):
         assert len(data_file_after) == len(self.vol_1_df_list)
         assert data_file_after == self.vol_1_df_list
 
-    def check_stream_full(self, nb_new_snap=0, mode="HOT"):
+    def check_stream_full(self, nb_new_snap=0):
         data_file_after = get_data_file_chain(self.a1_r1, res_id=self.vol_1_id)
         self.logger.debug(data_file_after)
         self.logger.debug(self.vol_1_df_list)
         self.logger.debug(len(data_file_after))
         self.logger.debug(2 + nb_new_snap)
-        if self.rebase_enabled and mode != "HOT":
-            assert len(data_file_after) == 3 + nb_new_snap
-            assert data_file_after[0 + nb_new_snap] == self.vol_1_df_list[0]
-            assert data_file_after[1 + nb_new_snap] == self.vol_1_df_list[1]
-            assert data_file_after[2 + nb_new_snap] == self.vol_1_df_list[-1]
-        else:
-            assert len(data_file_after) == 2 + nb_new_snap
-            assert data_file_after[0 + nb_new_snap] == self.vol_1_df_list[0]
-            assert data_file_after[1 + nb_new_snap] == self.vol_1_df_list[1]
+        assert len(data_file_after) == 2 + nb_new_snap
+        assert data_file_after[0 + nb_new_snap] == self.vol_1_df_list[0]
+        assert data_file_after[1 + nb_new_snap] == self.vol_1_df_list[1]
 
     def check_stream_inter(self, nb_new_snap=0):
         data_file_after = get_data_file_chain(self.a1_r1, res_id=self.vol_1_id)
