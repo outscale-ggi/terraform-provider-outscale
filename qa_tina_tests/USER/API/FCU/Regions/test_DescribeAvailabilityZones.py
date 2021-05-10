@@ -1,5 +1,4 @@
 from qa_test_tools.test_base import OscTestSuite
-from specs.check_tools import check_response
 
 
 class Test_DescribeAvailabilityZones(OscTestSuite):
