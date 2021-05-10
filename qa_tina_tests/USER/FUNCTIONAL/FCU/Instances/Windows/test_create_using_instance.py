@@ -193,7 +193,7 @@ class Test_create_using_instance(OscTestSuite):
         except OscTestException:
             if self.a1_r1.config.region.name == 'cloudgouv-eu-west-1':
                 known_error('OPS-13139', 'Licensing error')
-            assert False, 'Remove known error'
+            raise
         check_winrm_access(inst_1_pub_ip, password)
 
     @pytest.mark.tag_redwire
