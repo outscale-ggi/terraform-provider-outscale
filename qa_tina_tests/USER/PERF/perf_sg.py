@@ -11,7 +11,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_security_groups_state, wait
 from qa_tina_tests.USER.PERF.perf_common import log_error
 
 
-MAX_WAIT_TIME = 120
+MAX_WAIT_TIME = 240
 
 
 def perf_sg(oscsdk, logger, queue, args):
