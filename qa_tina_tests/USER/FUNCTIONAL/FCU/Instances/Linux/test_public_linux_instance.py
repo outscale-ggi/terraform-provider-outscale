@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -157,6 +159,7 @@ class Test_public_linux_instance(Test_linux_instance):
                 self.a1_r1.fcu.RebootInstances(InstanceId=[inst_id])
 
                 # wait instance to become ready check for login page
+                time.sleep(30)
                 describe_res = wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[inst_id], state='ready')
 
                 inst_public_ip = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
