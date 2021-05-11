@@ -10,6 +10,8 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_buckets
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_snapshot_export_tasks_state
+from qa_test_tools import misc
+import string
 
 
 class Test_CreateSnapshotExportTask(OscTestSuite):
@@ -216,18 +218,15 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
 
-    # def test_T0000_with_invalid_osu_key(self):
-        # OsuKey not supported by Tina
-
     def test_T3895_with_invalid_osu_prefix(self):
         try:
+            prefix = misc.id_generator(size=1000, chars=string.ascii_lowercase)
             ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                                 'OsuBucket': self.bucket_name,
-                                                                                                'OsuPrefix': '/foo%bar&'})
+                                                                                                'OsuPrefix': prefix})
             self.logger.debug(ret.response.display())
-        #    task_id = ret.response.snapshotExportTask.snapshotExportTaskId
-        #    wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed',
-        #                                     snapshot_export_task_id_list=[task_id])
+            task_id = ret.response.snapshotExportTask.snapshotExportTaskId
+            wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidSnapshot.NotFound',
