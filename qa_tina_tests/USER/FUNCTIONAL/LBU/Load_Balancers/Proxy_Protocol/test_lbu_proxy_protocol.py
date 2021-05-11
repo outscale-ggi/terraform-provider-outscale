@@ -113,8 +113,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
                     print('Could not reach load balancer')
             assert ret.status_code == 200
             expexted_text = []
-            for i in self.a1_r1.config.region.get_info(constants.MY_IP):
-                expexted_text.append("{} -> {}".format(i.split('/')[0], lbu_ip))
+            expexted_text.append("{} -> {}".format(self.a1_r1.config.region.get_info(constants.MY_IP).split('/')[0], lbu_ip))
             assert ret.text in expexted_text
         finally:
             if registered:
