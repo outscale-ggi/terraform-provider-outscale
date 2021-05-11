@@ -46,7 +46,7 @@ class CreateVolume(OscTestSuite):
 
             # run instance
             ret, id_list = create_instances_old(cls.a1_r1, security_group_id_list=[sg_id], key_name=cls.kp_info[NAME],
-                                                state='ready', inst_type='m4.xlarge')
+                                                state='ready')
             cls.inst_id = id_list[0]
             cls.public_ip_inst = ret.response.reservationSet[0].instancesSet[0].ipAddress
 
