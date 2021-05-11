@@ -189,8 +189,8 @@ class Test_create_using_instance(OscTestSuite):
         try:
             check_data_from_console(self.a1_r1, self.inst_1_id)
             if self.a1_r1.config.region.name in ['cloudgouv-eu-west-1', 'dv-west-1']:
-                assert False, 'Remove known error'
-        except OscTestException:
+                pytest.fail('Remove known error')
+        except AssertionError:
             if self.a1_r1.config.region.name == 'cloudgouv-eu-west-1':
                 known_error('OPS-13139', 'Licensing error')
             elif self.a1_r1.config.region.name != 'dv-west-1':
@@ -214,7 +214,14 @@ class Test_create_using_instance(OscTestSuite):
         # self.logger.info("ip : {0}".format(inst_2_pub_IP))
         # self.logger.info("Login Administrator / password {0}".format(password))
 
-        check_data_from_console(self.a1_r1, self.inst_2_id)
+        try:
+            check_data_from_console(self.a1_r1, self.inst_2_id)
+            if self.a1_r1.config.region.name == 'dv-west-1':
+                 pytest.fail('Remove known error')
+        except AssertionError:
+            if self.a1_r1.config.region.name != 'dv-west-1':
+                raise
+            # else / if DV1: continue...
         check_winrm_access(inst_2_pub_ip, password)
 
     # def test_LARS(self):
