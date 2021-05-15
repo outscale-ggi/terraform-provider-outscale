@@ -40,7 +40,7 @@ class Test_verify_response(OscTestSuite):
         ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': instanceid})
         assert ret.response.Vms[0].VmType == default_type
         assert ret.response.Vms[0].Performance == default_perf
-        stop_instances(osc_sdk=self.a1_r1, instance_id_list=instanceid, force=True)
+        stop_instances(osc_sdk=self.a1_r1, instance_id_list=instanceid)
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=instanceid, state='stopped')
         self.a1_r1.oapi.UpdateVm(VmId=instanceid[0], VmType=converted_type)
         start_instances(osc_sdk=self.a1_r1, instance_id_list=instanceid, state='running')
