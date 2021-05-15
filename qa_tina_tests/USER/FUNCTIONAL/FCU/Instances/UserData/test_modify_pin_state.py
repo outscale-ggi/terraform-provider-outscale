@@ -27,7 +27,7 @@ class Test_modify_pin_state(OscTestSuite):
             self.info = create_instances(self.a1_r1, state='running')
             self.server_name = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response.result[0].servers[0].server
             self.cluster_pz = self.a1_r1.intel.hardware.get_details(device=self.server_name).response.result.cluster_pz
-            stop_instances(self.a1_r1, self.info[info_keys.INSTANCE_ID_LIST], force=True, wait=True)
+            stop_instances(self.a1_r1, self.info[info_keys.INSTANCE_ID_LIST], wait=True)
 
         except Exception as error:
             try:
