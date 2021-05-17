@@ -23,7 +23,7 @@ class Test_create_and_use_images(OscTestSuite):
         try:
 
             cls.info = create_instances(cls.a1_r1, state='running')
-            stop_instances(cls.a1_r1, cls.info[INSTANCE_ID_LIST], force=True, wait=True)
+            stop_instances(cls.a1_r1, cls.info[INSTANCE_ID_LIST], wait=True)
 
         except Exception as error:
             try:
