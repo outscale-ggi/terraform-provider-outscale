@@ -45,7 +45,7 @@ class Test_CreateListenerRule(OscTestSuite):
         finally:
             super(Test_CreateListenerRule, cls).teardown_class()
 
-    @pytest.mark.region_qa
+    @pytest.mark.region_admin
     def test_T1619_rule_limit_exceeded(self):
         ret_lr = None
         quota_value = None

@@ -38,7 +38,7 @@ class Test_verify_response(OscTestSuite):
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=instanceid, state='running')
         ret = self.a1_r1.fcu.DescribeInstances(InstanceId=[instanceid[0]])
         assert ret.response.reservationSet[0].instancesSet[0].instanceType == default_type
-        stop_instances(osc_sdk=self.a1_r1, instance_id_list=instanceid, force=True)
+        stop_instances(osc_sdk=self.a1_r1, instance_id_list=instanceid)
         wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=instanceid, state='stopped')
         ret = self.a1_r1.fcu.ModifyInstanceAttribute(InstanceId=instanceid[0], InstanceType={'Value': converted_type})
         start_instances(osc_sdk=self.a1_r1, instance_id_list=instanceid, state='running')

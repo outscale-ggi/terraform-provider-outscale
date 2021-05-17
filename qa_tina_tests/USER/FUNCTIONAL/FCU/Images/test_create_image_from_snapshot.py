@@ -47,7 +47,7 @@ class Test_create_image_from_snapshot(OscTestSuite):
             # get instance boot disk
             assert len(instance['blockDeviceMapping']) == 1
             # stop instance
-            stop_instances(self.a1_r1, ci1_info[INSTANCE_ID_LIST], force=True, wait=True)
+            stop_instances(self.a1_r1, ci1_info[INSTANCE_ID_LIST], wait=True)
             # snapshot instance boot disk
             ret_cs = self.a1_r1.fcu.CreateSnapshot(VolumeId=instance['blockDeviceMapping'][0]['ebs']['volumeId'])
             wait_snapshots_state(self.a1_r1, [ret_cs.response.snapshotId], 'completed')
@@ -74,32 +74,33 @@ class Test_create_image_from_snapshot(OscTestSuite):
                     ci2_info[KEY_PAIR][PATH],
                     username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                 )
-            except OscTestException:
-                if self.a1_r1.config.region.name in ['us-west-1', 'us-east-2', 'cloudgouv-eu-west-1', 'dv-west-1',
-                                                     'eu-west-2']:
-                    known_error('OPS-13265', 'Start instance fail with created image from a snapshot on SV1, NJ and SEC1')
+            except OscTestException as error:
+                print(error)
+                if self.a1_r1.config.region.name in ['us-west-1', 'us-east-2', 'cloudgouv-eu-west-1', 'dv-west-1', 'eu-west-2']:
+                    known_error('OPS-13265', 'Start instance fail with created image from a snapshot on SV1, NJ, SEC2, DV1 and SEC1')
                 raise
             # SshTools.check_connection_paramiko(ci2_info[INSTANCE_SET][0]['ipAddress'], ci2_info[KEY_PAIR][PATH],
             # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
-            errors = []
-            if ci2_info:
-                try:
-                    delete_instances(self.a1_r1, ci2_info)
-                except Exception as error:
-                    errors.append(error)
-            if ci1_info:
-                try:
-                    delete_instances(self.a1_r1, ci1_info)
-                except Exception as error:
-                    errors.append(error)
-            if ret_ri:
-                try:
-                    cleanup_images(self.a1_r1, image_id_list=[ret_ri.response.imageId], force=True)
-                except Exception as error:
-                    errors.append(error)
-            if errors:
-                raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), errors))
+            pass
+#             errors = []
+#             if ci2_info:
+#                 try:
+#                     delete_instances(self.a1_r1, ci2_info)
+#                 except Exception as error:
+#                     errors.append(error)
+#             if ci1_info:
+#                 try:
+#                     delete_instances(self.a1_r1, ci1_info)
+#                 except Exception as error:
+#                     errors.append(error)
+#             if ret_ri:
+#                 try:
+#                     cleanup_images(self.a1_r1, image_id_list=[ret_ri.response.imageId], force=True)
+#                 except Exception as error:
+#                     errors.append(error)
+#             if errors:
+#                 raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), errors))
 
     @pytest.mark.region_admin
     def test_T5246_create_image_from_snapshot_without_product_type(self):
