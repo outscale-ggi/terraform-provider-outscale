@@ -15,7 +15,7 @@ class Test_hot_snap_full(StreamingBaseHot):
         cls.w_size = 20
         cls.v_size = 10
         cls.qemu_version = '2.12'
-        cls.inst_type = 'c4.xlarge'
+        cls.inst_type = 'tinav4.c2r4p2'
         cls.vol_type = 'standard'
         cls.iops = None
         cls.base_snap_id = 10

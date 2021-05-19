@@ -22,7 +22,7 @@ DEFAULT_SNAP_CFG = [
     (34, 10, 20, False),
     # (20, 1000, 200, False)
 ]
-INST_TYPE = 'c4.xlarge'
+INST_TYPE = 'tinav4.c2r4p2'
 
 
 def setup_streaming_ressources(osc_sdk):

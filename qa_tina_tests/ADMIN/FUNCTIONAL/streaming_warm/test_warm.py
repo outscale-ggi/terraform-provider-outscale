@@ -28,7 +28,7 @@ class Test_warm(StreamingBase):
         cls.w_size = 20
         cls.v_size = 10
         cls.qemu_version = '2.12'
-        cls.inst_type = 'c4.large'
+        cls.inst_type = 'tinav4.c2r4p2'
         cls.vol_type = 'standard'
         cls.iops = None
         cls.base_snap_id = 10
@@ -106,7 +106,7 @@ class Test_warm(StreamingBase):
 
         finally:
             if res_started:
-                self.a1_r1.fcu.StopInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]])
+                self.a1_r1.fcu.StopInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]], Force=True)
                 wait_instances_state(self.a1_r1, [self.inst_stopped_info[INSTANCE_ID_LIST][0]], state='stopped')
 
     def test_T4123_warm_vol_full_and_delete_snap(self):
@@ -218,7 +218,7 @@ class Test_warm(StreamingBase):
             self.check_no_stream()  # TODO ???
         finally:
             if res_started:
-                self.a1_r1.fcu.StopInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]])
+                self.a1_r1.fcu.StopInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]], Force=True)
                 wait_instances_state(self.a1_r1, [self.inst_stopped_info[INSTANCE_ID_LIST][0]], state='stopped')
 
     def test_T4131_warm_snap_full_and_delete_snap(self):
