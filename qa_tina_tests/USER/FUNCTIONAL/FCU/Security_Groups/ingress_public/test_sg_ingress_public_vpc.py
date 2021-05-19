@@ -1,4 +1,4 @@
-
+import time
 from platform import system as system_name
 
 import subprocess
@@ -15,7 +15,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_k
 from qa_tina_tools.tools.tina.delete_tools import delete_subnet, delete_instances_old, delete_keypair
 
 
-def ping(host):
+def ping(host, retry=10, timeout=5):
     """
     Returns True if host (str) responds to a ping request.
     Remember that some hosts may not respond to a ping request even if the host name is valid.
@@ -25,15 +25,18 @@ def ping(host):
     # parameters = "-n 1" if system_name().lower() == "windows" else "-c 1"
     # Pinging
     # return system_call("ping " + parameters + " " + host) == 0
-
+    count = 0
     args = ['ping -n 1 {}'.format(host)] if system_name().lower() == "windows" else ['ping -c 1 {}'.format(host)]
-    try:
-        subprocess.check_call(args, shell=True)
-        return True
-    except CalledProcessError:
-        return False
-    # return subprocess.run(args, stdout=subprocess.PIPE).returncode == 0
-
+    while count < retry:
+        try:
+            subprocess.check_call(args, shell=True)
+            return True
+        except CalledProcessError:
+            print("Ping Failed!")
+        count += 1
+        time.sleep(timeout)
+        # return subprocess.run(args, stdout=subprocess.PIPE).returncode == 0
+    return False
 
 class Test_sg_ingress_public_vpc(OscTestSuite):
     """
@@ -50,6 +53,10 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
         cls.sg_id1 = None
         cls.subnet1 = None
         cls.rtb1 = None
+        cls.igw_id = None
+        cls.subnet1_id = None
+        cls.vpc_id = None
+        cls.eip = None
         try:
             # allocate eip
             cls.eip = cls.a1_r1.fcu.AllocateAddress()
@@ -165,17 +172,22 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
 
     def config_tftp_2(self, sshclient, text_to_check):
 
+        cmd = "sudo yum install -y python3"
+        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
+        self.logger.info(out)
+        assert not status, "python was not installed correctly"
+
         cmd = 'sudo curl -fsSL -O https://bootstrap.pypa.io/pip/2.7/get-pip.py'
         out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status, "get pip package was not installed correctly"
 
-        cmd = 'sudo python get-pip.py --no-python-version-warning && rm -f get-pip.py'
+        cmd = 'sudo python3 get-pip.py --no-python-version-warning && rm -f get-pip.py'
         out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status, "get-pip package was not installed correctly"
 
-        cmd = 'sudo python -m pip install ptftpd'
+        cmd = 'sudo python3 -m pip install ptftpd'
         out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)
         assert not status, "ptftpd package was not installed correctly"
