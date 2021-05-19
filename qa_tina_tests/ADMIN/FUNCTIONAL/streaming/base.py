@@ -19,7 +19,7 @@ class StreamingBase(OscTestSuite):
     v_size = 10
     qemu_version = '2.12'
     snap_attached = True
-    inst_type = 'c4.large'
+    inst_type = 'tinav4.c2r4p2'
     inst_az = 'a'
     vol_type = 'standard'
     iops = None
@@ -27,7 +27,7 @@ class StreamingBase(OscTestSuite):
     new_snap_count = 1  # > 1
     branch_id = None  # [0, new_snap_count-1]
     fio = False
-    ref_account_id = '412911315810'  # qa+streaming@outscale.com on IN2
+    ref_account_id = '122068278124'  # qa+stream@outscale.com on IN1
     inst_running = False
     inst_stopped = False
     check_data = False
@@ -60,9 +60,9 @@ class StreamingBase(OscTestSuite):
         cls.md5sum_before = None
         super(StreamingBase, cls).setup_class()
         if cls.a1_r1.config.region.name == 'in-west-1':
-            cls.ref_account_id = '785704195831'  # qa+streaming@outscale.com on IN1
+            cls.ref_account_id = '122068278124'  # qa+stream@outscale.com on IN1
         if cls.a1_r1.config.region.name == 'in-west-2':
-            cls.ref_account_id = '412911315810'  # qa+streaming@outscale.com on IN2
+            cls.ref_account_id = '412911315810'  # qa+stream@outscale.com on IN2
         try:
             # create inst
             if cls.qemu_version == '2.12':

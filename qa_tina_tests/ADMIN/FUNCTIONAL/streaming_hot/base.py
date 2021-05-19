@@ -44,11 +44,17 @@ class StreamingBaseHot(StreamingBase):
         wait_volumes_state(self.a1_r1, [self.vol_1_id], 'available')
         self.attached = False
         ret = get_streaming_operation(osc_sdk=self.a1_r1, res_id=resource_id, logger=self.logger)
-        if ret.response.result[0].state == 'interrupted':
-            ret = self.a1_r1.intel.streaming.start_all()  # TODO Remove and add known error
-            self.logger.debug(ret.response.display())
-            wait_streaming_state(self.a1_r1, resource_id, state='started', logger=self.logger)
-        assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
+        if ret.response.result and ret.response.result[0].state == 'interrupted':
+            try:
+                ret = self.a1_r1.intel.streaming.start_all()
+                self.logger.debug(ret.response.display())
+            except OscApiException as err:
+                if err.status_code == 504:
+                    self.logger.debug("streaming.start_all TIMEOUT...")
+                    time.sleep(30)
+                else:
+                    raise err
+        #assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
         wait_streaming_state(self.a1_r1, resource_id, cleanup=True, logger=self.logger)
 
     def stop(self, resource_id):
