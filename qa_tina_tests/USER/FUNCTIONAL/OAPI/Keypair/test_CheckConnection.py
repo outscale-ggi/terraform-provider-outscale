@@ -178,7 +178,7 @@ class Test_CheckConnection(OscTestSuite):
             SshTools.check_connection_paramiko(
                 vm_info[info_keys.VMS][0]['PublicIp'],
                 key_info[PRIVATE],
-                retry=3,
+                retry=10,
                 key_type=KeyType.rsa,
                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
             )
@@ -209,7 +209,7 @@ class Test_CheckConnection(OscTestSuite):
             SshTools.check_connection_paramiko(
                 vm_info[info_keys.VMS][0]['PublicIp'],
                 key_info[PRIVATE],
-                retry=3,
+                retry=10,
                 key_type=KeyType.rsa,
                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
             )
@@ -240,7 +240,7 @@ class Test_CheckConnection(OscTestSuite):
             SshTools.check_connection_paramiko(
                 vm_info[info_keys.VMS][0]['PublicIp'],
                 key_info[PRIVATE],
-                retry=3,
+                retry=10,
                 key_type=KeyType.rsa,
                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
             )
@@ -275,7 +275,7 @@ class Test_CheckConnection(OscTestSuite):
             SshTools.check_connection_paramiko(
                 vm_info[info_keys.VMS][0]['PublicIp'],
                 key_info[PRIVATE],
-                retry=3,
+                retry=10,
                 key_type=KeyType.rsa,
                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
             )
