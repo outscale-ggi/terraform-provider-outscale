@@ -51,7 +51,7 @@ class CreateVolume(OscTestSuite):
             cls.public_ip_inst = ret.response.reservationSet[0].instancesSet[0].ipAddress
 
             cls.sshclient = SshTools.check_connection_paramiko(cls.public_ip_inst, cls.kp_info[PATH],
-                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=400)
 
         except Exception as error:
             try:
