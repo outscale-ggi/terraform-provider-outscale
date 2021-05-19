@@ -10,6 +10,7 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina import setup_tools
 from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_subnet, delete_instances_old, delete_keypair
@@ -172,10 +173,7 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
 
     def config_tftp_2(self, sshclient, text_to_check):
 
-        cmd = "sudo yum install -y python3"
-        out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
-        self.logger.info(out)
-        assert not status, "python was not installed correctly"
+        setup_tools.install_python_3(sshclient)
 
         cmd = 'sudo curl -fsSL -O https://bootstrap.pypa.io/pip/2.7/get-pip.py'
         out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
