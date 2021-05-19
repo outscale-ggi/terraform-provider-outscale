@@ -23,11 +23,6 @@ class Test_rolling_eip_with_nat_connection(OscTestSuite):
         try:
             # create vpc
             net_info = create_Net(self.a1_r1, nb_vm=2, state=None)
-            # add rule to accept tcp on 80
-            ips = self.a1_r1.config.region.get_info(constants.SOURCE_CIDRS)
-            for addr in ips:
-                self.a1_r1.oapi.CreateSecurityGroupRule(SecurityGroupId=net_info[info_keys.SUBNETS][0][info_keys.SECURITY_GROUP_ID],
-                                                        IpProtocol='tcp', FromPortRange=80, ToPortRange=80, IpRange=addr, Flow='Inbound')
             wait_Vms_state(self.a1_r1, net_info[info_keys.SUBNETS][0][info_keys.VM_IDS], state='ready')
             # install http server on first instance
             start_http_server(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'], net_info[info_keys.KEY_PAIR][info_keys.PATH],
