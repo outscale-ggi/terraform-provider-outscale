@@ -207,7 +207,7 @@ class Test_create_using_instance(OscTestSuite):
         try:
             check_data_from_console(self.a1_r1, self.inst_2_id)
             if self.a1_r1.config.region.name == 'dv-west-1':
-                 pytest.fail('Remove known error')
+                pytest.fail('Remove known error')
         except AssertionError:
             if self.a1_r1.config.region.name != 'dv-west-1':
                 raise
