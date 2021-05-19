@@ -63,8 +63,6 @@ class Test_create_image_from_snapshot(OscTestSuite):
             # run instance with new omi
             try:
                 ci2_info = create_instances(self.a1_r1, state='ready', omi_id=ret_ri.response.imageId)
-                if self.a1_r1.config.region.name in ['us-west-1', 'us-east-2']:
-                    assert False, "remove known error code"
                 assert len(ci2_info[INSTANCE_SET]) == 1
                 # check instance connection
                 check_tools.check_ssh_connection(
@@ -76,7 +74,7 @@ class Test_create_image_from_snapshot(OscTestSuite):
                 )
             except OscTestException as error:
                 print(error)
-                if self.a1_r1.config.region.name in ['us-west-1', 'us-east-2', 'cloudgouv-eu-west-1', 'dv-west-1', 'eu-west-2']:
+                if self.a1_r1.config.region.name in ['cloudgouv-eu-west-1', 'dv-west-1', 'eu-west-2']:
                     known_error('OPS-13265', 'Start instance fail with created image from a snapshot on SV1, NJ, SEC2, DV1 and SEC1')
                 raise
             # SshTools.check_connection_paramiko(ci2_info[INSTANCE_SET][0]['ipAddress'], ci2_info[KEY_PAIR][PATH],

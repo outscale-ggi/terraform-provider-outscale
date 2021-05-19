@@ -351,8 +351,4 @@ class Test_CreateListenerRule(OscTestSuite):
             if ret_lr1:
                 self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=ret_lr1.response.ListenerRule.ListenerRuleName)
             if ret_lr2:
-                try:
-                    self.a2_r1.oapi.DeleteListenerRule(ListenerRuleName=ret_lr2.response.ListenerRule.ListenerRuleName)
-                except OscApiException as err:
-                    misc.assert_oapi_error(err, 400, 'InvalidResource', 5029)
-                    known_error('TINA-6471', 'DeleteListenerRule issue')
+                self.a2_r1.oapi.DeleteListenerRule(ListenerRuleName=ret_lr2.response.ListenerRule.ListenerRuleName)
