@@ -5,7 +5,7 @@ import pytest
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tina import info_keys
+from qa_tina_tools.tina import info_keys, check_tools
 from qa_tina_tools.tina.oapi import create_Vms, delete_Vms
 
 
@@ -22,10 +22,9 @@ class Test_filter_private_data(OscTestSuite):
 
             vm_ip = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [
                 inst_info[info_keys.VM_IDS][0]]}).response.Vms[0].PublicIp
-            sshclient = SshTools.check_connection_paramiko(vm_ip,
-                                                           inst_info[info_keys.KEY_PAIR][info_keys.PATH],
-                                                           username=self.a1_r1.config.region.get_info(config_constants.
-                                                                                                      CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_info[info_keys.VM_IDS][0], vm_ip,
+                                                         inst_info[info_keys.KEY_PAIR][info_keys.PATH],
+                                                         self.a1_r1.config.region.get_info(config_constants.CENTOS_USER))
             out, _, _ = SshTools.exec_command_paramiko(sshclient, 'curl http://169.254.169.254/latest/user-data',
                                                        decode=True)
 
