@@ -17,7 +17,7 @@ class Test_performance_iops(StreamingBase):
         cls.w_size = 100
         cls.v_size = 1000
         cls.qemu_version = '2.12'
-        cls.inst_type = 'm4.xlarge'
+        cls.inst_type = 'tinav4.c4r4p2'
         cls.vol_type = 'io1'
         cls.iops = 1000
         cls.s_len = 10

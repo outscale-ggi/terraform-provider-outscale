@@ -22,7 +22,7 @@ class Test_hot_vol_full(StreamingBaseHot):
         cls.v_size = 10
         cls.qemu_version = '2.12'
         # cls.rebase_enabled = False
-        cls.inst_type = 'c4.xlarge'
+        cls.inst_type = 'tinav4.c2r4p2'
         cls.vol_type = 'standard'
         cls.iops = None
         cls.base_snap_id = 10
