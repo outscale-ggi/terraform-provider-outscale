@@ -40,7 +40,7 @@ class Test_rolling_eip_with_nat_connection(OscTestSuite):
                 req = requests.get(http_server_address)
                 assert req.text.strip() == 'instance1'
             except:
-                self.logger.debug('Could not access http server on ' + http_server_address)
+                self.logger.debug('Could not access http server')
                 raise
             # move eip of first instance to second instance
             self.a1_r1.oapi.UnlinkPublicIp(LinkPublicIpId=net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_ASSOCIATION_IP])
@@ -55,7 +55,7 @@ class Test_rolling_eip_with_nat_connection(OscTestSuite):
                 req = requests.get(http_server_address)
                 assert req.text.strip() == 'instance2'
             except:
-                self.logger.debug('Could not access http server on ' + http_server_address)
+                self.logger.debug('Could not access http server')
                 raise
         except Exception as error:
             raise error
