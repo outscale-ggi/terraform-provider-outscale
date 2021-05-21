@@ -11,6 +11,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, PATH, KEY_PAIR
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state
+from qa_tina_tools.tina import check_tools
 
 
 class Test_UpdateVolume(OscTestSuite):
@@ -47,7 +48,8 @@ class Test_UpdateVolume(OscTestSuite):
 
             wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.inst_info[INSTANCE_ID_LIST], state='ready')
 
-            self.sshclient = SshTools.check_connection_paramiko(self.inst_info[INSTANCE_SET][0]['ipAddress'],
+            self.sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_info[INSTANCE_ID_LIST][0],
+                                                               self.inst_info[INSTANCE_SET][0]['ipAddress'],
                                                                 self.inst_info[KEY_PAIR][PATH],
                                                                 username=self.a1_r1.config.region.get_info(
                                                                     constants.CENTOS_USER))

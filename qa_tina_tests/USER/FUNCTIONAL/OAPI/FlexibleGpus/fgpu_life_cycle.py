@@ -48,6 +48,8 @@ class FgpuLifeCycle(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.quotas = {'gpu_limit': 4}
+        cls.quotas = {'memory_limit': 400}
+        cls.quotas = {'core_limit': 200}
         cls.inst_info = None
         cls.vm_id = None
         cls.fgpu_id = None
