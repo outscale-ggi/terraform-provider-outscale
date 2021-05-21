@@ -202,14 +202,8 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             # validate ICMP
             assert ping(host=public_ip_inst)
 
-<<<<<<< Upstream, based on origin/TINA-2.5.18
-            # validate tcp
-            sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-=======
             sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, public_ip_inst, self.kp_info[PATH],
                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
->>>>>>> 1317991 changes for encapsulates ssh connection
 
             cmd = 'pwd'
             _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
@@ -270,16 +264,9 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             # validate ICMP
             assert ping(host=public_ip_inst)
 
-<<<<<<< Upstream, based on origin/TINA-2.5.18
-            # validate tcp
-            sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-
-=======
             sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, public_ip_inst, self.kp_info[PATH],
                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # validate tcp
->>>>>>> 1317991 changes for encapsulates ssh connection
             cmd = 'pwd'
             _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
