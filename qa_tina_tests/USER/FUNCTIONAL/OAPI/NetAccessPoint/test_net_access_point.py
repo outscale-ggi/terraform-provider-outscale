@@ -89,7 +89,7 @@ class Test_net_access_point(OscTestSuite):
                 except Exception as error:
                     errors.append(error)
             if errors:
-                raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), [str(err) for err in errors]))
+                raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), [str(err1) for err1 in errors]))
 
     @pytest.mark.region_storageservice
     def test_T5646_netaccesspoint_for_api_service(self):
@@ -160,4 +160,4 @@ class Test_net_access_point(OscTestSuite):
                     errors.append(error)
             if errors:
                 raise OscTestException(
-                    'Found {} errors while cleaning resources : \n{}'.format(len(errors), [str(err) for err in errors]))
+                    'Found {} errors while cleaning resources : \n{}'.format(len(errors), [str(err1) for err1 in errors]))
