@@ -1,12 +1,7 @@
-from cryptography.hazmat.primitives.asymmetric import ec
-
 from qa_test_tools.config import config_constants
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import info_keys, wait, oapi, check_tools
-from qa_tina_tools.tina.oapi import create_SecurityGroup
-from qa_tina_tools.tools.tina.create_tools import generate_key
 from qa_common_tools.ssh import SshTools, OscSshError
 
 
@@ -20,7 +15,7 @@ class Test_vms_and_volumes(OscTestSuite):
     def teardown_class(cls):
         super(Test_vms_and_volumes, cls).teardown_class()
 
-    def test_Txxxx_create_vms_and_volumes(self):
+    def test_T0000_create_vms_and_volumes(self):
         vm_info_a = None
         vm_info_b = None
         try:
@@ -80,44 +75,44 @@ class Test_vms_and_volumes(OscTestSuite):
             # vm_a ping to internet
             target_ip = Configuration.get('ipaddress', 'dns_google')
             cmd = "ping " + target_ip + " -c 1"
-            out, status, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
+            out, _, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
             self.logger.info("vm_a ping to internet")
             self.logger.info(out)
 
             # vm_a ping to vm_b with public IP
             vm_b_ip = vm_info_b[info_keys.VMS][0]["PublicIp"]
             cmd = "ping " + vm_b_ip + " -c 1"
-            out, status, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
+            out, _, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
             self.logger.info("vm_a ping to vm_b with public IP")
             self.logger.info(out)
 
             #  vm_a ping to vm_b with private IP
             vm_b_ip = vm_info_b[info_keys.VMS][0]["PrivateIp"]
             cmd = "ping " + vm_b_ip + " -c 1"
-            out, status, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
+            out, _, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
             self.logger.info("vm_a ping to vm_b with private IP")
             self.logger.info(out)
 
             # vm_b ping to internet
             target_ip = Configuration.get('ipaddress', 'dns_google')
             cmd = "ping " + target_ip + " -c 1"
-            out, status, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
+            out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
             self.logger.info("vm_b ping to internet")
             self.logger.info(out)
 
             # vm_b ping to vm_a with public IP
             vm_a_ip = vm_info_a[info_keys.VMS][0]["PublicIp"]
             cmd = "ping " + vm_a_ip + " -c 1"
-            out, status, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
+            out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
             self.logger.info("vm_b ping to vm_a with public IP")
             self.logger.info(out)
 
             # vm_b ping to vm_a with private IP
             vm_a_ip = vm_info_a[info_keys.VMS][0]["PrivateIp"]
             cmd = "ping " + vm_a_ip + " -c 1"
-            out, status, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
+            out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
             self.logger.info("vm_b ping to vm_a with private IP")
             self.logger.info(out)
 
         except OscSshError:
-             LOGGER.info('OscSshError')
+            self.logger.info('OscSshError')
