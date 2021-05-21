@@ -85,11 +85,11 @@ class Test_vms_and_volumes(OscTestSuite):
             self.logger.info(out)
 
             # vm_a ping to vm_b with public IP
-            # vm_b_ip = vm_info_b[info_keys.VMS][0]["PublicIp"]
-            # cmd = "ping " + vm_b_ip + " -c 1"
-            # out, status, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
-            # self.logger.info("vm_a ping to vm_b with public IP")
-            # self.logger.info(out)
+            vm_b_ip = vm_info_b[info_keys.VMS][0]["PublicIp"]
+            cmd = "ping " + vm_b_ip + " -c 1"
+            out, status, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
+            self.logger.info("vm_a ping to vm_b with public IP")
+            self.logger.info(out)
 
             #  vm_a ping to vm_b with private IP
             vm_b_ip = vm_info_b[info_keys.VMS][0]["PrivateIp"]
@@ -106,11 +106,11 @@ class Test_vms_and_volumes(OscTestSuite):
             self.logger.info(out)
 
             # vm_b ping to vm_a with public IP
-            # vm_a_ip = vm_info_a[info_keys.VMS][0]["PublicIp"]
-            # cmd = "ping " + vm_a_ip + " -c 1"
-            # out, status, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
-            # self.logger.info("vm_b ping to vm_a with public IP")
-            # self.logger.info(out)
+            vm_a_ip = vm_info_a[info_keys.VMS][0]["PublicIp"]
+            cmd = "ping " + vm_a_ip + " -c 1"
+            out, status, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
+            self.logger.info("vm_b ping to vm_a with public IP")
+            self.logger.info(out)
 
             # vm_b ping to vm_a with private IP
             vm_a_ip = vm_info_a[info_keys.VMS][0]["PrivateIp"]
