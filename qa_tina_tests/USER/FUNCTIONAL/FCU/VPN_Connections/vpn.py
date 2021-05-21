@@ -16,6 +16,11 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SEC
     VPC_ID, PATH, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 
+def check_ipsec_status(self, vpn_id):
+    filters = [{'Name': 'vpn-connection-id', 'Value': vpn_id}]
+    ret = self.a1_r1.fcu.DescribeVpnConnections(Filters=filters)
+    assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].status == 'UP'
+    assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].statusMessage == 'IPSEC IS UP'
 
 def upgrade_ike_to_v2(sshclient, leftid, rightid):
     cmd = """
@@ -197,7 +202,7 @@ class Vpn(OscTestSuite):
                 upgrade_ike_to_v2(sshclient, leftid, rightid)
                 ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                           self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
-
+            check_ipsec_status(self, vpn_id)
             start = datetime.now()
             while (datetime.now() - start).total_seconds() < 60:
                 try:
