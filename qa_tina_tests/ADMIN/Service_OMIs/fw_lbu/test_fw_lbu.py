@@ -11,6 +11,7 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
+from qa_tina_tools.tina import check_tools
 
 
 class Test_fw_lbu(OscTestSuite):
@@ -37,11 +38,9 @@ class Test_fw_lbu(OscTestSuite):
                     inst_ip = nic.ips[0].ip
             assert inst_ip
 
-            cls.sshclient = SshTools.check_connection_paramiko(inst_ip,
-                                                               os.path.expanduser(cls.a1_r1.config.region.get_info(constants.FW_KP)),
-                                                               username='root',
-                                                               retry=30,
-                                                               timeout=10)
+            cls.sshclient = check_tools.check_ssh_connection(cls.a1_r1, inst_id, inst_ip,
+                                                             os.path.expanduser(cls.a1_r1.config.region.get_info(constants.FW_KP)),
+                                                             'root', retry=30, timeout=10)
         except Exception:
             try:
                 cls.teardown_class()

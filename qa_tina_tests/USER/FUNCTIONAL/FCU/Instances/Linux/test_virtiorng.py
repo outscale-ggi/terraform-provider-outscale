@@ -4,6 +4,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH
+from qa_tina_tools.tina import check_tools
 
 
 class Test_virtiorng(OscTestSuite):
@@ -32,8 +33,8 @@ class Test_virtiorng(OscTestSuite):
         inst = self.inst_info[INSTANCE_SET][0]
         kp_info = self.inst_info[KEY_PAIR]
 
-        connection = SshTools.check_connection_paramiko(inst['ipAddress'], kp_info[PATH],
-                                                        self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        connection = check_tools.check_ssh_connection(self.a1_r1, inst['instanceId'], inst['ipAddress'], kp_info[PATH],
+                                                      self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         cmd = "cat /sys/devices/virtual/misc/hw_random/rng_available"
         out, _, _ = SshTools.exec_command_paramiko(connection, cmd)
         assert 'virtio' in out

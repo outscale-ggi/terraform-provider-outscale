@@ -83,9 +83,7 @@ class Test_private_linux_instance(Test_linux_instance):
                                                            eip_alloc_id=self.eip_allo_id, public_ip=self.eip.response.publicIp)
             if inst_id:
                 sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
-                                                             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                                                             self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
                 self.logger.info(out)

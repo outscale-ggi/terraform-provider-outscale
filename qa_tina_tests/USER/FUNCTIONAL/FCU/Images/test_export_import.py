@@ -13,6 +13,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances, create_volum
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_images_state
+from qa_tina_tools.tina import check_tools
 
 
 @pytest.mark.region_storageservice
@@ -128,8 +129,9 @@ class Test_export_import(OscTestSuite):
         inst_info = None
         try:
             inst_id = self.inst_info[INSTANCE_ID_LIST][0]
-            sshclient = SshTools.check_connection_paramiko(self.inst_info[INSTANCE_SET][0]['ipAddress'], self.inst_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_info[INSTANCE_SET][0]['instanceId'],
+                                                         self.inst_info[INSTANCE_SET][0]['ipAddress'], self.inst_info[KEY_PAIR][PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             cmd = 'sudo mkdir test'
             _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             # create image
@@ -163,10 +165,10 @@ class Test_export_import(OscTestSuite):
 
             # verify instance is running with attached volume
             self.verify_inst_img(imp_inst_id, imp_image_id)
-            sshclient = SshTools.check_connection_paramiko(self.inst_info[INSTANCE_SET][0]['ipAddress'],
-                                                           self.inst_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(
-                                                               constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_info[INSTANCE_SET][0]['instanceId'],
+                                                         self.inst_info[INSTANCE_SET][0]['ipAddress'],
+                                                         self.inst_info[KEY_PAIR][PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             cmd = 'sudo cd test'
             _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"

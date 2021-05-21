@@ -3,6 +3,7 @@
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH
@@ -85,7 +86,8 @@ class StreamingBase(OscTestSuite):
 
             wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=cls.inst_info[INSTANCE_ID_LIST], state='ready')
 
-            cls.sshclient = SshTools.check_connection_paramiko(
+            cls.sshclient = check_tools.check_ssh_connection(cls.a1_r1,
+                cls.inst_info[INSTANCE_SET][0]['instanceId'],
                 cls.inst_info[INSTANCE_SET][0]['ipAddress'],
                 cls.inst_info[KEY_PAIR][PATH],
                 username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER),

@@ -6,6 +6,7 @@ from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, INSTANCE_SET, SUBNET_ID, KEY_PAIR, PATH, SECURITY_GROUP_ID
 from qa_tina_tools.tools.tina.wait_tools import wait_network_interfaces_state
+from qa_tina_tools.tina import check_tools
 
 
 class Test_fni(OscTestSuite):
@@ -67,12 +68,12 @@ class Test_fni(OscTestSuite):
             fni_att_id = ret.response.attachmentId
             wait_network_interfaces_state(osc_sdk=self.a1_r1, network_interface_id_list=[fni_id], state='in-use')
             # connect to instance via eip1
-            SshTools.check_connection_paramiko(self.vpc_eip1.publicIp, self.vpc_info[KEY_PAIR][PATH],
-                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            check_tools.check_ssh_connection(self.a1_r1, self.vpc_inst1['instanceId'], self.vpc_eip1.publicIp, self.vpc_info[KEY_PAIR][PATH],
+                                             self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # connect to instance via eip2
             try:
-                SshTools.check_connection_paramiko(self.vpc_eip2.publicIp, self.vpc_info[KEY_PAIR][PATH],
-                                                   username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=3)
+                check_tools.check_ssh_connection(self.a1_r1, self.vpc_inst1['instanceId'], self.vpc_eip2.publicIp, self.vpc_info[KEY_PAIR][PATH],
+                                                 self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=3)
             except OscSshError:
                 known_error('NO TICKET', 'Could not connect to instance through fni, rpm not on default omi')
             assert False, 'Remove known error code'
@@ -114,12 +115,12 @@ class Test_fni(OscTestSuite):
             fni_att_id = ret.response.attachmentId
             wait_network_interfaces_state(osc_sdk=self.a1_r1, network_interface_id_list=[fni_id], state='in-use')
             # connect to instance1 via eip1
-            SshTools.check_connection_paramiko(self.vpc_eip1.publicIp, self.vpc_info[KEY_PAIR][PATH],
-                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            check_tools.check_ssh_connection(self.a1_r1, self.vpc_inst1['instanceId'], self.vpc_eip1.publicIp, self.vpc_info[KEY_PAIR][PATH],
+                                             self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # connect to instance1 via eip2
             try:
-                SshTools.check_connection_paramiko(self.vpc_eip2.publicIp, self.vpc_info[KEY_PAIR][PATH],
-                                                   username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=3)
+                check_tools.check_ssh_connection(self.a1_r1, self.vpc_inst1['instanceId'],self.vpc_eip2.publicIp, self.vpc_info[KEY_PAIR][PATH],
+                                                 self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=3)
             except OscSshError:
                 known_error('NO TICKET', 'Could not connect to instance through fni, rpm not on default omi')
             assert False, 'Remove known error code'
@@ -127,13 +128,13 @@ class Test_fni(OscTestSuite):
             self.a1_r1.fcu.DetachNetworkInterface(AttachmentId=fni_att_id)
             fni_att_id = None
             wait_network_interfaces_state(osc_sdk=self.a1_r1, network_interface_id_list=[fni_id], state='available')
-            # attch fni to instance2
+            # attach fni to instance2
             ret = self.a1_r1.fcu.AttachNetworkInterface(NetworkInterfaceId=fni_id, InstanceId=self.vpc_inst2['instanceId'], DeviceIndex=1)
             fni_att_id = ret.response.attachmentId
             wait_network_interfaces_state(osc_sdk=self.a1_r1, network_interface_id_list=[fni_id], state='in-use')
             # connect to instance2 via eip2
-            SshTools.check_connection_paramiko(self.vpc_eip2.publicIp, self.vpc_info[KEY_PAIR][PATH],
-                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            check_tools.check_ssh_connection(self.a1_r1, self.vpc_inst2['instanceId'],self.vpc_eip2.publicIp, self.vpc_info[KEY_PAIR][PATH],
+                                             self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
             # detach and delete fni
             if fni_att_id:
@@ -171,12 +172,12 @@ class Test_fni(OscTestSuite):
             fni_att_id = ret.response.attachmentId
             wait_network_interfaces_state(osc_sdk=self.a1_r1, network_interface_id_list=[fni_id], state='in-use')
             # connect to instance1 via eip1
-            SshTools.check_connection_paramiko(self.vpc_eip1.publicIp, self.vpc_info[KEY_PAIR][PATH],
-                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            check_tools.check_ssh_connection(self.a1_r1, self.vpc_inst1['instanceId'], self.vpc_eip1.publicIp, self.vpc_info[KEY_PAIR][PATH],
+                                             self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # connect to instance1 via eip2
             try:
-                SshTools.check_connection_paramiko(self.vpc_eip2.publicIp, self.vpc_info[KEY_PAIR][PATH],
-                                                   username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=3)
+                check_tools.check_ssh_connection(self.a1_r1, self.vpc_inst1['instanceId'], self.vpc_eip2.publicIp, self.vpc_info[KEY_PAIR][PATH],
+                                                 self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=3)
             except OscSshError as error:
                 known_error('NO TICKET', 'Could not connect to instance through fni, rpm not on default omi')
             assert False, 'Remove known error code'
@@ -184,8 +185,9 @@ class Test_fni(OscTestSuite):
             ret = self.a1_r1.fcu.DescribeNetworkInterfaces(NetworkInterfaceId=[fni_id])
             private_addresses = ret.response.networkInterfaceSet[0].privateIpAddressesSet
             # copy ssh key on instance1
-            sshclient = SshTools.check_connection_paramiko(self.vpc_eip1.publicIp, self.vpc_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.vpc_inst1['instanceId'], self.vpc_eip1.publicIp,
+                                                         self.vpc_info[KEY_PAIR][PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # read file and save it on distant machine
             with open(self.vpc_info[KEY_PAIR][PATH], 'r') as content_file:
                 content = content_file.read()

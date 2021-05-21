@@ -8,7 +8,7 @@ from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tina import wait
+from qa_tina_tools.tina import wait, check_tools
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -144,8 +144,9 @@ class Test_multi_vpn(OscTestSuite):
             # wait CGW state == ready before making configuration
             wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw1_info[INSTANCE_ID_LIST][0]], state='ready')
 
-            sshclient1 = SshTools.check_connection_paramiko(self.inst_cgw1_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw1_info[KEY_PAIR][PATH],
-                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient1 = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw1_info[INSTANCE_SET][0]['instanceId'],
+                                                          self.inst_cgw1_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw1_info[KEY_PAIR][PATH],
+                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             setup_customer_gateway(self.a1_r1, sshclient1, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
                                    self.inst_cgw1_info, vgw1_ip, psk1_key, static, vpn1_id, index=0, ike="ikev1",
@@ -216,8 +217,9 @@ class Test_multi_vpn(OscTestSuite):
             # wait CGW state == ready before making configuration
             wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw2_info[INSTANCE_ID_LIST][0]], state='ready')
 
-            sshclient2 = SshTools.check_connection_paramiko(self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw2_info[KEY_PAIR][PATH],
-                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient2 = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'],
+                                                          self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw2_info[KEY_PAIR][PATH],
+                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             if policy:
                 vti = False
             setup_customer_gateway(self.a1_r1, sshclient2, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],

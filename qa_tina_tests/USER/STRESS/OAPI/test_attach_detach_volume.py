@@ -3,7 +3,7 @@ import pytest
 from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.config import config_constants
 from qa_common_tools.ssh import SshTools
-from qa_tina_tools.tina import wait, oapi, info_keys
+from qa_tina_tools.tina import wait, oapi, info_keys, check_tools
 from qa_tina_tools.tina.check_tools import format_mount_volume, umount_volume
 from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import validate_snasphot
 
@@ -51,10 +51,10 @@ class Test_attach_detach_volume(OscTestSuite):
 
             wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
 
-            self.sshclient = SshTools.check_connection_paramiko(self.vm_info[info_keys.VMS][0]['PublicIp'],
-                                                                self.vm_info[info_keys.KEY_PAIR][info_keys.PATH],
-                                                                username=self.a1_r1.config.region.get_info(
-                                                                    config_constants.CENTOS_USER))
+            self.sshclient = check_tools.check_ssh_connection(self.a1_r1, self.vm_info[info_keys.VMS][0]['InstanceId'],
+                                                              self.vm_info[info_keys.VMS][0]['PublicIp'],
+                                                              self.vm_info[info_keys.KEY_PAIR][info_keys.PATH],
+                                                              self.a1_r1.config.region.get_info(config_constants.CENTOS_USER))
 
             format_mount_volume(self.sshclient, DEVICE_NAME, self.volume_mount, True)
             time.sleep(2)
