@@ -3,7 +3,6 @@ import base64
 
 import pytest
 
-from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
@@ -35,8 +34,6 @@ class Test_keypair(OscTestSuite):
             # access instance using key
             check_tools.check_ssh_connection(self.a1_r1, config[INSTANCE_ID_LIST][0], ip_address, kp_info[PRIVATE],
                                              username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-            # SshTools.check_connection_paramiko(ip_address, kp_info[PRIVATE],
-            # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
             if config:
                 delete_instances(self.a1_r1, config)
@@ -56,7 +53,8 @@ class Test_keypair(OscTestSuite):
             config = create_instances(self.a1_r1, key_name=kp_info[NAME], state='ready')
             ip_address = config[INSTANCE_SET][0]['ipAddress']
             # access instance using key
-            SshTools.check_connection_paramiko(ip_address, kp_info[PATH], username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            check_tools.check_ssh_connection(self.a1_r1, config[INSTANCE_SET][0]['instanceId'], ip_address, kp_info[PATH],
+                                             self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
             if config:
                 delete_instances(self.a1_r1, config)

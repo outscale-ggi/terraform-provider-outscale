@@ -6,6 +6,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import PATH, INSTANCE_SET, KEY_PAIR
+from qa_tina_tools.tina import check_tools
 
 
 @pytest.mark.region_gpu
@@ -21,8 +22,9 @@ class Test_create_verify_gpu_instances(OscTestSuite):
         super(Test_create_verify_gpu_instances, cls).teardown_class()
 
     def verify_instance_type(self, inst_info, total_gpu, vcores, memory_ram):
-        sshclient = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
-                                                       username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_info[INSTANCE_SET][0]['instanceId'],
+                                                     inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
+                                                     self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         cmd = 'sudo nproc'
         out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
         self.logger.info(out)

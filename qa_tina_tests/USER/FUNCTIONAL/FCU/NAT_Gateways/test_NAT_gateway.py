@@ -206,8 +206,6 @@ class Test_NAT_gateway(OscTestSuite):
 
             sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst1_id, self.eip.response.publicIp, self.kp_info[info_keys.PATH],
                                                          username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=6, timeout=10)
-            # sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[info_keys.PATH],
-            # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER), retry=6, timeout=10)
             # read file and save it on distant machine
             with open(self.kp_info[info_keys.PATH], 'r') as content_file:
                 content = content_file.read()

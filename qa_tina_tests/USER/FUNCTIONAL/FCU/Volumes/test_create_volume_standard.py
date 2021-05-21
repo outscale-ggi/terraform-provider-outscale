@@ -47,8 +47,6 @@ class Test_create_volume_standard(CreateVolume):
             wait_volumes_state(self.a1_r1, [self.volume_id], state='in-use', cleanup=False, threshold=20, wait_time=3)
             self.sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_id, self.public_ip_inst, self.kp_info[PATH],
                                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-            # self.sshclient = SshTools.check_connection_paramiko(self.public_ip_inst, self.kp_info[PATH],
-            # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             check_volume(self.sshclient, dev, 8, with_format=False, text_to_check=text_to_check, no_create=True)
         finally:
             try:

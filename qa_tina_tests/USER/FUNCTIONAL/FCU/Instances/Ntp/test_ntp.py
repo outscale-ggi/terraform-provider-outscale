@@ -53,8 +53,6 @@ class Test_ntp(OscTestSuite):
     def my_test_centos_ntp(self, osc_sdk, inst_id, ip_address, key_path):
         sshclient = check_tools.check_ssh_connection(osc_sdk, inst_id, ip_address, key_path,
                                                      username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        # sshclient = SshTools.check_connection_paramiko(ipAddress, keyPath,
-        # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         retry = 3
         missing = False
         for _ in range(retry):
@@ -93,8 +91,6 @@ class Test_ntp(OscTestSuite):
                                                      self.inst_info[UBUNTU][INSTANCE_SET][0]['ipAddress'],
                                                      self.inst_info[UBUNTU][KEY_PAIR][PATH],
                                                      username=self.a1_r1.config.region.get_info(constants.UBUNTU_USER))
-        # sshclient = SshTools.check_connection_paramiko(self.inst_info[UBUNTU][INSTANCE_SET][0]['ipAddress'], self.inst_info[UBUNTU][KEY_PAIR][PATH],
-        # username=self.a1_r1.config.region.get_info(constants.UBUNTU_USER))
         cmd = "sudo cat /run/systemd/timesyncd.conf.d/01-dhclient.conf"
         SshTools.exec_command_paramiko(sshclient, "sudo dhclient -v", expected_status=-1)
         sleep(10)

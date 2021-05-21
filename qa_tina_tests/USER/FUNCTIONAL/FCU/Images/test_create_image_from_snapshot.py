@@ -42,8 +42,6 @@ class Test_create_image_from_snapshot(OscTestSuite):
                 ci1_info[KEY_PAIR][PATH],
                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
             )
-            # SshTools.check_connection_paramiko(instance['ipAddress'], ci1_info[KEY_PAIR][PATH],
-            # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # get instance boot disk
             assert len(instance['blockDeviceMapping']) == 1
             # stop instance
@@ -76,8 +74,6 @@ class Test_create_image_from_snapshot(OscTestSuite):
                 if self.a1_r1.config.region.name in ['us-west-1', 'us-east-2', 'cloudgouv-eu-west-1', 'eu-west-2']:
                     known_error('OPS-13265', 'Start instance fail with created image from a snapshot on SV1, NJ and SEC1')
                 raise
-            # SshTools.check_connection_paramiko(ci2_info[INSTANCE_SET][0]['ipAddress'], ci2_info[KEY_PAIR][PATH],
-            # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         finally:
             errors = []
             if ci2_info:

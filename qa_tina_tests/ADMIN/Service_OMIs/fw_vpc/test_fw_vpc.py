@@ -11,6 +11,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
+from qa_tina_tools.tina import check_tools
 
 
 class Test_fw_vpc(OscTestSuite):
@@ -33,9 +34,9 @@ class Test_fw_vpc(OscTestSuite):
                     inst_ip = nic.ips[0].ip
             assert inst_ip
 
-            cls.sshclient = SshTools.check_connection_paramiko(inst_ip,
-                                                               os.path.expanduser(cls.a1_r1.config.region.get_info(constants.FW_KP)),
-                                                               username='root')
+            cls.sshclient = check_tools.check_ssh_connection(cls.a1_r1, inst_id, inst_ip,
+                                                             os.path.expanduser(cls.a1_r1.config.region.get_info(constants.FW_KP)),
+                                                             'root', retry=30, timeout=10)
 
         except Exception as error:
             cls.teardown_class()

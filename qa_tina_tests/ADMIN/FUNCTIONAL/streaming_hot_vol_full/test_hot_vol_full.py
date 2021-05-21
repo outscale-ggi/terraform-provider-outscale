@@ -4,6 +4,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
+from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, KEY_PAIR, PATH
@@ -89,7 +90,7 @@ class Test_hot_vol_full(StreamingBaseHot):
 
     def test_T4361_hot_vol_full_without_snapshots_on_last_datafiles(self):
         ret = wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.inst_running_info[INSTANCE_ID_LIST], state='ready')
-        sshclient = SshTools.check_connection_paramiko(
+        sshclient = check_tools.check_ssh_connection(self.a1_r1, ret.response.reservationSet[0].instancesSet[0].instanceId,
             ret.response.reservationSet[0].instancesSet[0].ipAddress,
             self.inst_running_info[KEY_PAIR][PATH],
             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),

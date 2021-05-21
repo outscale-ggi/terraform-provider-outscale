@@ -12,6 +12,7 @@ from qa_tina_tools.constants import SG_WAIT_TIME
 from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_keypair
+from qa_tina_tools.tina import check_tools
 
 
 # NUM_PER_TRY = 10
@@ -67,8 +68,8 @@ class Test_public_inter_sg(OscTestSuite):
 
             cls.inst1 = cls.instances[0]
             cls.inst2 = cls.instances[1]
-            cls.sshclient = SshTools.check_connection_paramiko(cls.inst1.ipAddress, cls.kp_info[PATH],
-                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            cls.sshclient = check_tools.check_ssh_connection(cls.a1_r1, cls.inst1.instanceId, cls.inst1.ipAddress, cls.kp_info[PATH],
+                                                             cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except Exception as error:
             try:
                 cls.teardown_class()
