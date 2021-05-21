@@ -32,7 +32,7 @@ class Test_brute_force(OscTestSuite):
             account_id=cls.a1_r1.config.region.get_info(constants.AS_IDAUTH_ID))
 
     def test_T5644_ak_sk(self):
-        access_key = None
+        # access_key = None
         ret_create = self.a1_r1.oapi.CreateAccessKey()
         access_key = ret_create.response.AccessKey.AccessKeyId
         secret_key = ret_create.response.AccessKey.SecretKey

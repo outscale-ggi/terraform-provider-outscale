@@ -5,6 +5,7 @@ from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_peering
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, INSTANCE_SET, KEY_PAIR, PATH, VPC_ID, PEERING, EIP, ROUTE_TABLE_ID, SECURITY_GROUP_ID
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_tina_tools.tina import check_tools
 
 
 class Test_VPC_Peering(OscTestSuite):
@@ -50,8 +51,9 @@ class Test_VPC_Peering(OscTestSuite):
             self.a1_r1.fcu.CreateRoute(RouteTableId=self.vpc2_info[SUBNETS][0][ROUTE_TABLE_ID], DestinationCidrBlock='10.0.0.0/16',
                                        VpcPeeringConnectionId=peering_info[PEERING].id)
             # connect to instance 1 via eip1
-            sshclient = SshTools.check_connection_paramiko(self.vpc1_info[SUBNETS][0][EIP]['publicIp'], self.vpc1_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.vpc1_inst.instanceId,
+                                                         self.vpc1_info[SUBNETS][0][EIP]['publicIp'], self.vpc1_info[KEY_PAIR][PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # connect to instance2 via vpc peering
             sshclient_jhost = SshTools.check_connection_paramiko_nested(
                 sshclient=sshclient,

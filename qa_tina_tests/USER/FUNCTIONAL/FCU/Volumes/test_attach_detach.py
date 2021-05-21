@@ -10,6 +10,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances, create_volum
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_instances_state
+from qa_tina_tools.tina import check_tools
 
 
 NB_VOL = 10
@@ -27,9 +28,10 @@ class Test_attach_detach(OscTestSuite):
             cls.inst_info = create_instances(cls.a1_r1)
             _, cls.vol_ids = create_volumes(cls.a1_r1, state='available', count=NB_VOL)
             ret_desc = wait_instances_state(cls.a1_r1, cls.inst_info[INSTANCE_ID_LIST], state='ready')
-            cls.sshclient = SshTools.check_connection_paramiko(ret_desc.response.reservationSet[0].instancesSet[0].ipAddress,
-                                                               cls.inst_info[KEY_PAIR][PATH],
-                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            cls.sshclient = check_tools.check_ssh_connection(cls.a1_r1, ret_desc.response.reservationSet[0].instancesSet[0].instanceId,
+                                                             ret_desc.response.reservationSet[0].instancesSet[0].ipAddress,
+                                                             cls.inst_info[KEY_PAIR][PATH],
+                                                             cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except:
             try:
                 cls.teardown_class()

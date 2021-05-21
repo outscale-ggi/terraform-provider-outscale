@@ -5,6 +5,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import KEY_PAIR, PATH, INSTANCE_ID_LIST
+from qa_tina_tools.tina import check_tools
 
 
 class Test_associate_EIP(OscTestSuite):
@@ -45,8 +46,9 @@ class Test_associate_EIP(OscTestSuite):
             ret = self.a1_r1.fcu.AssociateAddress(AllocationId=eip_allo_id, InstanceId=self.info[INSTANCE_ID_LIST][0])
             public_ip_inst = eip.response.publicIp
 
-            sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.info[INSTANCE_ID_LIST][0],
+                                                         public_ip_inst, self.info[KEY_PAIR][PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             cmd = 'pwd'
             out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)

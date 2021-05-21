@@ -14,6 +14,7 @@ from qa_tina_tools.tina import setup_tools
 from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_subnet, delete_instances_old, delete_keypair
+from qa_tina_tools.tina import check_tools
 
 
 def ping(host, retry=10, timeout=5):
@@ -201,9 +202,8 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             # validate ICMP
             assert ping(host=public_ip_inst)
 
-            # validate tcp
-            sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, public_ip_inst, self.kp_info[PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             cmd = 'pwd'
             _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
@@ -264,10 +264,9 @@ class Test_sg_ingress_public_vpc(OscTestSuite):
             # validate ICMP
             assert ping(host=public_ip_inst)
 
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, public_ip_inst, self.kp_info[PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # validate tcp
-            sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-
             cmd = 'pwd'
             _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"

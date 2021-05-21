@@ -10,6 +10,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST, PATH, KEY_PAIR
+from qa_tina_tools.tina import check_tools
 
 
 class Test_GetConsoleOutput(OscTestSuite):
@@ -39,8 +40,8 @@ class Test_GetConsoleOutput(OscTestSuite):
         inst = self.instance_info_a1[INSTANCE_SET][0]
         kp_info = self.instance_info_a1[KEY_PAIR]
 
-        connection = SshTools.check_connection_paramiko(inst['ipAddress'], kp_info[PATH],
-                                                        self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        connection = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst['ipAddress'], kp_info[PATH],
+                                                      self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         msg_output = id_generator(size=128, chars=string.ascii_letters)
         cmd = "echo " + msg_output + " | sudo tee  /dev/kmsg"
         _, _, _ = SshTools.exec_command_paramiko(connection, cmd)
