@@ -14,6 +14,7 @@ from qa_tina_tests.USER.FUNCTIONAL.OAPI.FlexibleGpus import fgpu_life_cycle
 from qa_tina_tests.USER.FUNCTIONAL.OAPI.FlexibleGpus.fgpu_life_cycle import FgpuLifeCycle
 
 
+@pytest.mark.region_gpu
 class Test_fgpu_life_cycle(FgpuLifeCycle):
 
 

@@ -1,9 +1,12 @@
+import pytest
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 from qa_tina_tests.USER.FUNCTIONAL.OAPI.FlexibleGpus.fgpu_life_cycle import FgpuLifeCycle
 
 
+@pytest.mark.region_gpu
 class Test_fgpu_life_cycle(FgpuLifeCycle):
 
 

@@ -7,6 +7,7 @@ from qa_test_tools.test_base import OscTestSuite
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
 
+@pytest.mark.region_gpu
 class Test_CreateFlexibleGpu(OscTestSuite):
 
     @classmethod
