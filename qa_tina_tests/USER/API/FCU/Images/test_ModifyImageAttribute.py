@@ -314,7 +314,7 @@ class Test_ModifyImageAttribute(OscTestSuite):
 
     def test_T3087_multiple_valid_product_code(self):
         product_codes = ['0001', '0002', '0003', '0004', '0005']
-        product_types = {'0001': 'Linux/UNIX', '0002': 'Windows', '0003': 'MapR', '0004': 'LINUX ORACLE', '0005': 'Windows 10'}
+        product_types = {'0001': 'Linux/UNIX', '0002': 'Windows', '0003': 'MapR', '0004': 'Oracle Linux', '0005': 'Windows 10'}
         self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id, ProductCode=product_codes)
         ret = self.a1_r1.fcu.DescribeImages(ImageId=self.image_id)
         for i in range(5):
