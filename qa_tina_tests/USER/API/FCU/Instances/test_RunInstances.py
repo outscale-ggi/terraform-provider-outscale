@@ -112,7 +112,7 @@ private_only=true
         try:
             inst_info = create_instances(self.a1_r1, inst_type='g3.8xlarge')
         except OscApiException as err:
-            assert_error(err, 400, 'GpuLimitExceeded', 'The limit has exceeded: 0. Resource: g3.8xlarge.')
+            assert_error(err, 400, 'MemoryLimitExceeded', 'The limit has exceeded: 40 GiB. Resource: g3.8xlarge.')
         finally:
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)
@@ -129,7 +129,7 @@ private_only=true
                 self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: self.quotas[quota]})
             inst_info = create_instances(self.a1_r1, inst_type='g3.8xlarge')
         except OscApiException as err:
-            assert_error(err, 500, 'InsufficientInstanceCapacity', 'Insufficient Capacity')
+            assert_error(err, 400, 'MemoryLimitExceeded', 'The limit has exceeded: 40 GiB. Resource: g3.8xlarge.')
         finally:
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)
