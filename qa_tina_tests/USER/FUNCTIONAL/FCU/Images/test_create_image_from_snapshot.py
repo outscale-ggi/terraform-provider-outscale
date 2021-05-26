@@ -76,25 +76,24 @@ class Test_create_image_from_snapshot(OscTestSuite):
                     known_error('OPS-13265', 'Start instance fail with created image from a snapshot on SV1, NJ, SEC2, DV1 and SEC1')
                 raise
         finally:
-            pass
-#             errors = []
-#             if ci2_info:
-#                 try:
-#                     delete_instances(self.a1_r1, ci2_info)
-#                 except Exception as error:
-#                     errors.append(error)
-#             if ci1_info:
-#                 try:
-#                     delete_instances(self.a1_r1, ci1_info)
-#                 except Exception as error:
-#                     errors.append(error)
-#             if ret_ri:
-#                 try:
-#                     cleanup_images(self.a1_r1, image_id_list=[ret_ri.response.imageId], force=True)
-#                 except Exception as error:
-#                     errors.append(error)
-#             if errors:
-#                 raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), errors))
+            errors = []
+            if ci2_info:
+                try:
+                    delete_instances(self.a1_r1, ci2_info)
+                except Exception as error:
+                    errors.append(error)
+            if ci1_info:
+                try:
+                    delete_instances(self.a1_r1, ci1_info)
+                except Exception as error:
+                    errors.append(error)
+            if ret_ri:
+                try:
+                    cleanup_images(self.a1_r1, image_id_list=[ret_ri.response.imageId], force=True)
+                except Exception as error:
+                    errors.append(error)
+            if errors:
+                raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), errors))
 
     @pytest.mark.region_admin
     def test_T5246_create_image_from_snapshot_without_product_type(self):
