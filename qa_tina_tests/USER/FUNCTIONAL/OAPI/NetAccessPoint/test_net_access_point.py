@@ -1,7 +1,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.ssh import SshTools, OscSshError
+from qa_common_tools.ssh import SshTools, OscSshError, OscCommandError
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_test_tools.config import config_constants
@@ -69,13 +69,12 @@ class Test_net_access_point(OscTestSuite):
                 username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER),
                 retry=4, timeout=10)
             out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd, retry=20, timeout=20)
+            assert False, 'Remove known error'
             assert 'Access Denied' in out
-        except OscSshError:
-            known_error('OPS-12734', "Cannot request a service after create a netaccespoint for it in SEC1")
-        except OscApiException as err:
-            if err.status_code == 400 and err.message == 'InvalidResource':
-                known_error('OPS-13681', 'New IN1: Create prefix list')
-            assert False, 'Remove known error code'
+        except OscCommandError:
+            if self.a1_r1.config.region.name == 'in-west-1':
+                known_error('OPS-13700', 'Could not access service through vpc endpoint.')
+            raise
         finally:
             errors = []
             if net_access_point:
@@ -91,7 +90,6 @@ class Test_net_access_point(OscTestSuite):
             if errors:
                 raise OscTestException('Found {} errors while cleaning resources : \n{}'.format(len(errors), [str(err1) for err1 in errors]))
 
-    @pytest.mark.region_storageservice
     def test_T5646_netaccesspoint_for_api_service(self):
         net_with_internet_info = None
         net_access_point = None
