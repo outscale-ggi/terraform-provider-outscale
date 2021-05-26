@@ -26,7 +26,7 @@ class Test_auto_sync_account_state(OscTestSuite):
                 try:
                     users.append(create_account(self.a1_r1, no_loop=True))
                 except Exception as error:
-                    pass
+                    print('could not create user --> {}'.format(error))
             errors = []
             for user in users:
                 try:
