@@ -1,14 +1,14 @@
 
-
-
 import datetime
 import re
+import pytest
+
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 
-
+@pytest.mark.region_admin
 class Test_create(OscTestSuite):
 
     @classmethod
@@ -19,36 +19,38 @@ class Test_create(OscTestSuite):
             cls.start_date = (datetime.datetime.now()+datetime.timedelta(days=10)).strftime("%Y-%m-%d %H:%M:%S")
             cls.end_date = (datetime.datetime.now()+datetime.timedelta(days=20)).strftime("%Y-%m-%d %H:%M:%S")
             # TODO: update for others regions
-            if cls.a1_r1.config.region.name == "in-west-2":
-                cls.kvm = 'in2-ucs1-pr-kvm-12'
+            if cls.a1_r1.config.region.name == "in-west-1":
+                cls.kvm = 'in1-ucs1-pr-kvm-2'
                 cls.types = {'hardware-change': {'cluster': ['1'],      # 1 --> 'ucs1'
-                                                 'server': ['in2-ucs1-pr-kvm-12'],
+                                                 'server': ['in1-ucs1-pr-kvm-2'],
                                                  #'dl_router': [''],    # No capa
                                                 },
                              'software-upgrade': {'cluster': ['1'],     # 1 --> 'ucs1'
-                                                  'server': ['in2-ucs1-pr-kvm-12'],
-                                                 },
-                             'software-maintenance': {'pz': ['in2'],
-                                                      #'load_balancer': [''], # TINA-3817: Not implemented
-                                                      'subnet': ['subnet-7cc17fdf'],
-                                                      'storage_shard': ['4'],     # 4 --> '/vm'
-                                                     },
-                            }
-            else:
-                cls.kvm = 'in1-ucs1-23-kvm-1'
-                cls.types = {'hardware-change': {'cluster': ['1'],      # 1 --> 'ucs1'
-                                                 'server': ['in1-ucs1-23-kvm-1'],
-                                                 #'dl_router': [''],    # No capa
-                                                },
-                             'software-upgrade': {'cluster': ['1'],     # 1 --> 'ucs1'
-                                                  'server': ['in1-ucs1-23-kvm-1'],
+                                                  'server': ['in1-ucs1-pr-kvm-2'],
                                                  },
                              'software-maintenance': {'pz': ['in1'],
                                                       #'load_balancer': [''], # TINA-3817: Not implemented
-                                                      'subnet': ['subnet-dd9975dc'],
-                                                      'storage_shard': ['9'],     # 4 --> '/vm'
+                                                      'subnet': ['subnet-0d086f54'],
+                                                      'storage_shard': ['1'],     # 4 --> '/vm'
                                                      },
                             }
+#             elif cls.a1_r1.config.region.name == "in-west-2":
+#                 cls.kvm = 'in1-ucs1-23-kvm-1'
+#                 cls.types = {'hardware-change': {'cluster': ['1'],      # 1 --> 'ucs1'
+#                                                  'server': ['in1-ucs1-23-kvm-1'],
+#                                                  #'dl_router': [''],    # No capa
+#                                                 },
+#                              'software-upgrade': {'cluster': ['1'],     # 1 --> 'ucs1'
+#                                                   'server': ['in1-ucs1-23-kvm-1'],
+#                                                  },
+#                              'software-maintenance': {'pz': ['in1'],
+#                                                       #'load_balancer': [''], # TINA-3817: Not implemented
+#                                                       'subnet': ['subnet-dd9975dc'],
+#                                                       'storage_shard': ['9'],     # 4 --> '/vm'
+#                                                      },
+#                             }
+            else:
+                pytest.skip('Only region in-west-1 has been configured')
         except:
             try:
                 cls.teardown_class()
