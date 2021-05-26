@@ -1,6 +1,9 @@
+
+import pytest
 from qa_test_tools.test_base import OscTestSuite, known_error
 
 
+@pytest.mark.region_admin
 class Test_audit_authorizations(OscTestSuite):
 
     @classmethod
