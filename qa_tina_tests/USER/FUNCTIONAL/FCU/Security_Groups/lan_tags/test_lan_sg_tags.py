@@ -16,7 +16,11 @@ class Test_lan_sg_tags(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.quotas = {'bypass_group_limit': 5}
+        cls.quotas = {
+                        'bypass_group_limit': 5,
+                        'vm_limit': 20,
+                        'internet_gateway_limit' : 10
+                     }
         cls.vpc_info_empty = None
         cls.vpc_info_full_default = None
         cls.vpc_info_full_enable = None
