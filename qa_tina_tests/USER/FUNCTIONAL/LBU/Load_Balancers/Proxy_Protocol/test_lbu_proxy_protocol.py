@@ -6,6 +6,7 @@ import time
 import requests
 
 from qa_sdk_common.exceptions import OscApiException
+from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator, assert_error
@@ -113,7 +114,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
                     print('Could not reach load balancer')
             assert ret.status_code == 200
             expexted_text = []
-            expexted_text.append("{} -> {}".format(self.a1_r1.config.region.get_info(constants.MY_IP).split('/')[0], lbu_ip))
+            expexted_text.append("{} -> {}".format(misc.get_nat_ips(self.a1_r1.config.region)[0].split('/')[0], lbu_ip))
             assert ret.text in expexted_text
         finally:
             if registered:

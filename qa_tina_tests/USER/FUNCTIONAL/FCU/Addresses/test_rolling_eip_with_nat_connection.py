@@ -25,7 +25,7 @@ class Test_rolling_eip_with_nat_connection(OscTestSuite):
             # create vpc
             net_info = create_Net(self.a1_r1, nb_vm=2, state=None)
             # add rule to accept tcp on 80
-            ips = misc.get_security_group_ips(self.a1_r1.config.region)
+            ips = misc.get_nat_ips(self.a1_r1.config.region)
             for addr in ips:
                 self.a1_r1.oapi.CreateSecurityGroupRule(SecurityGroupId=net_info[info_keys.SUBNETS][0][info_keys.SECURITY_GROUP_ID],
                                                         IpProtocol='tcp', FromPortRange=80, ToPortRange=80, IpRange=addr, Flow='Inbound')
