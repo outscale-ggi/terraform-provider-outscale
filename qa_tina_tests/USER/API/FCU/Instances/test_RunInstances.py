@@ -18,7 +18,7 @@ class Test_RunInstances(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.quotas = {}
+        cls.quotas = {'memory_limit': 300, 'core_limit': 40}
         super(Test_RunInstances, cls).setup_class()
 
     @classmethod
@@ -107,26 +107,28 @@ private_only=true
             if ret:
                 self.a1_r1.fcu.TerminateInstances(ret.response.instancesSet[0].instanceID)
 
+    @pytest.mark.region_gpu
     def test_T3013_with_insufficient_capacity(self):
         inst_info = None
         try:
             inst_info = create_instances(self.a1_r1, inst_type='g3.8xlarge')
         except OscApiException as err:
-            assert_error(err, 400, 'MemoryLimitExceeded', 'The limit has exceeded: 40 GiB. Resource: g3.8xlarge.')
+            assert_error(err, 400, 'GpuLimitExceeded', 'The limit has exceeded: 0. Resource: g3.8xlarge.')
         finally:
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)
 
     @pytest.mark.region_admin
+    @pytest.mark.region_gpu
     def test_T3014_with_insufficient_quotas(self):
         inst_info = None
-        self.quotas = {'gpu_limit': 2}
+        quotas = {'gpu_limit': 2}
         max_quota_value = None
         try:
             ret = self.a1_r1.icu.ReadQuotas()
             max_quota_value = ret.response.ReferenceQuota[0].Quotas[4].MaxQuotaValue
-            for quota in self.quotas:
-                self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: self.quotas[quota]})
+            for quota in quotas:
+                self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: quotas[quota]})
             inst_info = create_instances(self.a1_r1, inst_type='g3.8xlarge')
         except OscApiException as err:
             assert_error(err, 400, 'MemoryLimitExceeded', 'The limit has exceeded: 40 GiB. Resource: g3.8xlarge.')
@@ -134,9 +136,9 @@ private_only=true
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)
             if max_quota_value:
-                self.quotas = {'gpu_limit': max_quota_value}
-                for quota in self.quotas:
-                    self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: self.quotas[quota]})
+                quotas = {'gpu_limit': max_quota_value}
+                for quota in quotas:
+                    self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: quotas[quota]})
 
     def test_T3048_with_invalid_private_address(self):
         vpc_info = None
