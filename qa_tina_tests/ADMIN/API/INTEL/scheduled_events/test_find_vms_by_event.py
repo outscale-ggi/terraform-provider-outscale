@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
 
 import pytz
+import pytest
 
 from qa_test_tools.test_base import OscTestSuite
 
 
+@pytest.mark.region_admin
 class Test_find_vms_by_event(OscTestSuite):
 
     @classmethod
@@ -30,6 +32,8 @@ class Test_find_vms_by_event(OscTestSuite):
 
 
     def test_T210_with_correct_params(self):
+        if self.a1_r1.config.region.name != "in-west-1":
+            pytest.skip('Only region in-west-1 has been configured')
         kvm_selected = None
         start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
             days=1)
@@ -37,7 +41,7 @@ class Test_find_vms_by_event(OscTestSuite):
             days=2)
         hardware_groups = self.a1_r1.intel.hardware.get_account_bindings(account=self.a1_r1.config.account.account_id). \
             response.result
-        ret = self.a1_r1.intel.slot.find_server_resources(min_core=15, min_memory=15 * pow(1024, 3), pz='in2',
+        ret = self.a1_r1.intel.slot.find_server_resources(min_core=15, min_memory=15 * pow(1024, 3), pz='in1',
                                                           hw_groups=hardware_groups)
         for server in ret.response.result:
             if server.state == 'READY':
