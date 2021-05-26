@@ -15,7 +15,7 @@ class Test_vms_and_volumes(OscTestSuite):
     def teardown_class(cls):
         super(Test_vms_and_volumes, cls).teardown_class()
 
-    def test_T0000_create_vms_and_volumes(self):
+    def test_T5677_create_vms_and_volumes(self):
         vm_info_a = None
         vm_info_b = None
         try:
@@ -113,6 +113,9 @@ class Test_vms_and_volumes(OscTestSuite):
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
             self.logger.info("vm_b ping to vm_a with private IP")
             self.logger.info(out)
+
+            #delete_Vms(self.a1_r1, vm_info_a, wait=True)
+            #delete_Vms(self.a1_r1, vm_info_b, wait=True)
 
         except OscSshError:
             self.logger.info('OscSshError')
