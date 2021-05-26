@@ -1,4 +1,7 @@
-from qa_sdk_common.exceptions.osc_exceptions import OscException
+import datetime
+import time
+
+from qa_sdk_common.exceptions.osc_exceptions import OscException, OscApiException
 from qa_test_tools.account_tools import create_account
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
@@ -19,8 +22,11 @@ class Test_auto_sync_account_state(OscTestSuite):
         users = []
         # create user(s)
         try:
-            for _ in range(200):
-                users.append(create_account(self.a1_r1))
+            for _ in range(20):
+                try:
+                    users.append(create_account(self.a1_r1, no_loop=True))
+                except Exception as error:
+                    print('could not create user --> {}'.format(error))
             errors = []
             for user in users:
                 try:
@@ -47,11 +53,17 @@ class Test_auto_sync_account_state(OscTestSuite):
             for user in users:
                 try:
                     self.a1_r1.xsub.terminate_account(pid=user)
-                    self.a1_r1.intel.user.delete(username=user)
-                    self.a1_r1.intel.user.gc(username=user)
-                    self.a1_r1.identauth.IdauthAccountAdmin.deleteAccount(
-                        account_id=self.a1_r1.config.region.get_info(constants.AS_IDAUTH_ID),
-                        principal={"accountPid": user}, forceRemoval="true")
+                    start = datetime.datetime.now()
+                    ret = None
+                    while datetime.datetime.now() - start < datetime.timedelta(0, 30, 0):
+                        try:
+                            ret = self.a1_r1.intel.user.gc(username=user)
+                            break
+                        except OscApiException as error:
+                            # accept errors due to unauthorized calling simultaneously user.gc (--> error 200,0,'locked')
+                            if error.status_code != 200 or error.message != 'locked' or error.error_code != 0:
+                                raise error
+                            time.sleep(2)
                 except OscException as error:
                     undeleted_users.append(user)
                     errors.append(error)
