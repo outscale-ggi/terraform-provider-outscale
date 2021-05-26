@@ -2,8 +2,6 @@ from enum import Enum
 import os
 import string
 
-import pytest
-
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_sdk_pub import osc_api
 from qa_sdks.osc_sdk import OscSdk
@@ -308,12 +306,8 @@ class ApiAccess(OscTestSuite):
 
             # osc_sdk.idenauth ...
             # create configurations
-            if cls.osc_sdk.config.region.name == 'in-west-1':
-                cls.my_ips = ['172.19.131.254/32']
-            elif cls.osc_sdk.config.region.name == 'in-west-2':
-                cls.my_ips = ['172.19.142.254/32']
-            else:
-                pytest.fail('Incorrect region name, should be in-west-1 or in-west-2')
+            cls.my_ips = [misc.get_nat_ips(cls.a1_r1.config.region)[0]]
+
 
             cls.configs = {
                 ConfName.NO: [],
