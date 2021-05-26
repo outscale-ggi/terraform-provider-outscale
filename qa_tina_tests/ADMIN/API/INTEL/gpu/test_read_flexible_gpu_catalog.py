@@ -1,7 +1,9 @@
 
+import pytest
+
 from qa_test_tools.test_base import OscTestSuite
 
-
+@pytest.mark.region_gpu
 class Test_read_flexible_gpu_catalog(OscTestSuite):
 
     @classmethod
