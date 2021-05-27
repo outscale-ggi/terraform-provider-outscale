@@ -198,8 +198,7 @@ class Test_CreateNatGateway(OscTestSuite):
 
             # create a NAT gateway in the private subnet
             ret = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip.allocationId, SubnetId=subnet_id)
-            ng_id = ret.response.natGateway.natGatewayId
-            wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='available')
+            assert False, "The subnet ID '{subnet_id}' don't have route to internet"
 
         except OscApiException as error:
             assert_error(error, 400, "InvalidSubnet.NotPublic"
