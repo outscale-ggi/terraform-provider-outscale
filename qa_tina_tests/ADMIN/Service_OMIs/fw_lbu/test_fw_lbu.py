@@ -93,7 +93,7 @@ class Test_fw_lbu(OscTestSuite):
 
     def test_T1891_check_kernel(self):
         out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "uname -a")
-        pattern = re.compile(' 4.14.14 ')
+        pattern = re.compile(' {} '.format(self.a1_r1.config.region.get_info(constants.FW_LBU_KERNEL_VERSION)))
         assert re.search(pattern, out)
 
     def test_T1928_check_cpu_generation(self):
