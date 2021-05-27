@@ -114,8 +114,5 @@ class Test_vms_and_volumes(OscTestSuite):
             self.logger.info("vm_b ping to vm_a with private IP")
             self.logger.info(out)
 
-            #delete_Vms(self.a1_r1, vm_info_a, wait=True)
-            #delete_Vms(self.a1_r1, vm_info_b, wait=True)
-
         except OscSshError:
             self.logger.info('OscSshError')
