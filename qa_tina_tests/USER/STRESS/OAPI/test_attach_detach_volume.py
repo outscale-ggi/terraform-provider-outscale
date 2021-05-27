@@ -51,7 +51,7 @@ class Test_attach_detach_volume(OscTestSuite):
 
             wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
 
-            self.sshclient = check_tools.check_ssh_connection(self.a1_r1, self.vm_info[info_keys.VMS][0]['InstanceId'],
+            self.sshclient = check_tools.check_ssh_connection(self.a1_r1, self.vm_info[info_keys.VM_IDS][0],
                                                               self.vm_info[info_keys.VMS][0]['PublicIp'],
                                                               self.vm_info[info_keys.KEY_PAIR][info_keys.PATH],
                                                               self.a1_r1.config.region.get_info(config_constants.CENTOS_USER))
