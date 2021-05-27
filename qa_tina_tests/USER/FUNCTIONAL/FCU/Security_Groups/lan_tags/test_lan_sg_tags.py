@@ -19,7 +19,6 @@ class Test_lan_sg_tags(OscTestSuite):
         cls.quotas = {
                         'bypass_group_limit': 5,
                         'vm_limit': 20,
-                        'internet_gateway_limit' : 10
                      }
         cls.vpc_info_empty = None
         cls.vpc_info_full_default = None
