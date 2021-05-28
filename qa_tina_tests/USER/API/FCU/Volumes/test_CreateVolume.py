@@ -1,4 +1,3 @@
-
 from __future__ import division
 import re
 
@@ -22,7 +21,7 @@ class Test_CreateVolume(OscTestSuite):
             wait_volumes_state(cls.a1_r1, [cls.vol_id], state='available', cleanup=False)
             ret = cls.a1_r1.fcu.CreateSnapshot(VolumeId=cls.vol_id)
             cls.snap_id = ret.response.snapshotId
-        except:
+        except Exception:
             try:
                 cls.teardown_class()
             finally:
@@ -109,42 +108,41 @@ class Test_CreateVolume(OscTestSuite):
 
     def test_T700_io1(self):
         self.create_volume_type(VolumeType='io1', Iops=VOLUME_IOPS['io1']['min_iops'] + 1,
-                                 Size=VOLUME_SIZES['io1']['min_size'] + 1)
+                                Size=VOLUME_SIZES['io1']['min_size'] + 1)
 
     def test_T701_io1_min_iops(self):
         self.create_tests_on_volume_size_value(check_iop=True, VolumeType='io1', Iops=VOLUME_IOPS['io1']['min_iops'],
-                                                Size=VOLUME_SIZES['io1']['min_size'] + 1)
+                                               Size=VOLUME_SIZES['io1']['min_size'] + 1)
 
     def test_T702_io1_out_of_range_min_iops(self):
         self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['min_iops'], check_iop=True, VolumeType='io1',
-                                                Iops=VOLUME_IOPS['io1']['min_iops'] - 1,
-                                                Size=VOLUME_SIZES['io1']['min_size'] + 1)
-
+                                               Iops=VOLUME_IOPS['io1']['min_iops'] - 1,
+                                               Size=VOLUME_SIZES['io1']['min_size'] + 1)
 
     def test_T703_io1_max_iops(self):
         self.create_tests_on_volume_size_value(check_iop=True, VolumeType='io1', Iops=VOLUME_IOPS['io1']['max_iops'],
-                                                Size=VOLUME_SIZES['io1']['max_size'])
+                                               Size=VOLUME_SIZES['io1']['max_size'])
 
     def test_T704_io1_out_of_range_max_iops(self):
         self.create_tests_on_volume_size_value(threshold=VOLUME_IOPS['io1']['max_iops'], check_iop=True, VolumeType='io1',
-                                                Iops=VOLUME_IOPS['io1']['max_iops'] + 1,
-                                                Size='500')
+                                               Iops=VOLUME_IOPS['io1']['max_iops'] + 1,
+                                               Size='500')
 
     def test_T705_io1_min_size(self):
         self.create_tests_on_volume_size_value(VolumeType='io1', Size=VOLUME_SIZES['io1']['min_size'],
-                                                Iops=VOLUME_IOPS['io1']['min_iops'])
+                                               Iops=VOLUME_IOPS['io1']['min_iops'])
 
     def test_T706_io1_out_of_range_min_size(self):
         self.create_tests_on_volume_size_value(threshold=VOLUME_SIZES['io1']['min_size'], VolumeType='io1',
-                                                Size=VOLUME_SIZES['io1']['min_size'] - 1,
-                                                Iops=VOLUME_IOPS['io1']['min_iops'])
+                                               Size=VOLUME_SIZES['io1']['min_size'] - 1,
+                                               Iops=VOLUME_IOPS['io1']['min_iops'])
 
     def test_T707_io1_max_size(self):
         self.create_tests_on_volume_size_value(VolumeType='io1', Size=VOLUME_MAX_SIZE, Iops=VOLUME_IOPS['io1']['min_iops'])
 
     def test_T708_io1_out_of_range_max_size(self):
         self.create_tests_on_volume_size_value(threshold=VOLUME_MAX_SIZE, VolumeType='io1', Size=VOLUME_MAX_SIZE + 1,
-                                                Iops=VOLUME_IOPS['io1']['min_iops'])
+                                               Iops=VOLUME_IOPS['io1']['min_iops'])
 
     def test_T709_gp2(self):
         self.create_volume_type(VolumeType='gp2', Size=VOLUME_SIZES['gp2']['min_size'] + 1)
@@ -214,7 +212,7 @@ class Test_CreateVolume(OscTestSuite):
 
     def test_T4589_io1_max_iops_ratio(self):
         self.create_volume_type(VolumeType='io1', Iops=int(((VOLUME_SIZES['io1']['min_size']) * MAX_IO1_RATIO)),
-                                 Size=VOLUME_SIZES['io1']['min_size'])
+                                Size=VOLUME_SIZES['io1']['min_size'])
 
     def test_T4590_io1_out_of_range_iops_ratio(self):
         try:
