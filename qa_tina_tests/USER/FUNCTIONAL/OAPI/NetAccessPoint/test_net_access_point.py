@@ -1,6 +1,5 @@
 import pytest
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools, OscSshError
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.test_base import OscTestSuite, known_error
@@ -72,10 +71,6 @@ class Test_net_access_point(OscTestSuite):
             assert 'Access Denied' in out
         except OscSshError:
             known_error('OPS-12734', "Cannot request a service after create a netaccespoint for it in SEC1")
-        except OscApiException as err:
-            if err.status_code == 400 and err.message == 'InvalidResource':
-                known_error('OPS-13681', 'New IN1: Create prefix list')
-            assert False, 'Remove known error code'
         finally:
             errors = []
             if net_access_point:
@@ -142,10 +137,6 @@ class Test_net_access_point(OscTestSuite):
             assert 'Version' in out
         except OscSshError:
             known_error('OPS-12734', "Cannot request a service after create a netaccespoint for it in SEC1")
-        except OscApiException as err:
-            if err.status_code == 400 and err.message == 'InvalidResource':
-                known_error('OPS-13681', 'New IN1: Create prefix list')
-            assert False, 'Remove known error code'
         finally:
             errors = []
             if net_access_point:
