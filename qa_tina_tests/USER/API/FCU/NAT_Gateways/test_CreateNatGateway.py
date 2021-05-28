@@ -176,6 +176,7 @@ class Test_CreateNatGateway(OscTestSuite):
                 wait_nat_gateways_state(self.a2_r1, nat_gateway_id_list=[ng_id], state='deleted')
 
     def test_T279_in_private_subnet(self):
+        vpc_info = None
         ng_id = None
         try:
             # create a vpc with an internet gateway and a public subnet
@@ -198,15 +199,15 @@ class Test_CreateNatGateway(OscTestSuite):
 
             # create a NAT gateway in the private subnet
             ret = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip.allocationId, SubnetId=subnet_id)
-            assert False, "The subnet ID '{subnet_id}' don't have route to internet"
-
+        #     assert False, "The subnet ID '{subnet_id}' don't have route to internet"
         except OscApiException as error:
-            assert_error(error, 400, "InvalidSubnet.NotPublic"
-                                   , f"The subnet ID '{subnet_id}' must have route to internet")
+             assert_error(error, 400, "InvalidSubnet.NotPublic"
+                                    , f"The subnet ID '{subnet_id}' must have route to internet")
         finally:
-            if ng_id:
-                self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
-                wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
-            if ret:
-                self.a1_r1.fcu.DisassociateAddress(PublicIp=self.eip.publicIp)
-            #delete_vpc(self.a1_r1, vpc_info)
+             if ng_id:
+                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
+                 wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
+             if ret:
+                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.eip.publicIp)
+             if vpc_info:
+                 delete_vpc(self.a1_r1, vpc_info)
