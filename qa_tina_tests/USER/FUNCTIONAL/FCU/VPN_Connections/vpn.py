@@ -202,7 +202,8 @@ class Vpn(OscTestSuite):
                 upgrade_ike_to_v2(sshclient, leftid, rightid)
                 ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                           self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
-            check_ipsec_status(self, vpn_id)
+            if self.a1_r1.config.region.name in ['in-west-1']:
+                check_ipsec_status(self, vpn_id)
             start = datetime.now()
             while (datetime.now() - start).total_seconds() < 60:
                 try:
