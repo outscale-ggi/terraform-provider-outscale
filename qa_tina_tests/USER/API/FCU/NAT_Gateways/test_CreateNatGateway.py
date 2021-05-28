@@ -201,13 +201,13 @@ class Test_CreateNatGateway(OscTestSuite):
             ret = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip.allocationId, SubnetId=subnet_id)
         #     assert False, "The subnet ID '{subnet_id}' don't have route to internet"
         except OscApiException as error:
-             assert_error(error, 400, "InvalidSubnet.NotPublic"
+            assert_error(error, 400, "InvalidSubnet.NotPublic"
                                     , f"The subnet ID '{subnet_id}' must have route to internet")
         finally:
-             if ng_id:
-                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
-                 wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
-             if ret:
-                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.eip.publicIp)
-             if vpc_info:
-                 delete_vpc(self.a1_r1, vpc_info)
+            if ng_id:
+                self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
+                wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
+            if ret:
+                self.a1_r1.fcu.DisassociateAddress(PublicIp=self.eip.publicIp)
+            # if vpc_info:
+            #    delete_vpc(self.a1_r1, vpc_info)
