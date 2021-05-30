@@ -1,5 +1,4 @@
 
-
 import time
 
 from qa_test_tools.misc import id_generator
@@ -10,6 +9,7 @@ from qa_tina_tools.tools.tina.info_keys import SUBNET_ID, SUBNETS, VPC_ID
 
 
 class Test_pending_calls(OscTestSuite):
+
     def test_T5327_create_delete_lbu_in_vpc_without_wait(self):
         vpc_info = None
         lbu_name = None

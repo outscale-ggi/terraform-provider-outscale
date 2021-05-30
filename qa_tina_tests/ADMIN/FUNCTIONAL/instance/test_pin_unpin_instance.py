@@ -8,6 +8,7 @@ from qa_tina_tools.tools.tina.delete_tools import stop_instances, terminate_inst
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 
 
+@pytest.mark.region_admin
 class Test_pin_unpin_instance(OscTestSuite):
     @classmethod
     def setup_class(cls):
@@ -67,7 +68,7 @@ class Test_pin_unpin_instance(OscTestSuite):
     def test_T4686_with_different_az(self):
         stop_instances(self.a1_r1, [self.inst_id])
         try:
-            self.a1_r1.intel.instance.pin(vmid=self.inst_id, target="in2-ucs1-pr-kvm-13")
+            self.a1_r1.intel.instance.pin(vmid=self.inst_id, target="in1-ucs2-pr-kvm-1")
             assert False, 'Call should not been successful'
         except OscApiException as error:
-            assert_error(error, 200, 0, "invalid-target - Target: in2-ucs1-pr-kvm-13, PZ: in2b. Expected: in2")
+            assert_error(error, 200, 0, "invalid-target - Target: in1-ucs2-pr-kvm-1, PZ: in1b. Expected: in1")
