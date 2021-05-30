@@ -6,9 +6,9 @@ from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
-from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_tina_tools.tools.tina.info_keys import PATH, KEY_PAIR, INSTANCE_SET
 from qa_tina_tools.tina import check_tools
 
