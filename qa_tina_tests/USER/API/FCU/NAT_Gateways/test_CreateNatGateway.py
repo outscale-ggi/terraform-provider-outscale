@@ -7,8 +7,7 @@ from qa_tina_tools.tina.info_keys import SUBNET_ID, SUBNETS
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, VPC_ID
-from qa_tina_tools.tools.tina.wait_tools import wait_nat_gateways_state, wait_instances_state
-from qa_tina_tools.tools.tina.create_tools import create_instances
+from qa_tina_tools.tools.tina.wait_tools import wait_nat_gateways_state
 
 
 class Test_CreateNatGateway(OscTestSuite):
@@ -178,31 +177,26 @@ class Test_CreateNatGateway(OscTestSuite):
     def test_T279_in_private_subnet(self):
         vpc_info = None
         ng_id = None
+        ret = None
         try:
             # create a vpc with an internet gateway and a public subnet
-            vpc_info = create_vpc(self.a1_r1, igw=True, nb_subnet=1)
+            vpc_info = create_vpc(self.a1_r1, nb_subnet=1, nb_instance=1)
 
-            # create one instance in public subnet in running mode
-            vm_info_public = create_instances(self.a1_r1, subnet_id=vpc_info[SUBNETS][0]["subnet_id"], state='ready')
-            wait_instances_state(self.a1_r1, vm_info_public[INSTANCE_ID_LIST], state='running')
-
-            # public instance has en eip to access to another instance
-            ret = self.a1_r1.fcu.AssociateAddress(InstanceId=vm_info_public[INSTANCE_ID_LIST][0],
+            # public instance has an eip to access to another instance
+            ret = self.a1_r1.fcu.AssociateAddress(InstanceId=vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0],
                                                        PublicIp=self.eip.publicIp)
 
             # create a private subnet with no route to internet
-            subnet_id = self.a1_r1.fcu.CreateSubnet(VpcId=vpc_info[VPC_ID], CidrBlock='10.0.7.0/24').response.subnet.subnetId
-
-            # create an instance in private subnet in running mode
-            vm_info_private = create_instances(self.a1_r1, subnet_id=subnet_id, state='ready')
-            wait_instances_state(self.a1_r1, vm_info_private[INSTANCE_ID_LIST], state='running')
+            subnet_id = self.a1_r1.fcu.CreateSubnet(VpcId=vpc_info[VPC_ID],
+                                                    CidrBlock='10.0.7.0/24').response.subnet.subnetId
 
             # create a NAT gateway in the private subnet
-            ret = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip.allocationId, SubnetId=subnet_id)
-        #     assert False, "The subnet ID '{subnet_id}' don't have route to internet"
+            ng_id = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip.allocationId, SubnetId=subnet_id)
+
+            assert False, "The subnet ID '{subnet_id}' don't have route to internet"
         except OscApiException as error:
-            assert_error(error, 400, "InvalidSubnet.NotPublic"
-                                    , f"The subnet ID '{subnet_id}' must have route to internet")
+            assert_error(error, 400, "InvalidSubnet.NotPublic",
+                                     f"The subnet ID '{subnet_id}' must have route to internet")
         finally:
             if ng_id:
                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
@@ -210,4 +204,4 @@ class Test_CreateNatGateway(OscTestSuite):
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.eip.publicIp)
             # if vpc_info:
-            #    delete_vpc(self.a1_r1, vpc_info)
+            #     delete_vpc(self.a1_r1, vpc_info)
