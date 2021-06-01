@@ -140,7 +140,7 @@ class Test_UpdateVolume(OscTestSuite):
         assert vol_size == size_detected
 
         # write file
-        cmd = 'sudo openssl rand -out {}/data_x.txt -base64 $(({} * 2**20 * 3/4))'.format(self.volume_mount, 10**9)
+        cmd = 'sudo dd if=/dev/zero of={}/data_x.txt bs=1 count=0 seek=10G'.format(self.volume_mount)
         SshTools.exec_command_paramiko(self.sshclient, cmd, eof_time_out=500)
 
         cmd = 'sudo cat {}/data_*.txt | md5sum'.format(self.volume_mount)
