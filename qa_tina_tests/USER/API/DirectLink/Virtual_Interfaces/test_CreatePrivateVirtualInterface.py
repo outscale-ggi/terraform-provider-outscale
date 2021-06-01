@@ -48,7 +48,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
             assert interface_info.response.asn == 11111
             assert interface_info.response.connectionId == self.conn_id
             assert interface_info.response.customerAddress
-            assert interface_info.response.location == 'Par3'
+            assert interface_info.response.location == 'PAR5'
             assert interface_info.response.ownerAccount == self.a1_r1.config.account.account_id
             assert interface_info.response.customerAddress
             assert interface_info.response.requestId
