@@ -1,17 +1,16 @@
 from string import ascii_lowercase
-import string
 
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.config import config_constants as constants, config_constants
+from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.config.region import Feature
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_buckets
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_snapshot_export_tasks_state
-from qa_test_tools.config.region import Feature
 
 
 class Test_CreateSnapshotExportTask(OscTestSuite):
@@ -219,7 +218,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
 
     def test_T3895_with_invalid_osu_prefix(self):
-        if self.a1_r1.config.region.get_info(config_constants.STORAGESERVICE) != Feature.OSU.value:
+        if self.a1_r1.config.region.get_info(constants.STORAGESERVICE) != Feature.OSU.value:
             pytest.skip('Test only for regions using osu a storage service')
         try:
             prefix = '/foo%bar&'  # misc.id_generator(size=30, chars=string.ascii_lowercase)

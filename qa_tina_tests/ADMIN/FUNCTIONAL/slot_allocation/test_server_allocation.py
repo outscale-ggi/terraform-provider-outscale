@@ -41,7 +41,7 @@ class Test_server_allocation(OscTestSuite):
             ret = cls.a1_r1.intel.az.find(az=cls.a1_r1.config.region.az_name, owner=cls.a1_r1.config.account.account_id)
             if not ret.response.result or len(ret.response.result) != 1:
                 raise OscTestException('Could not find pz for az')
-            ret = cls.a1_r1.intel.cluster.find(pz=ret.response.result[0].pz)    
+            ret = cls.a1_r1.intel.cluster.find(pz=ret.response.result[0].pz)
             cls.num_clusters = len(ret.response.result)
         except Exception as error:
             try:
