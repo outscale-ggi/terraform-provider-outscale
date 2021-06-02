@@ -17,6 +17,7 @@ class Test_LinkNic(Nic):
         cls.nic_ids = []
         cls.inst_info = None
         cls.nic_link_ids = None
+        cls.quotas = {'vm_limit': 15}
         super(Test_LinkNic, cls).setup_class()
         try:
             cls.vpc_inst_info = create_instances(cls.a1_r1, 7, subnet_id=cls.subnet_id1, sg_id_list=[cls.firewall_id1])
