@@ -24,11 +24,13 @@ class Test_LinkNic(Nic):
             cls.inst_info = create_instances(cls.a1_r1, 6)
             for _ in range(20):
                 cls.nic_ids.append(cls.a1_r1.oapi.CreateNic(SubnetId=cls.subnet_id1).response.Nic.NicId)
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
+            except Exception as error2:
+                raise error2
             finally:
-                raise
+                raise error1
 
     @classmethod
     def teardown_class(cls):
@@ -37,18 +39,18 @@ class Test_LinkNic(Nic):
                 try:
                     cls.a1_r1.oapi.DeleteNic(NicId=nic_id)
                     wait_network_interfaces_state(cls.a1_r1, [nic_id], cleanup=True)
-                except:
+                except Exception:
                     print('Could not delete nic')
 
             if cls.inst_info:
                 try:
                     delete_instances(cls.a1_r1, cls.inst_info)
-                except:
+                except Exception:
                     print('Could not delete instances')
             if cls.vpc_inst_info:
                 try:
                     delete_instances(cls.a1_r1, cls.vpc_inst_info)
-                except:
+                except Exception:
                     print('Could not delete instances')
         finally:
             super(Test_LinkNic, cls).teardown_class()
