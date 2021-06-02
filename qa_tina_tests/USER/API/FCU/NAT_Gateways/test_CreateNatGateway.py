@@ -4,9 +4,9 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.info_keys import SUBNET_ID, SUBNETS
-from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.delete_tools import delete_vpc
-from qa_tina_tools.tools.tina.info_keys import EIP
+from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
+from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_nat_gateways_state
 
 
@@ -18,7 +18,7 @@ class Test_CreateNatGateway(OscTestSuite):
         cls.eip = None
         super(Test_CreateNatGateway, cls).setup_class()
         try:
-            cls.vpc_info = create_vpc(cls.a1_r1, nb_subnet=2, nb_instance=1, state=None)
+            cls.vpc_info = create_vpc(cls.a1_r1, nb_subnet=2, state=None)
             cls.eip = cls.a1_r1.fcu.AllocateAddress(Domain='vpc').response
 
         except Exception:
@@ -179,8 +179,10 @@ class Test_CreateNatGateway(OscTestSuite):
         ng_id = None
         try:
             # create a NAT gateway in the private subnet
-            ng_id = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.vpc_info[SUBNETS][0][EIP]["allocationId"],
+            ret = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip.allocationId,
                                                     SubnetId=self.vpc_info[SUBNETS][1][SUBNET_ID])
+            ng_id = ret.response.natGateway.natGatewayId
+            wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='available')
             assert False, "call should not have been successful"
         except OscApiException as error:
             assert_error(error, 400, "InvalidSubnet.NotPublic",
@@ -193,14 +195,25 @@ class Test_CreateNatGateway(OscTestSuite):
     def test_T5678_with_adress_in_use(self):
         ng_id = None
         try:
+            # create one instance in public subnet in running mode
+            vm_info_vpc = create_instances(self.a1_r1, subnet_id=self.vpc_info[SUBNETS][0]["subnet_id"], state='running')
+
+            # # public instance has en eip to access to another instance
+            self.a1_r1.fcu.AssociateAddress(InstanceId=vm_info_vpc[INSTANCE_ID_LIST][0],
+                                                        PublicIp=self.eip.publicIp)
+
             # create a NAT gateway in the private subnet
-            ng_id = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.vpc_info[SUBNETS][0][EIP]["allocationId"],
+            ret = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip.allocationId,
                                                     SubnetId=self.vpc_info[SUBNETS][0][SUBNET_ID])
+            ng_id = ret.response.natGateway.natGatewayId
+            wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='available')
             assert False, "call should not have been successful"
         except OscApiException as error:
             assert_error(error, 400, "InvalidIPAddress.InUse",
-                                     "Address {} is in use.".format(self.vpc_info[SUBNETS][0][EIP]["publicIp"]))
+                                     "Address {} is in use.".format(self.eip.publicIp))
         finally:
             if ng_id:
                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=ng_id)
                 wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[ng_id], state='deleted')
+            if vm_info_vpc:
+                delete_instances(self.a1_r1, vm_info_vpc, wait=True)

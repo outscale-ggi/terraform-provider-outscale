@@ -2,7 +2,7 @@ from qa_test_tools.config import config_constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import info_keys, wait, oapi, check_tools
-from qa_common_tools.ssh import SshTools, OscSshError
+from qa_common_tools.ssh import SshTools
 
 
 class Test_vms_and_volumes(OscTestSuite):
@@ -18,6 +18,10 @@ class Test_vms_and_volumes(OscTestSuite):
     def test_T5677_create_vms_and_volumes(self):
         vm_info_a = None
         vm_info_b = None
+        volume_a = None
+        volume_b = None
+        is_attached_volume_a = False
+        is_attached_volume_b = False
 
         try:
             # create 2 instances with centos 7
@@ -59,11 +63,14 @@ class Test_vms_and_volumes(OscTestSuite):
             # link volumes to vms
             self.a1_r1.oapi.LinkVolume(DeviceName="/dev/xvdb",
                                        VmId=vm_info_a[info_keys.VM_IDS][0], VolumeId=volume_a.VolumeId)
+
+            wait.wait_Volumes_state(self.a1_r1, [volume_a.VolumeId], state="in-use")
+            is_attached_volume_a = True
             self.a1_r1.oapi.LinkVolume(DeviceName="/dev/xvdb",
                                        VmId=vm_info_b[info_keys.VM_IDS][0], VolumeId=volume_b.VolumeId)
+            wait.wait_Volumes_state(self.a1_r1, [volume_b.VolumeId], state="in-use")
+            is_attached_volume_b = True
 
-            # wait volumes and vms state
-            wait.wait_Volumes_state(self.a1_r1, [volume_a.VolumeId, volume_b.VolumeId], state="in-use")
             wait.wait_Vms_state(self.a1_r1, [vm_info_a[info_keys.VM_IDS][0],
                                              vm_info_b[info_keys.VM_IDS][0]], state="ready")
 
@@ -82,113 +89,107 @@ class Test_vms_and_volumes(OscTestSuite):
             check_tools.check_volume(ssh_client_b,"/dev/xvdb", 10)
 
             # vm_a ping to internet
-            target_ip = Configuration.get('ipaddress', 'dns_google')
-            cmd = "ping " + target_ip + " -c 1"
+            google_ip = Configuration.get('ipaddress', 'dns_google')
+            cmd = "ping " + google_ip + " -c 1"
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
             self.logger.info("vm_a ping to internet")
             self.logger.info(out)
 
             # vm_a ping to vm_b with public IP
-            vm_b_ip = vm_info_b[info_keys.VMS][0]["PublicIp"]
-            cmd = "ping " + vm_b_ip + " -c 1"
+            vm_b_public_ip = vm_info_b[info_keys.VMS][0]["PublicIp"]
+            cmd = "ping " + vm_b_public_ip + " -c 1"
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
             self.logger.info("vm_a ping to vm_b with public IP")
             self.logger.info(out)
 
             #  vm_a ping to vm_b with private IP
-            vm_b_ip = vm_info_b[info_keys.VMS][0]["PrivateIp"]
-            cmd = "ping " + vm_b_ip + " -c 1"
+            vm_b_private_ip = vm_info_b[info_keys.VMS][0]["PrivateIp"]
+            cmd = "ping " + vm_b_private_ip + " -c 1"
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
             self.logger.info("vm_a ping to vm_b with private IP")
             self.logger.info(out)
 
             # vm_b ping to internet
-            target_ip = Configuration.get('ipaddress', 'dns_google')
-            cmd = "ping " + target_ip + " -c 1"
+            cmd = "ping " + google_ip + " -c 1"
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
             self.logger.info("vm_b ping to internet")
             self.logger.info(out)
 
             # vm_b ping to vm_a with public IP
-            vm_a_ip = vm_info_a[info_keys.VMS][0]["PublicIp"]
-            cmd = "ping " + vm_a_ip + " -c 1"
+            vm_a_public_ip = vm_info_a[info_keys.VMS][0]["PublicIp"]
+            cmd = "ping " + vm_a_public_ip + " -c 1"
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
             self.logger.info("vm_b ping to vm_a with public IP")
             self.logger.info(out)
 
             # vm_b ping to vm_a with private IP
-            vm_a_ip = vm_info_a[info_keys.VMS][0]["PrivateIp"]
-            cmd = "ping " + vm_a_ip + " -c 1"
+            vm_a_private_ip = vm_info_a[info_keys.VMS][0]["PrivateIp"]
+            cmd = "ping " + vm_a_private_ip + " -c 1"
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
             self.logger.info("vm_b ping to vm_a with private IP")
             self.logger.info(out)
 
-            # get DNS resolution google from instance a
-            target_ip = Configuration.get('ipaddress', 'dns_google')
+            # get DNS resolution google from vm a
             cmd1 = "sudo yum install -y bind-utils"
-            cmd2 = "nslookup " + target_ip
+            cmd2 = "nslookup dns.google.com"
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd1, retry=20)
             self.logger.info(out)
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd2, retry=20)
             self.logger.info("get DNS resolution google from instance a")
             self.logger.info(out)
+            assert google_ip in out
 
-            # get DNS resolution google from instance b
-            target_ip = Configuration.get('ipaddress', 'dns_google')
+            # get DNS resolution google from vm b
             cmd1 = "sudo yum install -y bind-utils"
-            cmd2 = "nslookup " + target_ip
+            cmd2 = "nslookup dns.google.com"
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd1, retry=20)
             self.logger.info(out)
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd2, retry=20)
-            self.logger.info("get DNS resolution google from instance b")
+            self.logger.info("get DNS resolution google from instance a")
             self.logger.info(out)
+            assert google_ip in out
 
-            # get instance private b name from instance a
-            vm_b_ip = vm_info_b[info_keys.VMS][0]["PrivateIp"]
-            cmd = "nslookup " + vm_b_ip
+            # get vm b private dns name from vm a
+            vm_b_private_dns_name = vm_info_b[info_keys.VMS][0]["PrivateDnsName"]
+            cmd = "nslookup " + vm_b_private_dns_name
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
             self.logger.info("get instance private b name from instance a")
             self.logger.info(out)
-            instance_private_b_name = "ip-" + vm_b_ip.replace(".","-") + ".in-west-1.compute.internal"
-            assert instance_private_b_name in out
+            assert vm_b_private_ip in out
 
-            # # get instance public b name from instance a
-            vm_b_ip = vm_info_b[info_keys.VMS][0]["PublicIp"]
-            cmd = "nslookup " + vm_b_ip
+            # get vm b public dns name from vm a
+            vm_b_public_dns_name = vm_info_b[info_keys.VMS][0]["PublicDnsName"]
+            cmd = "nslookup " + vm_b_public_dns_name
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
             self.logger.info("get instance private b name from instance a")
             self.logger.info(out)
-            instance_private_b_name = "ip-" + vm_b_ip.replace(".","-") + ".in-west-1.compute.internal"
-            assert instance_private_b_name in out
+            assert vm_b_public_ip.replace(".","-") in out
 
-            # # get instance private a name from instance b
-            vm_a_ip = vm_info_a[info_keys.VMS][0]["PrivateIp"]
-            cmd = "nslookup " + vm_a_ip
+             # get vm a private dns name from vm b
+            vm_a_private_dns_name = vm_info_a[info_keys.VMS][0]["PrivateDnsName"]
+            cmd = "nslookup " + vm_a_private_dns_name
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
             self.logger.info("get instance private a name from instance b")
             self.logger.info(out)
-            instance_private_a_name = "ip-" + vm_a_ip.replace(".","-") + ".in-west-1.compute.internal"
-            assert instance_private_a_name in out
+            assert vm_a_private_ip in out
 
-            # # get instance public z name from instance b
-            vm_a_ip = vm_info_a[info_keys.VMS][0]["PublicIp"]
-            cmd = "nslookup " + vm_a_ip
+            # get vm a public dns name from vm b
+            vm_a_public_dns_name = vm_info_a[info_keys.VMS][0]["PublicDnsName"]
+            cmd = "nslookup " + vm_a_public_dns_name
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
             self.logger.info("get instance private a name from instance b")
             self.logger.info(out)
-            instance_private_a_name = "ip-" + vm_a_ip.replace(".","-") + ".in-west-1.compute.internal"
-            assert instance_private_a_name in out
-
-        except OscSshError:
-            self.logger.info('OscSshError')
+            assert vm_a_public_ip.replace(".","-") in out
 
         finally:
             try:
-                self.a1_r1.oapi.UnlinkVolume(VolumeId=volume_a.VolumeId)
+                if is_attached_volume_a:
+                    self.a1_r1.oapi.UnlinkVolume(VolumeId=volume_a.VolumeId)
             except:
                 self.logger.debug('Could not unlink volume_a')
             try:
-                self.a1_r1.oapi.UnlinkVolume(VolumeId=volume_b.VolumeId)
+                if is_attached_volume_b:
+                    self.a1_r1.oapi.UnlinkVolume(VolumeId=volume_b.VolumeId)
             except:
                 self.logger.debug('Could not unlink volume_b')
             if volume_a:
