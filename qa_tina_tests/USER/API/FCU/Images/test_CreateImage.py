@@ -13,8 +13,8 @@ class Test_CreateImage(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_CreateImage, cls).setup_class()
         cls.inst_info = None
+        super(Test_CreateImage, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1, state="running")
         except:
