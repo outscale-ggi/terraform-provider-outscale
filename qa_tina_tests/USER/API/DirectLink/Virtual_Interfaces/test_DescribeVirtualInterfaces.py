@@ -1,5 +1,5 @@
 
-
+import time
 
 import pytest
 
@@ -78,6 +78,7 @@ class Test_DescribeVirtualInterfaces(OscTestSuite):
         finally:
             if allocvitualinter:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=allocvitualinter.response.virtualInterfaceId)
+                time.sleep(120)  # for now, should create wait function?
             if retcon1:
                 self.a1_r1.intel.dl.connection.delete(owner=self.a1_r1.config.account.account_id, connection_id=retcon1.response.connectionId)
             if vgw_id:
