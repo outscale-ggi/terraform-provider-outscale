@@ -27,7 +27,7 @@ class Test_public_linux_instance(Test_linux_instance):
     @classmethod
     def setup_class(cls):
         cls.quotas = {'gpu_limit': 4}
-        cls.GROUPS = ['PRODUCTION', 'NVIDIA']
+        cls.GROUPS = ['PRODUCTION']
         super(Test_public_linux_instance, cls).setup_class()
 
     @classmethod
