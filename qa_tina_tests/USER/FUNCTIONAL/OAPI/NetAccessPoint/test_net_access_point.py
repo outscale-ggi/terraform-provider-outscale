@@ -54,7 +54,7 @@ class Test_net_access_point(OscTestSuite):
             sshclient = SshTools.check_connection_paramiko(
                 net_with_internet_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'],
                 net_with_internet_info[info_keys.KEY_PAIR][info_keys.PATH],
-                username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER), retry=4, timeout=10)
+                username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER), retry=10, timeout=10)
             tmp_list = net_access_point_service_name.split('.')
             tmp_list.reverse()
             cmd = "curl -k https://{}".format('.'.join(tmp_list))
@@ -135,7 +135,7 @@ class Test_net_access_point(OscTestSuite):
                 local_private_addr=net_with_internet_info[info_keys.SUBNETS][0][info_keys.VMS][0]['PrivateIp'],
                 dest_private_addr=net_with_internet_info[info_keys.SUBNETS][2][info_keys.VMS][0]['PrivateIp'],
                 username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER),
-                retry=4, timeout=10)
+                retry=10, timeout=10)
             out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd, retry=20, timeout=20)
             assert 'Version' in out
         except OscSshError:
