@@ -29,7 +29,10 @@ def upgrade_ike_to_v2(sshclient, leftid, rightid):
         sudo sed -i '$a\\            {}' /etc/strongswan/ipsec.conf;""".format(leftid, rightid)
     _, _, _ = SshTools.exec_command_paramiko(
     sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
-    cmd = "echo  'sudo  strongswan stop; sudo  strongswan start' > ~/.script.sh; sudo bash +x ~/.script.sh; sh -x ~/.script.sh;"
+    cmd = "echo  'sudo  strongswan stop; sleep 2;' > ~/.script1.sh; sudo bash +x ~/.script1.sh; sh -x ~/.script1.sh;"
+    _, _, _ = SshTools.exec_command_paramiko(
+    sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+    cmd = "echo  'sudo  strongswan start' > ~/.script2.sh; sudo bash +x ~/.script2.sh; sh -x ~/.script2.sh;"
     _, _, _ = SshTools.exec_command_paramiko(
     sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
     cmd = 'sudo strongswan statusall | grep  -E "IKEv2"'
@@ -43,8 +46,11 @@ def update_cgw_config(option, sshclient):
         sudo sed -i  's/^            esp=.*/            esp={0}/g'  /etc/strongswan/ipsec.conf;
         """.format(option)
     _, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
-    cmd = "echo  'sudo  strongswan stop; sudo  strongswan start' > ~/.script.sh; sudo bash +x ~/.script.sh; sh -x ~/.script.sh;"
-    out, _, _ = SshTools.exec_command_paramiko(
+    cmd = "echo  'sudo  strongswan stop; sleep 2;' > ~/.script1.sh; sudo bash +x ~/.script1.sh; sh -x ~/.script1.sh;"
+    _, _, _ = SshTools.exec_command_paramiko(
+    sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+    cmd = "echo  'sudo  strongswan start' > ~/.script2.sh; sudo bash +x ~/.script2.sh; sh -x ~/.script2.sh;"
+    _, _, _ = SshTools.exec_command_paramiko(
     sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
 
     regex = r"([a-z]*)([0-9]*)"
