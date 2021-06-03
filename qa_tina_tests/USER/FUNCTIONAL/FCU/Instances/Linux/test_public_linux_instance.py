@@ -69,7 +69,7 @@ class Test_public_linux_instance(Test_linux_instance):
     @pytest.mark.tag_redwire
     @pytest.mark.region_gpu
     def test_T98_create_use_linux_GPU_instance(self):
-        instance_type='mv3.large'
+        instance_type='nv1.small'
         if self.a1_r1.config.region.name in ['cn-southeast-1']:
             instance_type = 'og4.xlarge'
         inst_id = None
