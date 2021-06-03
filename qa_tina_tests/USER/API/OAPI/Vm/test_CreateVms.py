@@ -46,7 +46,8 @@ echo "yes" > /tmp/userdata.txt
     def check_user_data(self, vm_info, gzip=False, decode=True):
         sshclient = check_tools.check_ssh_connection(self.a1_r1, vm_info['vms'][0]['VmId'], vm_info['vms'][0]['PublicIp'],
                                                      vm_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        out, _, _ = SshTools.exec_command_paramiko(sshclient, 'curl http://169.254.169.254/latest/user-data', decode=decode)
+        out, _, _ = SshTools.exec_command_paramiko(sshclient, 'curl -o output http://169.254.169.254/latest/user-data', decode=decode)
+        out, _, _ = SshTools.exec_command_paramiko(sshclient, 'cat output', decode=decode)
         if gzip:
             self.logger.debug(zlib.decompress(out))
             out = zlib.decompress(out).decode('utf-8')
@@ -459,14 +460,14 @@ echo "yes" > /tmp/userdata.txt
                         'VolumeId': 'vol-',
                     },
                 },
-                    {
-                    'DeviceName': '/dev/sdb',
-                    'Bsu': {
-                        'DeleteOnVmDeletion': True,
-                        'State': 'attaching',
-                        'VolumeId': 'vol-',
-                    },
-                }]
+                     {
+                         'DeviceName': '/dev/sdb',
+                         'Bsu': {
+                             'DeleteOnVmDeletion': True,
+                             'State': 'attaching',
+                             'VolumeId': 'vol-',
+                         },
+                     }]
             )
 
     def test_T3399_with_bdm_with_volume_type_gp2(self):
@@ -546,7 +547,7 @@ echo "yes" > /tmp/userdata.txt
         user_data = base64.b64encode(zlib.compress(self.user_data.encode('utf-8'))).decode('utf-8')
         try:
             vm_info = create_Vms(osc_sdk=self.a1_r1, state='ready',
-                                         user_data=user_data)
+                                 user_data=user_data)
             self.check_user_data(vm_info, gzip=True, decode=False)
         finally:
             if vm_info:
@@ -566,7 +567,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         try:
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange='10.1.0.0/16').response.Net.NetId
             cls.subnet_id = cls.a1_r1.oapi.CreateSubnet(NetId=cls.net_id, IpRange='10.1.0.0/24').response.Subnet.SubnetId
-        except:
+        except Exception:
             try:
                 cls.teardown_class()
             finally:
