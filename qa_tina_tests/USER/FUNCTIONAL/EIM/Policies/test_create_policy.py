@@ -142,7 +142,8 @@ class Test_create_policy(OscTestSuite):
                     self.account_sdk.kms.ListKeys()
                     assert False, 'Call should not have been successful'
                 except OscApiException as error:
-                    misc.assert_error(error, 400, 'AccessDeniedException', 'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
+                    misc.assert_error(error, 400, 'AccessDeniedException',
+                                      'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
