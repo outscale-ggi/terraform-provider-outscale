@@ -144,7 +144,7 @@ class Test_vms_and_volumes(OscTestSuite):
             # get DNS resolution google from vm b
             cmd1 = "sudo yum install -y bind-utils"
             cmd2 = "nslookup dns.google.com"
-            out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd1) # change timeout
+            out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd1)
             self.logger.info(out)
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd2, retry=20, timeout=300)
             self.logger.info("get DNS resolution google from instance a")
@@ -165,9 +165,9 @@ class Test_vms_and_volumes(OscTestSuite):
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_a, cmd, retry=20)
             self.logger.info("get instance private b name from instance a")
             self.logger.info(out)
-            assert vm_b_private_ip in out  # change not good
+            assert vm_b_private_ip in out
 
-             # get vm a private dns name from vm b
+            # get vm a private dns name from vm b
             vm_a_private_dns_name = vm_info_a[info_keys.VMS][0]["PrivateDnsName"]
             cmd = "nslookup " + vm_a_private_dns_name
             out, _, _ = SshTools.exec_command_paramiko(ssh_client_b, cmd, retry=20)
@@ -192,13 +192,13 @@ class Test_vms_and_volumes(OscTestSuite):
                 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
                 proc.wait()
 
-            # get vm a private dns name from jenkins account
+            # get vm a private dns name from internet
             cmd = "nslookup " + vm_a_private_dns_name
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
             out, _ = proc.communicate()
             assert vm_a_private_ip in out
 
-            # get vm a public dns name from jenkins account
+            # get vm a public dns name from internet
             cmd = "nslookup " + vm_a_public_dns_name
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
             out, _ = proc.communicate()
