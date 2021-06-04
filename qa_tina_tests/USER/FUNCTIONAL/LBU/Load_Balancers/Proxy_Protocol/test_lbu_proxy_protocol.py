@@ -130,7 +130,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
 
     def test_T4536_proxy_protocol_ssl(self):
         self.exec_proxy_protocol_test(listener={'InstancePort': '80',
-                                                'InstanceProtocol': 'HTTP',
+                                                'InstanceProtocol': 'TCP',
                                                 'LoadBalancerPort': '443',
                                                 'Protocol': 'SSL',
                                                 'SSLCertificateId': self.cert_arn,
