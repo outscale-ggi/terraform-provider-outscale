@@ -199,7 +199,7 @@ class Test_fni(OscTestSuite):
                     known_error('OPS-13750', 'Assigne secondary private ip address to FNI doesn\'t work')
                 cmd = "sudo pwd"
                 out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd)
-                self.logger.info("Working directory is:" + out)
+                self.logger.info("Working directory is: %s", out)
 
         # for debug purposes
         except Exception as error:
