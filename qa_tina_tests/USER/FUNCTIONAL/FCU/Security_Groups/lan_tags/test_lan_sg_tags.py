@@ -1,4 +1,3 @@
-from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools, OscCommandError
