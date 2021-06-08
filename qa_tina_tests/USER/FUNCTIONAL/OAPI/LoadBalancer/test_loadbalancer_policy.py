@@ -43,14 +43,13 @@ class Test_loadbalancer_policy(OscTestSuite):
             request_passed = False
             wait.wait_LoadBalancer_Backends_state(self.a1_r1, lbu_info[info_keys.LBU_NAME])
             for _ in range(5):
-                try:
-                    response = requests.get("http://{}".format(lbu_info[info_keys.LBU_DNS]))
-                    if response.status_code == 200:
-                        request_passed = True
-                        break
-                    time.sleep(2)
-                except Exception:
-                    known_error('OPS-13770','New IN1: LBU issue when using outscale-elb-sg')
+                response = requests.get("http://{}".format(lbu_info[info_keys.LBU_DNS]))
+                if response.status_code == 200:
+                    request_passed = True
+                    break
+                time.sleep(2)
+            if not request_passed:
+                known_error('OPS-13770','New IN1: LBU issue when using outscale-elb-sg')
             assert False, 'Remove known error code'
             assert request_passed, 'request failed'
             cookie_found = False
