@@ -5,7 +5,7 @@ import requests
 from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import oapi, wait, info_keys, setup_tools
 
 
@@ -48,9 +48,6 @@ class Test_loadbalancer_policy(OscTestSuite):
                     request_passed = True
                     break
                 time.sleep(2)
-            if not request_passed:
-                known_error('OPS-13770','New IN1: LBU issue when using outscale-elb-sg')
-            assert False, 'Remove known error code'
             assert request_passed, 'request failed'
             cookie_found = False
             policy_name = misc.id_generator(prefix='policy-')
