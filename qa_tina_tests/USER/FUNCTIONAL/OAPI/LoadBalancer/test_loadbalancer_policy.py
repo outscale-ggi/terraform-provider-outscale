@@ -48,9 +48,6 @@ class Test_loadbalancer_policy(OscTestSuite):
                     request_passed = True
                     break
                 time.sleep(2)
-            if not request_passed:
-                known_error('OPS-13770','New IN1: LBU issue when using outscale-elb-sg')
-            assert False, 'Remove known error code'
             assert request_passed, 'request failed'
             cookie_found = False
             policy_name = misc.id_generator(prefix='policy-')
