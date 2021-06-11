@@ -1,4 +1,3 @@
-from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools, OscCommandError
@@ -9,7 +8,6 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_vpc, start_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, stop_instances
 from qa_tina_tools.tools.tina import info_keys
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
 class Test_lan_sg_tags(OscTestSuite):
@@ -135,13 +133,15 @@ class Test_lan_sg_tags(OscTestSuite):
 
     def test_T1936_check_ping_disable(self):
         info = self.vpc_info_full_disable
-        wait_instances_state(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], 'ready')
+        stop_instances(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST])
+        start_instances(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], state='ready')
         # on subnet ping from instance to another
         self.multi_check_ping(info, True)
 
     def test_T1937_check_ping_enable_without_rule(self):
         info = self.vpc_info_full_enable
-        wait_instances_state(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], 'ready')
+        stop_instances(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST])
+        start_instances(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], state='ready')
         # on subnet ping from instance to another
         self.multi_check_ping(info, False)
 
@@ -152,8 +152,8 @@ class Test_lan_sg_tags(OscTestSuite):
             ret = self.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=info[info_keys.SUBNETS][0][info_keys.SECURITY_GROUP_ID],
                                                                IpProtocol='icmp', FromPort=-1, ToPort=-1,
                                                                CidrIp=Configuration.get('cidr', 'allips'))
-            sleep(60)
-            wait_instances_state(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], 'ready')
+            stop_instances(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST])
+            start_instances(self.a1_r1, info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], state='ready')
             # on subnet ping from instance to another
             self.multi_check_ping(info, True)
         finally:
@@ -166,66 +166,58 @@ class Test_lan_sg_tags(OscTestSuite):
         info = self.vpc_info_full_disable
         insts = info[info_keys.SUBNETS][0][info_keys.INSTANCE_SET]
         try:
-            ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
-            ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.enable_lan_security_groups', '2')
+            ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
+            ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.disable_lan_security_groups', '2')
             stop_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']])
-            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='running')
+            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='ready')
             self.multi_check_ping(info, True)
         finally:
             if ret1:
                 self.delete_tag(insts[0]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
             if ret2:
                 self.delete_tag(insts[1]['instanceId'], 'osc.fcu.enable_lan_security_groups', '2')
-            stop_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']])
-            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='running')
 
     def test_T1940_check_ping_disable_inst_tag_same(self):
         info = self.vpc_info_full_disable
         insts = info[info_keys.SUBNETS][0][info_keys.INSTANCE_SET]
         try:
-            ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
-            ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
+            ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
+            ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
             stop_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']])
-            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='running')
+            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='ready')
             self.multi_check_ping(info, True)
         finally:
             if ret1:
                 self.delete_tag(insts[0]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
             if ret2:
                 self.delete_tag(insts[1]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
-            stop_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']])
-            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='running')
 
     def test_T1941_check_ping_enable_inst_tag_diff(self):
         info = self.vpc_info_full_enable
         insts = info[info_keys.SUBNETS][0][info_keys.INSTANCE_SET]
         try:
-            ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
-            ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.disable_lan_security_groups', '2')
+            ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
+            ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.enable_lan_security_groups', '2')
             stop_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']])
-            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='running')
+            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='ready')
             self.multi_check_ping(info, False)
         finally:
             if ret1:
                 self.delete_tag(insts[0]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
             if ret2:
                 self.delete_tag(insts[1]['instanceId'], 'osc.fcu.disable_lan_security_groups', '2')
-            stop_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']])
-            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='running')
 
     def test_T1942_check_ping_enable_inst_tag_same(self):
         info = self.vpc_info_full_enable
         insts = info[info_keys.SUBNETS][0][info_keys.INSTANCE_SET]
         try:
-            ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
-            ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
+            ret1 = self.add_tag(insts[0]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
+            ret2 = self.add_tag(insts[1]['instanceId'], 'osc.fcu.enable_lan_security_groups', '1')
             stop_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']])
-            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='running')
+            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='ready')
             self.multi_check_ping(info, False)
         finally:
             if ret1:
                 self.delete_tag(insts[0]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
             if ret2:
                 self.delete_tag(insts[1]['instanceId'], 'osc.fcu.disable_lan_security_groups', '1')
-            stop_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']])
-            start_instances(self.a1_r1, [insts[0]['instanceId'], insts[1]['instanceId']], state='running')

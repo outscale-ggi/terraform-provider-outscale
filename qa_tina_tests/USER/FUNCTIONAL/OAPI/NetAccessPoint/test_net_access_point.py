@@ -1,7 +1,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_common_tools.ssh import SshTools, OscSshError, OscCommandError
+from qa_common_tools.ssh import SshTools, OscSshError
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_test_tools.config import config_constants
@@ -54,7 +54,7 @@ class Test_net_access_point(OscTestSuite):
             sshclient = SshTools.check_connection_paramiko(
                 net_with_internet_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'],
                 net_with_internet_info[info_keys.KEY_PAIR][info_keys.PATH],
-                username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER), retry=4, timeout=10)
+                username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER), retry=10, timeout=10)
             tmp_list = net_access_point_service_name.split('.')
             tmp_list.reverse()
             cmd = "curl -k https://{}".format('.'.join(tmp_list))
@@ -69,12 +69,7 @@ class Test_net_access_point(OscTestSuite):
                 username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER),
                 retry=4, timeout=10)
             out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd, retry=20, timeout=20)
-            assert False, 'Remove known error'
             assert 'Access Denied' in out
-        except OscCommandError:
-            if self.a1_r1.config.region.name == 'in-west-1':
-                known_error('OPS-13700', 'Could not access service through vpc endpoint.')
-            raise
         finally:
             errors = []
             if net_access_point:
@@ -135,7 +130,7 @@ class Test_net_access_point(OscTestSuite):
                 local_private_addr=net_with_internet_info[info_keys.SUBNETS][0][info_keys.VMS][0]['PrivateIp'],
                 dest_private_addr=net_with_internet_info[info_keys.SUBNETS][2][info_keys.VMS][0]['PrivateIp'],
                 username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER),
-                retry=4, timeout=10)
+                retry=10, timeout=10)
             out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd, retry=20, timeout=20)
             assert 'Version' in out
         except OscSshError:

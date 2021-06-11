@@ -127,7 +127,8 @@ def put_configuration(self, access_rules):
     # create new rules
     for access_rule in access_rules:
         if not has_ip_rule:
-            access_rule[IP_COND] = ['0.0.0.0/0']
+            access_rule[IP_COND] = self.my_ips
+            # access_rule[IP_COND] = ['0.0.0.0/0']
 #         osc_sdk.oapi.CreateApiAccessRule(CaIds=access_rule[CA_COND] if CA_COND in access_rule else None,
 #                                          Cns=access_rule[CN_COND] if CN_COND in access_rule else None,
 #                                          Description=access_rule[DESC],
@@ -181,7 +182,7 @@ def setup_api_access_rules(confkey):
 
         def wrapper(self, *args):
             try:
-                put_configuration(self, self.configs[confkey])
+                put_configuration(self, self.configs[confkey].copy())
                 actual, expected, errors = func(self, *args)
                 issue_names = []
                 unexpected = False

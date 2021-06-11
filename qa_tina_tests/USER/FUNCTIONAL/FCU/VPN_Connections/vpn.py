@@ -26,8 +26,13 @@ def upgrade_ike_to_v2(sshclient, leftid, rightid):
     cmd = """
         sudo sed -i  's/^            keyexchange=.*/            keyexchange=ikev2/g'  /etc/strongswan/ipsec.conf;
         sudo sed -i '$a\\            {}' /etc/strongswan/ipsec.conf;
-        sudo sed -i '$a\\            {}' /etc/strongswan/ipsec.conf;
-        sudo systemctl stop strongswan; sudo systemctl start strongswan;""".format(leftid, rightid)
+        sudo sed -i '$a\\            {}' /etc/strongswan/ipsec.conf;""".format(leftid, rightid)
+    _, _, _ = SshTools.exec_command_paramiko(
+    sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+    cmd = "echo  'sudo  strongswan stop; sleep 2;' > ~/.script1.sh; sudo bash +x ~/.script1.sh; sh -x ~/.script1.sh;"
+    _, _, _ = SshTools.exec_command_paramiko(
+    sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+    cmd = "echo  'sudo  strongswan start' > ~/.script2.sh; sudo bash +x ~/.script2.sh; sh -x ~/.script2.sh;"
     _, _, _ = SshTools.exec_command_paramiko(
     sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
     cmd = 'sudo strongswan statusall | grep  -E "IKEv2"'
@@ -39,11 +44,14 @@ def update_cgw_config(option, sshclient):
     cmd = """
         sudo sed -i  's/^            ike=.*/            ike={0}/g'  /etc/strongswan/ipsec.conf ;
         sudo sed -i  's/^            esp=.*/            esp={0}/g'  /etc/strongswan/ipsec.conf;
-        sudo systemctl stop strongswan;""".format(option)
+        """.format(option)
     _, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
-
-    out, _, _ = SshTools.exec_command_paramiko(
-    sshclient, "sudo systemctl start strongswan;", retry=20, timeout=10, eof_time_out=60)
+    cmd = "echo  'sudo  strongswan stop; sleep 2;' > ~/.script1.sh; sudo bash +x ~/.script1.sh; sh -x ~/.script1.sh;"
+    _, _, _ = SshTools.exec_command_paramiko(
+    sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+    cmd = "echo  'sudo  strongswan start' > ~/.script2.sh; sudo bash +x ~/.script2.sh; sh -x ~/.script2.sh;"
+    _, _, _ = SshTools.exec_command_paramiko(
+    sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
 
     regex = r"([a-z]*)([0-9]*)"
 
@@ -202,7 +210,8 @@ class Vpn(OscTestSuite):
                 upgrade_ike_to_v2(sshclient, leftid, rightid)
                 ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                           self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
-            check_ipsec_status(self, vpn_id)
+            if self.a1_r1.config.region.name in ['in-west-1']:
+                check_ipsec_status(self, vpn_id)
             start = datetime.now()
             while (datetime.now() - start).total_seconds() < 60:
                 try:
@@ -214,7 +223,6 @@ class Vpn(OscTestSuite):
                     break
                 except Exception:
                     time.sleep(5)
-
         finally:
             # delete VPN connection
             ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_id)

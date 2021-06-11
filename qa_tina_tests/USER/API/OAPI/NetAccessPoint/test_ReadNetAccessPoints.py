@@ -15,7 +15,7 @@ class Test_ReadNetAccessPoints(OscTestSuite):
         cls.route_table_id = None
         cls.net_ap_id = None
         cls.service_name1 = 'com.outscale.{}.api'.format(cls.a1_r1.config.region.name)
-        cls.service_name2 = 'com.outscale.{}.kms'.format(cls.a1_r1.config.region.name)
+        cls.service_name2 = 'com.outscale.{}.oos'.format(cls.a1_r1.config.region.name)
         try:
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange='10.0.0.0/16').response.Net.NetId
             cls.net_id2 = cls.a1_r1.oapi.CreateNet(IpRange='10.0.0.0/16').response.Net.NetId
@@ -106,7 +106,7 @@ class Test_ReadNetAccessPoints(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T3807_filter_servicenames(self):
-        ret = self.a1_r1.oapi.ReadNetAccessPoints(Filters={'ServiceNames': ['com.outscale.in-west-2.kms']})
+        ret = self.a1_r1.oapi.ReadNetAccessPoints(Filters={'ServiceNames': ['com.outscale.{}.oos'.format(self.a1_r1.config.region.name)]})
         assert len(ret.response.NetAccessPoints) == 1
 
     def test_T3808_filter_states(self):

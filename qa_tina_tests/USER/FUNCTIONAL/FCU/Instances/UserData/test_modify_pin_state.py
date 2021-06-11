@@ -20,8 +20,8 @@ class Test_modify_pin_state(OscTestSuite):
         super(Test_modify_pin_state, cls).setup_class()
 
     def setup_method(self, method):
-        super(Test_modify_pin_state, self).setup_method(method)
         self.info = None
+        super(Test_modify_pin_state, self).setup_method(method)
 
         try:
             self.info = create_instances(self.a1_r1, state='running')
@@ -54,7 +54,7 @@ class Test_modify_pin_state(OscTestSuite):
         for kvm in all_servers.response.result:
             if self.cluster_pz != self.a1_r1.intel.hardware.get_details(device=kvm.name).response.result.cluster_pz:
                 continue
-            if kvm.state != 'READY' or kvm.name == self.server_name:
+            if kvm.state != 'READY' or kvm.name == self.server_name or 'PRODUCTION' not in kvm.groups:
                 continue
             kvm_selected = kvm.name
             break

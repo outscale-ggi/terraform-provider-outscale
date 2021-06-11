@@ -5,12 +5,11 @@ import time
 
 import requests
 
-from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.check_tools import wait_lbu_backend_state
 from qa_tina_tools.tina.setup_tools import start_test_http_server
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_load_balancer, create_self_signed_cert
@@ -22,12 +21,12 @@ class Test_lbu_proxy_protocol(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_lbu_proxy_protocol, cls).setup_class()
         cls.inst_info = None
         cls.crtpath = None
         cls.keypath = None
         cls.cert_arn = None
         cls.cert_name = None
+        super(Test_lbu_proxy_protocol, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1, 1, state='ready')
             cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.inst_info[SECURITY_GROUP_ID], IpProtocol='tcp',
@@ -64,7 +63,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
         finally:
             super(Test_lbu_proxy_protocol, cls).teardown_class()
 
-    def exec_proxy_protocol_test(self, listener, https_error=False):
+    def exec_proxy_protocol_test(self, listener):
         lbu_name = None
         dns_name = None
         registered = False
@@ -87,16 +86,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
             self.a1_r1.lbu.CreateLoadBalancerPolicy(LoadBalancerName=lbu_name, PolicyName=policy_name, PolicyTypeName="ProxyProtocolPolicyType")
             self.a1_r1.lbu.SetLoadBalancerPoliciesForBackendServer(LoadBalancerName=lbu_name, InstancePort='80', PolicyNames=[policy_name])
             time.sleep(60)  # Wait config
-            try:
-                wait_lbu_backend_state(self.a1_r1, lbu_name)
-                if https_error:
-                    assert False, "remove known error"
-            except AssertionError:
-                wait_lbu_backend_state(self.a1_r1, lbu_name, expected_state='OutService')
-                known_error('TINA-6472', 'errors for load balancer with proxy_protocol_https')
-            except OscApiException as error:
-                assert_error(error, 500, 'InternalFailure', 'Internal Error')
-                known_error('TINA-6472', 'errors for load balancer with proxy_protocol_https')
+            wait_lbu_backend_state(self.a1_r1, lbu_name)
 
             ret = self.a1_r1.intel_lbu.lb.get(owner=self.a1_r1.config.account.account_id,
                                               names=[lbu_name])
@@ -106,12 +96,15 @@ class Test_lbu_proxy_protocol(OscTestSuite):
             protocol = 'http'
             if listener['LoadBalancerPort'] == '443':
                 protocol = 'https'
+            ret = None
             for _ in range(5):
                 try:
                     ret = requests.get("{}://{}/proxy_protocol".format(protocol, dns_name), verify=listener['verify'])
                     break
                 except Exception:
                     print('Could not reach load balancer')
+                    time.sleep(10)
+            assert ret, 'Could not reach load balancer after 5 retry'
             assert ret.status_code == 200
             expexted_text = []
             expexted_text.append("{} -> {}".format(misc.get_nat_ips(self.a1_r1.config.region)[0].split('/')[0], lbu_ip))
@@ -137,6 +130,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
 
     def test_T4536_proxy_protocol_ssl(self):
         self.exec_proxy_protocol_test(listener={'InstancePort': '80',
+                                                'InstanceProtocol': 'TCP',
                                                 'LoadBalancerPort': '443',
                                                 'Protocol': 'SSL',
                                                 'SSLCertificateId': self.cert_arn,
@@ -144,7 +138,8 @@ class Test_lbu_proxy_protocol(OscTestSuite):
                                       )
     def test_T4537_proxy_protocol_https(self):
         self.exec_proxy_protocol_test(listener={'InstancePort': '80',
+                                                'InstanceProtocol': 'HTTP',
                                                 'LoadBalancerPort': '443',
                                                 'Protocol': 'HTTPS',
                                                 'SSLCertificateId': self.cert_arn,
-                                                'verify': False}, https_error=True)
+                                                'verify': False})

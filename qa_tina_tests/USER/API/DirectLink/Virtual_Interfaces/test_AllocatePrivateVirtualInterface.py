@@ -108,7 +108,7 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
             assert ret.response.asn == 11111
             assert ret.response.vlan == 2
             assert ret.response.ownerAccount == self.a1_r1.config.account.account_id
-            assert ret.response.location == 'Par3'
+            assert ret.response.location == 'PAR5'
             assert ret.response.virtualInterfaceType == 'private'
             assert ret.response.virtualInterfaceId.startswith('dxvif-')
             assert ret.response.virtualInterfaceName == 'test'

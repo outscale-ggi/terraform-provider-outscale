@@ -27,7 +27,7 @@ class Test_public_linux_instance(Test_linux_instance):
     @classmethod
     def setup_class(cls):
         cls.quotas = {'gpu_limit': 4}
-        cls.GROUPS = ['PRODUCTION', 'NVIDIA']
+        cls.GROUPS = ['PRODUCTION']
         super(Test_public_linux_instance, cls).setup_class()
 
     @classmethod
@@ -69,9 +69,7 @@ class Test_public_linux_instance(Test_linux_instance):
     @pytest.mark.tag_redwire
     @pytest.mark.region_gpu
     def test_T98_create_use_linux_GPU_instance(self):
-        instance_type='mv3.large'
-        if self.a1_r1.config.region.name in ['cn-southeast-1']:
-            instance_type = 'og4.xlarge'
+        instance_type=self.a1_r1.config.region.get_info(constants.DEFAULT_AWS_GPU_INSTANCE_TYPE)
         inst_id = None
         try:
             inst_id, inst_public_ip = self.create_instance(instance_type=instance_type)
@@ -197,8 +195,6 @@ class Test_public_linux_instance(Test_linux_instance):
         size = 32
         block_device = [{'DeviceName': device_name, 'VirtualName': 'ephemeral0'}]
         placement = None
-        if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
-            placement = {'AvailabilityZone': 'cn-southeast-1b'}
         try:
             inst_id, inst_public_ip = self.create_instance(instance_type='r3.large', bdm=block_device, placement=placement)
             if inst_id:
@@ -219,8 +215,6 @@ class Test_public_linux_instance(Test_linux_instance):
         size = 32
         block_device = [{'DeviceName': device_name, 'VirtualName': 'ephemeral1'}]
         placement = None
-        if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
-            placement = {'AvailabilityZone': 'cn-southeast-1b'}
         try:
             inst_id, inst_public_ip = self.create_instance(instance_type='r3.large', bdm=block_device,
                                                            placement=placement)

@@ -51,7 +51,7 @@ class Test_VPC_Peering(OscTestSuite):
             self.a1_r1.fcu.CreateRoute(RouteTableId=self.vpc2_info[SUBNETS][0][ROUTE_TABLE_ID], DestinationCidrBlock='10.0.0.0/16',
                                        VpcPeeringConnectionId=peering_info[PEERING].id)
             # connect to instance 1 via eip1
-            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.vpc1_inst.instanceId,
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.vpc1_info[SUBNETS][0][INSTANCE_SET][0]['instanceId'],
                                                          self.vpc1_info[SUBNETS][0][EIP]['publicIp'], self.vpc1_info[KEY_PAIR][PATH],
                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # connect to instance2 via vpc peering
