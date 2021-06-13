@@ -166,7 +166,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                                 self.hints)
             except OscApiException as error:
                 misc.assert_oapi_error(error, 400, 'InvalidResource', '5060')
-                known_error('API-252', 'Using security id of private sg does not work')
+                known_error('TINA-6487', 'Using security id of private sg does not work')
         finally:
             cleanup_sg(self.a1_r1, self.sg4.SecurityGroupId)
 
@@ -193,7 +193,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                                 self.hints)
             except OscApiException as error:
                 misc.assert_oapi_error(error, 400, 'InvalidResource', '5060')
-                known_error('API-252', 'Using security id of private sg does not work')
+                known_error('TINA-6487', 'Using security id of private sg does not work')
         finally:
             cleanup_sg(self.a1_r1, self.sg4.SecurityGroupId)
 
@@ -220,7 +220,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                                 self.hints)
             except OscApiException as error:
                 misc.assert_oapi_error(error, 400, 'InvalidResource', '5060')
-                known_error('API-252', 'Using security id of public sg does not work')
+                known_error('TINA-6487', 'Using security id of public sg does not work')
         finally:
             cleanup_sg(self.a1_r1, self.sg2.SecurityGroupId)
 
@@ -246,7 +246,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                                 self.hints)
                 assert False, 'Remove known error'
             except OscTestException:
-                known_error('API-252', 'Using security name of public sg does not work')
+                known_error('TINA-6487', 'Using security name of public sg does not work')
         finally:
             cleanup_sg(self.a1_r1, self.sg2.SecurityGroupId)
 
@@ -289,7 +289,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                                                            'T5657_rules_inbound_empty.json'), self.hints)
                 assert False, 'Remove known error'
             except OscTestException:
-                known_error('API-252', 'Using security name of public sg does not work')
+                known_error('TINA-6487', 'Using security name of public sg does not work')
 
         finally:
             cleanup_sg(self.a1_r1, self.sg2.SecurityGroupId)
@@ -333,7 +333,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                                                            'T5658_rules_outbound_empty.json'), self.hints)
                 assert False, 'Remove known error'
             except OscTestException:
-                known_error('API-252', 'Using security name of public sg does not work')
+                known_error('TINA-6487', 'Using security name of public sg does not work')
 
         finally:
             cleanup_sg(self.a1_r1, self.sg4.SecurityGroupId)
