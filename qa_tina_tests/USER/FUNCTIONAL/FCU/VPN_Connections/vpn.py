@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import datetime
 import re
 import time
@@ -7,7 +5,7 @@ import time
 from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tina import wait
+from qa_tina_tools.tina import wait, check_tools
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -18,13 +16,23 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SEC
     VPC_ID, PATH, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
 
+def check_ipsec_status(self, vpn_id):
+    filters = [{'Name': 'vpn-connection-id', 'Value': vpn_id}]
+    ret = self.a1_r1.fcu.DescribeVpnConnections(Filters=filters)
+    assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].status == 'UP'
+    assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].statusMessage == 'IPSEC IS UP'
 
 def upgrade_ike_to_v2(sshclient, leftid, rightid):
     cmd = """
         sudo sed -i  's/^            keyexchange=.*/            keyexchange=ikev2/g'  /etc/strongswan/ipsec.conf;
-        sudo sed -i '$a{}' /etc/strongswan/ipsec.conf;
-        sudo sed -i '$a{}' /etc/strongswan/ipsec.conf;
-        sudo systemctl stop strongswan; sudo systemctl start strongswan;""".format(leftid, rightid)
+        sudo sed -i '$a\\            {}' /etc/strongswan/ipsec.conf;
+        sudo sed -i '$a\\            {}' /etc/strongswan/ipsec.conf;""".format(leftid, rightid)
+    _, _, _ = SshTools.exec_command_paramiko(
+    sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+    cmd = "echo  'sudo  strongswan stop; sleep 2;' > ~/.script1.sh; sudo bash +x ~/.script1.sh; sh -x ~/.script1.sh;"
+    _, _, _ = SshTools.exec_command_paramiko(
+    sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+    cmd = "echo  'sudo  strongswan start' > ~/.script2.sh; sudo bash +x ~/.script2.sh; sh -x ~/.script2.sh;"
     _, _, _ = SshTools.exec_command_paramiko(
     sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
     cmd = 'sudo strongswan statusall | grep  -E "IKEv2"'
@@ -34,13 +42,16 @@ def upgrade_ike_to_v2(sshclient, leftid, rightid):
 
 def update_cgw_config(option, sshclient):
     cmd = """
-        sudo sed -i  's/^            ike=.*/            ike={1}/g'  /etc/strongswan/ipsec.conf ;
-        sudo sed -i  's/^            esp=.*/            esp={1}/g'  /etc/strongswan/ipsec.conf;
-        sudo systemctl stop strongswan;""".format(option)
+        sudo sed -i  's/^            ike=.*/            ike={0}/g'  /etc/strongswan/ipsec.conf ;
+        sudo sed -i  's/^            esp=.*/            esp={0}/g'  /etc/strongswan/ipsec.conf;
+        """.format(option)
     _, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
-
-    out, _, _ = SshTools.exec_command_paramiko(
-    sshclient, "sudo systemctl start strongswan;", retry=20, timeout=10, eof_time_out=60)
+    cmd = "echo  'sudo  strongswan stop; sleep 2;' > ~/.script1.sh; sudo bash +x ~/.script1.sh; sh -x ~/.script1.sh;"
+    _, _, _ = SshTools.exec_command_paramiko(
+    sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+    cmd = "echo  'sudo  strongswan start' > ~/.script2.sh; sudo bash +x ~/.script2.sh; sh -x ~/.script2.sh;"
+    _, _, _ = SshTools.exec_command_paramiko(
+    sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
 
     regex = r"([a-z]*)([0-9]*)"
 
@@ -114,7 +125,7 @@ class Vpn(OscTestSuite):
         finally:
             super(Vpn, self).teardown_method(method)
 
-    def exec_test_vpn(self, static, racoon, default_rtb=True, options=None, ike="ikev1", migration=None):
+    def exec_test_vpn(self, static, racoon, default_rtb=True, options=None, ike="ikev1", migration=None, vti=True, xfrm=False):
 
         # initialize a VPC with 1 subnet, 1 instance and an igw
         self.vpc_info = create_vpc(osc_sdk=self.a1_r1, nb_instance=1, default_rtb=default_rtb)
@@ -122,8 +133,7 @@ class Vpn(OscTestSuite):
         self.a1_r1.fcu.AttachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
 
         # create VPN connection
-        ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw_id,
-                                                 Type='ipsec.1',
+        ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.cgw_id, Type='ipsec.1',
                                                  VpnGatewayId=self.vgw_id,
                                                  Options={'StaticRoutesOnly': static})
         vpn_id = ret.response.vpnConnection.vpnConnectionId
@@ -152,6 +162,7 @@ class Vpn(OscTestSuite):
                                                          IpProtocol='icmp',
                                                          FromPort=-1,
                                                          ToPort=-1,
+#                                                         CidrIp=self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'] + '/32')
                                                          CidrIp=".".join(
                                                              self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'].split('.')[:-1]) + '.0/24')
 
@@ -168,11 +179,12 @@ class Vpn(OscTestSuite):
             # wait CGW state == ready before making configuration
             wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw_info[INSTANCE_ID_LIST][0]], state='ready')
 
-            sshclient = SshTools.check_connection_paramiko(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw_info[INSTANCE_SET][0]['instanceId'],
+                                                         self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             setup_customer_gateway(self.a1_r1, sshclient, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
-                                   self.inst_cgw_info, vgw_ip, psk_key, static, vpn_id, racoon, 0, ike=ike)
+                                   self.inst_cgw_info, vgw_ip, psk_key, static, vpn_id, racoon, 0, ike=ike, vti=vti,xfrm=xfrm)
 
             # wait vpc instance state == ready before try to make ping
             wait_tools.wait_instances_state(self.a1_r1,
@@ -193,12 +205,13 @@ class Vpn(OscTestSuite):
                     ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                               self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
             if migration:
-                leftid = "            leftid={}".format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'])
-                rightid = "            rightid={}".format(vgw_ip)
+                leftid = "leftid={}".format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'])
+                rightid = "rightid={}".format(vgw_ip)
                 upgrade_ike_to_v2(sshclient, leftid, rightid)
                 ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                           self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
-
+            if self.a1_r1.config.region.name in ['in-west-1']:
+                check_ipsec_status(self, vpn_id)
             start = datetime.now()
             while (datetime.now() - start).total_seconds() < 60:
                 try:
@@ -210,7 +223,6 @@ class Vpn(OscTestSuite):
                     break
                 except Exception:
                     time.sleep(5)
-
         finally:
             # delete VPN connection
             ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_id)

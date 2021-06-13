@@ -15,6 +15,7 @@ from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH
+from qa_tina_tools.tina import check_tools
 
 
 INDEX = './index'
@@ -101,8 +102,9 @@ def exec_test(osc_sdk):
 
             info = create_instances(osc_sdk, az=az, inst_type=instance_type, state='ready')
 
-            sshclient = SshTools.check_connection_paramiko(info[INSTANCE_SET][0]['ipAddress'], info[KEY_PAIR][PATH],
-                                                           username=osc_sdk.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(osc_sdk, info[INSTANCE_SET][0]['instanceId'],
+                                                         info[INSTANCE_SET][0]['ipAddress'], info[KEY_PAIR][PATH],
+                                                         osc_sdk.config.region.get_info(constants.CENTOS_USER))
 
             cmd = "cat /proc/cpuinfo | grep -c proc"
             out, _, _ = SshTools.exec_command_paramiko(sshclient, cmd)

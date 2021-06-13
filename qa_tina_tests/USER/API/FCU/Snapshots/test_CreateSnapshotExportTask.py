@@ -5,8 +5,9 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.misc import id_generator, assert_error
+from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.config.region import Feature
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_buckets
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_snapshot_export_tasks_state
@@ -46,7 +47,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
     def setup_method(self, method):
         super(Test_CreateSnapshotExportTask, self).setup_method(method)
         try:
-            self.bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
+            self.bucket_name = misc.id_generator(prefix='snap', chars=ascii_lowercase)
         except Exception as error1:
             try:
                 self.teardown_method(method)
@@ -88,21 +89,21 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
             self.a1_r1.fcu.CreateSnapshotExportTask(ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': self.bucket_name})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: SnapshotId')
+            misc.assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: SnapshotId')
 
     def test_T1025_without_disk_image_format(self):
         try:
             self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'OsuBucket': self.bucket_name})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: DiskImageFormat')
+            misc.assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: DiskImageFormat')
 
     def test_T1027_without_osu_bucket(self):
         try:
             self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: OsuBucket')
+            misc.assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: OsuBucket')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T1023_with_snapshot_id_from_another_account(self):
@@ -110,8 +111,8 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
             self.a2_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': self.bucket_name})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidSnapshot.NotFound',
-                         'The Snapshot ID does not exist: {}, for account: {}'.format(self.snap_id, self.a2_r1.config.account.account_id))
+            misc.assert_error(error, 400, 'InvalidSnapshot.NotFound',
+                              'The Snapshot ID does not exist: {}, for account: {}'.format(self.snap_id, self.a2_r1.config.account.account_id))
 
     @pytest.mark.region_storageservice
     def test_T3890_with_shared_snapshot_id(self):
@@ -130,16 +131,16 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
             self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId='foo', ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': self.bucket_name})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidSnapshotID.Malformed',
-                         'Invalid ID received: foo. Expected format: snap-')
+            misc.assert_error(error, 400, 'InvalidSnapshotID.Malformed',
+                              'Invalid ID received: foo. Expected format: snap-')
 
     def test_T4527_with_invalid_snapshot_id_prefix_snap(self):
         try:
             self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId='snap-123456', ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': self.bucket_name})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidSnapshotID.Malformed',
-                         'Invalid ID received: snap-123456')
+            misc.assert_error(error, 400, 'InvalidSnapshotID.Malformed',
+                              'Invalid ID received: snap-123456')
 
     def test_T1026_with_invalid_disk_image_format(self):
         disk_format_list = ['foo', 'vdi', 'vmdk']
@@ -149,15 +150,15 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
                                                                                               'OsuBucket': self.bucket_name})
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_error(error, 400, 'InvalidParameterValue', "Value of parameter \'DiskFormat\' is not valid: {}. "
-                                                                  "Supported values: qcow2, raw".format(disk_format))
+                misc.assert_error(error, 400, 'InvalidParameterValue', "Value of parameter \'DiskFormat\' is not valid: {}. "
+                                                                    "Supported values: qcow2, raw".format(disk_format))
 
     def test_T1028_with_invalid_osu_bucket(self):
         try:
             self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': "FOO"})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidParameterValue', "Value of parameter 'OsuBucket' must be lowercase. Received: FOO")
+            misc.assert_error(error, 400, 'InvalidParameterValue', "Value of parameter 'OsuBucket' must be lowercase. Received: FOO")
 
     @pytest.mark.region_storageservice
     def test_T3891_with_existing_osu_bucket(self):
@@ -216,23 +217,21 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
 
-    # def test_T0000_with_invalid_osu_key(self):
-        # OsuKey not supported by Tina
-
     def test_T3895_with_invalid_osu_prefix(self):
-        known_error('TINA-4950', 'SnapExport: call in error with invalid OsuPrefix')
+        if self.a1_r1.config.region.get_info(constants.STORAGESERVICE) != Feature.OSU.value:
+            pytest.skip('Test only for regions using osu a storage service')
         try:
-            ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
-                                                                                                'OsuBucket': self.bucket_name,
-                                                                                                'OsuPrefix': '/foo%bar&'})
-            self.logger.debug(ret.response.display())
-        #    task_id = ret.response.snapshotExportTask.snapshotExportTaskId
-        #    wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed',
-        #                                     snapshot_export_task_id_list=[task_id])
+            prefix = '/foo%bar&'  # misc.id_generator(size=30, chars=string.ascii_lowercase)
+            self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
+                                                                                          'OsuBucket': self.bucket_name,
+                                                                                          'OsuPrefix': prefix})
+            # self.logger.debug(ret.response.display())
+            # task_id = ret.response.snapshotExportTask.snapshotExportTaskId
+            # wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidSnapshot.NotFound',
-                         'The Snapshot ID does not exist: foo, for account: {}'.format(self.a1_r1.config.account.account_id))
+            misc.assert_error(error, 400, 'InvalidSnapshot.NotFound',
+                              'The Snapshot ID does not exist: foo, for account: {}'.format(self.a1_r1.config.account.account_id))
 
     @pytest.mark.region_storageservice
     def test_T3896_with_invalid_ak_sk(self):

@@ -130,11 +130,13 @@ class Test_DeleteLoadBalancerTags(OscTestSuite):
 
     def teardown_tags(self):
         ret = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName, self.ret_lbu_a1[1].LoadBalancerName])
+        tmp_list = [tag.Key for tag in ret.response.Tags]
         self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName, self.ret_lbu_a1[1].LoadBalancerName],
-                                               Tags=[{'Key': key} for key in {[tag.Key for tag in ret.response.Tags]}])
+                                               Tags=[{'Key': key} for key in set(tmp_list)])
         ret = self.a2_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a2[0].LoadBalancerName])
+        tmp_list = [tag.Key for tag in ret.response.Tags]
         self.a2_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a2[0].LoadBalancerName],
-                                               Tags=[{'Key': key} for key in {[tag.Key for tag in ret.response.Tags]}])
+                                               Tags=[{'Key': key} for key in set(tmp_list)])
 
     def test_T4724_valid_params(self):
         try:

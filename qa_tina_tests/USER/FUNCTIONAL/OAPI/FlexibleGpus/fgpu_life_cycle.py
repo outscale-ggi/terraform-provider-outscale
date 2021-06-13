@@ -1,3 +1,4 @@
+import pytest
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
@@ -42,12 +43,14 @@ def check_gpu_instance(osc_sdk, inst_id, ip_address, key_path, user_name, logger
     err = total_gpu and out.split()[-1:][0].strip() != str(total_gpu + 1)
     assert not err, "The total GPU does not match "
 
-
+@pytest.mark.region_gpu
 class FgpuLifeCycle(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
         cls.quotas = {'gpu_limit': 4}
+        cls.quotas = {'memory_limit': 400}
+        cls.quotas = {'core_limit': 200}
         cls.inst_info = None
         cls.vm_id = None
         cls.fgpu_id = None
@@ -119,7 +122,8 @@ class FgpuLifeCycle(OscTestSuite):
         reserved_fgpu_error = (num_fgpus != reserved_fgpu)
         gpu_in_use_error = (num_used_gpus != gpu_in_use + self.num_gpus)
 
-        states = {[fgpu.state for fgpu in ret2.response.result.flexible_gpus]}
+        tmp_list = [fgpu.state for fgpu in ret2.response.result.flexible_gpus]
+        states = set(tmp_list)
         fgpu_state_error = fgpu_state and (len(states) != 1 or fgpu_state not in states)
 
         if reserved_fgpu_error or gpu_in_use_error or fgpu_state_error:

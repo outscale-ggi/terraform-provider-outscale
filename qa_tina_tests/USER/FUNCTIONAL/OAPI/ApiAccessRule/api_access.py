@@ -24,6 +24,7 @@ API_CALLS = [
             'icu.ReadQuotas',  # with AkSk
             'icu.GetAccount',  # with AkSk
             'icu.CreateAccount',  # with AkSk
+            'icu.SendResetPasswordEmail',  # without authent
             'fcu.DescribeRegions',  # without authent
             'fcu.DescribeSecurityGroups',  # with AkSk
             # 'kms.ListKeys',  # with AkSk
@@ -49,11 +50,14 @@ def create_account_params():
             'ZipCode': '92210'}
 
 
+def create_email_params():
+    return {'Email': 'some.mail@outscale.com'}
+
 def delete_account_params(delete_params):
     return {'pid': delete_params.response.Account.AccountPid}
 
 
-API_CREATE_PARAMS = {'icu.CreateAccount': create_account_params}
+API_CREATE_PARAMS = {'icu.CreateAccount': create_account_params, 'icu.SendResetPasswordEmail': create_email_params}
 
 API_DELETE_PARAMS = {'icu.CreateAccount': delete_account_params}
 
@@ -123,7 +127,8 @@ def put_configuration(self, access_rules):
     # create new rules
     for access_rule in access_rules:
         if not has_ip_rule:
-            access_rule[IP_COND] = ['0.0.0.0/0']
+            access_rule[IP_COND] = self.my_ips
+            # access_rule[IP_COND] = ['0.0.0.0/0']
 #         osc_sdk.oapi.CreateApiAccessRule(CaIds=access_rule[CA_COND] if CA_COND in access_rule else None,
 #                                          Cns=access_rule[CN_COND] if CN_COND in access_rule else None,
 #                                          Description=access_rule[DESC],
@@ -177,7 +182,7 @@ def setup_api_access_rules(confkey):
 
         def wrapper(self, *args):
             try:
-                put_configuration(self, self.configs[confkey])
+                put_configuration(self, self.configs[confkey].copy())
                 actual, expected, errors = func(self, *args)
                 issue_names = []
                 unexpected = False
@@ -194,7 +199,7 @@ def setup_api_access_rules(confkey):
                     if unexpected:
                         print('actual   results for conf {} -> {}'.format(confkey, actual))
                         print('expected results for conf {} -> {}'.format(confkey, expected))
-                        for i, val in enumerate(API_CALLS):
+                        for i, val in enumerate(errors):
                             print('{} -> {}'.format(val, errors[i]))
                         raise OscTestException('Unexpected result')
                     if issue_names:
@@ -302,7 +307,9 @@ class ApiAccess(OscTestSuite):
 
             # osc_sdk.idenauth ...
             # create configurations
-            cls.my_ips = ['172.19.142.254/32']
+            cls.my_ips = [misc.get_nat_ips(cls.a1_r1.config.region)[0]]
+
+
             cls.configs = {
                 ConfName.NO: [],
                 # IpCriterion

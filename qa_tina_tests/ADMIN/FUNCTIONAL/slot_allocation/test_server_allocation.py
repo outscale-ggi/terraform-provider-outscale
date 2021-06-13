@@ -1,19 +1,23 @@
 import base64
+import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import PATH, KEY_PAIR, INSTANCE_SET
+from qa_tina_tools.tina import check_tools
 
 
 METADATA_PLACEMENT = 'curl http://169.254.169.254/latest/meta-data/placement/'
 INSTANCE_TYPE = 'tinav3.c1r1p1'
 
 
+@pytest.mark.region_admin
 class Test_server_allocation(OscTestSuite):
 
     @classmethod
@@ -29,10 +33,16 @@ class Test_server_allocation(OscTestSuite):
         cls.userdata = base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         try:
             cls.inst_info = create_instances(cls.a1_r1, state='ready', user_data=cls.userdata, inst_type=INSTANCE_TYPE)
-            connection = SshTools.check_connection_paramiko(cls.inst_info[INSTANCE_SET][0]['ipAddress'], cls.inst_info[KEY_PAIR][PATH],
-                                                            cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            connection = check_tools.check_ssh_connection(cls.a1_r1, cls.inst_info[INSTANCE_SET][0]['instanceId'],
+                                                          cls.inst_info[INSTANCE_SET][0]['ipAddress'], cls.inst_info[KEY_PAIR][PATH],
+                                                          cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
             cls.server, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PLACEMENT + 'server')
             cls.cluster, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PLACEMENT + 'cluster')
+            ret = cls.a1_r1.intel.az.find(az=cls.a1_r1.config.region.az_name, owner=cls.a1_r1.config.account.account_id)
+            if not ret.response.result or len(ret.response.result) != 1:
+                raise OscTestException('Could not find pz for az')
+            ret = cls.a1_r1.intel.cluster.find(pz=ret.response.result[0].pz)
+            cls.num_clusters = len(ret.response.result)
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -50,8 +60,9 @@ class Test_server_allocation(OscTestSuite):
             super(Test_server_allocation, cls).teardown_class()
 
     def check_placement(self, ref_cluster, ref_server, inst_info, same_server, same_cluster):
-        connection = SshTools.check_connection_paramiko(inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
-                                                        self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        connection = check_tools.check_ssh_connection(self.a1_r1, inst_info[INSTANCE_SET][0]['instanceId'],
+                                                      inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH],
+                                                      self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         server, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PLACEMENT + 'server')
         cluster, _, _ = SshTools.exec_command_paramiko(connection, METADATA_PLACEMENT + 'cluster')
         # print('CHECK PLACEMENT {} {}'.format(same_cluster, same_server))
@@ -101,6 +112,8 @@ class Test_server_allocation(OscTestSuite):
                 delete_instances(self.a1_r1, inst_info)
 
     def test_T4240_repulse_cluster(self):
+        if self.num_clusters < 2:
+            pytest.skip('This test needs at least 2 clusters')
         inst_info = None
         userdata = """-----BEGIN OUTSCALE SECTION-----
             tags.osc.fcu.repulse_cluster_strict=repulsecluster
@@ -193,6 +206,8 @@ class Test_server_allocation(OscTestSuite):
                 delete_instances(self.a1_r1, inst_info)
 
     def test_T4246_repulse_server_repulse_cluster(self):
+        if self.num_clusters < 2:
+            pytest.skip('This test needs at least 2 clusters')
         inst_info = None
         userdata = """-----BEGIN OUTSCALE SECTION-----
             tags.osc.fcu.repulse_server_strict=repulseserver

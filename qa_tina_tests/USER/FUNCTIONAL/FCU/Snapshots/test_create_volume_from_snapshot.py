@@ -44,9 +44,9 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             # create keypair
             cls.kp_info = create_keypair(cls.a1_r1)
             # run instance
-            ret, id_list = create_instances_old(cls.a1_r1, num=2, key_name=cls.kp_info[NAME], security_group_id_list=[sg_id], state='ready')
-            cls.inst_id = id_list[1]
-            cls.inst_id_storage = id_list[0]
+            ret, _ = create_instances_old(cls.a1_r1, num=2, key_name=cls.kp_info[NAME], security_group_id_list=[sg_id], state='ready')
+            cls.inst_id = ret.response.reservationSet[0].instancesSet[0].instanceId
+            cls.inst_id_storage = ret.response.reservationSet[0].instancesSet[1].instanceId
             cls.public_ip_inst = ret.response.reservationSet[0].instancesSet[0].ipAddress
             cls.public_ip_inst_storage = ret.response.reservationSet[0].instancesSet[1].ipAddress
 
@@ -56,8 +56,6 @@ class Test_create_volume_from_snapshot(OscTestSuite):
             cls.sshclient_storage = check_tools.check_ssh_connection(cls.a1_r1, cls.inst_id_storage, cls.public_ip_inst_storage,
                                                                      cls.kp_info[PATH], username=cls.a1_r1.config.region.
                                                                      get_info(constants.CENTOS_USER))
-            # cls.sshclient = SshTools.check_connection_paramiko(cls.public_ip_inst, cls.kp_info[PATH],
-            # username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
         except Exception as error:
             cls.teardown_class()
             raise error

@@ -13,6 +13,7 @@ from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tools.tina import info_keys
+from qa_tina_tools.tina import check_tools
 
 
 def write_n_bytes_to_console(size_console=0, max_size_in_bytes=65536):
@@ -76,8 +77,8 @@ class Test_ConsoleThrottling(OscTestSuite):
             describe_res = cls.a1_r1.fcu.DescribeInstances(Filter=[{'Name': 'instance-id', 'Value': [cls.inst_id]}])
             cls.public_ip_inst = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
 
-            cls.sshclient = SshTools.check_connection_paramiko(cls.public_ip_inst, cls.kp_info[info_keys.PATH],
-                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            cls.sshclient = check_tools.check_ssh_connection(cls.a1_r1, cls.inst_id, cls.public_ip_inst, cls.kp_info[info_keys.PATH],
+                                                             cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
         except Exception as error:
             cls.teardown_class()

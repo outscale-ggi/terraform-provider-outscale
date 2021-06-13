@@ -28,8 +28,7 @@ class Test_warm(StreamingBase):
         cls.w_size = 20
         cls.v_size = 10
         cls.qemu_version = '2.12'
-        # cls.rebase_enabled = False
-        cls.inst_type = 'c4.large'
+        cls.inst_type = 'tinav4.c2r4p2'
         cls.vol_type = 'standard'
         cls.iops = None
         cls.base_snap_id = 10
@@ -71,13 +70,9 @@ class Test_warm(StreamingBase):
 
     def test_T3125_warm_vol_full(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
-        if self.rebase_enabled:
-            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-            self.check_stream_full(mode="WARM")
-        else:
-            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-            self.check_no_stream()
+        assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
+        wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
+        self.check_stream_full()
 
     def test_T4120_warm_vol_full_not_streamable(self):
         self.a1_r1.intel.volume.update(owner=self.a1_r1.config.account.account_id, volume=self.vol_1_id, streamable=False)
@@ -91,68 +86,49 @@ class Test_warm(StreamingBase):
 
     def test_T4121_warm_vol_full_and_detach(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
-        if self.rebase_enabled:
-            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-        else:
-            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-            self.check_no_stream()
+        assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
         self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_1_id)
         self.attached = False
-        if self.rebase_enabled:
-            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-            self.check_stream_full(mode="WARM")
+        assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
+        wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
+        self.check_stream_full()
 
     def test_T4122_warm_vol_full_and_start_inst(self):
         res_started = None
         try:
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
-            if self.rebase_enabled:
-                assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-                self.a1_r1.fcu.StartInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]])
-                wait_instances_state(self.a1_r1, [self.inst_stopped_info[INSTANCE_ID_LIST][0]], state='running')
-                res_started = True
-                wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-                self.check_no_stream()  # TODO: ???
-            else:
-                wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-                self.check_no_stream()
+            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
+            self.a1_r1.fcu.StartInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]])
+            wait_instances_state(self.a1_r1, [self.inst_stopped_info[INSTANCE_ID_LIST][0]], state='running')
+            res_started = True
+            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
+            self.check_no_stream()  # TODO: ???
 
         finally:
             if res_started:
-                self.a1_r1.fcu.StopInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]])
+                self.a1_r1.fcu.StopInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]], Force=True)
                 wait_instances_state(self.a1_r1, [self.inst_stopped_info[INSTANCE_ID_LIST][0]], state='stopped')
 
     def test_T4123_warm_vol_full_and_delete_snap(self):
         snap_id = self.vol_1_snap_list[-1]
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
-        if self.rebase_enabled:
-            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-        else:
-            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-            self.check_no_stream()
+        assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
         self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
         wait_snapshots_state(osc_sdk=self.a1_r1, cleanup=True, snapshot_id_list=snap_id)
         self.vol_1_snap_list.remove(snap_id)
-        if self.rebase_enabled:
-            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-            self.check_stream_full(mode="WARM")
+        assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
+        wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
+        self.check_stream_full()
 
     def test_T4124_warm_vol_full_and_snap_volume(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
-        if self.rebase_enabled:
-            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-        else:
-            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-            self.check_no_stream()
+        assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
         snap_id = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_1_id).response.snapshotId
         wait_snapshots_state(self.a1_r1, [snap_id], state='completed')
         self.vol_1_snap_list.append(snap_id)
-        if self.rebase_enabled:
-            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-            self.check_stream_full(nb_new_snap=1, mode="WARM")
+        assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
+        wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
+        self.check_stream_full(nb_new_snap=1)
         # ret = get_data_file_chain(self.a1_r1, self.vol_1_id)
         # assert len(ret) == 4
         # assert ret[1] == self.vol_1_df_list[0]
@@ -167,18 +143,13 @@ class Test_warm(StreamingBase):
             _, [vol_id] = create_volumes(self.a1_r1, snapshot_id=snap_id, size=self.v_size, volume_type=self.vol_type, iops=self.iops)
             wait_volumes_state(self.a1_r1, [vol_id], state='available')
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
-            if self.rebase_enabled:
-                assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-            else:
-                wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-                self.check_no_stream()
+            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
             self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_stopped_info[INSTANCE_ID_LIST][0], VolumeId=vol_id, Device='/dev/xvdr')
             wait_volumes_state(self.a1_r1, [self.vol_1_id], state='in-use')
             res_attach = True
-            if self.rebase_enabled:
-                assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-                wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-                self.check_stream_full(mode="WARM")
+            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
+            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
+            self.check_stream_full()
         finally:
             if res_attach:
                 self.a1_r1.fcu.DetachVolume(VolumeId=vol_id)
@@ -194,19 +165,14 @@ class Test_warm(StreamingBase):
             _, [vol_id] = create_volumes(self.a1_r1, snapshot_id=snap_id, size=self.v_size, volume_type=self.vol_type, iops=self.iops)
             wait_volumes_state(self.a1_r1, [vol_id], state='available')
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
-            if self.rebase_enabled:
-                assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-            else:
-                wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-                self.check_no_stream()
+            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
             self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_running_info[INSTANCE_ID_LIST][0], VolumeId=vol_id, Device='/dev/xvdn')
             wait_volumes_state(self.a1_r1, [self.vol_1_id], state='in-use')
             res_attach = True
-            if self.rebase_enabled:
-                sleep(3)
-                ret = get_streaming_operation(self.a1_r1, self.vol_1_id, self.logger)
-                assert not ret.response.result
-                check_data_file_chain(self.a1_r1, self.vol_1_id, self.vol_1_df_list)  # ==> TODO update fucntion
+            sleep(3)
+            ret = get_streaming_operation(self.a1_r1, self.vol_1_id, self.logger)
+            assert not ret.response.result
+            check_data_file_chain(self.a1_r1, self.vol_1_id, self.vol_1_df_list)  # ==> TODO update fucntion
         finally:
             if res_attach:
                 self.a1_r1.fcu.DetachVolume(VolumeId=vol_id)
@@ -216,13 +182,9 @@ class Test_warm(StreamingBase):
 
     def test_T4127_warm_snap_full(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
-        if self.rebase_enabled:
-            assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
-            wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-            self.check_stream_full(mode="WARM")
-        else:
-            wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-            self.check_no_stream()
+        assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
+        wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
+        self.check_stream_full()
 
     def test_T4128_warm_snap_full_not_streamable(self):
         self.a1_r1.intel.volume.update(owner=self.a1_r1.config.account.account_id, volume=self.vol_1_id, streamable=False)
@@ -236,46 +198,33 @@ class Test_warm(StreamingBase):
 
     def test_T4129_warm_snap_full_and_detach(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
-        if self.rebase_enabled:
-            assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
-        else:
-            wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-            self.check_no_stream()
+        assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
         self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_1_id)
         self.attached = False
         wait_volumes_state(self.a1_r1, [self.vol_1_id], state='available')
-        if self.rebase_enabled:
-            assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
-            wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-            self.check_stream_full(mode="WARM")
+        assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
+        wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
+        self.check_stream_full()
 
     def test_T4130_warm_snap_full_and_start_inst(self):
         res_started = None
         try:
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
-            if self.rebase_enabled:
-                assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
-                self.a1_r1.fcu.StartInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]])
-                wait_instances_state(self.a1_r1, [self.inst_stopped_info[INSTANCE_ID_LIST][0]], state='running')
-                res_started = True
-                wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-                self.check_no_stream()  # TODO ???
-            else:
-                wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-                self.check_no_stream()
+            assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
+            self.a1_r1.fcu.StartInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]])
+            wait_instances_state(self.a1_r1, [self.inst_stopped_info[INSTANCE_ID_LIST][0]], state='running')
+            res_started = True
+            wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
+            self.check_no_stream()  # TODO ???
         finally:
             if res_started:
-                self.a1_r1.fcu.StopInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]])
+                self.a1_r1.fcu.StopInstances(InstanceId=[self.inst_stopped_info[INSTANCE_ID_LIST][0]], Force=True)
                 wait_instances_state(self.a1_r1, [self.inst_stopped_info[INSTANCE_ID_LIST][0]], state='stopped')
 
     def test_T4131_warm_snap_full_and_delete_snap(self):
         stream_snap_id = self.vol_1_snap_list[-1]
         self.a1_r1.intel.streaming.start(resource_id=stream_snap_id)
-        if self.rebase_enabled:
-            assert_streaming_state(self.a1_r1, stream_snap_id, 'started', self.logger)
-        else:
-            wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-            self.check_no_stream()
+        assert_streaming_state(self.a1_r1, stream_snap_id, 'started', self.logger)
         self.a1_r1.fcu.DeleteSnapshot(SnapshotId=self.vol_1_snap_list[0])
         tmp_snap_id = self.vol_1_snap_list[0]
         self.vol_1_snap_list.remove(tmp_snap_id)
@@ -286,17 +235,12 @@ class Test_warm(StreamingBase):
         snap_id = None
         try:
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
-            if self.rebase_enabled:
-                assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
-            else:
-                wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-                self.check_no_stream()
+            assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
             snap_id = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.vol_1_id).response.snapshotId
             wait_snapshots_state(self.a1_r1, [snap_id], state='completed')
-            if self.rebase_enabled:
-                assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
-                wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-                self.check_stream_full(nb_new_snap=1, mode="WARM")
+            assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
+            wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
+            self.check_stream_full(nb_new_snap=1)
             # ret = get_data_file_chain(self.a1_r1, self.vol_1_id)
             # assert len(ret) == 4
             # assert ret[1] == self.vol_1_df_list[0]
@@ -314,17 +258,13 @@ class Test_warm(StreamingBase):
             _, [vol_id] = create_volumes(self.a1_r1, snapshot_id=snap_id, size=self.v_size, volume_type=self.vol_type, iops=self.iops)
             wait_volumes_state(self.a1_r1, [vol_id], state='available')
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
-            if self.rebase_enabled:
-                assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-                self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_stopped_info[INSTANCE_ID_LIST][0], VolumeId=vol_id, Device='/dev/xvdj')
-                wait_volumes_state(self.a1_r1, [self.vol_1_id], state='in-use')
-                res_attach = True
-                assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-                wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
-                self.check_stream_full(mode="WARM")
-            else:
-                wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-                self.check_no_stream()
+            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
+            self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_stopped_info[INSTANCE_ID_LIST][0], VolumeId=vol_id, Device='/dev/xvdj')
+            wait_volumes_state(self.a1_r1, [self.vol_1_id], state='in-use')
+            res_attach = True
+            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
+            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
+            self.check_stream_full()
         finally:
             if res_attach:
                 self.a1_r1.fcu.DetachVolume(VolumeId=vol_id)
@@ -340,18 +280,13 @@ class Test_warm(StreamingBase):
             _, [vol_id] = create_volumes(self.a1_r1, snapshot_id=snap_id, size=self.v_size, volume_type=self.vol_type, iops=self.iops)
             wait_volumes_state(self.a1_r1, [vol_id], state='available')
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
-            if self.rebase_enabled:
-                assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
-                self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_running_info[INSTANCE_ID_LIST][0], VolumeId=vol_id, Device='/dev/xvdn')
-                wait_volumes_state(self.a1_r1, [self.vol_1_id], state='in-use')
-                res_attach = True
-                sleep(3)
-                ret = get_streaming_operation(self.a1_r1, self.vol_1_id, self.logger)
-                assert not ret.response.result
-                check_data_file_chain(self.a1_r1, self.vol_1_id, self.vol_1_df_list)
-            else:
-                wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)
-                self.check_no_stream()
+            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
+            self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_running_info[INSTANCE_ID_LIST][0], VolumeId=vol_id, Device='/dev/xvdn')
+            wait_volumes_state(self.a1_r1, [vol_id], state='in-use')
+            res_attach = True
+            assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
+            wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
+            self.check_stream_full()
         finally:
             if res_attach:
                 self.a1_r1.fcu.DetachVolume(VolumeId=vol_id)

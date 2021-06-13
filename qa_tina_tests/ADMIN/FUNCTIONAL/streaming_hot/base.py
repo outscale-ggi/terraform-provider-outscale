@@ -43,16 +43,19 @@ class StreamingBaseHot(StreamingBase):
         self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_1_id)
         wait_volumes_state(self.a1_r1, [self.vol_1_id], 'available')
         self.attached = False
-        if self.rebase_enabled:
-            ret = get_streaming_operation(osc_sdk=self.a1_r1, res_id=resource_id, logger=self.logger)
-            if ret.response.result[0].state == 'interrupted':
-                ret = self.a1_r1.intel.streaming.start_all()  # TODO Remove and add known error
+        ret = get_streaming_operation(osc_sdk=self.a1_r1, res_id=resource_id, logger=self.logger)
+        if ret.response.result and ret.response.result[0].state == 'interrupted':
+            try:
+                ret = self.a1_r1.intel.streaming.start_all()
                 self.logger.debug(ret.response.display())
-                wait_streaming_state(self.a1_r1, resource_id, state='started', logger=self.logger)
-            assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
-            wait_streaming_state(self.a1_r1, resource_id, cleanup=True, logger=self.logger)
-        else:
-            assert_streaming_state(self.a1_r1, resource_id, 'interrupted', self.logger)
+            except OscApiException as err:
+                if err.status_code == 504:
+                    self.logger.debug("streaming.start_all TIMEOUT...")
+                    time.sleep(30)
+                else:
+                    raise err
+        #assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
+        wait_streaming_state(self.a1_r1, resource_id, cleanup=True, logger=self.logger)
 
     def stop(self, resource_id):
         running = True
@@ -63,38 +66,33 @@ class StreamingBaseHot(StreamingBase):
             wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.inst_running_info[INSTANCE_ID_LIST], state='stopped')
             running = False
             # if resource_id.startswith('vol-'):
-            assert_streaming_state(self.a1_r1, resource_id, 'interrupted', self.logger)
-            try:
-                ret = self.a1_r1.intel.streaming.start_all()
-                self.logger.debug(ret.response.display())
-            except OscApiException as err:
-                if err.status_code == 504:
-                    self.logger.debug("streaming.start_all TIMEOUT...")
-                    time.sleep(30)
-                else:
-                    raise err
-            if self.rebase_enabled:
-                assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
-                wait_streaming_state(self.a1_r1, resource_id, cleanup=True, logger=self.logger)
-            else:
-                assert_streaming_state(self.a1_r1, resource_id, 'interrupted', self.logger)
+            ret = get_streaming_operation(osc_sdk=self.a1_r1, res_id=resource_id, logger=self.logger)
+            if ret.response.result and ret.response.result[0].state == 'interrupted':
+                try:
+                    ret = self.a1_r1.intel.streaming.start_all()
+                    self.logger.debug(ret.response.display())
+                except OscApiException as err:
+                    if err.status_code == 504:
+                        self.logger.debug("streaming.start_all TIMEOUT...")
+                        time.sleep(30)
+                    else:
+                        raise err
+            #assert_streaming_state(self.a1_r1, resource_id, 'interrupted', self.logger)
+            #try:
+            #    ret = self.a1_r1.intel.streaming.start_all()
+            #    self.logger.debug(ret.response.display())
+            #except OscApiException as err:
+            #    if err.status_code == 504:
+            #        self.logger.debug("streaming.start_all TIMEOUT...")
+            #        time.sleep(30)
+            #    else:
+            #        raise err
+            #assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
+            wait_streaming_state(self.a1_r1, resource_id, cleanup=True, logger=self.logger)
         finally:
             if not running:
                 self.a1_r1.fcu.StartInstances(InstanceId=self.inst_running_info[INSTANCE_ID_LIST])
                 wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.inst_running_info[INSTANCE_ID_LIST], state='running')
-                if not self.rebase_enabled:
-                    try:
-                        ret = self.a1_r1.intel.streaming.start_all()
-                        self.logger.debug(ret.response.display())
-                    except OscApiException as err:
-                        if err.status_code == 504:
-                            self.logger.debug("streaming.start_all TIMEOUT...")
-                            time.sleep(60)
-                        else:
-                            raise err
-                    if resource_id.startswith('vol-'):
-                        assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
-                        wait_streaming_state(self.a1_r1, resource_id, cleanup=True, logger=self.logger)
 
     def snapshot(self, resource_id):
         snap_id = None
@@ -121,8 +119,14 @@ class StreamingBaseHot(StreamingBase):
 
     def delete_snap(self, resource_id, snap_id):
         assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
+        time.sleep(2)
         self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
-        wait_snapshots_state(osc_sdk=self.a1_r1, cleanup=True, snapshot_id_list=[snap_id])
         self.vol_1_snap_list.remove(snap_id)
-        # assert_streaming_state(self.a1_r1, resource_id, 'started', self.logger)
+        wait_snapshots_state(osc_sdk=self.a1_r1, cleanup=True, snapshot_id_list=[snap_id])
+        #time.sleep(5)
+        #  # if resource_id.startswith('snap-'): ?
+        #ret = get_streaming_operation(osc_sdk=self.a1_r1, res_id=resource_id, logger=self.logger)
+        #if ret.response.result and ret.response.result[0].state == 'interrupted':
+        #    wait_streaming_state(self.a1_r1, resource_id, 'started', logger=self.logger)
+        # endif ?
         wait_streaming_state(self.a1_r1, resource_id, cleanup=True, logger=self.logger)

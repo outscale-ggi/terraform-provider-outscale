@@ -1,6 +1,5 @@
 import pytest
 
-from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
@@ -10,6 +9,7 @@ from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina.create_tools import create_volumes, create_instances_old, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
+from qa_tina_tools.tina import check_tools
 
 
 class CreateVolume(OscTestSuite):
@@ -46,12 +46,12 @@ class CreateVolume(OscTestSuite):
 
             # run instance
             ret, id_list = create_instances_old(cls.a1_r1, security_group_id_list=[sg_id], key_name=cls.kp_info[NAME],
-                                                state='ready', inst_type='m4.xlarge')
+                                                state='ready')
             cls.inst_id = id_list[0]
             cls.public_ip_inst = ret.response.reservationSet[0].instancesSet[0].ipAddress
 
-            cls.sshclient = SshTools.check_connection_paramiko(cls.public_ip_inst, cls.kp_info[PATH],
-                                                               username=cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            cls.sshclient = check_tools.check_ssh_connection(cls.a1_r1, cls.inst_id, cls.public_ip_inst, cls.kp_info[PATH],
+                                                             cls.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
         except Exception as error:
             try:

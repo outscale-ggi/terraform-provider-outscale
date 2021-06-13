@@ -42,14 +42,18 @@ class Test_AcceptNetPeering(OscTestSuite):
     def test_T1979_with_peering_in_valid_state(self):
         valid_states = ['pending-acceptance', 'active']
         for state in valid_states:
-            peering_info = create_peering(self.a1_r1, state=state)
-            assert peering_info[PEERING].status.name == state
-            ret = self.a1_r1.oapi.AcceptNetPeering(NetPeeringId=peering_info[PEERING].id)
-            peering = Peering(net_peering=ret.response.NetPeering)
-            peering_info[PEERING].status.name = 'active'
-            peering_info[PEERING].status.message = 'Active'
-            assert peering == peering_info[PEERING]
-            delete_peering(self.a1_r1, peering_info)
+            peering_info = None
+            try:
+                peering_info = create_peering(self.a1_r1, state=state)
+                assert peering_info[PEERING].status.name == state
+                ret = self.a1_r1.oapi.AcceptNetPeering(NetPeeringId=peering_info[PEERING].id)
+                peering = Peering(net_peering=ret.response.NetPeering)
+                peering_info[PEERING].status.name = 'active'
+                peering_info[PEERING].status.message = 'Active'
+                assert peering.id == peering_info[PEERING].id
+            finally:
+                if peering_info:
+                    delete_peering(self.a1_r1, peering_info)
 
     def test_T2405_with_peering_in_invalid_state(self):
         invalid_states = ['failed', 'rejected', 'deleted']
@@ -63,7 +67,8 @@ class Test_AcceptNetPeering(OscTestSuite):
             except OscApiException as error:
                 assert_oapi_error(error, 409, 'InvalidState', '6004')
             finally:
-                delete_peering(self.a1_r1, peering_info)
+                if peering_info:
+                    delete_peering(self.a1_r1, peering_info)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T2406_with_peering_from_another_account(self):

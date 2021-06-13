@@ -6,21 +6,7 @@ from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.delete_tools import delete_vpc
-from qa_tina_tools.tools.tina.info_keys import (
-    INSTANCE_ID_LIST,
-    INSTANCE_SET,
-    INTERNET_GATEWAY_ID,
-    KEY_PAIR,
-    PATH,
-    ROUTE_TABLE_ID,
-    SECURITY_GROUP_ID,
-    SUBNET_ID,
-    SUBNETS,
-    VPC_ID,
-)
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_tina_tools.tools.tina import create_tools, delete_tools, wait_tools, info_keys
 
 
 class Test_agent_fw_vpc(OscTestSuite):
@@ -53,45 +39,49 @@ class Test_agent_fw_vpc(OscTestSuite):
         self.public_ip_3 = None
         self.ngw_id_2 = None
         try:
-            self.vpc_info = create_vpc(osc_sdk=self.a1_r1, nb_subnet=4, nb_instance=1, state='running')
+            self.vpc_info = create_tools.create_vpc(osc_sdk=self.a1_r1, nb_subnet=4, nb_instance=1, state='running')
 
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(
-                GroupId=self.vpc_info[SUBNETS][2][SECURITY_GROUP_ID], IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp='10.0.2.0/24'
+                GroupId=self.vpc_info[info_keys.SUBNETS][2][info_keys.SECURITY_GROUP_ID], IpProtocol='tcp',
+                FromPort=22, ToPort=22, CidrIp='10.0.2.0/24'
             )
             self.a1_r1.fcu.AuthorizeSecurityGroupIngress(
-                GroupId=self.vpc_info[SUBNETS][3][SECURITY_GROUP_ID], IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp='10.0.2.0/24'
+                GroupId=self.vpc_info[info_keys.SUBNETS][3][info_keys.SECURITY_GROUP_ID], IpProtocol='tcp',
+                FromPort=22, ToPort=22, CidrIp='10.0.2.0/24'
             )
 
             self.a1_r1.fcu.CreateRoute(
-                RouteTableId=self.vpc_info[SUBNETS][1][ROUTE_TABLE_ID], DestinationCidrBlock='0.0.0.0/0', GatewayId=self.vpc_info[INTERNET_GATEWAY_ID]
+                RouteTableId=self.vpc_info[info_keys.SUBNETS][1][info_keys.ROUTE_TABLE_ID], DestinationCidrBlock='0.0.0.0/0',
+                GatewayId=self.vpc_info[info_keys.INTERNET_GATEWAY_ID]
             )
 
             ret = self.a1_r1.fcu.AllocateAddress()
             self.public_ip = ret.response.publicIp
             ret = self.a1_r1.fcu.DescribeAddresses(PublicIp=[ret.response.publicIp])
             self.eip_allo_id = ret.response.addressesSet[0].allocationId
-            ret = self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.vpc_info[SUBNETS][1][INSTANCE_ID_LIST][0])
+            ret = self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id,
+                                                  InstanceId=self.vpc_info[info_keys.SUBNETS][1][info_keys.INSTANCE_ID_LIST][0])
 
             ret = self.a1_r1.fcu.AllocateAddress()
             self.public_ip_2 = ret.response.publicIp
             ret = self.a1_r1.fcu.DescribeAddresses(PublicIp=[ret.response.publicIp])
             self.eip_allo_id_2 = ret.response.addressesSet[0].allocationId
-            ret = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip_allo_id_2, SubnetId=self.vpc_info[SUBNETS][0][SUBNET_ID])
+            ret = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip_allo_id_2, SubnetId=self.vpc_info[info_keys.SUBNETS][0][info_keys.SUBNET_ID])
             self.ngw_id_1 = ret.response.natGateway.natGatewayId
 
             self.a1_r1.fcu.CreateRoute(
-                RouteTableId=self.vpc_info[SUBNETS][2][ROUTE_TABLE_ID], DestinationCidrBlock='0.0.0.0/0', GatewayId=self.ngw_id_1
+                RouteTableId=self.vpc_info[info_keys.SUBNETS][2][info_keys.ROUTE_TABLE_ID], DestinationCidrBlock='0.0.0.0/0', GatewayId=self.ngw_id_1
             )
 
             ret = self.a1_r1.fcu.AllocateAddress()
             self.public_ip_3 = ret.response.publicIp
             ret = self.a1_r1.fcu.DescribeAddresses(PublicIp=[ret.response.publicIp])
             self.eip_allo_id_3 = ret.response.addressesSet[0].allocationId
-            ret = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip_allo_id_3, SubnetId=self.vpc_info[SUBNETS][1][SUBNET_ID])
+            ret = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip_allo_id_3, SubnetId=self.vpc_info[info_keys.SUBNETS][1][info_keys.SUBNET_ID])
             self.ngw_id_2 = ret.response.natGateway.natGatewayId
 
             self.a1_r1.fcu.CreateRoute(
-                RouteTableId=self.vpc_info[SUBNETS][3][ROUTE_TABLE_ID], DestinationCidrBlock='0.0.0.0/0', GatewayId=self.ngw_id_2
+                RouteTableId=self.vpc_info[info_keys.SUBNETS][3][info_keys.ROUTE_TABLE_ID], DestinationCidrBlock='0.0.0.0/0', GatewayId=self.ngw_id_2
             )
 
         except Exception as error:
@@ -123,7 +113,7 @@ class Test_agent_fw_vpc(OscTestSuite):
             if self.public_ip:
                 self.a1_r1.fcu.ReleaseAddress(PublicIp=self.public_ip)
             if self.vpc_info:
-                delete_vpc(self.a1_r1, self.vpc_info)
+                delete_tools.delete_vpc(self.a1_r1, self.vpc_info)
         finally:
             super(Test_agent_fw_vpc, self).teardown_method(method)
 
@@ -158,23 +148,23 @@ class Test_agent_fw_vpc(OscTestSuite):
         assert not status, "Subnet that is connected to the NAT gateway seems not to be connected to the internet"
 
     def test_T1924_agent_fw_vpc_restart(self):
-        wait_instances_state(self.a1_r1, self.vpc_info[SUBNETS][1][INSTANCE_ID_LIST], state='ready')
-        wait_instances_state(self.a1_r1, self.vpc_info[SUBNETS][2][INSTANCE_ID_LIST], state='ready')
+        wait_tools.wait_instances_state(self.a1_r1, self.vpc_info[info_keys.SUBNETS][1][info_keys.INSTANCE_ID_LIST], state='ready')
+        wait_tools.wait_instances_state(self.a1_r1, self.vpc_info[info_keys.SUBNETS][2][info_keys.INSTANCE_ID_LIST], state='ready')
         self.check_ngw_ping(
             pub_ip=self.public_ip,
-            kp_path=self.vpc_info[KEY_PAIR][PATH],
-            local_addr=self.vpc_info[SUBNETS][1][INSTANCE_SET][0]['privateIpAddress'],
-            dest_addr=self.vpc_info[SUBNETS][2][INSTANCE_SET][0]['privateIpAddress'],
+            kp_path=self.vpc_info[info_keys.KEY_PAIR][info_keys.PATH],
+            local_addr=self.vpc_info[info_keys.SUBNETS][1][info_keys.INSTANCE_SET][0]['privateIpAddress'],
+            dest_addr=self.vpc_info[info_keys.SUBNETS][2][info_keys.INSTANCE_SET][0]['privateIpAddress'],
         )
-        wait_instances_state(self.a1_r1, self.vpc_info[SUBNETS][3][INSTANCE_ID_LIST], state='ready')
+        wait_tools.wait_instances_state(self.a1_r1, self.vpc_info[info_keys.SUBNETS][3][info_keys.INSTANCE_ID_LIST], state='ready')
         self.check_ngw_ping(
             pub_ip=self.public_ip,
-            kp_path=self.vpc_info[KEY_PAIR][PATH],
-            local_addr=self.vpc_info[SUBNETS][1][INSTANCE_SET][0]['privateIpAddress'],
-            dest_addr=self.vpc_info[SUBNETS][3][INSTANCE_SET][0]['privateIpAddress'],
+            kp_path=self.vpc_info[info_keys.KEY_PAIR][info_keys.PATH],
+            local_addr=self.vpc_info[info_keys.SUBNETS][1][info_keys.INSTANCE_SET][0]['privateIpAddress'],
+            dest_addr=self.vpc_info[info_keys.SUBNETS][3][info_keys.INSTANCE_SET][0]['privateIpAddress'],
         )
 
-        ret = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=self.vpc_info[VPC_ID])
+        ret = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=self.vpc_info[info_keys.VPC_ID])
         inst_id = ret.response.result.master.vm
 
         ret = self.a1_r1.intel.nic.find(filters={'vm': inst_id})
@@ -193,13 +183,13 @@ class Test_agent_fw_vpc(OscTestSuite):
 
         self.check_ngw_ping(
             pub_ip=self.public_ip,
-            kp_path=self.vpc_info[KEY_PAIR][PATH],
-            local_addr=self.vpc_info[SUBNETS][1][INSTANCE_SET][0]['privateIpAddress'],
-            dest_addr=self.vpc_info[SUBNETS][2][INSTANCE_SET][0]['privateIpAddress'],
+            kp_path=self.vpc_info[info_keys.KEY_PAIR][info_keys.PATH],
+            local_addr=self.vpc_info[info_keys.SUBNETS][1][info_keys.INSTANCE_SET][0]['privateIpAddress'],
+            dest_addr=self.vpc_info[info_keys.SUBNETS][2][info_keys.INSTANCE_SET][0]['privateIpAddress'],
         )
         self.check_ngw_ping(
             pub_ip=self.public_ip,
-            kp_path=self.vpc_info[KEY_PAIR][PATH],
-            local_addr=self.vpc_info[SUBNETS][1][INSTANCE_SET][0]['privateIpAddress'],
-            dest_addr=self.vpc_info[SUBNETS][3][INSTANCE_SET][0]['privateIpAddress'],
+            kp_path=self.vpc_info[info_keys.KEY_PAIR][info_keys.PATH],
+            local_addr=self.vpc_info[info_keys.SUBNETS][1][info_keys.INSTANCE_SET][0]['privateIpAddress'],
+            dest_addr=self.vpc_info[info_keys.SUBNETS][3][info_keys.INSTANCE_SET][0]['privateIpAddress'],
         )

@@ -41,7 +41,7 @@ class Test_linux_instance(OscTestSuite):
             super(Test_linux_instance, cls).teardown_class()
 
     def create_instance(self, instance_type=None, dedicated=False, subnet=None, bdm=None, security_group_id=None,
-                        placement=None, eip_alloc_id = None, public_ip=None):
+                        placement=None, eip_alloc_id=None, public_ip=None):
         public_ip_inst = None
         inst_id_list = None
         if security_group_id is None:
@@ -51,14 +51,13 @@ class Test_linux_instance(OscTestSuite):
                                                    inst_type=instance_type, placement={'Tenancy': 'dedicated'})
         else:
             _, inst_id_list = create_instances_old(self.a1_r1, security_group_id_list=[security_group_id], key_name=self.kp_info[NAME],
-                                                   inst_type=instance_type, bdm=bdm, placement=placement)
+                                                   inst_type=instance_type, subnet_id=subnet, bdm=bdm, placement=placement)
         # get instance ID
         inst_id = inst_id_list[0]
         # wait instance to become ready check for login page
         ret_wait_state = wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[inst_id], state='ready')
         if subnet:
-            ret = self.a1_r1.fcu.AssociateAddress(AllocationId=eip_alloc_id, InstanceId=inst_id)
-            ret.response.display()
+            self.a1_r1.fcu.AssociateAddress(AllocationId=eip_alloc_id, InstanceId=inst_id)
             public_ip_inst = public_ip
         else:
             # get public IP

@@ -1,5 +1,4 @@
 
-
 import string
 
 from qa_test_tools.misc import id_generator
@@ -34,15 +33,12 @@ class Test_Attachement(OscTestSuite):
             finally:
                 raise error
 
-    def teardown_method(self, method):
-        try:
-            self.logger.info("stop after %d executions", self.nb_test)
-            if self.vol_id:
-                delete_volumes(self.a1_r1, [self.vol_id])
-            if self.inst_info:
-                delete_instances(self.a1_r1, self.inst_info)
-        finally:
-            super(Test_Attachement, self).teardown_method(method)
+    def delete_volume(self):
+        self.logger.info("stop after %d executions", self.nb_test)
+        if self.vol_id:
+            delete_volumes(self.a1_r1, [self.vol_id])
+        if self.inst_info:
+            delete_instances(self.a1_r1, self.inst_info)
 
     def attach_detach(self, device, snap=False):
         self.nb_test += 1
@@ -66,29 +62,40 @@ class Test_Attachement(OscTestSuite):
             # retry ?
             self.logger.debug("retry detach...")
             self.a1_r1.fcu.DetachVolume(VolumeId=self.vol_id)
-            ret = wait_volumes_state(self.a1_r1, [self.vol_id], 'available', nb_check=5)
-            self.logger.debug(ret.response.display())
+            wait_volumes_state(self.a1_r1, [self.vol_id], 'available', nb_check=5)
 
     def test_T3690_multi_attach_detach_with_same_device_name(self):
         device = '/dev/xvdb'
-        for _ in range(self.loop):
-            self.attach_detach(device)
+        try:
+            for _ in range(self.loop):
+                self.attach_detach(device)
+        finally:
+            self.delete_volume()
 
     def test_T3691_multi_attach_detach_with_snap_creation(self):
         device = '/dev/xvdb'
-        for _ in range(self.loop):
-            self.attach_detach(device, True)
+        try:
+            for _ in range(self.loop):
+                self.attach_detach(device, True)
+        finally:
+            self.delete_volume()
 
     def test_T3692_multi_attach_detach_with_diff_device_name(self):
-        for _ in range(self.loop):
-            letter = id_generator(size=1, chars=string.ascii_lowercase)
-            if letter != 'a':
-                device = '/dev/xvd{}'.format(letter)
-                self.attach_detach(device)
+        try:
+            for _ in range(self.loop):
+                letter = id_generator(size=1, chars=string.ascii_lowercase)
+                if letter != 'a':
+                    device = '/dev/xvd{}'.format(letter)
+                    self.attach_detach(device)
+        finally:
+            self.delete_volume()
 
     def test_T3693_multi_attach_detach_with_diff_device_name_and_snap_creation(self):
-        for _ in range(self.loop):
-            letter = id_generator(size=1, chars=string.ascii_lowercase)
-            if letter != 'a':
-                device = '/dev/xvd{}'.format(letter)
-                self.attach_detach(device, True)
+        try:
+            for _ in range(self.loop):
+                letter = id_generator(size=1, chars=string.ascii_lowercase)
+                if letter != 'a':
+                    device = '/dev/xvd{}'.format(letter)
+                    self.attach_detach(device, True)
+        finally:
+            self.delete_volume()

@@ -4,6 +4,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
+from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, KEY_PAIR, PATH
@@ -22,7 +23,7 @@ class Test_hot_vol_full(StreamingBaseHot):
         cls.v_size = 10
         cls.qemu_version = '2.12'
         # cls.rebase_enabled = False
-        cls.inst_type = 'c4.xlarge'
+        cls.inst_type = 'tinav4.c2r4p2'
         cls.vol_type = 'standard'
         cls.iops = None
         cls.base_snap_id = 10
@@ -53,15 +54,12 @@ class Test_hot_vol_full(StreamingBaseHot):
     def test_T3301_hot_vol_full_and_detach(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
         self.detach(resource_id=self.vol_1_id)
-        if self.rebase_enabled:
-            self.check_stream_full(mode="COLD")
-        else:
-            self.check_no_stream()
+        self.check_stream_full()
 
     def test_T3302_hot_vol_full_and_stop(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
         self.stop(resource_id=self.vol_1_id)
-        self.check_stream_full(mode="WARM")
+        self.check_stream_full()
 
     def test_T3300_hot_vol_full_and_snapshot(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
@@ -77,7 +75,6 @@ class Test_hot_vol_full(StreamingBaseHot):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
         self.delete_snap(resource_id=self.vol_1_id, snap_id=self.vol_1_snap_list[-1])
         self.check_stream_full()
-        # self.vol_1_snap_list.remove(self.vol_1_snap_list[-1])
 
     def test_T3305_hot_vol_full_and_stream_twice(self):
         self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
@@ -86,14 +83,14 @@ class Test_hot_vol_full(StreamingBaseHot):
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_id)
             assert False
         except OscApiException as error:
-            assert_error(error, 200, 0, 'invalid-state - Streaming already started')
+            assert_error(error, 200, 0, 'invalid-state - Streaming already started#####')
         assert_streaming_state(self.a1_r1, self.vol_1_id, 'started', self.logger)
         wait_streaming_state(self.a1_r1, self.vol_1_id, cleanup=True, logger=self.logger)
         self.check_stream_full()
 
     def test_T4361_hot_vol_full_without_snapshots_on_last_datafiles(self):
         ret = wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.inst_running_info[INSTANCE_ID_LIST], state='ready')
-        sshclient = SshTools.check_connection_paramiko(
+        sshclient = check_tools.check_ssh_connection(self.a1_r1, ret.response.reservationSet[0].instancesSet[0].instanceId,
             ret.response.reservationSet[0].instancesSet[0].ipAddress,
             self.inst_running_info[KEY_PAIR][PATH],
             username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),

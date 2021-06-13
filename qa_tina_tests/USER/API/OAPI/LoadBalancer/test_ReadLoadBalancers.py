@@ -174,7 +174,9 @@ class Test_ReadLoadBalancers(LoadBalancer):
             assert ret[0].Listeners[0].PolicyNames[0] == policy_name_lb2
 
             assert len(ret[0].LoadBalancerStickyCookiePolicies) == 2
-            assert {[pol.PolicyName for pol in ret[0].LoadBalancerStickyCookiePolicies]} == {[policy_name_lb, policy_name_lb2]}
+            tmp_list1 = [pol.PolicyName for pol in ret[0].LoadBalancerStickyCookiePolicies]
+            tmp_list2 = [policy_name_lb, policy_name_lb2]
+            assert set(tmp_list1) == set(tmp_list2)
 
         finally:
             if ret_up:

@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -25,7 +27,7 @@ class Test_public_linux_instance(Test_linux_instance):
     @classmethod
     def setup_class(cls):
         cls.quotas = {'gpu_limit': 4}
-        cls.GROUPS = ['PRODUCTION', 'NVIDIA']
+        cls.GROUPS = ['PRODUCTION']
         super(Test_public_linux_instance, cls).setup_class()
 
     @classmethod
@@ -40,8 +42,6 @@ class Test_public_linux_instance(Test_linux_instance):
             if inst_id:
                 sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
                                                              username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
                 self.logger.info(out)
@@ -69,17 +69,13 @@ class Test_public_linux_instance(Test_linux_instance):
     @pytest.mark.tag_redwire
     @pytest.mark.region_gpu
     def test_T98_create_use_linux_GPU_instance(self):
-        instance_type='mv3.large'
-        if self.a1_r1.config.region.name in ['cn-southeast-1']:
-            instance_type = 'og4.xlarge'
+        instance_type=self.a1_r1.config.region.get_info(constants.DEFAULT_AWS_GPU_INSTANCE_TYPE)
         inst_id = None
         try:
             inst_id, inst_public_ip = self.create_instance(instance_type=instance_type)
             if inst_id:
                 sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
                                                              username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'sudo pwd'
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
                 self.logger.info(out)
@@ -105,8 +101,6 @@ class Test_public_linux_instance(Test_linux_instance):
             if inst_id:
                 sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
                                                              username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
                 self.logger.info(out)
@@ -133,8 +127,6 @@ class Test_public_linux_instance(Test_linux_instance):
 
                 sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, public_ip_inst, self.kp_info[PATH],
                                                              username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(public_ip_inst, self.kp_info[PATH],
-                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
                 cmd = 'pwd'
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
@@ -157,14 +149,13 @@ class Test_public_linux_instance(Test_linux_instance):
                 self.a1_r1.fcu.RebootInstances(InstanceId=[inst_id])
 
                 # wait instance to become ready check for login page
+                time.sleep(30)
                 describe_res = wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[inst_id], state='ready')
 
                 inst_public_ip = describe_res.response.reservationSet[0].instancesSet[0].ipAddress
 
                 sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
                                                              username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
                 out, status, _ = SshTools.exec_command_paramiko(sshclient, 'pwd')
                 self.logger.info(out)
@@ -186,37 +177,14 @@ class Test_public_linux_instance(Test_linux_instance):
             inst_id, inst_public_ip = self.create_instance(instance_type='t2.small', bdm=block_device)
             if inst_id:
 
-                sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                                                               username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
+                                                             self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
                 check_volume(sshclient, device_name, size, perf_iops=2, volume_type='standard')
 
         finally:
             if inst_id:
                 delete_instances_old(self.a1_r1, [inst_id])
-
-#     def test_TXXX_create_instance_with_ebs(self):
-#         inst_id = None
-#         device_name = '/dev/xvdb'
-#         size = 1000
-#         iops = 5000
-#         v_type = 'io1'
-#         ebs = {'DeleteOnTermination': 'true', 'VolumeSize': str(size), 'VolumeType': v_type, 'Iops': iops}
-#         BlockDevice = [{'DeviceName': device_name, 'Ebs': ebs}]
-#
-#         try:
-#
-#             inst_id, inst_public_ip = self.create_instance(Instance_Type='t2.small', BlockDeviceMapping=BlockDevice)
-#             if inst_id:
-#
-#                 sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-#                                                                username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-#
-#                 check_volume(sshclient, device_name, size, perf_iops=1, volume_type=v_type, iops_io1=iops)
-#
-#         finally:
-#             if inst_id:
-#                 delete_instances_old(self.a1_r1, [inst_id])
 
     @pytest.mark.tag_redwire
     @pytest.mark.region_ephemeral
@@ -227,15 +195,11 @@ class Test_public_linux_instance(Test_linux_instance):
         size = 32
         block_device = [{'DeviceName': device_name, 'VirtualName': 'ephemeral0'}]
         placement = None
-        if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
-            placement = {'AvailabilityZone': 'cn-southeast-1b'}
         try:
             inst_id, inst_public_ip = self.create_instance(instance_type='r3.large', bdm=block_device, placement=placement)
             if inst_id:
                 sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
                                                              username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-                # sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 check_volume(sshclient, device_name, size, with_format=False)
         except OscApiException as error:
             raise error
@@ -251,15 +215,12 @@ class Test_public_linux_instance(Test_linux_instance):
         size = 32
         block_device = [{'DeviceName': device_name, 'VirtualName': 'ephemeral1'}]
         placement = None
-        if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
-            placement = {'AvailabilityZone': 'cn-southeast-1b'}
         try:
             inst_id, inst_public_ip = self.create_instance(instance_type='r3.large', bdm=block_device,
                                                            placement=placement)
             if inst_id:
-                sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-                                                               username=self.a1_r1.config.region.get_info(
-                                                                   constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_public_ip, self.kp_info[PATH],
+                                                             self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 check_volume(sshclient, device_name, size, with_format=False)
                 assert False, 'remove known error'
         except OscCommandError as error:
@@ -269,35 +230,3 @@ class Test_public_linux_instance(Test_linux_instance):
         finally:
             if inst_id:
                 delete_instances_old(self.a1_r1, [inst_id])
-
-#     def test_TXXX(self):
-#         inst_id = None
-#         device_name = '/dev/xvdb'
-#         #size = 128
-#         size = 32
-#         BlockDevice = [{'DeviceName': device_name, 'VirtualName': 'ephemeral0'}]
-#         placement = None
-#         if self.a1_r1.config.region.az_name == 'cn-southeast-1a':
-#             placement = {'AvailabilityZone': 'cn-southeast-1b'}
-#         results = {}
-#         for typ in EPH_TYPES:
-#             inst_id = None
-#             try:
-#                 print('Testing type {}'.format(typ))
-#                 inst_id, inst_public_ip = self.create_instance(Instance_Type=typ, BlockDeviceMapping=BlockDevice, placement=placement)
-#                 if inst_id:
-#
-#                     sshclient = SshTools.check_connection_paramiko(inst_public_ip, self.kp_info[PATH],
-#                                                                    username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-#
-#                     check_volume(sshclient, device_name, size, with_format=False)
-#                 results[typ] = 'OK'
-#             except Exception:
-#                 results[typ] = 'KO'
-#             finally:
-#                 if inst_id:
-#                     try:
-#                         delete_instances_old(self.a1_r1, [inst_id])
-#                     except:
-#                         pass
-#         print(results)

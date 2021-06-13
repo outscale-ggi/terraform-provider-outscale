@@ -19,6 +19,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances, create_volum
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, PATH, KEY_PAIR, INSTANCE_SET
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
+from qa_tina_tools.tina import check_tools
 
 
 setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
@@ -53,8 +54,8 @@ def create_snapshot(oscsdk, kp_info, inst_info, vol_id, device, args, queue):
 
     try:
         # connect to instance
-        sshclient = SshTools.check_connection_paramiko(inst_info['ipAddress'], kp_info[PATH],
-                                                       username=oscsdk.config.region.get_info(constants.CENTOS_USER))
+        sshclient = check_tools.check_ssh_connection(oscsdk, inst_info['instanceId'], inst_info['ipAddress'], kp_info[PATH],
+                                                     oscsdk.config.region.get_info(constants.CENTOS_USER))
 
         # format / mount /write to volume
         cmd = 'sudo mkfs.ext4 -F {}'.format(device)

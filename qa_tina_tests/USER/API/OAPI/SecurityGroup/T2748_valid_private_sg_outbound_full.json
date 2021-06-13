@@ -1,0 +1,60 @@
+{
+    "ResponseContext": "erased",
+    "SecurityGroups": [
+        {
+            "AccountId": "###VALUE0###",
+            "Description": "###VALUE14###",
+            "InboundRules": [],
+            "NetId": "###VALUE2###",
+            "OutboundRules": [
+                {
+                    "FromPortRange": -1,
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        "0.0.0.0/0"
+                    ],
+                    "ToPortRange": -1
+                },
+                {
+                    "FromPortRange": -1,
+                    "IpProtocol": "icmp",
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE0###",
+                            "SecurityGroupId": "###VALUE9###",
+                            "SecurityGroupName": "###VALUE10###"
+                        }
+                    ],
+                    "ToPortRange": -1
+                },
+                {
+                    "FromPortRange": 1,
+                    "IpProtocol": "tcp",
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE0###",
+                            "SecurityGroupId": "###VALUE9###",
+                            "SecurityGroupName": "###VALUE10###"
+                        }
+                    ],
+                    "ToPortRange": 65535
+                },
+                {
+                    "FromPortRange": 1,
+                    "IpProtocol": "udp",
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE0###",
+                            "SecurityGroupId": "###VALUE9###",
+                            "SecurityGroupName": "###VALUE10###"
+                        }
+                    ],
+                    "ToPortRange": 65535
+                }
+            ],
+            "SecurityGroupId": "###VALUE12###",
+            "SecurityGroupName": "###VALUE13###",
+            "Tags": []
+        }
+    ]
+}

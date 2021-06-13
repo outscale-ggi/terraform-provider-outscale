@@ -12,6 +12,7 @@ from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
@@ -45,8 +46,8 @@ def check_instance(osc_sdk, type_info, inst_info, key_path, ip_address=None):
     if ip_address is None:
         ip_address = inst_info[info_keys.INSTANCE_SET][0]['ipAddress']
 
-    sshclient = SshTools.check_connection_paramiko(ip_address, key_path,
-                                                   username=osc_sdk.config.region.get_info(constants.CENTOS_USER))
+    sshclient = check_tools.check_ssh_connection(osc_sdk, inst_id, ip_address, key_path,
+                                                 osc_sdk.config.region.get_info(constants.CENTOS_USER))
 
     cmd = 'sudo nproc'
     _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)

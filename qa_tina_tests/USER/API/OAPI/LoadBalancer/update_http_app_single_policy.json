@@ -1,0 +1,72 @@
+{
+    "LoadBalancer": {
+        "AccessLog": {
+            "IsEnabled": false,
+            "PublicationInterval": 60
+        },
+        "ApplicationStickyCookiePolicies": [
+            {
+                "CookieName": "###VALUE7###",
+                "PolicyName": "###VALUE12###"
+            },
+            {
+                "CookieName": "###VALUE8###",
+                "PolicyName": "###VALUE13###"
+            },
+            {
+                "CookieName": "###VALUE9###",
+                "PolicyName": "###VALUE14###"
+            }
+        ],
+        "BackendVmIds": [],
+        "DnsName": "###VALUE11###",
+        "HealthCheck": {
+            "CheckInterval": 30,
+            "HealthyThreshold": 10,
+            "Port": 65535,
+            "Protocol": "TCP",
+            "Timeout": 5,
+            "UnhealthyThreshold": 2
+        },
+        "Listeners": [
+            {
+                "BackendPort": 65535,
+                "BackendProtocol": "HTTP",
+                "LoadBalancerPort": 80,
+                "LoadBalancerProtocol": "HTTP",
+                "PolicyNames": [
+                    "###VALUE12###"
+                ]
+            },
+            {
+                "BackendPort": 1856,
+                "BackendProtocol": "TCP",
+                "LoadBalancerPort": 1080,
+                "LoadBalancerProtocol": "TCP"
+            }
+        ],
+        "LoadBalancerName": "###VALUE10###",
+        "LoadBalancerStickyCookiePolicies": [
+            {
+                "PolicyName": "###VALUE15###"
+            },
+            {
+                "PolicyName": "###VALUE16###"
+            },
+            {
+                "PolicyName": "###VALUE17###"
+            }
+        ],
+        "LoadBalancerType": "internet-facing",
+        "SourceSecurityGroup": {
+            "SecurityGroupAccountId": "outscale-elb",
+            "SecurityGroupName": "outscale-elb-sg"
+        },
+        "Subnets": [],
+        "SubregionNames": [
+            "###VALUE27###"
+        ],
+        "Tags": []
+    },
+    "ResponseContext": "erased"
+}

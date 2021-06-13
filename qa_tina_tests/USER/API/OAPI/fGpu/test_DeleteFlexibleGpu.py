@@ -8,6 +8,7 @@ DEFAULT_GPU_ID = "fgpu-12345678"
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
 
+@pytest.mark.region_gpu
 class Test_DeleteFlexibleGpu(OscTestSuite):
 
     @classmethod

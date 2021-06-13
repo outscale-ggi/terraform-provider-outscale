@@ -2,7 +2,7 @@ import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error, get_export_value
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 
@@ -46,12 +46,6 @@ class Test_CreateTags(OscTestSuite):
             assert resp[0].resourceType == 'volume'
             assert resp[0].value == 'value1'
             assert resp[0].key == 'None'
-        except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1359', 'Should not fail')
-            raise error
         finally:
             if ret:
                 self.a1_r1.fcu.DeleteTags(ResourceId=self.vol_id_list, Tag=[{'Key': '', 'Value': 'value1'}])
@@ -67,26 +61,13 @@ class Test_CreateTags(OscTestSuite):
             assert resp[0].resourceId == self.vol_id_list[0]
             assert resp[0].resourceType == 'volume'
             assert resp[0].value is None
-        except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'MissingParameter', None)
-                assert not error.message
-                known_error('GTW-1359', 'Missing error message')
-            raise error
         finally:
             if ret:
                 self.a1_r1.fcu.DeleteTags(ResourceId=self.vol_id_list, Tag=[{'Key': 'key1776', 'Value': ''}])
 
     def test_T1773_no_key(self):
-        try:
-            self.a1_r1.fcu.CreateTags(ResourceId=self.vol_id_list, Tag=[{'Value': 'value1'}])
-            self.a1_r1.fcu.DeleteTags(ResourceId=self.vol_id_list, Tag=[{'Value': 'value1'}])
-        except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'InvalidParameterValue', None)
-                assert not error.message
-                known_error('GTW-1359', 'Missing error message')
-            raise error
+        self.a1_r1.fcu.CreateTags(ResourceId=self.vol_id_list, Tag=[{'Value': 'value1'}])
+        self.a1_r1.fcu.DeleteTags(ResourceId=self.vol_id_list, Tag=[{'Value': 'value1'}])
 
     def test_T1109_vol_special_character_value(self):
         key = id_generator(prefix='key', size=4, chars=string.digits)
@@ -103,8 +84,4 @@ class Test_CreateTags(OscTestSuite):
             self.a1_r1.fcu.CreateTags(ResourceId=self.vol_id_list, Tag=['Key', 'key_value'])
             assert False, "Call shouln't be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', default_value=False):
-                assert_error(error, 400, 'MissingParameter', None)
-                assert not error.message
-                known_error('GTW-1358', 'Missing error message, unexpected code')
             assert_error(error, 400, "InvalidParameterValue", "Value for parameter \'Tag\' is invalid: {\'1\': \'Key\', \'2\': \'key_value\'}")

@@ -20,9 +20,13 @@ class Test_CreateListenerRule(OscTestSuite):
         super(Test_CreateListenerRule, cls).setup_class()
         try:
             cls.lbu_resp = create_tools.create_load_balancer(cls.a1_r1, cls.lb_name)
+            cls.lbu_resp2 = create_tools.create_load_balancer(cls.a2_r1, cls.lb_name)
             cls.inst_info = create_tools.create_instances(cls.a1_r1, nb=6)
+            cls.inst_info2 = create_tools.create_instances(cls.a2_r1, nb=1)
             cls.inst_id_list = [{'InstanceId': cls.inst_info[info_keys.INSTANCE_ID_LIST][i]} for i in range(4)]
+            cls.inst_id_list2 = [{'InstanceId': cls.inst_info2[info_keys.INSTANCE_ID_LIST][0]}]
             cls.ret_reg = cls.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=cls.lb_name, Instances=cls.inst_id_list)
+            cls.ret_reg2 = cls.a2_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=cls.lb_name, Instances=cls.inst_id_list2)
             cls.list_desc = {'LoadBalancerName': cls.lb_name, 'LoadBalancerPort': 80}
             cls.list_rule_desc = {'ListenerRuleName': cls.rule_name, 'Priority': 100, 'HostNamePattern': '*.com'}
         except Exception as error:
@@ -40,10 +44,16 @@ class Test_CreateListenerRule(OscTestSuite):
                 delete_tools.delete_instances(cls.a1_r1, cls.inst_info)
             if cls.lbu_resp:
                 delete_tools.delete_lbu(cls.a1_r1, lbu_name=cls.lb_name)
+            if cls.ret_reg2:
+                cls.a2_r1.lbu.DeregisterInstancesFromLoadBalancer(LoadBalancerName=cls.lb_name, Instances=cls.inst_id_list2)
+            if cls.inst_info:
+                delete_tools.delete_instances(cls.a2_r1, cls.inst_info2)
+            if cls.lbu_resp:
+                delete_tools.delete_lbu(cls.a2_r1, lbu_name=cls.lb_name)
         finally:
             super(Test_CreateListenerRule, cls).teardown_class()
 
-    @pytest.mark.region_qa
+    @pytest.mark.region_admin
     def test_T4775_rule_limit_exceeded(self):
         ret_lr = None
         quota_value = None
@@ -322,3 +332,23 @@ class Test_CreateListenerRule(OscTestSuite):
             misc.assert_oapi_error(error, 409, 'ResourceConflict', 9054)
         finally:
             self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=ret_lr.response.ListenerRule.ListenerRuleName)
+
+    def test_T5577_same_ListenerRuleName_on_different_account(self):
+        list_rule_name = misc.id_generator(prefix='rn-')
+        ret_lr1 = None
+        ret_lr2 = None
+        try:
+            ret_lr1 = self.a1_r1.oapi.CreateListenerRule(Listener=self.list_desc,
+                                                         ListenerRule={'ListenerRuleName': list_rule_name,
+                                                                       'Priority': 100, 'HostNamePattern': "*.abc.*.abc.*.com"},
+                                                         VmIds=self.inst_info[info_keys.INSTANCE_ID_LIST])
+
+            ret_lr2 = self.a2_r1.oapi.CreateListenerRule(Listener=self.list_desc,
+                                                 ListenerRule={'ListenerRuleName': list_rule_name,
+                                                               'Priority': 100, 'HostNamePattern': "*.abc.*.abc.*.com"},
+                                                 VmIds=self.inst_info2[info_keys.INSTANCE_ID_LIST])
+        finally:
+            if ret_lr1:
+                self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=ret_lr1.response.ListenerRule.ListenerRuleName)
+            if ret_lr2:
+                self.a2_r1.oapi.DeleteListenerRule(ListenerRuleName=ret_lr2.response.ListenerRule.ListenerRuleName)

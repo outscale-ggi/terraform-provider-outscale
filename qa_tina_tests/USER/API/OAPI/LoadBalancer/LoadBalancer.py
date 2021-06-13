@@ -5,6 +5,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, SUBNETS, SUBNET_ID
+from qa_tina_tools.tools.tina import info_keys
 
 
 def validate_load_balancer_global_form(lb, **kwargs):
@@ -118,6 +119,7 @@ class LoadBalancer(OscTestSuite):
         cls.sg_id_2 = None
         cls.sg_id_3 = None
         cls.inst_info = None
+        cls.hint_values = []
         super(LoadBalancer, cls).setup_class()
         try:
             cls.vpc_info = create_vpc(cls.a1_r1, az=cls.a1_r1.config.region.az_name, nb_subnet=2)
@@ -135,6 +137,14 @@ class LoadBalancer(OscTestSuite):
             sg_name = id_generator(prefix='sg_name')
             ret = cls.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test', GroupName=sg_name)
             cls.sg_id_3 = ret.response.groupId
+
+            cls.hint_values.extend(cls.inst_info[info_keys.INSTANCE_ID_LIST])
+            cls.hint_values.append(cls.vpc_id)
+            cls.hint_values.append(cls.subnet_id)
+            cls.hint_values.append(cls.subnet_id2)
+            cls.hint_values.append(cls.sg_id)
+            cls.hint_values.append(cls.sg_id_2)
+            cls.hint_values.append(cls.sg_id_3)
         except:
             try:
                 cls.teardown_class()

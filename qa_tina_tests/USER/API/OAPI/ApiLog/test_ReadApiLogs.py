@@ -1,34 +1,53 @@
-from datetime import datetime, timedelta
-
 import time
+from datetime import datetime, timedelta
+import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools import misc
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_test_tools import misc
-from qa_tina_tools.tools.tina.create_tools import generate_key
 from qa_tina_tools.tina.info_keys import PUBLIC
+from qa_tina_tools.tools.tina.create_tools import generate_key
 
-param = ['AccountId', 'CallDuration', 'QueryAccessKey', 'QueryApiName', 'QueryApiVersion', 'QueryCallName', 'QueryDate',
-         'QueryHeaderRaw', 'QueryHeaderSize', 'QueryIpAddress', 'QueryPayloadRaw', 'QueryPayloadSize', 'QueryUserAgent',
-         'RequestId', 'ResponseSize', 'ResponseStatusCode']
+param = [
+    'AccountId',
+    'CallDuration',
+    'QueryAccessKey',
+    'QueryApiName',
+    'QueryApiVersion',
+    'QueryCallName',
+    'QueryDate',
+    'QueryHeaderRaw',
+    'QueryHeaderSize',
+    'QueryIpAddress',
+    'QueryPayloadRaw',
+    'QueryPayloadSize',
+    'QueryUserAgent',
+    'RequestId',
+    'ResponseSize',
+    'ResponseStatusCode',
+]
 
 
+@pytest.mark.region_cloudtrace
 class Test_ReadApiLogs(OscTestSuite):
-
     @classmethod
     def setup_class(cls):
         super(Test_ReadApiLogs, cls).setup_class()
-        cls.a1_r1.oapi.ReadTags()
+        cls.request_id = None
+        ret = cls.a1_r1.oapi.ReadTags()
+        cls.request_id= ret.response.ResponseContext.RequestId
         cls.a1_r1.oapi.ReadSubnets()
-        cls.a2_r1.oapi.ReadTags()
-        cls.a2_r1.oapi.ReadSubnets()
+        if hasattr(cls, "a2_r1"):
+            cls.a2_r1.oapi.ReadTags()
+            cls.a2_r1.oapi.ReadSubnets()
         cls.a1_r1.oapi.ReadNics()
         cls.a1_r1.oapi.ReadKeypairs()
         cls.a1_r1.oapi.ReadVms()
         cls.a1_r1.oapi.ReadVms()
         cls.a1_r1.fcugtw.DescribeImages()
         cls.a1_r1.directlinkgtw.DescribeConnections()
+        time.sleep(120)
         ret = None
         try:
             cls.keypair_name = id_generator(prefix='keypair_')
@@ -47,7 +66,6 @@ class Test_ReadApiLogs(OscTestSuite):
             if ret:
                 cls.a1_r1.oapi.DeleteKeypair(KeypairName=cls.keypair_name)
 
-        time.sleep(60)
 
     @classmethod
     def teardown_class(cls):
@@ -70,6 +88,8 @@ class Test_ReadApiLogs(OscTestSuite):
         except OscApiException as err:
             if err.status_code == 500 and err.message == 'InternalError':
                 known_error('GTW-1789', 'Internal error when calling ReadApiLogs with incorrect parameter value')
+            if err.status_code == 401 and err.message == 'AuthFailure':
+                known_error('API-253', 'Incorrect error on ReadApiLogs')
             assert False, 'Remove known error code'
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4113', None)
         try:
@@ -94,14 +114,27 @@ class Test_ReadApiLogs(OscTestSuite):
         except OscApiException as err:
             if err.status_code == 500 and err.message == 'InternalError':
                 known_error('GTW-1789', 'Internal error when calling ReadApiLogs with incorrect parameter value')
+            if err.status_code == 403 and err.message == 'MissingLoginPassword':
+                known_error('API-253', 'Incorrect error on ReadApiLogs')
             assert False, 'Remove known error code'
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4114', None)
 
     def test_T3204_verify_calls_on_log(self):
-        call = ['ReadDhcpOptions', 'ReadImages', 'ReadNics', 'ReadApiLogs', 'ReadTags',
-                'ReadSubnets', 'ReadKeypairs', 'ReadVms', 'DescribeImages', 'ListAccessKeys']
-        ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=3,
-                                          Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(seconds=200)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
+        call = [
+            'ReadDhcpOptions',
+            'ReadImages',
+            'ReadNics',
+            'ReadApiLogs',
+            'ReadTags',
+            'ReadSubnets',
+            'ReadKeypairs',
+            'ReadVms',
+            'DescribeImages',
+            'ListAccessKeys',
+        ]
+        ret = self.a1_r1.oapi.ReadApiLogs(
+            ResultsPerPage=3, Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(seconds=200)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
+        )
         assert len(ret.response.Logs) == 3
         assert ret.response.Logs[0].QueryCallName in call
         assert ret.response.Logs[1].QueryCallName in call
@@ -110,9 +143,9 @@ class Test_ReadApiLogs(OscTestSuite):
     def test_T3205_verify_fcu_call(self):
         self.a1_r1.fcugtw.DescribeInstances()
         time.sleep(30)
-        ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=100,
-                                          Filters={'QueryDateAfter':
-                                                   (datetime.utcnow() - timedelta(seconds=100)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
+        ret = self.a1_r1.oapi.ReadApiLogs(
+            ResultsPerPage=100, Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(seconds=100)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
+        )
         assert 'DescribeInstances' in [call.QueryCallName for call in ret.response.Logs]
 
     def test_T3206_valid_filter_QueryCallNames(self):
@@ -135,7 +168,7 @@ class Test_ReadApiLogs(OscTestSuite):
         assert not ret.response.Logs
 
     def test_T3210_valid_filter_QueryIpAddresses(self):
-        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryIpAddresses": ["169.254.232.245"]})
+        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"QueryIpAddresses": [misc.get_nat_ips(self.a1_r1.config.region)[0].split('/')[0]]})
         assert len(ret.response.Logs) != 0
 
     def test_T3211_valid_filter_QueryUserAgents(self):
@@ -148,8 +181,9 @@ class Test_ReadApiLogs(OscTestSuite):
         except Exception as error:
             misc.assert_oapi_error(error, 404, 'InvalidAction', 12000)
         time.sleep(20)
-        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409]})
+        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409, 200, ]}, ResultsPerPage=1000)
         assert len(ret.response.Logs) != 0
+        assert {409, 200} == {call.ResponseStatusCode for call in ret.response.Logs}
 
     def test_T3214_valid_filter_QueryDateBefore(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateBefore': (datetime.utcnow()).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
@@ -164,8 +198,9 @@ class Test_ReadApiLogs(OscTestSuite):
         assert len(ret.response.Logs) != 0
 
     def test_T3216_valid_filter_combination(self):
-        ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=5,
-                                          Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
+        ret = self.a1_r1.oapi.ReadApiLogs(
+            ResultsPerPage=5, Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
+        )
         assert len(ret.response.Logs) == 5
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=5, Filters={"QueryApiNames": ["oapi"], "QueryAccessKeys": [self.a1_r1.config.account.ak]})
         assert len(ret.response.Logs) == 5
@@ -181,9 +216,13 @@ class Test_ReadApiLogs(OscTestSuite):
 
     def test_T4179_invalid_filter_incorrect_date_order(self):
         try:
-            self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=5,
-                                        Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(days=3)).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-                                                 'QueryDateBefore': (datetime.utcnow() - timedelta(days=5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')})
+            self.a1_r1.oapi.ReadApiLogs(
+                ResultsPerPage=5,
+                Filters={
+                    'QueryDateAfter': (datetime.utcnow() - timedelta(days=3)).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                    'QueryDateBefore': (datetime.utcnow() - timedelta(days=5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                },
+            )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             if err.status_code == 500 and err.message == 'InternalError':
@@ -205,6 +244,8 @@ class Test_ReadApiLogs(OscTestSuite):
         except OscApiException as err:
             if err.status_code == 500 and err.message == 'InternalError':
                 known_error('GTW-1789', 'Internal error when calling ReadApiLogs with incorrect parameter value')
+            if err.status_code == 403 and err.message == 'WrongAuthenticationMethod':
+                known_error('API-253', 'Incorrect error on ReadApiLogs')
             assert False, 'Remove known error code'
             assert_oapi_error(err, 400, 'InvalidParameterValue', "4112")
 
@@ -237,12 +278,27 @@ class Test_ReadApiLogs(OscTestSuite):
             assert_oapi_error(err, 400, 'InvalidParameter', "3001")
 
     def test_T3229_verify_response_of_With_Value(self):
-        ret = self.a1_r1.oapi.ReadApiLogs(With={'QueryAccessKey': True, 'QueryIpAddress': True, 'QueryUserAgent': True, 'QueryCallName': True,
-                                                'QueryApiName': True, 'QueryApiVersion': True, 'QueryDate': True, 'QueryHeaderRaw': True,
-                                                'QueryHeaderSize': True, 'QueryPayloadRaw': True, 'ResponseStatusCode': True, 'ResponseSize': True,
-                                                'CallDuration': True, 'AccountId': True, 'QueryPayloadSize': True},
-                                          Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(days=5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')},
-                                          ResultsPerPage=1)
+        ret = self.a1_r1.oapi.ReadApiLogs(
+            With={
+                'QueryAccessKey': True,
+                'QueryIpAddress': True,
+                'QueryUserAgent': True,
+                'QueryCallName': True,
+                'QueryApiName': True,
+                'QueryApiVersion': True,
+                'QueryDate': True,
+                'QueryHeaderRaw': True,
+                'QueryHeaderSize': True,
+                'QueryPayloadRaw': True,
+                'ResponseStatusCode': True,
+                'ResponseSize': True,
+                'CallDuration': True,
+                'AccountId': True,
+                'QueryPayloadSize': True,
+            },
+            Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(days=5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')},
+            ResultsPerPage=1,
+        )
         assert not ret.response.ResponseContext.RequestId == ret.response.Logs[0].RequestId
         for attr in param:
             assert hasattr(ret.response.Logs[0], attr)
@@ -286,3 +342,8 @@ class Test_ReadApiLogs(OscTestSuite):
         ret = self.a1_r1.oapi.ReadApiLogs(With={'AccountId': False}, ResultsPerPage=1)
         assert not hasattr(ret.response.Logs[0], "AccountId")
         assert hasattr(ret.response.Logs[0], "RequestId")
+
+    def test_T5561_valid_filter_RequestId(self):
+        ret = self.a1_r1.oapi.ReadApiLogs(Filters={"RequestIds": [self.request_id]})
+        assert len(ret.response.Logs) == 1
+        assert ret.response.Logs[0].QueryCallName == "ReadTags"

@@ -1,3 +1,5 @@
+import time
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator, assert_error
@@ -383,3 +385,19 @@ class Test_CreateLoadBalancer(OscTestSuite):
             assert False, "Call should not have been successful"
         except OscApiException as err:
             assert_error(err, 400, 'ValidationError', "Length of parameter 'LoadBalancerName' is invalid: 37. Expected: set([(1, 32)]).")
+
+    def test_T5560_after_delete_same_name(self):
+        name = id_generator(prefix='lbu-')
+        self.a1_r1.lbu.CreateLoadBalancer(Listeners=[{'InstancePort': 80, 'LoadBalancerPort': 80, 'Protocol': 'HTTP'}],
+                                            LoadBalancerName=name, AvailabilityZones=[self.a1_r1.config.region.az_name])
+        time.sleep(10)  # to make sure lbu is started
+        self.a1_r1.lbu.CreateLoadBalancerPolicy(LoadBalancerName=name, PolicyName=id_generator(prefix='policy-'),
+                                                PolicyTypeName='ProxyProtocolPolicyType')
+        self.a1_r1.lbu.DeleteLoadBalancer(LoadBalancerName=name)
+        try:
+            self.a1_r1.lbu.CreateLoadBalancer(Listeners=[{'InstancePort': 80, 'LoadBalancerPort': 80, 'Protocol': 'HTTP'}],
+                                               LoadBalancerName=name, AvailabilityZones=[self.a1_r1.config.region.az_name])
+            self.a1_r1.lbu.DeleteLoadBalancer(LoadBalancerName=name)
+            assert False, 'Could should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "DuplicateLoadBalancerName", "Load Balancer named '{}' already exists and it is not yet deleted.".format(name))

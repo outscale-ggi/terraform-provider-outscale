@@ -6,6 +6,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, id_generator, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_tina_tools.tina import oapi, info_keys
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_security_group
 from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -241,9 +242,9 @@ class Test_UpdateVm(OscTestSuite):
     def test_T2147_user_data_private_only_true_false(self):
         inst_info = None
         try:
-            data_true = base64.encodebytes(
+            data_true = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodebytes(
+            data_false = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_true)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -277,9 +278,9 @@ class Test_UpdateVm(OscTestSuite):
     def test_T2148_user_data_private_only_false_true(self):
         inst_info = None
         try:
-            data_true = base64.encodebytes(
+            data_true = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
-            data_false = base64.encodebytes(
+            data_false = base64.b64encode(
                 '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
             inst_info = create_instances(self.a1_r1, user_data=data_false)
             inst_id = inst_info[INSTANCE_ID_LIST][0]
@@ -363,3 +364,25 @@ class Test_UpdateVm(OscTestSuite):
             raise error
         finally:
             terminate_instances(self.a1_r1, [inst_id])
+
+    def test_T5642_user_data_twice(self):
+        vm_info = None
+        try:
+            data_true = base64.b64encode(
+                '-----BEGIN OUTSCALE SECTION-----\nprivate_only=true\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
+            data_false = base64.b64encode(
+                '-----BEGIN OUTSCALE SECTION-----\nprivate_only=false\n-----END OUTSCALE SECTION-----'.encode()).decode().strip()
+            vm_info = oapi.create_Vms(self.a1_r1, user_data=data_true)
+            inst_id = vm_info[info_keys.VM_IDS][0]
+            oapi.stop_Vms(self.a1_r1, vm_info[info_keys.VM_IDS])
+            ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
+            assert ret.response.userData.value == data_true, 'Incorrect user data value'
+            self.a1_r1.oapi.UpdateVm(UserData=ret.response.userData.value, VmId=inst_id)
+            ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
+            assert ret.response.userData.value == data_true, 'Incorrect user data value'
+            self.a1_r1.oapi.UpdateVm(UserData=data_false, VmId=inst_id)
+            ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
+            assert ret.response.userData.value == data_false, 'Incorrect user data value'
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)

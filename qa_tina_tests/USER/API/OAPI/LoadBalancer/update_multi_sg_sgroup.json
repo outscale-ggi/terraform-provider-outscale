@@ -1,0 +1,52 @@
+{
+    "LoadBalancer": {
+        "AccessLog": {
+            "IsEnabled": false,
+            "PublicationInterval": 60
+        },
+        "ApplicationStickyCookiePolicies": [],
+        "BackendVmIds": [],
+        "DnsName": "###VALUE19###",
+        "HealthCheck": {
+            "CheckInterval": 30,
+            "HealthyThreshold": 10,
+            "Port": 65535,
+            "Protocol": "TCP",
+            "Timeout": 5,
+            "UnhealthyThreshold": 2
+        },
+        "Listeners": [
+            {
+                "BackendPort": 65535,
+                "BackendProtocol": "HTTP",
+                "LoadBalancerPort": 80,
+                "LoadBalancerProtocol": "HTTP"
+            },
+            {
+                "BackendPort": 1856,
+                "BackendProtocol": "TCP",
+                "LoadBalancerPort": 1080,
+                "LoadBalancerProtocol": "TCP"
+            }
+        ],
+        "LoadBalancerName": "###VALUE18###",
+        "LoadBalancerStickyCookiePolicies": [],
+        "LoadBalancerType": "internet-facing",
+        "NetId": "###VALUE1###",
+        "SecurityGroups": [
+            "###VALUE21###"
+        ],
+        "SourceSecurityGroup": {
+            "SecurityGroupAccountId": "###VALUE26###",
+            "SecurityGroupName": "###VALUE24###"
+        },
+        "Subnets": [
+            "###VALUE2###"
+        ],
+        "SubregionNames": [
+            "###VALUE27###"
+        ],
+        "Tags": []
+    },
+    "ResponseContext": "erased"
+}

@@ -5,6 +5,7 @@ import time
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
+from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state, \
     wait_keypairs_state, wait_security_groups_state, wait_snapshots_state
@@ -145,8 +146,8 @@ def perf_snapshot(oscsdk, logger, queue, args):
                 for volumes in ret.response.reservationSet[0].instancesSet[0].blockDeviceMapping:
                     volume_id_list.append(volumes.ebs.volumeId)
                 inst = ret.response.reservationSet[0].instancesSet[0]
-                sshclient = SshTools.check_connection_paramiko(inst.ipAddress, '{}.pem'.format(kp_name),
-                                                               username=oscsdk.config.region.get_info(constants.CENTOS_USER))
+                sshclient = check_tools.check_ssh_connection(oscsdk, inst.instanceId, inst.ipAddress, '/{}/{}.pem'.format("tmp", kp_name),
+                                                             oscsdk.config.region.get_info(constants.CENTOS_USER))
                 cmd = 'sudo mkfs.xfs -f {}'.format(DEV)
                 SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=600, retry=1)
             except Exception as error:
@@ -155,8 +156,8 @@ def perf_snapshot(oscsdk, logger, queue, args):
     if result['status'] != "KO":
 
         #print(inst.display())
-        sshclient = SshTools.check_connection_paramiko(inst.ipAddress, '{}.pem'.format(kp_name),
-                                                       username=oscsdk.config.region.get_info(constants.CENTOS_USER))
+        sshclient = check_tools.check_ssh_connection(oscsdk, inst.instanceId, inst.ipAddress, '/{}/{}.pem'.format("tmp", kp_name),
+                                                     oscsdk.config.region.get_info(constants.CENTOS_USER))
         cmd = 'sudo mount -o nouuid {} /mnt'.format(DEV)
         SshTools.exec_command_paramiko(sshclient, cmd, eof_time_out=300)
         cmd = 'sudo openssl rand -out /mnt/data_xxx.txt -base64 $(({} * 2**20 * 3/4))'.format(100)

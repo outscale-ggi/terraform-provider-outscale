@@ -4,6 +4,8 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_peering
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, INSTANCE_SET, KEY_PAIR, PATH, VPC_ID, PEERING, EIP, ROUTE_TABLE_ID, SECURITY_GROUP_ID
+from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_tina_tools.tina import check_tools
 
 
 class Test_VPC_Peering(OscTestSuite):
@@ -49,8 +51,9 @@ class Test_VPC_Peering(OscTestSuite):
             self.a1_r1.fcu.CreateRoute(RouteTableId=self.vpc2_info[SUBNETS][0][ROUTE_TABLE_ID], DestinationCidrBlock='10.0.0.0/16',
                                        VpcPeeringConnectionId=peering_info[PEERING].id)
             # connect to instance 1 via eip1
-            sshclient = SshTools.check_connection_paramiko(self.vpc1_info[SUBNETS][0][EIP]['publicIp'], self.vpc1_info[KEY_PAIR][PATH],
-                                                           username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.vpc1_info[SUBNETS][0][INSTANCE_SET][0]['instanceId'],
+                                                         self.vpc1_info[SUBNETS][0][EIP]['publicIp'], self.vpc1_info[KEY_PAIR][PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             # connect to instance2 via vpc peering
             sshclient_jhost = SshTools.check_connection_paramiko_nested(
                 sshclient=sshclient,
@@ -71,13 +74,21 @@ class Test_VPC_Peering(OscTestSuite):
                 self.a1_r1.fcu.ReleaseAddress(PublicIp=self.vpc1_info[SUBNETS][0][EIP]['publicIp'])
 
     def test_T5542_reverse_peering(self):
+        vpc1_info = None
+        vpc2_info = None
         peering_info2 = None
         try:
-            peering_info = create_peering(self.a1_r1, state='active', vpc_id=self.vpc1_info[VPC_ID], peer_vpc_id=self.vpc2_info[VPC_ID])
+            vpc1_info = create_vpc(self.a1_r1, cidr_prefix="10.0", state=None)
+            vpc2_info = create_vpc(self.a1_r1, cidr_prefix="20.0", state=None)
+            peering_info = create_peering(self.a1_r1, state='active', vpc_id=vpc1_info[VPC_ID], peer_vpc_id=vpc2_info[VPC_ID])
             assert peering_info[PEERING].status.name == 'active'
-            peering_info2 = self.a1_r1.fcu.CreateVpcPeeringConnection(
-                        VpcId=self.vpc2_info[VPC_ID], PeerVpcId=self.vpc1_info[VPC_ID]).response.vpcPeeringConnection
+            peering_info2 = self.a1_r1.fcu.CreateVpcPeeringConnection(VpcId=vpc2_info[VPC_ID],
+                                                                      PeerVpcId=vpc1_info[VPC_ID]).response.vpcPeeringConnection
             assert peering_info2.status.code == 'rejected'
         finally:
             if peering_info[PEERING].id:
                 self.a1_r1.fcu.DeleteVpcPeeringConnection(VpcPeeringConnectionId=peering_info[PEERING].id)
+            if vpc2_info:
+                delete_vpc(self.a1_r1, vpc2_info)
+            if vpc1_info:
+                delete_vpc(self.a1_r1, vpc1_info)

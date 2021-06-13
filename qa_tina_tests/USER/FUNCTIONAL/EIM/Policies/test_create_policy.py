@@ -3,8 +3,9 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
-from qa_test_tools.config import OscConfig
+from qa_test_tools.config import OscConfig, config_constants
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.config.region import Feature
 
 
 class Test_create_policy(OscTestSuite):
@@ -83,11 +84,14 @@ class Test_create_policy(OscTestSuite):
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
-            try:
-                self.account_sdk.kms.ListKeys()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', 'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
+            region = self.account_sdk.config.region
+            if region.has_info(config_constants.FEATURES) and Feature.KMS in region.get_info(config_constants.FEATURES):
+                try:
+                    self.account_sdk.kms.ListKeys()
+                    assert False, 'Call should not have been successful'
+                except OscApiException as error:
+                    misc.assert_error(error, 400, 'AccessDeniedException',
+                                      'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
@@ -132,11 +136,14 @@ class Test_create_policy(OscTestSuite):
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
-            try:
-                self.account_sdk.kms.ListKeys()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', 'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
+            region = self.account_sdk.config.region
+            if region.has_info(config_constants.FEATURES) and Feature.KMS in region.get_info(config_constants.FEATURES):
+                try:
+                    self.account_sdk.kms.ListKeys()
+                    assert False, 'Call should not have been successful'
+                except OscApiException as error:
+                    misc.assert_error(error, 400, 'AccessDeniedException',
+                                      'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
@@ -183,12 +190,14 @@ class Test_create_policy(OscTestSuite):
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
-            try:
-                self.account_sdk.kms.ListKeys()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException',
-                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
+            region = self.account_sdk.config.region
+            if region.has_info(config_constants.FEATURES) and Feature.KMS in region.get_info(config_constants.FEATURES):
+                try:
+                    self.account_sdk.kms.ListKeys()
+                    assert False, 'Call should not have been successful'
+                except OscApiException as error:
+                    misc.assert_error(error, 400, 'AccessDeniedException',
+                                      'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
@@ -293,12 +302,14 @@ class Test_create_policy(OscTestSuite):
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
-            try:
-                self.account_sdk.kms.ListKeys()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException',
-                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
+            region = self.account_sdk.config.region
+            if region.has_info(config_constants.FEATURES) and Feature.KMS in region.get_info(config_constants.FEATURES):
+                try:
+                    self.account_sdk.kms.ListKeys()
+                    assert False, 'Call should not have been successful'
+                except OscApiException as error:
+                    misc.assert_error(error, 400, 'AccessDeniedException',
+                                      'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
@@ -343,12 +354,14 @@ class Test_create_policy(OscTestSuite):
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
-            try:
-                self.account_sdk.kms.ListKeys()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException',
-                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
+            region = self.account_sdk.config.region
+            if region.has_info(config_constants.FEATURES) and Feature.KMS in region.get_info(config_constants.FEATURES):
+                try:
+                    self.account_sdk.kms.ListKeys()
+                    assert False, 'Call should not have been successful'
+                except OscApiException as error:
+                    misc.assert_error(error, 400, 'AccessDeniedException',
+                                      'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
@@ -393,12 +406,14 @@ class Test_create_policy(OscTestSuite):
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
-            try:
-                self.account_sdk.kms.ListKeys()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException',
-                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
+            region = self.account_sdk.config.region
+            if region.has_info(config_constants.FEATURES) and Feature.KMS in region.get_info(config_constants.FEATURES):
+                try:
+                    self.account_sdk.kms.ListKeys()
+                    assert False, 'Call should not have been successful'
+                except OscApiException as error:
+                    misc.assert_error(error, 400, 'AccessDeniedException',
+                                      'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
@@ -443,11 +458,13 @@ class Test_create_policy(OscTestSuite):
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 misc.assert_error(error, 400, 'NotImplemented', None)
-            try:
-                self.account_sdk.kms.ListKeys()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
+            region = self.account_sdk.config.region
+            if region.has_info(config_constants.FEATURES) and Feature.KMS in region.get_info(config_constants.FEATURES):
+                try:
+                    self.account_sdk.kms.ListKeys()
+                    assert False, 'Call should not have been successful'
+                except OscApiException as error:
+                    misc.assert_error(error, 400, 'AccessDeniedException', None)
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
@@ -491,11 +508,13 @@ class Test_create_policy(OscTestSuite):
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 misc.assert_error(error, 400, 'NotImplemented', None)
-            try:
-                self.account_sdk.kms.ListKeys()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException', None)
+            region = self.account_sdk.config.region
+            if region.has_info(config_constants.FEATURES) and Feature.KMS in region.get_info(config_constants.FEATURES):
+                try:
+                    self.account_sdk.kms.ListKeys()
+                    assert False, 'Call should not have been successful'
+                except OscApiException as error:
+                    misc.assert_error(error, 400, 'AccessDeniedException', None)
             try:
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
@@ -548,12 +567,14 @@ class Test_create_policy(OscTestSuite):
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
-            try:
-                self.account_sdk.kms.ListKeys()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException',
-                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
+            region = self.account_sdk.config.region
+            if region.has_info(config_constants.FEATURES) and Feature.KMS in region.get_info(config_constants.FEATURES):
+                try:
+                    self.account_sdk.kms.ListKeys()
+                    assert False, 'Call should not have been successful'
+                except OscApiException as error:
+                    misc.assert_error(error, 400, 'AccessDeniedException',
+                                      'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
@@ -602,14 +623,50 @@ class Test_create_policy(OscTestSuite):
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
-            try:
-                self.account_sdk.kms.ListKeys()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException',
-                                  'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
+            region = self.account_sdk.config.region
+            if region.has_info(config_constants.FEATURES) and Feature.KMS in region.get_info(config_constants.FEATURES):
+                try:
+                    self.account_sdk.kms.ListKeys()
+                    assert False, 'Call should not have been successful'
+                except OscApiException as error:
+                    misc.assert_error(error, 400, 'AccessDeniedException',
+                                      'User: {} is not authorized to perform: kms:ListKeys'.format(self.user_name))
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
             if policy_response:
                 self.a1_r1.eim.DeletePolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn)
+
+    def test_T5656_read_only_calls(self):
+        policy_name = misc.id_generator(prefix='TestCreatePolicy')
+        attach_policy = None
+        policy_response = None
+        try:
+            policy_response = self.a1_r1.eim.CreatePolicy(
+                PolicyName=policy_name,
+                PolicyDocument='{"Statement": [{"Action": ["*:Read*", "*:Describe*", "*:List*"], "Resource": ["*"], "Effect": "Allow"}]}')
+            attach_policy = self.a1_r1.eim.AttachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
+            self.account_sdk.oapi.ReadVms()
+            self.account_sdk.fcu.DescribeInstanceTypes()
+            self.account_sdk.eim.ListAccessKeys()
+            self.account_sdk.directlink.DescribeLocations()
+            ret = None
+            try:
+                ret = self.account_sdk.fcu.CreateKeyPair(KeyName='toto')
+                known_error('TINA-TODO', 'Policies do not work correctly')
+                assert False, 'Call should not have been successful'
+            except OscApiException as error:
+                assert False, 'Remove known error code'
+                misc.assert_error(error, 400, 'UnauthorizedOperation',
+                                  'User: {} is not authorized to perform: ec2:CreateKeyPair'.format(
+                                      self.user_name))
+            finally:
+                if ret:
+                    self.account_sdk.fcu.DeleteKeyPair(KeyName=ret.response.keyName)
+
+        finally:
+            if attach_policy:
+                self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
+            if policy_response:
+                self.a1_r1.eim.DeletePolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn)
+        

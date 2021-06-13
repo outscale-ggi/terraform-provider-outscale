@@ -1,5 +1,6 @@
 import requests
 
+from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import info_keys
@@ -24,7 +25,7 @@ class Test_rolling_eip_with_nat_connection(OscTestSuite):
             # create vpc
             net_info = create_Net(self.a1_r1, nb_vm=2, state=None)
             # add rule to accept tcp on 80
-            ips = self.a1_r1.config.region.get_info(constants.MY_IP)
+            ips = misc.get_nat_ips(self.a1_r1.config.region)
             for addr in ips:
                 self.a1_r1.oapi.CreateSecurityGroupRule(SecurityGroupId=net_info[info_keys.SUBNETS][0][info_keys.SECURITY_GROUP_ID],
                                                         IpProtocol='tcp', FromPortRange=80, ToPortRange=80, IpRange=addr, Flow='Inbound')
@@ -33,8 +34,14 @@ class Test_rolling_eip_with_nat_connection(OscTestSuite):
             start_http_server(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'], net_info[info_keys.KEY_PAIR][info_keys.PATH],
                               self.a1_r1.config.region.get_info(constants.CENTOS_USER), text='instance1')
             # verify access to first instance http server
-            req = requests.get('http://{}'.format(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp']))
-            assert req.text.strip() == 'instance1'
+            http_server_address = 'http://{}'.format(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'])
+            self.logger.info(http_server_address)
+            try:
+                req = requests.get(http_server_address)
+                assert req.text.strip() == 'instance1'
+            except:
+                self.logger.debug('Could not access http server')
+                raise
             # move eip of first instance to second instance
             self.a1_r1.oapi.UnlinkPublicIp(LinkPublicIpId=net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_ASSOCIATION_IP])
             net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_ASSOCIATION_IP] =\
@@ -44,8 +51,12 @@ class Test_rolling_eip_with_nat_connection(OscTestSuite):
             start_http_server(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'], net_info[info_keys.KEY_PAIR][info_keys.PATH],
                               self.a1_r1.config.region.get_info(constants.CENTOS_USER), text='instance2')
             # verify access to second instance http server
-            req = requests.get('http://{}'.format(net_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp']))
-            assert req.text.strip() == 'instance2'
+            try:
+                req = requests.get(http_server_address)
+                assert req.text.strip() == 'instance2'
+            except:
+                self.logger.debug('Could not access http server')
+                raise
         except Exception as error:
             raise error
         finally:

@@ -20,14 +20,14 @@ class Test_modify_pin_state(OscTestSuite):
         super(Test_modify_pin_state, cls).setup_class()
 
     def setup_method(self, method):
-        super(Test_modify_pin_state, self).setup_method(method)
         self.info = None
+        super(Test_modify_pin_state, self).setup_method(method)
 
         try:
             self.info = create_instances(self.a1_r1, state='running')
             self.server_name = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response.result[0].servers[0].server
             self.cluster_pz = self.a1_r1.intel.hardware.get_details(device=self.server_name).response.result.cluster_pz
-            stop_instances(self.a1_r1, self.info[info_keys.INSTANCE_ID_LIST], force=True, wait=True)
+            stop_instances(self.a1_r1, self.info[info_keys.INSTANCE_ID_LIST], wait=True)
 
         except Exception as error:
             try:
@@ -54,7 +54,7 @@ class Test_modify_pin_state(OscTestSuite):
         for kvm in all_servers.response.result:
             if self.cluster_pz != self.a1_r1.intel.hardware.get_details(device=kvm.name).response.result.cluster_pz:
                 continue
-            if kvm.state != 'READY' or kvm.name == self.server_name:
+            if kvm.state != 'READY' or kvm.name == self.server_name or 'PRODUCTION' not in kvm.groups:
                 continue
             kvm_selected = kvm.name
             break

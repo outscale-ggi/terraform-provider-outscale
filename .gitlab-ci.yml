@@ -77,6 +77,8 @@ check_init_deps:
 
 .lint_mr:
   stage: lint
+  tags:
+    - MR
   needs: []
   script:
     - git fetch
@@ -107,6 +109,8 @@ check_init_deps:
 
 .security_mr:
   stage: security
+  tags:
+    - MR
   needs: []
   script:
     - git fetch
@@ -205,6 +209,8 @@ security:rc:
 
 build:
   stage: build
+  tags:
+    - MR
   script:
     - make build
   artifacts:
@@ -220,6 +226,8 @@ build:
 
 #deploy:
 #  stage: deploy
+#  tags:
+#     - MR
 #  script:
 #    - ./deploy.sh dist/osc_qa_tina_tests*-py3-none-any.whl ~/.ssh/id_rsa
 #  only:

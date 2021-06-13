@@ -5,6 +5,7 @@ import time
 
 import requests
 
+from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
@@ -20,12 +21,12 @@ class Test_lbu_proxy_protocol(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_lbu_proxy_protocol, cls).setup_class()
         cls.inst_info = None
         cls.crtpath = None
         cls.keypath = None
         cls.cert_arn = None
         cls.cert_name = None
+        super(Test_lbu_proxy_protocol, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1, 1, state='ready')
             cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=cls.inst_info[SECURITY_GROUP_ID], IpProtocol='tcp',
@@ -51,7 +52,7 @@ class Test_lbu_proxy_protocol(OscTestSuite):
             if cls.cert_name:
                 try:
                     cls.a1_r1.eim.DeleteServerCertificate(ServerCertificateName=cls.cert_name)
-                except:
+                except Exception:
                     print('Could not delete server certificate')
             if cls.crtpath:
                 os.remove(cls.crtpath)
@@ -84,8 +85,9 @@ class Test_lbu_proxy_protocol(OscTestSuite):
             policy_name = id_generator('policy')
             self.a1_r1.lbu.CreateLoadBalancerPolicy(LoadBalancerName=lbu_name, PolicyName=policy_name, PolicyTypeName="ProxyProtocolPolicyType")
             self.a1_r1.lbu.SetLoadBalancerPoliciesForBackendServer(LoadBalancerName=lbu_name, InstancePort='80', PolicyNames=[policy_name])
-            time.sleep(15)  # Wait config
+            time.sleep(60)  # Wait config
             wait_lbu_backend_state(self.a1_r1, lbu_name)
+
             ret = self.a1_r1.intel_lbu.lb.get(owner=self.a1_r1.config.account.account_id,
                                               names=[lbu_name])
             inst_id = ret.response.result[0].lbu_instance
@@ -94,11 +96,18 @@ class Test_lbu_proxy_protocol(OscTestSuite):
             protocol = 'http'
             if listener['LoadBalancerPort'] == '443':
                 protocol = 'https'
-            ret = requests.get("{}://{}/proxy_protocol".format(protocol, dns_name), verify=listener['verify'])
+            ret = None
+            for _ in range(5):
+                try:
+                    ret = requests.get("{}://{}/proxy_protocol".format(protocol, dns_name), verify=listener['verify'])
+                    break
+                except Exception:
+                    print('Could not reach load balancer')
+                    time.sleep(10)
+            assert ret, 'Could not reach load balancer after 5 retry'
             assert ret.status_code == 200
             expexted_text = []
-            for ip in self.a1_r1.config.region.get_info(constants.MY_IP):
-                expexted_text.append("{} -> {}".format(ip.split('/')[0], lbu_ip))
+            expexted_text.append("{} -> {}".format(misc.get_nat_ips(self.a1_r1.config.region)[0].split('/')[0], lbu_ip))
             assert ret.text in expexted_text
         finally:
             if registered:
@@ -121,13 +130,15 @@ class Test_lbu_proxy_protocol(OscTestSuite):
 
     def test_T4536_proxy_protocol_ssl(self):
         self.exec_proxy_protocol_test(listener={'InstancePort': '80',
+                                                'InstanceProtocol': 'TCP',
                                                 'LoadBalancerPort': '443',
                                                 'Protocol': 'SSL',
                                                 'SSLCertificateId': self.cert_arn,
-                                                'verify': False})
-
+                                                'verify': False}
+                                      )
     def test_T4537_proxy_protocol_https(self):
         self.exec_proxy_protocol_test(listener={'InstancePort': '80',
+                                                'InstanceProtocol': 'HTTP',
                                                 'LoadBalancerPort': '443',
                                                 'Protocol': 'HTTPS',
                                                 'SSLCertificateId': self.cert_arn,

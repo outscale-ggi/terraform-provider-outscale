@@ -10,7 +10,6 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
-from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, INSTANCE_ID_LIST
 
 
 class Test_ReadVmsState(OscTestSuite):
@@ -21,8 +20,8 @@ class Test_ReadVmsState(OscTestSuite):
         cls.info = None
         try:
             cls.info = create_instances(cls.a1_r1, nb=3, state='running')
-            cls.a1_r1.oapi.StopVms(VmIds=[cls.info[INSTANCE_SET][2]['instanceId']], ForceStop=True)
-            cls.a1_r1.oapi.DeleteVms(VmIds=[cls.info[INSTANCE_SET][2]['instanceId']])
+            cls.a1_r1.oapi.StopVms(VmIds=[cls.info[info_keys.INSTANCE_SET][2]['instanceId']], ForceStop=True)
+            cls.a1_r1.oapi.DeleteVms(VmIds=[cls.info[info_keys.INSTANCE_SET][2]['instanceId']])
         except Exception as error1:
             try:
                 cls.teardown_class()
@@ -43,13 +42,6 @@ class Test_ReadVmsState(OscTestSuite):
 
     # ATTENTION, this test is better first as terminated vm can 'disappear'
     def test_T2076_filter_vm_state_name(self):
-        # check running
-        code_name = 'running'
-        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_name]})
-        assert ret.status_code == 200, ret.response.display()
-        assert len(ret.response.VmStates) == 2
-        for i in range(len(ret.response.VmStates)):
-            assert ret.response.VmStates[i].VmState == code_name
         # check terminated
         code_name = 'terminated'
         ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_name]})
@@ -59,6 +51,13 @@ class Test_ReadVmsState(OscTestSuite):
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=True, Filters={'VmStates': [code_name]})
         assert len(ret.response.VmStates) == 1
         assert ret.response.VmStates[0].VmState == code_name
+        # check running
+        code_name = 'running'
+        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_name]})
+        assert ret.status_code == 200, ret.response.display()
+        assert len(ret.response.VmStates) == 2
+        for i in range(len(ret.response.VmStates)):
+            assert ret.response.VmStates[i].VmState == code_name
 
     def test_T2071_no_param(self):
         ret = self.a1_r1.oapi.ReadVmsState()
@@ -69,10 +68,10 @@ class Test_ReadVmsState(OscTestSuite):
 
     @pytest.mark.region_admin
     def test_T5544_filters_maintenance(self):
-        start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(
-            seconds=10)
+        start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(seconds=10)
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=2)
-        pinkvm = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response.result[0].servers[0].server
+        resp = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response
+        pinkvm = resp.result[0].servers[0].server
         ret = self.a1_r1.intel.scheduled_events.create(event_type='software-upgrade', resource_type='server',
                                                        targets=[pinkvm], start_date=str(start_date),
                                                        end_date=str(end_date), description='test')
@@ -95,7 +94,7 @@ class Test_ReadVmsState(OscTestSuite):
 
     def test_T2072_include_all_vms_true(self):
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=True)
-        assert len(ret.response.VmStates) == 3
+        assert len(ret.response.VmStates) in [2, 3]  # depending on whether the terminated has disappeared
 
     def test_T2073_include_all_vms_false(self):
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=False)
@@ -106,18 +105,18 @@ class Test_ReadVmsState(OscTestSuite):
         assert len(ret.response.VmStates) == 2
 
     def test_T2074_with_vm_id(self):
-        result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[INSTANCE_SET][0]['instanceId']]})
+        result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[info_keys.INSTANCE_SET][0]['instanceId']]})
         assert len(result.response.VmStates) == 1
 
     def test_T2075_with_vm_ids(self):
-        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[INSTANCE_SET][0]['instanceId'],
-                                                              self.info[INSTANCE_SET][1]['instanceId']]})
+        ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[info_keys.INSTANCE_SET][0]['instanceId'],
+                                                              self.info[info_keys.INSTANCE_SET][1]['instanceId']]})
         assert len(ret.response.VmStates) == 2
-        assert self.info[INSTANCE_SET][0]['instanceId'] in (vm.VmId for vm in ret.response.VmStates)
-        assert self.info[INSTANCE_SET][1]['instanceId'] in (vm.VmId for vm in ret.response.VmStates)
+        assert self.info[info_keys.INSTANCE_SET][0]['instanceId'] in (vm.VmId for vm in ret.response.VmStates)
+        assert self.info[info_keys.INSTANCE_SET][1]['instanceId'] in (vm.VmId for vm in ret.response.VmStates)
 
     def test_T2077_multiple_filters(self):
-        result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[INSTANCE_SET][0]['instanceId']],
+        result = self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [self.info[info_keys.INSTANCE_SET][0]['instanceId']],
                                                        'VmStates': ['running']})
         assert len(result.response.VmStates) == 1
 
@@ -156,5 +155,5 @@ class Test_ReadVmsState(OscTestSuite):
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3428_other_account_with_filter(self):
-        ret = self.a2_r1.oapi.ReadVmsState(Filters={'VmIds': self.info[INSTANCE_ID_LIST]}).response.VmStates
+        ret = self.a2_r1.oapi.ReadVmsState(Filters={'VmIds': self.info[info_keys.INSTANCE_ID_LIST]}).response.VmStates
         assert not ret

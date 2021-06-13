@@ -41,7 +41,7 @@ class Test_listenerrules(OscTestSuite):
             for i in [1, 3]:
                 start_http_server(cls.inst_info[INSTANCE_SET][i]['ipAddress'], kp_info[PATH],
                                   cls.a1_r1.config.region.get_info(constants.CENTOS_USER),
-                                  text=cls.inst_info[INSTANCE_ID_LIST][i], is_path=True, path_dir='PathPattern-Inst2-Inst4')
+                                  text=cls.inst_info[INSTANCE_ID_LIST][i], path_dir='PathPattern-Inst2-Inst4')
             cls.ret_reg = cls.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=cls.lb_name, Instances=cls.inst_id_list[:2])
             cls.ld = {'LoadBalancerName': cls.lb_name, 'LoadBalancerPort': 80}
         except Exception as error:

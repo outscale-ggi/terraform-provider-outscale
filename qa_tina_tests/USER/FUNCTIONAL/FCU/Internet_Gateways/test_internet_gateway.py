@@ -114,8 +114,6 @@ class Test_internet_gateway(OscTestSuite):
         self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst1_id)
         sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst1_id, self.eip.response.publicIp, self.kp_info[PATH],
                                                      username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        # sshclient = SshTools.check_connection_paramiko(self.eip.response.publicIp, self.kp_info[PATH],
-        # username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
         if Feature.INTERNET in self.a1_r1.config.region.get_info(constants.FEATURES):
             target_ip = Configuration.get('ipaddress', 'dns_google')
         else:

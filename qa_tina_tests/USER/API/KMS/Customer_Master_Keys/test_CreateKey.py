@@ -2,7 +2,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tests.USER.API.KMS.kms import Kms
 
 
@@ -90,7 +90,5 @@ class Test_CreateKey(Kms):
     def test_T4596_verify_default_key(self):
         ret = self.a1_r1.kms.ListKeys()
         ret = self.a1_r1.kms.DescribeKey(KeyId=ret.response.Keys[0].KeyId)
-        if ret.response.KeyMetadata.KeyManager == "CUSTOMER":
-            known_error('TINA-5305', '[OKMS] Incorrect value for the attribute Manager for the default CMK')
-        assert False, 'Remove known error code'
+        # TODO check output, until this test is erased
         

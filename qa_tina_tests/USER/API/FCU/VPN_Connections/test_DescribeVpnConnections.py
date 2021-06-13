@@ -1,5 +1,5 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_dry_run, assert_error
+from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import wait
 from qa_tina_tools.tools.tina import wait_tools
@@ -81,8 +81,10 @@ class Test_DescribeVpnConnections(OscTestSuite):
             assert vpnconn.vpnConnectionId in self.vpn_connection_ids
 
     def test_T3278_dry_run(self):
-        ret = self.a1_r1.fcu.DescribeVpnConnections(DryRun=True)
-        assert_dry_run(ret)
+        try:
+            self.a1_r1.fcu.DescribeVpnConnections(DryRun=True)
+        except OscApiException as error:
+            assert_error(error, 400, 'DryRunOperation', 'Request would have succeeded, but DryRun flag is set.')
 
     def test_T3279_from_other_account(self):
         try:

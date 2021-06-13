@@ -1,0 +1,85 @@
+{
+    "ResponseContext": "erased",
+    "SecurityGroups": [
+        {
+            "AccountId": "###VALUE0###",
+            "Description": "###VALUE11###",
+            "InboundRules": [
+                {
+                    "FromPortRange": 1,
+                    "IpProtocol": "udp",
+                    "IpRanges": [
+                        "10.0.0.12/32"
+                    ],
+                    "ToPortRange": 535
+                }
+            ],
+            "NetId": "###VALUE2###",
+            "OutboundRules": [
+                {
+                    "FromPortRange": -1,
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        "0.0.0.0/0"
+                    ],
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE0###",
+                            "SecurityGroupId": "###VALUE12###",
+                            "SecurityGroupName": "###VALUE13###"
+                        }
+                    ],
+                    "ToPortRange": -1
+                },
+                {
+                    "FromPortRange": 1234,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        "10.0.0.13/32"
+                    ],
+                    "ToPortRange": 1234
+                }
+            ],
+            "SecurityGroupId": "###VALUE9###",
+            "SecurityGroupName": "###VALUE10###",
+            "Tags": [
+                {
+                    "Key": "sg_key",
+                    "Value": "sg_toto"
+                }
+            ]
+        },
+        {
+            "AccountId": "###VALUE0###",
+            "Description": "###VALUE14###",
+            "InboundRules": [],
+            "NetId": "###VALUE2###",
+            "OutboundRules": [
+                {
+                    "FromPortRange": -1,
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        "0.0.0.0/0"
+                    ],
+                    "ToPortRange": -1
+                },
+                {
+                    "FromPortRange": 2345,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        "10.0.0.14/32"
+                    ],
+                    "ToPortRange": 2345
+                }
+            ],
+            "SecurityGroupId": "###VALUE12###",
+            "SecurityGroupName": "###VALUE13###",
+            "Tags": [
+                {
+                    "Key": "sg_toto",
+                    "Value": "sg_value"
+                }
+            ]
+        }
+    ]
+}

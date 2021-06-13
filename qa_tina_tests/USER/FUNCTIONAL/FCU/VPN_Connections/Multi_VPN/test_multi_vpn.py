@@ -8,7 +8,7 @@ from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tools.tina import wait
+from qa_tina_tools.tina import wait, check_tools
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -89,7 +89,7 @@ class Test_multi_vpn(OscTestSuite):
         finally:
             super(Test_multi_vpn, self).teardown_method(method)
 
-    def exec_test_vpn(self, static, racoon, default_rtb=True):
+    def exec_test_vpn(self, static, racoon, default_rtb=True, vti=True, policy=False, xfrm=False):
 
         # initialize a VPC with 1 subnet, 1 instance and an igw
         self.vpc_info = create_vpc(osc_sdk=self.a1_r1, nb_instance=1, default_rtb=default_rtb)
@@ -144,11 +144,13 @@ class Test_multi_vpn(OscTestSuite):
             # wait CGW state == ready before making configuration
             wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw1_info[INSTANCE_ID_LIST][0]], state='ready')
 
-            sshclient1 = SshTools.check_connection_paramiko(self.inst_cgw1_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw1_info[KEY_PAIR][PATH],
-                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            sshclient1 = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw1_info[INSTANCE_SET][0]['instanceId'],
+                                                          self.inst_cgw1_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw1_info[KEY_PAIR][PATH],
+                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             setup_customer_gateway(self.a1_r1, sshclient1, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
-                                   self.inst_cgw1_info, vgw1_ip, psk1_key, static, vpn1_id, racoon=racoon)
+                                   self.inst_cgw1_info, vgw1_ip, psk1_key, static, vpn1_id, index=0, ike="ikev1",
+                                   racoon=racoon, vti=True, xfrm=xfrm)
 
             # wait vpc instance state == ready before try to make ping
             wait_tools.wait_instances_state(self.a1_r1,
@@ -215,11 +217,13 @@ class Test_multi_vpn(OscTestSuite):
             # wait CGW state == ready before making configuration
             wait_tools.wait_instances_state(self.a1_r1, [self.inst_cgw2_info[INSTANCE_ID_LIST][0]], state='ready')
 
-            sshclient2 = SshTools.check_connection_paramiko(self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw2_info[KEY_PAIR][PATH],
-                                                            username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-
+            sshclient2 = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'],
+                                                          self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw2_info[KEY_PAIR][PATH],
+                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            if policy:
+                vti = False
             setup_customer_gateway(self.a1_r1, sshclient2, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
-                                   self.inst_cgw2_info, vgw2_ip, psk2_key, static, vpn2_id, index=1, racoon=racoon)
+                                   self.inst_cgw2_info, vgw2_ip, psk2_key, static, vpn2_id, index=1, racoon=racoon, ike="ikev1", vti=vti, xfrm=xfrm)
 
             inst2 = self.inst_cgw2_info[INSTANCE_SET][0]
             print("inst2 cgw -> : {} -- {}".format(inst2['ipAddress'], inst2['privateIpAddress']))
@@ -283,3 +287,12 @@ class Test_multi_vpn(OscTestSuite):
 
     def test_T5143_test_vpn_static_strongswan(self):
         self.exec_test_vpn(static=False, racoon=False, default_rtb=True)
+
+    def test_T5655_test_vpn_static_strongswan_vti_policy(self):
+        self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=True,  policy=True, xfrm=True)
+
+    def test_T5662_test_vpn_static_strongswan_vti_vti(self):
+        self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=True, policy=False, xfrm=True)
+
+    def test_T5663_test_vpn_static_strongswan_policy_policy(self):
+        self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=False, policy=False, xfrm=True)

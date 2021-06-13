@@ -2,7 +2,7 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
 
@@ -90,6 +90,7 @@ class Test_CreateVolume(OscTestSuite):
             self.a1_r1.oapi.CreateVolume(Size=-1, SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
+            known_error('API-246', 'Error code changed')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2953_invalid_snapshot_id(self):
@@ -127,6 +128,7 @@ class Test_CreateVolume(OscTestSuite):
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
+            known_error('API-246', 'Error code changed')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2958_volume_type_io1_invalid_size(self):
@@ -136,6 +138,7 @@ class Test_CreateVolume(OscTestSuite):
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
+            known_error('API-246', 'Error code changed')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2959_volume_type_io1_invalid_iops(self):
@@ -165,30 +168,25 @@ class Test_CreateVolume(OscTestSuite):
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4029')
-
-    def test_T2960_valid_volume_type(self):
         try:
-            ret = self.a1_r1.oapi.CreateVolume(VolumeType='standard', SubregionName=self.azs[0], Size=2).response.Volume
-            self.vol_ids.append(ret.VolumeId)
-            validate_volume_response(ret, az=self.azs[0], volume_type='standard')
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
-            assert False, 'Error should not occurs'
-        try:
-            ret = self.a1_r1.oapi.CreateVolume(VolumeType='gp2', SubregionName=self.azs[0], Size=2).response.Volume
-            self.vol_ids.append(ret.VolumeId)
-            validate_volume_response(ret, az=self.azs[0], volume_type='gp2')
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
-            assert False, 'Error should not occurs'
-        try:
-            ret = self.a1_r1.oapi.CreateVolume(VolumeType='io1', SubregionName=self.azs[0],
-                                               Size=4, Iops=100).response.Volume
-            self.vol_ids.append(ret.VolumeId)
-            validate_volume_response(ret, az=self.azs[0], volume_type='io1')
+            self.a1_r1.oapi.CreateVolume(VolumeType='io1', Size=4, SubregionName=self.azs[0])
+            assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
-            assert False, 'Error should not occurs'
+
+    def test_T2960_valid_volume_type(self):
+        ret = self.a1_r1.oapi.CreateVolume(VolumeType='standard', SubregionName=self.azs[0], Size=2).response.Volume
+        self.vol_ids.append(ret.VolumeId)
+        validate_volume_response(ret, az=self.azs[0], volume_type='standard')
+
+        ret = self.a1_r1.oapi.CreateVolume(VolumeType='gp2', SubregionName=self.azs[0], Size=2).response.Volume
+        self.vol_ids.append(ret.VolumeId)
+        validate_volume_response(ret, az=self.azs[0], volume_type='gp2')
+
+        ret = self.a1_r1.oapi.CreateVolume(VolumeType='io1', SubregionName=self.azs[0],
+                                           Size=4, Iops=100).response.Volume
+        self.vol_ids.append(ret.VolumeId)
+        validate_volume_response(ret, az=self.azs[0], volume_type='io1')
 
     def test_T2961_valid_from_snapshot_id_of_volume_standard(self):
         snap_id = None

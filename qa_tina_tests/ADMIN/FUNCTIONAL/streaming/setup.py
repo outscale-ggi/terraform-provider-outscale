@@ -7,6 +7,7 @@ from qa_common_tools.ssh import SshTools
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
 from qa_test_tools.config import config_constants as constants
+from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_all
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
@@ -19,10 +20,10 @@ DEFAULT_SNAP_CFG = [
     # nb_snap, vol_size, w_size, fio
     # (10, 10, 100, False),
     # (45, 10, 10, False),
-    (45, 10, 20, False),
+    (34, 10, 20, False),
     # (20, 1000, 200, False)
 ]
-INST_TYPE = 'c4.xlarge'
+INST_TYPE = 'tinav4.c2r4p2'
 
 
 def setup_streaming_ressources(osc_sdk):
@@ -38,12 +39,9 @@ def setup_streaming_ressources(osc_sdk):
                 inst_info = create_instances(osc_sdk, state='ready', inst_type=INST_TYPE)
             _, [vol_id] = create_volumes(osc_sdk, size=snap_cfg[1])
             wait_volumes_state(osc_sdk, [vol_id], 'available')
-            sshclient = SshTools.check_connection_paramiko(
-                inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH], username=osc_sdk.config.region.get_info(constants.CENTOS_USER)
-            )
             osc_sdk.fcu.AttachVolume(InstanceId=inst_info[INSTANCE_ID_LIST][0], VolumeId=vol_id, Device='/dev/xvdc')
             wait_volumes_state(osc_sdk, [vol_id], state='in-use')
-            sshclient = SshTools.check_connection_paramiko(
+            sshclient = check_tools.check_ssh_connection(osc_sdk, inst_info[INSTANCE_SET][0]['instanceId'],
                 inst_info[INSTANCE_SET][0]['ipAddress'], inst_info[KEY_PAIR][PATH], username=osc_sdk.config.region.get_info(constants.CENTOS_USER)
             )
             if snap_cfg[3]:

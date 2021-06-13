@@ -328,7 +328,7 @@ class Test_ReadImages(OscTestSuite):
         assert ret[0].ImageId == self.a1_r1.config.region.get_info(constants.CENTOS7)
         assert ret[0].ImageName
         assert ret[0].PermissionsToLaunch.GlobalPermission
-        assert ret[0].PermissionsToLaunch.AccountIds
+        assert not ret[0].PermissionsToLaunch.AccountIds
         assert ret[0].ProductCodes is not None
         assert ret[0].RootDeviceName == '/dev/sda1'
         assert ret[0].RootDeviceType == 'bsu'

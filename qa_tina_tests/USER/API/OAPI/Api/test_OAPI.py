@@ -3,6 +3,7 @@ import datetime
 import json
 import re
 import subprocess
+from packaging import version
 
 import pytest
 
@@ -79,30 +80,6 @@ class Test_OAPI(OscTestSuite):
         # known_error('', 'Remove all AWS references in OAPI requests')
         pass
 
-    @pytest.mark.skip('obsolete for now, per account per call not supported : GTW-1188')
-    @pytest.mark.tag_sec_availability
-    def test_T2229_throttling(self):
-        osc_api.disable_throttling()
-        nb_ok = 0
-        nb_ko = 0
-        start = datetime.datetime.now()
-        for _ in range(100):
-            try:
-                self.a1_r1.oapi.ReadDhcpOptions(DryRun=True, exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
-                nb_ok += 1
-            except OscApiException as error:
-                if error.status_code == 401:  # hack
-                    pass
-                elif error.status_code == 503:
-                    nb_ko += 1
-                else:
-                    raise
-        print('Sent 100 messages in {}'.format(datetime.datetime.now() - start))
-        print('OK --> {} -- KO --> {}'.format(nb_ok, nb_ko))
-        osc_api.enable_throttling()
-        assert nb_ok != 0
-        assert nb_ko != 0
-
     def test_T3749_check_aws_signature(self):
         self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_SIGN: 'AWS'})
 
@@ -115,6 +92,8 @@ class Test_OAPI(OscTestSuite):
         result = subprocess.check_output(batcmd, shell=True)
         result2 = json.loads(result)
         assert 'Version' in result2 and result1['Versions'][0] == "v" + result2['Version'][0]
+        assert version.parse(result2['Version']).major == self.version.major
+        assert version.parse(result2['Version']).minor == self.version.minor
         assert len(DOCUMENTATIONS['oapi'][self.version][PATHS]) == len(result2['Calls'])
         for call in result2['Calls']:
             assert '/' + call in DOCUMENTATIONS['oapi'][self.version][PATHS]

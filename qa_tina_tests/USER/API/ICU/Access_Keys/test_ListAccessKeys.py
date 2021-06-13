@@ -51,6 +51,7 @@ class Test_ListAccessKeys(OscTestSuite):
         finally:
             if ak_id:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak_id)
+
     def test_T3775_check_throttling(self):
         sleep(11)
         found_error = False

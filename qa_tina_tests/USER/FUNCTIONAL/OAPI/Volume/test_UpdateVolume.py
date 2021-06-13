@@ -11,6 +11,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, PATH, KEY_PAIR
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state
+from qa_tina_tools.tina import check_tools
 
 
 class Test_UpdateVolume(OscTestSuite):
@@ -47,7 +48,8 @@ class Test_UpdateVolume(OscTestSuite):
 
             wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=self.inst_info[INSTANCE_ID_LIST], state='ready')
 
-            self.sshclient = SshTools.check_connection_paramiko(self.inst_info[INSTANCE_SET][0]['ipAddress'],
+            self.sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_info[INSTANCE_ID_LIST][0],
+                                                               self.inst_info[INSTANCE_SET][0]['ipAddress'],
                                                                 self.inst_info[KEY_PAIR][PATH],
                                                                 username=self.a1_r1.config.region.get_info(
                                                                     constants.CENTOS_USER))
@@ -138,7 +140,7 @@ class Test_UpdateVolume(OscTestSuite):
         assert vol_size == size_detected
 
         # write file
-        cmd = 'sudo openssl rand -out {}/data_x.txt -base64 $(({} * 2**20 * 3/4))'.format(self.volume_mount, 10**9)
+        cmd = 'sudo dd if=/dev/zero of={}/data_x.txt bs=1 count=0 seek=10G'.format(self.volume_mount)
         SshTools.exec_command_paramiko(self.sshclient, cmd, eof_time_out=500)
 
         cmd = 'sudo cat {}/data_*.txt | md5sum'.format(self.volume_mount)
