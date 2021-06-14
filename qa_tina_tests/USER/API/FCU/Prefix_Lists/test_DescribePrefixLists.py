@@ -89,14 +89,14 @@ class Test_DescribePrefixLists(OscTestSuite):
 
     def test_T5710_with_filter_unknown(self):
         try:
-            self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "foo", "Value": ["bar"]}]).response
+            self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "foo", "Value": ["bar"]}])
             assert False, "call should not have been successful"
         except OscApiException as error:
             misc.assert_error(error, 400, "InvalidFilter", "The filter 'foo' is invalid")
 
     def test_T5711_with_filter_invalid_name_type(self):
         try:
-            self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": {"foo": "bar"}, "Value":["bar"]}]).response
+            self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": {"foo": "bar"}, "Value":["bar"]}])
             assert False, "call should not have been successful"
         except OscApiException as error:
             misc.assert_error(error, 400, "InvalidParameterValue", "Unexpected parameter Filter.1.Name.foo")
