@@ -1,0 +1,41 @@
+{
+    "requestId": "erased",
+    "nextToken": "erased",
+    "prefixListSet": [
+        {
+            "cidrSet": [
+                "###VALUE2###"
+            ],
+            "prefixListId": "###VALUE0###",
+            "prefixListName": "###VALUE1###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE3###",
+            "prefixListName": "###VALUE4###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE6###",
+            "prefixListName": "###VALUE7###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE9###",
+            "prefixListName": "###VALUE10###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE12###",
+            "prefixListName": "###VALUE13###"
+        }
+    ]
+}

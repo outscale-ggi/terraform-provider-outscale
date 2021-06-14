@@ -1,0 +1,68 @@
+{
+    "requestId": "erased",
+    "prefixListSet": [
+        {
+            "cidrSet": [
+                "171.33.77.119/32"
+            ],
+            "prefixListId": "pl-8a30327d",
+            "prefixListName": "com.outscale.in-west-1.osu"
+        },
+        {
+            "cidrSet": [
+                "10.27.13.133/32"
+            ],
+            "prefixListId": "pl-dcbd245b",
+            "prefixListName": "com.outscale.in-west-1.fcu"
+        },
+        {
+            "cidrSet": [
+                "10.27.13.133/32"
+            ],
+            "prefixListId": "pl-e07ba6f8",
+            "prefixListName": "com.outscale.in-west-1.lbu"
+        },
+        {
+            "cidrSet": [
+                "10.27.13.133/32"
+            ],
+            "prefixListId": "pl-36ad0558",
+            "prefixListName": "com.outscale.in-west-1.eim"
+        },
+        {
+            "cidrSet": [
+                "10.27.13.133/32"
+            ],
+            "prefixListId": "pl-2bacfd54",
+            "prefixListName": "com.outscale.in-west-1.icu"
+        },
+        {
+            "cidrSet": [
+                "10.27.13.133/32"
+            ],
+            "prefixListId": "pl-1b504c88",
+            "prefixListName": "com.outscale.in-west-1.directlink"
+        },
+        {
+            "cidrSet": [
+                "10.27.13.133/32"
+            ],
+            "prefixListId": "pl-33b2dc99",
+            "prefixListName": "com.outscale.in-west-1.api"
+        },
+        {
+            "cidrSet": [
+                "10.27.13.133/32"
+            ],
+            "prefixListId": "pl-682dfa60",
+            "prefixListName": "com.outscale.in-west-1.kms"
+        },
+        {
+            "cidrSet": [
+                "148.253.69.97/32"
+            ],
+            "prefixListId": "pl-ce82d320",
+            "prefixListName": "com.outscale.in-west-1.oos"
+        }
+    ]
+}

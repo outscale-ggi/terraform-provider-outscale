@@ -183,26 +183,18 @@ class Test_vms_and_volumes(OscTestSuite):
             self.logger.info(out)
             assert vm_a_private_ip in out
 
-            # check if nslookup installed
-            cmd = "command -v nslookup"
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-            command_v, _ = proc.communicate()
-            if command_v == "":
-                cmd = "sudo yum install -y bind-utils"
-                proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-                proc.wait()
-
             # get vm a private dns name from internet
             cmd = "nslookup " + vm_a_private_dns_name
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
             out, _ = proc.communicate()
-            assert vm_a_private_ip in out
+            assert vm_a_private_ip in out.decode('utf-8')
+
 
             # get vm a public dns name from internet
             cmd = "nslookup " + vm_a_public_dns_name
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
             out, _ = proc.communicate()
-            assert vm_a_public_ip in out
+            assert vm_a_public_ip in out.decode('utf-8')
 
         finally:
             if is_attached_volume_a:
