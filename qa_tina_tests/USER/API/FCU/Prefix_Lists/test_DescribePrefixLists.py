@@ -60,8 +60,6 @@ class Test_DescribePrefixLists(OscTestSuite):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-id",
                                                            "Value": {"foo": "bar"}}]).response
         assert not resp.prefixListSet
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                           'read_with_filter_invalid_type_prefix_list_id.json'), self.hints)
 
     def test_T5688_with_filter_prefix_list_name(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-name",
