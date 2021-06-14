@@ -8,7 +8,7 @@ OPTIONAL_SERVICES = ["kms", "osu", "oos"]
 class Test_prefix_lists(OscTestSuite):
 
     def test_T5716_content(self):
-        self.a1_r1.fcu.DescribePrefixLists().response
+        self.a1_r1.fcu.DescribePrefixLists()
         for service in SERVICES:
             assert "{}.{}".format(self.a1_r1.config.region.get_info(config_constants.HOST).split('.').reverse(),
                                   service)
