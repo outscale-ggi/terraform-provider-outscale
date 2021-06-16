@@ -4,6 +4,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
+from qa_sdk_pub import osc_api
 
 
 class Test_UpdateCa(OscTestSuite):
@@ -49,3 +50,10 @@ class Test_UpdateCa(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4122')
+
+    def test_T5725_login_password(self):
+        ret = self.a1_r1.oapi.UpdateCa(
+            exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+            CaId=self.ca_id, Description='test update')
+        ret.check_response()
+        assert ret.response.Ca.Description == 'test update'

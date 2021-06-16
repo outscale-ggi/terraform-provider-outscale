@@ -4,6 +4,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
+from qa_sdk_pub import osc_api
 
 
 class Test_DeleteCa(OscTestSuite):
@@ -51,5 +52,12 @@ class Test_DeleteCa(OscTestSuite):
 
     def test_T5308_valid_params(self):
         ret = self.a1_r1.oapi.DeleteCa(CaId=self.ca_id)
+        self.__class__.ca_id = None
+        ret.check_response()
+
+    def test_T5723_login_password(self):
+        ret = self.a1_r1.oapi.DeleteCa(
+            exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+            CaId=self.ca_id)
         self.__class__.ca_id = None
         ret.check_response()
