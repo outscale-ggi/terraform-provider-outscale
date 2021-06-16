@@ -1,4 +1,5 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_pub import osc_api
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_tina_tools.tools.tina import create_tools
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
@@ -89,3 +90,10 @@ class Test_CreateApiAccessRule(ApiAccessRule):
             Description='description', CaIds=self.ca_ids,
             Cns=[create_tools.CLIENT_CERT_CN1, create_tools.CLIENT_CERT_CN2], IpRanges=["1.1.1.1/32", "2.2.2.2/32"], DryRun=True)
         assert_dry_run(ret)
+
+    def test_T5718_login_password(self):
+        ret = self.osc_sdk.oapi.CreateApiAccessRule(
+            exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+            Description='description', CaIds=self.ca_ids,
+            Cns=[create_tools.CLIENT_CERT_CN1, create_tools.CLIENT_CERT_CN2], IpRanges=["3.3.3.3/32", "2.2.2.2/32"])
+        ret.check_response()
