@@ -4,6 +4,7 @@ from qa_tina_tools.tools.tina import create_tools
 from qa_test_tools.misc import compare_validate_objects, assert_dry_run, assert_oapi_error
 from qa_test_tools.test_base import known_error
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
+from qa_sdk_pub import osc_api
 
 
 class Test_UpdateApiAccessRule(ApiAccessRule):
@@ -204,3 +205,18 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
             assert False, "Call should not have been successful"
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
+
+    def test_T5721_login_password(self):
+        self.my_setup()
+        ret = self.osc_sdk.oapi.UpdateApiAccessRule(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+                                                    ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId,
+                                                    CaIds=self.ca_ids[0:1],
+                                                    Cns=[create_tools.CLIENT_CERT_CN1],
+                                                    Description='NewDescription',
+                                                    IpRanges=["1.1.1.1/32"])
+        ret.check_response()
+        compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule,
+                                 CaIds=self.ca_ids[0:1],
+                                 Cns=[create_tools.CLIENT_CERT_CN1],
+                                 Description='NewDescription',
+                                 IpRanges=["1.1.1.1/32"])

@@ -5,6 +5,7 @@ from specs import check_tools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite
+from qa_sdk_pub import osc_api
 
 
 class Test_ReadSecretAccessKey(OscTestSuite):
@@ -73,3 +74,10 @@ class Test_ReadSecretAccessKey(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             misc.assert_oapi_error(error, 401, 'AccessDenied', '1')
+
+    def test_T5728_login_password(self):
+        ret = self.a1_r1.oapi.ReadSecretAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=self.ak)
+        check_tools.check_oapi_response(ret.response, 'ReadSecretAccessKeyResponse')
+        assert ret.response.AccessKey
+        assert ret.response.AccessKey.AccessKeyId == self.ak
+        assert ret.response.AccessKey.SecretKey == self.a1_r1.config.account.sk

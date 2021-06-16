@@ -2,6 +2,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.tools.tina import create_tools
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
+from qa_sdk_pub import osc_api
 
 
 class Test_ReadApiAccessRules(ApiAccessRule):
@@ -111,3 +112,8 @@ class Test_ReadApiAccessRules(ApiAccessRule):
     def test_T5279_dry_run(self):
         ret = self.osc_sdk.oapi.ReadApiAccessRules(DryRun=True)
         assert_dry_run(ret)
+
+    def test_T5720_login_password(self):
+        ret = self.osc_sdk.oapi.ReadApiAccessRules(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
+        ret.check_response()
+        assert len(ret.response.ApiAccessRules) == 6
