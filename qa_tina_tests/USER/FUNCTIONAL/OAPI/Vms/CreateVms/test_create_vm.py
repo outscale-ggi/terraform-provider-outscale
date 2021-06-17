@@ -23,7 +23,7 @@ class Test_create_vm(OscTestSuite):
         group = self.a1_r1.intel.hardware.get_account_bindings(account=self.users[0]).response.result[0]
         self.a1_r1.intel.hardware.set_account_bindings(account=self.users[0], groups=[])
         try:
-            vm_id = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7)).response.Vms[0].VmId
+            vm_id = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)).response.Vms[0].VmId
             assert False, 'Call should not be successful'
         except OscApiException as error:
             misc.assert_error(error, 400, '10001', 'InsufficientCapacity')
@@ -38,10 +38,10 @@ class Test_create_vm(OscTestSuite):
         vm_id_bis = None
         token = misc.id_generator('token')
         try:
-            vm_id = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+            vm_id = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                               ClientToken=token).response.Vms[0].VmId
             try:
-                vm_id_bis = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+                vm_id_bis = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                                       ClientToken=token).response.Vms[0].VmId
             except OscApiException as error:
                 misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4119)

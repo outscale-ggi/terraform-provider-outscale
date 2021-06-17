@@ -75,7 +75,7 @@ def create_vm(osc_sdk, queue, args, index):
     for num_call in range(args.num_call_per_process):
         try:
             vm_id = None
-            vm_id = osc_sdk.oapi.CreateVms(ImageId=osc_sdk.config.region.get_info(constants.CENTOS7), VmType='t2.nano',
+            vm_id = osc_sdk.oapi.CreateVms(ImageId=osc_sdk.config.region.get_info(constants.CENTOS_LATEST), VmType='t2.nano',
                                            exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0}).response.Vms[0].VmId
             num_created += 1
             try:

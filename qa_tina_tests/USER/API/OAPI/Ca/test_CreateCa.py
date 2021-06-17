@@ -1,4 +1,5 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_pub import osc_api
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
@@ -57,4 +58,12 @@ class Test_CreateCa(OscTestSuite):
     def test_T5304_dry_run_false(self):
         with open(self.ca1files[1]) as cafile:
             ret = self.a1_r1.oapi.CreateCa(CaPem=cafile.read(), Description='test ca', DryRun=False)
+        self.cas.append(ret.response.Ca.CaId)
+
+    def test_T5722_login_password(self):
+        with open(self.ca1files[1]) as cafile:
+            ret = self.a1_r1.oapi.CreateCa(
+                exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+                CaPem=cafile.read(), Description='test ca')
+        ret.check_response()
         self.cas.append(ret.response.Ca.CaId)

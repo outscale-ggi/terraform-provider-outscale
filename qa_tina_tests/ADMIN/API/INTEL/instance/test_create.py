@@ -16,7 +16,7 @@ class Test_create(OscTestSuite):
     def test_T4896_with_resource_tags(self):
         resource_tags = {'instance': {'name': 'toto'}, 'volume': {'name': 'titi'}}
         model = {
-            'ami': self.a1_r1.config.region.get_info(constants.CENTOS7),
+            'ami': self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
             'resource_tags': resource_tags,
             'type': "t2.nano",
         }

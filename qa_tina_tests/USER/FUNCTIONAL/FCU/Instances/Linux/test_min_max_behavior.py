@@ -54,7 +54,7 @@ class Test_min_max_behavior(OscTestSuite):
             inst_ids = None
             try:
                 core_per_inst = int(kvm_selected.available_core//10)
-                ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7), MaxCount=20,
+                ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount=20,
                                                   MinCount=5,
                                                   InstanceType='tinav1.c{}r1'.format(core_per_inst),
                                                   UserData=userdata)

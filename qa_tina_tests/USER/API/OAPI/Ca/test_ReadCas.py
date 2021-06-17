@@ -1,3 +1,4 @@
+from qa_sdk_pub import osc_api
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
@@ -61,3 +62,7 @@ class Test_ReadCas(OscTestSuite):
     def test_T5316_with_non_existent_CaIds_filters(self):
         ret = self.a2_r1.oapi.ReadCas()
         assert len(ret.response.Cas) == 0
+
+    def test_T5724_login_password(self):
+        resp = self.a1_r1.oapi.ReadCas(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}).response
+        assert len(resp.Cas) == 2

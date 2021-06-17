@@ -30,7 +30,7 @@ def create_vm(osc_sdk, queue, args):
     for _ in range(args.num_call_per_process):
         try:
             vm_id = None
-            vm_id = osc_sdk.oapi.CreateVms(ImageId=osc_sdk.config.region.get_info(constants.CENTOS7),
+            vm_id = osc_sdk.oapi.CreateVms(ImageId=osc_sdk.config.region.get_info(constants.CENTOS_LATEST),
                                            VmType='t2.nano', max_retry=0).response.Vms[0].VmId
             vm_ids.append(vm_id)
         except OscApiException as error:
