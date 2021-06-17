@@ -23,7 +23,7 @@ class Test_ReadVms(OscTestSuite):
             hints.append(cls.a1_r1.config.region.name)
             hints.append(cls.a1_r1.config.region.az_name)
             hints.append(cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE))
-            hints.append(cls.a1_r1.config.region.get_info(constants.CENTOS7))
+            hints.append(cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST))
             for vm_info in cls.vm_info[info_keys.VMS]:
                 hints.append(vm_info["VmId"])
                 for sg_info in vm_info["SecurityGroups"]:
