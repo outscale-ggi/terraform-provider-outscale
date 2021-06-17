@@ -1,4 +1,5 @@
 
+import os
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
@@ -6,18 +7,40 @@ from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
-from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
-from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response
-
+from qa_test_tools.compare_objects import verify_response, create_hints
+from qa_tina_tools.tina import oapi
+from qa_tina_tools.tina.oapi import info_keys
 
 class Test_ReadVms(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
+        cls.vm_info = None
         super(Test_ReadVms, cls).setup_class()
         try:
-            _, cls.vm_ids = create_vms(cls.a1_r1, MaxVmsCount=3, MinVmsCount=3)
-            cls.info = None
+            cls.vm_info = oapi.create_Vms(cls.a1_r1, nb=3)
+            hints = []
+            hints.append(cls.a1_r1.config.region.name)
+            hints.append(cls.a1_r1.config.region.az_name)
+            hints.append(cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE))
+            hints.append(cls.a1_r1.config.region.get_info(constants.CENTOS7))
+            for vm_info in cls.vm_info[info_keys.VMS]:
+                hints.append(vm_info["VmId"])
+                for sg_info in vm_info["SecurityGroups"]:
+                    hints.append(sg_info["SecurityGroupId"])
+                    hints.append(sg_info["SecurityGroupName"])
+                for bdm_info in vm_info["BlockDeviceMappings"]:
+                    hints.append(bdm_info["Bsu"]["VolumeId"])
+                hints.append(str(vm_info["LaunchNumber"]))
+                hints.append(vm_info["ReservationId"])
+                hints.append(vm_info["PrivateDnsName"])
+                hints.append(vm_info["PrivateIp"])
+                hints.append(vm_info["PublicDnsName"])
+                hints.append(vm_info["PublicIp"])
+                hints.append(vm_info["KeypairName"])
+                hints.append(vm_info["CreationDate"])
+            cls.hints = create_hints(hints)
+
         except:
             try:
                 cls.teardown_class()
@@ -27,9 +50,8 @@ class Test_ReadVms(OscTestSuite):
     @classmethod
     def teardown_class(cls):
         try:
-            if cls.vm_ids:
-                cls.a1_r1.fcu.StopInstances(InstanceId=cls.vm_ids, Force=True)
-                cls.a1_r1.fcu.TerminateInstances(InstanceId=cls.vm_ids)
+            if cls.vm_info:
+                oapi.delete_Vms(cls.a1_r1, cls.vm_info)
         finally:
             super(Test_ReadVms, cls).teardown_class()
 
@@ -39,61 +61,11 @@ class Test_ReadVms(OscTestSuite):
 
     def test_T2070_without_filters(self):
         vms = self.a1_r1.oapi.ReadVms().response.Vms
-        assert len(vms) == len(self.vm_ids)
+        assert len(vms) == len(self.vm_info)
 
     def test_T2069_with_ids(self):
-        ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': self.vm_ids[0:1]})
-        assert len(ret.response.Vms) == 1
-        validate_vm_response(
-            ret.response.Vms[0],
-            expected_vm=
-            {
-                'Architecture': 'x86_64',
-                'BlockDeviceMappings': None,
-                'BsuOptimized': False,
-                'DeletionProtection': False,
-                'Hypervisor': 'xen',
-                'ImageId': self.a1_r1.config.region.get_info(constants.CENTOS7),
-                'IsSourceDestChecked': True,
-                'LaunchNumber': 0,
-                'Placement': None,
-                'ProductCodes': None,
-                'ReservationId': None,
-                'RootDeviceName': '/dev/sda1',
-                'RootDeviceType': 'ebs',
-                'State': 'running',
-                'StateReason': None,
-                'UserData': None,
-                'VmId': self.vm_ids[0],
-                'VmInitiatedShutdownBehavior': 'stop',
-                'VmType': 't2.small'
-            },
-            placement=
-            {
-                'Tenancy': 'default',
-                'SubregionName': self.a1_r1.config.region.get_info(constants.ZONE)[0],
-            },
-            bdm=
-            [{
-                'DeviceName': 'default',
-                'Bsu': {
-                    'DeleteOnVmDeletion': True,
-                    'State': 'attached',
-                    'VolumeId': 'vol-',
-                },
-            }]
-        )
-        assert len(ret.response.Vms[0].SecurityGroups) == 1
-        # assert ret.response.Vms[0].LaunchNumber == 0 (not working for the moment)
-        # assert len(ret.response.Vms[0].Nics) == 0
-        # assert ret.response.Vms[0].PrivateIp != ''
-        assert len(ret.response.Vms[0].ProductCodes) == 1
-        # assert '.in-west-2.compute.outscale.com' in ret.response.Vms[0].PublicDnsName # TODO: valid only on in.
-        # assert ret.response.Vms[0].PublicIp != ''
-        # assert len(ret.response.Vms[0].SecurityGroups) == 1
-        # assert ret.response.Vms[0].VmType == 't2.small' # TODO : is it different in 'in' and 'dv'(m1.small) ?
-        assert not hasattr(ret.response.Vms[0], 'Nics')
-        # assert len(ret.response.Vms[0].Nics) == 1
+        ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': self.vm_info[info_keys.VM_IDS][0:1]})
+        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'readvms_with_ids.json'), self.hints)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3424_other_account(self):
@@ -102,12 +74,12 @@ class Test_ReadVms(OscTestSuite):
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3425_other_account_with_filter(self):
-        ret = self.a2_r1.oapi.ReadVms(Filters={'VmIds': self.vm_ids}).response.Vms
+        ret = self.a2_r1.oapi.ReadVms(Filters={'VmIds': self.vm_info[info_keys.VM_IDS]}).response.Vms
         assert not ret
 
     def test_T4390_with_tagged_vm(self):
-        self.a1_r1.oapi.CreateTags(ResourceIds=[self.vm_ids[1]], Tags=[{'Key': 'key', 'Value': 'value'}])
-        ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_ids[1]]})
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.vm_info[info_keys.VM_IDS][1]], Tags=[{'Key': 'key', 'Value': 'value'}])
+        ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_info[info_keys.VM_IDS][1]]})
         assert hasattr(ret.response.Vms[0], 'Tags')
 
     def test_T5075_with_state_filter(self):
