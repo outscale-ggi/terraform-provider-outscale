@@ -3,7 +3,7 @@ from qa_test_tools.test_base import OscTestSuite
 # from qa_tina_tools.tina import oapi, wait
 
 
-class Test_DeleteVpnConnection(OscTestSuite):
+class Test_UpdateVpnConnection(OscTestSuite):
     pass
 
 #     @classmethod
