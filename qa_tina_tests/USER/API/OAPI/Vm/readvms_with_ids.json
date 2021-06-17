@@ -1,0 +1,55 @@
+{
+    "ResponseContext": "erased",
+    "Vms": [
+        {
+            "Architecture": "x86_64",
+            "BlockDeviceMappings": [
+                {
+                    "Bsu": {
+                        "DeleteOnVmDeletion": true,
+                        "LinkDate": "###VALUE39###",
+                        "State": "attached",
+                        "VolumeId": "###VALUE7###"
+                    },
+                    "DeviceName": "/dev/sda1"
+                }
+            ],
+            "BsuOptimized": false,
+            "CreationDate": "###VALUE39###",
+            "DeletionProtection": false,
+            "Hypervisor": "xen",
+            "ImageId": "###VALUE3###",
+            "IsSourceDestChecked": true,
+            "KeypairName": "###VALUE38###",
+            "LaunchNumber": ###VALUE8###,
+            "Performance": "high",
+            "Placement": {
+                "SubregionName": "###VALUE1###",
+                "Tenancy": "default"
+            },
+            "PrivateDnsName": "###VALUE10###",
+            "PrivateIp": "###VALUE11###",
+            "ProductCodes": [
+                "0001"
+            ],
+            "PublicDnsName": "###VALUE12###",
+            "PublicIp": "###VALUE13###",
+            "ReservationId": "###VALUE33###",
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+                {
+                    "SecurityGroupId": "###VALUE29###",
+                    "SecurityGroupName": "###VALUE30###"
+                }
+            ],
+            "State": "running",
+            "StateReason": "",
+            "Tags": [],
+            "UserData": "",
+            "VmId": "###VALUE4###",
+            "VmInitiatedShutdownBehavior": "stop",
+            "VmType": "###VALUE2###"
+        }
+    ]
+}
