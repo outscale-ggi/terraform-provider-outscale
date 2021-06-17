@@ -28,7 +28,7 @@ class Test_UpdateVolume(OscTestSuite):
         cls.vol_ids = dict()
         cls.vm_info = None
         try:
-            image_id = cls.a1_r1.config.region.get_info(constants.CENTOS7)
+            image_id = cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
             cls.vm_info = cls.a1_r1.oapi.CreateVms(ImageId=image_id).response.Vms[0]
             wait_Vms_state(cls.a1_r1, [cls.vm_info.VmId], state='running')
 

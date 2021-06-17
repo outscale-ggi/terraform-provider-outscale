@@ -14,7 +14,7 @@ class Test_DeleteImage(OscTestSuite):
         super(Test_DeleteImage, cls).setup_class()
         cls.image_id = None
         try:
-            image_id = cls.a1_r1.config.region.get_info(constants.CENTOS7)
+            image_id = cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
             cls.image_id = cls.a1_r1.oapi.CreateImage(
                 SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name).response.Image.ImageId
         except:
@@ -34,7 +34,7 @@ class Test_DeleteImage(OscTestSuite):
     def test_T2215_valid_params(self):
         img_id = None
         try:
-            img_id = self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+            img_id = self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                                  SourceRegionName=self.a1_r1.config.region.name).response.Image.ImageId
             wait_images_state(self.a1_r1, [img_id], state='available')
             self.a1_r1.oapi.DeleteImage(ImageId=img_id)
@@ -46,7 +46,7 @@ class Test_DeleteImage(OscTestSuite):
     def test_T2216_valid_params_dry_run(self):
         img_id = None
         try:
-            img_id = self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+            img_id = self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                                  SourceRegionName=self.a1_r1.config.region.name).response.Image.ImageId
             wait_images_state(self.a1_r1, [img_id], state='available')
             ret = self.a1_r1.oapi.DeleteImage(ImageId=img_id, DryRun=True)
@@ -80,7 +80,7 @@ class Test_DeleteImage(OscTestSuite):
     def test_T3544_with_other_user(self):
         img_id = None
         try:
-            img_id = self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+            img_id = self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                                  SourceRegionName=self.a1_r1.config.region.name).response.Image.ImageId
             wait_images_state(self.a1_r1, [img_id], state='available')
             self.a2_r1.oapi.DeleteImage(ImageId=img_id)

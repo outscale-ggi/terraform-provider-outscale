@@ -36,7 +36,7 @@ class Test_RegisterInstancesWithLoadBalancer(OscTestSuite):
             cls.name_2 = id_generator(prefix='lbu-')
             create_load_balancer(cls.a1_r1, cls.name_2, listeners=[{'InstancePort': '80', 'LoadBalancerPort': '80', 'Protocol': 'HTTP'}],
                                  scheme='internal', subnets=[cls.subnet_id])
-            cls.omi = cls.a1_r1.config.region.get_info(constants.CENTOS7)
+            cls.omi = cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
             ret = create_vpc_old(cls.a1_r1, Configuration.get('vpc', '10_0_0_0_16'))
             cls.vpc_id_2 = ret.response.vpc.vpcId
             ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_1_0_24'), VpcId=cls.vpc_id_2)

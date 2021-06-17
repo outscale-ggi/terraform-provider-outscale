@@ -17,7 +17,7 @@ class Test_create_read_check(OscTestSuite):
         vmids = []
         try:
             for _ in range(10):
-                ret_inst = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7)).response.Vms
+                ret_inst = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)).response.Vms
                 vmids.extend([vm.VmId for vm in ret_inst])
                 ret_read = self.a1_r1.oapi.ReadVms(Filters={'VmIds': vmids}).response.Vms
                 assert sorted(vmids) == sorted([vm.VmId for vm in ret_read])
@@ -31,7 +31,7 @@ class Test_create_read_check(OscTestSuite):
         vmids = []
         try:
             for _ in range(10):
-                ret_inst = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+                ret_inst = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                                        MinCount=1, MaxCount=1).response.instancesSet
                 vmids.extend([vm.instanceId for vm in ret_inst])
                 ret_read = self.a1_r1.fcu.DescribeInstances(InstanceId=vmids).response

@@ -25,7 +25,7 @@ class Test_ntp(OscTestSuite):
         cls.vpc_info = None
         super(Test_ntp, cls).setup_class()
         try:
-            cls.inst_info[CENTOS] = create_instances(osc_sdk=cls.a1_r1, omi_id=cls.a1_r1.config.region.get_info(constants.CENTOS7))
+            cls.inst_info[CENTOS] = create_instances(osc_sdk=cls.a1_r1, omi_id=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST))
             try:
                 ubuntu_omi = cls.a1_r1.config.region.get_info(constants.UBUNTU)
                 if ubuntu_omi != "None":

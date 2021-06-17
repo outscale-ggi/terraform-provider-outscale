@@ -21,7 +21,7 @@ class Test_CopyImage(OscTestSuite):
 
         try:
             # get centos public image
-            cls.centos = cls.a1_r1.config.region.get_info(constants.CENTOS7)
+            cls.centos = cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
 
         except Exception as error:
             cls.logger.exception("An unexpected error happened, while setup")

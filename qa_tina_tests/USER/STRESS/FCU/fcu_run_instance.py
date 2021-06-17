@@ -22,7 +22,7 @@ DEFAULT_TYPE = 't2.nano'
 def create_vm(osc_sdk, queue, token):
     result = {}
     disable_throttling()
-    ret = osc_sdk.fcu.RunInstances(ImageId=osc_sdk.config.region.get_info(constants.CENTOS7),
+    ret = osc_sdk.fcu.RunInstances(ImageId=osc_sdk.config.region.get_info(constants.CENTOS_LATEST),
                                    InstanceType='t2.nano', MaxCount=1, MinCount=1,
                                    ClientToken=token)
 

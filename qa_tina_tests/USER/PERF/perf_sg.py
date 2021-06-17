@@ -25,7 +25,7 @@ def perf_sg(oscsdk, logger, queue, args):
 
     if not args.omi:
         logger.debug("OMI not specified, select default OMI")
-        omi = oscsdk.config.region.get_info(constants.CENTOS7)
+        omi = oscsdk.config.region.get_info(constants.CENTOS_LATEST)
     else:
         omi = args.omi
 

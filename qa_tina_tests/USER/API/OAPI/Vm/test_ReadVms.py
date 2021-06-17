@@ -53,7 +53,7 @@ class Test_ReadVms(OscTestSuite):
                 'BsuOptimized': False,
                 'DeletionProtection': False,
                 'Hypervisor': 'xen',
-                'ImageId': self.a1_r1.config.region.get_info(constants.CENTOS7),
+                'ImageId': self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                 'IsSourceDestChecked': True,
                 'LaunchNumber': 0,
                 'Placement': None,
