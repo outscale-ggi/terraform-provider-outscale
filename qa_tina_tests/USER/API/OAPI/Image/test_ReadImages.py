@@ -22,7 +22,7 @@ class Test_ReadImages(OscTestSuite):
         cls.snap1_id = None
         cls.volume_ids = None
         try:
-            image_id = cls.a1_r1.config.region.get_info(constants.CENTOS7)
+            image_id = cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
             cls.image_id = cls.a1_r1.oapi.CreateImage(SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name,
                                                       ImageName='test').response.Image.ImageId
             cls.image_id2 = cls.a1_r1.oapi.CreateImage(SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name,
@@ -311,7 +311,7 @@ class Test_ReadImages(OscTestSuite):
         assert ret[0].ImageId == self.image_id
 
     def test_T4513_filters_outscale_imageids(self):
-        ret = self.a1_r1.oapi.ReadImages(Filters={'ImageIds': [self.a1_r1.config.region.get_info(constants.CENTOS7)]}).response.Images
+        ret = self.a1_r1.oapi.ReadImages(Filters={'ImageIds': [self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)]}).response.Images
         assert len(ret) == 1
         assert ret[0].AccountAlias == "Outscale"
         assert ret[0].AccountId
@@ -325,7 +325,7 @@ class Test_ReadImages(OscTestSuite):
         assert ret[0].CreationDate
         assert hasattr (ret[0], 'Description')
         assert ret[0].FileLocation
-        assert ret[0].ImageId == self.a1_r1.config.region.get_info(constants.CENTOS7)
+        assert ret[0].ImageId == self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
         assert ret[0].ImageName
         assert ret[0].PermissionsToLaunch.GlobalPermission
         assert not ret[0].PermissionsToLaunch.AccountIds

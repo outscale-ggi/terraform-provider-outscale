@@ -38,7 +38,7 @@ def perf_inst_exec(oscsdk, logger, queue, args, opsys):
         if opsys == 'windows':
             omi = oscsdk.config.region.get_info(constants.WINDOWS_2016)
         else:
-            omi = oscsdk.config.region.get_info(constants.CENTOS7)
+            omi = oscsdk.config.region.get_info(constants.CENTOS_LATEST)
     else:
         omi = args.omi
 

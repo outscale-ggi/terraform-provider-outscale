@@ -95,7 +95,7 @@ private_only=true
     def test_T2277_with_incorrect_iops_in_bdm(self):
         ret = None
         try:
-            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7), MinCount=1, MaxCount=1,
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MinCount=1, MaxCount=1,
                                               BlockDeviceMapping=[{'DeviceName': '/dev/xvdb',
                                                                    'Ebs': {'VolumeSize': 600,
                                                                            'VolumeType': 'io1',
@@ -144,7 +144,7 @@ private_only=true
         vpc_info = None
         try:
             vpc_info = create_vpc(self.a1_r1, igw=False)
-            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7), MaxCount=1, MinCount=1,
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount=1, MinCount=1,
                                               cidr_prefix="10.0", PrivateIpAddress='21.22.23.24')
             instance_ids = [inst.instanceId for inst in ret.response.instancesSet]
             terminate_instances(self.a1_r1, instance_ids)
@@ -158,9 +158,9 @@ private_only=true
 
     def test_T5029_with_the_same_token(self):
         token = str(uuid.uuid4())
-        ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+        ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                           InstanceType='t2.nano', MaxCount=1, MinCount=1, ClientToken=token)
-        ret1 = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+        ret1 = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                            InstanceType='t2.nano', MaxCount=1, MinCount=1, ClientToken=token)
 
         responses_describe = self.a1_r1.fcu.DescribeInstances(InstanceId=[ret.response.instancesSet[0].instanceId,
@@ -171,7 +171,7 @@ private_only=true
     def test_T5031_with_invalid_type_token(self):
         try:
             token = ['151475']
-            self.a1_r1.fcu.RunInstances(ClientToken=token, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+            self.a1_r1.fcu.RunInstances(ClientToken=token, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                         MaxCount=1, MinCount=1)
             assert False, 'Cal should not have been successful'
         except OscApiException as error:

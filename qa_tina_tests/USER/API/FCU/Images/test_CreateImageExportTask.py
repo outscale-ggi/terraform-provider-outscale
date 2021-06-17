@@ -78,7 +78,7 @@ class Test_CreateImageExportTask(OscTestSuite):
 
     def test_T582_public_image(self):
         try:
-            self.a1_r1.fcu.CreateImageExportTask(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+            self.a1_r1.fcu.CreateImageExportTask(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                                  ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test'})
             pytest.fail("CreateImageExportTask should not have exceeded")
         except OscApiException as error:

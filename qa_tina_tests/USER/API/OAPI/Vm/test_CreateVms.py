@@ -124,7 +124,7 @@ echo "yes" > /tmp/userdata.txt
                 'BsuOptimized': False,
                 'DeletionProtection': False,
                 'Hypervisor': 'xen',
-                'ImageId': self.a1_r1.config.region.get_info(constants.CENTOS7),
+                'ImageId': self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                 'IsSourceDestChecked': True,
                 'LaunchNumber': 0,
                 'Performance': 'medium',
@@ -168,7 +168,7 @@ echo "yes" > /tmp/userdata.txt
                     'Architecture': 'x86_64',
                     'BsuOptimized': False,
                     'Hypervisor': 'xen',
-                    'ImageId': self.a1_r1.config.region.get_info(constants.CENTOS7),
+                    'ImageId': self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                     'IsSourceDestChecked': True,
                     'RootDeviceName': '/dev/sda1',
                     'RootDeviceType': 'ebs',
@@ -609,7 +609,7 @@ class Test_CreateVmsWithSubnet(OscTestSuite):
         validate_vm_response(
             ret.response.Vms[0],
             expected_vm={
-                'ImageId': self.a1_r1.config.region.get_info(constants.CENTOS7),
+                'ImageId': self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                 'PrivateDnsName': '.compute',
             },
             placement={
