@@ -9,11 +9,12 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_DeregisterInstancesFromLoadBalancer, cls).setup_class()
         cls.lbu_name = id_generator(prefix='lb-')
         cls.inst_ids = None
+        cls.ret_lb = None
+        super(Test_DeregisterInstancesFromLoadBalancer, cls).setup_class()
         try:
-            cls.inst_ids, _ = setup_public_load_balancer(cls.a1_r1, cls.lbu_name, [cls.a1_r1.config.region.az_name])
+            cls.inst_ids, cls.ret_lb = setup_public_load_balancer(cls.a1_r1, cls.lbu_name, [cls.a1_r1.config.region.az_name])
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -25,7 +26,8 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
         try:
             if cls.inst_ids:
                 delete_instances_old(cls.a1_r1, cls.inst_ids)
-            delete_lbu(cls.a1_r1, cls.lbu_name)
+            if cls.ret_lb:
+                delete_lbu(cls.a1_r1, cls.lbu_name)
         finally:
             super(Test_DeregisterInstancesFromLoadBalancer, cls).teardown_class()
 
@@ -82,7 +84,8 @@ class Test_DeregisterInstancesFromLoadBalancer(OscTestSuite):
                 print('Could not register instances.')
             assert False, 'Call should not have been successful, incorrect parameter type'
         except OscApiException as err:
-            assert_error(err, 400, 'ValidationError', 'Loadbalancer name does not have the good format')
+            assert_error(err, 400, 'InvalidParameterType',
+                         "Value of parameter 'LoadBalancerName' must be of type: basestring. Received: ['{}']".format(self.lbu_name))
 
     def test_T1551_instances_non_list_type(self):
         try:
