@@ -3,7 +3,7 @@ import os
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.compare_objects import verify_response, create_hints
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 
 
 class Test_DescribePrefixLists(OscTestSuite):
@@ -135,12 +135,13 @@ class Test_DescribePrefixLists(OscTestSuite):
 
     def test_T5690_with_valid_next_token(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(MaxResults=5).response
-        self.logger.debug(resp.display())
         next_token = resp.nextToken
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                            'read_with_max_result.json'), self.hints)
         resp = self.a1_r1.fcu.DescribePrefixLists(NextToken=next_token).response
-        self.logger.debug(resp.display())
+        if len(resp.prefixListSet) == 3:
+            known_error('TINA-6563', 'Incorrect pagination')
+        assert False, 'Remove known error code'
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                            'read_with_next_token.json'), self.hints)
 
