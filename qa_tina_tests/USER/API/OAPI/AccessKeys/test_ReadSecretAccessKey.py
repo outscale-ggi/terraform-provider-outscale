@@ -69,11 +69,8 @@ class Test_ReadSecretAccessKey(OscTestSuite):
     def test_T5675_ak_other_account(self):
         if not hasattr(self, 'a2_r1'):
             pytest.fail('This test requires 2 accounts.')
-        try:
-            self.a2_r1.oapi.ReadSecretAccessKey(AccessKeyId=self.a1_r1.config.account.ak)
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4120')
+        ret = self.a2_r1.oapi.ReadSecretAccessKey(AccessKeyId=self.a1_r1.config.account.ak)
+        assert not hasattr(ret.response, 'AccessKey')
 
     def test_T5728_login_password(self):
         try:
