@@ -112,7 +112,7 @@ class Test_ReadAccessKeys(OscTestSuite):
         try:
             ret_create = self.a1_r1.oapi.CreateAccessKey()
             ak = ret_create.response.AccessKey.AccessKeyId
-            self.a1_r1.oapi.ReadAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=ak)
+            self.a1_r1.oapi.ReadAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=ak)
             assert False, 'Remove known error code'
         except OscApiException as error:
             misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
