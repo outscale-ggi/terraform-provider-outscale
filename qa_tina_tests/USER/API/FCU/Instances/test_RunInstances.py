@@ -125,13 +125,13 @@ private_only=true
         quotas = {'gpu_limit': 2}
         max_quota_value = None
         try:
-            ret = self.a1_r1.icu.ReadQuotas()
-            max_quota_value = ret.response.ReferenceQuota[0].Quotas[4].MaxQuotaValue
+            ret = self.a1_r1.intel.quota.find_for_account(owner=self.a1_r1.config.account.account_id, quota_names=['gpu_limit'])
+            max_quota_value = ret.response.result.used.osc_global[0].max_quota_value
             for quota in quotas:
                 self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: quotas[quota]})
             inst_info = create_instances(self.a1_r1, inst_type='g3.8xlarge')
         except OscApiException as err:
-            assert_error(err, 400, 'MemoryLimitExceeded', 'The limit has exceeded: 40 GiB. Resource: g3.8xlarge.')
+            assert_error(err, 500, 'InsufficientInstanceCapacity', 'Insufficient Capacity')
         finally:
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)
