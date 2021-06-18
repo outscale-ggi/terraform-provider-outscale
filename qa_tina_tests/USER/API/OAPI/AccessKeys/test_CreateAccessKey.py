@@ -58,8 +58,9 @@ class Test_CreateAccessKey(OscTestSuite):
             assert False, 'Remove known error code'
             assert ak == ret_create.response.AccessKey.AccessKeyId, "AccesskeyID created does not correspond AccesskeyID passed"
             assert sk == ret_create.response.AccessKey.SecretKey, "SecrretAccesskey created does not correspond SecrretAccesskey passed"
-        except OscSdkException:
-            known_error('GTW-1240', 'SDK implementation ')
+        except OscApiException as error:
+            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            known_error('GTW-1961', 'Login Password Authentication does not function')
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ret_create.response.AccessKey.AccessKeyId)

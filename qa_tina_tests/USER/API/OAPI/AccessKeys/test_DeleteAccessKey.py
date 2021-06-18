@@ -98,8 +98,9 @@ class Test_DeleteAccessKey(OscTestSuite):
                                                          AccessKeyId=ak)
             assert False, 'remove known error'
             ret_delete.check_response()
-        except OscSdkException:
-            known_error('GTW-1240', 'SDK implementation ')
+        except OscApiException as error:
+            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            known_error('GTW-1961', 'Login Password Authentication does not function')
         finally:
             if ret_create and not ret_delete:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
