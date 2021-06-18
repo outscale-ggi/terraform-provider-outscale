@@ -20,7 +20,7 @@ class Test_DirectLink(OscTestSuite):
     def test_T3845_invalid_call(self):
         try:
             self.a1_r1.directlink.foo()
-            assert False, 'Call should have been successful'
+            assert False, 'Call not should have been successful'
         except OscApiException as error:
             assert error.status_code == 400
             assert error.error_code == "UnknownOperationException"
@@ -29,14 +29,14 @@ class Test_DirectLink(OscTestSuite):
     def test_T3846_invalid_param(self):
         try:
             self.a1_r1.directlink.DescribeLocations(foo='bar')
-            assert False, 'Call should have been successful'
+            assert False, 'Call not should have been successful'
         except OscApiException as error:
             misc.assert_error(error, 400, "DirectConnectClientException", "Operation doesn't expect any parameters")
 
     def test_T3847_method_get(self):
         try:
             self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_METHOD: 'GET'})
-            assert False, 'Call should have been successful'
+            assert False, 'Call not should have been successful'
         except OscApiException as error:
             assert error.status_code == 400
             assert error.error_code == "SerializationException"
@@ -50,7 +50,7 @@ class Test_DirectLink(OscTestSuite):
     def test_T3849_without_authentication(self):
         try:
             self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
-            assert False, 'Call should have been successful'
+            assert False, 'Call not should have been successful'
         except OscApiException as error:
             misc.assert_error(error, 401,"AuthFailure",
                               "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
@@ -61,7 +61,7 @@ class Test_DirectLink(OscTestSuite):
         self.a1_r1.config.account.sk = "foo"
         try:
             self.a1_r1.directlink.DescribeLocations()
-            assert False, 'Call should not have been successful'
+            assert False, 'Call not should not have been successful'
         except OscApiException as error:
             misc.assert_error(error, 403, "SignatureDoesNotMatch",
                               "The request signature we calculated does not match the signature you provided. " + \
