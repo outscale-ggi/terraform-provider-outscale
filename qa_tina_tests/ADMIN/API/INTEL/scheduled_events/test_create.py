@@ -252,7 +252,7 @@ class Test_create(OscTestSuite):
             self.events.append(ret.response.result.id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 200, 0, 'impossible-date-conversion')
+            assert_error(error, 200, 0, 'invalid-parameter-value - Value of parameter start_date must have UTC date format. Received: foo')
 
     def test_T2556_with_invalid_end_date(self):
         try:
@@ -265,7 +265,7 @@ class Test_create(OscTestSuite):
             self.events.append(ret.response.result.id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 200, 0, 'impossible-date-conversion')
+            assert_error(error, 200, 0, 'invalid-parameter-value - Value of parameter end_date must have UTC date format. Received: foo')
 
     def test_T2557_with_invalid_auto_actions(self):
         try:
@@ -279,10 +279,7 @@ class Test_create(OscTestSuite):
             self.events.append(ret.response.result.id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if error.message == 'Internal error.':
-                known_error('TINA-4684', 'Unexpected internal error')
-            assert False, "Remove known error"
-            assert_error(error, 200, 0, 'invalid auto_actions')
+            assert_error(error, 200, 0, "invalid-parameter-type - Value of parameter 'AutoActions' must be of type: bool. Received: foo")
 
     def test_T2558_with_end_before_start(self):
         try:
