@@ -8,6 +8,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.config import config_constants
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -84,7 +85,7 @@ class Test_CreateImageExportTask(OscTestSuite):
 
     def test_T2831_public_image(self):
         try:
-            self.a1_r1.oapi.CreateImageExportTask(ImageId=self.a1_r1.config.region.get_info('centos7_omi'),
+            self.a1_r1.oapi.CreateImageExportTask(ImageId=self.a1_r1.config.region.get_info(config_constants.CENTOS_LATEST),
                                                   OsuExport={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test'})
             assert False, "CreateImageExportTask should not have succeeded"
         except OscApiException as error:
