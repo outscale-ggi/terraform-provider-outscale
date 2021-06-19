@@ -5,7 +5,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
 
@@ -86,11 +86,6 @@ class Test_ReadApiLogs(OscTestSuite):
             self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=1001)
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            if err.status_code == 500 and err.message == 'InternalError':
-                known_error('GTW-1789', 'Internal error when calling ReadApiLogs with incorrect parameter value')
-            if err.status_code == 401 and err.message == 'AuthFailure':
-                known_error('API-253', 'Incorrect error on ReadApiLogs')
-            assert False, 'Remove known error code'
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4113', None)
         try:
             self.a1_r1.oapi.ReadApiLogs(ResultsPerPage='1001')
@@ -100,7 +95,7 @@ class Test_ReadApiLogs(OscTestSuite):
             self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=0)
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4114', None)
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4113', None)
 
     def test_T3203_invalid_NextPageToken_value(self):
         try:
@@ -112,12 +107,7 @@ class Test_ReadApiLogs(OscTestSuite):
             self.a1_r1.oapi.ReadApiLogs(NextPageToken='')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            if err.status_code == 500 and err.message == 'InternalError':
-                known_error('GTW-1789', 'Internal error when calling ReadApiLogs with incorrect parameter value')
-            if err.status_code == 403 and err.message == 'MissingLoginPassword':
-                known_error('API-253', 'Incorrect error on ReadApiLogs')
-            assert False, 'Remove known error code'
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4114', None)
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4113', None)
 
     def test_T3204_verify_calls_on_log(self):
         call = [
@@ -225,9 +215,6 @@ class Test_ReadApiLogs(OscTestSuite):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            if err.status_code == 500 and err.message == 'InternalError':
-                known_error('GTW-1789', 'Internal error when calling ReadApiLogs with incorrect parameter value')
-            assert False, 'Remove known error code'
             assert_oapi_error(err, 400, 'InvalidParameterValue', "4098")
 
     def test_T3218_invalid_filter_ResponseStatusCodes(self):
@@ -242,11 +229,6 @@ class Test_ReadApiLogs(OscTestSuite):
             self.a1_r1.oapi.ReadApiLogs(Filters={"QueryIpAddresses": ['0.1']})
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            if err.status_code == 500 and err.message == 'InternalError':
-                known_error('GTW-1789', 'Internal error when calling ReadApiLogs with incorrect parameter value')
-            if err.status_code == 403 and err.message == 'WrongAuthenticationMethod':
-                known_error('API-253', 'Incorrect error on ReadApiLogs')
-            assert False, 'Remove known error code'
             assert_oapi_error(err, 400, 'InvalidParameterValue', "4112")
 
     def test_T3220_invalid_filter_QueryApiNames(self):
