@@ -107,7 +107,7 @@ class Test_ReadApiLogs(OscTestSuite):
             self.a1_r1.oapi.ReadApiLogs(NextPageToken='')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4113', None)
+            assert_oapi_error(err, 400, 'InvalidParameterValue', '4117', None)
 
     def test_T3204_verify_calls_on_log(self):
         call = [
