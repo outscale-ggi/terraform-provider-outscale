@@ -2,6 +2,8 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from qa_tina_tools.tools.tina import create_tools
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
 
 
@@ -114,6 +116,11 @@ class Test_ReadApiAccessRules(ApiAccessRule):
         assert_dry_run(ret)
 
     def test_T5720_login_password(self):
-        ret = self.osc_sdk.oapi.ReadApiAccessRules(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
-        ret.check_response()
-        assert len(ret.response.ApiAccessRules) == 6
+        try:
+            ret = self.osc_sdk.oapi.ReadApiAccessRules(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
+            assert False, 'Remove known error code'
+            ret.check_response()
+            assert len(ret.response.ApiAccessRules) == 6
+        except OscApiException as error:
+            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            known_error('GTW-1961', 'Login Password Authentication does not function')
