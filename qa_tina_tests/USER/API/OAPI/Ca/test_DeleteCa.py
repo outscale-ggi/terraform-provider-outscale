@@ -12,9 +12,9 @@ class Test_DeleteCa(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_DeleteCa, cls).setup_class()
         cls.tmp_file_paths = None
         cls.ca_id = None
+        super(Test_DeleteCa, cls).setup_class()
         cls.ca1files = cls.ca2files = cls.ca3files = None
         cls.ca1files, cls.ca2files, cls.ca3files, _, _, _, _, cls.tmp_file_paths = create_certificate_setup()
         with open(cls.ca1files[1]) as cafile:
@@ -65,5 +65,5 @@ class Test_DeleteCa(OscTestSuite):
             assert False, 'Remove known error code'
             ret.check_response()
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
             known_error('GTW-1961', 'Login Password Authentication does not function')
