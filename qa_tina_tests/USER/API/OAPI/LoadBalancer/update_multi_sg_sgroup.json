@@ -33,6 +33,7 @@
         "LoadBalancerStickyCookiePolicies": [],
         "LoadBalancerType": "internet-facing",
         "NetId": "###VALUE1###",
+        "PublicIp": "10.27.12.25",
         "SecurityGroups": [
             "###VALUE21###"
         ],
