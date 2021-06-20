@@ -160,7 +160,6 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                     SecurityGroupNameToUnlink=self.sg3.SecurityGroupId,
                     SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
                     SecurityGroupId=self.sg4.SecurityGroupId)
-                assert False, 'Remove known error'
                 verify_response(ret.response,
                                 os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T2748_valid_private_sg_outbound_empty.json'),
                                 self.hints)
@@ -187,7 +186,6 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                     SecurityGroupNameToUnlink=self.sg3.SecurityGroupId,
                     SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
                     SecurityGroupId=self.sg4.SecurityGroupId)
-                assert False, 'Remove known error'
                 verify_response(ret.response,
                                 os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T2749_valid_private_sg_inbound_empty.json'),
                                 self.hints)
@@ -214,7 +212,6 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                     SecurityGroupNameToUnlink=self.sg1.SecurityGroupId,
                     SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
                     SecurityGroupId=self.sg2.SecurityGroupId)
-                assert False, 'Remove known error'
                 verify_response(ret.response,
                                 os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5477_valid_public_sg_inbound_by_id_empty.json'),
                                 self.hints)
