@@ -209,7 +209,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                                               PolicyNames=self.policy_name_lb[0:1]).response
         # validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb[0:1]}])
         self.empty_policies(80)
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_http_lb_policy_single.json'), self.hints, self.ignored_keys)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_http_lb_policy_single.json'),
+                        self.hints, self.ignored_keys)
 
     # http - lb : 0 -> n -> 0
     def test_T5335_http_lb_policy_multi(self):
