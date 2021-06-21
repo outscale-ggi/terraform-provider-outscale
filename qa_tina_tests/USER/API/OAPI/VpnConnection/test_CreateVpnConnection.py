@@ -1,10 +1,11 @@
+import os
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import  assert_oapi_error
+from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import wait
-from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import validate_vpn_connection
+from qa_test_tools.compare_objects import verify_response, create_hints
 
 
 class Test_CreateVpnConnection(OscTestSuite):
@@ -143,12 +144,69 @@ class Test_CreateVpnConnection(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
 
     def test_T3348_valid_case(self):
-        ret = self.a1_r1.oapi.CreateVpnConnection(
-            ClientGatewayId=self.cg_id, VirtualGatewayId=self.vg_id, ConnectionType='ipsec.1').response.VpnConnection
-        self.vpn_id = ret.VpnConnectionId
-        validate_vpn_connection(ret, expected_vpn={
-            'ClientGatewayId': self.cg_id,
-            'VirtualGatewayId': self.vg_id,
-            'ConnectionType': 'ipsec.1',
-        })
-        assert hasattr(ret, 'ClientGatewayConfiguration')
+        hints = []
+        ret = self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId=self.cg_id,
+                                                  VirtualGatewayId=self.vg_id,
+                                                  ConnectionType='ipsec.1')
+
+        self.vpn_id = ret.response.VpnConnection.VpnConnectionId
+
+        hints.append(ret.response.VpnConnection.ClientGatewayId)
+        hints.append(ret.response.VpnConnection.ConnectionType)
+        hints.append(str(ret.response.VpnConnection.StaticRoutesOnly))
+        hints.append(ret.response.VpnConnection.VirtualGatewayId)
+        hints.append(ret.response.VpnConnection.VpnConnectionId)
+
+        hints = create_hints(hints)
+
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T3348_vpn_connection_with_required_param.json'),
+                        hints,
+                        ignored_keys="ClientGatewayConfiguration")
+
+        if self.vpn_id:
+            try:
+                self.a1_r1.oapi.DeleteVpnConnection(VpnConnectionId=self.vpn_id)
+                wait.wait_VpnConnections_state(self.a1_r1, [self.vpn_id], state='deleted', cleanup=True)
+            except:
+                print('Could not delete vpn connection')
+
+    def test_T5730_vpn_connection_dry_run(self):
+        ret = self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId=self.cg_id,
+                                                  VirtualGatewayId=self.vg_id,
+                                                  ConnectionType='ipsec.1',
+                                                  DryRun=True)
+        assert_dry_run(ret)
+
+    def test_T5731_vpn_connection_static_routes(self):
+        hints = []
+        ret = self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId=self.cg_id,
+                                                  VirtualGatewayId=self.vg_id,
+                                                  ConnectionType='ipsec.1',
+                                                  StaticRoutesOnly=True)
+
+        self.vpn_id = ret.response.VpnConnection.VpnConnectionId
+        self.a1_r1.oapi.CreateVpnConnectionRoute(VpnConnectionId=self.vpn_id, DestinationIpRange='172.13.1.4/24')
+
+        hints.append(ret.response.VpnConnection.ClientGatewayId)
+        hints.append(ret.response.VpnConnection.ConnectionType)
+        hints.append(str(ret.response.VpnConnection.StaticRoutesOnly))
+        hints.append(ret.response.VpnConnection.VirtualGatewayId)
+        hints.append(ret.response.VpnConnection.VpnConnectionId)
+
+        hints = create_hints(hints)
+
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5731_vpn_connection_with_static_routes_only.json'),
+                        hints,
+                        ignored_keys="ClientGatewayConfiguration")
+
+        if self.vpn_id:
+            try:
+                self.a1_r1.oapi.DeleteVpnConnectionRoute(VpnConnectionId=self.vpn_id, DestinationIpRange='172.13.1.4/24')
+
+                self.a1_r1.oapi.DeleteVpnConnection(VpnConnectionId=self.vpn_id)
+
+                wait.wait_VpnConnections_state(self.a1_r1, [self.vpn_id], state='deleted', cleanup=True)
+            except:
+                print('Could not delete vpn connection')
