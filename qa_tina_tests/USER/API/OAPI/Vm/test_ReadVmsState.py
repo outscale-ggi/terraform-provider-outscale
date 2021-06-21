@@ -10,6 +10,9 @@ from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
+from itertools import takewhile
+import time
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 
 
 class Test_ReadVmsState(OscTestSuite):
@@ -70,8 +73,18 @@ class Test_ReadVmsState(OscTestSuite):
     def test_T5544_filters_maintenance(self):
         start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(seconds=10)
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=2)
-        resp = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response
-        pinkvm = resp.result[0].servers[0].server
+        i = 0
+        pinkvm = None
+        while i < 5:
+            try:
+                resp = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response
+                pinkvm = resp.result[0].servers[0].server
+                break
+            except:
+                print('Could not find kvm, not the purpose of the test')
+                time.sleep(3)
+        if not pinkvm:
+            raise OscTestException('Could not find kvm for instance, search for more information')
         ret = self.a1_r1.intel.scheduled_events.create(event_type='software-upgrade', resource_type='server',
                                                        targets=[pinkvm], start_date=str(start_date),
                                                        end_date=str(end_date), description='test')
