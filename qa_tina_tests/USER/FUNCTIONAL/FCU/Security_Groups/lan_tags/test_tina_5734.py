@@ -1,4 +1,5 @@
 import base64
+import pytest
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as cfg_constants
@@ -10,6 +11,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tina import check_tools
 
 
+@pytest.mark.region_admin
 class Test_tina_5734(OscTestSuite):
 
     def test_T5059_set_enable_and_reboot_instances(self):
@@ -29,7 +31,7 @@ class Test_tina_5734(OscTestSuite):
             -----END OUTSCALE SECTION-----""".format(resp.result[0].servers[0].server)
 
             # run instance
-            inst = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(cfg_constants.CENTOS7),
+            inst = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(cfg_constants.CENTOS_LATEST),
                                                InstanceType=self.a1_r1.config.region.get_info(cfg_constants.DEFAULT_INSTANCE_TYPE),
                                                MaxCount='1',
                                                MinCount='1',
