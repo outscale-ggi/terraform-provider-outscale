@@ -55,7 +55,7 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
     def test_T4638_without_connection_id(self):
         ret = None
         try:
-            allocation = {'asn': '11111', 'virtualInterfaceName': 'test', 'vlan': 's'}
+            allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
             ret = self.a1_r1.directlink.AllocatePrivateVirtualInterface(ownerAccount=self.a1_r1.config.account.account_id,
                                                                         newPrivateVirtualInterfaceAllocation=allocation)
             assert False, 'Call should not have been successful'
@@ -68,7 +68,7 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
     @pytest.mark.region_directlink
     def test_T4639_without_owner_account(self):
         ret = None
-        allocation = {'asn': '11111', 'virtualInterfaceName': 'test', 'vlan': 's'}
+        allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         try:
             ret = self.a1_r1.directlink.AllocatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                         newPrivateVirtualInterfaceAllocation=allocation)
