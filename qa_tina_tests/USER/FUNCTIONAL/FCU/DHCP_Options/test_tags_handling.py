@@ -7,10 +7,8 @@ class Test_tags_handling(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        super(Test_tags_handling, cls).setup_class()
-
         cls.dhcp_id = None
-
+        super(Test_tags_handling, cls).setup_class()
         try:
 
             dhcpconf = {'Key': 'domain-name', 'Value': ['outscale.qa']}
@@ -28,7 +26,6 @@ class Test_tags_handling(OscTestSuite):
         try:
             if cls.dhcp_id:
                 cls.a1_r1.fcu.DeleteDhcpOptions(DhcpOptionsId=cls.dhcp_id)
-
         finally:
             super(Test_tags_handling, cls).teardown_class()
 

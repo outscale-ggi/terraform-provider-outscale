@@ -593,8 +593,10 @@ class Test_create_policy(OscTestSuite):
             self.account_sdk.oapi.ReadVms()
             try:
                 self.account_sdk.oapi.ReadVolumes()
+                known_error('TINA-5762', 'Unexpected success as call has not been accepted')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
+                assert False, 'Remove known error'
                 misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
             try:
                 self.account_sdk.fcu.DescribeInstanceTypes()
@@ -658,7 +660,7 @@ class Test_create_policy(OscTestSuite):
             ret = None
             try:
                 ret = self.account_sdk.fcu.CreateKeyPair(KeyName='toto')
-                known_error('TINA-TODO', 'Policies do not work correctly')
+                known_error('TINA-5762', 'Policies do not work correctly')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
                 assert False, 'Remove known error code'
