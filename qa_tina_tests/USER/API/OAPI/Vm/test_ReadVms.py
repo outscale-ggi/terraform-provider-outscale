@@ -61,7 +61,7 @@ class Test_ReadVms(OscTestSuite):
 
     def test_T2070_without_filters(self):
         vms = self.a1_r1.oapi.ReadVms().response.Vms
-        assert len(vms) == len(self.vm_info)
+        assert len(vms) == len(self.vm_info[info_keys.VMS])
 
     def test_T2069_with_ids(self):
         ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': self.vm_info[info_keys.VM_IDS][0:1]})
