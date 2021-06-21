@@ -250,7 +250,7 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4000)
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
             known_error('GTW-1963', 'Unexpected error type')
             assert_oapi_error(error, 401, "AccessDenied", 1)
 
