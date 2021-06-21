@@ -35,7 +35,7 @@ class Test_ModifyVpcAttribute(OscTestSuite):
     def test_T1258_without_param(self):
         try:
             self.a1_r1.fcu.ModifyVpcAttribute()
-            assert False, "Call shouldn't successful"
+            assert False, "Call shouldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "OWS.Error", "Request is not valid.")
 
@@ -43,14 +43,14 @@ class Test_ModifyVpcAttribute(OscTestSuite):
         vpc_id = id_generator(prefix='vpc-', size=10, chars=string.hexdigits).lower()
         try:
             self.a1_r1.fcu.ModifyVpcAttribute(VpcId=vpc_id)
-            assert False, "Call shouldn't successful"
+            assert False, "Call shouldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "OWS.Error", "Request is not valid.")
 
     def test_T1260_with_valid_vpc_id(self):
         try:
             self.a1_r1.fcu.ModifyVpcAttribute(VpcId=self.vpc_id)
-            assert False, "Call shouldn't successful"
+            assert False, "Call shouldn't be successful"
         except OscApiException as error:
             assert_error(error, 400, "OWS.Error", "Request is not valid.")
 
