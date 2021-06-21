@@ -118,12 +118,7 @@ class Test_lan_sg_tags(OscTestSuite):
         self.add_tag(self.vpc_info_empty[info_keys.VPC_ID], 'osc.fcu.enable_lan_security_groups', '1')
 
     def test_T1934_set_enable_full_enable(self):
-        try:
-            self.add_tag(self.vpc_info_full_enable[info_keys.VPC_ID], 'osc.fcu.enable_lan_security_groups', '1')
-            assert False, 'Remove known error code'
-        except OscApiException as error:
-            assert_error(error, 500, 'InternalError', 'Internal Error')
-            known_error('TINA-6569', 'Unexpected internal error')
+        self.add_tag(self.vpc_info_full_enable[info_keys.VPC_ID], 'osc.fcu.enable_lan_security_groups', '1')
 
     def test_T1935_set_enable_full_disable(self):
         vpc_id = self.vpc_info_full_disable[info_keys.VPC_ID]
