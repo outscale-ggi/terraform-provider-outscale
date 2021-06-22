@@ -422,6 +422,9 @@ class ApiAccess(OscTestSuite):
                     results.append('{}TINA-6116'.format(ISSUE_PREFIX))
                 elif error.status_code == 401 and error.error_code == 'AuthFailure':
                     results.append(FAIL)
+                elif api_call.startswith('oapi.') and error.status_code == 400 and \
+                    error.error_code == '3001' and error.message == 'InvalidParameter':
+                    results.append('{}GTW-1961'.format(ISSUE_PREFIX))
                 else:
                     results.append(ERROR)
             except OscSdkException as error:
