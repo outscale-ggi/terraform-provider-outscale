@@ -155,8 +155,8 @@ class Test_UnlinkVolume(OscTestSuite):
         vol_id = None
         try:
             vm_info = oapi.create_Vms(self.a1_r1, state='running')
-            oapi.stop_Vms(self.a1_r1, vm_info[info_keys.VM_IDS], wait_state=False)
             vol_id = vm_info[info_keys.VMS][0]['BlockDeviceMappings'][0]['Bsu']['VolumeId']
+            oapi.stop_Vms(self.a1_r1, vm_info[info_keys.VM_IDS], wait_state=False)
             self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             assert False, 'Call should not be successful'
         except OscApiException as error:
@@ -170,8 +170,8 @@ class Test_UnlinkVolume(OscTestSuite):
         vol_id = None
         try:
             vm_info = oapi.create_Vms(self.a1_r1, state='stopped')
-            oapi.stop_Vms(self.a1_r1, vm_info[info_keys.VM_IDS], wait_state=True)
             vol_id = vm_info[info_keys.VMS][0]['BlockDeviceMappings'][0]['Bsu']['VolumeId']
+            oapi.stop_Vms(self.a1_r1, vm_info[info_keys.VM_IDS], wait_state=True)
             self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
         finally:
             if vm_info:
@@ -182,8 +182,8 @@ class Test_UnlinkVolume(OscTestSuite):
         vol_id = None
         try:
             vm_info = oapi.create_Vms(self.a1_r1, state='running')
-            oapi.terminate_Vms(self.a1_r1, vm_info[info_keys.VM_IDS], wait_state=False)
             vol_id = vm_info[info_keys.VMS][0]['BlockDeviceMappings'][0]['Bsu']['VolumeId']
+            oapi.terminate_Vms(self.a1_r1, vm_info[info_keys.VM_IDS], wait_state=False)
             self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             assert False, 'Call should not be successful'
         except OscApiException as error:
@@ -194,8 +194,8 @@ class Test_UnlinkVolume(OscTestSuite):
         vol_id = None
         try:
             vm_info = oapi.create_Vms(self.a1_r1, state='running')
-            oapi.terminate_Vms(self.a1_r1, vm_info[info_keys.VM_IDS], wait_state=True)
             vol_id = vm_info[info_keys.VMS][0]['BlockDeviceMappings'][0]['Bsu']['VolumeId']
+            oapi.terminate_Vms(self.a1_r1, vm_info[info_keys.VM_IDS], wait_state=True)
             self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             assert False, 'Call should not be successful'
         except OscApiException as error:
