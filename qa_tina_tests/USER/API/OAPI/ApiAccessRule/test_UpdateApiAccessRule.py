@@ -4,7 +4,6 @@ from qa_sdk_pub import osc_api
 from qa_tina_tools.tools.tina import create_tools
 from qa_test_tools.misc import compare_validate_objects, assert_dry_run, assert_oapi_error
 from qa_test_tools.test_base import known_error
-from qa_test_tools import misc
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
 
 
