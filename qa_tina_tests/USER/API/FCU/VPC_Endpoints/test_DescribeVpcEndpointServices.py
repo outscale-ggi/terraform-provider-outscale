@@ -16,6 +16,7 @@ class Test_DescribeVpcEndpointServices(OscTestSuite):
     def test_T4482_valid_dry_run(self):
         try:
             self.a1_r1.fcu.DescribeVpcEndpointServices(DryRun=True)
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'DryRunOperation', 'Request would have succeeded, but DryRun flag is set.')
 
