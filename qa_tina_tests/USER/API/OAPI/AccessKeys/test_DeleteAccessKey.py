@@ -5,7 +5,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from qa_test_tools import misc
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_DeleteAccessKey(OscTestSuite):
@@ -96,11 +96,7 @@ class Test_DeleteAccessKey(OscTestSuite):
             ak = ret_create.response.AccessKey.AccessKeyId
             ret_delete = self.a1_r1.oapi.DeleteAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
                                                          AccessKeyId=ak)
-            assert False, 'remove known error'
             ret_delete.check_response()
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
-            known_error('GTW-1961', 'Login Password Authentication does not function')
         finally:
             if ret_create and not ret_delete:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)

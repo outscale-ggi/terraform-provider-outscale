@@ -4,7 +4,6 @@ from qa_sdk_pub import osc_api
 from qa_tina_tools.tools.tina import create_tools
 from qa_test_tools.misc import compare_validate_objects, assert_dry_run, assert_oapi_error
 from qa_test_tools.test_base import known_error
-from qa_test_tools import misc
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
 
 
@@ -209,20 +208,15 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
 
     def test_T5721_login_password(self):
         self.my_setup()
-        try:
-            ret = self.osc_sdk.oapi.UpdateApiAccessRule(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
-                                                        ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId,
-                                                        CaIds=self.ca_ids[0:1],
-                                                        Cns=[create_tools.CLIENT_CERT_CN1],
-                                                        Description='NewDescription',
-                                                        IpRanges=["1.1.1.1/32"])
-            assert False, 'Remove known error code'
-            ret.check_response()
-            compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule,
-                                     CaIds=self.ca_ids[0:1],
-                                     Cns=[create_tools.CLIENT_CERT_CN1],
-                                     Description='NewDescription',
-                                     IpRanges=["1.1.1.1/32"])
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
-            known_error('GTW-1961', 'Login Password Authentication does not function')
+        ret = self.osc_sdk.oapi.UpdateApiAccessRule(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+                                                    ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId,
+                                                    CaIds=self.ca_ids[0:1],
+                                                    Cns=[create_tools.CLIENT_CERT_CN1],
+                                                    Description='NewDescription',
+                                                    IpRanges=["1.1.1.1/32"])
+        ret.check_response()
+        compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule,
+                                 CaIds=self.ca_ids[0:1],
+                                 Cns=[create_tools.CLIENT_CERT_CN1],
+                                 Description='NewDescription',
+                                 IpRanges=["1.1.1.1/32"])

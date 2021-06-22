@@ -1,8 +1,6 @@
 from qa_sdk_pub import osc_api
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_test_tools import misc
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
 
 
@@ -66,10 +64,5 @@ class Test_ReadCas(OscTestSuite):
         assert len(ret.response.Cas) == 0
 
     def test_T5724_login_password(self):
-        try:
-            resp = self.a1_r1.oapi.ReadCas(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}).response
-            assert False, 'Remove known error code'
-            assert len(resp.Cas) == 2
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
-            known_error('GTW-1961', 'Login Password Authentication does not function')
+        resp = self.a1_r1.oapi.ReadCas(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}).response
+        assert len(resp.Cas) == 2
