@@ -66,10 +66,5 @@ class Test_ReadCas(OscTestSuite):
         assert len(ret.response.Cas) == 0
 
     def test_T5724_login_password(self):
-        try:
-            resp = self.a1_r1.oapi.ReadCas(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}).response
-            assert False, 'Remove known error code'
-            assert len(resp.Cas) == 2
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
-            known_error('GTW-1961', 'Login Password Authentication does not function')
+        resp = self.a1_r1.oapi.ReadCas(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}).response
+        assert len(resp.Cas) == 2

@@ -57,13 +57,8 @@ class Test_DeleteCa(OscTestSuite):
         ret.check_response()
 
     def test_T5723_login_password(self):
-        try:
-            ret = self.a1_r1.oapi.DeleteCa(
-                exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
-                CaId=self.ca_id)
-            self.__class__.ca_id = None
-            assert False, 'Remove known error code'
-            ret.check_response()
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
-            known_error('GTW-1961', 'Login Password Authentication does not function')
+        ret = self.a1_r1.oapi.DeleteCa(
+            exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+            CaId=self.ca_id)
+        self.__class__.ca_id = None
+        ret.check_response()

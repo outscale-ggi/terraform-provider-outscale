@@ -77,13 +77,8 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
 
     def test_T5719_login_password(self):
         self.my_setup()
-        try:
-            ret = self.osc_sdk.oapi.DeleteApiAccessRule(
-                exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
-                ApiAccessRuleId=self.api_access_rule_id)
-            self.api_access_rule_id = None
-            assert False, 'Remove known error code'
-            ret.check_response()
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
-            known_error('GTW-1961', 'Login Password Authentication does not function')
+        ret = self.osc_sdk.oapi.DeleteApiAccessRule(
+            exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+            ApiAccessRuleId=self.api_access_rule_id)
+        self.api_access_rule_id = None
+        ret.check_response()

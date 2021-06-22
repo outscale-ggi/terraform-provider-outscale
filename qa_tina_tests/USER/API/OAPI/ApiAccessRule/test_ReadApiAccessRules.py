@@ -116,11 +116,6 @@ class Test_ReadApiAccessRules(ApiAccessRule):
         assert_dry_run(ret)
 
     def test_T5720_login_password(self):
-        try:
-            ret = self.osc_sdk.oapi.ReadApiAccessRules(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
-            assert False, 'Remove known error code'
-            ret.check_response()
-            assert len(ret.response.ApiAccessRules) == 6
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
-            known_error('GTW-1961', 'Login Password Authentication does not function')
+        ret = self.osc_sdk.oapi.ReadApiAccessRules(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
+        ret.check_response()
+        assert len(ret.response.ApiAccessRules) == 6

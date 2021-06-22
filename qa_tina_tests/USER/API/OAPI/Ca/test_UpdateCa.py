@@ -53,13 +53,8 @@ class Test_UpdateCa(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4122')
 
     def test_T5725_login_password(self):
-        try:
-            ret = self.a1_r1.oapi.UpdateCa(
-                exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
-                CaId=self.ca_id, Description='test update')
-            assert False, 'Remove known error code'
-            ret.check_response()
-            assert ret.response.Ca.Description == 'test update'
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
-            known_error('GTW-1961', 'Login Password Authentication does not function')
+        ret = self.a1_r1.oapi.UpdateCa(
+            exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+            CaId=self.ca_id, Description='test update')
+        ret.check_response()
+        assert ret.response.Ca.Description == 'test update'

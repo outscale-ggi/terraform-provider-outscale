@@ -62,14 +62,9 @@ class Test_CreateCa(OscTestSuite):
         self.cas.append(ret.response.Ca.CaId)
 
     def test_T5722_login_password(self):
-        try:
-            with open(self.ca1files[1]) as cafile:
-                ret = self.a1_r1.oapi.CreateCa(
-                    exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
-                    CaPem=cafile.read(), Description='test ca')
-            self.cas.append(ret.response.Ca.CaId)
-            assert False, 'Remove known error code'
-            ret.check_response()
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
-            known_error('GTW-1961', 'Login Password Authentication does not function')
+        with open(self.ca1files[1]) as cafile:
+            ret = self.a1_r1.oapi.CreateCa(
+                exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+                CaPem=cafile.read(), Description='test ca')
+        self.cas.append(ret.response.Ca.CaId)
+        ret.check_response()
