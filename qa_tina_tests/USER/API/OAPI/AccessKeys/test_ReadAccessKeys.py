@@ -6,7 +6,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from qa_test_tools import misc
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_ReadAccessKeys(OscTestSuite):
