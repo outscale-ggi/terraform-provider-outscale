@@ -107,7 +107,10 @@ class Test_UnlinkVolume(OscTestSuite):
                                                   DeviceName=DEVICE_NAME)
             wait.wait_Volumes_state(self.a1_r1, [vol_id], 'in-use')
             self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
-            self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
+            try:
+                self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
+            except OscApiException as error:
+                misc.assert_oapi_error(error, 400, 'InvalidState', '6003')
         finally:
             try:
                 self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
