@@ -374,7 +374,7 @@ class ApiAccess(OscTestSuite):
                 # if api_call.startswith('icu.') and expected_results[i] == 1 and
                 # exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.AkSk:
                 #     expected_results[i] = PASS
-                if api_call.startswith('oapi.') and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.LoginPassword:
+                if api_call.startswith('oapi.ReadKeypairs') and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.LoginPassword:
                     expected_results[i] = KNOWN
                 func = self.osc_sdk
                 for elt in api_call.split('.'):
@@ -399,7 +399,10 @@ class ApiAccess(OscTestSuite):
                     else:
                         func()
                 # print(ret.response.display())
-                results.append(PASS)
+                if api_call.startswith('oapi.ReadKeypairs'):
+                    results.append('{}GTW-1967'.format(ISSUE_PREFIX))
+                else:
+                    results.append(PASS)
                 errors.append(None)
             except OscApiException as error:
                 errors.append(error)
@@ -422,9 +425,6 @@ class ApiAccess(OscTestSuite):
                     results.append('{}TINA-6116'.format(ISSUE_PREFIX))
                 elif error.status_code == 401 and error.error_code == 'AuthFailure':
                     results.append(FAIL)
-                elif api_call.startswith('oapi.') and error.status_code == 400 and \
-                    error.error_code == '3001' and error.message == 'InvalidParameter':
-                    results.append('{}GTW-1961'.format(ISSUE_PREFIX))
                 else:
                     results.append(ERROR)
             except OscSdkException as error:
