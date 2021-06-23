@@ -38,6 +38,9 @@ class Test_ApiAccessPolicy(OscTestSuite):
         cls.ael_api_calls = {}
         super(Test_ApiAccessPolicy, cls).setup_class()
         try:
+            cls.logger.debug("################")
+            cls.logger.debug("#    SETUP     #")
+            cls.logger.debug("################")
             # create account
             email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='test_api_access_policy').lower())
             password = misc.id_generator(size=20, chars=string.digits + string.ascii_letters)
@@ -62,9 +65,8 @@ class Test_ApiAccessPolicy(OscTestSuite):
 
             # create AAR
             resp = cls.osc_sdk.oapi.ReadApiAccessRules().response
-            cls.logger.debug(resp.display())
             cls.aar_id = cls.osc_sdk.oapi.CreateApiAccessRule(CaIds=[cls.ca_id],
-                                                              Description="AAR fo AAP and TrustedEnv").response.ApiAccessRule.ApiAccessRuleId
+                                                              Description="AAR for AAP and TrustedEnv").response.ApiAccessRule.ApiAccessRuleId
             # TODO: RM others AAR....
             for rule in resp.ApiAccessRules:
                 cls.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=rule.ApiAccessRuleId)
@@ -79,22 +81,53 @@ class Test_ApiAccessPolicy(OscTestSuite):
 
 
             # Print config for debug
-            resp = cls.osc_sdk.oapi.ReadApiAccessRules(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
-                                                                  osc_api.EXEC_DATA_CERTIFICATE: [cls.client_cert[2], cls.client_cert[1]]}).response
-            cls.logger.debug(resp.display())
-            resp = cls.osc_sdk.oapi.ReadApiAccessPolicy(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
-                                                                   osc_api.EXEC_DATA_CERTIFICATE: [cls.client_cert[2], cls.client_cert[1]]}).response
-            cls.logger.debug(resp.display())
+            cls.logger.debug("################")
+            cls.logger.debug("# PRINT CONFIG #")
+            cls.logger.debug("################")
+            #resp = cls.osc_sdk.oapi.ReadApiAccessRules(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
+            #                                                      osc_api.EXEC_DATA_CERTIFICATE: [cls.client_cert[2], cls.client_cert[1]]}).response
+            #cls.logger.debug(resp.display())
+            #resp = cls.osc_sdk.oapi.ReadApiAccessPolicy(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
+            #                                                       osc_api.EXEC_DATA_CERTIFICATE: [cls.client_cert[2], cls.client_cert[1]]}).response
+            #cls.logger.debug(resp.display())
             resp = cls.a1_r1.configmanager.CmConfigManager.getConfigEntry(domain='IdentAuth', instance='default',
                                                                           key='apiAccessEngineService.trustedEnvExclusionActions').response
+            cls.logger.debug(resp.display())
+            resp = cls.a1_r1.configmanager.CmConfigManager.getConfigEntry(domain='IdentAuth', instance='default',
+                                                                          key='authorization.ipAccessRule.defaultDeny').response
+            cls.logger.debug(resp.display())
+            resp = cls.a1_r1.configmanager.CmConfigManager.getConfigEntry(domain='IdentAuth', instance='default',
+                                                                          key='authorization.apiAccessRule.defaultDeny').response
             cls.logger.debug(resp.display())
             #IdentAuth
             #apiAccessEngineService.trustedEnvHandlingEnabled
             #apiAccessEngineService.trustedEnvExclusionActions.retentionHours
+            resp = cls.osc_sdk.identauth.IdauthAccount.getAccountApiAccessPolicy(
+                account_id=cls.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                principal={'accountPid': cls.account_pid}).response
+            cls.logger.debug(resp.display())
+            resp = cls.osc_sdk.identauth.IdauthAccount.listIpAccessRules(
+                account_id=cls.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                principal={'accountPid': cls.account_pid}).response
+            cls.logger.debug(resp.display())
+            resp = cls.osc_sdk.identauth.IdauthAccount.listApiAccessRules(
+                account_id=cls.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                principal={'accountPid': cls.account_pid}).response
+            cls.logger.debug(resp.display())
+            resp = cls.osc_sdk.identauth.IdauthAccountAdmin.listPrincipalPolicies(
+                account_id=cls.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                principal={'accountPid': cls.account_pid}).response
+            cls.logger.debug(resp.display())
+            resp = cls.osc_sdk.identauth.IdauthAccountAdmin.listAttachedPrincipalManagedPolicies(
+                account_id=cls.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                principal={'accountPid': cls.account_pid}).response
+            cls.logger.debug(resp.display())
+            
 
             cls.ael_api_calls = {
-                'api.CreateAccessKey': {'ExpirationDate': cls.exp_date},
                 'api.ReadAccessKeys': None,
+                'oapi.ReadAccessKeys': None,
+                'api.CreateAccessKey': {'ExpirationDate': cls.exp_date},
                 'api.ReadSecretAccessKey' : {'AccessKeyId': keys.name},
                 'api.UpdateAccessKey': {'AccessKeyId': keys.name, 'State': "ACTIVE"},
                 #'api.DeleteAccessKey'
@@ -113,7 +146,77 @@ class Test_ApiAccessPolicy(OscTestSuite):
                 'icu.GetAccessKey': {'AccessKeyId': keys.name},
                 'icu.ListAccessKeys': None,
                 'icu.UpdateAccessKey': {'AccessKeyId': keys.name, 'Status': "ACTIVE"},
-                #'icu.DeleteAccessKey'
+                #'icu.DeleteAccessKey',
+                'eim.ListAccessKeys': None,
+            }
+            #api:CreateAccessKey,
+            # idauth:Account.createAccessKey,
+            # idauth:Iam.createAccessKey,
+            # idauth:Account.listAccessKeys,
+            # idauth:Iam.listAccessKeys,
+            # idauth:AccountAdmin.listPrivateAccessKeys,
+            # idauth:IamAdmin.listPrivateAccessKeys,
+            # idauth:Account.updateAccessKey,
+            # idauth:Iam.updateAccessKey,
+            # idauth:Account.deleteAccessKey,
+            # idauth:Iam.deleteAccessKey,
+            # idauth:Account.createApiAccessRule,
+            # idauth:Account.getApiAccessRule,
+            # idauth:Account.listApiAccessRules,
+            # idauth:Account.updateApiAccessRule,
+            # idauth:Account.deleteApiAccessRule,
+            # idauth:AccountAdmin.applyDefaultApiAccessRulesAsync,
+            # idauth:Account.putAccountApiAccessPolicy,
+            # idauth:Account.getAccountApiAccessPolicy,
+            # idauth:Account.deleteAccountApiAccessPolicy,
+            # idauth:Account.uploadCaCertificate,
+            # idauth:Account.getCaCertificate,
+            # idauth:Account.listCaCertificates,
+            # idauth:Account.updateCaCertificate,
+            # idauth:Account.deleteCaCertificate
+            cls.aksk_api_calls = {
+                'directlink.DescribeLocations': None,
+                'eim.ListUsers': None,
+                'icu.ReadQuotas': None,
+                #'icu.GetAccount': None,
+                #'icu.CreateAccount': None,
+                'fcu.DescribeSecurityGroups': None,
+                'lbu.DescribeLoadBalancers': None,
+                'api.ReadKeypairs': None,
+                'oapi.ReadKeypairs': None,
+                'oos.list_buckets': None,
+            }
+            cls.mdp_api_calls = {
+                #API
+                #'api.CreateApiAccessRule': None, # AEL
+                #'api.DeleteApiAccessRule': None, # AEL
+                #'api.ReadApiAccessRules': None, # AEL
+                #'api.UpdateApiAccessRule': None, # AEL
+                #'api.CreateCa': None, # AEL
+                #'api.DeleteCa': None, # AEL
+                #'api.ReadCas': None, # AEL
+                #'api.UpdateCa': None, # AEL
+                #'api.ReadApiAccessPolicy': None, # AEL
+                #'api.UpdateApiAccessPolicy': None, # AEL
+                #'api.CreateAccessKey': None, # AEL
+                #'api.DeleteAccessKey': None, # AEL
+                #'api.ReadAccessKeys': None, # AEL
+                #'api.ReadSecretAccessKey': None, # AEL
+                #'api.UpdateAccessKey': None, # AEL
+                #ICU
+                #'icu.CreateAccessKey': None, # AEL
+                #'icu.DeleteAccessKey': None, # AEL
+                #'icu.GetAccessKey': None, # AEL
+                #'icu.ListAccessKeys': None, # AEL
+                #'icu.UpdateAccessKey': None, # AEL
+            }
+
+            cls.pub_api_calls = {
+                'icu.ReadPublicCatalog': None,
+                #'icu.SendResetPasswordEmail': None,
+                'fcu.DescribeRegions': None,
+                'api.ReadFlexibleGpuCatalog': None,
+                'oapi.ReadFlexibleGpuCatalog': None,
             }
 
         except Exception as error:
@@ -139,40 +242,97 @@ class Test_ApiAccessPolicy(OscTestSuite):
 
 
     def test_T0000_as_authent(self):
-        ret = self.osc_sdk.api.CreateAccessKey(ExpirationDate=self.exp_date)
-        self.logger.debug(ret.response.display())
+        self.logger.debug("################")
+        self.logger.debug("#     TEST     #")
+        self.logger.debug("################")
+        # TODO: RM (test just for debug)
+        #ret = self.osc_sdk.api.CreateAccessKey(ExpirationDate=self.exp_date)
+        #self.logger.debug(ret.response.display())
 
         info = self.osc_sdk.api.CreateAccessKey(exec_data={osc_api.EXEC_DATA_DRY_RUN: True},
                                                 ExpirationDate=self.exp_date)
-        #self.logger.debug(info)
         authorization = info['headers']['Authorization']
-        cred = authorization.split(' ')[1].split('=')[1].split('/')[0]
-        date = authorization.split(' ')[1].split('/')[1]
+        #cred = authorization.split(' ')[1].split('=')[1].split('/')[0]
+        #date = authorization.split(' ')[1].split('/')[1]
         reg_name = authorization.split(' ')[1].split('/')[2]
         service = authorization.split(' ')[1].split('/')[3]
-        signature = authorization.split(' ')[3].split('=')[1]
-        body = "{}\n{}\n{}\n{}".format(
-            authorization.split(' ')[0],
-            info['headers']['X-Osc-Date'],
-            '/'.join(authorization.split(' ')[1].split('/')[1:])[:-1],
-            hashlib.sha256(info['canonical_request'].encode('utf-8')).hexdigest()
-            )
-        ret = self.a1_r1.identauth.IdauthAuthentication.authenticate(
-            credentials=cred,
-            signature=signature,
-            credentialsType="ACCESS_KEY",
-            signatureMethod="OSC_V4",
-            body=body,
-            signatureTokens=[
-                {'value': date, 'key': 'Date'},
-                {'value': reg_name, 'key': 'Region'},
-                {'value': service, 'key': 'Service'},
-            ],
+        #signature = authorization.split(' ')[3].split('=')[1]
+        #body = "{}\n{}\n{}\n{}".format(
+        #    authorization.split(' ')[0],
+        #    info['headers']['X-Osc-Date'],
+        #    '/'.join(authorization.split(' ')[1].split('/')[1:])[:-1],
+        #    hashlib.sha256(info['canonical_request'].encode('utf-8')).hexdigest()
+        #    )
+        #ret = self.osc_sdk.identauth.IdauthAuthentication.authenticate(
+        #    account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+        #    credentials=cred,
+        #    signature=signature,
+        #    credentialsType="ACCESS_KEY",
+        #    signatureMethod="OSC_V4",
+        #    body=body,
+        #    signatureTokens=[
+        #        {'value': date, 'key': 'Date'},
+        #        {'value': reg_name, 'key': 'Region'},
+        #        {'value': service, 'key': 'Service'},
+        #    ],
+        #    conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
+        #)
+        #self.logger.debug(ret.response.display())
+
+        #ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
+        #    account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+        #    action={'vendor': service, 'operation': 'CreateAccessKey'},
+        #    conditionParams=[
+        #        {'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}},
+        #        {'value': open(self.client_cert[2]).read(), 'key': {'vendor': 'idauth', 'id': 'ApiAccessCert'}}
+        #        ],
+        #    principal={'accountPid': self.account_pid},
+        #    resources={'namespace': self.account_pid, 'region': reg_name, 'relativeId': '*', 'vendor': service},
+        #    )
+        #self.logger.debug(ret.response.display())
+
+        self.logger.debug("# Call in AEL, without certificate, with region")
+        ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
+            account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+            action={'vendor': service, 'operation': 'CreateAccessKey'},
             conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
-        )
+            principal={'accountPid': self.account_pid},
+            resources={'namespace': self.account_pid, 'region': reg_name, 'relativeId': '*', 'vendor': service},
+            )
         self.logger.debug(ret.response.display())
 
-    def test_T0000_check_AEL_wihtout_MFA(self):
+        self.logger.debug("# Call in AEL, without certificate, without region")
+        ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
+            account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+            action={'vendor': service, 'operation': 'CreateAccessKey'},
+            conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
+            principal={'accountPid': self.account_pid},
+            resources={'namespace': self.account_pid, 'relativeId': '*', 'vendor': service},
+            )
+        self.logger.debug(ret.response.display())
+
+        self.logger.debug("# Call not in AEL, without certificate, with region")
+        ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
+            account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+            action={'vendor': service, 'operation': 'ReadVms'},
+            conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
+            principal={'accountPid': self.account_pid},
+            resources={'namespace': self.account_pid, 'region': reg_name, 'relativeId': '*', 'vendor': service},
+            )
+        self.logger.debug(ret.response.display())
+
+        self.logger.debug("# Call not in AEL, without certificate, without region")
+        ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
+            account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+            action={'vendor': service, 'operation': 'ReadVms'},
+            conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
+            principal={'accountPid': self.account_pid},
+            resources={'namespace': self.account_pid, 'relativeId': '*', 'vendor': service},
+            )
+        self.logger.debug(ret.response.display())
+
+
+    def test_T0000_check_AEL_wihtout_MFA_ak_sk(self):
         errors = {}
         for api_call, params in self.ael_api_calls.items():
             func = self.osc_sdk
@@ -203,7 +363,40 @@ class Test_ApiAccessPolicy(OscTestSuite):
             self.logger.warning("%s: %s", api_call, error)
         assert not errors
 
-    def test_T0000_check_AEL_with_MFA(self):
+    def test_T0000_check_AEL_wihtout_MFA_login_mdp(self):
+        errors = {}
+        for api_call, params in self.ael_api_calls.items():
+            func = self.osc_sdk
+            for elt in api_call.split('.'):
+                func = getattr(func, elt)
+            try:
+                if not params:
+                     params= {}
+                params['exec_data'] = {osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}
+                ret = func(**params)
+                #self.logger.debug(ret.response.display())
+                errors[api_call] = ret.response.ResponseContext.RequestId
+            except OscApiException as error:
+                if api_call.startswith("api."):
+                    try:
+                        misc.assert_oapi_yml(error, 4)
+                    except Exception as err:
+                        errors[api_call] = err
+                else:
+                    misc.assert_error(error, 400, 'AccessDeniedException', None)
+        # TODO
+        #DeleteAccessKey
+        #DeleteApiAccessRule
+        #DeleteCa
+        #icu.DeleteAccessKey
+
+        for api_call, error in errors.items():
+            self.logger.warning("%s: %s", api_call, error)
+        assert not errors
+
+
+
+    def test_T0000_check_AEL_with_MFA_ak_sk(self):
         errors = {}
         for api_call, params in self.ael_api_calls.items():
             func = self.osc_sdk
@@ -237,14 +430,94 @@ class Test_ApiAccessPolicy(OscTestSuite):
             self.logger.warning("%s: %s", api_call, error)
         assert not errors
 
-    def test_T0000_check_call_with_ak_sk(self):
-        pass
+    def test_T0000_check_AEL_with_MFA_login_password(self):
+        errors = {}
+        for api_call, params in self.ael_api_calls.items():
+            func = self.osc_sdk
+            for elt in api_call.split('.'):
+                func = getattr(func, elt)
+            try:
+                if not params:
+                    params= {}
+                params['exec_data'] = {osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
+                                       osc_api.EXEC_DATA_CERTIFICATE: [self.client_cert[2], self.client_cert[1]]}
+                func(**params)
+                #self.logger.debug(ret.response.display())
+            except OscApiException as error:
+                if api_call in ['icu.CreateAccessKey', 'icu.UpdateAccessKey']: # Unable to manage AK/SK ExpirationDate with ICU
+                    try:
+                        misc.assert_error(error, 400, 'InvalidParameterValue',
+                                          "code=0, message=u'ServiceValidationException', " + \
+                                              "data={'detail': u'accessKey.expirationDate: Access key must expire in 3600 second(s) at most'}")
+                    except Exception as err:
+                        errors[api_call] = err
+                else:
+                    errors[api_call] = error
 
-    def test_T0000_check_call_with_login_password(self):
-        pass
+        # TODO
+        #DeleteAccessKey
+        #DeleteApiAccessRule
+        #DeleteCa
+        #icu.DeleteAccessKey
+
+        for api_call, error in errors.items():
+            self.logger.warning("%s: %s", api_call, error)
+        assert not errors
+
+    def test_T0000_check_call_with_ak_sk(self):
+        errors = {}
+        for api_call, params in self.aksk_api_calls.items():
+            func = self.osc_sdk
+            for elt in api_call.split('.'):
+                func = getattr(func, elt)
+            try:
+                if not params:
+                    params= {}
+                func(**params)
+                #self.logger.debug(ret.response.display())
+            except OscApiException as error:
+                errors[api_call] = error
+
+        for api_call, error in errors.items():
+            self.logger.warning("%s: %s", api_call, error)
+        assert not errors
+
+    #def test_T0000_check_call_with_login_password(self):
+    #    errors = {}
+    #    for api_call, params in self.mdp_api_calls.items():
+    #        func = self.osc_sdk
+    #        for elt in api_call.split('.'):
+    #            func = getattr(func, elt)
+    #        try:
+    #            if not params:
+    #                params= {}
+    #            func(**params)
+    #            #self.logger.debug(ret.response.display())
+    #        except OscApiException as error:
+    #            errors[api_call] = error
+
+    #    for api_call, error in errors.items():
+    #        self.logger.warning("%s: %s", api_call, error)
+    #    assert not errors
 
     def test_T0000_check_call_without_authent(self):
-        pass
+        errors = {}
+        for api_call, params in self.pub_api_calls.items():
+            func = self.osc_sdk
+            for elt in api_call.split('.'):
+                func = getattr(func, elt)
+            try:
+                if not params:
+                    params= {}
+                params['exec_data'] = {osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}
+                func(**params)
+                #self.logger.debug(ret.response.display())
+            except OscApiException as error:
+                errors[api_call] = error
+
+        for api_call, error in errors.items():
+            self.logger.warning("%s: %s", api_call, error)
+        assert not errors
 
     def test_T0000_create_infinite_ak_sk(self):
         try:
