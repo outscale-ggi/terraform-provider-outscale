@@ -374,8 +374,6 @@ class ApiAccess(OscTestSuite):
                 # if api_call.startswith('icu.') and expected_results[i] == 1 and
                 # exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.AkSk:
                 #     expected_results[i] = PASS
-                if api_call.startswith('oapi.ReadKeypairs') and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.LoginPassword:
-                    expected_results[i] = KNOWN
                 func = self.osc_sdk
                 for elt in api_call.split('.'):
                     func = getattr(func, elt)
@@ -401,6 +399,7 @@ class ApiAccess(OscTestSuite):
                 # print(ret.response.display())
                 if api_call.startswith('oapi.ReadKeypairs') and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.LoginPassword:
                     results.append('{}GTW-1967'.format(ISSUE_PREFIX))
+                    expected_results[i] = KNOWN
                 else:
                     results.append(PASS)
                 errors.append(None)
