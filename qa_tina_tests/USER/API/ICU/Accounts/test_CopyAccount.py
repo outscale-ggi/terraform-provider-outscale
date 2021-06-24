@@ -73,3 +73,28 @@ class Test_CopyAccount(OscTestSuite):
                 assert known_error("TINA-5699", "CopyAccount fail with 'InternalError'")
             else:
                 assert False, "Remove known error"
+
+    def test_T5749_with_extra_param(self):
+        if not hasattr(self, 'a1_r2'):
+            pytest.skip(TWO_REGIONS_NEEDED)
+        try:
+            email = 'qa+{}@outscale.com'.format(id_generator(prefix="test-copyAccount"))
+            password = id_generator(size=20, chars=string.digits)
+            account_info = {'city': 'Saint_Cloud', 'company_name': 'Outscale', 'country': 'France', 'email_address': email, 'firstname': 'Test_user',
+                            'lastname': 'Test_Last_name', 'password': password, 'zipcode': '92210'}
+            pid = create_account(self.a1_r1, account_info=account_info)
+            ret = self.a1_r1.intel.accesskey.find_by_user(owner=pid)
+            keys = ret.response.result[0]
+            osc_sdk = OscSdk(config=OscConfig.get_with_keys(az_name=self.a1_r1.config.region.az_name,
+                                                            ak=keys.name, sk=keys.secret, account_id=pid, login=email, password=password))
+            ret = osc_sdk.icu.CopyAccount(DestinationRegion=self.a1_r2.config.region.name, Foo='Bar')
+            assert False, "Remove known error"
+            # TODO assert ret.... == ??? (check accoutn on r2... ?)
+        except OscApiException as error:
+            if error.status_code == 500 and error.message == "InternalError":
+                known_error("TINA-5699", "CopyAccount fail with 'InternalError'")
+            assert False, "Remove known error"
+        finally:
+            if pid:
+                delete_account(self.a1_r1, pid)
+            # TODO: terminate account on r2

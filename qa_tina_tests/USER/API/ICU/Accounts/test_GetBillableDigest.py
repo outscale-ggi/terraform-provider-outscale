@@ -11,6 +11,7 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools import constants
 
 
+@pytest.mark.region_getbillabledigest
 class Test_GetBillableDigest(OscTestSuite):
 
     @classmethod
@@ -25,7 +26,6 @@ class Test_GetBillableDigest(OscTestSuite):
             finally:
                 raise error
 
-    @pytest.mark.region_getbillabledigest
     def test_T1681_correct_dates(self):
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=10)
         try:
@@ -35,7 +35,6 @@ class Test_GetBillableDigest(OscTestSuite):
             if error.message != 'The information for requested dates is not yet available.':
                 raise error
 
-    @pytest.mark.region_getbillabledigest
     def test_T1682_incorrect_dates(self):
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=10)
         try:
@@ -44,3 +43,12 @@ class Test_GetBillableDigest(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue', "Value for 'fromDate' must be less than value for 'toDate'.")
+
+    def test_T5755_with_extra_param(self):
+        end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=10)
+        try:
+            self.gbd_oscsdk.icu.GetBillableDigest(owner=self.a1_r1.config.account.account_id, Foo='Bar',
+                                                  fromDate=self.start_date.isoformat(), toDate=end_date.isoformat(), invoiceType='CURRENT')
+        except OscApiException as error:
+            if error.message != 'The information for requested dates is not yet available.':
+                raise error

@@ -31,3 +31,13 @@ class Test_ReadConsumptionAccount(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterValue', "Value for 'fromDate' must be less than value for 'toDate'.")
+
+    def test_T5756_with_extra_param(self):
+        end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=3)
+        try:
+            self.a1_r1.icu.ReadConsumptionAccount(FromDate=self.start_date.isoformat(), ToDate=end_date.isoformat(), Foo='Bar')
+        except OscApiException as error:
+            if error.status_code == 400 and error.error_code == 'InvalidParameter' and \
+                    error.message == 'The information for requested dates is not yet available.':
+                return
+            raise error

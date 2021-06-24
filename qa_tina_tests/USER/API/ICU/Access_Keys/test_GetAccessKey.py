@@ -68,3 +68,14 @@ class Test_GetAccessKey(OscTestSuite):
         finally:
             if ret_create:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
+
+    def test_T5745_with_extra_param(self):
+        ret_create = None
+        sleep(30)
+        try:
+            ret_create = self.a1_r1.icu.CreateAccessKey()
+            ak = ret_create.response.accessKey.accessKeyId
+            self.a1_r1.icu.GetAccessKey(AccessKeyId=ak, Foo='Bar')
+        finally:
+            if ret_create:
+                self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)

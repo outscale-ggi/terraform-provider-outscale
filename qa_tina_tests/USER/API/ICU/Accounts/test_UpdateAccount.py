@@ -62,4 +62,8 @@ class Test_UpdateAccount(OscTestSuite):
         ret = self.a1_r1.icu.UpdateAccount(Password=id_generator(size=20))
         assert ret.response.Return
 
+    def test_T5759_with_extra_param(self):
+        ret = self.a1_r1.icu.UpdateAccount(Password=id_generator(size=20), Foo='Bar')
+        assert ret.response.Return
+
     # TODO: Add more tests

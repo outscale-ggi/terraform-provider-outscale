@@ -66,3 +66,7 @@ class Test_ResetAccountPassword(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, "PasswordPolicyViolation", 'Password must not match previous 10 password(s)')
+
+    def test_T5757_with_extra_param(self):
+        self.icu.ResetAccountPassword(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
+                                      Token=self.rettoken.response.passwordToken, Password=self.new_password, Foo='Bar')

@@ -133,3 +133,10 @@ class Test_AuthenticateAccount(OscTestSuite):
                 self.a1_r1.identauth.IdauthAccountAdmin.deleteAccount(account_id=admin_id,
                                                                       principal={"accountPid": account_id},
                                                                       forceRemoval="true")
+
+    def test_T5748_with_extra_param(self):
+        ret = self.a1_r1.icu.AuthenticateAccount(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},
+                                                 Login=self.a1_r1.config.account.login,
+                                                 Password=self.a1_r1.config.account.password,
+                                                 Foo='Bar')
+        assert ret.response.Return

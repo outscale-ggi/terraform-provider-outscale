@@ -6,57 +6,61 @@ from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite
 
 
+@pytest.mark.region_directlink
 @pytest.mark.region_admin
 class Test_DeleteVirtualInterface(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
         cls.conn_id = None
-        cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
+        cls.quotas = {'dl_connection_limit': 5, 'dl_interface_limit': 5}
         super(Test_DeleteVirtualInterface, cls).setup_class()
-        ret = cls.a1_r1.directlink.DescribeLocations()
-        ret = cls.a1_r1.directlink.CreateConnection(location=ret.response.locations[0].locationCode,
-                                                    bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
-        cls.conn_id = ret.response.connectionId
+        cls.location = cls.a1_r1.directlink.DescribeLocations().response.locations[0].locationCode
 
-    @classmethod
-    def teardown_class(cls):
+    def setup_method(self, method):
+        self.conn_id = None
+        OscTestSuite.setup_method(self, method)
+        self.conn_id = self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps',
+                                                              connectionName=id_generator(prefix='dl_')).response.connectionId
+        self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+
+    def teardown_method(self, method):
         try:
-            if cls.conn_id:
-                cls.a1_r1.intel.dl.connection.delete(owner=cls.a1_r1.config.account.account_id, connection_id=cls.conn_id)
+            if self.conn_id:
+                self.a1_r1.intel.dl.connection.deactivate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+                self.a1_r1.intel.dl.connection.delete(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
         finally:
-            super(Test_DeleteVirtualInterface, cls).teardown_class()
+            OscTestSuite.teardown_method(self, method)
 
-    @pytest.mark.region_admin
-    @pytest.mark.region_directlink
     def test_T1911_required_param(self):
         interface = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
-        interface_info = None
-        try:
-            self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
-            interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id, newPrivateVirtualInterface=interface)
-            ret = self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)
-            assert ret.response.virtualInterfaceState == 'deleted'
-        except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Field virtualInterfaceId is required")
+        interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id, newPrivateVirtualInterface=interface)
+        ret = self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)
+        assert ret.response.virtualInterfaceState == 'deleted'
 
-    @pytest.mark.region_directlink
     def test_T4664_without_param(self):
         try:
             self.a1_r1.directlink.DeleteVirtualInterface()
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, "DirectConnectClientException", "Field virtualInterfaceId is required")
 
-    @pytest.mark.region_directlink
     def test_T4665_invalid_virtualInterfaceId(self):
         try:
             self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=self.conn_id)
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, "DirectConnectClientException", "Invalid ID received: {}. Expected format: dxvif-".format(self.conn_id))
 
-    @pytest.mark.region_directlink
-    def test_T4666_inexistante_virtualInterfaceId(self):
+    def test_T4666_non_existent_virtualInterfaceId(self):
         try:
             self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId='dxvif-12345678')
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, "DirectConnectClientException", "Virtual interface 'dxvif-12345678' does not exists.")
+
+    def test_T5740_with_extra_param(self):
+        interface = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
+        interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id, newPrivateVirtualInterface=interface)
+        ret = self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId, Foo='Bar')
+        assert ret.response.virtualInterfaceState == 'deleted'
