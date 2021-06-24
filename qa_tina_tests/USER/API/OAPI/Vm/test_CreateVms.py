@@ -46,7 +46,7 @@ echo "yes" > /tmp/userdata.txt
     def check_user_data(self, vm_info, gzip=False, decode=True):
         sshclient = check_tools.check_ssh_connection(self.a1_r1, vm_info['vms'][0]['VmId'], vm_info['vms'][0]['PublicIp'],
                                                      vm_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        out, _, _ = SshTools.exec_command_paramiko(sshclient, 'curl -o output http://169.254.169.254/latest/user-data', decode=decode)
+        _, _, _ = SshTools.exec_command_paramiko(sshclient, 'curl -o output http://169.254.169.254/latest/user-data', decode=decode)
         out, _, _ = SshTools.exec_command_paramiko(sshclient, 'cat output', decode=decode)
         if gzip:
             self.logger.debug(zlib.decompress(out))
