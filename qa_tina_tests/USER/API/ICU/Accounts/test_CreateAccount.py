@@ -48,10 +48,7 @@ class Test_CreateAccount(OscTestSuite):
             assert ret.response.Account.Email == account_info['Email']
         finally:
             if ret:
-                # delete account
                 self.a1_r1.xsub.terminate_account(pid=ret.response.Account.AccountPid)
-                # self.a1_r1.identauth.IdauthAccountAdmin.deleteAccount(account_id=self.a1_r1.config.region.get_info(constants.AS_IDAUTH_ID),
-                #                                                      principal={"accountPid": ret.response.Account.AccountPid}, forceRemoval="true")
 
     def test_T556_duplicate_email_address(self):
         try:
@@ -89,3 +86,14 @@ class Test_CreateAccount(OscTestSuite):
             assert False, 'CreateAccount should have failed'
         except OscApiException as error:
             assert_error(error, 400, "InvalidParameterValue", "Value of parameter 'CustomerID' must contain numeric characters only. Received: foo")
+
+    @pytest.mark.region_admin
+    def test_T5750_with_extra_param(self):
+        account_info = self.generate_params()
+        ret = None
+        try:
+            ret = self.a1_r1.icu.CreateAccount(**account_info, Foo='Bar')
+            assert ret.response.Account.Email == account_info['Email']
+        finally:
+            if ret:
+                self.a1_r1.xsub.terminate_account(pid=ret.response.Account.AccountPid)

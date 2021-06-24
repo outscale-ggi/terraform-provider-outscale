@@ -9,6 +9,7 @@ from qa_tina_tools.tools.tina import wait_tools
 
 
 @pytest.mark.region_admin
+@pytest.mark.region_directlink
 class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
 
     @classmethod
@@ -30,8 +31,6 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
         finally:
             super(Test_ConfirmPrivateVirtualInterface, cls).teardown_class()
 
-    @pytest.mark.region_admin
-    @pytest.mark.region_directlink
     def test_T1915_required_param(self):
         allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         alloc_info = None
@@ -45,6 +44,34 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
                 ownerAccount=self.a1_r1.config.account.account_id)
             ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=self.vgw_id,
                                                                        virtualInterfaceId=alloc_info.response.virtualInterfaceId)
+            assert ret.response.virtualInterfaceState == 'pending'
+        finally:
+            if alloc_info:
+                self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=alloc_info.response.virtualInterfaceId)
+                for _ in range(18):
+                    resp = self.a1_r1.directlink.DescribeVirtualInterfaces(virtualInterfaceId=alloc_info.response.virtualInterfaceId).response
+                    assert len(resp.virtualInterfaces) == 1
+                    if resp.virtualInterfaces[0].virtualInterfaceState == 'deleted':
+                        break
+                    time.sleep(10)
+            if self.vgw_id:
+                self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=self.vgw_id)
+                wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='deleted')
+
+    def test_T5738_extra_param(self):
+        allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
+        alloc_info = None
+        try:
+            ret = self.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1')
+            self.vgw_id = ret.response.vpnGateway.vpnGatewayId
+            wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='available')
+            self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+            alloc_info = self.a1_r1.directlink.AllocatePrivateVirtualInterface(
+                connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=allocation,
+                ownerAccount=self.a1_r1.config.account.account_id)
+            ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=self.vgw_id,
+                                                                       virtualInterfaceId=alloc_info.response.virtualInterfaceId,
+                                                                       Foo='Bar')
             assert ret.response.virtualInterfaceState == 'pending'
         finally:
             if alloc_info:

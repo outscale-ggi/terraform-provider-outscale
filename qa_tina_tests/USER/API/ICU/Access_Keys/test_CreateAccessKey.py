@@ -5,6 +5,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools import misc
 
 
 class Test_CreateAccessKey(OscTestSuite):
@@ -262,3 +263,13 @@ class Test_CreateAccessKey(OscTestSuite):
                 if key_id != key_id_list[0]:
                     sleep(30)
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=key_id)
+
+    def test_T5743_with_extra_param(self):
+        sleep(30)
+        ret_create = None
+        try:
+            ret_create = self.a1_r1.icu.CreateAccessKey(Foo='Bar')
+            ak = ret_create.response.accessKey.accessKeyId
+        finally:
+            if ret_create:
+                self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
