@@ -1,7 +1,9 @@
 
 import pytest
 
+from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 @pytest.mark.region_directlink
@@ -20,3 +22,9 @@ class Test_DescribeLocations(OscTestSuite):
         ret = self.a1_r1.directlink.DescribeLocations()
         assert isinstance(ret.response.locations, list)
         assert hasattr(ret.response, 'locations')
+
+    def test_T5736_with_extra_param(self):
+        try:
+            self.a1_r1.directlink.DescribeLocations(Foo='Bar')
+        except OscApiException as error:
+            misc.assert_error(error, 400, 'DirectConnectClientException', "Operation doesn't expect any parameters")

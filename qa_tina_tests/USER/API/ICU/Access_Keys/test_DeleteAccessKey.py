@@ -162,3 +162,17 @@ class Test_DeleteAccessKey(OscTestSuite):
             sleep(30)
             self.a1_r1.icu.DeleteAccessKey(AccessKeyId=key_id)
         assert found_error, "Throttling did not happen"
+
+    def test_T5744_with_extra_param(self):
+        sleep(30)
+        ret_create = None
+        ret_delete = None
+        try:
+            ret_create = self.a1_r1.icu.CreateAccessKey()
+            ak = ret_create.response.accessKey.accessKeyId
+            ret_delete = self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak, Foo='Bar')
+            assert ret_delete.response
+        finally:
+            if ret_create and not ret_delete:
+                sleep(30)
+                self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)

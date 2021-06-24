@@ -87,3 +87,6 @@ class Test_ListAccessKeys(OscTestSuite):
         ret = self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
         assert len(ret.response.accessKeys) >= 1
         # TODO: check returned attributes
+
+    def test_T5746_with_extra_param(self):
+        self.a1_r1.icu.ListAccessKeys(Foo='Bar')

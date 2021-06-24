@@ -1,11 +1,13 @@
 
 import time
-
 import pytest
 
+from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
+@pytest.mark.region_directlink
 @pytest.mark.region_admin
 class Test_DescribeVirtualInterfaces(OscTestSuite):
 
@@ -31,14 +33,11 @@ class Test_DescribeVirtualInterfaces(OscTestSuite):
         finally:
             super(Test_DescribeVirtualInterfaces, cls).teardown_class()
 
-    @pytest.mark.region_directlink
     def test_T1913_without_param(self):
         ret = self.a1_r1.directlink.DescribeVirtualInterfaces()
         assert isinstance(ret.response.virtualInterfaces, list)
         assert not ret.response.virtualInterfaces
 
-    @pytest.mark.region_admin
-    @pytest.mark.region_directlink
     def test_T2994_describe_virtual_interfaces(self):
         retloc = None
         retcon1 = None
@@ -83,3 +82,10 @@ class Test_DescribeVirtualInterfaces(OscTestSuite):
                 self.a1_r1.intel.dl.connection.delete(owner=self.a1_r1.config.account.account_id, connection_id=retcon1.response.connectionId)
             if vgw_id:
                 self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
+
+    def test_T5742_with_extra_param(self):
+        try:
+            self.a1_r1.directlink.DescribeVirtualInterfaces(Foo='Bar')
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            misc.assert_error(error, 400, 'DirectConnectClientException', "Operation doesn't expect any parameters")

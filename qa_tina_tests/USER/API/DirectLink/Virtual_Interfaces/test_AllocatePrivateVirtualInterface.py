@@ -6,6 +6,7 @@ from qa_test_tools.misc import assert_error, id_generator
 from qa_test_tools.test_base import OscTestSuite
 
 
+@pytest.mark.region_directlink
 @pytest.mark.region_admin
 class Test_AllocatePrivateVirtualInterface(OscTestSuite):
 
@@ -27,7 +28,6 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
         finally:
             super(Test_AllocatePrivateVirtualInterface, cls).teardown_class()
 
-    @pytest.mark.region_directlink
     def test_T4640_without_param(self):
         ret = None
         try:
@@ -39,7 +39,6 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
             if ret:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=ret.response.virtualInterfaceId)
 
-    @pytest.mark.region_directlink
     def test_T4637_without_allocation(self):
         ret = None
         try:
@@ -51,7 +50,6 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
             if ret:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=ret.response.virtualInterfaceId)
 
-    @pytest.mark.region_directlink
     def test_T4638_without_connection_id(self):
         ret = None
         try:
@@ -65,7 +63,6 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
             if ret:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=ret.response.virtualInterfaceId)
 
-    @pytest.mark.region_directlink
     def test_T4639_without_owner_account(self):
         ret = None
         allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
@@ -79,7 +76,6 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
             if ret:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=ret.response.virtualInterfaceId)
 
-    @pytest.mark.region_directlink
     def test_T1914_required_param(self):
         ret = None
         allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
@@ -94,13 +90,12 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
             if ret:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=ret.response.virtualInterfaceId)
 
-    @pytest.mark.region_admin
-    @pytest.mark.region_directlink
     def test_T4652_valid_connection_state(self):
         ret = None
+        ret_activate = None
         allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         try:
-            self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+            ret_activate = self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
             ret = self.a1_r1.directlink.AllocatePrivateVirtualInterface(
                 connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=allocation,
                 ownerAccount=self.a1_r1.config.account.account_id)
@@ -115,3 +110,20 @@ class Test_AllocatePrivateVirtualInterface(OscTestSuite):
         finally:
             if ret:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=ret.response.virtualInterfaceId)
+            if ret_activate:
+                self.a1_r1.intel.dl.connection.deactivate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+
+    def test_T5737_with_extra_param(self):
+        ret = None
+        ret_activate = None
+        allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
+        try:
+            ret_activate = self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+            ret = self.a1_r1.directlink.AllocatePrivateVirtualInterface(
+                connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=allocation,
+                ownerAccount=self.a1_r1.config.account.account_id, Foo='Bar')
+        finally:
+            if ret:
+                self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=ret.response.virtualInterfaceId)
+            if ret_activate:
+                self.a1_r1.intel.dl.connection.deactivate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)

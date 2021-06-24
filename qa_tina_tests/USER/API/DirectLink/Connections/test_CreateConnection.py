@@ -6,6 +6,7 @@ from qa_test_tools.misc import id_generator, assert_error
 from qa_test_tools.test_base import OscTestSuite
 
 
+@pytest.mark.region_directlink
 class Test_CreateConnection(OscTestSuite):
 
     @classmethod
@@ -19,7 +20,6 @@ class Test_CreateConnection(OscTestSuite):
     def teardown_class(cls):
         super(Test_CreateConnection, cls).teardown_class()
 
-    @pytest.mark.region_directlink
     def test_T1908_required_param(self):
         conn_id = None
         connection_name = id_generator(prefix='dl_')
@@ -37,7 +37,6 @@ class Test_CreateConnection(OscTestSuite):
             if conn_id:
                 self.a1_r1.directlink.DeleteConnection(connectionId=conn_id)
 
-    @pytest.mark.region_directlink
     def test_T4467_without_bandwidth(self):
         try:
             self.a1_r1.directlink.CreateConnection(location=self.location, connectionName=id_generator(prefix='dl_'))
@@ -45,7 +44,6 @@ class Test_CreateConnection(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'DirectConnectClientException', 'Field bandwidth is required')
 
-    @pytest.mark.region_directlink
     def test_T4468_without_name(self):
         try:
             self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps')
@@ -53,7 +51,6 @@ class Test_CreateConnection(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'DirectConnectClientException', 'Field connectionName is required')
 
-    @pytest.mark.region_directlink
     def test_T4469_without_location(self):
         try:
             self.a1_r1.directlink.CreateConnection(bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
@@ -61,7 +58,6 @@ class Test_CreateConnection(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'DirectConnectClientException', 'Field location is required')
 
-    @pytest.mark.region_directlink
     def test_T4470_with_invalid_bandwidth(self):
         try:
             self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='foo', connectionName=id_generator(prefix='dl_'))
@@ -69,10 +65,19 @@ class Test_CreateConnection(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'DirectConnectClientException', 'Invalid interface speed: foo')
 
-    @pytest.mark.region_directlink
     def test_T4471_with_invalid_location(self):
         try:
             self.a1_r1.directlink.CreateConnection(location='foo', bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'DirectConnectClientException', "Location 'foo' is invalid.")
+
+    def test_T5733_with_extra_param(self):
+        conn_id = None
+        connection_name = id_generator(prefix='dl_')
+        try:
+            ret = self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps', connectionName=connection_name, Foo='Bar')
+            conn_id = ret.response.connectionId
+        finally:
+            if conn_id:
+                self.a1_r1.directlink.DeleteConnection(connectionId=conn_id)

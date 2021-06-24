@@ -66,3 +66,12 @@ class Test_UpdateAccessKey(OscTestSuite):
         finally:
             if ak:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
+
+    def test_T5747_with_extra_param(self):
+        sleep(30)
+        try:
+            ak = self.a1_r1.icu.CreateAccessKey().response.accessKey.accessKeyId
+            self.a1_r1.icu.UpdateAccessKey(AccessKeyId=ak, Status='active', Foo='Bar')
+        finally:
+            if ak:
+                self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
