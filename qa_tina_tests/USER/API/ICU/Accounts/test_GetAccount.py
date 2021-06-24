@@ -1,6 +1,6 @@
 
-from qa_test_tools.test_base import OscTestSuite
 from specs.check_tools import check_response
+from qa_test_tools.test_base import OscTestSuite
 
 class Test_GetAccount(OscTestSuite):
 
