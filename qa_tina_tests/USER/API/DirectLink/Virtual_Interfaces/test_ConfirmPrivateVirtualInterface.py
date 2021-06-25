@@ -36,15 +36,15 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
     def test_T1915_required_param(self):
         allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         alloc_info = None
+        vgw_id = None
         try:
-            ret = self.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1')
-            self.vgw_id = ret.response.vpnGateway.vpnGatewayId
-            wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='available')
+            vgw_id = self.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1').response.vpnGateway.vpnGatewayId
+            wait_tools.wait_vpn_gateways_state(self.a1_r1, [vgw_id], state='available')
             self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
             alloc_info = self.a1_r1.directlink.AllocatePrivateVirtualInterface(
                 connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=allocation,
                 ownerAccount=self.a1_r1.config.account.account_id)
-            ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=self.vgw_id,
+            ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=vgw_id,
                                                                        virtualInterfaceId=alloc_info.response.virtualInterfaceId)
             assert ret.response.virtualInterfaceState == 'pending'
         finally:
@@ -56,22 +56,22 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
                     if resp.virtualInterfaces[0].virtualInterfaceState == 'deleted':
                         break
                     time.sleep(10)
-            if self.vgw_id:
-                self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=self.vgw_id)
-                wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='deleted')
+            if vgw_id:
+                self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
+                wait_tools.wait_vpn_gateways_state(self.a1_r1, [vgw_id], state='deleted')
 
     def test_T5738_extra_param(self):
         allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         alloc_info = None
+        vgw_id = None
         try:
-            ret = self.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1')
-            self.vgw_id = ret.response.vpnGateway.vpnGatewayId
-            wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='available')
+            vgw_id = self.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1').response.vpnGateway.vpnGatewayId
+            wait_tools.wait_vpn_gateways_state(self.a1_r1, [vgw_id], state='available')
             self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
             alloc_info = self.a1_r1.directlink.AllocatePrivateVirtualInterface(
                 connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=allocation,
                 ownerAccount=self.a1_r1.config.account.account_id)
-            ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=self.vgw_id,
+            ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=vgw_id,
                                                                        virtualInterfaceId=alloc_info.response.virtualInterfaceId,
                                                                        Foo='Bar')
             assert ret.response.virtualInterfaceState == 'pending'
@@ -84,6 +84,6 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
                     if resp.virtualInterfaces[0].virtualInterfaceState == 'deleted':
                         break
                     time.sleep(10)
-            if self.vgw_id:
-                self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=self.vgw_id)
-                wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='deleted')
+            if vgw_id:
+                self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
+                wait_tools.wait_vpn_gateways_state(self.a1_r1, [vgw_id], state='deleted')
