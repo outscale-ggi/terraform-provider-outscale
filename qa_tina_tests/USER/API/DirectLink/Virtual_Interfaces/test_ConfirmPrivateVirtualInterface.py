@@ -15,34 +15,36 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.conn_id = None
-        cls.vgw_id = None
         cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
         super(Test_ConfirmPrivateVirtualInterface, cls).setup_class()
         ret = cls.a1_r1.directlink.DescribeLocations()
-        ret = cls.a1_r1.directlink.CreateConnection(location=ret.response.locations[0].locationCode, bandwidth='1Gbps',
-                                                    connectionName=id_generator(prefix='dl_'))
-        cls.conn_id = ret.response.connectionId
+        cls.location_code = ret.response.locations[0].locationCode
 
-    @classmethod
-    def teardown_class(cls):
+    def setup_method(self, method):
+        self.conn_id = None
+        OscTestSuite.setup_method(self, method)
+        ret = self.a1_r1.directlink.CreateConnection(location=self.location_code, bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
+        self.conn_id = ret.response.connectionId
+
+    def teardown_method(self, method):
         try:
-            if cls.conn_id:
-                cls.a1_r1.intel.dl.connection.delete(owner=cls.a1_r1.config.account.account_id, connection_id=cls.conn_id)
+            if self.conn_id:
+                self.a1_r1.intel.dl.connection.delete(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
         finally:
-            super(Test_ConfirmPrivateVirtualInterface, cls).teardown_class()
+            OscTestSuite.teardown_method(self, method)
 
     def test_T1915_required_param(self):
         allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         alloc_info = None
+        vgw_id = None
         try:
-            ret = self.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1')
-            self.vgw_id = ret.response.vpnGateway.vpnGatewayId
-            wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='available')
+            vgw_id = self.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1').response.vpnGateway.vpnGatewayId
+            wait_tools.wait_vpn_gateways_state(self.a1_r1, [vgw_id], state='available')
             self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
             alloc_info = self.a1_r1.directlink.AllocatePrivateVirtualInterface(
                 connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=allocation,
                 ownerAccount=self.a1_r1.config.account.account_id)
-            ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=self.vgw_id,
+            ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=vgw_id,
                                                                        virtualInterfaceId=alloc_info.response.virtualInterfaceId)
             assert ret.response.virtualInterfaceState == 'pending'
         finally:
@@ -54,22 +56,22 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
                     if resp.virtualInterfaces[0].virtualInterfaceState == 'deleted':
                         break
                     time.sleep(10)
-            if self.vgw_id:
-                self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=self.vgw_id)
-                wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='deleted')
+            if vgw_id:
+                self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
+                wait_tools.wait_vpn_gateways_state(self.a1_r1, [vgw_id], state='deleted')
 
     def test_T5738_extra_param(self):
         allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         alloc_info = None
+        vgw_id = None
         try:
-            ret = self.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1')
-            self.vgw_id = ret.response.vpnGateway.vpnGatewayId
-            wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='available')
+            vgw_id = self.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1').response.vpnGateway.vpnGatewayId
+            wait_tools.wait_vpn_gateways_state(self.a1_r1, [vgw_id], state='available')
             self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
             alloc_info = self.a1_r1.directlink.AllocatePrivateVirtualInterface(
                 connectionId=self.conn_id, newPrivateVirtualInterfaceAllocation=allocation,
                 ownerAccount=self.a1_r1.config.account.account_id)
-            ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=self.vgw_id,
+            ret = self.a1_r1.directlink.ConfirmPrivateVirtualInterface(virtualGatewayId=vgw_id,
                                                                        virtualInterfaceId=alloc_info.response.virtualInterfaceId,
                                                                        Foo='Bar')
             assert ret.response.virtualInterfaceState == 'pending'
@@ -82,6 +84,6 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
                     if resp.virtualInterfaces[0].virtualInterfaceState == 'deleted':
                         break
                     time.sleep(10)
-            if self.vgw_id:
-                self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=self.vgw_id)
-                wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='deleted')
+            if vgw_id:
+                self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
+                wait_tools.wait_vpn_gateways_state(self.a1_r1, [vgw_id], state='deleted')
