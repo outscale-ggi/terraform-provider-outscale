@@ -84,8 +84,4 @@ class Test_DescribeVirtualInterfaces(OscTestSuite):
                 self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
 
     def test_T5742_with_extra_param(self):
-        try:
-            self.a1_r1.directlink.DescribeVirtualInterfaces(Foo='Bar')
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            misc.assert_error(error, 400, 'DirectConnectClientException', "Operation doesn't expect any parameters")
+        self.a1_r1.directlink.DescribeVirtualInterfaces(Foo='Bar')
