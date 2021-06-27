@@ -4,6 +4,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
 from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.tools.tina import wait_tools
 
 
 @pytest.mark.region_directlink
@@ -23,6 +24,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         OscTestSuite.setup_method(self, method)
         ret = self.a1_r1.directlink.CreateConnection(location=self.location_code, bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
         self.conn_id = ret.response.connectionId
+        wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
 
     def teardown_method(self, method):
         try:
