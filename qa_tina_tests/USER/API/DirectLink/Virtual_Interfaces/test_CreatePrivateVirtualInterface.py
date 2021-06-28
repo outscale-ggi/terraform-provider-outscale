@@ -14,7 +14,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
     @classmethod
     def setup_class(cls):
         cls.conn_id = None
-        cls.quotas = {'dl_connection_limit': 2, 'dl_interface_limit': 2}
+        cls.quotas = {'dl_connection_limit': 10, 'dl_interface_limit': 10}
         super(Test_CreatePrivateVirtualInterface, cls).setup_class()
         ret = cls.a1_r1.directlink.DescribeLocations()
         cls.location_code = ret.response.locations[0].locationCode
@@ -24,7 +24,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         OscTestSuite.setup_method(self, method)
         ret = self.a1_r1.directlink.CreateConnection(location=self.location_code, bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
         self.conn_id = ret.response.connectionId
-        wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
+        wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "pending")
 
     def teardown_method(self, method):
         try:
@@ -50,6 +50,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         interface_info = None
         try:
             self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+            wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
             interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                                  newPrivateVirtualInterface=interface)
             assert interface_info.response.amazonAddress
@@ -72,6 +73,8 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
     def test_T4659_without_interface(self):
         interface_info = None
         try:
+            self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+            wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
             interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id)
         except OscApiException as error:
             assert_error(error, 400, "DirectConnectClientException", "Field newPrivateVirtualInterface is required")
@@ -82,6 +85,8 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
     def test_T4660_without_connectionId(self):
         interface_info = None
         try:
+            self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+            wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
             self.a1_r1.directlink.CreatePrivateVirtualInterface()
         except OscApiException as error:
             assert_error(error, 400, "DirectConnectClientException", "Field connectionId is required")
@@ -93,6 +98,8 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         interface_info = None
         interface = {'asn': '11111', 'virtualInterfaceName': 'test', 'vlan': 's'}
         try:
+            self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+            wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
             self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                 newPrivateVirtualInterface=interface)
         except OscApiException as error:
@@ -106,6 +113,8 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         interface_info = None
         interface = {'asn': '11111', 'virtualInterfaceName': 'test', 'vlan': 1}
         try:
+            self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+            wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
             self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                 newPrivateVirtualInterface=interface)
         except OscApiException as error:
@@ -119,6 +128,8 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         interface_info = None
         interface = {'asn': '11111', 'virtualInterfaceName': 123, 'vlan': 1}
         try:
+            self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+            wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
             self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                 newPrivateVirtualInterface=interface)
         except OscApiException as error:
@@ -132,6 +143,8 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         interface_info1 = None
         interface = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         try:
+            self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+            wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
             interface_info1 = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                                   newPrivateVirtualInterface=interface)
             interface_info2 = None
@@ -152,6 +165,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
         interface_info = None
         try:
             self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
+            wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
             interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                                  newPrivateVirtualInterface=interface,
                                                                                  Foo='Bar')
