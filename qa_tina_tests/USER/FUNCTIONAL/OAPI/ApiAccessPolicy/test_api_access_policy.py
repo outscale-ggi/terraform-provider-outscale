@@ -2,7 +2,7 @@ import datetime
 import os
 import string
 import hashlib
-import hmac
+import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdks import OscSdk
@@ -12,23 +12,14 @@ from qa_test_tools.config import OscConfig, config_constants
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import create_tools
 
-def sign(key, msg):
-    return hmac.new(key, msg.encode("utf-8"), hashlib.sha256).digest()
-
-
-def get_signing_key(key, date_stamp, region_name, service_name):
-    k_date = sign(('AWS4' + key).encode('utf-8'), date_stamp)
-    k_region = sign(k_date, region_name)
-    k_service = sign(k_region, service_name)
-    k_signing = sign(k_service, 'osc4_request')
-    return k_signing
-
 
 class Test_ApiAccessPolicy(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
         cls.account_pid = None
+        cls.email = None
+        cls.password = None
         cls.osc_sdk = None
         cls.ca_files = None
         cls.ca_id = None
@@ -42,16 +33,16 @@ class Test_ApiAccessPolicy(OscTestSuite):
             cls.logger.debug("#    SETUP     #")
             cls.logger.debug("################")
             # create account
-            email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='test_api_access_policy').lower())
-            password = misc.id_generator(size=20, chars=string.digits + string.ascii_letters)
+            cls.email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='test_api_access_policy').lower())
+            cls.password = misc.id_generator(size=20, chars=string.digits + string.ascii_letters)
             account_info = {'city': 'Saint_Cloud', 'company_name': 'Outscale', 'country': 'France',
-                            'email_address': email, 'firstname': 'Test_user', 'lastname': 'Test_Last_name',
-                            'password': password, 'zipcode': '92210'}
+                            'email_address': cls.email, 'firstname': 'Test_user', 'lastname': 'Test_Last_name',
+                            'password': cls.password, 'zipcode': '92210'}
             cls.account_pid = account_tools.create_account(cls.a1_r1, account_info=account_info)
             keys = cls.a1_r1.intel.accesskey.find_by_user(owner=cls.account_pid).response.result[0]
             cls.a1_r1.intel.user.update(username=cls.account_pid, fields={'accesskey_limit': 10})
             cls.osc_sdk = OscSdk(config=OscConfig.get_with_keys(az_name=cls.a1_r1.config.region.az_name, ak=keys.name, sk=keys.secret,
-                                                                account_id=cls.account_pid, login=email, password=password))
+                                                                account_id=cls.account_pid, login=cls.email, password=cls.password))
 
             # update KP
             # TODO: make call with oapi !!!
@@ -67,12 +58,20 @@ class Test_ApiAccessPolicy(OscTestSuite):
             resp = cls.osc_sdk.oapi.ReadApiAccessRules().response
             cls.aar_id = cls.osc_sdk.oapi.CreateApiAccessRule(CaIds=[cls.ca_id],
                                                               Description="AAR for AAP and TrustedEnv").response.ApiAccessRule.ApiAccessRuleId
-            # TODO: RM others AAR....
+            # RM others AAR....
             for rule in resp.ApiAccessRules:
                 cls.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=rule.ApiAccessRuleId)
+
             cls.osc_sdk.identauth__admin.IdauthAdmin.invalidateCache(account_id=cls.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID))
 
             # create AAP
+            #resp = cls.osc_sdk.identauth.IdauthAccount.getAccountApiAccessPolicy(
+            #    account_id=cls.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+            #    principal={'accountPid': cls.account_pid}).response
+            #cls.logger.debug(resp.display())
+            #resp = cls.osc_sdk.oapi.ReadApiAccessPolicy(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
+            #                                                       osc_api.EXEC_DATA_CERTIFICATE: [cls.client_cert[2], cls.client_cert[1]]}).response
+            #cls.logger.debug(resp.display())
             cls.osc_sdk.oapi.UpdateApiAccessPolicy(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
                                                               osc_api.EXEC_DATA_CERTIFICATE: [cls.client_cert[2], cls.client_cert[1]]},
                                                    MaxAccessKeyExpirationSeconds=3600, RequireTrustedEnv=True)
@@ -122,7 +121,6 @@ class Test_ApiAccessPolicy(OscTestSuite):
                 account_id=cls.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
                 principal={'accountPid': cls.account_pid}).response
             cls.logger.debug(resp.display())
-            
 
             cls.ael_api_calls = {
                 'api.ReadAccessKeys': None,
@@ -241,13 +239,174 @@ class Test_ApiAccessPolicy(OscTestSuite):
             super(Test_ApiAccessPolicy, cls).teardown_class()
 
 
+    @pytest.mark.as_1_51_x
+    def test_T0000_signin_without_certificate(self):
+        try:
+            resp = self.osc_sdk.identauth.IdauthAuthentication.signIn(
+                account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                login=self.email, password=self.password, profileName='portal').response
+            self.logger.debug(resp.display())
+        except OscApiException as error:
+            misc.assert_error(error, 403, 'ApiAccessDeniedException', "Request is filtered by API access rules")
+
+    @pytest.mark.as_1_51_x
+    def test_T0000_signin_with_certificate(self):
+        resp = self.osc_sdk.identauth.IdauthAuthentication.signIn(
+            account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+            login=self.email, password=self.password, profileName='portal',
+            conditionParams=[
+                {'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}},
+                {'value': open(self.client_cert[2]).read(), 'key': {'vendor': 'idauth', 'id': 'ApiAccessCert'}}
+                ]).response
+        assert resp.principal.accountPid == self.account_pid
+
+    @pytest.mark.as_1_51_x
+    def test_T0000_authenticate_without_certificate(self):
+        info = self.osc_sdk.api.ReadVms(exec_data={osc_api.EXEC_DATA_DRY_RUN: True})
+        authorization = info['headers']['Authorization']
+        cred = authorization.split(' ')[1].split('=')[1].split('/')[0]
+        date = authorization.split(' ')[1].split('/')[1]
+        reg_name = authorization.split(' ')[1].split('/')[2]
+        service = authorization.split(' ')[1].split('/')[3]
+        signature = authorization.split(' ')[3].split('=')[1]
+        body = "{}\n{}\n{}\n{}".format(
+            authorization.split(' ')[0],
+            info['headers']['X-Osc-Date'],
+            '/'.join(authorization.split(' ')[1].split('/')[1:])[:-1],
+            hashlib.sha256(info['canonical_request'].encode('utf-8')).hexdigest()
+            )
+        resp = self.osc_sdk.identauth.IdauthAuthentication.authenticate(
+            account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+            credentials=cred,
+            signature=signature,
+            credentialsType="ACCESS_KEY",
+            signatureMethod="OSC_V4",
+            body=body,
+            signatureTokens=[
+                {'value': date, 'key': 'Date'},
+                {'value': reg_name, 'key': 'Region'},
+                {'value': service, 'key': 'Service'},
+            ]).response
+        assert resp.principal.accountPid == self.account_pid
+
+    @pytest.mark.as_1_51_x
+    def test_T0000_authenticate_with_certificate(self):
+        info = self.osc_sdk.api.ReadVms(exec_data={osc_api.EXEC_DATA_DRY_RUN: True})
+        authorization = info['headers']['Authorization']
+        cred = authorization.split(' ')[1].split('=')[1].split('/')[0]
+        date = authorization.split(' ')[1].split('/')[1]
+        reg_name = authorization.split(' ')[1].split('/')[2]
+        service = authorization.split(' ')[1].split('/')[3]
+        signature = authorization.split(' ')[3].split('=')[1]
+        body = "{}\n{}\n{}\n{}".format(
+            authorization.split(' ')[0],
+            info['headers']['X-Osc-Date'],
+            '/'.join(authorization.split(' ')[1].split('/')[1:])[:-1],
+            hashlib.sha256(info['canonical_request'].encode('utf-8')).hexdigest()
+            )
+        resp = self.osc_sdk.identauth.IdauthAuthentication.authenticate(
+            account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+            credentials=cred,
+            signature=signature,
+            credentialsType="ACCESS_KEY",
+            signatureMethod="OSC_V4",
+            body=body,
+            signatureTokens=[
+                {'value': date, 'key': 'Date'},
+                {'value': reg_name, 'key': 'Region'},
+                {'value': service, 'key': 'Service'},
+            ],
+            conditionParams=[
+                {'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}},
+                {'value': open(self.client_cert[2]).read(), 'key': {'vendor': 'idauth', 'id': 'ApiAccessCert'}}
+                ]).response
+        assert resp.principal.accountPid == self.account_pid
+
+    @pytest.mark.as_1_51_x
+    def test_T0000_isauthorized_not_ael_without_certificate(self):
+        tested_call = self.aksk_api_calls.copy()
+        tested_call.update(self.mdp_api_calls)
+        tested_call.update(self.pub_api_calls)
+        errors = {}
+        for api_call, _ in tested_call.items():
+            try:
+                ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
+                    account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                    action={'vendor': api_call.split('.')[0], 'operation': api_call.split('.')[1]},
+                    conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0],
+                                      'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
+                    principal={'accountPid': self.account_pid},
+                    resources={'namespace': self.account_pid, 'region': self.osc_sdk.config.region.name,
+                               'relativeId': '*', 'vendor': api_call.split('.')[0]},
+                    )
+                self.logger.debug(ret.response.display())
+                if ret.text != 'true':
+                    errors[api_call] = ret
+            except OscApiException as error:
+                errors[api_call] = error
+        for api_call, error in errors.items():
+            self.logger.warning("%s: %s", api_call, error)
+        assert not errors
+
+    @pytest.mark.as_1_51_x
+    def test_T0000_isauthorized_ael_without_certificate(self):
+        errors = {}
+        for api_call, _ in self.ael_api_calls.items():
+            try:
+                ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
+                    account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                    action={'vendor': api_call.split('.')[0], 'operation': api_call.split('.')[1]},
+                    conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0],
+                                      'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
+                    principal={'accountPid': self.account_pid},
+                    resources={'namespace': self.account_pid, 'region': self.osc_sdk.config.region.name,
+                               'relativeId': '*', 'vendor': api_call.split('.')[0]},
+                    )
+                self.logger.debug(ret.response.display())
+                if ret.text != 'false':
+                    errors[api_call] = ret
+            except OscApiException as error:
+                errors[api_call] = error
+        for api_call, error in errors.items():
+            self.logger.warning("%s: %s", api_call, error)
+        assert not errors
+
+    @pytest.mark.as_1_51_x
+    def test_T0000_isauthorized_with_certificate(self):
+        tested_call = self.aksk_api_calls.copy()
+        tested_call.update(self.mdp_api_calls)
+        tested_call.update(self.pub_api_calls)
+        tested_call.update(self.ael_api_calls)
+        errors = {}
+        for api_call, _ in tested_call.items():
+            try:
+                ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
+                    account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                    action={'vendor': api_call.split('.')[0], 'operation': api_call.split('.')[1]},
+                    conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0],
+                                      'key': {'vendor': 'idauth', 'id': 'SourceIp'}},
+                                     {'value': open(self.client_cert[2]).read(), 'key': {'vendor': 'idauth', 'id': 'ApiAccessCert'}}],
+                    principal={'accountPid': self.account_pid},
+                    resources={'namespace': self.account_pid, 'region': self.osc_sdk.config.region.name,
+                               'relativeId': '*', 'vendor': api_call.split('.')[0]},
+                    )
+                self.logger.debug(ret.response.display())
+                if ret.text != 'true':
+                    errors[api_call] = ret
+            except OscApiException as error:
+                errors[api_call] = error
+        for api_call, error in errors.items():
+            self.logger.warning("%s: %s", api_call, error)
+        assert not errors
+
+
     def test_T0000_as_authent(self):
         self.logger.debug("################")
         self.logger.debug("#     TEST     #")
         self.logger.debug("################")
         # TODO: RM (test just for debug)
-        #ret = self.osc_sdk.api.CreateAccessKey(ExpirationDate=self.exp_date)
-        #self.logger.debug(ret.response.display())
+        ret = self.osc_sdk.api.CreateAccessKey(ExpirationDate=self.exp_date)
+        self.logger.debug(ret.response.display())
 
         info = self.osc_sdk.api.CreateAccessKey(exec_data={osc_api.EXEC_DATA_DRY_RUN: True},
                                                 ExpirationDate=self.exp_date)
