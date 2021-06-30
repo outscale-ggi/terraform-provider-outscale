@@ -52,19 +52,19 @@ class Test_brute_force(OscTestSuite):
                     wrong_account_sdk.oapi.ReadVms(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                     time.sleep(2)
                 except OscApiException as error:
-                    assert_oapi_error(error, 401, 'AccessDenied', 1)
+                    assert_oapi_error(error, 401, 'AccessDenied', None)
                     print(i)
                     print(error)
             try:
                 time.sleep(2)
                 wrong_account_sdk.oapi.ReadVms(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
             except OscApiException as error:
-                assert_oapi_error(error, 401, 'AccessDenied', 1)
+                assert_oapi_error(error, 401, 'AccessDenied', None)
             try:
                 time.sleep(2)
                 account_sdk.oapi.ReadVms(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
             except OscApiException as error:
-                assert_oapi_error(error, 401, 'AccessDenied', 1)
+                assert_oapi_error(error, 401, 'AccessDenied', None)
             time.sleep(2)
             self.a1_r1.oapi.ReadVms(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
             dict_services = {'eim': 'ListUsers', 'directlink': 'DescribeLocations', 'fcu': 'DescribeVolumes',
