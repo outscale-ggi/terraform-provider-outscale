@@ -116,7 +116,7 @@ class Test_create(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if error.message == 'Internal error.':
-                known_error('TINA-4684', 'Unexpected internal error')
+                known_error('TINA-6567', 'Unexpected internal error')
             assert False, "Remove known error"
             assert_error(error, 400, 'MissingParam', '...')
 
@@ -131,7 +131,7 @@ class Test_create(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if error.message == 'Internal error.':
-                known_error('TINA-4684', 'Unexpected internal error')
+                known_error('TINA-6567', 'Unexpected internal error')
             assert False, "Remove known error"
             assert_error(error, 400, 'MissingParam', '...')
 
@@ -146,7 +146,7 @@ class Test_create(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if error.message == 'Internal error.':
-                known_error('TINA-4684', 'Unexpected internal error')
+                known_error('TINA-6567', 'Unexpected internal error')
             assert False, "Remove known error"
             assert_error(error, 400, 'MissingParam', '...')
 
@@ -161,7 +161,7 @@ class Test_create(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if error.message == 'Internal error.':
-                known_error('TINA-4684', 'Unexpected internal error')
+                known_error('TINA-6567', 'Unexpected internal error')
             assert False, "Remove known error"
             assert_error(error, 400, 'MissingParam', '...')
 
@@ -176,7 +176,7 @@ class Test_create(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if error.message == 'Internal error.':
-                known_error('TINA-4684', 'Unexpected internal error')
+                known_error('TINA-6567', 'Unexpected internal error')
             assert False, "Remove known error"
             assert_error(error, 400, 'MissingParam', '...')
 

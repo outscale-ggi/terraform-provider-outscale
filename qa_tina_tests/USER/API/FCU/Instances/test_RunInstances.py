@@ -54,7 +54,7 @@ class Test_RunInstances(OscTestSuite):
                     assert False, 'Remove known error'
                 else:
                     self.a1_r1.fcu.TerminateInstances(InstanceId=[inst_id])
-                    known_error('TINA-6142', '...')
+                    known_error('TINA-6571', '...')
             assert ret.response.result.terminating
             assert ret.response.result.state == 'terminated'
             assert ret.response.result.ustate == 'terminated'
