@@ -40,12 +40,13 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
             config = OscConfig.get_with_keys(self.a1_r1.config.region.az_name, keys.name, keys.secret, account_pid,
                                              login=email, password=password)
             self.account_sdk = OscSdk(config=config)
-        except Exception:
+        except Exception as error:
             try:
                 self.teardown_method(method)
-            except Exception:
-                raise
-            raise
+            except Exception as err:
+                raise err
+            finally:
+                raise error
 
     def teardown_method(self, method):
         try:
