@@ -40,7 +40,8 @@ class Test_ApiAccessPolicy(OscTestAAP):
         #        {'value': reg_name, 'key': 'Region'},
         #        {'value': service, 'key': 'Service'},
         #    ],
-        #    conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
+        #    conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0],
+        #                      'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
         #)
         #self.logger.debug(ret.response.display())
 
