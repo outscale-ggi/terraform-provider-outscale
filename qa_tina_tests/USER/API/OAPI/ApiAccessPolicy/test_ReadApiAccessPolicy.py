@@ -8,12 +8,7 @@ class Test_ReadApiAccessPolicy(OscTestSuite):
         ret = self.a1_r1.oapi.ReadApiAccessPolicy(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
         ret.check_response()
 
-    def test_Txxx_no_param(self):
+    def test_T5783_no_param(self):
         ret = self.a1_r1.oapi.ReadApiAccessPolicy()
         ret.check_response()
         self.logger.debug(ret.response.display())
-
-    # TODO PQA-3036: Add test with ak/sk authentication (==without param) and check with reference
-
-
-

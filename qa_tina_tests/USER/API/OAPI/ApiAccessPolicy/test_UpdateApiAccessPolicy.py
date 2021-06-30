@@ -15,6 +15,9 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import create_tools
 
 
+CLIENT_CERT_CN1 = 'client.qa1'
+
+
 @pytest.mark.region_admin
 class Test_UpdateApiAccessPolicy(OscTestSuite):
 
@@ -52,7 +55,7 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
         ca1files = None
         certfiles_ca1cn1 = None
         if with_aar:
-            CLIENT_CERT_CN1 = 'client.qa1'
+
             ca1files = create_tools.create_caCertificate_file(root='.', cakey='ca1.key', cacrt='ca1.crt',
                                                               casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
 
