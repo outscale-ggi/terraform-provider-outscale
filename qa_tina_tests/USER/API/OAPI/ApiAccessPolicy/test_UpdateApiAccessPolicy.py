@@ -21,8 +21,13 @@ CLIENT_CERT_CN1 = 'client.qa1'
 @pytest.mark.region_admin
 class Test_UpdateApiAccessPolicy(OscTestSuite):
 
+    @classmethod
+    def setup_class(cls):
+        super(Test_UpdateApiAccessPolicy, cls).setup_class()
+        cls.account_sdk = None
+
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        super(Test_UpdateApiAccessPolicy, self).setup_method(method)
         try:
             email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='api_access_policy').lower())
             password = misc.id_generator(size=20, chars=string.digits + string.ascii_letters)
@@ -99,7 +104,7 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
             MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
         ret.check_response()
 
-        # TODO PQA-3036: <global> Add all others tests with ak/sk authentication
+    # TODO PQA-3036: <global> Add all others tests with ak/sk authentication
     def test_T5767_ak_sk(self):
         ret = self.account_sdk.oapi.UpdateApiAccessPolicy(
             exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
@@ -116,7 +121,7 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
             MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
         ret.check_response()
 
-    # TODO PQA-3036: Add tests:
+    # TODO PQA-3036: Add tests
     def test_T5769_with_negative_max_access_key_expiration(self):
         try:
             self.account_sdk.oapi.UpdateApiAccessPolicy(DryRun=0, MaxAccessKeyExpirationSeconds=-4354,
