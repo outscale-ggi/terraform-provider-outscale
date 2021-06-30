@@ -44,7 +44,7 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
             try:
                 self.teardown_method(method)
             except Exception:
-                pass
+                raise
             raise
 
     def teardown_method(self, method):
