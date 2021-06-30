@@ -3,7 +3,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_error
+from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tools.tina.create_tools import create_vpc, start_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, stop_instances
@@ -112,10 +112,15 @@ class Test_lan_sg_tags(OscTestSuite):
             if error.message.startswith('The volume'):
                 known_error('TINA-4501', 'Incorrect error message')
             assert False, 'Remove known error code'
-            assert_error(error, 400, 'InvalidVpcState', 'The vpc is not in a valid state for this operation: {}.'.format(vpc_id))
+            misc.assert_error(error, 400, 'InvalidVpcState', 'The vpc is not in a valid state for this operation: {}.'.format(vpc_id))
 
     def test_T1933_set_enable_empty(self):
-        self.add_tag(self.vpc_info_empty[info_keys.VPC_ID], 'osc.fcu.enable_lan_security_groups', '1')
+        try:
+            self.add_tag(self.vpc_info_empty[info_keys.VPC_ID], 'osc.fcu.enable_lan_security_groups', '1')
+            assert False, 'Remove known error code'
+        except OscApiException as error:
+            misc.assert_oapi_error(error, 500, 'InternalError', 'Internal Error')
+            known_error('TINA-6583', 'Unexpected internal error')
 
     def test_T1934_set_enable_full_enable(self):
         self.add_tag(self.vpc_info_full_enable[info_keys.VPC_ID], 'osc.fcu.enable_lan_security_groups', '1')
@@ -129,7 +134,7 @@ class Test_lan_sg_tags(OscTestSuite):
             if error.message.startswith('The volume'):
                 known_error('TINA-4501', 'Incorrect error message')
             assert False, 'Remove known error code'
-            assert_error(error, 400, 'InvalidVpcState', 'The vpc is not in a valid state for this operation: {}.'.format(vpc_id))
+            misc.assert_error(error, 400, 'InvalidVpcState', 'The vpc is not in a valid state for this operation: {}.'.format(vpc_id))
 
     def test_T1936_check_ping_disable(self):
         info = self.vpc_info_full_disable
