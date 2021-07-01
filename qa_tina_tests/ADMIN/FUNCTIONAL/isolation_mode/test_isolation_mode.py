@@ -1,5 +1,6 @@
 from time import sleep
 
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.config import config_constants as cfg_constants
 from qa_test_tools.config.configuration import Configuration
@@ -11,7 +12,6 @@ from qa_tina_tools.tools.tina.info_keys import VPC_ID
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tina import check_tools
 from qa_common_tools.ssh import SshTools, OscCommandError
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 class Test_isolation_mode(OscTestSuite):
