@@ -1,8 +1,9 @@
 import os
 
+from specs.check_tools import check_oapi_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_oapi_yml, assert_dry_run
+from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.compare_objects import verify_response, create_hints
 from qa_tina_tools.tina import wait
@@ -65,84 +66,84 @@ class Test_CreateVpnConnection(OscTestSuite):
             self.a1_r1.oapi.CreateVpnConnection()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 7000)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateVpnConnection(ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 7000)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateVpnConnection(ConnectionType='ipsec.1', ClientGatewayId=self.cg_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 7000)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateVpnConnection(ConnectionType='ipsec.1', VirtualGatewayId=self.vg_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 7000)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId=self.cg_id, VirtualGatewayId=self.vg_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 7000)
+            check_oapi_error(error, 7000)
 
     def test_T3345_invalid_connection_type(self):
         try:
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId=self.cg_id, VirtualGatewayId=self.vg_id, ConnectionType='tata')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4047)
+            check_oapi_error(error, 4047)
 
     def test_T3346_invalid_client_gateway_id(self):
         try:
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId='tata', VirtualGatewayId=self.vg_id, ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4104, invalid='tata', prefixes='cgw-')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='cgw-')
         try:
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId='cgw-1234567', VirtualGatewayId=self.vg_id, ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4105, given_id='cgw-1234567')
+            check_oapi_error(error, 4105, given_id='cgw-1234567')
         try:
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId='cgw-123456789', VirtualGatewayId=self.vg_id, ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4105, given_id='cgw-123456789')
+            check_oapi_error(error, 4105, given_id='cgw-123456789')
         try:
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId='cgw-12345678', VirtualGatewayId=self.vg_id, ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 5015, id='cgw-12345678')
+            check_oapi_error(error, 5015, id='cgw-12345678')
 
     def test_T3347_invalid_virtual_gateway_id(self):
         try:
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId=self.cg_id, VirtualGatewayId='tata', ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4104, invalid='tata', prefixes='vgw-')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='vgw-')
         try:
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId=self.cg_id, VirtualGatewayId='vgw-1234567', ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4105, given_id='vgw-1234567')
+            check_oapi_error(error, 4105, given_id='vgw-1234567')
         try:
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId=self.cg_id, VirtualGatewayId='vgw-123456789', ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4105, given_id='vgw-123456789')
+            check_oapi_error(error, 4105, given_id='vgw-123456789')
         try:
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId=self.cg_id, VirtualGatewayId='vgw-12345678', ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 5068, id='vgw-12345678')
+            check_oapi_error(error, 5068, id='vgw-12345678')
         try:
             self.a1_r1.oapi.CreateVpnConnection(ClientGatewayId=self.vg_id, VirtualGatewayId=self.cg_id, ConnectionType='ipsec.1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4104, invalid=self.vg_id, prefixes='cgw-')
-            assert_oapi_yml(error, 4104, invalid=self.cg_id, prefixes='vgw-')
+            check_oapi_error(error, 4104, invalid=self.vg_id, prefixes='cgw-')
+            check_oapi_error(error, 4104, invalid=self.cg_id, prefixes='vgw-')
 
     def test_T3348_valid_case(self):
         hints = []
