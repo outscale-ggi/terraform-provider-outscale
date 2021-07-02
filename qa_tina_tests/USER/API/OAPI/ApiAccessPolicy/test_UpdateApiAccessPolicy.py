@@ -229,7 +229,7 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
                 MaxAccessKeyExpirationSeconds=3600, RequireTrustedEnv=True)
             ret_aap.check_response()
             verify_response(ret_aap.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                       'with_require_trusted_env_and_ca_and_ak_sk.json'), None)
+                                                       'read_with_require_trusted_env_and_ca_and_ak_sk.json'), None)
         except Exception as error:
             raise error
 
