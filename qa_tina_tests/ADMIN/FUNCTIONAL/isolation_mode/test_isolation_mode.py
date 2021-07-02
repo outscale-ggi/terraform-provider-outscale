@@ -94,5 +94,3 @@ class Test_isolation_mode(OscTestSuite):
         finally:
             if vpc_info:
                 delete_vpc(self.a1_r1, vpc_info)
-        self.a1_r1.fcu.StopInstances(InstanceId=vpc_info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], Force=True)
-        wait_instances_state(self.a1_r1, vpc_info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], 'stopped')
