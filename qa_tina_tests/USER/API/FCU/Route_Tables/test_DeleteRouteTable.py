@@ -40,6 +40,14 @@ class Test_DeleteRouteTable(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'DependencyViolation', "The route table '{}' has dependencies and cannot be deleted.".format(main_rtb_id))
 
+    def test_T5732_delete_invalid_routetable(self):
+        try:
+            self.a1_r1.fcu.DeleteRouteTable(RouteTableId='rtb-123456')
+            assert False, 'Deletion of mainRouteTable should have failed'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidRouteTableID.NotFound',
+                         "The route table ID '{}' does not exist".format('rtb-123456'))
+
     def test_T594_no_param(self):
         try:
             self.a1_r1.fcu.DeleteRouteTable()

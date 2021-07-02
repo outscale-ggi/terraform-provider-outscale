@@ -6,6 +6,7 @@ from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
+from specs import check_oapi_error
 
 
 class Test_DeleteRouteTable(OscTestSuite):
@@ -55,13 +56,13 @@ class Test_DeleteRouteTable(OscTestSuite):
         try:
             self.a1_r1.oapi.DeleteRouteTable(RouteTableId='rtb-9b0bbbfb')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5046')
+            check_oapi_error(error, 5046, id='rtb-9b0bbbfb')
 
     def test_T2764_with_invalid_prefix_route_table_id(self):
         try:
             self.a1_r1.oapi.DeleteRouteTable(RouteTableId='toto')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='toto', prefixes='rtb-')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3490_with_other_user(self):
