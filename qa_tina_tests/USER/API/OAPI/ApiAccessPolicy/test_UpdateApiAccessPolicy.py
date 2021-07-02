@@ -27,9 +27,11 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
     def setup_class(cls):
         super(Test_UpdateApiAccessPolicy, cls).setup_class()
         cls.account_sdk = None
+        cls.account_pid = None
 
     def setup_method(self, method):
         self.account_sdk = None
+        self.account_pid = None
         super(Test_UpdateApiAccessPolicy, self).setup_method(method)
         try:
             email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='api_access_policy').lower())
@@ -37,10 +39,10 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
             account_info = {'city': 'Saint_Cloud', 'company_name': 'Outscale', 'country': 'France',
                             'email_address': email, 'firstname': 'Test_user', 'lastname': 'Test_Last_name',
                             'password': password, 'zipcode': '92210'}
-            account_pid = create_account(self.a1_r1, account_info)
-            keys = self.a1_r1.intel.accesskey.find_by_user(owner=account_pid).response.result[0]
+            self.account_pid = create_account(self.a1_r1, account_info)
+            keys = self.a1_r1.intel.accesskey.find_by_user(owner=self.account_pid).response.result[0]
 
-            config = OscConfig.get_with_keys(self.a1_r1.config.region.az_name, keys.name, keys.secret, account_pid,
+            config = OscConfig.get_with_keys(self.a1_r1.config.region.az_name, keys.name, keys.secret, self.account_pid,
                                              login=email, password=password)
             self.account_sdk = OscSdk(config=config)
 
@@ -54,8 +56,8 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
 
     def teardown_method(self, method):
         try:
-            if self.account_sdk.config.account.account_id:
-                delete_account(self.account_sdk, self.account_sdk.config.account.account_id)
+            if self.account_pid:
+                delete_account(self.a1_r1, self.account_pid)
         finally:
             super(Test_UpdateApiAccessPolicy, self).teardown_method(method)
 
@@ -68,7 +70,7 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
         if with_aar:
 
             ca1files = create_tools.create_caCertificate_file(root='.', cakey='ca1.key', cacrt='ca1.crt',
-                                                              casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
+                                                casubject='"/C=FR/ST=Paris/L=Paris/O=outscale/OU=QA/CN=outscale1.com"')
 
             certfiles_ca1cn1 = create_tools.create_client_certificate_files(
                 ca1files[0], ca1files[1],
@@ -129,7 +131,6 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
         certfiles_ca1cn1 = None
         ca_pid = None
         aar_id = None
-        ret_aap = None
 
         try:
             ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=True, with_med=False)
@@ -140,15 +141,7 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
                 MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
             ret_aap.check_response()
 
-        except Exception as error:
-            raise error
-
         finally:
-            if ret_aap:
-                self.account_sdk.oapi.UpdateApiAccessPolicy(
-                    exec_data={osc_api.EXEC_DATA_CERTIFICATE: [certfiles_ca1cn1[2], certfiles_ca1cn1[1]],
-                               osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
-                    MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
             self.teardown_prerequisites(ca_pid, aar_id, ca1files, certfiles_ca1cn1)
 
     # TODO PQA-3036: Add tests
@@ -230,8 +223,6 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
             ret_aap.check_response()
             verify_response(ret_aap.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                        'read_with_require_trusted_env_and_ca_and_ak_sk.json'), None)
-        except Exception as error:
-            raise error
 
         finally:
             if ret_aap:
@@ -257,9 +248,6 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
                            osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
                 MaxAccessKeyExpirationSeconds=3600, RequireTrustedEnv=False)
             ret_aap.check_response()
-
-        except Exception as error:
-            raise error
 
         finally:
             if ret_aap:
@@ -291,18 +279,20 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
     # TODO PQA-3036:  - with RequireTrustedEnv=True and with ak/sk without expiration date ==> ko
     def test_T5781_with_require_trusted_env_and_ak_sk_and_without_expiration_date(self):
         try:
-            self.setup_prerequisites(with_aar=True, with_med=False)
+            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=True, with_med=False)
             self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=3600, RequireTrustedEnv=True)
             assert False, "call should not have been successful"
         except OscApiException as error:
             check_oapi_error(error, 4118)
+        finally:
+            self.teardown_prerequisites(ca_pid, aar_id, ca1files, certfiles_ca1cn1)
 
     # TODO PQA-3036:  - with RequireTrustedEnv=True and with ak/sk and MaxAccessKeyExpirationSeconds=0 ==> ko
     def test_T5780_with_require_trusted_env_and_with_ak_sk_and_max_access_key_equals_zero(self):
         try:
-            ret_aap = self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=0,
+            self.setup_prerequisites(with_aar=False, with_med=True)
+            self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=0,
                                                                             RequireTrustedEnv=True)
-            ret_aap.check_response()
             assert False, "call should not have been successful"
         except OscApiException as error:
             check_oapi_error(error, 4118)
