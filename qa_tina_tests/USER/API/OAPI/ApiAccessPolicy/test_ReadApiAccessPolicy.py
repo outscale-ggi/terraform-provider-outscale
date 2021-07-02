@@ -10,7 +10,6 @@ class Test_ReadApiAccessPolicy(OscTestSuite):
     @classmethod
     def setup_class(cls):
         super(Test_ReadApiAccessPolicy, cls).setup_class()
-        ret = cls.a1_r1.oapi.ReadApiAccessPolicy()
 
     def test_T5726_login_password(self):
         ret = self.a1_r1.oapi.ReadApiAccessPolicy(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})

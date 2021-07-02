@@ -6,6 +6,7 @@ import pytest
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from specs.check_tools import check_oapi_error
 from qa_sdks import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account, delete_account
@@ -14,7 +15,6 @@ from qa_test_tools.config import OscConfig
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import create_tools
-from specs.check_tools import check_oapi_error
 
 
 CLIENT_CERT_CN1 = 'client.qa1'
