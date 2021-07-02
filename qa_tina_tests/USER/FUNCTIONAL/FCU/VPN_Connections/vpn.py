@@ -81,6 +81,7 @@ class Vpn(OscTestSuite):
         cls.vpc_info = None
         cls.cgw_id = None
         cls.vgw_id = None
+        cls.list_mark = False
 
     @classmethod
     def teardown_class(cls):
