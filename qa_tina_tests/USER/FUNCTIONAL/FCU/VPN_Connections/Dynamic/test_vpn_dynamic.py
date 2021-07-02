@@ -9,6 +9,7 @@ from qa_tina_tests.USER.FUNCTIONAL.FCU.VPN_Connections.vpn import Vpn
 class Test_vpn_dynamic(Vpn):
 
     @pytest.mark.tag_redwire
+    @pytest.mark.racoon
     def test_T126_test_vpn_dynamic(self):
         self.exec_test_vpn(static=False, racoon=True, default_rtb=True)
 
