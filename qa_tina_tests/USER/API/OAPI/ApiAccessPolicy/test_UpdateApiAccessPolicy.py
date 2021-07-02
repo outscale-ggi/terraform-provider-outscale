@@ -9,10 +9,12 @@ from qa_sdk_pub import osc_api
 from qa_sdks import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account, delete_account
+from qa_test_tools.compare_objects import verify_response
 from qa_test_tools.config import OscConfig
-from qa_test_tools.misc import assert_oapi_yml, assert_dry_run
+from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina import create_tools
+from specs.check_tools import check_oapi_error
 
 
 CLIENT_CERT_CN1 = 'client.qa1'
@@ -27,6 +29,7 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
         cls.account_sdk = None
 
     def setup_method(self, method):
+        self.account_sdk = None
         super(Test_UpdateApiAccessPolicy, self).setup_method(method)
         try:
             email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='api_access_policy').lower())
@@ -40,6 +43,7 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
             config = OscConfig.get_with_keys(self.a1_r1.config.region.az_name, keys.name, keys.secret, account_pid,
                                              login=email, password=password)
             self.account_sdk = OscSdk(config=config)
+
         except Exception as error:
             try:
                 self.teardown_method(method)
@@ -50,12 +54,13 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
 
     def teardown_method(self, method):
         try:
-            delete_account(self.account_sdk, self.account_sdk.config.account.account_id)
+            if self.account_sdk.config.account.account_id:
+                delete_account(self.account_sdk, self.account_sdk.config.account.account_id)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            super(Test_UpdateApiAccessPolicy, self).teardown_method(method)
 
     # create a setup function with account sdk, parameter with ca and update key
-    def setup_prerequisites(self, with_aar, with_med):
+    def setup_prerequisites(self, with_aar=None, with_med=None):
         ca_pid = None
         aar_id = None
         ca1files = None
@@ -104,6 +109,8 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
             exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
             MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
         ret.check_response()
+        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                       'read_login_password.json'), None)
 
     # TODO PQA-3036: <global> Add all others tests with ak/sk authentication
     def test_T5767_ak_sk(self):
@@ -111,31 +118,55 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
             exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
             MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
         ret.check_response()
+        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                       'read_ak_sk.json'), None)
 
     # TODO PQA-3036: /!\ when update succeed with RequireTrustedEnv=True MFA authent will be required for teardown
 
     # TODO PQA-3036:     (re-set with RequireTrustedEnv=False with MFA authent)
     def test_T5768_multi_athent(self):
-        ret = self.account_sdk.oapi.UpdateApiAccessPolicy(
-            exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
-                       osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
-            MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
-        ret.check_response()
+        ca1files = None
+        certfiles_ca1cn1 = None
+        ca_pid = None
+        aar_id = None
+        ret_aap = None
+
+        try:
+            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=True, with_med=False)
+
+            ret_aap = self.account_sdk.oapi.UpdateApiAccessPolicy(
+                exec_data={osc_api.EXEC_DATA_CERTIFICATE: [certfiles_ca1cn1[2], certfiles_ca1cn1[1]],
+                           osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+                MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
+            ret_aap.check_response()
+
+        except Exception as error:
+            raise error
+
+        finally:
+            if ret_aap:
+                self.account_sdk.oapi.UpdateApiAccessPolicy(
+                    exec_data={osc_api.EXEC_DATA_CERTIFICATE: [certfiles_ca1cn1[2], certfiles_ca1cn1[1]],
+                               osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
+                    MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
+            self.teardown_prerequisites(ca_pid, aar_id, ca1files, certfiles_ca1cn1)
 
     # TODO PQA-3036: Add tests
     def test_T5769_with_negative_max_access_key_expiration(self):
         try:
-            self.account_sdk.oapi.UpdateApiAccessPolicy(DryRun=0, MaxAccessKeyExpirationSeconds=-4354,
+            self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=-4354,
                                                         RequireTrustedEnv=False)
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4110)
+            check_oapi_error(error, 4118)
 
     def test_T5770_dry_run_with_zero(self):
         try:
             self.account_sdk.oapi.UpdateApiAccessPolicy(DryRun=0,
             MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4110)
+            check_oapi_error(error, 4110)
 
     # TODO PQA-3036:  - with dry run ==> ok
     def test_T5771_dry_run_true(self):
@@ -148,16 +179,18 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
         try:
             ret = self.account_sdk.oapi.UpdateApiAccessPolicy(RequireTrustedEnv=False)
             ret.check_response()
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 7000)
+            check_oapi_error(error, 7000)
 
     # TODO PQA-3036:  - without RequireTrustedEnv ==> ko
     def test_T5773_without_require_trusted_env(self):
         try:
             ret = self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=0)
             ret.check_response()
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 7000)
+            check_oapi_error(error, 7000)
 
     # TODO PQA-3036:  - with invalid MaxAccessKeyExpirationSeconds ==> ko
     def test_T5774_with_invalid_max_access_key(self):
@@ -165,8 +198,9 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
             ret = self.account_sdk.oapi.UpdateApiAccessPolicy(
                 MaxAccessKeyExpirationSeconds=99000000, RequireTrustedEnv=False)
             ret.check_response()
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4118)
+            check_oapi_error(error, 4118)
 
     # TODO PQA-3036:  - with invalid RequireTrustedEnv ==> ko
     def test_T5775_with_invalid_require_trusted_env(self):
@@ -174,8 +208,9 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
             ret = self.account_sdk.oapi.UpdateApiAccessPolicy(
                 MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv="foo bar")
             ret.check_response()
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4110)
+            check_oapi_error(error, 4110)
 
     # TODO PQA-3036:  - (valid functional) with RequireTrustedEnv=True (setup: need ApiAccessRule with CA and ak/sk with expiration date) ==> ok
     def test_T5776_with_require_trusted_env_and_ca_and_ak_sk(self):
@@ -186,16 +221,15 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
         ret_aap = None
 
         try:
-            with_aar = True
-            with_med = True
-            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar, with_med)
+            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=True, with_med=True)
 
             ret_aap = self.account_sdk.oapi.UpdateApiAccessPolicy(
                 exec_data={osc_api.EXEC_DATA_CERTIFICATE: [certfiles_ca1cn1[2], certfiles_ca1cn1[1]],
                            osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
                 MaxAccessKeyExpirationSeconds=3600, RequireTrustedEnv=True)
             ret_aap.check_response()
-
+            verify_response(ret_aap.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                       'with_require_trusted_env_and_ca_and_ak_sk.json'), None)
         except Exception as error:
             raise error
 
@@ -216,9 +250,7 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
         ret_aap = None
 
         try:
-            with_aar = True
-            with_med = True
-            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar, with_med)
+            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=True, with_med=True)
 
             ret_aap = self.account_sdk.oapi.UpdateApiAccessPolicy(
                 exec_data={osc_api.EXEC_DATA_CERTIFICATE: [certfiles_ca1cn1[2], certfiles_ca1cn1[1]],
@@ -240,51 +272,37 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
     # TODO PQA-3036:  - with RequireTrustedEnv=True and without ApiAccessRule ==> ko
     def test_T5778_with_require_trusted_env_without_api_access_rule(self):
         try:
-            ret = self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=3600,
+            self.setup_prerequisites(with_aar=False, with_med=True)
+            self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=3600,
                                                                RequireTrustedEnv=True)
-            ret.check_response()
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_yml(error, 4118)
+            check_oapi_error(error, 4118)
 
     # TODO PQA-3036:  - with RequireTrustedEnv=True and with ApiAccessRule without CA (rule based only on IP) ==> ko
     def test_T5779_with_require_trusted_env_and_with_ApiAccessRule_without_ca(self):
         try:
+            self.setup_prerequisites(with_aar=False, with_med=True)
             self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=True)
             assert False, "call should not have been successful"
         except OscApiException as error:
-            assert_oapi_yml(error, 4118)
+            check_oapi_error(error, 4118)
 
     # TODO PQA-3036:  - with RequireTrustedEnv=True and with ak/sk without expiration date ==> ko
     def test_T5781_with_require_trusted_env_and_ak_sk_and_without_expiration_date(self):
         try:
+            self.setup_prerequisites(with_aar=True, with_med=False)
             self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=3600, RequireTrustedEnv=True)
             assert False, "call should not have been successful"
         except OscApiException as error:
-            assert_oapi_yml(error, 4118)
+            check_oapi_error(error, 4118)
 
     # TODO PQA-3036:  - with RequireTrustedEnv=True and with ak/sk and MaxAccessKeyExpirationSeconds=0 ==> ko
     def test_T5780_with_require_trusted_env_and_with_ak_sk_and_max_access_key_equals_zero(self):
-        ca1files = None
-        certfiles_ca1cn1 = None
-        ca_pid = None
-        aar_id = None
-        ret_aap = None
         try:
-            with_aar = True
-            with_med = True
-            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar, with_med)
-
-            ret_aap = self.account_sdk.oapi.UpdateApiAccessPolicy(
-                exec_data={osc_api.EXEC_DATA_CERTIFICATE: [certfiles_ca1cn1[2], certfiles_ca1cn1[1]]},
-                MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=True)
+            ret_aap = self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=0,
+                                                                            RequireTrustedEnv=True)
             ret_aap.check_response()
             assert False, "call should not have been successful"
         except OscApiException as error:
-            assert_oapi_yml(error, 4118)
-        finally:
-            if ret_aap:
-                self.account_sdk.oapi.UpdateApiAccessPolicy(
-                    exec_data={osc_api.EXEC_DATA_CERTIFICATE: [certfiles_ca1cn1[2], certfiles_ca1cn1[1]],
-                               osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk},
-                    MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
-            self.teardown_prerequisites(ca_pid, aar_id, ca1files, certfiles_ca1cn1)
+            check_oapi_error(error, 4118)

@@ -59,7 +59,8 @@
         },
         {
             "cidrSet": [
-                "###VALUE26###"
+                "###VALUE26###",
+                "###VALUE27###"
             ],
             "prefixListId": "###VALUE24###",
             "prefixListName": "###VALUE25###"
