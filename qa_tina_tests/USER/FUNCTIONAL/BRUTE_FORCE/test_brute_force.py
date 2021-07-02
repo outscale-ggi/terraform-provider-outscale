@@ -9,7 +9,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdks import OscSdk
 
 from qa_test_tools.config import config_constants as constants, OscConfig
-from qa_test_tools.misc import assert_error
+from qa_test_tools.misc import assert_error, assert_oapi_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 from specs import check_oapi_error
 
@@ -114,7 +114,7 @@ class Test_brute_force(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 401, 'AuthFailure', 'Outscale was not able to validate the provided access '
-                                                    'credentials. Invalid login/password or password has expired.')
+                                                   'credentials. Invalid login/password or password has expired.')
             print(error)
         try:
             self.a1_r1.oapi.ReadAccessKeys(
@@ -122,3 +122,4 @@ class Test_brute_force(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             check_oapi_error(error, 13)
+
