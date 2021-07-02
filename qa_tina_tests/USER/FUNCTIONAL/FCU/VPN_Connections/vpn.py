@@ -92,9 +92,15 @@ class Vpn(OscTestSuite):
         self.vpc_info = None
         self.cgw_id = None
         self.vgw_id = None
+        self.list_mark = False
+        omi_id = None
         try:
+            if hasattr(method,'pytestmark'):
+                self.list_mark = [m.name for m in method.pytestmark]
+                if 'racoon' in self.list_mark:
+                    omi_id = self.a1_r1.config.region.get_info(constants.CENTOS7)
             # create a pub instance for the CGW
-            self.inst_cgw_info = create_instances(osc_sdk=self.a1_r1)
+            self.inst_cgw_info = create_instances(osc_sdk=self.a1_r1, omi_id= omi_id)
 
             # create CGW with pub instance IP
             ret = self.a1_r1.fcu.CreateCustomerGateway(BgpAsn=65000, IpAddress=self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], Type='ipsec.1')
