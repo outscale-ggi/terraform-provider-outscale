@@ -4,7 +4,6 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, assert_error
-from qa_test_tools.test_base import known_error
 from qa_tina_tools.tina import oapi, info_keys, wait
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances
