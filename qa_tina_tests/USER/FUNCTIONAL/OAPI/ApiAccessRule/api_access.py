@@ -430,8 +430,6 @@ class ApiAccess(OscTestSuite):
                 errors.append(error)
                 if 'login/password authentication is not supported.' in error.message:
                     results.append(FAIL)
-                elif api_call.startswith('oapi.') and 'Wrong authentication : only AkSk or Empty is supported.' in error.message:
-                    results.append('{}GTW-1240'.format(ISSUE_PREFIX))
                 else:
                     results.append(ERROR)
             except Exception as error:

@@ -108,8 +108,6 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
-                known_error('API-245', 'modified error msg number')
                 assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2726_invalid_port_range(self):

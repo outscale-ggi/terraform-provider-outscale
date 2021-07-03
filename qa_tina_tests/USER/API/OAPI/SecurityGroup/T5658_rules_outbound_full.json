@@ -3,11 +3,65 @@
     "SecurityGroups": [
         {
             "AccountId": "###VALUE0###",
-            "Description": "###VALUE20###",
+            "Description": "###VALUE14###",
             "InboundRules": [],
-            "OutboundRules": [],
-            "SecurityGroupId": "###VALUE6###",
-            "SecurityGroupName": "###VALUE19###",
+            "NetId": "###VALUE2###",
+            "OutboundRules": [
+                {
+                    "FromPortRange": 1234,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        "10.0.0.12/32"
+                    ],
+                    "ToPortRange": 1234
+                },
+                {
+                    "FromPortRange": -1,
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        "0.0.0.0/0"
+                    ],
+                    "ToPortRange": -1
+                },
+                {
+                    "FromPortRange": 1,
+                    "IpProtocol": "tcp",
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE0###",
+                            "SecurityGroupId": "###VALUE9###",
+                            "SecurityGroupName": "###VALUE10###"
+                        }
+                    ],
+                    "ToPortRange": 65535
+                },
+                {
+                    "FromPortRange": 1,
+                    "IpProtocol": "udp",
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE0###",
+                            "SecurityGroupId": "###VALUE9###",
+                            "SecurityGroupName": "###VALUE10###"
+                        }
+                    ],
+                    "ToPortRange": 65535
+                },
+                {
+                    "FromPortRange": -1,
+                    "IpProtocol": "icmp",
+                    "SecurityGroupsMembers": [
+                        {
+                            "AccountId": "###VALUE0###",
+                            "SecurityGroupId": "###VALUE9###",
+                            "SecurityGroupName": "###VALUE10###"
+                        }
+                    ],
+                    "ToPortRange": -1
+                }
+            ],
+            "SecurityGroupId": "###VALUE12###",
+            "SecurityGroupName": "###VALUE13###",
             "Tags": []
         }
     ]

@@ -105,10 +105,6 @@ class Test_DetachVolume(OscTestSuite):
             self.rslt_detach_standard = self.a1_r1.fcu.DetachVolume(VolumeId="vol-aaaaaaaa", InstanceId=self.inst_info[INSTANCE_ID_LIST][0])
             assert False, "Call should not be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 400, 'InvalidVolume.NotFound', None)
-                assert not error.message
-                known_error('GTW-1370', 'Missing error message')
             assert_error(error, 400, 'InvalidVolume.NotFound', "The volume 'vol-aaaaaaaa' does not exist.")
 
     def test_T1253_non_attached_volume_id(self):
@@ -120,10 +116,6 @@ class Test_DetachVolume(OscTestSuite):
                                                                     InstanceId=self.inst_info[INSTANCE_ID_LIST][0])
             assert False, "Call should not be successful"
         except OscApiException as error:
-            if get_export_value('OSC_USE_GATEWAY', False):
-                assert_error(error, 409, 'InvalidState', None)
-                assert not error.message
-                known_error('GTW-1370', 'Incorrect error code and status, missing error message')
             assert_error(error, 400, "InvalidParameterValue",
                          "Given Instance {} and Volume {} are not attached".format(self.inst_info[INSTANCE_ID_LIST][0], self.standard_volume_ids[0]))
 

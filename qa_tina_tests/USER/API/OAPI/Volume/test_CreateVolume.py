@@ -90,7 +90,6 @@ class Test_CreateVolume(OscTestSuite):
             self.a1_r1.oapi.CreateVolume(Size=-1, SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            known_error('API-246', 'Error code changed')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2953_invalid_snapshot_id(self):
@@ -128,7 +127,6 @@ class Test_CreateVolume(OscTestSuite):
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            known_error('API-246', 'Error code changed')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2958_volume_type_io1_invalid_size(self):
@@ -138,7 +136,6 @@ class Test_CreateVolume(OscTestSuite):
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            known_error('API-246', 'Error code changed')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T2959_volume_type_io1_invalid_iops(self):
