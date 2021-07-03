@@ -5,7 +5,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions import OscTestException
 from qa_test_tools.misc import assert_oapi_error, id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
@@ -136,12 +136,8 @@ class Test_ReadImages(OscTestSuite):
         #                        None), 'Could not verify response content.'
 
     def test_T5546_filters_productscode(self):
-        try:
-            ret = self.a1_r1.oapi.ReadImages(Filters={'ProductCodes': ['0001']})
-            assert len(ret.response.Images) >= 3
-            assert False, 'Remove known error'
-        except AssertionError:
-            known_error('GTW-1763', 'ProductCodes filter does not work in ReadImages')
+        ret = self.a1_r1.oapi.ReadImages(Filters={'ProductCodes': ['0001']})
+        assert len(ret.response.Images) >= 3
 
     def test_T2307_filters_states_pending(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'States': ['pending/queued']}).response.Images

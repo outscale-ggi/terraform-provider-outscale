@@ -171,7 +171,6 @@ class Test_attach_detach_volume(OscTestSuite):
                     self.snap_ids.append(ret.SnapshotId)
 
                     wait.wait_Snapshots_state(self.a1_r1, [ret.SnapshotId], state='completed')
-                    #known_error ("OPS-13374", "Bad file descriptor")
 
                     validate_snasphot(ret, expected_snap={
                         'Description': 'hello',

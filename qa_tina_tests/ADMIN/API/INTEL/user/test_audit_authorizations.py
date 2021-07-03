@@ -1,6 +1,8 @@
 
 import pytest
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.config import config_constants
+from qa_test_tools.config.region import Feature
 
 
 @pytest.mark.region_admin
@@ -20,7 +22,7 @@ class Test_audit_authorizations(OscTestSuite):
         assert len(ret.response.result.allocate_everywhere) >= 1
         assert len(ret.response.result.use_dedicated_owner) >= 1
         assert len(ret.response.result.use_internal_instance_types) >= 1
-        if len(ret.response.result.attach_all_nics) == 0:
-            known_error('OPS-13703', 'ows.internal does not have attach_all_nics rights')
-        assert False, 'Remove known error code'
-        assert len(ret.response.result.attach_all_nics) >= 1
+        if Feature.ODS in self.a1_r1.config.region.get_info(config_constants.FEATURES):
+            assert len(ret.response.result.attach_all_nics) == 1
+        else:
+            assert len(ret.response.result.attach_all_nics) == 0

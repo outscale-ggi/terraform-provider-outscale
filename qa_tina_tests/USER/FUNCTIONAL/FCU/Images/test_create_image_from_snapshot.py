@@ -5,7 +5,7 @@ import pytest
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -71,10 +71,7 @@ class Test_create_image_from_snapshot(OscTestSuite):
                     username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                 )
             except OscTestException as error:
-                print(error)
-                if self.a1_r1.config.region.name in ['cloudgouv-eu-west-1', 'dv-west-1', 'eu-west-2']:
-                    known_error('OPS-13265', 'Start instance fail with created image from a snapshot on SV1, NJ, SEC2, DV1 and SEC1')
-                raise
+                raise error
         finally:
             errors = []
             if ci2_info:
