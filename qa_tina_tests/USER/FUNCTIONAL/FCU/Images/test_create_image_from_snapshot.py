@@ -71,10 +71,7 @@ class Test_create_image_from_snapshot(OscTestSuite):
                     username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                 )
             except OscTestException as error:
-                print(error)
-                if self.a1_r1.config.region.name in ['cloudgouv-eu-west-1', 'dv-west-1', 'eu-west-2']:
-                    known_error('OPS-13265', 'Start instance fail with created image from a snapshot on SV1, NJ, SEC2, DV1 and SEC1')
-                raise
+                raise error
         finally:
             errors = []
             if ci2_info:

@@ -133,12 +133,12 @@ class Test_net_access_point(OscTestSuite):
                 retry=10, timeout=10)
             out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd, retry=20, timeout=20)
             assert 'Version' in out
-        except OscSshError:
-            known_error('OPS-12734', "Cannot request a service after create a netaccespoint for it in SEC1")
-        except OscApiException as err:
-            if err.status_code == 400 and err.message == 'InvalidResource':
-                known_error('OPS-13681', 'New IN1: Create prefix list')
-            assert False, 'Remove known error code'
+            if self.a1_r1.config.region.name== 'cloudgouv-eu-west-1':
+                assert False, 'Remove known error code'
+        except OscSshError as error:
+            if self.a1_r1.config.region.name== 'cloudgouv-eu-west-1':
+                known_error('OPS-12734', "Cannot request a service after create a netaccespoint for it in SEC1")
+            raise error
         finally:
             errors = []
             if net_access_point:

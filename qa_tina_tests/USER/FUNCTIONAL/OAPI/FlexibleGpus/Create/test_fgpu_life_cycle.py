@@ -225,9 +225,6 @@ class Test_fgpu_life_cycle(FgpuLifeCycle):
             out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
             assert out == "1\r\n"
-            assert False, 'Remove known error'
-        except Exception:
-            known_error('TINA-5375', 'fGPU not found in VM')
         finally:
             if gpu_linked:
                 oapi.stop_Vms(self.a1_r1, [vm_info[info_keys.VM_IDS][0]])

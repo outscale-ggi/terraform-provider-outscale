@@ -155,7 +155,6 @@ class Test_UpdateVolume(OscTestSuite):
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=10000000000)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            known_error('API-246', 'Error code changed')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
 
     def test_T5245_with_too_small(self):
@@ -163,7 +162,6 @@ class Test_UpdateVolume(OscTestSuite):
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=0)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            known_error('API-246', 'Error code changed')
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
 
     def test_T5241_with_lower_size(self):

@@ -136,12 +136,8 @@ class Test_ReadImages(OscTestSuite):
         #                        None), 'Could not verify response content.'
 
     def test_T5546_filters_productscode(self):
-        try:
-            ret = self.a1_r1.oapi.ReadImages(Filters={'ProductCodes': ['0001']})
-            assert len(ret.response.Images) >= 3
-            assert False, 'Remove known error'
-        except AssertionError:
-            known_error('GTW-1763', 'ProductCodes filter does not work in ReadImages')
+        ret = self.a1_r1.oapi.ReadImages(Filters={'ProductCodes': ['0001']})
+        assert len(ret.response.Images) >= 3
 
     def test_T2307_filters_states_pending(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'States': ['pending/queued']}).response.Images
