@@ -109,9 +109,9 @@ class Test_CreateDhcpOptions(OscTestSuite):
             ret = self.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[dhcpconf])
             self.add_to_dhcp_list(ret=ret)
             validate_dhcp_options(ret, dhcpconf)
-            assert False, 'Remove known error code'
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            known_error('TINA-4056', error)
+            assert_error(error, 400, 'InvalidParameterValue', 'Invalid IPv4 address: ntp1.outscale.net')
 
     def test_T1494_with_multiple_ntp_servers(self):
         dhcpconf = {'Key': 'ntp-servers', 'Value': [Configuration.get('ntp_servers', 'fr1'), Configuration.get('ntp_servers', 'fr2'),
