@@ -184,8 +184,6 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4000)
-            known_error('GTW-1963', 'Unexpected error type')
             assert_oapi_error(error, 401, "AccessDenied", 1)
 
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
@@ -210,8 +208,6 @@ class Test_OAPI(OscTestSuite):
                                                           osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4000)
-            known_error('GTW-1963', 'Unexpected error type')
             assert_oapi_error(error, 401, "AccessDenied", 1)
 
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
@@ -226,8 +222,6 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4000)
-            known_error('GTW-1963', 'Unexpected error type')
             assert_oapi_error(error, 401, "AccessDenied", 1)
 
     def test_T4922_incorrect_date_stamp(self):
@@ -240,8 +234,6 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4000)
-            known_error('GTW-1963', 'Unexpected error type')
             assert_oapi_error(error, 401, "AccessDenied", 1)
 
     def test_T4924_empty_date_stamp(self):
@@ -250,8 +242,6 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
-            known_error('GTW-1963', 'Unexpected error type')
             assert_oapi_error(error, 401, "AccessDenied", 1)
 
     def test_T5025_after_date_time_stamp(self):
@@ -262,8 +252,6 @@ class Test_OAPI(OscTestSuite):
                                                                 osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful : {}'.format(ret.response.ResponseContext.RequestId)
         except OscException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4000)
-            known_error('GTW-1963', 'Unexpected error type')
             assert_oapi_error(error, 401, "AccessDenied", 1)
 
         date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
@@ -292,8 +280,6 @@ class Test_OAPI(OscTestSuite):
                                                                 osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful : {}'.format(ret.response.ResponseContext.RequestId)
         except OscException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4000)
-            known_error('GTW-1963', 'Unexpected error type')
             assert_oapi_error(error, 401, "AccessDenied", 1)
 
         date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
