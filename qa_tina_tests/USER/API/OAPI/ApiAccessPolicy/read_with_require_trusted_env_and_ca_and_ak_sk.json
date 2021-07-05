@@ -1,0 +1,7 @@
+{
+    "ApiAccessPolicy": {
+        "MaxAccessKeyExpirationSeconds": 3600,
+        "RequireTrustedEnv": true
+    },
+    "ResponseContext": "erased"
+}
