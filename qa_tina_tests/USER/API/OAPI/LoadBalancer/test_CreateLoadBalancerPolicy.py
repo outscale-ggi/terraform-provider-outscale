@@ -86,7 +86,8 @@ class Test_CreateLoadBalancerPolicy(LoadBalancer):
     def test_T2846_valid_lb_policy_creation(self):
         lb = self.a1_r1.oapi.CreateLoadBalancerPolicy(
             LoadBalancerName=self.lb_name, PolicyName=id_generator(prefix='policy-'),
-            PolicyType='load_balancer').response.LoadBalancer
+            PolicyType='load_balancer', CookieExpirationPeriod=10).response.LoadBalancer
+        assert lb.LoadBalancerStickyCookiePolicies[0].CookieExpirationPeriod == 10
         validate_load_balancer_global_form(lb)
 
     def test_T2847_invalid_policy_type(self):

@@ -4,7 +4,6 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, assert_error
-from qa_test_tools.test_base import known_error
 from qa_tina_tools.tina import oapi, info_keys, wait
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances
@@ -225,9 +224,6 @@ class Test_fgpu_life_cycle(FgpuLifeCycle):
             out, status, _ = SshTools.exec_command_paramiko(sshclient, cmd)
             assert not status, "SSH command was not executed correctly on the remote host"
             assert out == "1\r\n"
-            assert False, 'Remove known error'
-        except Exception:
-            known_error('TINA-5375', 'fGPU not found in VM')
         finally:
             if gpu_linked:
                 oapi.stop_Vms(self.a1_r1, [vm_info[info_keys.VM_IDS][0]])

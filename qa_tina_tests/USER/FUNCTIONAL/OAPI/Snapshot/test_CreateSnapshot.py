@@ -36,7 +36,7 @@ class Test_CreateSnapshot(OscTestSuite):
                     self.a1_r1.oapi.DeleteSnapshot(SnapshotId=snap_id)
                 wait.wait_Snapshots_state(self.a1_r1, self.snap_ids, cleanup=True)
             if self.vm_id:
-                self.a1_r1.oapi.DeleteVms([self.vm_id])
+                self.a1_r1.oapi.DeleteVms(VmIds=[self.vm_id])
                 wait.wait_Vms_state(self.a1_r1, [self.vm_id], state='terminated')
         except Exception as error:
             self.logger.exception(error)
@@ -45,7 +45,7 @@ class Test_CreateSnapshot(OscTestSuite):
             super(Test_CreateSnapshot, self).teardown_method(method)
 
     def test_T5766_create_snap_when_vm_terminated(self):
-        pytest.skip("Test need to set consul config intel/restart_snapshot_creation")
+        pytest.skip("Test needs to set consul config intel/restart_snapshot_creation")
         vm_info = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_id]}).response.Vms[0]
         volume_id = vm_info.BlockDeviceMappings[0].Bsu.VolumeId
 
