@@ -260,25 +260,21 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
     # TODO PQA-3036:  - with RequireTrustedEnv=True and without ApiAccessRule ==> ko
     def test_T5778_with_require_trusted_env_without_api_access_rule(self):
         try:
-            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=False, with_med=True)
+            self.setup_prerequisites(with_aar=False, with_med=True)
             self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=3600,
                                                                RequireTrustedEnv=True)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             check_oapi_error(error, 4118)
-        finally:
-            self.teardown_prerequisites(ca_pid, aar_id, ca1files, certfiles_ca1cn1)
 
     # TODO PQA-3036:  - with RequireTrustedEnv=True and with ApiAccessRule without CA (rule based only on IP) ==> ko
     def test_T5779_with_require_trusted_env_and_with_ApiAccessRule_without_ca(self):
         try:
-            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=False, with_med=True)
+            self.setup_prerequisites(with_aar=False, with_med=True)
             self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=True)
             assert False, "call should not have been successful"
         except OscApiException as error:
             check_oapi_error(error, 4118)
-        finally:
-            self.teardown_prerequisites(ca_pid, aar_id, ca1files, certfiles_ca1cn1)
 
     # TODO PQA-3036:  - with RequireTrustedEnv=True and with ak/sk without expiration date ==> ko
     def test_T5781_with_require_trusted_env_and_ak_sk_and_without_expiration_date(self):
@@ -294,11 +290,9 @@ class Test_UpdateApiAccessPolicy(OscTestSuite):
     # TODO PQA-3036:  - with RequireTrustedEnv=True and with ak/sk and MaxAccessKeyExpirationSeconds=0 ==> ko
     def test_T5780_with_require_trusted_env_and_with_ak_sk_and_max_access_key_equals_zero(self):
         try:
-            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=True, with_med=True)
+            self.setup_prerequisites(with_aar=True, with_med=True)
             self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=0,
                                                                             RequireTrustedEnv=True)
             assert False, "call should not have been successful"
         except OscApiException as error:
             check_oapi_error(error, 4118)
-        finally:
-            self.teardown_prerequisites(ca_pid, aar_id, ca1files, certfiles_ca1cn1)
