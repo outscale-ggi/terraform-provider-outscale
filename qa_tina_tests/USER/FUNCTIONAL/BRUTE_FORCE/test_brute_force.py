@@ -1,16 +1,17 @@
 import time
 
-
 import pytest
-
 
 from qa_sdk_pub import osc_api
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_sdks import OscSdk
 
+
 from qa_test_tools.config import config_constants as constants, OscConfig
-from qa_test_tools.misc import assert_error, assert_oapi_error
+from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite
+
 
 
 @pytest.mark.region_admin
@@ -52,19 +53,21 @@ class Test_brute_force(OscTestSuite):
                     wrong_account_sdk.oapi.ReadVms(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                     time.sleep(2)
                 except OscApiException as error:
-                    assert_oapi_error(error, 401, 'AccessDenied', None)
+                    check_oapi_error(error, 1)
                     print(i)
                     print(error)
             try:
                 time.sleep(2)
                 wrong_account_sdk.oapi.ReadVms(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
+                assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 401, 'AccessDenied', None)
+                check_oapi_error(error, 13)
             try:
                 time.sleep(2)
                 account_sdk.oapi.ReadVms(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
+                assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 401, 'AccessDenied', None)
+                check_oapi_error(error, 13)
             time.sleep(2)
             self.a1_r1.oapi.ReadVms(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
             dict_services = {'eim': 'ListUsers', 'directlink': 'DescribeLocations', 'fcu': 'DescribeVolumes',
@@ -73,6 +76,7 @@ class Test_brute_force(OscTestSuite):
                 try:
                     connector = getattr(account_sdk, service)
                     getattr(connector, call)(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
+                    assert False, 'Call should not have been successful'
                 except OscApiException as error:
                     assert_error(error, 401, 'AuthFailure', 'Outscale was not able to validate the provided access '
                                                             'credentials. Invalid login/password or password has expired.')
@@ -85,36 +89,36 @@ class Test_brute_force(OscTestSuite):
     def test_T5645_login_password(self):
         for i in range(6):
             try:
-                self.a1_r1.icu.AuthenticateAccount(
-                    exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty,
-                               osc_api.EXEC_DATA_MAX_RETRY: 0},
-                    Login=self.a1_r1.config.account.login, Password=self.a1_r1.config.account.password+'h')
+                self.a1_r1.icu.ListAccessKeys(
+                    exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
+                               osc_api.EXEC_DATA_PASSWORD: 'toto'})
                 time.sleep(2)
             except OscApiException as error:
-                assert_error(error, 401, 'AuthFailure', 'Outscale was not able to validate the provided access '
-                                                        'credentials. Invalid login/password or password has expired.')
+                assert_error(error, 403, 'InvalidLoginPassword', 'Account {} failed to authenticate.'.format(self.a1_r1.config.account.login))
                 print(i)
                 print(error)
         try:
             time.sleep(2)
-            self.a1_r1.icu.AuthenticateAccount(
-                exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty,
-                           osc_api.EXEC_DATA_MAX_RETRY: 0},
-                Login=self.a1_r1.config.account.login, Password=self.a1_r1.config.account.password + 'h')
+            self.a1_r1.icu.ListAccessKeys(
+                exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
+                           osc_api.EXEC_DATA_PASSWORD: 'toto'})
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 500, 'IcuServerException', 'Internal Error')
+            assert_error(error, 401, 'AuthFailure', 'Outscale was not able to validate the provided access '
+                                                    'credentials. Invalid login/password or password has expired.')
             print(error)
         try:
             time.sleep(2)
-            self.a1_r1.icu.AuthenticateAccount(
-                exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty,
-                           osc_api.EXEC_DATA_MAX_RETRY: 0},
-                Login=self.a1_r1.config.account.login, Password=self.a1_r1.config.account.password + 'h')
+            self.a1_r1.icu.ListAccessKeys(
+                exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
+            assert_error(error, 401, 'AuthFailure', 'Outscale was not able to validate the provided access '
+                                                    'credentials. Invalid login/password or password has expired.')
             print(error)
-            assert_error(error, 500, 'IcuServerException', 'Internal Error')
         try:
-            self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login,
-                                                Password=self.a1_r1.config.account.password)
+            self.a1_r1.oapi.ReadAccessKeys(
+                exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', 2000)
+            check_oapi_error(error, 13)
