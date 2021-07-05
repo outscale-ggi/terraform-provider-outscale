@@ -7,7 +7,6 @@ import pytz
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import OscTestSuite, known_error
-from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
