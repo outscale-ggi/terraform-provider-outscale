@@ -1,8 +1,8 @@
 from netaddr import IPNetwork
 
+from qa_sdk_common.exceptions.osc_exceptions import OscException
 from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.oapi import create_Vms, delete_Vms
-from qa_sdk_common.exceptions.osc_exceptions import OscException
 
 
 class Test_server_groups_priority(OscTestSuite):
