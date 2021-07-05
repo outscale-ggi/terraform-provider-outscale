@@ -10,7 +10,7 @@ from qa_sdks import OscSdk
 
 from qa_test_tools.config import config_constants as constants, OscConfig
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from specs import check_oapi_error
 
 
