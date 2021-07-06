@@ -6,6 +6,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
 from qa_test_tools.compare_objects import create_hints, verify_response
+from qa_tina_tools.tina import oapi, info_keys
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer
 
 
@@ -19,11 +20,9 @@ class Test_UpdateLoadBalancer(LoadBalancer):
         cls.sg_names = []
         try:
             cls.lb_name = id_generator(prefix='lbu-')
-            resp_create_lb = cls.a1_r1.oapi.CreateLoadBalancer(
-                Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
-                           {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
-                LoadBalancerName=cls.lb_name, SubregionNames=[cls.a1_r1.config.region.az_name],
-            ).response
+            lbu_info = oapi.create_LoadBalancer(cls.a1_r1, lb_name=cls.lb_name,
+                                                listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
+                                                           {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}])
             cls.policy_name_app = []
             cls.policy_name_lb = []
             for _ in range(3):
@@ -37,11 +36,9 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                 cls.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=cls.lb_name, PolicyName=name, PolicyType='load_balancer')
 
             cls.vpc_lb_name = id_generator(prefix='lbu-')
-            resp_create_vpc_lb = cls.a1_r1.oapi.CreateLoadBalancer(
-                Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
-                           {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
-                LoadBalancerName=cls.vpc_lb_name, Subnets=[cls.subnet_id],
-            ).response
+            vpc_lbu_info = oapi.create_LoadBalancer(cls.a1_r1, lb_name=cls.vpc_lb_name, subnets=[cls.subnet_id],
+                                                    listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
+                                                               {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}])
             for _ in range(3):
                 tmp_name = id_generator(prefix='sg_name-')
                 cls.sg_names.append(tmp_name)
@@ -49,11 +46,11 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                     Description='test', NetId=cls.vpc_id, SecurityGroupName=tmp_name).response.SecurityGroup.SecurityGroupId)
 
             cls.hint_values.append(cls.lb_name)
-            cls.hint_values.append(resp_create_lb.LoadBalancer.DnsName)
+            cls.hint_values.append(lbu_info[info_keys.LBU_DNS])
             cls.hint_values.extend(cls.policy_name_app)
             cls.hint_values.extend(cls.policy_name_lb)
             cls.hint_values.append(cls.vpc_lb_name)
-            cls.hint_values.append(resp_create_vpc_lb.LoadBalancer.DnsName)
+            cls.hint_values.append(vpc_lbu_info[info_keys.LBU_DNS])
             cls.hint_values.extend(cls.sg_ids)
             cls.hint_values.extend(cls.sg_names)
             cls.hint_values.append(cls.a1_r1.config.account.account_id)
