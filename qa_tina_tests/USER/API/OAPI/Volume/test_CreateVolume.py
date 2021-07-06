@@ -90,7 +90,7 @@ class Test_CreateVolume(OscTestSuite):
             self.a1_r1.oapi.CreateVolume(Size=-1, SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
 
     def test_T2953_invalid_snapshot_id(self):
         try:
@@ -127,7 +127,7 @@ class Test_CreateVolume(OscTestSuite):
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
 
     def test_T2958_volume_type_io1_invalid_size(self):
         try:
@@ -136,7 +136,7 @@ class Test_CreateVolume(OscTestSuite):
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
 
     def test_T2959_volume_type_io1_invalid_iops(self):
         try:
