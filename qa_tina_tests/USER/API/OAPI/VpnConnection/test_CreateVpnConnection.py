@@ -143,7 +143,6 @@ class Test_CreateVpnConnection(OscTestSuite):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             check_oapi_error(error, 4104, invalid=self.vg_id, prefixes='cgw-')
-            check_oapi_error(error, 4104, invalid=self.cg_id, prefixes='vgw-')
 
     def test_T3348_valid_case(self):
         hints = []
