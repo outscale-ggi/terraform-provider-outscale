@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -13,17 +14,28 @@ class Test_DeleteCa(OscTestSuite):
     def setup_class(cls):
         cls.tmp_file_paths = None
         cls.ca_id = None
+        cls.ca_id_bis = None
         super(Test_DeleteCa, cls).setup_class()
-        cls.ca1files = cls.ca2files = cls.ca3files = None
-        cls.ca1files, cls.ca2files, cls.ca3files, _, _, _, _, cls.tmp_file_paths = create_certificate_setup()
+        cls.ca1files, _, _, _, _, _, _, cls.tmp_file_paths = create_certificate_setup(root_name='ca')
         with open(cls.ca1files[1]) as cafile:
             cls.ca_id = cls.a1_r1.oapi.CreateCa(CaPem=cafile.read(), Description='test ca').response.Ca.CaId
+        cls.ca1files, _, _, _, _, _, _, cls.tmp_file_paths_bis = create_certificate_setup(root_name='cabis')
+        with open(cls.ca1files[1]) as cafile:
+            cls.ca_id_bis = cls.a1_r1.oapi.CreateCa(CaPem=cafile.read(), Description='test ca bis').response.Ca.CaId
 
     @classmethod
     def teardown_class(cls):
         try:
             if cls.ca_id:
                 cls.a1_r1.oapi.DeleteCa(CaId=cls.ca_id)
+            if cls.ca_id_bis:
+                cls.a1_r1.oapi.DeleteCa(CaId=cls.ca_id_bis)
+            if cls.tmp_file_paths:
+                for tmp_file_path in cls.tmp_file_paths:
+                    os.remove(tmp_file_path)
+            if cls.tmp_file_paths_bis:
+                for tmp_file_path in cls.tmp_file_paths_bis:
+                    os.remove(tmp_file_path)
         finally:
             super(Test_DeleteCa, cls).teardown_class()
 
@@ -58,6 +70,6 @@ class Test_DeleteCa(OscTestSuite):
     def test_T5723_login_password(self):
         ret = self.a1_r1.oapi.DeleteCa(
             exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
-            CaId=self.ca_id)
-        self.__class__.ca_id = None
+            CaId=self.ca_id_bis)
+        self.__class__.ca_id_bis = None
         ret.check_response()
