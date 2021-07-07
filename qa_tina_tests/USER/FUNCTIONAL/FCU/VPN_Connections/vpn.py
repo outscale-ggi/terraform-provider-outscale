@@ -14,7 +14,8 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SECURITY_GROUP_ID, SUBNETS, KEY_PAIR, \
     VPC_ID, PATH, INSTANCE_ID_LIST
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
+from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state,\
+    wait_instances_state
 
 def check_ipsec_status(self, vpn_id):
     filters = [{'Name': 'vpn-connection-id', 'Value': vpn_id}]
@@ -94,7 +95,7 @@ class Vpn(OscTestSuite):
         self.cgw_id = None
         self.vgw_id = None
         self.list_mark = False
-        omi_id = None
+        omi_id = self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
         try:
             if hasattr(method,'pytestmark'):
                 self.list_mark = [m.name for m in method.pytestmark]
@@ -189,7 +190,13 @@ class Vpn(OscTestSuite):
             sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw_info[INSTANCE_SET][0]['instanceId'],
                                                          self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-
+            cmd= 'sudo yum -y remove osc-fni'
+            _, _, _ = SshTools.exec_command_paramiko(sshclient, cmd, retry=20, timeout=10, eof_time_out=60)
+            self.a1_r1.oapi.RebootVms(VmIds=[self.inst_cgw_info[INSTANCE_ID_LIST][0]])
+            wait_instances_state(self.a1_r1, [self.inst_cgw_info[INSTANCE_ID_LIST][0]], state='ready')
+            sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw_info[INSTANCE_SET][0]['instanceId'],
+                                                         self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             setup_customer_gateway(self.a1_r1, sshclient, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
                                    self.inst_cgw_info, vgw_ip, psk_key, static, vpn_id, racoon, 0, ike=ike, vti=vti,xfrm=xfrm)
 
