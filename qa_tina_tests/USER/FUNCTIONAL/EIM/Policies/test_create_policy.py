@@ -467,7 +467,7 @@ class Test_create_policy(OscTestSuite):
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
+                misc.assert_oapi_error(error, 401, 'AccessDenied', '4')
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
@@ -515,7 +515,7 @@ class Test_create_policy(OscTestSuite):
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
+                misc.assert_oapi_error(error, 401, 'AccessDenied', '4')
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
@@ -591,7 +591,7 @@ class Test_create_policy(OscTestSuite):
                 self.account_sdk.oapi.ReadVolumes()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
+                misc.assert_oapi_error(error, 401, 'AccessDenied', '4')
             try:
                 self.account_sdk.fcu.DescribeInstanceTypes()
                 assert False, 'Call should not have been successful'
