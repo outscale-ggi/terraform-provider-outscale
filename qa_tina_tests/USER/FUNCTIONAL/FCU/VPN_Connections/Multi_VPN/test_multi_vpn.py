@@ -3,6 +3,7 @@
 from datetime import datetime
 import re
 import time
+import pytest
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
@@ -282,17 +283,22 @@ class Test_multi_vpn(OscTestSuite):
             self.a1_r1.fcu.DetachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
             wait_tools.wait_vpn_gateways_attachment_state(self.a1_r1, [self.vgw_id], 'detached')
 
+    @pytest.mark.centos7
     def test_T1948_test_vpn_static(self):
         self.exec_test_vpn(static=False, racoon=True, default_rtb=True)
 
+    @pytest.mark.centos7
     def test_T5143_test_vpn_static_strongswan(self):
         self.exec_test_vpn(static=False, racoon=False, default_rtb=True)
 
+    @pytest.mark.centos7
     def test_T5655_test_vpn_static_strongswan_vti_policy(self):
         self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=True,  policy=True, xfrm=True)
 
+    @pytest.mark.centos7
     def test_T5662_test_vpn_static_strongswan_vti_vti(self):
         self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=True, policy=False, xfrm=True)
 
+    @pytest.mark.centos7
     def test_T5663_test_vpn_static_strongswan_policy_policy(self):
         self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=False, policy=False, xfrm=True)

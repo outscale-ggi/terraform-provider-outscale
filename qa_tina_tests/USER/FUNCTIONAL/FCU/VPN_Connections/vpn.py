@@ -99,7 +99,7 @@ class Vpn(OscTestSuite):
         try:
             if hasattr(method,'pytestmark'):
                 self.list_mark = [m.name for m in method.pytestmark]
-                if 'racoon' in self.list_mark:
+                if 'centos7' in self.list_mark:
                     omi_id = self.a1_r1.config.region.get_info(constants.CENTOS7)
             # create a pub instance for the CGW
             self.inst_cgw_info = create_instances(osc_sdk=self.a1_r1, omi_id= omi_id)
