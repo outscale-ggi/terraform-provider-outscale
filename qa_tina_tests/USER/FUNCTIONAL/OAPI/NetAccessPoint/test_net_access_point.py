@@ -94,7 +94,7 @@ class Test_net_access_point(OscTestSuite):
             self.a1_r1.oapi.CreateSecurityGroupRule(
                 SecurityGroupId=net_with_internet_info[info_keys.SUBNETS][1][info_keys.SECURITY_GROUP_ID],
                 IpProtocol='icmp', FromPortRange=-1, ToPortRange=-1, Flow='Inbound',
-                IpRange='0.0.0.0/0')
+                IpRange=net_with_internet_info[info_keys.SUBNETS][0][info_keys.IP_RANGE])
             for index in [1, 2]:
                 self.a1_r1.oapi.CreateSecurityGroupRule(
                     SecurityGroupId=net_with_internet_info[info_keys.SUBNETS][index][info_keys.SECURITY_GROUP_ID],
@@ -116,7 +116,7 @@ class Test_net_access_point(OscTestSuite):
                 sshclient = SshTools.check_connection_paramiko(
                     net_with_internet_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'],
                     net_with_internet_info[info_keys.KEY_PAIR][info_keys.PATH],
-                    username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER), retry=4, timeout=10)
+                    username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER), retry=10, timeout=10)
             except OscSshError as error:
                 raise error
 
