@@ -43,6 +43,7 @@ def check_gpu_instance(osc_sdk, inst_id, ip_address, key_path, user_name, logger
     err = total_gpu and out.split()[-1:][0].strip() != str(total_gpu + 1)
     assert not err, "The total GPU does not match "
 
+@pytest.mark.region_admin
 @pytest.mark.region_gpu
 class FgpuLifeCycle(OscTestSuite):
 
