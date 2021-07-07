@@ -118,7 +118,7 @@ class Test_net_access_point(OscTestSuite):
                 username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER), retry=4, timeout=10)
             tmp_list = net_access_point_service_name.split('.')
             tmp_list.reverse()
-            cmd = "curl -X POST https://{}".format('.'.join(tmp_list))
+            cmd = "curl -X POST --insecure https://{}".format('.'.join(tmp_list))
             cmd += "/api/latest"
             wait.wait_Vms_state(self.a1_r1, [net_with_internet_info[info_keys.SUBNETS][2][info_keys.VM_IDS][0]],
                                 state='ready')
