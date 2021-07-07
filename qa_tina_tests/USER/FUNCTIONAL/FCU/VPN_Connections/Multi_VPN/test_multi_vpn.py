@@ -3,6 +3,7 @@
 from datetime import datetime
 import re
 import time
+import pytest
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
@@ -18,7 +19,6 @@ from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SECURITY_GROUP_ID, SUBNETS, KEY_PAIR, \
     VPC_ID, PATH, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
-import pytest
 
 
 class Test_multi_vpn(OscTestSuite):
