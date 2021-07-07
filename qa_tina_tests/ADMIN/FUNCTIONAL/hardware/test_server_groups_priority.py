@@ -61,4 +61,3 @@ class Test_server_groups_priority(OscTestSuite):
             self.a1_r1.intel.hardware.remove_group(group=groupe_name)
             if vol_id_list:
                 delete_volumes(self.a1_r1, vol_id_list)
-            
