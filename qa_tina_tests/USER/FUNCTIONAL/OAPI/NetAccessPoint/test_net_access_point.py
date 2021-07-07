@@ -112,32 +112,38 @@ class Test_net_access_point(OscTestSuite):
             wait.wait_Vms_state(self.a1_r1, [net_with_internet_info[info_keys.SUBNETS][0][info_keys.VM_IDS][0]],
                                 state='ready')
 
-            sshclient = SshTools.check_connection_paramiko(
-                net_with_internet_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'],
-                net_with_internet_info[info_keys.KEY_PAIR][info_keys.PATH],
-                username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER), retry=4, timeout=10)
+            try:
+                sshclient = SshTools.check_connection_paramiko(
+                    net_with_internet_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'],
+                    net_with_internet_info[info_keys.KEY_PAIR][info_keys.PATH],
+                    username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER), retry=4, timeout=10)
+            except OscSshError as error:
+                raise error
+
             tmp_list = net_access_point_service_name.split('.')
             tmp_list.reverse()
             cmd = "curl -X POST --insecure https://{}".format('.'.join(tmp_list))
             cmd += "/api/latest"
             wait.wait_Vms_state(self.a1_r1, [net_with_internet_info[info_keys.SUBNETS][2][info_keys.VM_IDS][0]],
                                 state='ready')
-            sshclient_jhost = SshTools.check_connection_paramiko_nested(
-                sshclient=sshclient,
-                ip_address=net_with_internet_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'],
-                ssh_key=net_with_internet_info[info_keys.KEY_PAIR][info_keys.PATH],
-                local_private_addr=net_with_internet_info[info_keys.SUBNETS][0][info_keys.VMS][0]['PrivateIp'],
-                dest_private_addr=net_with_internet_info[info_keys.SUBNETS][2][info_keys.VMS][0]['PrivateIp'],
-                username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER),
-                retry=10, timeout=10)
-            out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd, retry=20, timeout=20)
-            assert 'Version' in out
-            if self.a1_r1.config.region.name== 'cloudgouv-eu-west-1':
-                assert False, 'Remove known error code'
-        except OscSshError as error:
-            if self.a1_r1.config.region.name== 'cloudgouv-eu-west-1':
-                known_error('OPS-12734', "Cannot request a service after create a netaccespoint for it in SEC1")
-            raise error
+
+            try:
+                sshclient_jhost = SshTools.check_connection_paramiko_nested(
+                    sshclient=sshclient,
+                    ip_address=net_with_internet_info[info_keys.SUBNETS][0][info_keys.PUBLIC_IP]['PublicIp'],
+                    ssh_key=net_with_internet_info[info_keys.KEY_PAIR][info_keys.PATH],
+                    local_private_addr=net_with_internet_info[info_keys.SUBNETS][0][info_keys.VMS][0]['PrivateIp'],
+                    dest_private_addr=net_with_internet_info[info_keys.SUBNETS][2][info_keys.VMS][0]['PrivateIp'],
+                    username=self.a1_r1.config.region.get_info(config_constants.CENTOS_USER),
+                    retry=10, timeout=10)
+                out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd, retry=20, timeout=20)
+                assert 'Version' in out
+                if self.a1_r1.config.region.name== 'cloudgouv-eu-west-1':
+                    assert False, 'Remove known error code'
+            except OscSshError as error:
+                if self.a1_r1.config.region.name== 'cloudgouv-eu-west-1':
+                    known_error('OPS-12734', "Cannot request a service after create a netaccespoint for it in SEC1")
+                raise error
         finally:
             errors = []
             if net_access_point:
