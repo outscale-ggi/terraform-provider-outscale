@@ -12,6 +12,9 @@ from qa_tina_tools.tina import oapi, wait, info_keys, setup_tools
 class Test_loadbalancer_policy(OscTestSuite):
 
     def test_T5343_lbu_policy(self):
+        vm_info = None
+        vm_lb_policy_info = None
+        lbu_info = None
         try:
             vm_info = oapi.create_Vms(self.a1_r1, vm_type=self.a1_r1.config.region.get_info(constants.DEFAULT_GPU_INSTANCE_TYPE))
             vm_lb_policy_info = oapi.create_Vms(self.a1_r1, vm_type=self.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE))

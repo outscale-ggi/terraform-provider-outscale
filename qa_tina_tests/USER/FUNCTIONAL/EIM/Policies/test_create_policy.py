@@ -4,7 +4,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.config import OscConfig, config_constants
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.config.region import Feature
 
 
@@ -438,10 +438,8 @@ class Test_create_policy(OscTestSuite):
             assert ret.status_code == 200
             try:
                 self.account_sdk.fcu.DescribeDhcpOptions()
-                known_error('TINA-5762', 'Unexpected success as call has not been accepted')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove known error'
                 misc.assert_error(error, 400, 'UnauthorizedOperation', None)
             try:
                 self.account_sdk.eim.ListAccessKeys()
@@ -488,10 +486,8 @@ class Test_create_policy(OscTestSuite):
             self.account_sdk.fcu.DescribeDhcpOptions()
             try:
                 self.account_sdk.fcu.DescribeInstanceTypes()
-                known_error('TINA-5762', 'Unexpected success as call has not been accepted')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove known error'
                 misc.assert_error(error, 400, 'UnauthorizedOperation', None)
             try:
                 self.account_sdk.eim.ListAccessKeys()
@@ -593,10 +589,8 @@ class Test_create_policy(OscTestSuite):
             self.account_sdk.oapi.ReadVms()
             try:
                 self.account_sdk.oapi.ReadVolumes()
-                known_error('TINA-5762', 'Unexpected success as call has not been accepted')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove known error'
                 misc.assert_oapi_error(error, 401, 'AccessDenied', '4', 'User unauthorized to perform this action')
             try:
                 self.account_sdk.fcu.DescribeInstanceTypes()
@@ -660,10 +654,8 @@ class Test_create_policy(OscTestSuite):
             ret = None
             try:
                 ret = self.account_sdk.fcu.CreateKeyPair(KeyName='toto')
-                known_error('TINA-5762', 'Policies do not work correctly')
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert False, 'Remove known error code'
                 misc.assert_error(error, 400, 'UnauthorizedOperation',
                                   'User: {} is not authorized to perform: ec2:CreateKeyPair'.format(
                                       self.user_name))
