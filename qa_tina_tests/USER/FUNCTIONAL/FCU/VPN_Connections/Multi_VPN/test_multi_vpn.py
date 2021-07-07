@@ -18,6 +18,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SECURITY_GROUP_ID, SUBNETS, KEY_PAIR, \
     VPC_ID, PATH, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
+import pytest
 
 
 class Test_multi_vpn(OscTestSuite):
@@ -282,17 +283,22 @@ class Test_multi_vpn(OscTestSuite):
             self.a1_r1.fcu.DetachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
             wait_tools.wait_vpn_gateways_attachment_state(self.a1_r1, [self.vgw_id], 'detached')
 
+    @pytest.mark.centos7
     def test_T1948_test_vpn_static(self):
         self.exec_test_vpn(static=False, racoon=True, default_rtb=True)
 
+    @pytest.mark.centos7
     def test_T5143_test_vpn_static_strongswan(self):
         self.exec_test_vpn(static=False, racoon=False, default_rtb=True)
 
+    @pytest.mark.centos7
     def test_T5655_test_vpn_static_strongswan_vti_policy(self):
         self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=True,  policy=True, xfrm=True)
 
+    @pytest.mark.centos7
     def test_T5662_test_vpn_static_strongswan_vti_vti(self):
         self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=True, policy=False, xfrm=True)
 
+    @pytest.mark.centos7
     def test_T5663_test_vpn_static_strongswan_policy_policy(self):
         self.exec_test_vpn(static=True, racoon=False, default_rtb=True, vti=False, policy=False, xfrm=True)
