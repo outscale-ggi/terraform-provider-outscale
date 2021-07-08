@@ -4,7 +4,6 @@ from specs import check_tools
 from qa_test_tools.test_base import known_error
 from qa_test_tools import misc
 from qa_tina_tools.tina.setup_aap import OscTestAAP
-from specs import check_tools
 
 class Test_ApiAccessPolicy(OscTestAAP):
 
