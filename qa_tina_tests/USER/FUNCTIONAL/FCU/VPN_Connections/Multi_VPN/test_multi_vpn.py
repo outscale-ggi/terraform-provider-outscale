@@ -18,7 +18,8 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SECURITY_GROUP_ID, SUBNETS, KEY_PAIR, \
     VPC_ID, PATH, INSTANCE_ID_LIST
-from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state
+from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state,\
+    wait_instances_state
 
 
 class Test_multi_vpn(OscTestSuite):
@@ -48,10 +49,11 @@ class Test_multi_vpn(OscTestSuite):
         self.cgw1_id = None
         self.cgw2_id = None
         self.vgw_id = None
+        omi=self.a1_r1.config.region.get_info(constants.CENTOS7)
         try:
             # create a pub instance for the CGW
-            self.inst_cgw1_info = create_instances(osc_sdk=self.a1_r1, az=self.zones[0])
-            self.inst_cgw2_info = create_instances(osc_sdk=self.a1_r1, az=self.zones[1])
+            self.inst_cgw1_info = create_instances(osc_sdk=self.a1_r1, az=self.zones[0], omi_id=omi)
+            self.inst_cgw2_info = create_instances(osc_sdk=self.a1_r1, az=self.zones[1], omi_id=omi)
 
             # create CGW with pub instance IP
             ret = self.a1_r1.fcu.CreateCustomerGateway(BgpAsn=65000, IpAddress=self.inst_cgw1_info[INSTANCE_SET][0]['ipAddress'], Type='ipsec.1')
@@ -148,6 +150,13 @@ class Test_multi_vpn(OscTestSuite):
             sshclient1 = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw1_info[INSTANCE_SET][0]['instanceId'],
                                                           self.inst_cgw1_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw1_info[KEY_PAIR][PATH],
                                                           self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            cmd= 'sudo yum -y remove osc-fni'
+            _, _, _ = SshTools.exec_command_paramiko(sshclient1, cmd, retry=20, timeout=10, eof_time_out=60)
+            self.a1_r1.oapi.RebootVms(VmIds=[self.inst_cgw1_info[INSTANCE_ID_LIST][0]])
+            wait_instances_state(self.a1_r1, [self.inst_cgw1_info[INSTANCE_ID_LIST][0]], state='ready')
+            sshclient1 = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw1_info[INSTANCE_SET][0]['instanceId'],
+                                                          self.inst_cgw1_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw1_info[KEY_PAIR][PATH],
+                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
 
             setup_customer_gateway(self.a1_r1, sshclient1, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
                                    self.inst_cgw1_info, vgw1_ip, psk1_key, static, vpn1_id, index=0, ike="ikev1",
@@ -221,6 +230,13 @@ class Test_multi_vpn(OscTestSuite):
             sshclient2 = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'],
                                                           self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw2_info[KEY_PAIR][PATH],
                                                           self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+            cmd= 'sudo yum -y remove osc-fni'
+            _, _, _ = SshTools.exec_command_paramiko(sshclient2, cmd, retry=20, timeout=10, eof_time_out=60)
+            self.a1_r1.oapi.RebootVms(VmIds=[self.inst_cgw2_info[INSTANCE_ID_LIST][0]])
+            wait_instances_state(self.a1_r1, [self.inst_cgw2_info[INSTANCE_ID_LIST][0]], state='ready')
+            sshclient2 = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'],
+                                                          self.inst_cgw2_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw2_info[KEY_PAIR][PATH],
+                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))            
             if policy:
                 vti = False
             setup_customer_gateway(self.a1_r1, sshclient2, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
