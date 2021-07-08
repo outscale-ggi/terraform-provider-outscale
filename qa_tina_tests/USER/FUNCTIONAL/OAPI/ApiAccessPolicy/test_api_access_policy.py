@@ -1,5 +1,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from specs import check_tools
 from qa_test_tools.test_base import known_error
 from qa_test_tools import misc
 from qa_tina_tools.tina.setup_aap import OscTestAAP
