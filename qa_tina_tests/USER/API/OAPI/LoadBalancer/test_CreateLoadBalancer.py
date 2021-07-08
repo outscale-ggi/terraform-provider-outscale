@@ -647,11 +647,9 @@ class Test_CreateLoadBalancer(LoadBalancer):
                                                PublicIp=public_ip,
                                                SubregionNames=[self.a1_r1.config.region.az_name])
             self.lb_names.append(name)
-            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
             assert False, "Call should not have been successful, request must contain valid public ip param"
         except OscApiException as error:
-            assert False, "Remove known error code"
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T5810_public_lbu_with_invalid_type_public_ip(self):
         try:
@@ -662,11 +660,9 @@ class Test_CreateLoadBalancer(LoadBalancer):
                                                PublicIp=public_ip,
                                                SubregionNames=[self.a1_r1.config.region.az_name])
             self.lb_names.append(name)
-            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
             assert False, "Call should not have been successful, request must contain valid public ip param"
         except OscApiException as error:
-            assert False, "Remove known error code"
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5811_public_lbu_with_public_ip(self):
         hints = []
@@ -678,9 +674,10 @@ class Test_CreateLoadBalancer(LoadBalancer):
                                                      PublicIp=public_ip,
                                                      SubregionNames=[self.a1_r1.config.region.az_name])
             self.lb_names.append(name)
+            assert False, 'Remove known error code'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
             known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
-        except AssertionError:
-            pytest.fail('Remove known error code')
         hints.append(name)
         hints.append(public_ip)
         hints.append(self.a1_r1.config.region.az_name)
@@ -706,9 +703,10 @@ class Test_CreateLoadBalancer(LoadBalancer):
                                                      PublicIp=public_ip,
                                                      SubregionNames=[self.a1_r1.config.region.az_name])
             self.lb_names.append(name)
+            assert False, 'Remove known error code'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
             known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
-        except AssertionError:
-            pytest.fail('Remove known error code')
         hints.append(name)
         hints.append(public_ip)
         hints.append(self.a1_r1.config.region.az_name)
@@ -744,11 +742,10 @@ class Test_CreateLoadBalancer(LoadBalancer):
                                                PublicIp=public_ip,
                                                SubregionNames=[self.a1_r1.config.region.az_name])
             self.lb_names.append(name)
-            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
-            assert False, "Call should not have been successful, public ip already in use"
+            assert False, 'Remove known error code'
         except OscApiException as error:
-            assert False, "Remove known error code"
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
+            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
