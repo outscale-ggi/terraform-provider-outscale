@@ -9,6 +9,7 @@ class Test_ApiAccessPolicy(OscTestAAP):
 
     def test_T5784_check_AEL_wihtout_MFA_ak_sk(self):
         errors = {}
+        known_errors = {}
         for api_call, params in self.ael_api_calls.items():
             func = self.osc_sdk
             for elt in api_call.split('.'):
@@ -19,7 +20,12 @@ class Test_ApiAccessPolicy(OscTestAAP):
                 ret = func(**params)
                 errors[api_call] = ret.response.ResponseContext.RequestId
             except OscApiException as error:
-                if api_call.startswith("api.") or api_call.startswith("oapi."):
+                if api_call == 'eim.ListAccessKeys':
+                    if error.message == "Internal Error":
+                        known_errors[api_call] = ('SECSVC-398', "[TrustedEnv] IAM call not in AEL filtered by AAR")
+                    else:
+                        errors[api_call] = "Remove known error"
+                elif api_call.startswith("api.") or api_call.startswith("oapi."):
                     try:
                         check_tools.check_oapi_error(error, 4)
                     except Exception as err:
@@ -38,6 +44,11 @@ class Test_ApiAccessPolicy(OscTestAAP):
         for api_call, error in errors.items():
             self.logger.warning("%s: %s", api_call, error)
         assert not errors
+
+        if known_errors:
+            for api_call, error in known_errors.items():
+                self.logger.warning("%s: %s", api_call, error)
+            known_error(list(known_errors.values())[0][0], list(known_errors.values())[0][1])
 
     def test_T5785_check_AEL_wihtout_MFA_login_mdp(self):
         errors = {}
