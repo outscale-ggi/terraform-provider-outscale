@@ -163,7 +163,7 @@ class Test_CreateVpnConnection(OscTestSuite):
         verify_response(ret.response,
                         os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T3348_vpn_connection_with_required_param.json'),
                         hints,
-                        ignored_keys="ClientGatewayConfiguration")
+                        ignored_keys=["ClientGatewayConfiguration"])
 
         if self.vpn_id:
             try:
@@ -200,7 +200,7 @@ class Test_CreateVpnConnection(OscTestSuite):
         verify_response(ret.response,
                         os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5731_vpn_connection_with_static_routes_only.json'),
                         hints,
-                        ignored_keys="ClientGatewayConfiguration")
+                        ignored_keys=["ClientGatewayConfiguration"])
 
         if self.vpn_id:
             try:

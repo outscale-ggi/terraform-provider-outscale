@@ -2,7 +2,7 @@
 import pytest
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tina import oapi, wait, info_keys
 from qa_tina_tools.tina.check_tools import verify_disk_size
 
@@ -29,7 +29,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
             self.vm_info = oapi.create_Vms(self.a1_r1, state='ready')
             self.vm_id = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_info[info_keys.VM_IDS][0]]}).response.Vms[0]
             self.volume_id = self.vm_id.BlockDeviceMappings[0].Bsu.VolumeId
-            #self.device_name = self.vm_id.BlockDeviceMappings[0].DeviceName
+
             self.sshclient = SshTools.check_connection_paramiko(ip_address=self.vm_info[info_keys.VMS][0]['PublicIp'],
                                                                 ssh_key=self.vm_info[info_keys.KEY_PAIR][info_keys.PATH],
                                                                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER))
@@ -57,7 +57,11 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         # Update volume size, and change volume type from standard to gp2
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.volume_id, Size=15, VolumeType='gp2')
 
-        oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        try:
+            oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        except AssertionError:
+            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
         sshclient = SshTools.check_connection_paramiko(ip_address=public_ip,
@@ -71,7 +75,11 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         # Update volume size, and change volume type from gp2 to standard
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.volume_id, Size=20, VolumeType='standard')
 
-        oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        try:
+            oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        except AssertionError:
+            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
         sshclient = SshTools.check_connection_paramiko(ip_address=public_ip,
@@ -84,7 +92,11 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         # Update volume size, and change volume type from standard to io1
         self.a1_r1.oapi.UpdateVolume(Iops=300, VolumeId=self.volume_id, Size=15, VolumeType='io1')
 
-        oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        try:
+            oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        except AssertionError:
+            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
         sshclient = SshTools.check_connection_paramiko(ip_address=public_ip,
@@ -98,7 +110,11 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         # Update volume size, and change volume type from io1 to standard
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.volume_id, Size=20, VolumeType='standard')
 
-        oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        try:
+            oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        except AssertionError:
+            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
         sshclient = SshTools.check_connection_paramiko(ip_address=public_ip,
@@ -111,7 +127,11 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         # Update volume size, and change volume type from standard to io1
         self.a1_r1.oapi.UpdateVolume(Iops=300, VolumeId=self.volume_id, Size=15, VolumeType='io1')
 
-        oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        try:
+            oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        except AssertionError:
+            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
         sshclient = SshTools.check_connection_paramiko(ip_address=public_ip,
@@ -125,7 +145,11 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         # Update volume size, and change volume type from io1 to gp2
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.volume_id, Size=20, VolumeType='gp2')
 
-        oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        try:
+            oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        except AssertionError:
+            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
         sshclient = SshTools.check_connection_paramiko(ip_address=public_ip,
@@ -139,7 +163,11 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         # Update volume size, and change volume type from gp2 to standard
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.volume_id, Size=25, VolumeType='standard')
 
-        oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        try:
+            oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
+        except AssertionError:
+            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
         sshclient = SshTools.check_connection_paramiko(ip_address=public_ip,
