@@ -1,0 +1,40 @@
+{
+    "LoadBalancer": {
+        "AccessLog": {
+            "IsEnabled": false,
+            "PublicationInterval": 60
+        },
+        "ApplicationStickyCookiePolicies": [],
+        "BackendVmIds": [],
+        "DnsName": "lbu-252CQS-615830598.in-west-1.lbu.outscale.com",
+        "HealthCheck": {
+            "CheckInterval": 30,
+            "HealthyThreshold": 10,
+            "Port": 80,
+            "Protocol": "TCP",
+            "Timeout": 5,
+            "UnhealthyThreshold": 2
+        },
+        "Listeners": [
+            {
+                "BackendPort": 80,
+                "BackendProtocol": "HTTP",
+                "LoadBalancerPort": 80,
+                "LoadBalancerProtocol": "HTTP"
+            }
+        ],
+        "LoadBalancerName": "###VALUE0###",
+        "LoadBalancerStickyCookiePolicies": [],
+        "LoadBalancerType": "internet-facing",
+        "SourceSecurityGroup": {
+            "SecurityGroupAccountId": "outscale-elb",
+            "SecurityGroupName": "outscale-elb-sg"
+        },
+        "Subnets": [],
+        "SubregionNames": [
+            "###VALUE1###"
+        ],
+        "Tags": []
+    },
+    "ResponseContext": "erased"
+}
