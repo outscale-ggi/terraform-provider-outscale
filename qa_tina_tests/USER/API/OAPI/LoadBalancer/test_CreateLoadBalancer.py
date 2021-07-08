@@ -626,51 +626,46 @@ class Test_CreateLoadBalancer(LoadBalancer):
         try:
             public_ip = ''
             name = id_generator(prefix='lbu-')
-            try:
-                self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                                   LoadBalancerName=name,
-                                                   PublicIp=public_ip,
-                                                   SubregionNames=[self.a1_r1.config.region.az_name])
-                self.lb_names.append(name)
-                known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
-            except AssertionError:
-                pytest.fail('Remove known error code')
+
+            self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                                               LoadBalancerName=name,
+                                               PublicIp=public_ip,
+                                               SubregionNames=[self.a1_r1.config.region.az_name])
+            self.lb_names.append(name)
+            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
             assert False, "Call should not have been successful, request must contain valid public ip param"
         except OscApiException as error:
+            assert False, "Remove known error code"
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
 
     def test_T5809_public_lbu_with_invalid_value_public_ip(self):
         try:
             public_ip = 'toto'
             name = id_generator(prefix='lbu-')
-            try:
-                self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                                   LoadBalancerName=name,
-                                                   PublicIp=public_ip,
-                                                   SubregionNames=[self.a1_r1.config.region.az_name])
-                self.lb_names.append(name)
-                known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
-            except AssertionError:
-                pytest.fail('Remove known error code')
+            self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                                               LoadBalancerName=name,
+                                               PublicIp=public_ip,
+                                               SubregionNames=[self.a1_r1.config.region.az_name])
+            self.lb_names.append(name)
+            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
             assert False, "Call should not have been successful, request must contain valid public ip param"
         except OscApiException as error:
+            assert False, "Remove known error code"
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
 
     def test_T5810_public_lbu_with_invalid_type_public_ip(self):
         try:
             public_ip = 80
             name = id_generator(prefix='lbu-')
-            try:
-                self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                                   LoadBalancerName=name,
-                                                   PublicIp=public_ip,
-                                                   SubregionNames=[self.a1_r1.config.region.az_name])
-                self.lb_names.append(name)
-                known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
-            except AssertionError:
-                pytest.fail('Remove known error code')
+            self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                                               LoadBalancerName=name,
+                                               PublicIp=public_ip,
+                                               SubregionNames=[self.a1_r1.config.region.az_name])
+            self.lb_names.append(name)
+            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
             assert False, "Call should not have been successful, request must contain valid public ip param"
         except OscApiException as error:
+            assert False, "Remove known error code"
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
 
     def test_T5811_public_lbu_with_public_ip(self):
@@ -744,17 +739,15 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.a1_r1.oapi.LinkPublicIp(VmId=vm_info[info_keys.VM_IDS][0], PublicIp=public_ip)
 
             name = id_generator(prefix='lbu-')
-            try:
-                self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                                   LoadBalancerName=name,
-                                                   PublicIp=public_ip,
-                                                   SubregionNames=[self.a1_r1.config.region.az_name])
-                self.lb_names.append(name)
-                known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
-            except AssertionError:
-                pytest.fail('Remove known error code')
+            self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                                               LoadBalancerName=name,
+                                               PublicIp=public_ip,
+                                               SubregionNames=[self.a1_r1.config.region.az_name])
+            self.lb_names.append(name)
+            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
             assert False, "Call should not have been successful, public ip already in use"
         except OscApiException as error:
+            assert False, "Remove known error code"
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
         finally:
             if vm_info:
