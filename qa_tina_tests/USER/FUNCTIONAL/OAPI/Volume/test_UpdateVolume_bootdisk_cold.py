@@ -1,5 +1,4 @@
 
-import pytest
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import OscTestSuite, known_error
@@ -18,12 +17,15 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         cls.device_name = '/dev/vda1'
         cls.initial_size = 10
         cls.initial_iops = 150
+        cls.known_error = False
+
 
     @classmethod
     def teardown_class(cls):
         super(Test_UpdateVolume_bootdisk_cold, cls).teardown_class()
 
     def setup_method(self, method):
+        self.known_error = False
         super(Test_UpdateVolume_bootdisk_cold, self).setup_method(method)
         try:
             self.vm_info = oapi.create_Vms(self.a1_r1, state='ready')
@@ -47,9 +49,9 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         try:
             if self.vm_info:
                 oapi.delete_Vms(self.a1_r1, self.vm_info)
-        except Exception as error:
-            self.logger.exception(error)
-            pytest.fail("An unexpected error happened : " + str(error))
+        except Exception:
+            if not self.known_error:
+                raise
         finally:
             super(Test_UpdateVolume_bootdisk_cold, self).teardown_method(method)
 
@@ -60,6 +62,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6606', 'problem when starting instance after update boot disk')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -78,6 +81,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6606', 'problem when starting instance after update boot disk')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -95,6 +99,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6606', 'problem when starting instance after update boot disk')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -113,6 +118,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6606', 'problem when starting instance after update boot disk')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -130,6 +136,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6606', 'problem when starting instance after update boot disk')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -148,6 +155,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6606', 'problem when starting instance after update boot disk')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -166,6 +174,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6606', 'problem when starting instance after update boot disk')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
