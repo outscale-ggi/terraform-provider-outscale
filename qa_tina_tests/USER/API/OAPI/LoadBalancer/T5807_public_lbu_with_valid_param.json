@@ -6,7 +6,7 @@
         },
         "ApplicationStickyCookiePolicies": [],
         "BackendVmIds": [],
-        "DnsName": "lbu-252CQS-615830598.in-west-1.lbu.outscale.com",
+        "DnsName": "erased",
         "HealthCheck": {
             "CheckInterval": 30,
             "HealthyThreshold": 10,
