@@ -1,102 +1,11 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from qa_test_tools.test_base import known_error
+from specs import check_tools
 from qa_test_tools import misc
-from qa_test_tools.config import config_constants
 from qa_tina_tools.tina.setup_aap import OscTestAAP
 
 class Test_ApiAccessPolicy(OscTestAAP):
-
-    def test_T0000_as_authent(self):
-        self.logger.debug("################")
-        self.logger.debug("#     TEST     #")
-        self.logger.debug("################")
-        # TODO: RM (test just for debug)
-        ret = self.osc_sdk.api.CreateAccessKey(ExpirationDate=self.exp_date)
-        self.logger.debug(ret.response.display())
-
-        info = self.osc_sdk.api.CreateAccessKey(exec_data={osc_api.EXEC_DATA_DRY_RUN: True},
-                                                ExpirationDate=self.exp_date)
-        authorization = info['headers']['Authorization']
-        #cred = authorization.split(' ')[1].split('=')[1].split('/')[0]
-        #date = authorization.split(' ')[1].split('/')[1]
-        reg_name = authorization.split(' ')[1].split('/')[2]
-        service = authorization.split(' ')[1].split('/')[3]
-        #signature = authorization.split(' ')[3].split('=')[1]
-        #body = "{}\n{}\n{}\n{}".format(
-        #    authorization.split(' ')[0],
-        #    info['headers']['X-Osc-Date'],
-        #    '/'.join(authorization.split(' ')[1].split('/')[1:])[:-1],
-        #    hashlib.sha256(info['canonical_request'].encode('utf-8')).hexdigest()
-        #    )
-        #ret = self.osc_sdk.identauth.IdauthAuthentication.authenticate(
-        #    account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
-        #    credentials=cred,
-        #    signature=signature,
-        #    credentialsType="ACCESS_KEY",
-        #    signatureMethod="OSC_V4",
-        #    body=body,
-        #    signatureTokens=[
-        #        {'value': date, 'key': 'Date'},
-        #        {'value': reg_name, 'key': 'Region'},
-        #        {'value': service, 'key': 'Service'},
-        #    ],
-        #    conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0],
-        #                      'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
-        #)
-        #self.logger.debug(ret.response.display())
-
-        #ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
-        #    account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
-        #    action={'vendor': service, 'operation': 'CreateAccessKey'},
-        #    conditionParams=[
-        #        {'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}},
-        #        {'value': open(self.client_cert[2]).read(), 'key': {'vendor': 'idauth', 'id': 'ApiAccessCert'}}
-        #        ],
-        #    principal={'accountPid': self.account_pid},
-        #    resources={'namespace': self.account_pid, 'region': reg_name, 'relativeId': '*', 'vendor': service},
-        #    )
-        #self.logger.debug(ret.response.display())
-
-        self.logger.debug("# Call in AEL, without certificate, with region")
-        ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
-            account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
-            action={'vendor': service, 'operation': 'CreateAccessKey'},
-            conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
-            principal={'accountPid': self.account_pid},
-            resources={'namespace': self.account_pid, 'region': reg_name, 'relativeId': '*', 'vendor': service},
-            )
-        self.logger.debug(ret.response.display())
-
-        self.logger.debug("# Call in AEL, without certificate, without region")
-        ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
-            account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
-            action={'vendor': service, 'operation': 'CreateAccessKey'},
-            conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
-            principal={'accountPid': self.account_pid},
-            resources={'namespace': self.account_pid, 'relativeId': '*', 'vendor': service},
-            )
-        self.logger.debug(ret.response.display())
-
-        self.logger.debug("# Call not in AEL, without certificate, with region")
-        ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
-            account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
-            action={'vendor': service, 'operation': 'ReadVms'},
-            conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
-            principal={'accountPid': self.account_pid},
-            resources={'namespace': self.account_pid, 'region': reg_name, 'relativeId': '*', 'vendor': service},
-            )
-        self.logger.debug(ret.response.display())
-
-        self.logger.debug("# Call not in AEL, without certificate, without region")
-        ret = self.osc_sdk.identauth.IdauthAuthorization.isAuthorized(
-            account_id=self.osc_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
-            action={'vendor': service, 'operation': 'ReadVms'},
-            conditionParams=[{'value': misc.get_nat_ips(self.osc_sdk.config.region)[0].split('/')[0], 'key': {'vendor': 'idauth', 'id': 'SourceIp'}}],
-            principal={'accountPid': self.account_pid},
-            resources={'namespace': self.account_pid, 'relativeId': '*', 'vendor': service},
-            )
-        self.logger.debug(ret.response.display())
-
 
     def test_T5784_check_AEL_wihtout_MFA_ak_sk(self):
         errors = {}
@@ -105,20 +14,21 @@ class Test_ApiAccessPolicy(OscTestAAP):
             for elt in api_call.split('.'):
                 func = getattr(func, elt)
             try:
-                if params:
-                    ret = func(**params)
-                else:
-                    ret = func()
-                #self.logger.debug(ret.response.display())
+                if not params:
+                    params = {}
+                ret = func(**params)
                 errors[api_call] = ret.response.ResponseContext.RequestId
             except OscApiException as error:
-                if api_call.startswith("api."):
+                if api_call.startswith("api.") or api_call.startswith("oapi."):
                     try:
-                        misc.assert_oapi_yml(error, 4)
+                        check_tools.check_oapi_error(error, 4)
                     except Exception as err:
                         errors[api_call] = err
                 else:
-                    misc.assert_error(error, 400, 'AccessDeniedException', None)
+                    try:
+                        misc.assert_error(error, 400, 'AccessDeniedException', "User: None is not authorized to perform:#####")
+                    except Exception as err:
+                        errors[api_call] = err
         # TODO
         #DeleteAccessKey
         #DeleteApiAccessRule
@@ -132,6 +42,8 @@ class Test_ApiAccessPolicy(OscTestAAP):
     def test_T5785_check_AEL_wihtout_MFA_login_mdp(self):
         errors = {}
         for api_call, params in self.ael_api_calls.items():
+            if api_call.startswith('eim'): # authent login/mdp not supported
+                continue
             func = self.osc_sdk
             for elt in api_call.split('.'):
                 func = getattr(func, elt)
@@ -140,16 +52,20 @@ class Test_ApiAccessPolicy(OscTestAAP):
                     params = {}
                 params['exec_data'] = {osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}
                 ret = func(**params)
-                #self.logger.debug(ret.response.display())
                 errors[api_call] = ret.response.ResponseContext.RequestId
             except OscApiException as error:
-                if api_call.startswith("api."):
+                if api_call.startswith("api.") or api_call.startswith("oapi."):
                     try:
-                        misc.assert_oapi_yml(error, 4)
+                        check_tools.check_oapi_error(error, 14)
                     except Exception as err:
                         errors[api_call] = err
                 else:
-                    misc.assert_error(error, 400, 'AccessDeniedException', None)
+                    try:
+                        misc.assert_error(error, 401, 'AuthFailure',
+                                          "Outscale was not able to validate the provided access credentials. " + \
+                                              "Invalid login/password or password has expired.")
+                    except Exception as err:
+                        errors[api_call] = err
         # TODO
         #DeleteAccessKey
         #DeleteApiAccessRule
@@ -160,9 +76,9 @@ class Test_ApiAccessPolicy(OscTestAAP):
             self.logger.warning("%s: %s", api_call, error)
         assert not errors
 
-
     def test_T5786_check_AEL_with_MFA_ak_sk(self):
         errors = {}
+        known_errors = {}
         for api_call, params in self.ael_api_calls.items():
             func = self.osc_sdk
             for elt in api_call.split('.'):
@@ -173,9 +89,18 @@ class Test_ApiAccessPolicy(OscTestAAP):
                 params['exec_data'] = {osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
                                        osc_api.EXEC_DATA_CERTIFICATE: [self.client_cert[2], self.client_cert[1]]}
                 func(**params)
-                #self.logger.debug(ret.response.display())
             except OscApiException as error:
-                if api_call in ['icu.CreateAccessKey', 'icu.UpdateAccessKey']: # Unable to manage AK/SK ExpirationDate with ICU
+                if api_call == 'eim.ListAccessKeys':
+                    if error.message == "Internal Error":
+                        known_errors[api_call] = ('SECSVC-398', "[TrustedEnv] IAM call not in AEL filtered by AAR")
+                    else:
+                        errors[api_call] = "Remove known error"
+                elif api_call == 'icu.UpdateAccessKey':
+                    if error.error_code == 'ApiAccessDeniedException':
+                        known_errors[api_call] = ('SECSVC-398', "[TrustedEnv] IAM call not in AEL filtered by AAR")
+                    else:
+                        errors[api_call] = "Remove known error"
+                elif api_call in ['icu.CreateAccessKey', 'icu.UpdateAccessKey']: # Unable to manage AK/SK ExpirationDate with ICU
                     try:
                         misc.assert_error(error, 400, 'InvalidParameterValue',
                                           "code=0, message=u'ServiceValidationException', " + \
@@ -195,9 +120,17 @@ class Test_ApiAccessPolicy(OscTestAAP):
             self.logger.warning("%s: %s", api_call, error)
         assert not errors
 
+        if known_errors:
+            for api_call, error in known_errors.items():
+                self.logger.warning("%s: %s", api_call, error)
+            known_error(list(known_errors.values())[0][0], list(known_errors.values())[0][1])
+
     def test_T5787_check_AEL_with_MFA_login_password(self):
         errors = {}
+        known_errors = {}
         for api_call, params in self.ael_api_calls.items():
+            if api_call.startswith('eim'): # authent login/mdp not supported
+                continue
             func = self.osc_sdk
             for elt in api_call.split('.'):
                 func = getattr(func, elt)
@@ -207,9 +140,13 @@ class Test_ApiAccessPolicy(OscTestAAP):
                 params['exec_data'] = {osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
                                        osc_api.EXEC_DATA_CERTIFICATE: [self.client_cert[2], self.client_cert[1]]}
                 func(**params)
-                #self.logger.debug(ret.response.display())
             except OscApiException as error:
-                if api_call in ['icu.CreateAccessKey', 'icu.UpdateAccessKey']: # Unable to manage AK/SK ExpirationDate with ICU
+                if api_call == 'icu.UpdateAccessKey':
+                    if error.error_code == 'ApiAccessDeniedException':
+                        known_errors[api_call] = ('SECSVC-398', "[TrustedEnv] IAM call not in AEL filtered by AAR")
+                    else:
+                        errors[api_call] = "Remove known error"
+                elif api_call in ['icu.CreateAccessKey', 'icu.UpdateAccessKey']: # Unable to manage AK/SK ExpirationDate with ICU
                     try:
                         misc.assert_error(error, 400, 'InvalidParameterValue',
                                           "code=0, message=u'ServiceValidationException', " + \
@@ -229,8 +166,15 @@ class Test_ApiAccessPolicy(OscTestAAP):
             self.logger.warning("%s: %s", api_call, error)
         assert not errors
 
+        if known_errors:
+            for api_call, error in known_errors.items():
+                self.logger.warning("%s: %s", api_call, error)
+            known_error(list(known_errors.values())[0][0], list(known_errors.values())[0][1])
+
+
     def test_T5788_check_call_with_ak_sk(self):
         errors = {}
+        known_errors = {}
         for api_call, params in self.aksk_api_calls.items():
             func = self.osc_sdk
             for elt in api_call.split('.'):
@@ -239,13 +183,23 @@ class Test_ApiAccessPolicy(OscTestAAP):
                 if not params:
                     params= {}
                 func(**params)
-                #self.logger.debug(ret.response.display())
             except OscApiException as error:
-                errors[api_call] = error
+                if api_call == "eim.ListUsers":
+                    if error.message == "Internal Error":
+                        known_errors[api_call] = ('SECSVC-398', "[TrustedEnv] IAM call not in AEL filtered by AAR")
+                    else:
+                        errors[api_call] = "Remove known error"
+                else:
+                    errors[api_call] = error
 
         for api_call, error in errors.items():
             self.logger.warning("%s: %s", api_call, error)
         assert not errors
+
+        if known_errors:
+            for api_call, error in known_errors.items():
+                self.logger.warning("%s: %s", api_call, error)
+            known_error(list(known_errors.values())[0][0], list(known_errors.values())[0][1])
 
     def test_T5789_check_call_with_login_password(self):
         errors = {}
@@ -276,7 +230,6 @@ class Test_ApiAccessPolicy(OscTestAAP):
                     params= {}
                 params['exec_data'] = {osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}
                 func(**params)
-                #self.logger.debug(ret.response.display())
             except OscApiException as error:
                 errors[api_call] = error
 
@@ -290,7 +243,7 @@ class Test_ApiAccessPolicy(OscTestAAP):
                                                         osc_api.EXEC_DATA_CERTIFICATE: [self.client_cert[2], self.client_cert[1]]},)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_yml(error, 4118)
+            check_tools.check_oapi_error(error, 4118)
 
     def test_T5792_create_finite_ak_sk(self):
         self.osc_sdk.api.CreateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
@@ -304,4 +257,4 @@ class Test_ApiAccessPolicy(OscTestAAP):
                                                   ApiAccessRuleId=self.aar_id, Description="AAR fo AAP and TrustedEnv", IpRanges=['0.0.0.0/0'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_yml(error, 4118)
+            check_tools.check_oapi_error(error, 4118)
