@@ -60,7 +60,7 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
                 self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
                 wait_tools.wait_vpn_gateways_state(self.a1_r1, [vgw_id], state='deleted')
 
-    def test_T5738_extra_param(self):
+    def test_T5738_with_extra_param(self):
         allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         alloc_info = None
         vgw_id = None
