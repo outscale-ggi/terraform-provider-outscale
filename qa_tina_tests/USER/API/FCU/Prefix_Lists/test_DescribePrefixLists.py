@@ -164,7 +164,7 @@ class Test_DescribePrefixLists(OscTestSuite):
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                            'read_with_max_results_out_of_range.json'), self.hints)
 
-    def test_T5699_with_max_results_10000(self):
+    def test_T5816_with_max_results_10000(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(MaxResults=10000).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                            'read_with_max_results_10000.json'), self.hints)

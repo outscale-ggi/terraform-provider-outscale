@@ -160,7 +160,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
             if interface_info1:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info1.response.virtualInterfaceId)
 
-    def test_T5739_extra_param(self):
+    def test_T5739_with_extra_param(self):
         interface = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}
         interface_info = None
         try:
