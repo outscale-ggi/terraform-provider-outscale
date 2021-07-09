@@ -56,7 +56,7 @@ class Test_DescribePrefixLists(OscTestSuite):
         except OscApiException as error:
             misc.assert_error(error, 400, "InvalidParameterValue", "Unexpected parameter Filter.1.Value.1.1")
 
-    def test_T5709_with_filter_invalid_type_prefix_list_id(self):
+    def test_T5709_with_filter_unknown_type_prefix_list_id(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-id",
                                                            "Value": {"foo": "bar"}}]).response
         assert not resp.prefixListSet
