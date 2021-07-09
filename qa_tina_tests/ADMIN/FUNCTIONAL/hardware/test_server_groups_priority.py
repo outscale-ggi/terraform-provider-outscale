@@ -1,3 +1,4 @@
+import pytest
 from netaddr import IPNetwork
 
 from qa_sdk_common.exceptions.osc_exceptions import OscException
@@ -7,6 +8,7 @@ from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 
 
+@pytest.mark.region_admin
 class Test_server_groups_priority(OscTestSuite):
 
     def test_T5802_groups_priority_on_privateip(self):
@@ -49,8 +51,12 @@ class Test_server_groups_priority(OscTestSuite):
             self.a1_r1.intel.storage.reserve_shard(shard=io1_shards,
                                             groups=groups)
             _,vol_id_list = create_volumes(self.a1_r1, count=20)
-            ret = self.a1_r1.intel.data_file.find(owner=self.a1_r1.config.account.account_id)
-            assert {vol.shards[0] for vol in ret.response.result} == {io1_shards}
+            vol_shards = set()
+            for vol_id in vol_id_list:
+                ret = self.a1_r1.intel.volume.find(owner=self.a1_r1.config.account.account_id, id=vol_id)
+                ret = self.a1_r1.intel.data_file.find(owner=self.a1_r1.config.account.account_id, id=ret.response.result[0].data_file)
+                vol_shards.add(ret.response.result[0].shards[0])
+            assert vol_shards == {io1_shards}
         except OscException as error:
             raise error
         finally:
