@@ -1,4 +1,3 @@
-import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdks.osc_sdk import OscSdk
@@ -209,59 +208,6 @@ class Test_create_policy(OscTestSuite):
             if policy_response:
                 self.a1_r1.eim.DeletePolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn)
 
-    @pytest.mark.region_kms
-    def test_T4607_with_kms_policy(self):
-        policy_name = misc.id_generator(prefix='TestCreatePolicy')
-        policy_response = None
-        attach_policy = None
-        try:
-            policy_response = self.a1_r1.eim.CreatePolicy(
-                PolicyName=policy_name, PolicyDocument='{"Statement": [{"Action": ["kms:*"], "Resource": ["*"], "Effect": "Allow"}]}')
-            attach_policy = self.a1_r1.eim.AttachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
-            ret = self.account_sdk.kms.ListKeys()
-            assert ret.status_code == 200
-            try:
-                self.account_sdk.fcu.DescribeDhcpOptions()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'UnauthorizedOperation',
-                                  'User: {} is not authorized to perform: ec2:DescribeDhcpOptions'.format(
-                                      self.user_name))
-            try:
-                self.account_sdk.eim.ListAccessKeys()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied',
-                                  'User: {} is not authorized to perform: iam:ListAccessKeys'.format(self.user_name))
-            try:
-                self.account_sdk.lbu.DescribeLoadBalancers()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDenied',
-                                  'User: {} is not authorized to perform: ElasticLoadBalancing:DescribeLoadBalancers'.format(
-                                      self.user_name))
-            try:
-                self.account_sdk.icu.ReadCatalog()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
-            try:
-                self.account_sdk.directlink.DescribeLocations()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_error(error, 400, 'AccessDeniedException',
-                                  'User: {} is not authorized to perform: directconnect:DescribeLocations'.format(
-                                      self.user_name))
-            try:
-                self.account_sdk.oapi.ReadVms()
-                assert False, 'Call should not have been successful'
-            except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
-        finally:
-            if attach_policy:
-                self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
-            if policy_response:
-                self.a1_r1.eim.DeletePolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn)
 
     def test_T4608_with_fcu_policy(self):
         policy_name = misc.id_generator(prefix='TestCreatePolicy')
