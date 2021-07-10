@@ -1,4 +1,3 @@
-import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdks.osc_sdk import OscSdk
