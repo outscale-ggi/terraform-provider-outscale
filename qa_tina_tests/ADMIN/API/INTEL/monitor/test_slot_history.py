@@ -25,11 +25,8 @@ class Test_slot_history(OscTestSuite):
     def test_T5349_only_dates(self):
         try:
             ret = self.a1_r1.intel.monitor.slot_history(dt1=self.start_date, dt2=self.end_date)
-            assert False, 'Remove known error code'
             assert len(ret.response.result) > 0, 'Could not find any history'
         except OscApiException as error:
-            if error.message == 'Internal error.':
-                known_error('TINA-6464', 'Unexpected internal error')
             raise error
 
     def test_T5340_server_without_dates(self):
@@ -145,5 +142,5 @@ class Test_slot_history(OscTestSuite):
             known_error('TINA-6123', 'wildcard does not always work')
 
     def test_T5447_with_instance_wildcard(self):
-        ret = self.a1_r1.intel.monitor.slot_history(what='i-1234*')
+        ret = self.a1_r1.intel.monitor.slot_history(what='i-1*')
         assert len(ret.response.result) > 0, 'Could not find instance history with wildcard'

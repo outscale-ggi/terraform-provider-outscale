@@ -35,7 +35,7 @@ class Test_filter_private_data(OscTestSuite):
             assert out == 'This is some public data'
         except OscApiException as error:
             misc.assert_error(error, 400, 'OWS.Error', 'Invalid tag name filter_private_section')
-            known_error('TINA-????', 'private section filtering does not function in ows')
+            known_error('TINA-????', 'private section filtering does not function in ows') # TINA 6374 --> won't do
         finally:
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)
