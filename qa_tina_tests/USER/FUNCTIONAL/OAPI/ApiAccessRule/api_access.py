@@ -3,7 +3,6 @@ import os
 import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
-from qa_sdk_pub import osc_api
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account, delete_account
@@ -397,11 +396,7 @@ class ApiAccess(OscTestSuite):
                     else:
                         func()
                 # print(ret.response.display())
-                if api_call.startswith('oapi.ReadKeypairs') and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.LoginPassword:
-                    results.append('{}GTW-1967'.format(ISSUE_PREFIX))
-                    expected_results[i] = KNOWN
-                else:
-                    results.append(PASS)
+                results.append(PASS)
                 errors.append(None)
             except OscApiException as error:
                 errors.append(error)
