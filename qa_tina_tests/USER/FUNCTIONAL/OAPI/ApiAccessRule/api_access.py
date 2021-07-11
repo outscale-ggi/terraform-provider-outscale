@@ -3,8 +3,8 @@ import os
 import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
-from qa_sdks.osc_sdk import OscSdk
 from qa_sdk_pub import osc_api
+from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account, delete_account
 from qa_test_tools.config import OscConfig
