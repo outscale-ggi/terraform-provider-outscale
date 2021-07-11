@@ -91,11 +91,7 @@ class Test_OAPI(OscTestSuite):
         batcmd += '/' + result1['Versions'][0]
         result = subprocess.check_output(batcmd, shell=True)
         result2 = json.loads(result)
-        try:
-            assert 'Version' in result2 and result1['Versions'][0] == "v" + result2['Version'][0]
-            assert False, 'Remove known error code'
-        except AssertionError:
-            known_error('GTW-1962', 'Could not retrieve information on latest version')
+        assert 'Version' in result2 and result1['Versions'][0] == "v" + result2['Version']
         assert version.parse(result2['Version']).major == self.version.major
         assert version.parse(result2['Version']).minor == self.version.minor
         assert len(DOCUMENTATIONS['oapi'][self.version][PATHS]) == len(result2['Calls'])
