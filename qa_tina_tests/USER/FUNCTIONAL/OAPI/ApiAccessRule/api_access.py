@@ -396,7 +396,11 @@ class ApiAccess(OscTestSuite):
                     else:
                         func()
                 # print(ret.response.display())
-                results.append(PASS)
+                if api_call.startswith('oapi.ReadKeypairs') and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.LoginPassword:
+                    results.append('{}GTW-2009'.format(ISSUE_PREFIX))
+                    expected_results[i] = KNOWN
+                else:
+                    results.append(PASS)
                 errors.append(None)
             except OscApiException as error:
                 errors.append(error)
