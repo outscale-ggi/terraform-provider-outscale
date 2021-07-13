@@ -29,17 +29,17 @@ class Test_DescribePrefixLists(OscTestSuite):
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                            'read_no_param.json'), self.hints)
 
-    def test_T5687_with_filter_prefix_id_list(self):
+    def test_T5687_with_filter_prefix_list_id(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-id",
                                                            "Value": ["pl-dcbd245b", "pl-1b504c88"]}]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                            'read_with_filter_prefix_list_id.json'), self.hints)
 
-    def test_T5694_with_filter_empty_prefix_id_list(self):
+    def test_T5694_with_filter_empty_prefix_list_id(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-id", "Value": []}]).response
         assert not resp.prefixListSet
 
-    def test_T5696_with_filter_unknown_prefix_id_list(self):
+    def test_T5696_with_filter_unknown_prefix_list_id(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-id",
                                                            "Value": ["pl-99999999"]}]).response
         assert not resp.prefixListSet
@@ -49,7 +49,7 @@ class Test_DescribePrefixLists(OscTestSuite):
                                                            "Value": ["foobar"]}]).response
         assert not resp.prefixListSet
 
-    def test_T5698_with_filter_invalid_type_prefix_id_list(self):
+    def test_T5698_with_filter_invalid_type_prefix_list_id(self):
         try:
             self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name":"prefix-list-id", "Value": [["pl-dcbd245b"]]}])
             assert False, "call should not have been successful"
@@ -61,23 +61,23 @@ class Test_DescribePrefixLists(OscTestSuite):
                                                            "Value": {"foo": "bar"}}]).response
         assert not resp.prefixListSet
 
-    def test_T5688_with_filter_prefix_name_list(self):
+    def test_T5688_with_filter_prefix_list_name(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-name",
                                                            "Value": ["com.outscale.in-west-1.fcu",
                                                                      "com.outscale.in-west-1.kms"]}]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                            'read_with_filter_prefix_list_name.json'), self.hints)
 
-    def test_T5693_with_filter_empty_prefix_name_list(self):
+    def test_T5693_with_filter_empty_prefix_list_name(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-name", "Value":[]}]).response
         assert not resp.prefixListSet
 
-    def test_T5695_with_filter_unknown_prefix_name_list(self):
+    def test_T5695_with_filter_unknown_prefix_list_name(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-name",
                                                            "Value": ["tdiyfiy"]}]).response
         assert not resp.prefixListSet
 
-    def test_T5697_with_filter_invalid_type_prefix_name_list(self):
+    def test_T5697_with_filter_invalid_type_prefix_list_name(self):
         try:
             self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-name",
                                                         "Value": [["com.outscale.in-west-1.fcu"]]}])
