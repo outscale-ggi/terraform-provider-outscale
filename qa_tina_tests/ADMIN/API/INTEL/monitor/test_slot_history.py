@@ -8,7 +8,7 @@ from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import OscTestSuite, known_error
 
 
-@pytest.mark.region_qa
+@pytest.mark.region_admin
 class Test_slot_history(OscTestSuite):
 
     @classmethod
