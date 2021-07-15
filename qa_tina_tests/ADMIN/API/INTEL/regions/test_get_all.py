@@ -6,7 +6,7 @@ from qa_test_tools.test_base import OscTestSuite
 
 class Test_get_all(OscTestSuite):
 
-    @pytest.mark.region_qa
+    @pytest.mark.region_admin
     def test_T1577_without_param(self):
         expected = ['dv-west-1', 'dv-west-2', 'dv-west-3', 'in-west-1', 'in-west-2']
         ret = self.a1_r1.intel.regions.get_all()

@@ -46,7 +46,7 @@ class Test_gc(OscTestSuite):
         finally:
             super(Test_gc, cls).teardown_class()
 
-    @pytest.mark.region_qa
+    @pytest.mark.region_admin
     def test_T3999_with_lbu_using_inst_sg(self):
         self.a1_r1.intel_lbu.control.gc(name=self.lb_name, owner=self.a1_r1.config.account.account_id)
         self.ret_lbu = None
