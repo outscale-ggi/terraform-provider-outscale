@@ -81,7 +81,7 @@ class Test_ReadApiLogs(OscTestSuite):
         assert len(ret.response.Logs) >= 1
         account_ids = {log.AccountId for log in ret.response.Logs}
         assert len(account_ids) == 1 and self.a1_r1.config.account.account_id in account_ids, 'incorrect account id(s)'
-        if self.a1_r1.a1_r1.config.region.name == "cloudgouv-eu-west-1":
+        if self.a1_r1.config.region.name == "cloudgouv-eu-west-1":
             try:
                 self.a1_r1.fcugtw.DescribeImages()
                 assert False, 'Remove known error'
