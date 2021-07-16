@@ -46,7 +46,7 @@ class Test_ReadApiLogs(OscTestSuite):
         cls.a1_r1.oapi.ReadKeypairs()
         cls.a1_r1.oapi.ReadVms()
         cls.a1_r1.oapi.ReadVms()
-        if cls.a1_r1.a1_r1.config.region.name != "cloudgouv-eu-west-1":
+        if cls.a1_r1.config.region.name != "cloudgouv-eu-west-1":
             cls.a1_r1.fcugtw.DescribeImages()
             cls.a1_r1.directlinkgtw.DescribeConnections()
             # KNOWN ERROR OPS-13949 IN T2810
