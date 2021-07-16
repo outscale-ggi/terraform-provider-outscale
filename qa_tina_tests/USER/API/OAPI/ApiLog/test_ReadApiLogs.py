@@ -2,10 +2,10 @@ import time
 from datetime import datetime, timedelta
 import pytest
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_test_tools import misc
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
 
@@ -46,8 +46,10 @@ class Test_ReadApiLogs(OscTestSuite):
         cls.a1_r1.oapi.ReadKeypairs()
         cls.a1_r1.oapi.ReadVms()
         cls.a1_r1.oapi.ReadVms()
-        #cls.a1_r1.fcugtw.DescribeImages()
-        #cls.a1_r1.directlinkgtw.DescribeConnections()
+        if cls.a1_r1.a1_r1.config.region.name != "cloudgouv-eu-west-1":
+            cls.a1_r1.fcugtw.DescribeImages()
+            cls.a1_r1.directlinkgtw.DescribeConnections()
+            # KNOWN ERROR OPS-13949 IN T2810
         time.sleep(120)
         ret = None
         try:
@@ -75,8 +77,16 @@ class Test_ReadApiLogs(OscTestSuite):
     def test_T2810_valid_params(self):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=3)
         ret.check_response()
+        self.logger.debug(ret.response.display())
+        assert len(ret.response.Logs) >= 1
         account_ids = {log.AccountId for log in ret.response.Logs}
         assert len(account_ids) == 1 and self.a1_r1.config.account.account_id in account_ids, 'incorrect account id(s)'
+        if self.a1_r1.a1_r1.config.region.name == "cloudgouv-eu-west-1":
+            try:
+                self.a1_r1.fcugtw.DescribeImages()
+                assert False, 'Remove known error'
+            except OscSdkException:
+                known_error('OPS-13949', 'fcu-gtw endpoint not available on SEC1')
 
     def test_T2823_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.ReadApiLogs(DryRun=True)
