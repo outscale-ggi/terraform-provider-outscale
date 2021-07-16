@@ -46,7 +46,7 @@ class Test_ReadApiLogs(OscTestSuite):
         cls.a1_r1.oapi.ReadKeypairs()
         cls.a1_r1.oapi.ReadVms()
         cls.a1_r1.oapi.ReadVms()
-        cls.a1_r1.fcugtw.DescribeImages()
+        #cls.a1_r1.fcugtw.DescribeImages()
         cls.a1_r1.directlinkgtw.DescribeConnections()
         time.sleep(120)
         ret = None
