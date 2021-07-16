@@ -406,6 +406,8 @@ class ApiAccess(OscTestSuite):
                     results.append(FAIL)
                 elif error.error_code == '4' and error.status_code == 401 and error.message == 'AccessDenied':
                     results.append(FAIL)
+                elif error.error_code == '9' and error.status_code == 401 and error.message == 'AuthFailure':
+                    results.append(FAIL)
                 elif error.status_code == 400 and error.error_code == 'IcuClientException' and \
                     error.message == 'Field AuthenticationMethod is required':
                     results.append(FAIL)
