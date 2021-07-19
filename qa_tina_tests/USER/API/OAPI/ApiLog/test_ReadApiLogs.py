@@ -45,8 +45,8 @@ class Test_ReadApiLogs(OscTestSuite):
         cls.a1_r1.oapi.ReadKeypairs()
         cls.a1_r1.oapi.ReadVms()
         cls.a1_r1.oapi.ReadVms()
-        cls.a1_r1.fcugtw.DescribeImages()
-        cls.a1_r1.directlinkgtw.DescribeConnections()
+        cls.a1_r1.fcu.DescribeImages()
+        cls.a1_r1.directlink.DescribeConnections()
         time.sleep(120)
         ret = None
         try:
@@ -131,7 +131,7 @@ class Test_ReadApiLogs(OscTestSuite):
         assert ret.response.Logs[2].QueryCallName in call
 
     def test_T3205_verify_fcu_call(self):
-        self.a1_r1.fcugtw.DescribeInstances()
+        self.a1_r1.fcu.DescribeInstances()
         time.sleep(30)
         ret = self.a1_r1.oapi.ReadApiLogs(
             ResultsPerPage=100, Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(seconds=100)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
