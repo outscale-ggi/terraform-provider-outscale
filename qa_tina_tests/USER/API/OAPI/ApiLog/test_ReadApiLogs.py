@@ -47,8 +47,8 @@ class Test_ReadApiLogs(OscTestSuite):
         cls.a1_r1.oapi.ReadVms()
         cls.a1_r1.oapi.ReadVms()
         if cls.a1_r1.config.region.name != "cloudgouv-eu-west-1":
-            cls.a1_r1.fcugtw.DescribeImages()
-            cls.a1_r1.directlinkgtw.DescribeConnections()
+            cls.a1_r1.fcu.DescribeImages()
+            cls.a1_r1.directlink.DescribeConnections()
             # KNOWN ERROR OPS-13949 IN T2810
         time.sleep(120)
         ret = None
@@ -143,7 +143,7 @@ class Test_ReadApiLogs(OscTestSuite):
         assert {self.a1_r1.config.account.account_id} == {call.AccountId for call in ret.response.Logs}
 
     def test_T3205_verify_fcu_call(self):
-        self.a1_r1.fcugtw.DescribeInstances()
+        self.a1_r1.fcu.DescribeInstances()
         time.sleep(30)
         ret = self.a1_r1.oapi.ReadApiLogs(
             ResultsPerPage=100, Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(seconds=100)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
