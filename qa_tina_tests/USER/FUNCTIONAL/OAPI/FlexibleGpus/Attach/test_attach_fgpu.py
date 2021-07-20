@@ -14,8 +14,7 @@ class Test_attach_fgpu(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.quotas = {'gpu_limit': 4}
-        cls.GROUPS = ['PRODUCTION', 'NVIDIA']
+        cls.quotas = {'gpu_limit': 4, 'memory_limit': 400, 'core_limit': 200}
         cls.vm_id = None
         cls.fgpu_id = None
         cls.ret_link = None

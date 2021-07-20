@@ -70,7 +70,7 @@ class Test_ReadVmsState(OscTestSuite):
     def test_T5544_filters_maintenance(self):
         start_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(seconds=10)
         end_date = datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=2)
-        resp = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_ID_LIST][0]).response
+        resp = self.a1_r1.intel.instance.find(id=self.info[info_keys.INSTANCE_SET][0]['instanceId']).response
         pinkvm = resp.result[0].servers[0].server
         ret = self.a1_r1.intel.scheduled_events.create(event_type='software-upgrade', resource_type='server',
                                                        targets=[pinkvm], start_date=str(start_date),

@@ -5,6 +5,7 @@ from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import OscTestSuite
 
 
+@pytest.mark.region_directlink
 @pytest.mark.region_admin
 class Test_DescribeConnections(OscTestSuite):
 
@@ -27,7 +28,6 @@ class Test_DescribeConnections(OscTestSuite):
         finally:
             super(Test_DescribeConnections, cls).teardown_class()
 
-    @pytest.mark.region_directlink
     def test_T1909_without_param(self):
         ret = self.a1_r1.directlink.DescribeConnections()
         assert len(ret.response.connections) == 1
@@ -39,7 +39,6 @@ class Test_DescribeConnections(OscTestSuite):
         assert ret.response.connections[0].region == self.a1_r1.config.region.name
         assert ret.response.connections[0].connectionId.startswith('dxcon-')
 
-    @pytest.mark.region_directlink
     def test_T4650_with_valid_param(self):
         ret = self.a1_r1.directlink.DescribeConnections(connectionId=self.conn_id)
         assert len(ret.response.connections) == 1
@@ -52,7 +51,9 @@ class Test_DescribeConnections(OscTestSuite):
         assert ret.response.connections[0].connectionId.startswith('dxcon-')
         assert ret.response.connections[0].connectionId == self.conn_id
 
-    @pytest.mark.region_directlink
     def test_T4651_without_invalid_connectionId(self):
         ret = self.a1_r1.directlink.DescribeConnections(connectionId='dxcon-12435698')
         assert len(ret.response.connections) == 0
+
+    def test_T5735_with_extra_param(self):
+        self.a1_r1.directlink.DescribeConnections(Foo='Bar')

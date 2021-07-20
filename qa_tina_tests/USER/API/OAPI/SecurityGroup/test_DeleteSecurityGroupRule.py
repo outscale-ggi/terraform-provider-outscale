@@ -4,7 +4,6 @@ import os
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.compare_objects import verify_response
@@ -154,19 +153,14 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             verify_response(ret.response,
                             os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T2748_valid_private_sg_outbound_full.json'),
                             self.hints)
-            try:
-                ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
-                    Flow='Outbound',
-                    SecurityGroupNameToUnlink=self.sg3.SecurityGroupId,
-                    SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
-                    SecurityGroupId=self.sg4.SecurityGroupId)
-                assert False, 'Remove known error'
-                verify_response(ret.response,
-                                os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T2748_valid_private_sg_outbound_empty.json'),
-                                self.hints)
-            except OscApiException as error:
-                misc.assert_oapi_error(error, 400, 'InvalidResource', '5060')
-                known_error('TINA-6487', 'Using security id of private sg does not work')
+            ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
+                Flow='Outbound',
+                SecurityGroupNameToUnlink=self.sg3.SecurityGroupId,
+                SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
+                SecurityGroupId=self.sg4.SecurityGroupId)
+            verify_response(ret.response,
+                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T2748_valid_private_sg_outbound_empty.json'),
+                            self.hints)
         finally:
             cleanup_sg(self.a1_r1, self.sg4.SecurityGroupId)
 
@@ -181,19 +175,14 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             verify_response(ret.response,
                             os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T2749_valid_private_sg_inbound_full.json'),
                             self.hints)
-            try:
-                ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
-                    Flow='Inbound',
-                    SecurityGroupNameToUnlink=self.sg3.SecurityGroupId,
-                    SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
-                    SecurityGroupId=self.sg4.SecurityGroupId)
-                assert False, 'Remove known error'
-                verify_response(ret.response,
-                                os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T2749_valid_private_sg_inbound_empty.json'),
-                                self.hints)
-            except OscApiException as error:
-                misc.assert_oapi_error(error, 400, 'InvalidResource', '5060')
-                known_error('TINA-6487', 'Using security id of private sg does not work')
+            ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
+                Flow='Inbound',
+                SecurityGroupNameToUnlink=self.sg3.SecurityGroupId,
+                SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
+                SecurityGroupId=self.sg4.SecurityGroupId)
+            verify_response(ret.response,
+                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T2749_valid_private_sg_inbound_empty.json'),
+                            self.hints)
         finally:
             cleanup_sg(self.a1_r1, self.sg4.SecurityGroupId)
 
@@ -208,19 +197,14 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             verify_response(ret.response,
                             os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5477_valid_public_sg_inbound_by_id_full.json'),
                             self.hints)
-            try:
-                ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
-                    Flow='Inbound',
-                    SecurityGroupNameToUnlink=self.sg1.SecurityGroupId,
-                    SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
-                    SecurityGroupId=self.sg2.SecurityGroupId)
-                assert False, 'Remove known error'
-                verify_response(ret.response,
-                                os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5477_valid_public_sg_inbound_by_id_empty.json'),
-                                self.hints)
-            except OscApiException as error:
-                misc.assert_oapi_error(error, 400, 'InvalidResource', '5060')
-                known_error('TINA-6487', 'Using security id of public sg does not work')
+            ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
+                Flow='Inbound',
+                SecurityGroupNameToUnlink=self.sg1.SecurityGroupId,
+                SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
+                SecurityGroupId=self.sg2.SecurityGroupId)
+            verify_response(ret.response,
+                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5477_valid_public_sg_inbound_by_id_empty.json'),
+                            self.hints)
         finally:
             cleanup_sg(self.a1_r1, self.sg2.SecurityGroupId)
 
@@ -240,13 +224,14 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                 SecurityGroupNameToUnlink=self.sg1.SecurityGroupName,
                 SecurityGroupAccountIdToUnlink=self.a1_r1.config.account.account_id,
                 SecurityGroupId=self.sg2.SecurityGroupId)
+
             try:
                 verify_response(ret.response,
                                 os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5478_valid_public_sg_inbound_by_name_empty.json'),
                                 self.hints)
-                assert False, 'Remove known error'
+                assert False, 'Remove known error code'
             except OscTestException:
-                known_error('TINA-6487', 'Using security name of public sg does not work')
+                known_error('API-331', 'Could not delete rule using sg name')
         finally:
             cleanup_sg(self.a1_r1, self.sg2.SecurityGroupId)
 
@@ -287,10 +272,9 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             try:
                 verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                            'T5657_rules_inbound_empty.json'), self.hints)
-                assert False, 'Remove known error'
+                assert False, 'Remove known error code'
             except OscTestException:
-                known_error('TINA-6487', 'Using security name of public sg does not work')
-
+                known_error('API-331', 'Could not delete rule using sg name')
         finally:
             cleanup_sg(self.a1_r1, self.sg2.SecurityGroupId)
 
@@ -308,7 +292,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                 SecurityGroupNameToLink=self.sg3.SecurityGroupId,
                 SecurityGroupAccountIdToLink=self.a1_r1.config.account.account_id,
                 SecurityGroupId=self.sg4.SecurityGroupId)
-            ret = self.a1_r1.oapi.ReadSecurityGroups(Filters={'SecurityGroupIds': [self.sg2.SecurityGroupId]})
+            ret = self.a1_r1.oapi.ReadSecurityGroups(Filters={'SecurityGroupIds': [self.sg4.SecurityGroupId]})
             verify_response(ret.response,
                             os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5658_rules_outbound_full.json'), self.hints)
             ret = self.a1_r1.oapi.DeleteSecurityGroupRule(
@@ -317,7 +301,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                     {
                         'SecurityGroupsMembers': [{
                             'AccountId': self.a1_r1.config.account.account_id,
-                            'SecurityGroupName': self.sg1.SecurityGroupName,
+                            'SecurityGroupName': self.sg3.SecurityGroupName,
                         }]
                     },
                     {
@@ -328,12 +312,13 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                     }
                 ],
                 SecurityGroupId=self.sg4.SecurityGroupId)
+
             try:
                 verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                            'T5658_rules_outbound_empty.json'), self.hints)
-                assert False, 'Remove known error'
+                assert False, 'Remove known error code'
             except OscTestException:
-                known_error('TINA-6487', 'Using security name of public sg does not work')
+                known_error('API-331', 'Could not delete rule using sg name')
 
         finally:
             cleanup_sg(self.a1_r1, self.sg4.SecurityGroupId)
@@ -377,8 +362,6 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
-            known_error('API-245', 'Changed error message number')
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Inbound',
@@ -390,7 +373,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
 
     def test_T2744_invalid_port_range_inbound(self):
         try:

@@ -122,7 +122,7 @@ class Test_RegisterVmsInLoadBalancer(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidResource', '5030')
 
     def test_T2789_with_stopped_vm(self):
-        ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+        ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                           MinCount=1, MaxCount=1)
         instance_stopped = ret.response.instancesSet[0].instanceId
         wait_instances_state(self.a1_r1, [instance_stopped], state='running')
@@ -135,7 +135,7 @@ class Test_RegisterVmsInLoadBalancer(OscTestSuite):
 
     def test_T2790_with_terminated_vm(self):
         try:
-            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS7), MinCount=1, MaxCount=1)
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MinCount=1, MaxCount=1)
             instance_terminated = ret.response.instancesSet[0].instanceId
             wait_instances_state(self.a1_r1, [instance_terminated], state='running')
             self.a1_r1.fcu.StopInstances(InstanceId=[instance_terminated], Force=True)

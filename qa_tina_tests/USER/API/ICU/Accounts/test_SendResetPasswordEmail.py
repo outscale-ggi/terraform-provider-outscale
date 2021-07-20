@@ -40,3 +40,7 @@ class Test_SendResetPasswordEmail(OscTestSuite):
     def test_T3969_non_authenticated(self):
         email = self.a2_r1.icu.GetAccount().response.Account.Email
         self.a2_r1.icu.SendResetPasswordEmail(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Email=email)
+
+    def test_T5758_with_extra_param(self):
+        email = self.a2_r1.icu.GetAccount().response.Account.Email
+        self.a2_r1.icu.SendResetPasswordEmail(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty}, Email=email, Foo='Bar')

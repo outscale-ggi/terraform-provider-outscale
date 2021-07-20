@@ -7,6 +7,7 @@ from qa_test_tools.test_base import OscTestSuite
 
 
 @pytest.mark.region_admin
+@pytest.mark.region_directlink
 class Test_DeleteConnection(OscTestSuite):
 
     @classmethod
@@ -31,11 +32,9 @@ class Test_DeleteConnection(OscTestSuite):
         finally:
             OscTestSuite.teardown_method(self, method)
 
-    @pytest.mark.region_directlink
     def test_T587_valid_connection_id(self):
         self.a1_r1.directlink.DeleteConnection(connectionId=self.conn_id)
 
-    @pytest.mark.region_directlink
     def test_T585_invalid_connection_id(self):
         try:
             self.a1_r1.directlink.DeleteConnection(connectionId='foo')
@@ -43,7 +42,6 @@ class Test_DeleteConnection(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'DirectConnectClientException', "Connection 'foo' does not exists.")
 
-    @pytest.mark.region_directlink
     def test_T584_no_param(self):
         try:
             self.a1_r1.directlink.DeleteConnection()
@@ -51,10 +49,12 @@ class Test_DeleteConnection(OscTestSuite):
         except OscApiException as error:
             assert_error(error, 400, 'DirectConnectClientException', 'Field connectionId is required')
 
-    @pytest.mark.region_directlink
     def test_T4649_other_account(self):
         try:
             self.a2_r1.directlink.DeleteConnection(connectionId=self.conn_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'DirectConnectClientException', "Connection '{}' does not exists.".format(self.conn_id))
+
+    def test_T5734_with_extra_param(self):
+        self.a1_r1.directlink.DeleteConnection(connectionId=self.conn_id, Foo='Bar')

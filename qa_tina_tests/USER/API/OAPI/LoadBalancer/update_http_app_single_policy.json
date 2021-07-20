@@ -48,16 +48,20 @@
         "LoadBalancerName": "###VALUE10###",
         "LoadBalancerStickyCookiePolicies": [
             {
+                "CookieExpirationPeriod": 1,
                 "PolicyName": "###VALUE15###"
             },
             {
+                "CookieExpirationPeriod": 1,
                 "PolicyName": "###VALUE16###"
             },
             {
+                "CookieExpirationPeriod": 1,
                 "PolicyName": "###VALUE17###"
             }
         ],
         "LoadBalancerType": "internet-facing",
+        "PublicIp": "10.27.12.62",
         "SourceSecurityGroup": {
             "SecurityGroupAccountId": "outscale-elb",
             "SecurityGroupName": "outscale-elb-sg"

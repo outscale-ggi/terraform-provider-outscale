@@ -5,7 +5,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions import OscTestException
 from qa_test_tools.misc import assert_oapi_error, id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
@@ -22,7 +22,7 @@ class Test_ReadImages(OscTestSuite):
         cls.snap1_id = None
         cls.volume_ids = None
         try:
-            image_id = cls.a1_r1.config.region.get_info(constants.CENTOS7)
+            image_id = cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
             cls.image_id = cls.a1_r1.oapi.CreateImage(SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name,
                                                       ImageName='test').response.Image.ImageId
             cls.image_id2 = cls.a1_r1.oapi.CreateImage(SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name,
@@ -136,12 +136,8 @@ class Test_ReadImages(OscTestSuite):
         #                        None), 'Could not verify response content.'
 
     def test_T5546_filters_productscode(self):
-        try:
-            ret = self.a1_r1.oapi.ReadImages(Filters={'ProductCodes': ['0001']})
-            assert len(ret.response.Images) >= 3
-            assert False, 'Remove known error'
-        except AssertionError:
-            known_error('GTW-1763', 'ProductCodes filter does not work in ReadImages')
+        ret = self.a1_r1.oapi.ReadImages(Filters={'ProductCodes': ['0001']})
+        assert len(ret.response.Images) >= 3
 
     def test_T2307_filters_states_pending(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'States': ['pending/queued']}).response.Images
@@ -311,7 +307,7 @@ class Test_ReadImages(OscTestSuite):
         assert ret[0].ImageId == self.image_id
 
     def test_T4513_filters_outscale_imageids(self):
-        ret = self.a1_r1.oapi.ReadImages(Filters={'ImageIds': [self.a1_r1.config.region.get_info(constants.CENTOS7)]}).response.Images
+        ret = self.a1_r1.oapi.ReadImages(Filters={'ImageIds': [self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)]}).response.Images
         assert len(ret) == 1
         assert ret[0].AccountAlias == "Outscale"
         assert ret[0].AccountId
@@ -325,7 +321,7 @@ class Test_ReadImages(OscTestSuite):
         assert ret[0].CreationDate
         assert hasattr (ret[0], 'Description')
         assert ret[0].FileLocation
-        assert ret[0].ImageId == self.a1_r1.config.region.get_info(constants.CENTOS7)
+        assert ret[0].ImageId == self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
         assert ret[0].ImageName
         assert ret[0].PermissionsToLaunch.GlobalPermission
         assert not ret[0].PermissionsToLaunch.AccountIds

@@ -78,7 +78,7 @@ class Test_CreateImage(OscTestSuite):
     def test_T2677_invalid_parameters_combinations(self):
         try:
             self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name,
-                                        SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7))
+                                        SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
@@ -109,7 +109,7 @@ class Test_CreateImage(OscTestSuite):
             assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
 
         try:
-            self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+            self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                         ImageName=self.ami_name, RootDeviceName='/dev/sda1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
@@ -247,13 +247,13 @@ class Test_CreateImage(OscTestSuite):
         wait_images_state(self.a1_r1, [self.image_id], state='available')
 
     def test_T2211_from_copy_valid_params(self):
-        self.image_id = self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+        self.image_id = self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                                     SourceRegionName=self.a1_r1.config.region.name
                                                     ).response.Image.ImageId
         assert self.image_id.startswith('ami-')
 
     def test_T2212_from_copy_valid_params_dry_run(self):
-        ret = self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+        ret = self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                           SourceRegionName=self.a1_r1.config.region.name,
                                           DryRun=True)
         assert_dry_run(ret)
@@ -274,14 +274,14 @@ class Test_CreateImage(OscTestSuite):
 
     def test_T2292_from_copy_unknown_invalid_region(self):
         try:
-            self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS7),
+            self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                         SourceRegionName='alpha')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'OperationNotSupported', '8019', None)
 
     def test_T2293_from_copy_valid_case(self):
-        source_img_id = self.a1_r1.config.region.get_info(constants.CENTOS7)
+        source_img_id = self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
         ret = self.a1_r1.oapi.CreateImage(SourceImageId=source_img_id,
                                           SourceRegionName=self.a1_r1.config.region.name).response.Image
         self.image_id = ret.ImageId

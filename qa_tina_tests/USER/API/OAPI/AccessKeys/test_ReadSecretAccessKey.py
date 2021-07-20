@@ -3,6 +3,7 @@ import pytest
 
 from specs import check_tools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_pub import osc_api
 from qa_test_tools import misc
 from qa_test_tools.test_base import OscTestSuite
 
@@ -68,8 +69,13 @@ class Test_ReadSecretAccessKey(OscTestSuite):
     def test_T5675_ak_other_account(self):
         if not hasattr(self, 'a2_r1'):
             pytest.fail('This test requires 2 accounts.')
-        try:
-            self.a2_r1.oapi.ReadSecretAccessKey(AccessKeyId=self.a2_r1.config.account.ak)
-            assert False, 'Call should not have been successful'
-        except OscApiException as error:
-            misc.assert_oapi_error(error, 401, 'AccessDenied', '1')
+        ret = self.a2_r1.oapi.ReadSecretAccessKey(AccessKeyId=self.a1_r1.config.account.ak)
+        assert not hasattr(ret.response, 'AccessKey')
+
+    def test_T5728_login_password(self):
+        ret = self.a1_r1.oapi.ReadSecretAccessKey(
+            exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword}, AccessKeyId=self.ak)
+        check_tools.check_oapi_response(ret.response, 'ReadSecretAccessKeyResponse')
+        assert ret.response.AccessKey
+        assert ret.response.AccessKey.AccessKeyId == self.ak
+        assert ret.response.AccessKey.SecretKey == self.a1_r1.config.account.sk

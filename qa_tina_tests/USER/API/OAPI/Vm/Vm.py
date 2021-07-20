@@ -5,7 +5,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 def create_vms(ocs_sdk, image_id=None, state='running', vm_type=None, **kwargs):
     if not image_id:
-        image_id = ocs_sdk.config.region.get_info(constants.CENTOS7)
+        image_id = ocs_sdk.config.region.get_info(constants.CENTOS_LATEST)
     if vm_type:
         ret_value = ocs_sdk.oapi.CreateVms(ImageId=image_id, VmType=vm_type, **kwargs)
     else:

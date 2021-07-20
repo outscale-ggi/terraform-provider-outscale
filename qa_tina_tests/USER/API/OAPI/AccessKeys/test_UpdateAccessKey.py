@@ -1,10 +1,10 @@
 import pytest
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from qa_test_tools import misc
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import OscTestSuite
 
 
 class Test_UpdateAccessKey(OscTestSuite):
@@ -99,9 +99,6 @@ class Test_UpdateAccessKey(OscTestSuite):
             ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
             self.a1_r1.oapi.UpdateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
                                             AccessKeyId=ak, State='ACTIVE')
-            assert False, 'remove known error'
-        except OscSdkException:
-            known_error('GTW-1240', 'SDK implementation ')
         finally:
             if ak:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)

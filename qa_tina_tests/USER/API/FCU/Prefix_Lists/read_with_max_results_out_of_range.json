@@ -1,0 +1,69 @@
+{
+    "requestId": "erased",
+    "prefixListSet": [
+        {
+            "cidrSet": [
+                "###VALUE2###"
+            ],
+            "prefixListId": "###VALUE0###",
+            "prefixListName": "###VALUE1###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE3###",
+            "prefixListName": "###VALUE4###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE6###",
+            "prefixListName": "###VALUE7###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE9###",
+            "prefixListName": "###VALUE10###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE12###",
+            "prefixListName": "###VALUE13###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE15###",
+            "prefixListName": "###VALUE16###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE18###",
+            "prefixListName": "###VALUE19###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE21###",
+            "prefixListName": "###VALUE22###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE26###",
+                "###VALUE27###"
+            ],
+            "prefixListId": "###VALUE24###",
+            "prefixListName": "###VALUE25###"
+        }
+    ]
+}

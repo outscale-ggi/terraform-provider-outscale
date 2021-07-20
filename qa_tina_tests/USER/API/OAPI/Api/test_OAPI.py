@@ -91,7 +91,7 @@ class Test_OAPI(OscTestSuite):
         batcmd += '/' + result1['Versions'][0]
         result = subprocess.check_output(batcmd, shell=True)
         result2 = json.loads(result)
-        assert 'Version' in result2 and result1['Versions'][0] == "v" + result2['Version'][0]
+        assert 'Version' in result2 and result1['Versions'][0] == "v" + result2['Version']
         assert version.parse(result2['Version']).major == self.version.major
         assert version.parse(result2['Version']).minor == self.version.minor
         assert len(DOCUMENTATIONS['oapi'][self.version][PATHS]) == len(result2['Calls'])
@@ -238,6 +238,8 @@ class Test_OAPI(OscTestSuite):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
+            known_error('GTW-2001', 'Incorrect error')
             assert_oapi_error(error, 401, "AccessDenied", 1)
 
     def test_T5025_after_date_time_stamp(self):

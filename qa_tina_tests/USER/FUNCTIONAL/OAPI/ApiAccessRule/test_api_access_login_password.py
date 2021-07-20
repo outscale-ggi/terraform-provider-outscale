@@ -1,11 +1,11 @@
 import pytest
 
 from qa_sdk_pub import osc_api
-from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, PASS, FAIL, ApiAccess, KNOWN
+from qa_tina_tests.USER.FUNCTIONAL.OAPI.ApiAccessRule.api_access import ConfName, setup_api_access_rules, PASS, FAIL, ApiAccess
 
 
-LOGIN_PASSWORD_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, FAIL, FAIL]
-LOGIN_PASSWORD_PASS_LIST = [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, FAIL, KNOWN, KNOWN, KNOWN]
+LOGIN_PASSWORD_FAIL_LIST = [FAIL, FAIL, PASS, FAIL, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL]
+LOGIN_PASSWORD_PASS_LIST = [FAIL, FAIL, PASS, PASS, FAIL, FAIL, FAIL, PASS, FAIL, FAIL, FAIL, PASS, PASS, FAIL]
 
 
 @pytest.mark.region_admin

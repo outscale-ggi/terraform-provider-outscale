@@ -1,0 +1,14 @@
+{
+    "ResponseContext": "erased",
+    "VpnConnection": {
+        "ClientGatewayConfiguration": "{\"ClientGatewayId\":\"cgw-45f9d102\",\"ConnectionType\":\"ipsec.1\",\"Tunnels\":[{\"ClientGateway\":{\"TunnelInside\":{\"IpRange\":\"169.254.254.2/30\"},\"TunnelOutside\":{\"IpAddress\":\"46.231.147.8\"}},\"Ike\":{\"AuthenticationProtocole\":\"hmac-sha1-96\",\"EncryptionProtocol\":\"aes-128-cbc\",\"Lifetime\":28800,\"Mode\":\"main\",\"PerfectForwardSecrecyGroup\":2,\"PreSharedKey\":\"CoydUfWbfDlAcmvZyMWzZgalgF\"},\"Ipsec\":{\"AuthenticationProtocol\":\"sha1\",\"ClearDfBit\":true,\"DeadPeerDetection\":{\"Interval\":30,\"Retries\":3},\"EncryptionProtocol\":\"aes-128-cbc\",\"FragmentationBeforeEncryption\":true,\"Lifetime\":3600,\"Mode\":\"tunnel\",\"PerfectForwardSecercyGroup\":2,\"Protocol\":\"esp\",\"TcpMssAdjustment\":1387},\"VirtualGateway\":{\"TunnelInside\":{\"IpRange\":\"169.254.254.1/30\"},\"TunnelOutside\":{\"IpAddress\":\"10.27.13.32\"}}}],\"VirtualGatewayId\":\"vgw-d467284b\"}",
+        "ClientGatewayId": "###VALUE0###",
+        "ConnectionType": "###VALUE1###",
+        "Routes": [],
+        "State": "pending",
+        "StaticRoutesOnly": true,
+        "Tags": [],
+        "VirtualGatewayId": "###VALUE3###",
+        "VpnConnectionId": "###VALUE4###"
+    }
+}

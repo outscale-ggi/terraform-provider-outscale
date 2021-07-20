@@ -1,0 +1,20 @@
+{
+    "requestId": "erased",
+    "prefixListSet": [
+        {
+            "cidrSet": [
+                "###VALUE23###"
+            ],
+            "prefixListId": "###VALUE3###",
+            "prefixListName": "###VALUE4###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE26###",
+                "###VALUE27###"
+            ],
+            "prefixListId": "###VALUE24###",
+            "prefixListName": "###VALUE25###"
+        }
+    ]
+}

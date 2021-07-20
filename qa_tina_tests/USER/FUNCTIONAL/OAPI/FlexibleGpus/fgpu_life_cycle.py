@@ -43,14 +43,13 @@ def check_gpu_instance(osc_sdk, inst_id, ip_address, key_path, user_name, logger
     err = total_gpu and out.split()[-1:][0].strip() != str(total_gpu + 1)
     assert not err, "The total GPU does not match "
 
+@pytest.mark.region_admin
 @pytest.mark.region_gpu
 class FgpuLifeCycle(OscTestSuite):
 
     @classmethod
     def setup_class(cls):
-        cls.quotas = {'gpu_limit': 4}
-        cls.quotas = {'memory_limit': 400}
-        cls.quotas = {'core_limit': 200}
+        cls.quotas = {'gpu_limit': 4, 'memory_limit': 400, 'core_limit': 200}
         cls.inst_info = None
         cls.vm_id = None
         cls.fgpu_id = None

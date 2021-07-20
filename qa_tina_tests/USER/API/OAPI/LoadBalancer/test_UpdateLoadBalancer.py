@@ -6,6 +6,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
 from qa_test_tools.compare_objects import create_hints, verify_response
+from qa_tina_tools.tina import oapi, info_keys
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer
 
 
@@ -19,11 +20,9 @@ class Test_UpdateLoadBalancer(LoadBalancer):
         cls.sg_names = []
         try:
             cls.lb_name = id_generator(prefix='lbu-')
-            resp_create_lb = cls.a1_r1.oapi.CreateLoadBalancer(
-                Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
-                           {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
-                LoadBalancerName=cls.lb_name, SubregionNames=[cls.a1_r1.config.region.az_name],
-            ).response
+            lbu_info = oapi.create_LoadBalancer(cls.a1_r1, lb_name=cls.lb_name,
+                                                listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
+                                                           {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}])
             cls.policy_name_app = []
             cls.policy_name_lb = []
             for _ in range(3):
@@ -37,11 +36,9 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                 cls.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=cls.lb_name, PolicyName=name, PolicyType='load_balancer')
 
             cls.vpc_lb_name = id_generator(prefix='lbu-')
-            resp_create_vpc_lb = cls.a1_r1.oapi.CreateLoadBalancer(
-                Listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
-                           {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}],
-                LoadBalancerName=cls.vpc_lb_name, Subnets=[cls.subnet_id],
-            ).response
+            vpc_lbu_info = oapi.create_LoadBalancer(cls.a1_r1, lb_name=cls.vpc_lb_name, subnets=[cls.subnet_id],
+                                                    listeners=[{'BackendPort': 65535, 'LoadBalancerProtocol': 'HTTP', 'LoadBalancerPort': 80},
+                                                               {'BackendPort': 1856, 'LoadBalancerProtocol': 'TCP', 'LoadBalancerPort': 1080}])
             for _ in range(3):
                 tmp_name = id_generator(prefix='sg_name-')
                 cls.sg_names.append(tmp_name)
@@ -49,16 +46,17 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                     Description='test', NetId=cls.vpc_id, SecurityGroupName=tmp_name).response.SecurityGroup.SecurityGroupId)
 
             cls.hint_values.append(cls.lb_name)
-            cls.hint_values.append(resp_create_lb.LoadBalancer.DnsName)
+            cls.hint_values.append(lbu_info[info_keys.LBU_DNS])
             cls.hint_values.extend(cls.policy_name_app)
             cls.hint_values.extend(cls.policy_name_lb)
             cls.hint_values.append(cls.vpc_lb_name)
-            cls.hint_values.append(resp_create_vpc_lb.LoadBalancer.DnsName)
+            cls.hint_values.append(vpc_lbu_info[info_keys.LBU_DNS])
             cls.hint_values.extend(cls.sg_ids)
             cls.hint_values.extend(cls.sg_names)
             cls.hint_values.append(cls.a1_r1.config.account.account_id)
             cls.hint_values.append(cls.a1_r1.config.region.az_name)
             cls.hints = create_hints(cls.hint_values)
+            cls.ignored_keys = ['PublicIp']
         except Exception as error1:
             try:
                 cls.teardown_class()
@@ -171,7 +169,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
                                              PolicyNames=self.policy_name_app[0:1]).response
         self.empty_policies(80)
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_http_app_single_policy.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_http_app_single_policy.json'),
+                        self.hints, self.ignored_keys)
         # validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app[0:1]}])
 
     # http - app : 0 -> n -> 0
@@ -191,7 +190,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
                                                PolicyNames=self.policy_name_app[0:2])
             # validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app[0:2]}])
-            # verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_http_app_policy_mixed.json'), self.hints)
+            # verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_http_app_policy_mixed.json'),
+            #      self.hints, self.ignored_keys)
             # resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
             #                                           PolicyNames=self.policy_name_app[1:3]).response
             # validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_app[1:3]}])
@@ -206,7 +206,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                                               PolicyNames=self.policy_name_lb[0:1]).response
         # validate_load_balancer_global_form(lb, lst=[{'LoadBalancerPort': 80, 'PolicyNames': self.policy_name_lb[0:1]}])
         self.empty_policies(80)
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_http_lb_policy_single.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_http_lb_policy_single.json'),
+                        self.hints, self.ignored_keys)
 
     # http - lb : 0 -> n -> 0
     def test_T5335_http_lb_policy_multi(self):
@@ -390,7 +391,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                                                  'Timeout': 10,
                                                  'UnhealthyThreshold': 3,
                                              }).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_1.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_1.json'),
+                        self.hints, self.ignored_keys)
 #         validate_load_balancer_global_form(
 #             ret,
 #             hc={'CheckInterval': 15, 'HealthyThreshold': 10, 'Port': 80, 'Protocol': 'TCP', 'Timeout': 10,
@@ -406,7 +408,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                                                      'Timeout': 5,
                                                      'UnhealthyThreshold': 2,
                                                  }).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_2.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_2.json'),
+                        self.hints, self.ignored_keys)
 #         validate_load_balancer_global_form(
 #             ret,
 #             hc={'CheckInterval': 30, 'HealthyThreshold': 10, 'Port': 65535, 'Protocol': 'TCP', 'Timeout': 5,
@@ -423,7 +426,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                                                      'Timeout': 7,
                                                      'UnhealthyThreshold': 3,
                                                  }).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_3.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_3.json'),
+                        self.hints, self.ignored_keys)
 #         validate_load_balancer_global_form(
 #             ret,
 #             hc={'CheckInterval': 15, 'HealthyThreshold': 10, 'Path': '/path', 'Port': 80, 'Protocol': 'HTTP',
@@ -440,7 +444,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                                                      'Timeout': 10,
                                                      'UnhealthyThreshold': 7,
                                                  }).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_4.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_4.json'),
+                        self.hints, self.ignored_keys)
 #         validate_load_balancer_global_form(
 #             ret,
 #             hc={'CheckInterval': 15, 'HealthyThreshold': 5, 'Path': '/path', 'Port': 80, 'Protocol': 'HTTPS',
@@ -456,7 +461,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                                                      'Timeout': 15,
                                                      'UnhealthyThreshold': 3,
                                                  }).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_5.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_5.json'),
+                        self.hints, self.ignored_keys)
 #         validate_load_balancer_global_form(
 #             ret,
 #             hc={'CheckInterval': 15, 'HealthyThreshold': 7, 'Port': 80, 'Protocol': 'HTTPS',
@@ -473,7 +479,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                                                      'Timeout': 15,
                                                      'UnhealthyThreshold': 3,
                                                  }).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_6.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_valid_heath_check_6.json'),
+                        self.hints, self.ignored_keys)
 #         validate_load_balancer_global_form(
 #             ret,
 #             hc={'CheckInterval': 15, 'HealthyThreshold': 7, 'Path': '/', 'Port': 80, 'Protocol': 'HTTPS',
@@ -498,7 +505,8 @@ class Test_UpdateLoadBalancer(LoadBalancer):
             )
             resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.lb_name, LoadBalancerPort=80,
                                                       PolicyNames=self.policy_name_lb[0:1]).response
-            verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_multi_lbu_same_name_diff_users.json'), self.hints)
+            verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_multi_lbu_same_name_diff_users.json'),
+                            self.hints, self.ignored_keys)
         finally:
             if ret_create_lbu:
                 try:
@@ -508,12 +516,16 @@ class Test_UpdateLoadBalancer(LoadBalancer):
 
     def test_T5556_single_sg_sgroup(self):
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[self.sg_ids[0]]).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_single_sg_sgroup.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_single_sg_sgroup.json'),
+                        self.hints, self.ignored_keys)
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[]).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_empty_sg_sgroup.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_empty_sg_sgroup.json'),
+                        self.hints, self.ignored_keys)
 
     def test_T5557_multi_sg_sgroup(self):
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=self.sg_ids[1:2]).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_multi_sg_sgroup.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_multi_sg_sgroup.json'),
+                        self.hints, self.ignored_keys)
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[]).response
-        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_empty_sg_sgroup.json'), self.hints)
+        verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_empty_sg_sgroup.json'),
+                        self.hints, self.ignored_keys)

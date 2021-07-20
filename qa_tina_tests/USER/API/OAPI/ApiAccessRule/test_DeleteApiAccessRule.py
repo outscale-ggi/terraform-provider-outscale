@@ -1,4 +1,5 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_pub import osc_api
 from qa_tina_tools.tools.tina import create_tools
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
@@ -71,3 +72,11 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
         self.my_setup()
         ret = self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=self.api_access_rule_id, DryRun=True)
         assert_dry_run(ret)
+
+    def test_T5719_login_password(self):
+        self.my_setup()
+        ret = self.osc_sdk.oapi.DeleteApiAccessRule(
+            exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
+            ApiAccessRuleId=self.api_access_rule_id)
+        self.api_access_rule_id = None
+        ret.check_response()

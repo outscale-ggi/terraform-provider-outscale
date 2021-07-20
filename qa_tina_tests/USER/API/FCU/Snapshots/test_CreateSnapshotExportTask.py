@@ -253,11 +253,7 @@ class Test_CreateSnapshotExportTask(OscTestSuite):
     def test_T5541_with_differents_disk_image_format(self):
         disk_format_list = ['raw']
         for disk_format in disk_format_list:
-            try:
-                ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': disk_format,
-                                                                                              'OsuBucket': self.bucket_name})
-                task_id = ret.response.snapshotExportTask.snapshotExportTaskId
-                wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
-                known_error('TINA-6196', 'Create export snapshot task(OOS) with raw format failed')
-            except AssertionError:
-                assert False, 'remove known error'
+            ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': disk_format,
+                                                                                          'OsuBucket': self.bucket_name})
+            task_id = ret.response.snapshotExportTask.snapshotExportTaskId
+            wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])

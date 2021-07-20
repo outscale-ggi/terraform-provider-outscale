@@ -185,7 +185,7 @@ class Test_cold(StreamingBase):
             self.a1_r1.intel.streaming.start(resource_id=self.vol_1_snap_list[-1])
             assert_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], 'started', self.logger)
             self.a1_r1.fcu.AttachVolume(InstanceId=self.inst_running_info[INSTANCE_ID_LIST][0], VolumeId=self.vol_1_id, Device='/dev/xvdc')
-            wait_volumes_state(self.a1_r1, [self.vol_1_id], state='in-use') # --> TINA-6463
+            wait_volumes_state(self.a1_r1, [self.vol_1_id], state='in-use')
             attached = True
             wait_streaming_state(self.a1_r1, self.vol_1_snap_list[-1], cleanup=True, logger=self.logger)  # --> cancelled
             ret = get_data_file_chain(self.a1_r1, self.vol_1_snap_list[-1])

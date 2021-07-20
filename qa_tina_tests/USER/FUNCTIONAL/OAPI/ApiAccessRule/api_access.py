@@ -3,7 +3,6 @@ import os
 import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
-from qa_sdk_pub import osc_api
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account, delete_account
@@ -374,8 +373,6 @@ class ApiAccess(OscTestSuite):
                 # if api_call.startswith('icu.') and expected_results[i] == 1 and
                 # exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.AkSk:
                 #     expected_results[i] = PASS
-                if api_call.startswith('oapi.') and exec_data[osc_api.EXEC_DATA_AUTHENTICATION] == osc_api.AuthMethod.LoginPassword:
-                    expected_results[i] = KNOWN
                 func = self.osc_sdk
                 for elt in api_call.split('.'):
                     func = getattr(func, elt)
@@ -409,6 +406,8 @@ class ApiAccess(OscTestSuite):
                     results.append(FAIL)
                 elif error.error_code == '4' and error.status_code == 401 and error.message == 'AccessDenied':
                     results.append(FAIL)
+                elif error.error_code == '9' and error.status_code == 401 and error.message == 'AuthFailure':
+                    results.append(FAIL)
                 elif error.status_code == 400 and error.error_code == 'IcuClientException' and \
                     error.message == 'Field AuthenticationMethod is required':
                     results.append(FAIL)
@@ -428,8 +427,6 @@ class ApiAccess(OscTestSuite):
                 errors.append(error)
                 if 'login/password authentication is not supported.' in error.message:
                     results.append(FAIL)
-                elif api_call.startswith('oapi.') and 'Wrong authentication : only AkSk or Empty is supported.' in error.message:
-                    results.append('{}GTW-1240'.format(ISSUE_PREFIX))
                 else:
                     results.append(ERROR)
             except Exception as error:

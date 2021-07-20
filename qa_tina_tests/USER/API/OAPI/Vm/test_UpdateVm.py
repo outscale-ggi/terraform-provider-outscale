@@ -265,9 +265,6 @@ class Test_UpdateVm(OscTestSuite):
             ret = self.a1_r1.fcu.DescribeInstances(InstanceId=[inst_id])
             inst = ret.response.reservationSet[0].instancesSet[0]
             assert hasattr(inst, 'privateIpAddress')
-            if not hasattr(inst, 'ipAddress'):
-                known_error('TINA-6134', 'incorrect ip allocation')
-            assert False, 'Remove know error code'
             assert hasattr(inst, 'ipAddress')
         except OscApiException as error:
             raise error
