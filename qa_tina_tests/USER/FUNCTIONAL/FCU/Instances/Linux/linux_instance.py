@@ -5,7 +5,6 @@ from qa_test_tools.test_base import OscTestSuite
 from qa_tina_tools.tina.info_keys import NAME
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_keypair
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
 class Test_linux_instance(OscTestSuite):
