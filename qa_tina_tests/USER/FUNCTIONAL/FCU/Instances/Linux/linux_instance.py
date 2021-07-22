@@ -48,19 +48,18 @@ class Test_linux_instance(OscTestSuite):
             security_group_id = self.sg_id
         if dedicated:
             _, inst_id_list = create_instances_old(self.a1_r1, security_group_id_list=[security_group_id], key_name=self.kp_info[NAME],
-                                                   inst_type=instance_type, placement={'Tenancy': 'dedicated'})
+                                                       inst_type=instance_type, placement={'Tenancy': 'dedicated'}, state='ready')
         else:
             _, inst_id_list = create_instances_old(self.a1_r1, security_group_id_list=[security_group_id], key_name=self.kp_info[NAME],
-                                                   inst_type=instance_type, subnet_id=subnet, bdm=bdm, placement=placement)
+                                                   inst_type=instance_type, subnet_id=subnet, bdm=bdm, placement=placement, state='ready')
         # get instance ID
         inst_id = inst_id_list[0]
-        # wait instance to become ready check for login page
-        ret_wait_state = wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[inst_id], state='ready')
+        ret_describe = self.a1_r1.fcu.DescribeInstances(Filter=[{'Name': 'instance-id', 'Value': inst_id}])
         if subnet:
             self.a1_r1.fcu.AssociateAddress(AllocationId=eip_alloc_id, InstanceId=inst_id)
             public_ip_inst = public_ip
         else:
             # get public IP
-            public_ip_inst = ret_wait_state.response.reservationSet[0].instancesSet[0].ipAddress
+            public_ip_inst = ret_describe.response.reservationSet[0].instancesSet[0].ipAddress
 
         return inst_id, public_ip_inst
