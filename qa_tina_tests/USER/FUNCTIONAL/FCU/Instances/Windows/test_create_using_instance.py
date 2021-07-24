@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.test_base import OscTestSuite
+from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_tina_tools import user_data_windows
 from qa_tina_tools.tina.check_tools import check_data_from_console, check_winrm_access
 from qa_tina_tools.tina.info_keys import NAME, PATH
@@ -163,6 +163,12 @@ class Test_create_using_instance(OscTestSuite):
             cls.a1_r1.fcu.ReleaseAddress(PublicIp=cls.eip.response.publicIp)
 
             delete_keypair(cls.a1_r1, cls.kp_info)
+
+            ret = cls.a1_r1.fcu.DescribeVolumes()
+            if ret.response.volumeSet and len(ret.response.volumeSet) > 1:
+                if cls.a1_r1.config.region.name == 'us-west-1':
+                    known_error('OPS-14000', 'Disk(s) are still available')
+                pytest.fail('Disk(s) are still available, on region {}'.format(cls.a1_r1.config.region.name))
 
         finally:
             super(Test_create_using_instance, cls).teardown_class()
