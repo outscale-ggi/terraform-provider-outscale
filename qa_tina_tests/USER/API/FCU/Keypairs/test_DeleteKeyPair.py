@@ -18,10 +18,10 @@ class Test_DeleteKeyPair(OscTestSuite):
         img = self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
         ret = self.a1_r1.fcu.RunInstances(ImageId=img, KeyName='key', MinCount=1, MaxCount=1)
         instanceid = ret.response.instancesSet[0].instanceId
-        wait_instances_state(self.conns[0], [instanceid], state='running', threshold=60, wait_time=5)
+        wait_instances_state(self.a1_r1, [instanceid], state='running', threshold=60, wait_time=5)
         ret = self.a1_r1.fcu.DeleteKeyPair(KeyName='key')
         ret = self.a1_r1.fcu.StopInstances(InstanceId=instanceid, force=True)
-        wait_instances_state(self.conns[0], [instanceid], state='stopped', threshold=60, wait_time=5)
+        wait_instances_state(self.a1_r1, [instanceid], state='stopped', threshold=60, wait_time=5)
         self.a1_r1.fcu.TerminateInstances(InstanceId=instanceid)
 
     def test_T933_without_keyname(self):

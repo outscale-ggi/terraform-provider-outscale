@@ -53,7 +53,7 @@ class Test_CreateCustomerGateway(OscTestSuite):
 
     def test_T762_all_valid_param(self):
         ret = create_customer_gateway(self.a1_r1, bgp_asn=12, ip_address=self.cgw_ip, typ='ipsec.1')
-        wait_customer_gateways_state(self.conns[0], [ret.response.customerGateway.customerGatewayId], state='available')
+        wait_customer_gateways_state(self.a1_r1, [ret.response.customerGateway.customerGatewayId], state='available')
         assert ret.status_code == 200
         assert ret.response.customerGateway.bgpAsn == '12'
         assert ret.response.customerGateway.ipAddress == self.cgw_ip
@@ -100,7 +100,7 @@ class Test_CreateCustomerGateway(OscTestSuite):
 
     def test_T5643_large_asn_number(self):
         ret = create_customer_gateway(self.a1_r1, bgp_asn=4000000000, ip_address=self.cgw_ip, typ='ipsec.1')
-        wait_customer_gateways_state(self.conns[0], [ret.response.customerGateway.customerGatewayId], state='available')
+        wait_customer_gateways_state(self.a1_r1, [ret.response.customerGateway.customerGatewayId], state='available')
         assert ret.status_code == 200
         assert ret.response.customerGateway.bgpAsn == '4000000000'
         assert ret.response.customerGateway.ipAddress == self.cgw_ip
