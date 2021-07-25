@@ -168,7 +168,7 @@ class Test_create_using_instance(OscTestSuite):
             if ret.response.volumeSet and len(ret.response.volumeSet) > 1:
                 for vol in ret.response.volumeSet:
                     cls.a1_r1.fcu.DeleteVolume(VolumeId=vol.volumeId)
-                if cls.a1_r1.config.region.name == 'us-west-1':
+                if cls.a1_r1.config.region.name in ['us-west-1', 'eu-west-2']:
                     known_error('OPS-14000', 'Disk(s) are still available')
                 pytest.fail('Disk(s) are still available, on region {}'.format(cls.a1_r1.config.region.name))
 
@@ -214,7 +214,7 @@ class Test_create_using_instance(OscTestSuite):
 
         try:
             check_data_from_console(self.a1_r1, self.inst_2_id)
-            if self.a1_r1.config.region.name == 'dv-west-1':
+            if self.a1_r1.config.region.name  == 'dv-west-1':
                 pytest.fail('Remove known error')
         except AssertionError:
             if self.a1_r1.config.region.name != 'dv-west-1':
