@@ -3,13 +3,13 @@ import time
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.error import group_errors, error_type
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 CALL_NUMBER = 2000
 
 
-class Test_fcu_errors(OscTestSuite):
+class Test_fcu_errors(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

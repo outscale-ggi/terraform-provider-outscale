@@ -5,7 +5,8 @@ import pytest
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run, assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.wait import wait_Vms_state, wait_Volumes_state
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
@@ -20,7 +21,7 @@ def compare_validate_volumes(before_volume, after_volume, **kwargs):
             assert getattr(before_volume, attr) == getattr(after_volume, attr)
 
 
-class Test_UpdateVolume(OscTestSuite):
+class Test_UpdateVolume(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

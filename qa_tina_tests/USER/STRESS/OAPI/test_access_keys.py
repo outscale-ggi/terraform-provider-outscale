@@ -1,9 +1,9 @@
 from multiprocessing import Process
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_access_keys(OscTestSuite):
+class Test_access_keys(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

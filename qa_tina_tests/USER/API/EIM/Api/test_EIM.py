@@ -7,10 +7,10 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import qa_sdk_pub.osc_api as osc_api
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_EIM(OscTestSuite):
+class Test_EIM(OscTinaTest):
 
     @pytest.mark.tag_sec_traceability
     def test_T3852_check_request_id(self):

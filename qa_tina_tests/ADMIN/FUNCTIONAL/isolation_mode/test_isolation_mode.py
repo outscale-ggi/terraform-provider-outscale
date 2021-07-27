@@ -1,7 +1,7 @@
 from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools.config import config_constants as cfg_constants
 from qa_test_tools.config.configuration import Configuration
 from qa_tina_tools.tools.tina.create_tools import create_vpc, start_instances
@@ -14,7 +14,7 @@ from qa_tina_tools.tina import check_tools
 from qa_common_tools.ssh import SshTools, OscCommandError
 
 
-class Test_isolation_mode(OscTestSuite):
+class Test_isolation_mode(OscTinaTest):
 
     def test_T5797_vxlanvpc_to_ovsvpc(self):
         fw_vm = None

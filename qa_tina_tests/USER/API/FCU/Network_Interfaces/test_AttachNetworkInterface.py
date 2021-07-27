@@ -1,13 +1,13 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, detach_network_interface
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, SUBNET_ID, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_network_interfaces_state
 
 
-class Test_AttachNetworkInterface(OscTestSuite):
+class Test_AttachNetworkInterface(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -42,7 +42,7 @@ class Test_AttachNetworkInterface(OscTestSuite):
             super(Test_AttachNetworkInterface, cls).teardown_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         self.att_id = None
 
     def teardown_method(self, method):
@@ -54,7 +54,7 @@ class Test_AttachNetworkInterface(OscTestSuite):
         except Exception as error:
             raise error
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T1704_missing_instance_id(self):
         try:

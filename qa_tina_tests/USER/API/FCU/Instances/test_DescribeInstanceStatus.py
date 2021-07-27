@@ -1,12 +1,12 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import stop_instances, terminate_instances, delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 
 
-class Test_DescribeInstanceStatus(OscTestSuite):
+class Test_DescribeInstanceStatus(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

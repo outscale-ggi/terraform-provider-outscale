@@ -12,12 +12,13 @@ import qa_sdk_pub.osc_api as osc_api
 from specs.check_tools import get_documentation, DOCUMENTATIONS, PATHS
 from qa_test_tools import misc
 from qa_test_tools.misc import assert_error, assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 
 MIN_OVERTIME = 4
 
 
-class Test_OAPI(OscTestSuite):
+class Test_OAPI(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

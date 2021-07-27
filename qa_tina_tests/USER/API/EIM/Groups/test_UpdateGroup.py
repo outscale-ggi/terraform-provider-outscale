@@ -1,9 +1,9 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_UpdateGroup(OscTestSuite):
+class Test_UpdateGroup(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -11,7 +11,7 @@ class Test_UpdateGroup(OscTestSuite):
         cls.group = None
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         group_name = id_generator(prefix='group_name_')
         path = '/FirstPath/'
         self.group = None
@@ -28,7 +28,7 @@ class Test_UpdateGroup(OscTestSuite):
             if self.group:
                 self.a1_r1.eim.DeleteGroup(GroupName=self.group.GroupName)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T3932_with_only_group_name_param(self):
         tmp_group_name = self.group.GroupName

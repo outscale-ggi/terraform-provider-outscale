@@ -3,10 +3,10 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_add_group_member(OscTestSuite):
+class Test_add_group_member(OscTinaTest):
 
     @pytest.mark.region_gpu
     def test_T4310_invalid_servers(self):

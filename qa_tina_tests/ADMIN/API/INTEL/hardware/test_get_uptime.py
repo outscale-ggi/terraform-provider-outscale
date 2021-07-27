@@ -1,7 +1,7 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_get_uptime(OscTestSuite):
+class Test_get_uptime(OscTinaTest):
 
     def test_T3780_valid_params(self):
         ret = self.a1_r1.intel.hardware.get_servers()

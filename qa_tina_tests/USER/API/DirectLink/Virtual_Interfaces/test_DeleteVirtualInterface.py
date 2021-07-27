@@ -3,12 +3,12 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 @pytest.mark.region_directlink
 @pytest.mark.region_admin
-class Test_DeleteVirtualInterface(OscTestSuite):
+class Test_DeleteVirtualInterface(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -19,7 +19,7 @@ class Test_DeleteVirtualInterface(OscTestSuite):
 
     def setup_method(self, method):
         self.conn_id = None
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         self.conn_id = self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps',
                                                               connectionName=id_generator(prefix='dl_')).response.connectionId
         self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
@@ -30,7 +30,7 @@ class Test_DeleteVirtualInterface(OscTestSuite):
                 self.a1_r1.intel.dl.connection.deactivate(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
                 self.a1_r1.intel.dl.connection.delete(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T1911_required_param(self):
         interface = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}

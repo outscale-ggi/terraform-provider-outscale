@@ -1,9 +1,9 @@
 import time
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_tags_handling(OscTestSuite):
+class Test_tags_handling(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

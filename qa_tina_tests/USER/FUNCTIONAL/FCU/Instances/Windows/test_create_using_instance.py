@@ -7,7 +7,8 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools import user_data_windows
 from qa_tina_tools.tina.check_tools import check_data_from_console, check_winrm_access
 from qa_tina_tools.tina.info_keys import NAME, PATH
@@ -19,7 +20,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 # import os
 # import winrm
 @pytest.mark.region_windows
-class Test_create_using_instance(OscTestSuite):
+class Test_create_using_instance(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_create_using_instance, cls).setup_class()

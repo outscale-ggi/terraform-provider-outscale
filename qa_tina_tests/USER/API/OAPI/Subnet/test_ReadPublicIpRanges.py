@@ -1,7 +1,7 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ReadPublicIpRanges(OscTestSuite):
+class Test_ReadPublicIpRanges(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

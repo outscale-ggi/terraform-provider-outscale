@@ -1,11 +1,11 @@
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools.test_base import assert_code
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 
-class Test_quotas(OscTestSuite):
+class Test_quotas(OscTinaTest):
 
     def test_T1621_init_sg_rule_count(self):
         sg_id = None

@@ -7,7 +7,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tina.info_keys import KEY_PAIR, PATH
 from qa_tina_tools.tina.oapi import delete_Vms, create_Vms
@@ -15,7 +15,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_netwo
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response, create_vms
 
 
-class Test_CreateVms(OscTestSuite):
+class Test_CreateVms(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -554,7 +554,7 @@ echo "yes" > /tmp/userdata.txt
                 delete_Vms(self.a1_r1, vm_info)
 
 
-class Test_CreateVmsWithSubnet(OscTestSuite):
+class Test_CreateVmsWithSubnet(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

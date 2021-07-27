@@ -13,7 +13,7 @@ from qa_test_tools.account_tools import create_account, delete_account
 from qa_test_tools.compare_objects import verify_response
 from qa_test_tools.config import OscConfig
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools
 
 
@@ -21,7 +21,7 @@ CLIENT_CERT_CN1 = 'client.qa1'
 
 
 @pytest.mark.region_admin
-class Test_UpdateApiAccessPolicy(OscTestSuite):
+class Test_UpdateApiAccessPolicy(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

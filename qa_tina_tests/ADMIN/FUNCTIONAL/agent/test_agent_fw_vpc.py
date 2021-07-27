@@ -5,11 +5,11 @@ from netaddr import IPAddress, IPNetwork
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, delete_tools, wait_tools, info_keys
 
 
-class Test_agent_fw_vpc(OscTestSuite):
+class Test_agent_fw_vpc(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_agent_fw_vpc, cls).setup_class()

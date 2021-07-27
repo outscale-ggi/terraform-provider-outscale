@@ -5,7 +5,8 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_test_tools import misc
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
 
@@ -30,7 +31,7 @@ param = [
 
 
 @pytest.mark.region_cloudtrace
-class Test_ReadApiLogs(OscTestSuite):
+class Test_ReadApiLogs(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_ReadApiLogs, cls).setup_class()

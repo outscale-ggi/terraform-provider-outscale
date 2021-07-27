@@ -1,7 +1,7 @@
 from multiprocessing import Process
 import multiprocessing
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -28,7 +28,7 @@ def create_inst(oscsdk, procnum, return_dict, inst_type, inst_number, num_iter):
     return_dict[procnum] = inst_ids
 
 
-class Test_over_fill_kvm(OscTestSuite):
+class Test_over_fill_kvm(OscTinaTest):
 
     def test_T2288_verify_all_started(self):
         manager = multiprocessing.Manager()

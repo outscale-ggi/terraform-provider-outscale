@@ -1,13 +1,13 @@
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_attachment_state, wait_vpn_gateways_state
 
 
-class Test_AttachVpnGateway(OscTestSuite):
+class Test_AttachVpnGateway(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

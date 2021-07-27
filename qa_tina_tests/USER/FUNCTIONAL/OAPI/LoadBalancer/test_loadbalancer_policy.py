@@ -5,11 +5,11 @@ import requests
 from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, wait, info_keys, setup_tools
 
 
-class Test_loadbalancer_policy(OscTestSuite):
+class Test_loadbalancer_policy(OscTinaTest):
 
     def test_T5343_lbu_policy(self):
         vm_info = None

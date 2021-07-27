@@ -4,7 +4,7 @@ import time
 
 from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait, check_tools
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
 from qa_tina_tools.tools.tina import wait_tools
@@ -73,7 +73,7 @@ def ping(sshclient, cgw_priv_ip, vpc_inst_ip):
         raise error
 
 
-class Vpn(OscTestSuite):
+class Vpn(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

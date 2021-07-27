@@ -1,6 +1,6 @@
 import datetime
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances, \
     terminate_instances
@@ -8,7 +8,7 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
-class Test_find(OscTestSuite):
+class Test_find(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

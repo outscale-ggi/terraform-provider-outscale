@@ -1,7 +1,8 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -9,7 +10,7 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 NUM_INST = 1
 
 
-class Test_DescribeInstanceAttribute(OscTestSuite):
+class Test_DescribeInstanceAttribute(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

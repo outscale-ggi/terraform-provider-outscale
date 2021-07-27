@@ -2,14 +2,14 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 DEFAULT_GPU_ID = "fgpu-12345678"
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
 
 @pytest.mark.region_gpu
-class Test_DeleteFlexibleGpu(OscTestSuite):
+class Test_DeleteFlexibleGpu(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

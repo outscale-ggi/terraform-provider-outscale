@@ -1,7 +1,7 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_find(OscTestSuite):
+class Test_find(OscTinaTest):
 
     def test_T5764_without_param(self):
         resp = self.a1_r1.intel.agents.find().response

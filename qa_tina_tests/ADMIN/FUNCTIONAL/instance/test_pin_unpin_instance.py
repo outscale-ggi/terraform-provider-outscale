@@ -2,14 +2,14 @@ import pytest
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances, start_instances
 from qa_tina_tools.tools.tina.delete_tools import stop_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 
 
 @pytest.mark.region_admin
-class Test_pin_unpin_instance(OscTestSuite):
+class Test_pin_unpin_instance(OscTinaTest):
     @classmethod
     def setup_class(cls):
         cls.inst_info = None
@@ -18,7 +18,7 @@ class Test_pin_unpin_instance(OscTestSuite):
         super(Test_pin_unpin_instance, cls).setup_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         try:
             self.inst_info = create_instances(self.a1_r1)
             self.inst_id = self.inst_info[INSTANCE_ID_LIST][0]
@@ -38,7 +38,7 @@ class Test_pin_unpin_instance(OscTestSuite):
             if self.inst_info:
                 terminate_instances(self.a1_r1, [self.inst_id])
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     @pytest.mark.region_admin
     def test_T4629_pin_terminated_instance(self):

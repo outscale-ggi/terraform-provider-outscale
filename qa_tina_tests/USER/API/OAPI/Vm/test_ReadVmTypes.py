@@ -1,9 +1,9 @@
 
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ReadVmTypes(OscTestSuite):
+class Test_ReadVmTypes(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

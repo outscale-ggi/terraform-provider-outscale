@@ -1,7 +1,7 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_get_slot_availability(OscTestSuite):
+class Test_get_slot_availability(OscTinaTest):
 
     def test_T3567_with_instance_types_filter(self):
         ret = self.a1_r1.intel.monitor.get_slot_availability(instance_types=['t2.small'])

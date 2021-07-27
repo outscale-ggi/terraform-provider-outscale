@@ -1,11 +1,11 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 
 
-class Test_DeleteLoadBalancerPolicy(OscTestSuite):
+class Test_DeleteLoadBalancerPolicy(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -33,13 +33,13 @@ class Test_DeleteLoadBalancerPolicy(OscTestSuite):
             super(Test_DeleteLoadBalancerPolicy, cls).teardown_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         self.deleted_policy = False
         try:
             self.a1_r1.lbu.CreateLBCookieStickinessPolicy(LoadBalancerName=self.lbu_name, PolicyName=self.policy_name, CookieExpirationPeriod=600)
         except:
             try:
-                OscTestSuite.teardown_method(self, method)
+                OscTinaTest.teardown_method(self, method)
             finally:
                 raise
 
@@ -48,7 +48,7 @@ class Test_DeleteLoadBalancerPolicy(OscTestSuite):
             try:
                 self.a1_r1.lbu.DeleteLoadBalancerPolicy(LoadBalancerName=self.lbu_name, PolicyName=self.policy_name)
             finally:
-                OscTestSuite.teardown_method(self, method)
+                OscTinaTest.teardown_method(self, method)
 
     def test_T4017_valid_params(self):
         self.a1_r1.lbu.DeleteLoadBalancerPolicy(LoadBalancerName=self.lbu_name, PolicyName=self.policy_name)

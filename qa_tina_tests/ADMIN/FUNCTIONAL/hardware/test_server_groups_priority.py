@@ -2,14 +2,14 @@ import pytest
 from netaddr import IPNetwork
 
 from qa_sdk_common.exceptions.osc_exceptions import OscException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.oapi import create_Vms, delete_Vms
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 
 
 @pytest.mark.region_admin
-class Test_server_groups_priority(OscTestSuite):
+class Test_server_groups_priority(OscTinaTest):
 
     def test_T5802_groups_priority_on_privateip(self):
         try:

@@ -6,10 +6,10 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.compare_objects import verify_response
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_DeleteSecurityGroup(OscTestSuite):
+class Test_DeleteSecurityGroup(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

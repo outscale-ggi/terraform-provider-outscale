@@ -1,14 +1,15 @@
 
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite, known_error
 from qa_test_tools.misc import id_generator
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.config import config_constants
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, info_keys, setup_tools, check_tools
 
 
-class Test_update_loadbalancer(OscTestSuite):
+class Test_update_loadbalancer(OscTinaTest):
 
     def test_T5558_update_lbu_sg(self):
         lb_name = id_generator(prefix='lb-')

@@ -6,7 +6,8 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import info_keys, oapi
 from qa_tina_tools.tina.info_keys import PRIVATE, PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_ed25519_key, generate_key
@@ -15,7 +16,7 @@ from qa_tina_tools.tools.tina.create_tools import generate_ed25519_key, generate
 from qa_common_tools.ssh import KeyType, OscSshError, SshTools  # isort:skip
 
 
-class Test_CheckConnection(OscTestSuite):
+class Test_CheckConnection(OscTinaTest):
     def test_T5112_valid_check_connection_import_ec_key_256(self):
         key_resp = None
         vm_info = None

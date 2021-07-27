@@ -1,8 +1,8 @@
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ReadDirectLinks(OscTestSuite):
+class Test_ReadDirectLinks(OscTinaTest):
 
     def test_T3904_empty_filters(self):
         ret = self.a1_r1.oapi.ReadDirectLinks().response.DirectLinks

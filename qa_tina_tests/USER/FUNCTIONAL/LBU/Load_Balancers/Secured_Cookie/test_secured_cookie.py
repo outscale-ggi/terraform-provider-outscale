@@ -7,7 +7,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.check_tools import wait_lbu_backend_state
 from qa_tina_tools.tina.setup_tools import start_test_http_server
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer, create_self_signed_cert, create_instances
@@ -16,7 +16,7 @@ from qa_tina_tools.tools.tina.info_keys import PATH, INSTANCE_ID_LIST, INSTANCE_
 from qa_tina_tools.tools.tina.wait_tools import wait_load_balancer_state
 
 
-class Test_secured_cookie(OscTestSuite):
+class Test_secured_cookie(OscTinaTest):
 
     @classmethod
     def setup_class(cls, ):

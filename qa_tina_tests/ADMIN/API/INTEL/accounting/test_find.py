@@ -3,7 +3,7 @@
 
 import datetime
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 
@@ -11,7 +11,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 ACCOUNTING_GRACE_TIME = 2
 
 
-class Test_find(OscTestSuite):
+class Test_find(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -4,13 +4,14 @@ from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc, start_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, stop_instances
 from qa_tina_tools.tools.tina import info_keys
 
 
-class Test_lan_sg_tags(OscTestSuite):
+class Test_lan_sg_tags(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

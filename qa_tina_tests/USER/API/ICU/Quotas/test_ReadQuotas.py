@@ -1,7 +1,9 @@
-from qa_test_tools.test_base import OscTestSuite, known_error
+
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ReadQuotas(OscTestSuite):
+class Test_ReadQuotas(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

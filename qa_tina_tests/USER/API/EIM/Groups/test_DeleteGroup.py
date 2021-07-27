@@ -1,9 +1,9 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_DeleteGroup(OscTestSuite):
+class Test_DeleteGroup(OscTinaTest):
 
     def test_T1463_required_param(self):
         ret = self.a1_r1.eim.CreateGroup(GroupName=misc.id_generator(prefix='group_'))

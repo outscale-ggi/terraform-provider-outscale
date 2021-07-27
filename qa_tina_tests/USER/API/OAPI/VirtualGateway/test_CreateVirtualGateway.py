@@ -1,8 +1,8 @@
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_CreateVirtualGateway(OscTestSuite):
+class Test_CreateVirtualGateway(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

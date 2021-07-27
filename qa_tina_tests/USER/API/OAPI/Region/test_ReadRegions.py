@@ -1,5 +1,5 @@
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 def verify_response(response):
@@ -12,7 +12,7 @@ def verify_response(response):
     assert len(response.Regions) == len(set(region_endpoints)), 'Duplicate(s) in region endpoints'
 
 
-class Test_ReadRegions(OscTestSuite):
+class Test_ReadRegions(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

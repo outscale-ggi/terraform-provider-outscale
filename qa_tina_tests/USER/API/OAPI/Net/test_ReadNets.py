@@ -2,11 +2,11 @@ import pytest
 
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 
 
-class Test_ReadNets(OscTestSuite):
+class Test_ReadNets(OscTinaTest):
 
     nb_nets = 2
 

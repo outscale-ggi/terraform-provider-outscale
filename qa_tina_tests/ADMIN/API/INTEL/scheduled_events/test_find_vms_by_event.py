@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 import pytz
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 @pytest.mark.region_admin
-class Test_find_vms_by_event(OscTestSuite):
+class Test_find_vms_by_event(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

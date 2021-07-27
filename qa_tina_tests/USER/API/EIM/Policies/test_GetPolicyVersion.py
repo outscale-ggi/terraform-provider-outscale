@@ -1,7 +1,7 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_GetPolicyVersion(OscTestSuite):
+class Test_GetPolicyVersion(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

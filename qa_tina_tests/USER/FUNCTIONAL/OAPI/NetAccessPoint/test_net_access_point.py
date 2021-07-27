@@ -2,15 +2,16 @@ import pytest
 
 from qa_common_tools.ssh import SshTools, OscSshError
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
 from qa_test_tools.config import config_constants
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, info_keys, wait
 
 
 PUBLIC_NET_IP_RANGE_SUFFIX = '10.0'
 
 
-class Test_net_access_point(OscTestSuite):
+class Test_net_access_point(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

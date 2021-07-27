@@ -3,11 +3,11 @@ import base64
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, info_keys
 
 
-class Test_private_ip_only(OscTestSuite):
+class Test_private_ip_only(OscTinaTest):
 
     def test_T5729_none_to_private_only_true(self):
         vm_info = None

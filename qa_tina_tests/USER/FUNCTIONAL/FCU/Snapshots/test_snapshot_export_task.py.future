@@ -1,4 +1,4 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, wait_tools, delete_tools
 from qa_tina_tools.tools.tina import info_keys
 from qa_common_tools.ssh import SshTools
@@ -16,7 +16,7 @@ VOL_SIZE = 500
 WRITE_SIZE = 100
 
 @pytest.mark.region_osu
-class Test_snapshot_export_task(OscTestSuite):
+class Test_snapshot_export_task(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
