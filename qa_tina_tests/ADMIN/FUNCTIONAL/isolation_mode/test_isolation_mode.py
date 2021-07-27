@@ -1,17 +1,16 @@
 from time import sleep
 
+from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools.config import config_constants as cfg_constants
 from qa_test_tools.config.configuration import Configuration
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc, start_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
-from qa_tina_tools.tools.tina.wait_tools import wait_instance_service_state, \
-    wait_instances_state
+from qa_tina_tools.tools.tina.wait_tools import wait_instance_service_state, wait_instances_state
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tina import check_tools
-from qa_common_tools.ssh import SshTools, OscCommandError
 
 
 class Test_isolation_mode(OscTinaTest):

@@ -1,8 +1,8 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools import misc
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, wait, info_keys
 
 DEVICE_NAME = '/dev/xvdc'

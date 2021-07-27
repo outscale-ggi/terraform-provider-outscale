@@ -1,7 +1,7 @@
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import id_generator
-from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools.test_base import assert_code
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 

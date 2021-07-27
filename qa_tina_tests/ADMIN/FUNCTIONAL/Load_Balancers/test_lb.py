@@ -1,8 +1,8 @@
 import time
 
 from qa_test_tools.misc import id_generator
-from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 
 
