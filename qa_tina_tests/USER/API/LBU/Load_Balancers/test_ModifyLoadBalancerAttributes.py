@@ -6,12 +6,12 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 
 
-class Test_ModifyLoadBalancerAttributes(OscTestSuite):
+class Test_ModifyLoadBalancerAttributes(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

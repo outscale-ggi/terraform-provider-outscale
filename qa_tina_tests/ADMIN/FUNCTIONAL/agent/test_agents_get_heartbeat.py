@@ -1,6 +1,6 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
-class Test_agents_get_heartbeat(OscTestSuite):
+class Test_agents_get_heartbeat(OscTinaTest):
 
     def test_T5794_agents_get_heartbeat(self):
         agent_name = self.a1_r1.intel.hardware.get_servers(state='READY').response.result[0].name

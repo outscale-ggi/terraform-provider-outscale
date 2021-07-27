@@ -3,7 +3,8 @@ from string import ascii_lowercase
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, BLOCK_DEVICE_MAPPING, VOLUME_ID, EBS
@@ -11,7 +12,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapsho
     wait_snapshot_export_tasks_state
 
 
-class Test_CancelExportTask(OscTestSuite):
+class Test_CancelExportTask(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

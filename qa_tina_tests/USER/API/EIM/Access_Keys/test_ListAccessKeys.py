@@ -2,13 +2,13 @@ import re
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 NB_ACCESSKEY = 2
 
 
-class Test_ListAccessKeys(OscTestSuite):
+class Test_ListAccessKeys(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

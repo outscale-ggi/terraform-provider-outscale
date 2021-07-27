@@ -1,6 +1,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_vpc
@@ -10,7 +10,7 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, VPC_ID
 NUM_VPN_CONNS = 3
 
 
-class Test_DescribeVpnConnections(OscTestSuite):
+class Test_DescribeVpnConnections(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

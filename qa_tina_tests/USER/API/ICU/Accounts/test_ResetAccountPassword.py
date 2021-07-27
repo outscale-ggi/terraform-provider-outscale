@@ -8,10 +8,10 @@ from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
 from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account, delete_account
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ResetAccountPassword(OscTestSuite):
+class Test_ResetAccountPassword(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

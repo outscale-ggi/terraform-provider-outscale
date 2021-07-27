@@ -1,13 +1,13 @@
 
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import NAME
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_keypair
 
 
-class Test_linux_instance(OscTestSuite):
+class Test_linux_instance(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

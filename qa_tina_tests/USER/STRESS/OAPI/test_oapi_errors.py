@@ -5,13 +5,13 @@ from qa_sdk_pub import osc_api
 from qa_sdk_pub.osc_api import disable_throttling
 from qa_test_tools.error import load_errors, error_type
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 CALL_NUMBER = 2000
 
 
-class Test_oapi_errors(OscTestSuite):
+class Test_oapi_errors(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

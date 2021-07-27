@@ -1,10 +1,10 @@
 
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 @pytest.mark.region_gpu
-class Test_read_flexible_gpu_catalog(OscTestSuite):
+class Test_read_flexible_gpu_catalog(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

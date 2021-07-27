@@ -1,10 +1,10 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 VOLUME_NUMBER = 10
 
 
-class Test_find(OscTestSuite):
+class Test_find(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -5,7 +5,7 @@ import pytest
 
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_keypair, generate_key
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_keypair, delete_file
@@ -13,7 +13,7 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, NAME, PATH, PUBLIC,
     INSTANCE_ID_LIST
 
 
-class Test_keypair(OscTestSuite):
+class Test_keypair(OscTinaTest):
 
     def exec_import_kp_test(self, key_size):
         kp_info = None

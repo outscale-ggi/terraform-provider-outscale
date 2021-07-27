@@ -4,7 +4,7 @@ import time
 import pytest
 
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 
 
@@ -12,7 +12,7 @@ VOLUME_DELETION_PERIOD = 30
 
 
 @pytest.mark.region_admin
-class Test_volume(OscTestSuite):
+class Test_volume(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_volume, cls).setup_class()

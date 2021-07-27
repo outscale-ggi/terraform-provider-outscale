@@ -1,12 +1,12 @@
 
 import pytest
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools.config import config_constants
 from qa_test_tools.config.region import Feature
 
 
 @pytest.mark.region_admin
-class Test_audit_authorizations(OscTestSuite):
+class Test_audit_authorizations(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

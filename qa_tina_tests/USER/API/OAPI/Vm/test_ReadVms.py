@@ -6,12 +6,12 @@ from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.compare_objects import verify_response, create_hints
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi
 from qa_tina_tools.tina.oapi import info_keys
 
-class Test_ReadVms(OscTestSuite):
+class Test_ReadVms(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

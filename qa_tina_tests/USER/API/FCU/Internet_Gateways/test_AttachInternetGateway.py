@@ -1,12 +1,12 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 
 
-class Test_AttachInternetGateway(OscTestSuite):
+class Test_AttachInternetGateway(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -33,7 +33,7 @@ class Test_AttachInternetGateway(OscTestSuite):
     def setup_method(self, method):
         self.igw_id = None
         self.att = None
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         self.igw_id = self.a1_r1.fcu.CreateInternetGateway().response.internetGateway.internetGatewayId
 
     def teardown_method(self, method):
@@ -43,7 +43,7 @@ class Test_AttachInternetGateway(OscTestSuite):
             if self.igw_id:
                 self.a1_r1.fcu.DeleteInternetGateway(InternetGatewayId=self.igw_id)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T1690_valid_params(self):
         self.att = self.a1_r1.fcu.AttachInternetGateway(InternetGatewayId=self.igw_id, VpcId=self.vpc_info[VPC_ID])

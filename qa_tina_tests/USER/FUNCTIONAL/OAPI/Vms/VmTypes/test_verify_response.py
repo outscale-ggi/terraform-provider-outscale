@@ -1,12 +1,12 @@
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import start_instances
 from qa_tina_tools.tools.tina.delete_tools import stop_instances
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
 
 
-class Test_verify_response(OscTestSuite):
+class Test_verify_response(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

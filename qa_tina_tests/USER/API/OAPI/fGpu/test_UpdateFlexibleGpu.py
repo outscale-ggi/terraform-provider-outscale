@@ -2,7 +2,7 @@ import pytest
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 
 DEFAULT_GPU_ID = "fgpu-12345678"
@@ -10,7 +10,7 @@ DEFAULT_MODEL_NAME = "nvidia-k2"
 
 
 @pytest.mark.region_gpu
-class Test_UpdateFlexibleGpu(OscTestSuite):
+class Test_UpdateFlexibleGpu(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

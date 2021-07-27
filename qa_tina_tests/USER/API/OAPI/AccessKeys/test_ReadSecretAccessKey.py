@@ -5,10 +5,10 @@ from specs import check_tools
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from qa_test_tools import misc
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ReadSecretAccessKey(OscTestSuite):
+class Test_ReadSecretAccessKey(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

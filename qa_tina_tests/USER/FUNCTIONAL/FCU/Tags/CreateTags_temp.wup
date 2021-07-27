@@ -13,7 +13,7 @@ from qa_tools.tools.test_base import OscTestSuite
 from qa_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state
 
 
-class Test_CreateTags(OscTestSuite):
+class Test_CreateTags(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_CreateTags, cls).setup_class()

@@ -4,12 +4,12 @@ from specs.check_tools import check_oapi_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.compare_objects import verify_response, create_hints
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait
 
 
-class Test_CreateVpnConnection(OscTestSuite):
+class Test_CreateVpnConnection(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

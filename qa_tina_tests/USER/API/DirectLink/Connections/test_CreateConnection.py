@@ -3,11 +3,11 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 @pytest.mark.region_directlink
-class Test_CreateConnection(OscTestSuite):
+class Test_CreateConnection(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

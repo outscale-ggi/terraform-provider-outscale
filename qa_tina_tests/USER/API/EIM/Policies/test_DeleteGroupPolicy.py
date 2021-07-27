@@ -3,10 +3,11 @@ import json
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import known_error, OscTestSuite
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_DeleteGroupPolicy(OscTestSuite):
+class Test_DeleteGroupPolicy(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

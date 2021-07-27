@@ -1,14 +1,14 @@
 
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, SUBNET_ID
 
 
 @pytest.mark.region_butterfly
-class Test_butterfly_vpc(OscTestSuite):
+class Test_butterfly_vpc(OscTinaTest):
 
     def test_T5057_butterfly_vpc(self):
         vpc_info = None

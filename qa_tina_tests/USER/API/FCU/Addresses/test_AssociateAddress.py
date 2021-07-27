@@ -1,7 +1,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
 from qa_tina_tools.tools.tina.info_keys import SUBNET_ID, SUBNETS, INSTANCE_ID_LIST
@@ -11,7 +11,7 @@ NUM_STANDARD_EIPS = 1
 NUM_VPC_EIPS = 10
 
 
-class Test_AssociateAddress(OscTestSuite):
+class Test_AssociateAddress(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

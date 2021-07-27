@@ -1,13 +1,13 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 
-class Test_DetachVolume(OscTestSuite):
+class Test_DetachVolume(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -50,7 +50,7 @@ class Test_DetachVolume(OscTestSuite):
             super(Test_DetachVolume, cls).teardown_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         self.rslt_detach_standard = None
         self.rslt_detach_gp2 = None
         self.rslt_detach_io1 = None
@@ -70,7 +70,7 @@ class Test_DetachVolume(OscTestSuite):
                                                                    InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdd")
                 wait_volumes_state(self.a1_r1, volume_id_list=self.io1_volume_ids, state="in-use")
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T1252_valid_param_standard(self):
         self.rslt_detach_standard = self.a1_r1.fcu.DetachVolume(VolumeId=self.standard_volume_ids[0],

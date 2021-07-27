@@ -6,7 +6,7 @@ from qa_sdk_pub import osc_api
 from qa_sdk_pub.osc_api import disable_throttling
 from qa_test_tools.error import group_errors
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 # ec2/throttling/Describe* --> 0,5
@@ -14,7 +14,7 @@ from qa_test_tools.test_base import OscTestSuite
 FRONT_NUM = 1
 
 
-class Test_fcu_throttling(OscTestSuite):
+class Test_fcu_throttling(OscTinaTest):
 
     def test_T3990_dist_success(self):
         disable_throttling()

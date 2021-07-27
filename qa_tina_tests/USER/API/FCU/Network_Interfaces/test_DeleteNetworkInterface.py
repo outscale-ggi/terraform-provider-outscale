@@ -1,13 +1,13 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import  assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import SUBNETS, SUBNET_ID
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 
 
-class Test_DeleteNetworkInterface(OscTestSuite):
+class Test_DeleteNetworkInterface(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -38,14 +38,14 @@ class Test_DeleteNetworkInterface(OscTestSuite):
                                                                PrivateIpAddress=Configuration.get('ipaddress', '10_0_1_4'))
             self.network_interface_id = res_create.response.networkInterface.networkInterfaceId
         finally:
-            OscTestSuite.setup_method(self, method)
+            OscTinaTest.setup_method(self, method)
 
     def teardown_method(self, method):
         try:
             if self.network_interface_id:
                 self.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId=self.network_interface_id)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T4036_valid_params(self):
         self.a1_r1.fcu.DeleteNetworkInterface(NetworkInterfaceId=self.network_interface_id)

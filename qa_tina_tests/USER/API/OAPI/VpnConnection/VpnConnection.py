@@ -1,7 +1,7 @@
 
 
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state, wait_customer_gateways_state
 
@@ -25,7 +25,7 @@ def validate_vpn_connection(vpn, **kwargs):
     assert vpn.VpnConnectionId.startswith('vpn-')
 
 
-class VpnConnection(OscTestSuite):
+class VpnConnection(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

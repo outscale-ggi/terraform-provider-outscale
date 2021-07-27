@@ -1,10 +1,10 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_DeleteUser(OscTestSuite):
+class Test_DeleteUser(OscTinaTest):
 
     def test_T1432_required_param(self):
         ret = self.a1_r1.eim.CreateUser(UserName=id_generator(prefix='user_'))

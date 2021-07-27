@@ -5,10 +5,10 @@ from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account
 from qa_test_tools.config import config_constants
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_CheckAuthentication(OscTestSuite):
+class Test_CheckAuthentication(OscTinaTest):
 
     def test_T4895_without_param(self):
         try:

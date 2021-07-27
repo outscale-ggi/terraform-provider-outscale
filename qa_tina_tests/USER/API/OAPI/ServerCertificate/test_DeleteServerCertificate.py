@@ -4,14 +4,14 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools
 
 
 # Parameter    In      Type       Required
 # DryRun       body    boolean    false
 # Name         body    string     false
-class Test_DeleteServerCertificate(OscTestSuite):
+class Test_DeleteServerCertificate(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -33,7 +33,7 @@ class Test_DeleteServerCertificate(OscTestSuite):
             super(Test_DeleteServerCertificate, cls).teardown_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         self.sc_name = misc.id_generator(prefix='sc-')
         self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key).response
 
@@ -42,7 +42,7 @@ class Test_DeleteServerCertificate(OscTestSuite):
             if self.sc_resp:
                 self.a1_r1.oapi.DeleteServerCertificate(Name=self.sc_name)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T4861_valid_params(self):
         ret = self.a1_r1.oapi.DeleteServerCertificate(Name=self.sc_name)

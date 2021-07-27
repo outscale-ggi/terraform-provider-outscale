@@ -6,7 +6,8 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools
 from qa_test_tools import misc
 from qa_test_tools.config import config_constants
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
@@ -14,7 +15,7 @@ from qa_tina_tools.tina import check_tools
 
 
 @pytest.mark.region_admin
-class Test_filter_private_data(OscTestSuite):
+class Test_filter_private_data(OscTinaTest):
 
     def test_T5579_filter_private_data(self):
 

@@ -3,11 +3,11 @@ import pytest
 from qa_sdk_common.exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from qa_test_tools.misc import assert_error, assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 @pytest.mark.region_gpu
-class Test_ReadFlexibleGpuCatalog(OscTestSuite):
+class Test_ReadFlexibleGpuCatalog(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

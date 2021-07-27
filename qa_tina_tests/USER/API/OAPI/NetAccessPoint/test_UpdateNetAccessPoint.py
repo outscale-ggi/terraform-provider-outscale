@@ -1,9 +1,9 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_UpdateNetAccessPoint(OscTestSuite):
+class Test_UpdateNetAccessPoint(OscTinaTest):
 
     def test_T3338_missing_parameter(self):
         try:

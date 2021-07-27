@@ -7,10 +7,10 @@ from qa_sdk_pub.osc_api import DefaultPubConfig
 from qa_sdk_pub.osc_api.osc_oapi_api import OscOApi
 from qa_test_tools import misc, account_tools
 from qa_test_tools.config import config_constants
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ResetAccountPassword(OscTestSuite):
+class Test_ResetAccountPassword(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

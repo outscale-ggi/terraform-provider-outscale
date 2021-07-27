@@ -1,9 +1,9 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_UpdateUser(OscTestSuite):
+class Test_UpdateUser(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -11,7 +11,7 @@ class Test_UpdateUser(OscTestSuite):
         cls.user = None
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         user_name = id_generator(prefix='user_name_')
         path = '/FirstPath/'
         self.user = None
@@ -28,7 +28,7 @@ class Test_UpdateUser(OscTestSuite):
             if self.user:
                 self.a1_r1.eim.DeleteUser(UserName=self.user.UserName)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T3740_with_user_name_param(self):
         tmp_user_name = self.user.UserName

@@ -5,11 +5,11 @@ import requests
 
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 @pytest.mark.region_osu
-class Test_osu(OscTestSuite):
+class Test_osu(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

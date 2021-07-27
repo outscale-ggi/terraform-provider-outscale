@@ -3,14 +3,14 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_customer_gateways
 from qa_tina_tools.tools.tina.create_tools import create_customer_gateway
 
 
-class Test_DeleteCustomerGateway(OscTestSuite):
+class Test_DeleteCustomerGateway(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -23,7 +23,7 @@ class Test_DeleteCustomerGateway(OscTestSuite):
         super(Test_DeleteCustomerGateway, cls).teardown_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         try:
             self.gateway_id_list = []
             for conn in [self.a1_r1, self.a2_r1]:
@@ -44,7 +44,7 @@ class Test_DeleteCustomerGateway(OscTestSuite):
             cleanup_customer_gateways(self.a1_r1)
             cleanup_customer_gateways(self.a2_r1)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T770_without_argv(self):
         try:

@@ -3,7 +3,7 @@ import pytest
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances, start_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances, terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH
@@ -45,7 +45,7 @@ def check_gpu_instance(osc_sdk, inst_id, ip_address, key_path, user_name, logger
 
 @pytest.mark.region_admin
 @pytest.mark.region_gpu
-class FgpuLifeCycle(OscTestSuite):
+class FgpuLifeCycle(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -77,7 +77,7 @@ class FgpuLifeCycle(OscTestSuite):
             super(FgpuLifeCycle, cls).teardown_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         self.inst_info = None
         self.vm_id = None
         self.fgpu_id = None
@@ -96,7 +96,7 @@ class FgpuLifeCycle(OscTestSuite):
                     self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=self.fgpu_id)
                 wait_flexible_gpu_state(self.a1_r1, [self.fgpu_id], cleanup=True)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def check_gpu_instance(self, total_gpu, vcores, memory_ram):
         check_gpu_instance(self.a1_r1,

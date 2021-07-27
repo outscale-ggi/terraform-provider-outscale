@@ -2,10 +2,11 @@
 import base64
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, info_keys, wait
 
-class Test_auto_attach(OscTestSuite):
+class Test_auto_attach(OscTinaTest):
 
     def test_T5763_auto_attach(self):
         public_ip = None

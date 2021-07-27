@@ -5,11 +5,11 @@ from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.account_tools import delete_account, create_account
 from qa_test_tools.config import OscConfig
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
 
 
-class ApiAccessRule(OscTestSuite):
+class ApiAccessRule(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -1,8 +1,8 @@
 from qa_sdk_pub import osc_api
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ReadPublicCatalog(OscTestSuite):
+class Test_ReadPublicCatalog(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -2,7 +2,7 @@
 from qa_tools.tools.test_base import OscTestSuite
 
 
-class Test_find_record(OscTestSuite):
+class Test_find_record(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

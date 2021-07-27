@@ -3,7 +3,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -11,7 +11,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
 
 
 @pytest.mark.region_gpu
-class Test_ReadFlexibleGpus(OscTestSuite):
+class Test_ReadFlexibleGpus(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -1,10 +1,10 @@
 
 import pytest
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 @pytest.mark.region_admin
-class Test_create_shard(OscTestSuite):
+class Test_create_shard(OscTinaTest):
 
     def test_T5580_valid_params(self):
         if self.a1_r1.config.region.name != "in-west-1":

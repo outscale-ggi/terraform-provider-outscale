@@ -2,10 +2,10 @@ import os
 
 from qa_sdk_pub import osc_api
 from qa_test_tools.compare_objects import verify_response
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ReadApiAccessPolicy(OscTestSuite):
+class Test_ReadApiAccessPolicy(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

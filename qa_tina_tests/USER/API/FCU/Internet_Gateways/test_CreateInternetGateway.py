@@ -1,7 +1,7 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_CreateInternetGateway(OscTestSuite):
+class Test_CreateInternetGateway(OscTinaTest):
 
     def test_T3918_without_params(self):
         igw_id = None
