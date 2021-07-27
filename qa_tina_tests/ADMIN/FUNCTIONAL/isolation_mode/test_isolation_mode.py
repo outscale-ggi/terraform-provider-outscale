@@ -1,7 +1,7 @@
 from time import sleep
 
-from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as cfg_constants
 from qa_test_tools.config.configuration import Configuration
 from qa_tina_tools.test_base import OscTinaTest
