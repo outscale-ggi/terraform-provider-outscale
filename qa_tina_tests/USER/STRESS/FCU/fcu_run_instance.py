@@ -9,6 +9,7 @@ from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
+from qa_tina_tools.tools.tina import create_tools
 
 
 setattr(ssl, '_create_default_https_context', getattr(ssl, '_create_unverified_context'))
@@ -22,7 +23,7 @@ DEFAULT_TYPE = 't2.nano'
 def create_vm(osc_sdk, queue, token):
     result = {}
     disable_throttling()
-    ret = osc_sdk.fcu.RunInstances(ImageId=osc_sdk.config.region.get_info(constants.CENTOS_LATEST),
+    ret = create_tools.run_instances(osc_sdk, ImageId=osc_sdk.config.region.get_info(constants.CENTOS_LATEST),
                                    InstanceType='t2.nano', MaxCount=1, MinCount=1,
                                    ClientToken=token)
 

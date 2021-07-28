@@ -7,8 +7,7 @@ import pytest
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_tina_tools.test_base import OscTinaTest
-from qa_tina_tools.tools.tina.delete_tools import terminate_instances
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_tina_tools.tools.tina import create_tools, delete_tools, wait_tools
 
 
 def evaluate_server(server):
@@ -54,17 +53,17 @@ class Test_min_max_behavior(OscTinaTest):
             inst_ids = None
             try:
                 core_per_inst = int(kvm_selected.available_core//10)
-                ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount=20,
+                ret = create_tools.run_instances(self.a1_r1, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount=20,
                                                   MinCount=5,
                                                   InstanceType='tinav1.c{}r1'.format(core_per_inst),
                                                   UserData=userdata)
                 inst_ids = [inst.instanceId for inst in ret.response.instancesSet]
                 # assert len(inst_ids) == int(kvm_selected.available_core / core_per_inst)
-                wait_instances_state(self.a1_r1, inst_ids, state='running')
+                wait_tools.wait_instances_state(self.a1_r1, inst_ids, state='running')
                 ret = self.a1_r1.intel.instance.find(owner=self.a1_r1.config.account.account_id, state='running')
                 server_names = [inst.servers[0].server for inst in ret.response.result]
                 kvms = set(server_names)
                 assert len(kvms) == 1 and kvms.pop() == kvm_selected.name
             finally:
                 if inst_ids:
-                    terminate_instances(self.a1_r1, inst_ids)
+                    delete_tools.terminate_instances(self.a1_r1, inst_ids)

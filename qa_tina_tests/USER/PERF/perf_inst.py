@@ -14,6 +14,7 @@ from qa_test_tools.config.configuration import Configuration
 from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_keypairs_state, wait_security_groups_state
+from qa_tina_tools.tools.tina import create_tools
 from qa_tina_tests.USER.PERF.perf_common import log_error
 
 
@@ -101,7 +102,7 @@ def perf_inst_exec(oscsdk, logger, queue, args, opsys):
         logger.debug("Run instances")
         try:
             start_run_inst_time = datetime.now()
-            ret = oscsdk.fcu.RunInstances(ImageId=omi, MinCount=3, MaxCount=3, InstanceType=inst_type,
+            ret = create_tools.run_instances(oscsdk, ImageId=omi, MinCount=3, MaxCount=3, InstanceType=inst_type,
                                           KeyName=kp_info[NAME], SecurityGroup=[sg])
             run_inst_time = (datetime.now() - start_run_inst_time).total_seconds()
             result['inst_create'] = run_inst_time

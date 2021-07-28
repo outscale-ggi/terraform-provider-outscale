@@ -9,10 +9,7 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
-from qa_tina_tools.tools.tina.create_tools import create_keypair
-from qa_tina_tools.tools.tina.delete_tools import delete_keypair
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_tina_tools.tools.tina import info_keys
+from qa_tina_tools.tools.tina import info_keys, create_tools, delete_tools, wait_tools
 from qa_tina_tools.tina import check_tools
 
 
@@ -59,10 +56,10 @@ class Test_ConsoleThrottling(OscTinaTest):
             cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupName=cls.sg_name, IpProtocol='tcp', FromPort=22, ToPort=22, CidrIp=ip_ingress)
 
             # create keypair
-            cls.kp_info = create_keypair(cls.a1_r1)
+            cls.kp_info = create_tools.create_keypair(cls.a1_r1)
 
             # run instance
-            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info('centos7'), MaxCount='1',
+            inst = create_tools.run_instances(cls.a1_r1, ImageId=cls.a1_r1.config.region.get_info('centos7'), MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=sg_id, KeyName=cls.kp_info[info_keys.NAME],
                                               InstanceType=instance_type)
@@ -71,7 +68,7 @@ class Test_ConsoleThrottling(OscTinaTest):
             cls.inst_id = inst.response.instancesSet[0].instanceId
 
             # wait instance to become ready
-            wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst_id], state='ready', threshold=60, wait_time=5)
+            wait_tools.wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst_id], state='ready', threshold=60, wait_time=5)
 
             # get public IP
             describe_res = cls.a1_r1.fcu.DescribeInstances(Filter=[{'Name': 'instance-id', 'Value': [cls.inst_id]}])
@@ -92,13 +89,13 @@ class Test_ConsoleThrottling(OscTinaTest):
             cls.a1_r1.fcu.TerminateInstances(InstanceId=[cls.inst_id])
 
             # replace by wait function
-            wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst_id], state='terminated')
+            wait_tools.wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst_id], state='terminated')
 
             cls.a1_r1.fcu.DeleteKeyPair(KeyName=cls.kp_info[info_keys.NAME])
 
             cls.a1_r1.fcu.DeleteSecurityGroup(GroupName=cls.sg_name)
 
-            delete_keypair(cls.a1_r1, cls.kp_info)
+            delete_tools.delete_keypair(cls.a1_r1, cls.kp_info)
 
         finally:
             super(Test_ConsoleThrottling, cls).teardown_class()
