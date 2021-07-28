@@ -165,12 +165,6 @@ class Test_create_using_instance(OscTinaTest):
 
             delete_keypair(cls.a1_r1, cls.kp_info)
 
-            ret = cls.a1_r1.fcu.DescribeVolumes()
-            if ret.response.volumeSet and len(ret.response.volumeSet) > 1:
-                for vol in ret.response.volumeSet:
-                    cls.a1_r1.fcu.DeleteVolume(VolumeId=vol.volumeId)
-                known_error('OPS-14000', 'Disk(s) are still available')
-
         finally:
             super(Test_create_using_instance, cls).teardown_class()
 
