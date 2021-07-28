@@ -7,7 +7,6 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools import user_data_windows
 from qa_tina_tools.tina.check_tools import check_data_from_console, check_winrm_access
