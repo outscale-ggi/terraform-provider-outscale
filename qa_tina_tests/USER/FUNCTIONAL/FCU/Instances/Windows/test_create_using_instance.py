@@ -7,7 +7,6 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools import user_data_windows
 from qa_tina_tools.tina.check_tools import check_data_from_console, check_winrm_access
@@ -164,12 +163,6 @@ class Test_create_using_instance(OscTinaTest):
             cls.a1_r1.fcu.ReleaseAddress(PublicIp=cls.eip.response.publicIp)
 
             delete_keypair(cls.a1_r1, cls.kp_info)
-
-            ret = cls.a1_r1.fcu.DescribeVolumes()
-            if ret.response.volumeSet and len(ret.response.volumeSet) > 1:
-                for vol in ret.response.volumeSet:
-                    cls.a1_r1.fcu.DeleteVolume(VolumeId=vol.volumeId)
-                known_error('OPS-14000', 'Disk(s) are still available')
 
         finally:
             super(Test_create_using_instance, cls).teardown_class()
