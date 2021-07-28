@@ -4,9 +4,8 @@ from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.setup_tools import setup_private_load_balancer, setup_public_load_balancer
-from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
-from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_lbu
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_tina_tools.tools.tina import cleanup_tools, delete_tools, wait_tools,\
+    create_tools
 
 
 class Test_RegisterVmsInLoadBalancer(OscTinaTest):
@@ -20,8 +19,7 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
         cls.inst_ids2 = None
         cls.vpc_id = None
         try:
-            cls.inst_ids, _ = setup_public_load_balancer(cls.a1_r1, cls.lbu_name, [cls.a1_r1.config.region.az_name],
-                                                         register=False)
+            cls.inst_ids, _ = setup_public_load_balancer(cls.a1_r1, cls.lbu_name, [cls.a1_r1.config.region.az_name], register=False)
             cls.vpc_id, _, cls.igw_id, cls.inst_ids2, _ = setup_private_load_balancer(cls.a1_r1, cls.lbu_name2,
                                                                                       availability_zone=cls.a1_r1.config.region.az_name,
                                                                                       register=False)
@@ -34,17 +32,17 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
     @classmethod
     def teardown_class(cls):
         try:
-            delete_lbu(cls.a1_r1, cls.lbu_name)
-            delete_lbu(cls.a1_r1, cls.lbu_name2)
+            delete_tools.delete_lbu(cls.a1_r1, cls.lbu_name)
+            delete_tools.delete_lbu(cls.a1_r1, cls.lbu_name2)
             if cls.inst_ids:
-                delete_instances_old(cls.a1_r1, cls.inst_ids)
+                delete_tools.delete_instances_old(cls.a1_r1, cls.inst_ids)
             if cls.inst_ids2:
-                delete_instances_old(cls.a1_r1, cls.inst_ids2)
+                delete_tools.delete_instances_old(cls.a1_r1, cls.inst_ids2)
             if cls.igw_id:
                 cls.a1_r1.fcu.DetachInternetGateway(InternetGatewayId=cls.igw_id, VpcId=cls.vpc_id)
                 cls.a1_r1.fcu.DeleteInternetGateway(InternetGatewayId=cls.igw_id)
             if cls.vpc_id:
-                cleanup_vpcs(cls.a1_r1, vpc_id_list=[cls.vpc_id], force=True)
+                cleanup_tools.cleanup_vpcs(cls.a1_r1, vpc_id_list=[cls.vpc_id], force=True)
         finally:
             super(Test_RegisterVmsInLoadBalancer, cls).teardown_class()
 
@@ -122,25 +120,25 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
             assert_oapi_error(error, 400, 'InvalidResource', '5030')
 
     def test_T2789_with_stopped_vm(self):
-        ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+        ret = create_tools.run_instances(self.a1_r1, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                           MinCount=1, MaxCount=1)
         instance_stopped = ret.response.instancesSet[0].instanceId
-        wait_instances_state(self.a1_r1, [instance_stopped], state='running')
+        wait_tools.wait_instances_state(self.a1_r1, [instance_stopped], state='running')
         self.a1_r1.fcu.StopInstances(InstanceId=[instance_stopped], Force=True)
-        wait_instances_state(self.a1_r1, [instance_stopped], state='stopped')
+        wait_tools.wait_instances_state(self.a1_r1, [instance_stopped], state='stopped')
         self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name, BackendVmIds=[instance_stopped])
         self.a1_r1.oapi.DeregisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name, BackendVmIds=[instance_stopped])
         self.a1_r1.fcu.TerminateInstances(InstanceId=[instance_stopped])
-        wait_instances_state(self.a1_r1, [instance_stopped], state='terminated')
+        wait_tools.wait_instances_state(self.a1_r1, [instance_stopped], state='terminated')
 
     def test_T2790_with_terminated_vm(self):
         try:
-            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MinCount=1, MaxCount=1)
+            ret = create_tools.run_instances(self.a1_r1, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MinCount=1, MaxCount=1)
             instance_terminated = ret.response.instancesSet[0].instanceId
-            wait_instances_state(self.a1_r1, [instance_terminated], state='running')
+            wait_tools.wait_instances_state(self.a1_r1, [instance_terminated], state='running')
             self.a1_r1.fcu.StopInstances(InstanceId=[instance_terminated], Force=True)
             self.a1_r1.fcu.TerminateInstances(InstanceId=[instance_terminated])
-            wait_instances_state(self.a1_r1, [instance_terminated], state='terminated')
+            wait_tools.wait_instances_state(self.a1_r1, [instance_terminated], state='terminated')
             self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name,
                                                       BackendVmIds=[instance_terminated])
             assert False, "call should not have been successful, instance is terminated"

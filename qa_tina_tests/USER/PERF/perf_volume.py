@@ -5,6 +5,7 @@ from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state, wait_keypairs_state
 from qa_tina_tests.USER.PERF.perf_common import log_error
+from qa_tina_tools.tools.tina import create_tools
 
 
 VOL_DEVICE = "/dev/xvdd"
@@ -78,7 +79,7 @@ def perf_volume(oscsdk, logger, queue, args):
 
         logger.debug("Run instance")
         try:
-            inst = oscsdk.fcu.RunInstances(ImageId=omi, MinCount=1, MaxCount=1, InstanceType=inst_type,
+            inst = create_tools.run_instances(oscsdk, ImageId=omi, MinCount=1, MaxCount=1, InstanceType=inst_type,
                                            KeyName=kp_name).response.instancesSet[0].instanceId
             wait_instances_state(oscsdk, [inst], state='ready')
             oscsdk.fcu.CreateTags(ResourceId=inst, Tag=[{'Key': 'Name', 'Value': inst_name}])

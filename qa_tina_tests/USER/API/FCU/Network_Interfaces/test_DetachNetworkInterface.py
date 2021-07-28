@@ -9,6 +9,7 @@ from qa_test_tools.misc import assert_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.delete_tools import delete_subnet, detach_network_interface
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state
+from qa_tina_tools.tools.tina import create_tools
 
 
 class Test_DetachNetworkInterface(OscTinaTest):
@@ -31,7 +32,7 @@ class Test_DetachNetworkInterface(OscTinaTest):
             ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_1_0_24'), VpcId=cls.vpc_id)
             cls.subnet1_id = ret.response.subnet.subnetId
             # run instance
-            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount='1', MinCount='1',
+            inst = create_tools.run_instances(cls.a1_r1, ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount='1', MinCount='1',
                                               InstanceType=instance_type, SubnetId=cls.subnet1_id)
             # get instance ID
             cls.inst_id = inst.response.instancesSet[0].instanceId

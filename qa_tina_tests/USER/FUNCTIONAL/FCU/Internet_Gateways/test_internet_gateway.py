@@ -9,9 +9,7 @@ from qa_test_tools.config.region import Feature
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tina.info_keys import NAME, PATH
-from qa_tina_tools.tools.tina.create_tools import create_keypair
-from qa_tina_tools.tools.tina.delete_tools import delete_keypair, delete_subnet
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from qa_tina_tools.tools.tina import create_tools, delete_tools, wait_tools
 
 
 class Test_internet_gateway(OscTinaTest):
@@ -45,7 +43,7 @@ class Test_internet_gateway(OscTinaTest):
             ret = cls.a1_r1.fcu.DescribeAddresses(PublicIp=[cls.eip.response.publicIp])
             cls.eip_allo_id = ret.response.addressesSet[0].allocationId
             # create keypair
-            cls.kp_info = create_keypair(cls.a1_r1)
+            cls.kp_info = create_tools.create_keypair(cls.a1_r1)
             # create VPC
             vpc = cls.a1_r1.fcu.CreateVpc(CidrBlock=Configuration.get('vpc', '10_0_0_0_16'))
             cls.vpc_id = vpc.response.vpc.vpcId
@@ -63,13 +61,13 @@ class Test_internet_gateway(OscTinaTest):
             ret = cls.a1_r1.fcu.AssociateRouteTable(RouteTableId=cls.rtb1, SubnetId=cls.subnet1_id)
             cls.rt_asso1_id = ret.response.associationId
             # run instance
-            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount='1',
+            inst = create_tools.run_instances(cls.a1_r1, ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[NAME],
                                               InstanceType=instance_type, SubnetId=cls.subnet1_id)
             cls.inst1_id = inst.response.instancesSet[0].instanceId
             # wait instance to become ready
-            wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst1_id], state='ready')
+            wait_tools.wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst1_id], state='ready')
             # create internetgateway
             ret = cls.a1_r1.fcu.CreateInternetGateway()
             cls.igw_id = ret.response.internetGateway.internetGatewayId
@@ -86,9 +84,9 @@ class Test_internet_gateway(OscTinaTest):
                 # terminate the instance
                 cls.a1_r1.fcu.TerminateInstances(InstanceId=[cls.inst1_id])
                 # replace by wait function
-                wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst1_id], state='terminated')
+                wait_tools.wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst1_id], state='terminated')
             if cls.subnet1_id:
-                delete_subnet(cls.a1_r1, cls.subnet1_id)
+                delete_tools.delete_subnet(cls.a1_r1, cls.subnet1_id)
             if cls.igw_id:
                 cls.a1_r1.fcu.DetachInternetGateway(InternetGatewayId=cls.igw_id, VpcId=cls.vpc_id)
                 cls.a1_r1.fcu.DeleteInternetGateway(InternetGatewayId=cls.igw_id)
@@ -99,7 +97,7 @@ class Test_internet_gateway(OscTinaTest):
             if cls.vpc_id:
                 cls.a1_r1.fcu.DeleteVpc(VpcId=cls.vpc_id)
             if cls.kp_info:
-                delete_keypair(cls.a1_r1, cls.kp_info)
+                delete_tools.delete_keypair(cls.a1_r1, cls.kp_info)
             if cls.eip:
                 cls.a1_r1.fcu.ReleaseAddress(PublicIp=cls.eip.response.publicIp)
         finally:
