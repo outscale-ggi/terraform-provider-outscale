@@ -8,8 +8,8 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_security_groups_state, wait_keypairs_state, wait_instances_state
-from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tools.tina import create_tools
+from qa_tina_tests.USER.PERF.perf_common import log_error
 
 
 MAX_WAIT_TIME = 240
@@ -99,7 +99,8 @@ def perf_sg(oscsdk, logger, queue, args):
 
         logger.debug("Run instance")
         try:
-            ret = create_tools.run_instances(oscsdk, ImageId=omi, MinCount=1, MaxCount=1, InstanceType=inst_type, SecurityGroup=[sec_group], KeyName=kp_name)
+            ret = create_tools.run_instances(oscsdk, ImageId=omi, MinCount=1, MaxCount=1, InstanceType=inst_type,
+                                             SecurityGroup=[sec_group], KeyName=kp_name)
             inst = ret.response.instancesSet[0]
             wait_instances_state(oscsdk, [inst.instanceId], state='ready')
             oscsdk.fcu.CreateTags(ResourceId=inst.instanceId, Tag=[{'Key': 'Name', 'Value': inst_name}])

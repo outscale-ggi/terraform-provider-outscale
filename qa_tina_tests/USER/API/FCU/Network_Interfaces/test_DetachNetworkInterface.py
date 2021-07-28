@@ -32,8 +32,8 @@ class Test_DetachNetworkInterface(OscTinaTest):
             ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_1_0_24'), VpcId=cls.vpc_id)
             cls.subnet1_id = ret.response.subnet.subnetId
             # run instance
-            inst = create_tools.run_instances(cls.a1_r1, ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount='1', MinCount='1',
-                                              InstanceType=instance_type, SubnetId=cls.subnet1_id)
+            inst = create_tools.run_instances(cls.a1_r1, ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              MaxCount='1', MinCount='1', InstanceType=instance_type, SubnetId=cls.subnet1_id)
             # get instance ID
             cls.inst_id = inst.response.instancesSet[0].instanceId
             # wait instance to become ready

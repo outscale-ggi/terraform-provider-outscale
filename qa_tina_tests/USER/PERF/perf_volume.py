@@ -4,8 +4,8 @@ from threading import current_thread
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state, wait_keypairs_state
-from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tools.tina import create_tools
+from qa_tina_tests.USER.PERF.perf_common import log_error
 
 
 VOL_DEVICE = "/dev/xvdd"

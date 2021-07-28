@@ -14,8 +14,8 @@ from qa_test_tools.config.configuration import Configuration
 from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_keypairs_state, wait_security_groups_state
-from qa_tina_tests.USER.PERF.perf_common import log_error
 from qa_tina_tools.tools.tina import create_tools
+from qa_tina_tests.USER.PERF.perf_common import log_error
 
 
 def perf_inst(oscsdk, logger, queue, args):
