@@ -8,9 +8,11 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
+from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_instances, create_vpc
+from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_instances, delete_vpc, \
+    terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_tina_tools.tools.tina import create_tools, delete_tools
 
 
 class Test_RunInstances(OscTinaTest):
@@ -29,7 +31,7 @@ class Test_RunInstances(OscTinaTest):
         if value and not value_to_check:
             value_to_check = value
         try:
-            _, inst_id_list = create_tools.create_instances_old(self.a1_r1, iisb=value, state='running')
+            _, inst_id_list = create_instances_old(self.a1_r1, iisb=value, state='running')
             inst_id = inst_id_list[0]
             ret = self.a1_r1.fcu.DescribeInstanceAttribute(Attribute='instanceInitiatedShutdownBehavior', InstanceId=inst_id)
             assert ret.response.instanceInitiatedShutdownBehavior.value == value_to_check
@@ -82,25 +84,24 @@ class Test_RunInstances(OscTinaTest):
         userdata = """-----BEGIN OUTSCALE SECTION-----
 private_only=true
 -----END OUTSCALE SECTION-----"""
-        ret, inst_id_list = create_tools.create_instances_old(self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'),
-                                                              state='running')
+        ret, inst_id_list = create_instances_old(self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'), state='running')
         assert not hasattr(ret.response.reservationSet[0].instancesSet[0], 'ipAddress')
-        delete_tools.delete_instances_old(self.a1_r1, inst_id_list)
+        delete_instances_old(self.a1_r1, inst_id_list)
 
     def test_T2150_with_ephemeral_and_unsupported_instance_type(self):
-        inst_info = create_tools.create_instances(osc_sdk=self.a1_r1, inst_type='t2.small', nb_ephemeral=1)
+        inst_info = create_instances(osc_sdk=self.a1_r1, inst_type='t2.small', nb_ephemeral=1)
         assert len(inst_info[INSTANCE_SET][0]['blockDeviceMapping']) == 1  # no ephemeral created, just a bootdisk
-        delete_tools.delete_instances(self.a1_r1, inst_info)
+        delete_instances(self.a1_r1, inst_info)
 
     def test_T2277_with_incorrect_iops_in_bdm(self):
         ret = None
         try:
-            ret = create_tools.run_instances(self.a1_r1, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
-                                             MinCount=1, MaxCount=1, BlockDeviceMapping=[{'DeviceName': '/dev/xvdb',
-                                                                                          'Ebs': {'VolumeSize': 600,
-                                                                                                  'VolumeType': 'io1',
-                                                                                                  'DeleteOnTermination': True,
-                                                                                                  'Iops': 20000}}])
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MinCount=1, MaxCount=1,
+                                              BlockDeviceMapping=[{'DeviceName': '/dev/xvdb',
+                                                                   'Ebs': {'VolumeSize': 600,
+                                                                           'VolumeType': 'io1',
+                                                                           'DeleteOnTermination': True,
+                                                                           'Iops': 20000}}])
         except OscApiException as err:
             assert_error(err, 400, 'InvalidParameterValue', 'Invalid IOPS: 20000 Min: 100 Max: 13000')
         finally:
@@ -111,12 +112,12 @@ private_only=true
     def test_T3013_with_insufficient_capacity(self):
         inst_info = None
         try:
-            inst_info = create_tools.create_instances(self.a1_r1, inst_type='g3.8xlarge')
+            inst_info = create_instances(self.a1_r1, inst_type='g3.8xlarge')
         except OscApiException as err:
             assert_error(err, 400, 'GpuLimitExceeded', 'The limit has exceeded: 0. Resource: g3.8xlarge.')
         finally:
             if inst_info:
-                delete_tools.delete_instances(self.a1_r1, inst_info)
+                delete_instances(self.a1_r1, inst_info)
 
     @pytest.mark.region_admin
     @pytest.mark.region_gpu
@@ -129,12 +130,12 @@ private_only=true
             max_quota_value = ret.response.result.used.osc_global[0].max_quota_value
             for quota in quotas:
                 self.a1_r1.intel.user.update(username=self.a1_r1.config.account.account_id, fields={quota: quotas[quota]})
-            inst_info = create_tools.create_instances(self.a1_r1, inst_type='g3.8xlarge')
+            inst_info = create_instances(self.a1_r1, inst_type='g3.8xlarge')
         except OscApiException as err:
             assert_error(err, 500, 'InsufficientInstanceCapacity', 'Insufficient Capacity')
         finally:
             if inst_info:
-                delete_tools.delete_instances(self.a1_r1, inst_info)
+                delete_instances(self.a1_r1, inst_info)
             if max_quota_value:
                 quotas = {'gpu_limit': max_quota_value}
                 for quota in quotas:
@@ -143,36 +144,36 @@ private_only=true
     def test_T3048_with_invalid_private_address(self):
         vpc_info = None
         try:
-            vpc_info = create_tools.create_vpc(self.a1_r1, igw=False)
-            ret = create_tools.run_instances(self.a1_r1, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
-                                             MaxCount=1, MinCount=1, cidr_prefix="10.0", PrivateIpAddress='21.22.23.24')
+            vpc_info = create_vpc(self.a1_r1, igw=False)
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount=1, MinCount=1,
+                                              cidr_prefix="10.0", PrivateIpAddress='21.22.23.24')
             instance_ids = [inst.instanceId for inst in ret.response.instancesSet]
-            delete_tools.terminate_instances(self.a1_r1, instance_ids)
+            terminate_instances(self.a1_r1, instance_ids)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterCombination',
                          'Specifying an IP address is only valid for VPC instances and thus requires a subnet in which to launch')
         finally:
             if vpc_info:
-                delete_tools.delete_vpc(self.a1_r1, vpc_info)
+                delete_vpc(self.a1_r1, vpc_info)
 
     def test_T5029_with_the_same_token(self):
         token = str(uuid.uuid4())
-        ret = create_tools.run_instances(self.a1_r1, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
-                                        InstanceType='t2.nano', MaxCount=1, MinCount=1, ClientToken=token)
-        ret1 = create_tools.run_instances(self.a1_r1, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+        ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                           InstanceType='t2.nano', MaxCount=1, MinCount=1, ClientToken=token)
+        ret1 = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                           InstanceType='t2.nano', MaxCount=1, MinCount=1, ClientToken=token)
 
         responses_describe = self.a1_r1.fcu.DescribeInstances(InstanceId=[ret.response.instancesSet[0].instanceId,
                                                                           ret1.response.instancesSet[0].instanceId])
         assert len(responses_describe.response.reservationSet) == 1
-        delete_tools.terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+        terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
 
     def test_T5031_with_invalid_type_token(self):
         try:
             token = ['151475']
-            create_tools.run_instances(self.a1_r1, ClientToken=token, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
-                                       MaxCount=1, MinCount=1)
+            self.a1_r1.fcu.RunInstances(ClientToken=token, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                        MaxCount=1, MinCount=1)
             assert False, 'Cal should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterType', "Value of parameter \'Token\' must be of type: str. Received: {\'1\': \'151475\'}")

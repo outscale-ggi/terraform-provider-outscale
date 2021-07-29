@@ -10,7 +10,9 @@ from qa_test_tools.config.region import Feature
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina import info_keys
-from qa_tina_tools.tools.tina import create_tools, delete_tools, wait_tools
+from qa_tina_tools.tools.tina.create_tools import create_keypair
+from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_keypair, delete_subnet
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
 RETRY = 5
@@ -69,7 +71,7 @@ class Test_NAT_gateway(OscTinaTest):
             cls.eip2_allo_id = ret.response.addressesSet[0].allocationId
 
             # create keypair
-            cls.kp_info = create_tools.create_keypair(cls.a1_r1)
+            cls.kp_info = create_keypair(cls.a1_r1)
 
             # create VPC
             vpc = cls.a1_r1.fcu.CreateVpc(CidrBlock=Configuration.get('vpc', '10_0_0_0_16'))
@@ -116,7 +118,7 @@ class Test_NAT_gateway(OscTinaTest):
             cls.a1_r1.fcu.CreateRoute(DestinationCidrBlock=cls.all_ips, GatewayId=cls.igw_id, RouteTableId=cls.rtb1)
 
             # run instance
-            inst = create_tools.run_instances(cls.a1_r1, ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount='1',
+            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[info_keys.NAME],
                                               InstanceType=instance_type, SubnetId=cls.subnet1_id)
@@ -125,7 +127,7 @@ class Test_NAT_gateway(OscTinaTest):
             cls.inst1_local_addr = inst.response.instancesSet[0].privateIpAddress
 
             # run instance
-            inst = create_tools.run_instances(cls.a1_r1, ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount='1',
+            inst = cls.a1_r1.fcu.RunInstances(ImageId=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST), MaxCount='1',
                                               MinCount='1',
                                               SecurityGroupId=cls.sg_id, KeyName=cls.kp_info[info_keys.NAME],
                                               InstanceType=instance_type, SubnetId=cls.subnet2_id)
@@ -134,7 +136,7 @@ class Test_NAT_gateway(OscTinaTest):
             cls.inst2_local_addr = inst.response.instancesSet[0].privateIpAddress
 
             # wait instance to become ready
-            wait_tools.wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst1_id, cls.inst2_id], state='ready')
+            wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst1_id, cls.inst2_id], state='ready')
 
         except Exception as error:
             try:
@@ -148,15 +150,15 @@ class Test_NAT_gateway(OscTinaTest):
         try:
 
             if cls.inst1_id:
-                delete_tools.delete_instances_old(cls.a1_r1, [cls.inst1_id])
+                delete_instances_old(cls.a1_r1, [cls.inst1_id])
             if cls.inst2_id:
-                delete_tools.delete_instances_old(cls.a1_r1, [cls.inst2_id])
+                delete_instances_old(cls.a1_r1, [cls.inst2_id])
 
             if cls.subnet1_id:
-                delete_tools.delete_subnet(cls.a1_r1, cls.subnet1_id)
+                delete_subnet(cls.a1_r1, cls.subnet1_id)
 
             if cls.subnet2_id:
-                delete_tools.delete_subnet(cls.a1_r1, cls.subnet2_id)
+                delete_subnet(cls.a1_r1, cls.subnet2_id)
 
             if cls.igw_id and cls.vpc_id:
                 cls.a1_r1.fcu.DetachInternetGateway(InternetGatewayId=cls.igw_id, VpcId=cls.vpc_id)
@@ -177,7 +179,7 @@ class Test_NAT_gateway(OscTinaTest):
                 cls.a1_r1.fcu.DeleteVpc(VpcId=cls.vpc_id)
 
             if cls.kp_info:
-                delete_tools.delete_keypair(cls.a1_r1, cls.kp_info)
+                delete_keypair(cls.a1_r1, cls.kp_info)
 
             if cls.eip:
                 cls.a1_r1.fcu.ReleaseAddress(PublicIp=cls.eip.response.publicIp)

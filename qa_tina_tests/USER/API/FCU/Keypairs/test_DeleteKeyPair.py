@@ -5,7 +5,6 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from qa_tina_tools.tools.tina.create_tools import run_instances
 
 
 class Test_DeleteKeyPair(OscTinaTest):
@@ -17,7 +16,7 @@ class Test_DeleteKeyPair(OscTinaTest):
     def test_T937_with_used_keypair(self):
         self.a1_r1.fcu.CreateKeyPair(KeyName='key')
         img = self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
-        ret = run_instances(self.a1_r1, ImageId=img, KeyName='key', MinCount=1, MaxCount=1)
+        ret = self.a1_r1.fcu.RunInstances(ImageId=img, KeyName='key', MinCount=1, MaxCount=1)
         instanceid = ret.response.instancesSet[0].instanceId
         wait_instances_state(self.a1_r1, [instanceid], state='running', threshold=60, wait_time=5)
         ret = self.a1_r1.fcu.DeleteKeyPair(KeyName='key')

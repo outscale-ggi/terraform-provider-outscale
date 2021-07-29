@@ -3,7 +3,9 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator, assert_error
 from qa_tina_tools.test_base import OscTinaTest
-from qa_tina_tools.tools.tina import create_tools, delete_tools, wait_tools
+from qa_tina_tools.tools.tina.create_tools import create_load_balancer, create_vpc_old
+from qa_tina_tools.tools.tina.delete_tools import delete_subnet, delete_vpc_old, delete_instances_old, delete_lbu
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
 class Test_RegisterInstancesWithLoadBalancer(OscTinaTest):
@@ -25,32 +27,32 @@ class Test_RegisterInstancesWithLoadBalancer(OscTinaTest):
         cls.instance_id_vpc_2 = None
         try:
             cls.name = id_generator(prefix='lbu-')
-            create_tools.create_load_balancer(cls.a1_r1, cls.name, listeners=[{'InstancePort': 65535, 'Protocol': 'HTTP', 'LoadBalancerPort': 80}],
+            create_load_balancer(cls.a1_r1, cls.name, listeners=[{'InstancePort': 65535, 'Protocol': 'HTTP', 'LoadBalancerPort': 80}],
                                  availability_zones=[cls.a1_r1.config.region.az_name])
-            ret = create_tools.create_vpc_old(cls.a1_r1, Configuration.get('vpc', '10_0_0_0_16'))
+            ret = create_vpc_old(cls.a1_r1, Configuration.get('vpc', '10_0_0_0_16'))
             cls.vpc_id = ret.response.vpc.vpcId
             ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_1_0_24'), VpcId=cls.vpc_id)
             cls.subnet_id = ret.response.subnet.subnetId
             cls.name_2 = id_generator(prefix='lbu-')
-            create_tools.create_load_balancer(cls.a1_r1, cls.name_2, listeners=[{'InstancePort': '80', 'LoadBalancerPort': '80', 'Protocol': 'HTTP'}],
+            create_load_balancer(cls.a1_r1, cls.name_2, listeners=[{'InstancePort': '80', 'LoadBalancerPort': '80', 'Protocol': 'HTTP'}],
                                  scheme='internal', subnets=[cls.subnet_id])
             cls.omi = cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
-            ret = create_tools.create_vpc_old(cls.a1_r1, Configuration.get('vpc', '10_0_0_0_16'))
+            ret = create_vpc_old(cls.a1_r1, Configuration.get('vpc', '10_0_0_0_16'))
             cls.vpc_id_2 = ret.response.vpc.vpcId
             ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_1_0_24'), VpcId=cls.vpc_id_2)
             cls.subnet_id_2 = ret.response.subnet.subnetId
-            ret = create_tools.run_instances(cls.a1_r1, ImageId=cls.omi, MinCount=1, MaxCount=1, SubnetId=cls.subnet_id_2)
+            ret = cls.a1_r1.fcu.RunInstances(ImageId=cls.omi, MinCount=1, MaxCount=1, SubnetId=cls.subnet_id_2)
             cls.instance_id_vpc_2 = ret.response.instancesSet[0].instanceId
-            ret = create_tools.run_instances(cls.a1_r1, ImageId=cls.omi, MinCount=1, MaxCount=1, SubnetId=cls.subnet_id)
+            ret = cls.a1_r1.fcu.RunInstances(ImageId=cls.omi, MinCount=1, MaxCount=1, SubnetId=cls.subnet_id)
             cls.instance_id = ret.response.instancesSet[0].instanceId
-            ret = create_tools.run_instances(cls.a1_r1, ImageId=cls.omi, MinCount=1, MaxCount=1)
+            ret = cls.a1_r1.fcu.RunInstances(ImageId=cls.omi, MinCount=1, MaxCount=1)
             cls.inst_id_pub = ret.response.instancesSet[0].instanceId
-            ret = create_tools.run_instances(cls.a1_r1, ImageId=cls.omi, MinCount=1, MaxCount=1)
+            ret = cls.a1_r1.fcu.RunInstances(ImageId=cls.omi, MinCount=1, MaxCount=1)
             cls.inst_id_pub_2 = ret.response.instancesSet[0].instanceId
-            ret = create_tools.run_instances(cls.a2_r1, ImageId=cls.omi, MinCount=1, MaxCount=1)
+            ret = cls.a2_r1.fcu.RunInstances(ImageId=cls.omi, MinCount=1, MaxCount=1)
             cls.inst_id_acct_2 = ret.response.instancesSet[0].instanceId
-            wait_tools.wait_instances_state(cls.a1_r1, [cls.instance_id, cls.inst_id_pub, cls.inst_id_pub_2], state='running')
-            wait_tools.wait_instances_state(cls.a2_r1, [cls.inst_id_acct_2], state='running')
+            wait_instances_state(cls.a1_r1, [cls.instance_id, cls.inst_id_pub, cls.inst_id_pub_2], state='running')
+            wait_instances_state(cls.a2_r1, [cls.inst_id_acct_2], state='running')
         except Exception as error:
             cls.teardown_class()
             raise error
@@ -59,19 +61,19 @@ class Test_RegisterInstancesWithLoadBalancer(OscTinaTest):
     def teardown_class(cls):
         try:
             if cls.name:
-                delete_tools.delete_lbu(cls.a1_r1, cls.name)
+                delete_lbu(cls.a1_r1, cls.name)
             if cls.name_2:
-                delete_tools.delete_lbu(cls.a1_r1, cls.name_2)
-            delete_tools.delete_instances_old(cls.a2_r1, [cls.inst_id_acct_2])
-            delete_tools.delete_instances_old(cls.a1_r1, [cls.instance_id, cls.inst_id_pub, cls.inst_id_pub_2, cls.instance_id_vpc_2])
+                delete_lbu(cls.a1_r1, cls.name_2)
+            delete_instances_old(cls.a2_r1, [cls.inst_id_acct_2])
+            delete_instances_old(cls.a1_r1, [cls.instance_id, cls.inst_id_pub, cls.inst_id_pub_2, cls.instance_id_vpc_2])
             if cls.subnet_id:
-                delete_tools.delete_subnet(cls.a1_r1, cls.subnet_id)
+                delete_subnet(cls.a1_r1, cls.subnet_id)
             if cls.subnet_id_2:
-                delete_tools.delete_subnet(cls.a1_r1, cls.subnet_id_2)
+                delete_subnet(cls.a1_r1, cls.subnet_id_2)
             if cls.vpc_id:
-                delete_tools.delete_vpc_old(cls.a1_r1, cls.vpc_id)
+                delete_vpc_old(cls.a1_r1, cls.vpc_id)
             if cls.vpc_id_2:
-                delete_tools.delete_vpc_old(cls.a1_r1, cls.vpc_id_2)
+                delete_vpc_old(cls.a1_r1, cls.vpc_id_2)
         finally:
             super(Test_RegisterInstancesWithLoadBalancer, cls).teardown_class()
 
@@ -143,9 +145,9 @@ class Test_RegisterInstancesWithLoadBalancer(OscTinaTest):
     def test_T1299_with_deleted_lb(self):
         try:
             name = id_generator(prefix='lbu-')
-            create_tools.create_load_balancer(self.a1_r1, name, listeners=[{'InstancePort': 65535, 'Protocol': 'HTTP', 'LoadBalancerPort': 80}],
+            create_load_balancer(self.a1_r1, name, listeners=[{'InstancePort': 65535, 'Protocol': 'HTTP', 'LoadBalancerPort': 80}],
                                  availability_zones=[self.a1_r1.config.region.az_name])
-            delete_tools.delete_lbu(self.a1_r1, lbu_name=name)
+            delete_lbu(self.a1_r1, lbu_name=name)
             self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(Instances=[{'InstanceId': self.inst_id_pub}], LoadBalancerName=name)
             assert False, "call should not have been successful, must contain valid param LoadBalancerName"
         except OscApiException as err:
@@ -153,24 +155,24 @@ class Test_RegisterInstancesWithLoadBalancer(OscTinaTest):
             assert err.message == "There is no ACTIVE Load Balancer named '%s'" % name
 
     def test_T1288_with_stopped_instance(self):
-        ret = create_tools.run_instances(self.a1_r1, ImageId=self.omi, MinCount=1, MaxCount=1)
+        ret = self.a1_r1.fcu.RunInstances(ImageId=self.omi, MinCount=1, MaxCount=1)
         instance_stopped = ret.response.instancesSet[0].instanceId
-        wait_tools.wait_instances_state(self.a1_r1, [instance_stopped], state='running')
+        wait_instances_state(self.a1_r1, [instance_stopped], state='running')
         self.a1_r1.fcu.StopInstances(InstanceId=[instance_stopped], Force=True)
-        wait_tools.wait_instances_state(self.a1_r1, [instance_stopped], state='stopped')
+        wait_instances_state(self.a1_r1, [instance_stopped], state='stopped')
         self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=self.name, Instances=[{'InstanceId': instance_stopped}])
         self.a1_r1.lbu.DeregisterInstancesFromLoadBalancer(LoadBalancerName=self.name, Instances=[{'InstanceId': instance_stopped}])
         self.a1_r1.fcu.TerminateInstances(InstanceId=[instance_stopped])
-        wait_tools.wait_instances_state(self.a1_r1, [instance_stopped], state='terminated')
+        wait_instances_state(self.a1_r1, [instance_stopped], state='terminated')
 
     def test_T1287_with_terminated_instance(self):
         try:
-            ret = create_tools.run_instances(self.a1_r1, ImageId=self.omi, MinCount=1, MaxCount=1)
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.omi, MinCount=1, MaxCount=1)
             instance_terminated = ret.response.instancesSet[0].instanceId
-            wait_tools.wait_instances_state(self.a1_r1, [instance_terminated], state='running')
+            wait_instances_state(self.a1_r1, [instance_terminated], state='running')
             self.a1_r1.fcu.StopInstances(InstanceId=[instance_terminated], Force=True)
             self.a1_r1.fcu.TerminateInstances(InstanceId=[instance_terminated])
-            wait_tools.wait_instances_state(self.a1_r1, [instance_terminated], state='terminated')
+            wait_instances_state(self.a1_r1, [instance_terminated], state='terminated')
             self.a1_r1.lbu.RegisterInstancesWithLoadBalancer(LoadBalancerName=self.name, Instances=[{'InstanceId': instance_terminated}])
             assert False, "call should not have been successful, instance is terminated"
         except OscApiException as err:

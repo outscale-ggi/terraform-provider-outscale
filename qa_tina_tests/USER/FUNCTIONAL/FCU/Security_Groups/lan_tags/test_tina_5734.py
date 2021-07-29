@@ -6,7 +6,7 @@ from qa_test_tools.config import config_constants as cfg_constants
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
-from qa_tina_tools.tools.tina import info_keys, create_tools
+from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tina import check_tools
 
@@ -31,7 +31,7 @@ class Test_tina_5734(OscTinaTest):
             -----END OUTSCALE SECTION-----""".format(resp.result[0].servers[0].server)
 
             # run instance
-            inst = create_tools.run_instances(self.a1_r1, ImageId=self.a1_r1.config.region.get_info(cfg_constants.CENTOS_LATEST),
+            inst = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(cfg_constants.CENTOS_LATEST),
                                                InstanceType=self.a1_r1.config.region.get_info(cfg_constants.DEFAULT_INSTANCE_TYPE),
                                                MaxCount='1',
                                                MinCount='1',
