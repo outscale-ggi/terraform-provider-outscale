@@ -1,7 +1,6 @@
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
-from qa_tina_tools.tools.tina import create_tools
 
 
 class Test_create_read_check(OscTinaTest):
@@ -32,7 +31,7 @@ class Test_create_read_check(OscTinaTest):
         vmids = []
         try:
             for _ in range(10):
-                ret_inst = create_tools.run_instances(self.a1_r1, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                ret_inst = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                                        MinCount=1, MaxCount=1).response.instancesSet
                 vmids.extend([vm.instanceId for vm in ret_inst])
                 ret_read = self.a1_r1.fcu.DescribeInstances(InstanceId=vmids).response

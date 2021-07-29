@@ -11,7 +11,9 @@ from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools import user_data_windows
 from qa_tina_tools.tina.check_tools import check_data_from_console, check_winrm_access
 from qa_tina_tools.tina.info_keys import NAME, PATH
-from qa_tina_tools.tools.tina import create_tools, delete_tools, wait_tools
+from qa_tina_tools.tools.tina.create_tools import create_keypair
+from qa_tina_tools.tools.tina.delete_tools import delete_keypair, delete_subnet
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
 
 # import os
@@ -99,10 +101,10 @@ class Test_create_using_instance(OscTinaTest):
                 cls.a1_r1.fcu.AuthorizeSecurityGroupIngress(GroupId=sgid, IpProtocol='tcp', FromPort=5986, ToPort=5986, CidrIp=ip_ingress)
 
             # create keypair
-            cls.kp_info = create_tools.create_keypair(cls.a1_r1)
+            cls.kp_info = create_keypair(cls.a1_r1)
 
             # run instance
-            inst_1 = create_tools.run_instances(cls.a1_r1,
+            inst_1 = cls.a1_r1.fcu.RunInstances(
                 ImageId=cls.a1_r1.config.region.get_info('windows_omi'),
                 MaxCount='1',
                 MinCount='1',
@@ -112,7 +114,7 @@ class Test_create_using_instance(OscTinaTest):
                 UserData=user_data,
             )
 
-            inst_2 = create_tools.run_instances(cls.a1_r1,
+            inst_2 = cls.a1_r1.fcu.RunInstances(
                 ImageId=cls.a1_r1.config.region.get_info('windows_omi'),
                 MaxCount='1',
                 MinCount='1',
@@ -138,16 +140,14 @@ class Test_create_using_instance(OscTinaTest):
             # terminate the instance
             cls.a1_r1.fcu.StopInstances(InstanceId=[cls.inst_1_id, cls.inst_2_id], Force=True)
             # replace by wait function
-            wait_tools.wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst_1_id, cls.inst_2_id],
-                                            state='stopped', threshold=60, wait_time=10)
+            wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst_1_id, cls.inst_2_id], state='stopped', threshold=60, wait_time=10)
 
             # terminate the instance
             cls.a1_r1.fcu.TerminateInstances(InstanceId=[cls.inst_1_id, cls.inst_2_id])
             # replace by wait function
-            wait_tools.wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst_1_id, cls.inst_2_id],
-                                            state='terminated', threshold=60, wait_time=10)
+            wait_instances_state(osc_sdk=cls.a1_r1, instance_id_list=[cls.inst_1_id, cls.inst_2_id], state='terminated', threshold=60, wait_time=10)
 
-            delete_tools.delete_subnet(cls.a1_r1, cls.subnet1_id)
+            delete_subnet(cls.a1_r1, cls.subnet1_id)
 
             cls.a1_r1.fcu.DeleteRouteTable(RouteTableId=cls.rtb1)
 
@@ -162,7 +162,7 @@ class Test_create_using_instance(OscTinaTest):
 
             cls.a1_r1.fcu.ReleaseAddress(PublicIp=cls.eip.response.publicIp)
 
-            delete_tools.delete_keypair(cls.a1_r1, cls.kp_info)
+            delete_keypair(cls.a1_r1, cls.kp_info)
 
         finally:
             super(Test_create_using_instance, cls).teardown_class()
@@ -170,7 +170,7 @@ class Test_create_using_instance(OscTinaTest):
     @pytest.mark.tag_redwire
     def test_T65_create_using_public_instance(self):
 
-        wait_tools.wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_1_id], state='ready', threshold=150)
+        wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_1_id], state='ready', threshold=150)
 
         # get public IP
         time.sleep(5)  # this is needed to avoid request exceeded on prod
@@ -191,7 +191,7 @@ class Test_create_using_instance(OscTinaTest):
     @pytest.mark.tag_redwire
     def test_T122_create_using_private_instance_VPC(self):
 
-        wait_tools.wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_2_id], state='ready', threshold=150)
+        wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[self.inst_2_id], state='ready', threshold=150)
 
         self.a1_r1.fcu.AssociateAddress(AllocationId=self.eip_allo_id, InstanceId=self.inst_2_id)
         inst_2_pub_ip = self.eip.response.publicIp
