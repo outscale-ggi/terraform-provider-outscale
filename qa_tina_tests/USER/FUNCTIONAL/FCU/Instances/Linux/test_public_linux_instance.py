@@ -69,6 +69,8 @@ class Test_public_linux_instance(Test_linux_instance):
     @pytest.mark.tag_redwire
     @pytest.mark.region_gpu
     def test_T98_create_use_linux_GPU_instance(self):
+        if self.a1_r1.config.region.az_name == 'in-west-1b':
+            pytest.skip("No gpu server available on in-west-1b")
         instance_type=self.a1_r1.config.region.get_info(constants.DEFAULT_AWS_GPU_INSTANCE_TYPE)
         inst_id = None
         try:
@@ -95,6 +97,8 @@ class Test_public_linux_instance(Test_linux_instance):
     @pytest.mark.tag_redwire
     @pytest.mark.region_dedicated
     def test_T103_create_use_linux_dedicated_instance(self):
+        if self.a1_r1.config.region.az_name == 'in-west-1b':
+            pytest.skip("No dedicated server available on in-west-1b")
         if self.a1_r1.config.region.name == 'in-west-1':
             known_error('NO JIRA FOR NOW', 'Dedicated server is not available or not working')
         inst_id = None
@@ -191,6 +195,8 @@ class Test_public_linux_instance(Test_linux_instance):
     @pytest.mark.tag_redwire
     @pytest.mark.region_ephemeral
     def test_T123_create_instance_linux_ephemeral(self):
+        if self.a1_r1.config.region.az_name == 'in-west-1b':
+            pytest.skip("No ephemeral storage available on in-west-1b")
         inst_id = None
         device_name = '/dev/xvdc'
         # size = 128
