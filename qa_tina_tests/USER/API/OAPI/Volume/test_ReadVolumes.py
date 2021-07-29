@@ -22,7 +22,8 @@ class Test_ReadVolumes(OscTinaTest):
         try:
             cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(VolumeType='standard', Size=2, SubregionName=cls.azs[0]).response.Volume.VolumeId)
             cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(VolumeType='gp2', Size=2, SubregionName=cls.azs[0]).response.Volume.VolumeId)
-            cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(VolumeType='io1', Size=4, Iops=100, SubregionName=cls.azs[0]).response.Volume.VolumeId)
+            if cls.a1_r1.config.region.az_name != 'in-west-1b':
+                cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(VolumeType='io1', Size=4, Iops=100, SubregionName=cls.azs[0]).response.Volume.VolumeId)
             cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(Size=20, SubregionName=cls.azs[0]).response.Volume.VolumeId)
             wait_volumes_state(cls.a1_r1, cls.vol_ids, state='available')
             cls.snap_id = cls.a1_r1.oapi.CreateSnapshot(VolumeId=cls.vol_ids[0]).response.Snapshot.SnapshotId
@@ -58,7 +59,7 @@ class Test_ReadVolumes(OscTinaTest):
     def test_T2248_valid_params(self):
         ret = self.a1_r1.oapi.ReadVolumes()
         ret.check_response()
-        assert len(ret.response.Volumes) == 6
+        assert len(ret.response.Volumes) == len(self.vol_ids) + 1
         for volume in ret.response.Volumes:
             validate_volume_response(volume)
 
@@ -79,6 +80,8 @@ class Test_ReadVolumes(OscTinaTest):
             validate_volume_response(volume, vol_type='gp2')
 
     def test_T2970_filters_volume_type_io1(self):
+        if self.a1_r1.config.region.az_name == 'in-west-1b':
+            pytest.skip("In-west-1b does not support io1 storage")
         ret = self.a1_r1.oapi.ReadVolumes(Filters={'VolumeTypes': ['io1']}).response.Volumes
         assert len(ret) == 1
         for volume in ret:
@@ -136,7 +139,7 @@ class Test_ReadVolumes(OscTinaTest):
 
     def test_T2982_filters_subregion_name(self):
         ret = self.a1_r1.oapi.ReadVolumes(Filters={'SubregionNames': [self.azs[0]]}).response.Volumes
-        assert len(ret) == 6
+        assert len(ret) == len(self.vol_ids) + 1
 
     def test_T2983_filters_volume_state(self):
         ret = self.a1_r1.oapi.ReadVolumes(Filters={'VolumeStates': ['in-use']}).response.Volumes
