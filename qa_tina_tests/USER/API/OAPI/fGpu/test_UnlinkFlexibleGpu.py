@@ -2,7 +2,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
@@ -11,7 +11,7 @@ DEFAULT_MODEL_NAME = "nvidia-k2"
 
 
 @pytest.mark.region_gpu
-class Test_UnlinkFlexibleGpu(OscTestSuite):
+class Test_UnlinkFlexibleGpu(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -40,7 +40,7 @@ class Test_UnlinkFlexibleGpu(OscTestSuite):
 
     def setup_method(self, method):
         self.ret_link = None
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         try:
             self.ret_link = self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=self.fg_id, VmId=self.inst_info[INSTANCE_ID_LIST][0])
             wait_flexible_gpu_state(self.a1_r1, [self.fg_id], state='attaching')
@@ -53,7 +53,7 @@ class Test_UnlinkFlexibleGpu(OscTestSuite):
                 self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id)
                 self.ret_link = None
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T4208_missing_flexible_gpu_id(self):
         try:

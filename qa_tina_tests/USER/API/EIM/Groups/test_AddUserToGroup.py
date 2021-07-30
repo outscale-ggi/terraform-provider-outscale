@@ -2,10 +2,11 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_AddUserToGroup(OscTestSuite):
+class Test_AddUserToGroup(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -14,7 +15,7 @@ class Test_AddUserToGroup(OscTestSuite):
         cls.user = None
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         group_name = id_generator(prefix='group_name_')
         user_name = id_generator(prefix='user_name_')
         self.group = None
@@ -35,7 +36,7 @@ class Test_AddUserToGroup(OscTestSuite):
             if self.group:
                 self.a1_r1.eim.DeleteGroup(GroupName=self.group.GroupName)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T3948_add_user_to_group_with_required_params(self):
         ret_add = None

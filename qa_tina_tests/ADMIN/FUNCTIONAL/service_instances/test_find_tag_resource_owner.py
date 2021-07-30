@@ -1,14 +1,14 @@
 import time
 
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 
 
-class Test_find_tag_resource_owner(OscTestSuite):
+class Test_find_tag_resource_owner(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_find_tag_resource_owner, cls).setup_class()

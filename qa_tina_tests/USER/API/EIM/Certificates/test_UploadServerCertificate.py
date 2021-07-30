@@ -2,11 +2,12 @@ import os
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_self_signed_cert
 
 
-class Test_UploadServerCertificate(OscTestSuite):
+class Test_UploadServerCertificate(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

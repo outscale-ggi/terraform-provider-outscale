@@ -20,6 +20,8 @@ class Test_create_volume_io1(CreateVolume):
 
     @pytest.mark.tag_redwire
     def test_T68_create_volume_io1(self):
+        if self.a1_r1.config.region.az_name == 'in-west-1b':
+            pytest.skip("No io1 available on in-west-1b")
         self.create_volume(volume_type='io1', iops=100, volume_size=4)
 
     def test_T3158_check_iops_volume_io1(self):

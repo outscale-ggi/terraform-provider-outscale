@@ -1,13 +1,13 @@
 from datetime import datetime
 
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 NUM_USERS = 3
 
 
-class Test_ListUsers(OscTestSuite):
+class Test_ListUsers(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

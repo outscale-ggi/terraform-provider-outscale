@@ -3,12 +3,12 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import assert_oapi_error, id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
 
 
-class Test_CreateKeypair(OscTestSuite):
+class Test_CreateKeypair(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

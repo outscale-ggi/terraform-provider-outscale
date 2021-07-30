@@ -1,9 +1,10 @@
 
 from specs.check_tools import check_response
 from qa_sdk_common.exceptions.osc_exceptions import OscSdkException
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 
-class Test_GetAccount(OscTestSuite):
+class Test_GetAccount(OscTinaTest):
 
     def test_T5751_without_params(self):
         resp = self.a1_r1.icu.GetAccount().response

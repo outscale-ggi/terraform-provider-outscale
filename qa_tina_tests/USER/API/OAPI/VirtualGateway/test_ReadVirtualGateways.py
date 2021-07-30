@@ -1,12 +1,12 @@
 import pytest
 
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 NUM_VGW = 3
 
 
-class Test_ReadVirtualGateways(OscTestSuite):
+class Test_ReadVirtualGateways(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

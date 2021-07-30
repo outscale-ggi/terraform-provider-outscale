@@ -5,7 +5,7 @@ import time
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.check_tools import wait_lbu_backend_state
 from qa_tina_tools.tina.setup_tools import start_test_http_server
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_load_balancer
@@ -13,7 +13,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_lbu
 from qa_tina_tools.tools.tina.info_keys import SECURITY_GROUP_ID, INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH
 
 
-class Test_lbu_healthcheck(OscTestSuite):
+class Test_lbu_healthcheck(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

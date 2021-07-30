@@ -3,7 +3,8 @@ import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_test_tools.misc import assert_error, id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_security_group, create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_security_group, delete_vpc
@@ -14,7 +15,7 @@ NB_PUB_SG = 2
 NB_PRIV_SG = 4
 
 
-class Test_DescribeSecurityGroups(OscTestSuite):
+class Test_DescribeSecurityGroups(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

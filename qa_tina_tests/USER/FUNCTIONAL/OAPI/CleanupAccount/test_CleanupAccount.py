@@ -1,9 +1,9 @@
 import os
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_CleanupAccount(OscTestSuite):
+class Test_CleanupAccount(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -2,11 +2,11 @@
 import pytest
 
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tests.USER.API.OAPI.ClientGateway.ClientGateway import validate_client_gateway
 
 
-class Test_ReadClientGateways(OscTestSuite):
+class Test_ReadClientGateways(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

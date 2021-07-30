@@ -1,9 +1,9 @@
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 # from qa_tina_tools.tina import oapi, wait
 
 
-class Test_UpdateVpnConnection(OscTestSuite):
+class Test_UpdateVpnConnection(OscTinaTest):
     pass
 
 #     @classmethod
@@ -33,7 +33,7 @@ class Test_UpdateVpnConnection(OscTestSuite):
 #         self.virtual_gateway = None
 #         self.client_gateway = None
 #         self.vpn_connection = None
-#         OscTestSuite.setup_method(self, method)
+#         OscTinaTest.setup_method(self, method)
 #         try:
 #             self.virtual_gateway = self.a1_r1.CreateVirtualGateway().response.VirtualGateway
 #             self.client_gateway = self.a1_r1.CreateClientGateway().response.ClientGateway
@@ -54,4 +54,4 @@ class Test_UpdateVpnConnection(OscTestSuite):
 #             if self.client_gateway:
 #                 self.a1_r1.DeleteClientGateway(ClientGatewayId=self.client_gateway.ClientGatewayId)
 #         finally:
-#             OscTestSuite.teardown_method(self, method)
+#             OscTinaTest.teardown_method(self, method)

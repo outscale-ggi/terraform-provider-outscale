@@ -8,7 +8,7 @@ import pytest
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait, check_tools
 from qa_tina_tools.tina.setup_tools import setup_customer_gateway
 from qa_tina_tools.tools.tina import wait_tools
@@ -22,7 +22,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state,\
     wait_instances_state
 
 
-class Test_multi_vpn(OscTestSuite):
+class Test_multi_vpn(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

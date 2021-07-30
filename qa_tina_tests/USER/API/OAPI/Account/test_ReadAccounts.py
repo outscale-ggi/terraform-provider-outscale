@@ -1,7 +1,7 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ReadAccounts(OscTestSuite):
+class Test_ReadAccounts(OscTinaTest):
 
     def test_T4761_valid_call(self):
         ret = self.a1_r1.oapi.ReadAccounts()

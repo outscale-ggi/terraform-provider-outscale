@@ -5,13 +5,13 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator, assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options, cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc_old
 from qa_tina_tools.tools.tina.wait_tools import wait_dhcp_options_association
 
 
-class Test_DeleteDhcpOptions(OscTestSuite):
+class Test_DeleteDhcpOptions(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

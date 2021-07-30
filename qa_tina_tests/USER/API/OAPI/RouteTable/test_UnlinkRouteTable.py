@@ -3,11 +3,11 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 
 
-class Test_UnlinkRouteTable(OscTestSuite):
+class Test_UnlinkRouteTable(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -28,7 +28,7 @@ class Test_UnlinkRouteTable(OscTestSuite):
         self.rt_id = None
         self.link_id = None
         self.ret_unlink = None
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         try:
             self.net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16')).response.Net.NetId
             wait_vpcs_state(self.a1_r1, [self.net_id], state='available')
@@ -66,7 +66,7 @@ class Test_UnlinkRouteTable(OscTestSuite):
                 except:
                     print('Could not delete net')
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T2267_valid_params(self):
         self.ret_unlink = self.a1_r1.oapi.UnlinkRouteTable(LinkRouteTableId=self.link_id)

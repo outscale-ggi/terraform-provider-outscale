@@ -3,13 +3,13 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import wait_tools
 
 
 @pytest.mark.region_directlink
 @pytest.mark.region_admin
-class Test_CreatePrivateVirtualInterface(OscTestSuite):
+class Test_CreatePrivateVirtualInterface(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -21,7 +21,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
 
     def setup_method(self, method):
         self.conn_id = None
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         ret = self.a1_r1.directlink.CreateConnection(location=self.location_code, bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
         self.conn_id = ret.response.connectionId
         wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "pending")
@@ -31,7 +31,7 @@ class Test_CreatePrivateVirtualInterface(OscTestSuite):
             if self.conn_id:
                 self.a1_r1.intel.dl.connection.delete(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T4658_invalid_connection_state(self):
         interface_info = None

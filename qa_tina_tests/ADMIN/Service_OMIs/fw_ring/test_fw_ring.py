@@ -8,11 +8,11 @@ import pytest
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools
 
 
-class Test_fw_ring(OscTestSuite):
+class Test_fw_ring(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

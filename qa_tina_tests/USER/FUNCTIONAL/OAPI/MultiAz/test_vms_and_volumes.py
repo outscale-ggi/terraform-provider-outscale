@@ -2,12 +2,12 @@ import subprocess
 
 from qa_test_tools.config import config_constants
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import info_keys, wait, oapi, check_tools
 from qa_common_tools.ssh import SshTools
 
 
-class Test_vms_and_volumes(OscTestSuite):
+class Test_vms_and_volumes(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

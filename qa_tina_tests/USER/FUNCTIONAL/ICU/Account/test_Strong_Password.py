@@ -8,11 +8,11 @@ from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
 from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account, delete_account
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 @pytest.mark.region_admin
-class Test_Strong_Password(OscTestSuite):
+class Test_Strong_Password(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -25,7 +25,7 @@ class Test_Strong_Password(OscTestSuite):
 
     def setup_method(self, method):
         self.user = None
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         try:
             self.email = '{}@outscale.com'.format(id_generator(prefix='qa+teststrongpassword+'))
             self.password = misc.id_generator(size=20)
@@ -48,7 +48,7 @@ class Test_Strong_Password(OscTestSuite):
             if self.user:
                 delete_account(self.a1_r1, self.user)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T4330_too_weak_password_with_pattern(self):
         new_password = id_generator(prefix="totototo1234(!)", size=0)

@@ -1,13 +1,13 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import SUBNET_ID, SUBNETS
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.wait_tools import wait_nat_gateways_state
 
 
-class Test_DeleteNatGateway(OscTestSuite):
+class Test_DeleteNatGateway(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -36,14 +36,14 @@ class Test_DeleteNatGateway(OscTestSuite):
 
     def setup_method(self, method):
         self.ng_id = None
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         try:
             ret = self.a1_r1.fcu.CreateNatGateway(AllocationId=self.eip.allocationId, SubnetId=self.vpc_info[SUBNETS][0][SUBNET_ID])
             self.ng_id = ret.response.natGateway.natGatewayId
             wait_nat_gateways_state(self.a1_r1, nat_gateway_id_list=[self.ng_id], state='available')
         except:
             try:
-                OscTestSuite.teardown_method(self, method)
+                OscTinaTest.teardown_method(self, method)
             finally:
                 raise
 
@@ -52,7 +52,7 @@ class Test_DeleteNatGateway(OscTestSuite):
             if self.ng_id:
                 self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=self.ng_id)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T4028_correct_params(self):
         self.a1_r1.fcu.DeleteNatGateway(NatGatewayId=self.ng_id)

@@ -5,11 +5,12 @@ import string
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_test_tools.account_tools import create_account, delete_account
 from qa_test_tools.config import OscConfig
 from qa_test_tools.config import config_constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.as_.wait_tools import wait_task_state
 from qa_tina_tools.tools.tina import create_tools
 
@@ -219,7 +220,7 @@ def setup_api_access_rules(confkey):
     return _setup_api_access_rules
 
 
-class ApiAccess(OscTestSuite):
+class ApiAccess(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

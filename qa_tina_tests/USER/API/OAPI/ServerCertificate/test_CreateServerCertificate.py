@@ -5,7 +5,7 @@ import os
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools
 
 
@@ -18,7 +18,7 @@ from qa_tina_tools.tools.tina import create_tools
 # Path         body    string     false
 # PrivateKey   body    string     true
 # Note: only tested with self signed certificates
-class Test_CreateServerCertificate(OscTestSuite):
+class Test_CreateServerCertificate(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -40,7 +40,7 @@ class Test_CreateServerCertificate(OscTestSuite):
             super(Test_CreateServerCertificate, cls).teardown_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         self.sc_name = misc.id_generator(prefix='sc-')
         self.sc_resp = None
 
@@ -49,7 +49,7 @@ class Test_CreateServerCertificate(OscTestSuite):
             if self.sc_resp:
                 self.a1_r1.oapi.DeleteServerCertificate(Name=self.sc_name)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T4846_with_valid_param(self):
         ret = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key)

@@ -4,10 +4,10 @@ import os
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.compare_objects import verify_response, create_hints
 from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_CreateSecurityGroup(OscTestSuite):
+class Test_CreateSecurityGroup(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

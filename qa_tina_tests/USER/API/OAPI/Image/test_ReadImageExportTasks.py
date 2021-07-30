@@ -1,12 +1,12 @@
 import pytest
 
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 @pytest.mark.region_synchro_osu
 @pytest.mark.region_osu
-class Test_ReadImageExportTasks(OscTestSuite):
+class Test_ReadImageExportTasks(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

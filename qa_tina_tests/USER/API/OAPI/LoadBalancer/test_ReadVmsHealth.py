@@ -2,12 +2,12 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_dry_run, assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.setup_tools import setup_public_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_lbu
 
 
-class Test_ReadVmsHealth(OscTestSuite):
+class Test_ReadVmsHealth(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

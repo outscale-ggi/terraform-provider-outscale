@@ -4,14 +4,14 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshot_export_tasks_state
 
 
 @pytest.mark.region_synchro_osu
 @pytest.mark.region_osu
-class Test_DescribeSnapshotExportTasks(OscTestSuite):
+class Test_DescribeSnapshotExportTasks(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -1,7 +1,7 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_revoke(OscTestSuite):
+class Test_revoke(OscTinaTest):
 
     def test_T3566_with_negative_protocol_value(self):
         group_id = None

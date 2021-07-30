@@ -1,10 +1,10 @@
 
 from qa_tina_tools.tina import oapi, info_keys
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools import misc
 
 
-class Test_delete_attached_security_group(OscTestSuite):
+class Test_delete_attached_security_group(OscTinaTest):
 
     def test_T5659_delete_attached_security_group(self):
 

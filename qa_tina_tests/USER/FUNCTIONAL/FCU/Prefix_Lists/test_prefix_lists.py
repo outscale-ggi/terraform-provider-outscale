@@ -1,11 +1,11 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools.config import config_constants
 
 
 SERVICES = ["fcu", "icu", "api", "eim", "lbu", "directlink"]
 OPTIONAL_SERVICES = ["kms", "osu", "oos"]
 
-class Test_prefix_lists(OscTestSuite):
+class Test_prefix_lists(OscTinaTest):
 
     def test_T5716_content(self):
         self.a1_r1.fcu.DescribePrefixLists()

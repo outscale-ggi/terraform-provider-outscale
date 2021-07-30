@@ -7,7 +7,7 @@ from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.config.region import Feature
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_keypair
@@ -18,7 +18,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 RETRY = 5
 TIMEOUT = 2
 
-class Test_NAT_gateway(OscTestSuite):
+class Test_NAT_gateway(OscTinaTest):
     """
         check that from a set of regions
         the others set regions are not available

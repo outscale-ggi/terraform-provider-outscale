@@ -1,9 +1,9 @@
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_RegisterImage(OscTestSuite):
+class Test_RegisterImage(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

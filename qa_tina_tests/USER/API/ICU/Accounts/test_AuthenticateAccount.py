@@ -8,10 +8,10 @@ from qa_test_tools.account_tools import create_account
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_error
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_AuthenticateAccount(OscTestSuite):
+class Test_AuthenticateAccount(OscTinaTest):
 
     def test_T2159_required_param(self):
         ret = self.a1_r1.icu.AuthenticateAccount(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty},

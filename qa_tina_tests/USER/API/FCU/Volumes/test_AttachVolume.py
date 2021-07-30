@@ -2,7 +2,7 @@ import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances
@@ -10,7 +10,7 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 
-class Test_AttachVolume(OscTestSuite):
+class Test_AttachVolume(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -46,7 +46,7 @@ class Test_AttachVolume(OscTestSuite):
             super(Test_AttachVolume, cls).teardown_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         self.attached = {}
 
     def teardown_method(self, method):
@@ -55,7 +55,7 @@ class Test_AttachVolume(OscTestSuite):
                 self.a1_r1.fcu.DetachVolume(VolumeId=vol_id, InstanceId=self.attached[vol_id])
                 wait_volumes_state(self.a1_r1, volume_id_list=[vol_id], state="available")
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T1077_standard_on_running_instance(self):
         self.a1_r1.fcu.AttachVolume(VolumeId=self.standard_volume_ids[0], InstanceId=self.inst_info[INSTANCE_ID_LIST][0], Device="/dev/xvdb")

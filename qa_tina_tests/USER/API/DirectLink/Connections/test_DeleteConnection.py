@@ -3,12 +3,12 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 @pytest.mark.region_admin
 @pytest.mark.region_directlink
-class Test_DeleteConnection(OscTestSuite):
+class Test_DeleteConnection(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -19,7 +19,7 @@ class Test_DeleteConnection(OscTestSuite):
         cls.location = ret.response.locations[0].locationCode
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         ret = self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
         self.conn_id = ret.response.connectionId
 
@@ -30,7 +30,7 @@ class Test_DeleteConnection(OscTestSuite):
                 if ret.response.connections and ret.response.connections[0].connectionState != 'deleted':
                     self.a1_r1.intel.dl.connection.delete(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T587_valid_connection_id(self):
         self.a1_r1.directlink.DeleteConnection(connectionId=self.conn_id)

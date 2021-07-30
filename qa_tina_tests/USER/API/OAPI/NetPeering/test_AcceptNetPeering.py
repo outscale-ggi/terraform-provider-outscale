@@ -4,14 +4,14 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_peering
 from qa_tina_tools.tools.tina.delete_tools import delete_peering
 from qa_tina_tools.tools.tina.info_keys import PEERING
 from qa_tina_tools.tools.tina.object import Peering
 
 
-class Test_AcceptNetPeering(OscTestSuite):
+class Test_AcceptNetPeering(OscTinaTest):
 
     def test_T2404_dry_run(self):
         peering_info = create_peering(self.a1_r1)

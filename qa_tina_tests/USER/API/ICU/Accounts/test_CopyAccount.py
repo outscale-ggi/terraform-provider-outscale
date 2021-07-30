@@ -7,11 +7,12 @@ from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.account_tools import create_account, delete_account
 from qa_test_tools.config import OscConfig
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
 
 
-class Test_CopyAccount(OscTestSuite):
+class Test_CopyAccount(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

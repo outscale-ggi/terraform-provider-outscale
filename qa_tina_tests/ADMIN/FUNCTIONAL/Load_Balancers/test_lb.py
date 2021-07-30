@@ -1,12 +1,12 @@
 import time
 
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.exceptions.test_exceptions import OscTestException
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 
 
-class Test_lb(OscTestSuite):
+class Test_lb(OscTinaTest):
 
     def test_T1945_check_gc(self):
         lb_name = id_generator('lbu')

@@ -4,13 +4,13 @@ import time
 import pytest
 
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import wait_tools
 
 
 @pytest.mark.region_admin
 @pytest.mark.region_directlink
-class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
+class Test_ConfirmPrivateVirtualInterface(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -22,7 +22,7 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
 
     def setup_method(self, method):
         self.conn_id = None
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         ret = self.a1_r1.directlink.CreateConnection(location=self.location_code, bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
         self.conn_id = ret.response.connectionId
 
@@ -31,7 +31,7 @@ class Test_ConfirmPrivateVirtualInterface(OscTestSuite):
             if self.conn_id:
                 self.a1_r1.intel.dl.connection.delete(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T1915_required_param(self):
         allocation = {'asn': 11111, 'virtualInterfaceName': 'test', 'vlan': 2}

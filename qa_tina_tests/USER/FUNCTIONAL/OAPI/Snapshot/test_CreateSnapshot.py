@@ -2,10 +2,10 @@
 import pytest
 
 from qa_tina_tools.tina import wait
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools.config import config_constants as constants
 
-class Test_CreateSnapshot(OscTestSuite):
+class Test_CreateSnapshot(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

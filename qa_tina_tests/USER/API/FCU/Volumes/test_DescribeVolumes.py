@@ -2,13 +2,13 @@
 import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.constants import VOLUME_SIZES, VOLUME_IOPS
 from qa_tina_tools.tools.tina.create_tools import create_volumes, create_instances_old
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances_old
 
 
-class Test_DescribeVolumes(OscTestSuite):
+class Test_DescribeVolumes(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

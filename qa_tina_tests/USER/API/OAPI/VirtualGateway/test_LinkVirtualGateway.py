@@ -3,11 +3,11 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state, wait_vpcs_state
 
 
-class Test_LinkVirtualGateway(OscTestSuite):
+class Test_LinkVirtualGateway(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -35,7 +35,7 @@ class Test_LinkVirtualGateway(OscTestSuite):
     def setup_method(self, method):
         self.vgw_id = None
         self.ret_link = None
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         try:
             self.vgw_id = self.a1_r1.oapi.CreateVirtualGateway(ConnectionType='ipsec.1').response.VirtualGateway.VirtualGatewayId
             wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='available')
@@ -59,7 +59,7 @@ class Test_LinkVirtualGateway(OscTestSuite):
                 except:
                     print('Could not delete virtual gateway')
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T2371_valid_params(self):
         self.ret_link = self.a1_r1.oapi.LinkVirtualGateway(VirtualGatewayId=self.vgw_id, NetId=self.net_id)
