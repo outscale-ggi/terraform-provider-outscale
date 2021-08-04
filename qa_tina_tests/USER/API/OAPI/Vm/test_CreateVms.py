@@ -8,7 +8,7 @@ from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_tina_tools.test_base import OscTinaTest
-from qa_tina_tools.tina import check_tools
+from qa_tina_tools.tina import check_tools, oapi
 from qa_tina_tools.tina.info_keys import KEY_PAIR, PATH
 from qa_tina_tools.tina.oapi import delete_Vms, create_Vms
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state, wait_security_groups_state
@@ -1020,9 +1020,14 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
         )
 
     def test_T4574_with_large_userdata(self):
-        msg = id_generator(size=15000, chars=string.ascii_lowercase)
-        userdata = """# autoexecutepowershellnopasswd
-            Write-Host '{}'
-            # autoexecutepowershellnopasswd""".format(msg)
+        userdata = id_generator(size=511000, chars=string.ascii_lowercase)
         ret, _ = create_vms(ocs_sdk=self.a1_r1, UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
         validate_vm_response(ret.response.Vms[0], expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+
+    def test_T5838_with_invalid_larger_userdata_size(self):
+        try:
+            userdata = id_generator(size=513000, chars=string.ascii_lowercase)
+            oapi.create_Vms(self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
