@@ -1,13 +1,13 @@
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, KEY_PAIR, PATH
 from qa_tina_tools.tina import check_tools
 
 
-class Test_virtiorng(OscTestSuite):
+class Test_virtiorng(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

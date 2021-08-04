@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException, \
-    OscSdkException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_CreateKeyPair(OscTestSuite):
+class Test_CreateKeyPair(OscTinaTest):
 
     def test_T930_with_valid_keyname(self):
         ret = self.a1_r1.fcu.CreateKeyPair(KeyName='key')

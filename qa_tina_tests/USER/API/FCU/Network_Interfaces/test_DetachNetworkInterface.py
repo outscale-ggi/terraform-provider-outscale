@@ -6,12 +6,12 @@ from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.delete_tools import delete_subnet, detach_network_interface
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state
 
 
-class Test_DetachNetworkInterface(OscTestSuite):
+class Test_DetachNetworkInterface(OscTinaTest):
     """
         check that from a set of regions
         the others set regions are not available

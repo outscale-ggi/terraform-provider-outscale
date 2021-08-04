@@ -9,10 +9,10 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub.osc_api import AuthMethod, EXEC_DATA_METHOD, \
     EXEC_DATA_AUTHENTICATION
 import qa_sdk_pub.osc_api as osc_api
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ICU(OscTestSuite):
+class Test_ICU(OscTinaTest):
 
     @pytest.mark.tag_sec_traceability
     def test_T3860_check_request_id(self):

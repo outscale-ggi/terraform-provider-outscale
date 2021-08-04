@@ -4,10 +4,10 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_ReadLoadBalancerTags(OscTestSuite):
+class Test_ReadLoadBalancerTags(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -7,10 +7,10 @@ import qa_sdk_pub.osc_api as osc_api
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.config import OscConfig
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_DirectLink(OscTestSuite):
+class Test_DirectLink(OscTinaTest):
 
     @pytest.mark.tag_sec_traceability
     def test_T3844_check_request_id(self):

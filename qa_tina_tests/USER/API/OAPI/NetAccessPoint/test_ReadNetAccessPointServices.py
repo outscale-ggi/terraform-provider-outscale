@@ -1,9 +1,9 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 SERVICE_NAMES = ['fcu', 'lbu', 'eim', 'icu', 'directlink', 'api', 'osu', 'oos', 'kms']
 
 
-class Test_ReadNetAccessPointServices(OscTestSuite):
+class Test_ReadNetAccessPointServices(OscTinaTest):
 
     def test_T3336_empty_filters(self):
         services = self.a1_r1.oapi.ReadNetAccessPointServices().response.Services

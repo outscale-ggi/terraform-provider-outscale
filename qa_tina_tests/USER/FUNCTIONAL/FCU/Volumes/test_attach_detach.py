@@ -4,7 +4,7 @@ import time
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.check_tools import format_mount_volume, umount_volume
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances
@@ -17,7 +17,7 @@ NB_VOL = 10
 CMD = 'ls -lsa /dev/x*'
 
 
-class Test_attach_detach(OscTestSuite):
+class Test_attach_detach(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

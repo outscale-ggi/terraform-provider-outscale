@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools import user_data_windows
 from qa_tina_tools.tina.check_tools import check_data_from_console, check_winrm_access
 from qa_tina_tools.tina.info_keys import NAME, PATH
@@ -19,7 +19,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 # import os
 # import winrm
 @pytest.mark.region_windows
-class Test_create_using_instance(OscTestSuite):
+class Test_create_using_instance(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_create_using_instance, cls).setup_class()
@@ -105,7 +105,7 @@ class Test_create_using_instance(OscTestSuite):
 
             # run instance
             inst_1 = cls.a1_r1.fcu.RunInstances(
-                ImageId=cls.a1_r1.config.region.get_info('windows_2016'),
+                ImageId=cls.a1_r1.config.region.get_info('windows_omi'),
                 MaxCount='1',
                 MinCount='1',
                 SecurityGroupId=cls.sg_id,
@@ -115,7 +115,7 @@ class Test_create_using_instance(OscTestSuite):
             )
 
             inst_2 = cls.a1_r1.fcu.RunInstances(
-                ImageId=cls.a1_r1.config.region.get_info('windows_2016'),
+                ImageId=cls.a1_r1.config.region.get_info('windows_omi'),
                 MaxCount='1',
                 MinCount='1',
                 SecurityGroupId=cls.sg_id1,
@@ -206,7 +206,7 @@ class Test_create_using_instance(OscTestSuite):
 
         try:
             check_data_from_console(self.a1_r1, self.inst_2_id)
-            if self.a1_r1.config.region.name == 'dv-west-1':
+            if self.a1_r1.config.region.name  == 'dv-west-1':
                 pytest.fail('Remove known error')
         except AssertionError:
             if self.a1_r1.config.region.name != 'dv-west-1':

@@ -1,9 +1,9 @@
 from qa_test_tools import misc
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, info_keys, delete_tools
 
 
-class Test_ReadListenerRules(OscTestSuite):
+class Test_ReadListenerRules(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

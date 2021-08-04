@@ -1,11 +1,11 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 
 
-class Test_DeleteTags(OscTestSuite):
+class Test_DeleteTags(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -31,7 +31,7 @@ class Test_DeleteTags(OscTestSuite):
             super(Test_DeleteTags, cls).teardown_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         try:
             self.a1_r1.fcu.CreateTags(ResourceId=[self.vol_id_list[0]], Tag=[{'Value': 'value1', 'Key': 'key1'},
                                                                              {'Value': 'value1', 'Key': 'key2'},
@@ -50,7 +50,7 @@ class Test_DeleteTags(OscTestSuite):
             for tag in self.a1_r1.fcu.DescribeTags(Filter=[{'Name': 'resource-id', 'Value': self.vol_id_list}]).response.tagSet:
                 self.a1_r1.fcu.DeleteTags(ResourceId=[tag.resourceId], Tag=[{'Key': tag.key, 'Value': tag.value}])
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def check_vol_tags(self, data):
         for vol_id in data:

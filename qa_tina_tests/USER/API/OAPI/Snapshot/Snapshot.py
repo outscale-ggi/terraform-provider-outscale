@@ -1,4 +1,4 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
@@ -32,7 +32,7 @@ def validate_snasphot(snap, **kwargs):
         assert hasattr(snap, 'PermissionsToCreateVolume')
 
 
-class Snapshot(OscTestSuite):
+class Snapshot(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

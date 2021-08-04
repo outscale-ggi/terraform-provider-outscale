@@ -4,13 +4,13 @@ import base64
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
 from qa_tina_tools.tools.tina.delete_tools import delete_key
 
 
-class Test_ImportKeyPair(OscTestSuite):
+class Test_ImportKeyPair(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -1,10 +1,10 @@
 
 import pytest
 
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_get_all(OscTestSuite):
+class Test_get_all(OscTinaTest):
 
     @pytest.mark.region_admin
     def test_T1577_without_param(self):

@@ -4,13 +4,13 @@ import pytest
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import info_keys, check_tools
 from qa_tina_tools.tina.oapi import create_Vms, delete_Vms
 
 
 @pytest.mark.region_admin
-class Test_filter_private_data(OscTestSuite):
+class Test_filter_private_data(OscTinaTest):
     def test_T5608_filter_private_data(self):
         user_data = '-----BEGIN OUTSCALE SECTION-----\nfilter_private_section=true\n-----END OUTSCALE SECTION-----\n' \
                     'This is some public data'

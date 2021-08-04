@@ -2,7 +2,7 @@ from string import ascii_lowercase
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
@@ -10,7 +10,7 @@ from qa_tina_tools.tools.tina.info_keys import VPC_ID
 from qa_tina_tools.tools.tina.wait_tools import wait_dhcp_options_association
 
 
-class Test_DeleteDhcpOptions(OscTestSuite):
+class Test_DeleteDhcpOptions(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

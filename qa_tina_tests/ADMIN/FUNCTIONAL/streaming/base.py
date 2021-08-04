@@ -2,7 +2,7 @@
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
@@ -14,7 +14,7 @@ from qa_tina_tests.ADMIN.FUNCTIONAL.streaming.utils import get_data_file_chain, 
 # Snapshots creation:
 # $ python  qa_tina/ADMIN/FUNCTIONAL/streaming/base.py -r <az> -a <account>
 # StreaminBase v2
-class StreamingBase(OscTestSuite):
+class StreamingBase(OscTinaTest):
 
     w_size = 10
     v_size = 10

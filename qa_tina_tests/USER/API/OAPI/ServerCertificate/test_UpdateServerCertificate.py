@@ -5,7 +5,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait
 from qa_tina_tools.tools.tina import create_tools
 
@@ -15,7 +15,7 @@ from qa_tina_tools.tools.tina import create_tools
 # Name         body    string    false
 # NewName      body    string    false
 # NewPath      body    string    false
-class Test_UpdateServerCertificate(OscTestSuite):
+class Test_UpdateServerCertificate(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -38,7 +38,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
             super(Test_UpdateServerCertificate, cls).teardown_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         self.sc_name = misc.id_generator(prefix='sc-')
         self.sc_path = '/test/'
         self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key, Path=self.sc_path).response
@@ -52,7 +52,7 @@ class Test_UpdateServerCertificate(OscTestSuite):
                 except:
                     print('Could not delete server certificate')
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T4880_valid_params_new_name(self):
         new_name = misc.id_generator(prefix='sc-')

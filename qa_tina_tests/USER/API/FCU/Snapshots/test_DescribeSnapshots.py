@@ -2,14 +2,14 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 
 NB_SNAP = 1
 
 
-class Test_DescribeSnapshots(OscTestSuite):
+class Test_DescribeSnapshots(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -2,12 +2,13 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina import info_keys
 
 
-class Test_CreateListenerRule(OscTestSuite):
+class Test_CreateListenerRule(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

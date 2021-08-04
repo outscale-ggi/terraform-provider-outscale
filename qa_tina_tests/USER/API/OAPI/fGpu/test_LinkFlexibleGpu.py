@@ -2,7 +2,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -12,7 +12,7 @@ DEFAULT_MODEL_NAME = "nvidia-k2"
 
 
 @pytest.mark.region_gpu
-class Test_LinkFlexibleGpu(OscTestSuite):
+class Test_LinkFlexibleGpu(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -1,13 +1,13 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_instances_state
 
 
-class Test_DeleteVolume(OscTestSuite):
+class Test_DeleteVolume(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -34,10 +34,10 @@ class Test_DeleteVolume(OscTestSuite):
             super(Test_DeleteVolume, cls).teardown_class()
 
     def setup_method(self, method):
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
 
     def teardown_method(self, method):
-        OscTestSuite.teardown_method(self, method)
+        OscTinaTest.teardown_method(self, method)
 
     def test_T1170_valid_param_standard_non_attached(self):
         _, volume_ids = create_volumes(self.a1_r1)

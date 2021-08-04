@@ -1,14 +1,15 @@
 import pytest
 
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, SUBNET_ID, VPC_ID, INSTANCE_ID_LIST, ROUTE_TABLE_ID
 from qa_tina_tools.tools.tina.wait_tools import wait_images_state, wait_snapshots_state
 
 
-class Test_create_tags(OscTestSuite):
+class Test_create_tags(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -4,7 +4,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances, delete_instances, stop_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -14,7 +14,7 @@ from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vms_state_response
 NUM_INST = 10
 
 
-class Test_StartVms(OscTestSuite):
+class Test_StartVms(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

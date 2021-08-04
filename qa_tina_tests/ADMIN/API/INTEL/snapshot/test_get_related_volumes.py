@@ -1,10 +1,10 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_volumes_state
 
 
-class Test_get_related_volumes(OscTestSuite):
+class Test_get_related_volumes(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

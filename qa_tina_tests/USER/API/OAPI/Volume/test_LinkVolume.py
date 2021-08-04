@@ -3,14 +3,14 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
 
-class Test_LinkVolume(OscTestSuite):
+class Test_LinkVolume(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -37,7 +37,7 @@ class Test_LinkVolume(OscTestSuite):
     def setup_method(self, method):
         self.vol_id = None
         self.ret_link = None
-        OscTestSuite.setup_method(self, method)
+        OscTinaTest.setup_method(self, method)
         try:
             self.vol_id = self.a1_r1.oapi.CreateVolume(SubregionName=self.azs[0], Size=10).response.Volume.VolumeId
             wait_volumes_state(self.a1_r1, [self.vol_id], state='available')
@@ -61,7 +61,7 @@ class Test_LinkVolume(OscTestSuite):
                 except:
                     print('Could not delete volume')
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T2254_valid_params(self):
         self.ret_link = self.a1_r1.oapi.LinkVolume(VolumeId=self.vol_id, VmId=self.inst_info[INSTANCE_ID_LIST][0], DeviceName='/dev/xvdc')

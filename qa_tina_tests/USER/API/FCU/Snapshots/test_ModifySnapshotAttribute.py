@@ -4,7 +4,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
@@ -24,7 +24,7 @@ def check_snapshot_res(res, volume_id, description, owner):
     assert res.volumeSize == '10'
 
 
-class Test_ModifySnapshotAttribute(OscTestSuite):
+class Test_ModifySnapshotAttribute(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -53,7 +53,7 @@ class Test_ModifySnapshotAttribute(OscTestSuite):
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=self.snap_id)
                 self.snap_id = None
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T4172_with_invalid_len_snapshot_id(self):
         snp_id = id_generator(prefix="snap-", size=15, chars=string.hexdigits)

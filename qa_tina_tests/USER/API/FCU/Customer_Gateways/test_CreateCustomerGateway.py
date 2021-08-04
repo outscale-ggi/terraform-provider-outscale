@@ -1,13 +1,14 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_customer_gateways
 from qa_tina_tools.tools.tina.create_tools import create_customer_gateway
 from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state
 
 
-class Test_CreateCustomerGateway(OscTestSuite):
+class Test_CreateCustomerGateway(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -18,7 +19,7 @@ class Test_CreateCustomerGateway(OscTestSuite):
         try:
             cleanup_customer_gateways(self.a1_r1)
         finally:
-            OscTestSuite.teardown_method(self, method)
+            OscTinaTest.teardown_method(self, method)
 
     def test_T1274_missing_arg_type(self):
         try:
@@ -53,7 +54,7 @@ class Test_CreateCustomerGateway(OscTestSuite):
 
     def test_T762_all_valid_param(self):
         ret = create_customer_gateway(self.a1_r1, bgp_asn=12, ip_address=self.cgw_ip, typ='ipsec.1')
-        wait_customer_gateways_state(self.conns[0], [ret.response.customerGateway.customerGatewayId], state='available')
+        wait_customer_gateways_state(self.a1_r1, [ret.response.customerGateway.customerGatewayId], state='available')
         assert ret.status_code == 200
         assert ret.response.customerGateway.bgpAsn == '12'
         assert ret.response.customerGateway.ipAddress == self.cgw_ip
@@ -100,7 +101,7 @@ class Test_CreateCustomerGateway(OscTestSuite):
 
     def test_T5643_large_asn_number(self):
         ret = create_customer_gateway(self.a1_r1, bgp_asn=4000000000, ip_address=self.cgw_ip, typ='ipsec.1')
-        wait_customer_gateways_state(self.conns[0], [ret.response.customerGateway.customerGatewayId], state='available')
+        wait_customer_gateways_state(self.a1_r1, [ret.response.customerGateway.customerGatewayId], state='available')
         assert ret.status_code == 200
         assert ret.response.customerGateway.bgpAsn == '4000000000'
         assert ret.response.customerGateway.ipAddress == self.cgw_ip

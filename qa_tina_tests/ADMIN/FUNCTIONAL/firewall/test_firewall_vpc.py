@@ -4,7 +4,7 @@ import time
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, KEY_PAIR, PATH, SUBNETS, VPC_ID
@@ -12,7 +12,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tina import check_tools
 
 
-class Test_firewall_vpc(OscTestSuite):
+class Test_firewall_vpc(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_firewall_vpc, cls).setup_class()

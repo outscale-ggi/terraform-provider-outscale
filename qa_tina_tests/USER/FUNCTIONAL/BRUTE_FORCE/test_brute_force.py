@@ -10,12 +10,12 @@ from qa_sdks import OscSdk
 
 from qa_test_tools.config import config_constants as constants, OscConfig
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 
 @pytest.mark.region_admin
-class Test_brute_force(OscTestSuite):
+class Test_brute_force(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

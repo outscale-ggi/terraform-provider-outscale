@@ -3,14 +3,14 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state, \
     wait_internet_gateways_state
 
 NUM_INTERNET_SERVICES = 3
 
 
-class Test_ReadInternetServices(OscTestSuite):
+class Test_ReadInternetServices(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

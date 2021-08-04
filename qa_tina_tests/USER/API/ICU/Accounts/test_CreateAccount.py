@@ -6,10 +6,10 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_CreateAccount(OscTestSuite):
+class Test_CreateAccount(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

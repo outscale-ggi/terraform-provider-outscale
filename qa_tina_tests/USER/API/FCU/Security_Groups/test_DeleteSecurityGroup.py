@@ -3,7 +3,7 @@ import re
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_error, id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import SECURITY_GROUP_ID, SUBNETS, SUBNET_ID
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_instances, \
@@ -12,7 +12,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 
 
-class Test_DeleteSecurityGroup(OscTestSuite):
+class Test_DeleteSecurityGroup(OscTinaTest):
     """
         check that from a set of regions
         the others set regions are not available
@@ -41,31 +41,31 @@ class Test_DeleteSecurityGroup(OscTestSuite):
 
     def test_T981_using_id(self):
         sg_name = 'test_sg'
-        sg_response = self.conns[0].fcu.CreateSecurityGroup(GroupDescription='test_sg_description', GroupName=sg_name)
+        sg_response = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test_sg_description', GroupName=sg_name)
         sg_id = sg_response.response.groupId
         # check if group is created
         assert sg_response.response.osc_return == 'true'
         # check if group is deleted
-        del_group = self.conns[0].fcu.DeleteSecurityGroup(GroupId=sg_id)
+        del_group = self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id)
         assert del_group.response.osc_return == 'true'
         assert re.search(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{8})", del_group.response.requestId)
         assert del_group.response.obj_name == 'DeleteSecurityGroupResponse'
 
     def test_T982_using_name(self):
         sg_name = 'test_sg'
-        sg_response = self.conns[0].fcu.CreateSecurityGroup(GroupDescription='test_sg_description', GroupName=sg_name)
+        sg_response = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test_sg_description', GroupName=sg_name)
         assert sg_response.response.osc_return == 'true'
-        del_group = self.conns[0].fcu.DeleteSecurityGroup(GroupName=sg_name)
+        del_group = self.a1_r1.fcu.DeleteSecurityGroup(GroupName=sg_name)
         assert del_group.response.osc_return == 'true'
         assert re.search(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{8})", del_group.response.requestId)
         assert del_group.response.obj_name == 'DeleteSecurityGroupResponse'
 
     def test_T983_using_name_and_id(self):
         sg_name = 'test_sg'
-        sg_response = self.conns[0].fcu.CreateSecurityGroup(GroupDescription='test_sg_description', GroupName=sg_name)
+        sg_response = self.a1_r1.fcu.CreateSecurityGroup(GroupDescription='test_sg_description', GroupName=sg_name)
         sg_id = sg_response.response.groupId
         assert sg_response.response.osc_return == 'true'
-        del_group = self.conns[0].fcu.DeleteSecurityGroup(GroupId=sg_id, GroupName=sg_name)
+        del_group = self.a1_r1.fcu.DeleteSecurityGroup(GroupId=sg_id, GroupName=sg_name)
         assert del_group.response.osc_return == 'true'
         assert re.search(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{8})", del_group.response.requestId)
         assert del_group.response.obj_name == 'DeleteSecurityGroupResponse'

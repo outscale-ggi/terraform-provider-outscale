@@ -1,4 +1,4 @@
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 def verify_response(response):
@@ -8,7 +8,7 @@ def verify_response(response):
         assert hasattr(reg, 'State'), "Missing attribute 'State' in response"
 
 
-class Test_ReadSubregions(OscTestSuite):
+class Test_ReadSubregions(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

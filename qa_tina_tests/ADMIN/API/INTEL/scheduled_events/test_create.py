@@ -6,10 +6,11 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 
 @pytest.mark.region_admin
-class Test_create(OscTestSuite):
+class Test_create(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

@@ -12,11 +12,11 @@ from qa_sdk_pub.osc_api import DefaultPubConfig
 from qa_sdk_pub.osc_api.osc_icu_api import OscIcuApi
 from qa_test_tools.account_tools import delete_account, create_account
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 @pytest.mark.region_cloudtrace
-class Test_NoSecretInLogs(OscTestSuite):
+class Test_NoSecretInLogs(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

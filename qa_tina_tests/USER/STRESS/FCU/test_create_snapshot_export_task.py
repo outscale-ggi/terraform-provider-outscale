@@ -8,7 +8,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.error import group_errors, error_type
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_buckets
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_snapshot_export_tasks_state
@@ -19,7 +19,7 @@ CALL_NUMBER = 50
 
 @pytest.mark.region_synchro_osu
 @pytest.mark.region_osu
-class Test_create_snapshot_export_task(OscTestSuite):
+class Test_create_snapshot_export_task(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

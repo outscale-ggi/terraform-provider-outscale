@@ -1,13 +1,13 @@
 
 
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 
 
 NUM_GROUPS = 5
 
 
-class Test_ListGroups(OscTestSuite):
+class Test_ListGroups(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

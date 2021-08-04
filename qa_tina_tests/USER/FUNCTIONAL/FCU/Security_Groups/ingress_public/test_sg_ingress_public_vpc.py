@@ -9,7 +9,7 @@ from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import setup_tools
 from qa_tina_tools.tina.info_keys import NAME, PATH
 from qa_tina_tools.tools.tina.create_tools import create_instances_old, create_keypair
@@ -40,7 +40,7 @@ def ping(host, retry=10, timeout=5):
         # return subprocess.run(args, stdout=subprocess.PIPE).returncode == 0
     return False
 
-class Test_sg_ingress_public_vpc(OscTestSuite):
+class Test_sg_ingress_public_vpc(OscTinaTest):
     """
         check that from a set of regions
         the others set regions are not available

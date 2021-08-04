@@ -5,7 +5,7 @@ import pytest
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import id_generator
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -14,7 +14,7 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST, INSTANCE_SET, K
 from qa_tina_tools.tools.tina.wait_tools import wait_images_state, wait_snapshot_export_tasks_state, wait_snapshots_state, wait_volumes_state
 
 
-class Test_create_image_from_snapshot(OscTestSuite):
+class Test_create_image_from_snapshot(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_create_image_from_snapshot, cls).setup_class()

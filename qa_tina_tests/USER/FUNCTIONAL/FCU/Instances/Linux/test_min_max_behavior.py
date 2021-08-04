@@ -6,7 +6,7 @@ import pytest
 
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
@@ -15,7 +15,7 @@ def evaluate_server(server):
     return server.available_core * 10 + server.available_memory // pow(1024, 3)
 
 
-class Test_min_max_behavior(OscTestSuite):
+class Test_min_max_behavior(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

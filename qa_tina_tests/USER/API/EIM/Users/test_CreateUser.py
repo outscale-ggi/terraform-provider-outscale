@@ -6,11 +6,11 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import OscTestSuite
 from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 
 
-class Test_CreateUser(OscTestSuite):
+class Test_CreateUser(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
@@ -33,7 +33,7 @@ class Test_CreateUser(OscTestSuite):
             ret = self.a1_r1.eim.CreateUser(UserName=user_name)
             self.user_list.append(user_name)
             assert ret.response.CreateUserResult.User.UserName == user_name
-            pattern = re.compile('[A-Z0-9]{30,32}')
+            pattern = re.compile('[A-Z0-9]{29,32}')
             assert re.match(pattern, ret.response.CreateUserResult.User.UserId) is not None
             assert ret.response.CreateUserResult.User.Path == "/"
             assert ret.response.CreateUserResult.User.Arn == "arn:aws:iam::{}:user/{}".format(self.a1_r1.config.account.account_id, user_name)

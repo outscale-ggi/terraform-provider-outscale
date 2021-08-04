@@ -4,13 +4,13 @@ from qa_sdk_common.exceptions import OscApiException
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error
-from qa_test_tools.test_base import OscTestSuite
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, wait, info_keys
 from qa_tina_tools.tina.check_tools import check_volume
 from qa_tina_tools.tina.wait import wait_Volumes_state
 
 
-class Test_UpdateVolume_hot(OscTestSuite):
+class Test_UpdateVolume_hot(OscTinaTest):
 
     @classmethod
     def setup_class(cls):

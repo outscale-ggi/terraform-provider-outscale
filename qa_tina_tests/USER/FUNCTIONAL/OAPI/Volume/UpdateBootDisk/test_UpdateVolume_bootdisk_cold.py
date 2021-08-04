@@ -1,11 +1,12 @@
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.test_base import OscTestSuite, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, wait, info_keys
 from qa_tina_tools.tina.check_tools import verify_disk_size
 
-class Test_UpdateVolume_bootdisk_cold(OscTestSuite):
+class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
