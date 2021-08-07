@@ -1,0 +1,68 @@
+{
+    "requestId": "erased",
+    "reservationSet": [
+        {
+            "reservationId": "r-a2bf6b0a",
+            "ownerId": "###VALUE0###",
+            "groupSet": [
+                {
+                    "groupId": "###VALUE5###",
+                    "groupName": "IDFVAP"
+                }
+            ],
+            "instancesSet": [
+                {
+                    "instanceId": "###VALUE4###",
+                    "imageId": "###VALUE3###",
+                    "instanceState": {
+                        "code": "16",
+                        "name": "running"
+                    },
+                    "privateDnsName": "ip-10-8-1-167.in-west-2.compute.internal",
+                    "dnsName": "ows-10-27-14-77.in-west-2.compute.outscale.com",
+                    "keyName": "###VALUE6###",
+                    "amiLaunchIndex": "0",
+                    "productCodes": null,
+                    "instanceType": "tinav1.c1r1p2",
+                    "launchTime": "2021-08-07T11:35:27.451Z",
+                    "placement": {
+                        "availabilityZone": "###VALUE2###",
+                        "groupName": null,
+                        "tenancy": "default"
+                    },
+                    "kernelId": null,
+                    "monitoring": {
+                        "state": "disabled"
+                    },
+                    "privateIpAddress": "10.8.1.167",
+                    "ipAddress": "10.27.14.77",
+                    "groupSet": [
+                        {
+                            "groupId": "###VALUE5###",
+                            "groupName": "IDFVAP"
+                        }
+                    ],
+                    "architecture": "x86_64",
+                    "rootDeviceType": "ebs",
+                    "rootDeviceName": "/dev/sda1",
+                    "blockDeviceMapping": [
+                        {
+                            "deviceName": "/dev/sda1",
+                            "ebs": {
+                                "volumeId": "vol-7d18b6a7",
+                                "status": "attached",
+                                "attachTime": "2021-08-07T11:35:27.451Z",
+                                "deleteOnTermination": "true"
+                            }
+                        }
+                    ],
+                    "virtualizationType": "hvm",
+                    "clientToken": null,
+                    "hypervisor": "xen",
+                    "networkInterfaceSet": null,
+                    "ebsOptimized": "false"
+                }
+            ]
+        }
+    ]
+}
