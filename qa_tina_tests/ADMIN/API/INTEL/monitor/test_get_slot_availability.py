@@ -1,6 +1,8 @@
+import pytest
 from qa_tina_tools.test_base import OscTinaTest
 
 
+@pytest.mark.region_admin
 class Test_get_slot_availability(OscTinaTest):
 
     def test_T3567_with_instance_types_filter(self):
