@@ -3,9 +3,9 @@ import os
 import re
 
 from qa_test_tools.config import config_constants
+from qa_test_tools.compare_objects import verify_response, create_hints
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, delete_tools, wait_tools, info_keys
-from qa_test_tools.compare_objects import verify_response, create_hints
 
 
 class Test_modify_instance_type(OscTinaTest):
