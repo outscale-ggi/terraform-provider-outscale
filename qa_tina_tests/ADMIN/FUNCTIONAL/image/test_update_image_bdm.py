@@ -1,9 +1,9 @@
 import pytest
 
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, info_keys, wait
 from qa_test_tools import misc
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 
 
 # @tx_export(isolation_level='SERIALIZABLE')
@@ -27,9 +27,9 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 #     volume_type: Optional[str] = None,
 # ) -> model.Image:
 #     """Update attributes in database for an image's block device mapping.
-# 
+#
 #     The func can update only images in state : available.
-# 
+#
 #     :param bool delete_on_termination: (optional) update this option in database.
 #     :param str image_id: Image ID.
 #     :param int iops: New IOPS value for the BDMs.
@@ -37,7 +37,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 #     :param int size: (optional) update size in database.
 #     :param int snapshot_id: (optional) Snap ID if you want update just one image_bdm.
 #     :param str volume_type: (optional) update volume type in database.
-# 
+#
 #     :rtype: Image
 #     """
 
@@ -105,7 +105,7 @@ class Test_update_image_bdm(OscTinaTest):
                 oapi.delete_Vms(self.a1_r1, vm_info)
 
     # sample error test
-    def test_Txxx_incorrect_size(self):
+    def test_T0000_incorrect_size(self):
         try:
             self.a1_r1.intel.image.update_bdm(owner=self.a1_r1.config.account.account_id, image_id=self.image_id, size=SIZE - 1)
             assert False, 'call should not have been successful'
@@ -113,6 +113,6 @@ class Test_update_image_bdm(OscTinaTest):
             misc.assert_error(error, 400, '', '')
 
     # sample sucessful test
-    def test_Txxx_modified_size(self):
+    def test_T0000_modified_size(self):
         self.a1_r1.intel.image.update_bdm(owner=self.a1_r1.config.account.account_id, image_id=self.image_id, size=SIZE + 1)
         self.check_image()

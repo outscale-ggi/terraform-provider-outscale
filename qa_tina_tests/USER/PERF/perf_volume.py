@@ -2,7 +2,7 @@ from datetime import datetime
 from threading import current_thread
 
 from qa_test_tools.config import config_constants as constants
-from qa_tina_tools.tools.tina import create_tools 
+from qa_tina_tools.tools.tina import create_tools
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tests.USER.PERF.perf_common import log_error
 
