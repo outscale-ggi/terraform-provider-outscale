@@ -64,8 +64,9 @@ class Test_update_image_bdm(OscTinaTest):
         except:
             try:
                 cls.teardown_class()
-            except:
-                pass
+            finally:
+                raise 
+                
 
     @classmethod
     def teardown_class(cls):
@@ -86,8 +87,8 @@ class Test_update_image_bdm(OscTinaTest):
         except:
             try:
                 self.teardown_method(method)
-            except:
-                pass
+            finally:
+                raise
 
     def teardown_method(self, method):
         try:
@@ -112,7 +113,7 @@ class Test_update_image_bdm(OscTinaTest):
         except OscApiException as error:
             misc.assert_error(error, 400, '', '')
 
-    # sample sucessful test
+    # sample successful test
     def test_T0000_modified_size(self):
         self.a1_r1.intel.image.update_bdm(owner=self.a1_r1.config.account.account_id, image_id=self.image_id, size=SIZE + 1)
         self.check_image()
