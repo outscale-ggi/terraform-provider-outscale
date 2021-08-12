@@ -69,7 +69,7 @@ class Test_public_linux_instance(Test_linux_instance):
     @pytest.mark.tag_redwire
     @pytest.mark.region_gpu
     def test_T98_create_use_linux_GPU_instance(self):
-        if self.a1_r1.config.region.az_name == ['in-west-1b', 'us-west-1b']:
+        if self.a1_r1.config.region.az_name in ['in-west-1b', 'us-west-1b']:
             pytest.skip("No gpu server available on in-west-1b and us-west-1b")
         instance_type=self.a1_r1.config.region.get_info(constants.DEFAULT_AWS_GPU_INSTANCE_TYPE)
         inst_id = None
