@@ -65,8 +65,7 @@ class Test_update_image_bdm(OscTinaTest):
             try:
                 cls.teardown_class()
             finally:
-                raise 
-                
+                raise
 
     @classmethod
     def teardown_class(cls):
