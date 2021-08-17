@@ -105,7 +105,7 @@ class Test_create_using_instance(OscTinaTest):
 
             # run instance
             inst_1 = cls.a1_r1.fcu.RunInstances(
-                ImageId=cls.a1_r1.config.region.get_info('windows_omi'),
+                ImageId=cls.a1_r1.config.region.get_info('windows_latest'),
                 MaxCount='1',
                 MinCount='1',
                 SecurityGroupId=cls.sg_id,
@@ -115,7 +115,7 @@ class Test_create_using_instance(OscTinaTest):
             )
 
             inst_2 = cls.a1_r1.fcu.RunInstances(
-                ImageId=cls.a1_r1.config.region.get_info('windows_omi'),
+                ImageId=cls.a1_r1.config.region.get_info('windows_latest'),
                 MaxCount='1',
                 MinCount='1',
                 SecurityGroupId=cls.sg_id1,
