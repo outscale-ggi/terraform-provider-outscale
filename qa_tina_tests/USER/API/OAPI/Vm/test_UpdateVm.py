@@ -394,11 +394,10 @@ class Test_UpdateVm(OscTinaTest):
             oapi.stop_Vms(self.a1_r1, vm_info[info_keys.VM_IDS])
 
             userdata = id_generator(size=513000, chars=string.ascii_lowercase)
-            self.a1_r1.oapi.UpdateVm(UserData=userdata, VmId=inst_id)
-
+            self.a1_r1.oapi.UpdateVm(UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'), VmId=inst_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4106')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
