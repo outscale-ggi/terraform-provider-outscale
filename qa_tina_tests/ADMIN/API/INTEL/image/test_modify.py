@@ -1,8 +1,9 @@
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import assert_code, known_error
-from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools.config import config_constants as constants
+from qa_tina_tools.test_base import OscTinaTest
+
 
 
 class Test_modify(OscTinaTest):
