@@ -5,7 +5,6 @@ from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.test_base import OscTinaTest
 
 
-
 class Test_modify(OscTinaTest):
 
     @classmethod
@@ -41,7 +40,7 @@ class Test_modify(OscTinaTest):
 
     def test_T5857_with_name(self):
         name = 'toto'
-        self.a1_r1.intel.image.modify(owner=self.a1_r1.config.account.account_id, image=self.image_id, name="toto")
+        self.a1_r1.intel.image.modify(owner=self.a1_r1.config.account.account_id, image=self.image_id, name=name)
         ret = self.a1_r1.intel.image.get(id=self.image_id).response
         assert ret.result.name == name
 
@@ -86,3 +85,18 @@ class Test_modify(OscTinaTest):
         assert False, 'Remove known error'
         assert resp.Images[0].ImageName == name
         assert resp.Images[0].FileLocation is None
+
+    def test_T5866_with_name_and_manifest(self):
+        name = 'name_example'
+        manifest = 'manifest_example'
+        self.a1_r1.intel.image.modify(owner=self.a1_r1.config.account.account_id, image=self.image_id, name=name, manifest=manifest)
+        ret = self.a1_r1.intel.image.get(id=self.image_id).response
+        assert ret.result.name == name
+        assert ret.result.manifest == manifest
+
+    def test_T5867_with_owner_image_id(self):
+        try:
+            self.a1_r1.intel.image.modify(owner=self.a1_r1.config.account.account_id, image=self.image_id)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_code(error, 200, "missing-parameter - Insufficient parameters provided out of: Description, manifest, name, setAsPublic, users.")
