@@ -32,7 +32,7 @@ class Test_create(OscTinaTest):
                              'software-maintenance': {'pz': ['in1'],
                                                       #'load_balancer': [''], # TINA-3817: Not implemented
                                                       'subnet': ['subnet-0d086f54'],
-                                                      'storage_shard': ['1'],     # 4 --> '/vm'
+                                                      'storage_shard': ['2'],     # 2 --> '/vm'
                                                      },
                             }
 #             elif cls.a1_r1.config.region.name == "in-west-2":
