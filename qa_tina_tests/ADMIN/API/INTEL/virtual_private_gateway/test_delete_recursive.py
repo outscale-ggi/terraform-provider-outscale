@@ -1,9 +1,9 @@
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.wait import wait_VpnConnections_state
 from qa_tina_tools.tools.tina.create_tools import get_random_public_ip
 from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_gateways_state, wait_vpn_gateways_attachment_state, \
     wait_vpn_connections_state
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import known_error
 
@@ -36,7 +36,6 @@ class Test_delete_recursive(OscTinaTest):
             vpn_conn_id = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=cgw_id, Type='ipsec.1', VpnGatewayId=vgw_id,
                                                              Options={'StaticRoutesOnly': True}).response.vpnConnection.vpnConnectionId
             wait_vpn_connections_state(self.a1_r1, [vpn_conn_id], state='available')
-            
             self.a1_r1.intel.vpn.virtual_private_gateway.delete(owner=self.a1_r1.config.account.account_id, vpg_id=vgw_id, recursive=True)
             wait_VpnConnections_state(self.a1_r1, [vpn_conn_id], state='deleted',cleanup=True)
             vpn_conn_id = None
