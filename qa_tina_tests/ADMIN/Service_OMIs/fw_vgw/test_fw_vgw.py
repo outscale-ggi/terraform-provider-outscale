@@ -86,7 +86,7 @@ class Test_fw_vgw(OscTinaTest):
 
     def test_T1895_check_ntp(self):
         for i in range(30):
-            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'ntpq -pn')
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'chronyc sources')
             if re.search(r'\*({})'.format('|'.join(self.a1_r1.config.region.get_info(constants.FW_NTP_SERVER_PREFIX))), out):
                 break
             if i == 30 - 1:
@@ -104,7 +104,7 @@ class Test_fw_vgw(OscTinaTest):
         assert SshTools.check_service(self.sshclient, 'nginx')
 
     def test_T1905_check_service(self):
-        assert SshTools.check_service(self.sshclient, 'strongswan', pattern_str='.* is running.*')
+        assert SshTools.check_service(self.sshclient, 'strongswan', pattern_str='strongswan|running')
 
     def test_T1900_check_zebra(self):
         assert SshTools.check_service(self.sshclient, 'zebra')
