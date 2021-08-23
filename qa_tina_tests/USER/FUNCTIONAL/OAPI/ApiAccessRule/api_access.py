@@ -402,7 +402,7 @@ class ApiAccess(OscTinaTest):
             except OscApiException as error:
                 errors.append(error)
                 if error.error_code == 'AuthFailure' and error.status_code == 401:
-                    if api_call == 'eim.ListAccessKeys':
+                    if api_call == 'eim.ListAccessKeys' and expected_results[0] == PASS:
                         results.append('{}TINA-6614'.format(ISSUE_PREFIX))
                     else:
                         results.append(FAIL)
