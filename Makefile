@@ -117,13 +117,13 @@ init-venv:
 
 init-dev:
 	@echo "Init development environment..."
-	pip install pip==20.3.3;
+	pip install pip==21.0.1;
 	pip install setuptools==51.3.3;
 	pip install --quiet --editable .;
 
 init-build:
 	@echo "Init build environment..."
-	pip install pip==20.3.3;
+	pip install pip==21.0.1;
 	pip install setuptools==51.3.3;
 	pip install wheel==0.36.2;
 

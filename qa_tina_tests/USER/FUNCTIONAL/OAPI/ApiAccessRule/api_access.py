@@ -402,7 +402,10 @@ class ApiAccess(OscTinaTest):
             except OscApiException as error:
                 errors.append(error)
                 if error.error_code == 'AuthFailure' and error.status_code == 401:
-                    results.append(FAIL)
+                    if api_call == 'eim.ListAccessKeys' and expected_results[0] == PASS:
+                        results.append('{}TINA-6614'.format(ISSUE_PREFIX))
+                    else:
+                        results.append(FAIL)
                 elif error.error_code == '1' and error.status_code == 401 and error.message == 'AccessDenied':
                     results.append(FAIL)
                 elif error.error_code == '4' and error.status_code == 401 and error.message == 'AccessDenied':
@@ -418,10 +421,10 @@ class ApiAccess(OscTinaTest):
                     results.append(FAIL)
                 elif error.status_code == 400 and error.error_code == 'UnauthorizedOperation':
                     results.append(FAIL)
-                elif api_call == 'eim.ListAccessKeys' and error.status_code == 500 and error.error_code == 'InternalError':
-                    results.append('{}TINA-6116'.format(ISSUE_PREFIX))
-                elif error.status_code == 401 and error.error_code == 'AuthFailure':
-                    results.append(FAIL)
+                #elif api_call == 'eim.ListAccessKeys' and error.status_code == 401 and error.error_code == 'AuthFailure':
+                #    results.append('{}TINA-6614'.format(ISSUE_PREFIX))
+                #elif error.status_code == 401 and error.error_code == 'AuthFailure':
+                #    results.append(FAIL)
                 else:
                     results.append(ERROR)
             except OscSdkException as error:
