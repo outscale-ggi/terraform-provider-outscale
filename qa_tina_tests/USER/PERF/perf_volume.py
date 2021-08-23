@@ -2,8 +2,8 @@ from datetime import datetime
 from threading import current_thread
 
 from qa_test_tools.config import config_constants as constants
-from qa_tina_tools.tools.tina.create_tools import create_keypair
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state, wait_keypairs_state
+from qa_tina_tools.tools.tina import create_tools
+from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tests.USER.PERF.perf_common import log_error
 
 
@@ -54,14 +54,14 @@ def perf_volume(oscsdk, logger, queue, args):
                             if bdn.deviceName == VOL_DEVICE:
                                 logger.debug("Detach and Delete Volume")
                                 oscsdk.fcu.DetachVolume(VolumeId=bdn.ebs.volumeId)
-                                wait_volumes_state(oscsdk, [bdn.ebs.volumeId], state='available')
+                                wait_tools.wait_volumes_state(oscsdk, [bdn.ebs.volumeId], state='available')
                                 oscsdk.fcu.DeleteVolume(VolumeId=bdn.ebs.volumeId)
                         if i.instanceState.name == 'running':
                             inst = i.instanceId
                             break
                         if i.instanceState.name == 'stopped':
                             oscsdk.fcu.StartInstances(InstanceId=[i.instanceId])
-                            wait_instances_state(oscsdk, [i.instanceId], state='ready')
+                            wait_tools.wait_instances_state(oscsdk, [i.instanceId], state='ready')
                             inst = i.instanceId
                             break
         except Exception as error:
@@ -69,8 +69,8 @@ def perf_volume(oscsdk, logger, queue, args):
 
     if not kp and result['status'] != "KO":
         try:
-            create_keypair(oscsdk, name=kp_name)
-            wait_keypairs_state(oscsdk, [kp_name])
+            create_tools.create_keypair(oscsdk, name=kp_name)
+            wait_tools.wait_keypairs_state(oscsdk, [kp_name])
         except Exception as error:
             log_error(logger, error, "Unexpected error while creating key pair", result)
 
@@ -80,7 +80,7 @@ def perf_volume(oscsdk, logger, queue, args):
         try:
             inst = oscsdk.fcu.RunInstances(ImageId=omi, MinCount=1, MaxCount=1, InstanceType=inst_type,
                                            KeyName=kp_name).response.instancesSet[0].instanceId
-            wait_instances_state(oscsdk, [inst], state='ready')
+            wait_tools.wait_instances_state(oscsdk, [inst], state='ready')
             oscsdk.fcu.CreateTags(ResourceId=inst, Tag=[{'Key': 'Name', 'Value': inst_name}])
 
         except Exception as error:
@@ -97,7 +97,7 @@ def perf_volume(oscsdk, logger, queue, args):
             # result['vol_create'] = time_create_vol
             # logger.debug("Volume creation time: %.2f", time_create_vol)
             logger.debug("Wait volume initialization")
-            wait_volumes_state(oscsdk, [volume_id], state='available')
+            wait_tools.wait_volumes_state(oscsdk, [volume_id], state='available')
             time_vol_init = (datetime.now() - start_create_vol).total_seconds()
             result['vol_create'] = time_vol_init
             logger.debug("Volume initialization time: %.2f", time_vol_init)
@@ -112,7 +112,7 @@ def perf_volume(oscsdk, logger, queue, args):
                 start_vol_attach = datetime.now()
                 oscsdk.fcu.AttachVolume(Device=VOL_DEVICE, InstanceId=inst, VolumeId=volume_id)
                 logger.debug("Wait volume attachement")
-                wait_volumes_state(oscsdk, [volume_id], state='in-use')
+                wait_tools.wait_volumes_state(oscsdk, [volume_id], state='in-use')
                 time_vol_attach = (datetime.now() - start_vol_attach).total_seconds()
                 result['vol_attach'] = time_vol_attach
                 logger.debug("Volume attachement time: %.2f", time_vol_attach)
@@ -121,7 +121,7 @@ def perf_volume(oscsdk, logger, queue, args):
                 start_vol_detach = datetime.now()
                 oscsdk.fcu.DetachVolume(VolumeId=volume_id)
                 logger.debug("Wait volume detachement")
-                wait_volumes_state(oscsdk, [volume_id], state='available')
+                wait_tools.wait_volumes_state(oscsdk, [volume_id], state='available')
                 time_vol_detach = (datetime.now() - start_vol_detach).total_seconds()
                 result['vol_detach'] = time_vol_detach
                 logger.debug("Volume detachement time: %.2f", time_vol_detach)
@@ -134,7 +134,7 @@ def perf_volume(oscsdk, logger, queue, args):
             logger.debug("Delete Volume")
             start_vol_deletion_time = datetime.now()
             oscsdk.fcu.DeleteVolume(VolumeId=volume_id)
-            wait_volumes_state(oscsdk, [volume_id], cleanup=True)
+            wait_tools.wait_volumes_state(oscsdk, [volume_id], cleanup=True)
             vol_deletion_time = (datetime.now() - start_vol_deletion_time).total_seconds()
             result['vol_delete'] = vol_deletion_time
         except Exception as error:
