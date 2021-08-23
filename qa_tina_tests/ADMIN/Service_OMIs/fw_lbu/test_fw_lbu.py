@@ -67,7 +67,7 @@ class Test_fw_lbu(OscTinaTest):
         retry = 30
         wait = 30
         for i in range(retry):
-            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'ntpq -pn')
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'chronyc sources')
             if re.search(r'\*({})'.format('|'.join(self.a1_r1.config.region.get_info(constants.FW_NTP_SERVER_PREFIX))), out):
                 break
             if i == retry - 1:
