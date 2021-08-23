@@ -20,14 +20,18 @@ class Test_ApiAccessPolicy(OscTestAAP):
                 ret = func(**params)
                 errors[api_call] = ret.response.ResponseContext.RequestId
             except OscApiException as error:
-                if api_call == 'eim.ListAccessKeys':
-                    if error.message == "Internal Error":
-                        known_errors[api_call] = ('SECSVC-398', "[TrustedEnv] IAM call not in AEL filtered by AAR")
-                    else:
-                        errors[api_call] = "Remove known error"
-                elif api_call.startswith("api.") or api_call.startswith("oapi."):
+                if api_call.startswith("api.") or api_call.startswith("oapi."):
                     try:
                         check_tools.check_oapi_error(error, 4)
+                    except Exception as err:
+                        errors[api_call] = err
+                elif api_call.startswith("eim.ListAccessKeys"):
+                    try:
+                        misc.assert_error(
+                            error,
+                            401,
+                            'AuthFailure',
+                            "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
                     except Exception as err:
                         errors[api_call] = err
                 else:
@@ -100,17 +104,11 @@ class Test_ApiAccessPolicy(OscTestAAP):
                 params['exec_data'] = {osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
                                        osc_api.EXEC_DATA_CERTIFICATE: [self.client_cert[2], self.client_cert[1]]}
                 func(**params)
+                if api_call in ['icu.UpdateAccessKey', 'eim.ListAccessKeys', 'icu.CreateAccessKey', 'icu.UpdateAccessKey']:
+                    errors[api_call] = "Remove known error"
             except OscApiException as error:
-                if api_call == 'eim.ListAccessKeys':
-                    if error.message == "Internal Error":
-                        known_errors[api_call] = ('SECSVC-398', "[TrustedEnv] IAM call not in AEL filtered by AAR")
-                    else:
-                        errors[api_call] = "Remove known error"
-                elif api_call == 'icu.UpdateAccessKey':
-                    if error.error_code == 'ApiAccessDeniedException':
-                        known_errors[api_call] = ('SECSVC-398', "[TrustedEnv] IAM call not in AEL filtered by AAR")
-                    else:
-                        errors[api_call] = "Remove known error"
+                if api_call in ['eim.ListAccessKeys', 'icu.UpdateAccessKey'] and error.status_code == 401 and error.error_code == 'AuthFailure':
+                    known_errors[api_call] = ('TINA-6614', "ICU/EIM issues with ApiAccessRules and ApiAccessPolicies")
                 elif api_call in ['icu.CreateAccessKey', 'icu.UpdateAccessKey']: # Unable to manage AK/SK ExpirationDate with ICU
                     try:
                         misc.assert_error(error, 400, 'InvalidParameterValue',
@@ -151,12 +149,11 @@ class Test_ApiAccessPolicy(OscTestAAP):
                 params['exec_data'] = {osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
                                        osc_api.EXEC_DATA_CERTIFICATE: [self.client_cert[2], self.client_cert[1]]}
                 func(**params)
+                if api_call in ['icu.UpdateAccessKey', 'icu.CreateAccessKey', 'icu.UpdateAccessKey']:
+                    errors[api_call] = "Remove known error"
             except OscApiException as error:
-                if api_call == 'icu.UpdateAccessKey':
-                    if error.error_code == 'ApiAccessDeniedException':
-                        known_errors[api_call] = ('SECSVC-398', "[TrustedEnv] IAM call not in AEL filtered by AAR")
-                    else:
-                        errors[api_call] = "Remove known error"
+                if api_call == 'icu.UpdateAccessKey'and error.status_code == 401 and error.error_code == 'AuthFailure':
+                    known_errors[api_call] = ('TINA-6614', "ICU/EIM issues with ApiAccessRules and ApiAccessPolicies")
                 elif api_call in ['icu.CreateAccessKey', 'icu.UpdateAccessKey']: # Unable to manage AK/SK ExpirationDate with ICU
                     try:
                         misc.assert_error(error, 400, 'InvalidParameterValue',
@@ -194,12 +191,11 @@ class Test_ApiAccessPolicy(OscTestAAP):
                 if not params:
                     params= {}
                 func(**params)
-            except OscApiException as error:
                 if api_call == "eim.ListUsers":
-                    if error.message == "Internal Error":
-                        known_errors[api_call] = ('SECSVC-398', "[TrustedEnv] IAM call not in AEL filtered by AAR")
-                    else:
-                        errors[api_call] = "Remove known error"
+                    errors[api_call] = "Remove known error"
+            except OscApiException as error:
+                if api_call == "eim.ListUsers" and error.status_code == 401 and error.error_code == 'AuthFailure':
+                    known_errors[api_call] = ('TINA-6614', "ICU/EIM issues with ApiAccessRules and ApiAccessPolicies")
                 else:
                     errors[api_call] = error
 
