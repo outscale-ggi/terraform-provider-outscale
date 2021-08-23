@@ -36,7 +36,7 @@ def perf_inst_exec(oscsdk, logger, queue, args, opsys):
     if not args.omi:
         logger.debug("OMI not specified, select default OMI")
         if opsys == 'windows':
-            omi = oscsdk.config.region.get_info((constants.WINDOWS_LATEST))
+            omi = oscsdk.config.region.get_info(constants.WINDOWS_LATEST)
         else:
             omi = oscsdk.config.region.get_info(constants.CENTOS_LATEST)
     else:
