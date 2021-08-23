@@ -3,6 +3,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, wait_tools, info_keys, delete_tools
+from qa_test_tools.config import config_constants as constants
 
 
 class Test_GetPasswordData(OscTinaTest):
@@ -11,16 +12,17 @@ class Test_GetPasswordData(OscTinaTest):
     def setup_class(cls):
         super(Test_GetPasswordData, cls).setup_class()
         cls.instance_info_a1 = None
-        cls.instance_info_a2 = None
+#        cls.instance_info_a2 = None
         try:
             cls.kp_info_a1 = create_tools.create_keypair(cls.a1_r1)
-            cls.kp_info_a2 = create_tools.create_keypair(cls.a2_r1)
-            cls.instance_info_a1 = create_tools.create_instances(cls.a1_r1, state=None, omi_id=cls.a1_r1.config.region.get_info('windows_2016'),
+#            cls.kp_info_a2 = create_tools.create_keypair(cls.a2_r1)
+            cls.instance_info_a1 = create_tools.create_instances(cls.a1_r1, state=None,
+                                                                 omi_id=cls.a1_r1.config.region.get_info(constants.WINDOWS_LATEST),
                                                     inst_type='c4.large', key_name=cls.kp_info_a1[info_keys.NAME], nb=3)
-            cls.instance_info_a2 = create_tools.create_instances(cls.a2_r1, state=None, omi_id=cls.a2_r1.config.region.get_info('windows_2016'),
-                                                    inst_type='c4.large', key_name=cls.kp_info_a2[info_keys.NAME])
+#             cls.instance_info_a2 = create_tools.create_instances(cls.a2_r1, state=None, omi_id=cls.a2_r1.config.region.get_info(constants.WINDOWS_LATEST),
+#                                                     inst_type='c4.large', key_name=cls.kp_info_a2[info_keys.NAME])
             wait_tools.wait_instances_state(cls.a1_r1, cls.instance_info_a1[info_keys.INSTANCE_ID_LIST], state='ready', threshold=150)
-            wait_tools.wait_instances_state(cls.a2_r1, cls.instance_info_a2[info_keys.INSTANCE_ID_LIST], state='ready', threshold=150)
+#            wait_tools.wait_instances_state(cls.a2_r1, cls.instance_info_a2[info_keys.INSTANCE_ID_LIST], state='ready', threshold=150)
         except Exception:
             try:
                 cls.teardown_class()
@@ -32,12 +34,12 @@ class Test_GetPasswordData(OscTinaTest):
         try:
             if cls.instance_info_a1:
                 delete_tools.delete_instances(cls.a1_r1, cls.instance_info_a1)
-            if cls.instance_info_a2:
-                delete_tools.delete_instances(cls.a2_r1, cls.instance_info_a2)
+#             if cls.instance_info_a2:
+#                 delete_tools.delete_instances(cls.a2_r1, cls.instance_info_a2)
             if cls.kp_info_a1:
                 delete_tools.delete_keypair(cls.a1_r1, cls.kp_info_a1)
-            if cls.kp_info_a2:
-                delete_tools.delete_keypair(cls.a2_r1, cls.kp_info_a2)
+#             if cls.kp_info_a2:
+#                 delete_tools.delete_keypair(cls.a2_r1, cls.kp_info_a2)
         finally:
             super(Test_GetPasswordData, cls).teardown_class()
 
