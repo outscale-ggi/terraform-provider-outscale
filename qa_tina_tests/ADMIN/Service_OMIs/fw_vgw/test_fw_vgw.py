@@ -107,10 +107,10 @@ class Test_fw_vgw(OscTinaTest):
         assert SshTools.check_service(self.sshclient, 'strongswan', pattern_str='strongswan|running')
 
     def test_T1900_check_zebra(self):
-        assert SshTools.check_service(self.sshclient, 'zebra')
+        assert SshTools.check_service(self.sshclient, 'zebra', 'zebra')
 
     def test_T1901_check_bgpd(self):
-        assert SshTools.check_service(self.sshclient, 'bgpd')
+        assert SshTools.check_service(self.sshclient, 'bgpd', 'bgpd')
 
     def test_T1902_check_netns(self):
         out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec {} ifconfig | grep Link".format(self.vgw_id))

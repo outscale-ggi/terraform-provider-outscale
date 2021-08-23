@@ -131,6 +131,9 @@ class Test_ReadVmsState(OscTinaTest):
             ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': ['foo']})  # Code expected not name
             assert len(ret.response.VmStates) == 0
         except OscApiException as error:
+            if error.status_code == 500 and error.message == 'InternalError':
+                known_error("API-374", "oapi.ReadVmsState: internal error with invalid vm state filters")
+            assert False, "remove known error code"
             assert_oapi_error(error, 400, 'InvalidParameter', '3001')
 
     def test_T2084_with_invalid_vm_id(self):
