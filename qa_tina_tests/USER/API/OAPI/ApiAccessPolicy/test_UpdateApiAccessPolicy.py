@@ -1,6 +1,7 @@
 import datetime
 import os
 import string
+import time
 
 import pytest
 
@@ -11,7 +12,7 @@ from qa_sdks import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account, delete_account
 from qa_test_tools.compare_objects import verify_response
-from qa_test_tools.config import OscConfig
+from qa_test_tools.config import OscConfig, config_constants
 from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools
@@ -67,6 +68,12 @@ class Test_UpdateApiAccessPolicy(OscTinaTest):
         aar_id = None
         ca1files = None
         certfiles_ca1cn1 = None
+        if with_med:
+            keys = self.a1_r1.intel.accesskey.find_by_user(owner=self.account_sdk.config.account.account_id).response.result
+            exp_date = (datetime.datetime.utcnow() + datetime.timedelta(minutes=60)).strftime(
+                "%Y-%m-%dT%H:%M:%S.000+0000")
+            for key in keys:
+                self.account_sdk.identauth.IdauthAccount.updateAccessKey(accessKeyPid=key.name, newExpirationDate=exp_date)
         if with_aar:
 
             ca1files = create_tools.create_caCertificate_file(root='.', cakey='ca1.key', cacrt='ca1.crt',
@@ -80,18 +87,19 @@ class Test_UpdateApiAccessPolicy(OscTinaTest):
             ca_pid = self.account_sdk.oapi.CreateCa(CaPem=open(ca1files[1]).read(),
                                                     Description="ca1files").response.Ca.CaId
 
+            resp = self.account_sdk.oapi.ReadApiAccessRules().response
             aar_id = self.account_sdk.oapi.CreateApiAccessRule(CaIds=[ca_pid]).response.ApiAccessRule.ApiAccessRuleId
-        if with_med:
-            keys = self.a1_r1.intel.accesskey.find_by_user(owner=self.account_sdk.config.account.account_id).response.result
-            exp_date = (datetime.datetime.utcnow() + datetime.timedelta(minutes=60)).strftime(
-                "%Y-%m-%dT%H:%M:%S.000+0000")
-            for key in keys:
-                self.account_sdk.identauth.IdauthAccount.updateAccessKey(accessKeyPid=key.name, newExpirationDate=exp_date)
+            for rule in resp.ApiAccessRules:
+                self.account_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=rule.ApiAccessRuleId)
         return ca_pid, aar_id, ca1files, certfiles_ca1cn1
 
     def teardown_prerequisites(self, ca_pid, aar_id, ca1files, certfiles_ca1cn1):
         cwd = os.getcwd()
         if aar_id:
+            self.account_sdk.identauth.IdauthAccountAdmin.applyDefaultApiAccessRulesAsync(
+                account_id=self.account_sdk.config.region.get_info(config_constants.AS_IDAUTH_ID),
+                accountPids=[self.account_sdk.config.account.account_id])
+            time.sleep(2)
             self.account_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId=aar_id)
 
         if ca_pid:
@@ -133,7 +141,7 @@ class Test_UpdateApiAccessPolicy(OscTinaTest):
         aar_id = None
 
         try:
-            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=True, with_med=False)
+            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=True, with_med=False) # TODO
 
             ret_aap = self.account_sdk.oapi.UpdateApiAccessPolicy(
                 exec_data={osc_api.EXEC_DATA_CERTIFICATE: [certfiles_ca1cn1[2], certfiles_ca1cn1[1]],
@@ -284,7 +292,9 @@ class Test_UpdateApiAccessPolicy(OscTinaTest):
     def test_T5781_with_require_trusted_env_and_ak_sk_and_without_expiration_date(self):
         try:
             ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=True, with_med=False)
-            self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=3600, RequireTrustedEnv=True)
+            self.account_sdk.oapi.UpdateApiAccessPolicy(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
+                                                                   osc_api.EXEC_DATA_CERTIFICATE: [certfiles_ca1cn1[2], certfiles_ca1cn1[1]]},
+                                                        MaxAccessKeyExpirationSeconds=3600, RequireTrustedEnv=True)
             assert False, "call should not have been successful"
         except OscApiException as error:
             check_oapi_error(error, 4118)
@@ -294,9 +304,10 @@ class Test_UpdateApiAccessPolicy(OscTinaTest):
     #  - with RequireTrustedEnv=True and with ak/sk and MaxAccessKeyExpirationSeconds=0 ==> ko
     def test_T5780_with_require_trusted_env_and_with_ak_sk_and_max_access_key_equals_zero(self):
         try:
-            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=True, with_med=True)
-            self.account_sdk.oapi.UpdateApiAccessPolicy(MaxAccessKeyExpirationSeconds=0,
-                                                                            RequireTrustedEnv=True)
+            ca_pid, aar_id, ca1files, certfiles_ca1cn1 = self.setup_prerequisites(with_aar=True, with_med=True) # TODO
+            self.account_sdk.oapi.UpdateApiAccessPolicy(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.AkSk,
+                                                                   osc_api.EXEC_DATA_CERTIFICATE: [certfiles_ca1cn1[2], certfiles_ca1cn1[1]]},
+                                                        MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=True)
             assert False, "call should not have been successful"
         except OscApiException as error:
             check_oapi_error(error, 4118)
