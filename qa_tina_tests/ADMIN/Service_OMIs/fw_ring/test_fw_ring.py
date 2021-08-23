@@ -63,7 +63,7 @@ class Test_fw_ring(OscTinaTest):
             time.sleep(wait)
 
     def test_T1856_check_zabbix(self):
-        assert SshTools.check_service(self.sshclient, 'zabbix-agent', 'zabbix_agent.* is running')
+        assert SshTools.check_service(self.sshclient, 'zabbix-agent', 'zabbix_agent|running')
 
     def test_T1857_check_consul(self):
         assert SshTools.check_service(self.sshclient, 'consul')
