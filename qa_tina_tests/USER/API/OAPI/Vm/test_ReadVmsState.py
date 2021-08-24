@@ -40,6 +40,7 @@ class Test_ReadVmsState(OscTinaTest):
         cls.info = None
 
     # ATTENTION, this test is better first as terminated vm can 'disappear'
+    @pytest.mark.order1
     def test_T2076_filter_vm_state_name(self):
         self.a1_r1.oapi.StopVms(VmIds=[self.info[info_keys.INSTANCE_SET][2]['instanceId']], ForceStop=True)
         self.a1_r1.oapi.DeleteVms(VmIds=[self.info[info_keys.INSTANCE_SET][2]['instanceId']])
