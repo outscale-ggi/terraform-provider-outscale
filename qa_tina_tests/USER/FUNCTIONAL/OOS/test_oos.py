@@ -72,7 +72,7 @@ class Test_oos(OscTinaTest):
         res = self.a1_r1.oos.list_objects(Bucket=self.public_bucket_name)
         assert res['Contents'][0]['Owner']['DisplayName'] == self.a1_r1.config.account.account_id
 
-    def test_T0000_static_website_bucket(self):
+    def test_T5887_static_website_bucket(self):
         """
             Create a static website in the bucket and request this website by the endpoint oos-website
             and check the text in the response
@@ -143,7 +143,7 @@ class Test_oos(OscTinaTest):
             if errors:
                 raise errors[0]
 
-    def test_T0000_cors_bucket(self):
+    def test_T5888_cors_bucket(self):
         """
             Create two buckets
             Create the first website with a suffix index.html , a key error.html and a load.html
@@ -261,7 +261,7 @@ class Test_oos(OscTinaTest):
             if errors:
                 raise errors[0]
 
-    def test_T0000_acl_bucket(self):
+    def test_T5889_acl_bucket(self):
         """
             Create an object in a bucket and create after a public_read acl for this object
             Get this object with a second account
@@ -325,7 +325,7 @@ class Test_oos(OscTinaTest):
             if errors:
                 raise errors[0]
 
-    def test_T0000_object(self):
+    def test_T5890_object(self):
         """
             Create a html object in a bucket and request the endpoint oos scality to check the object.
         """
@@ -380,7 +380,7 @@ class Test_oos(OscTinaTest):
             if errors:
                 raise errors[0]
 
-    def test_T0000_multiple_upload(self):
+    def test_T5891_multiple_upload(self):
         """
             Create a bucket
             Create file data.txt
@@ -444,7 +444,7 @@ class Test_oos(OscTinaTest):
             if errors:
                 raise errors[0]
 
-    def test_T0000_multiple_upload_copy(self):
+    def test_T5892_multiple_upload_copy(self):
         """
             Create a bucket
             Create file data.txt
@@ -513,7 +513,7 @@ class Test_oos(OscTinaTest):
             if errors:
                 raise errors[0]
 
-    def test_T0000_bucket_versioning(self):
+    def test_T5893_bucket_versioning(self):
         """
             Create bucket
             Enable the versionning
@@ -569,7 +569,7 @@ class Test_oos(OscTinaTest):
             if errors:
                 raise errors[0]
 
-    def test_T0000_url_presigned(self):
+    def test_T5894_url_presigned(self):
         """
             Create and delete an object in a bucket.
         """
