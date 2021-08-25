@@ -43,8 +43,6 @@ class Test_CreateDirectLinkInterface(OscTinaTest):
     @pytest.mark.region_admin
     @pytest.mark.region_directlink
     def test_T4073_valid_params(self):
-        known_error('GTW-2012', 'Incorrect response structure')
-        known_error('GTW-2013', 'Incorrect response structure')
         direct_link_interface_name = id_generator(size=10, chars=string.ascii_lowercase)
         direct_link_name = id_generator(size=8, chars=string.ascii_lowercase)
         ret_dl = None
@@ -61,13 +59,14 @@ class Test_CreateDirectLinkInterface(OscTinaTest):
                                                              DirectLinkInterface={'BgpAsn': 1, 'Vlan': 2,
                                                                                   'VirtualGatewayId': self.virtual_gateway_id,
                                                                                   'DirectLinkInterfaceName': direct_link_interface_name})
-            directlink_interface_id = ret_dli.response.DirectLinkInterfaces.DirectLinkInterfaceId
+            directlink_interface_id = ret_dli.response.DirectLinkInterface.DirectLinkInterfaceId
         finally:
             if directlink_interface_id:
                 self.a1_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId=directlink_interface_id)
-                wait.wait_DirectLinkInterfaces_state(self.a1_r1, [directlink_interface_id], state='deleted')
+                wait.wait_DirectLinkInterfaces_state(self.a1_r1, [directlink_interface_id], state="deleted")
             if ret_dl:
                 self.a1_r1.oapi.DeleteDirectLink(DirectLinkId=ret_dl.response.DirectLink.DirectLinkId)
+                wait.wait_DirectLinks_state(self.a1_r1, [ret_dl.response.DirectLink.DirectLinkId], state="deleted")
 
     def test_T3907_missing_parameters(self):
         try:
