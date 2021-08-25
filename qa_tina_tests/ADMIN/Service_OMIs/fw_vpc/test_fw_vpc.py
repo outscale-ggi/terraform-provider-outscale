@@ -110,7 +110,7 @@ class Test_fw_vpc(OscTinaTest):
 
     def test_T1878_check_fdcp(self):
         out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ps ax | grep dhcp")
-        pattern = re.compile('/sbin/dhclient')
+        pattern = re.compile('/usr/local/outscale/virtualenv36/bin/fdhcp')
         assert re.search(pattern, out)
 
     def test_T1876_check_hostname(self):
