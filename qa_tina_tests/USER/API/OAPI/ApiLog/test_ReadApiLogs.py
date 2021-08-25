@@ -308,7 +308,7 @@ class Test_ReadApiLogs(OscTinaTest):
                 'AccountId': True,
                 'QueryPayloadSize': True,
             },
-            Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(days=50)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')},
+            Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(days=5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')},
             ResultsPerPage=1,
         )
         if len(ret.response.Logs) == 0:
