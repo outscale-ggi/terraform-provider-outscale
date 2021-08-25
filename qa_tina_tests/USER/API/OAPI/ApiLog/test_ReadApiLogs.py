@@ -213,6 +213,9 @@ class Test_ReadApiLogs(OscTinaTest):
         ret = self.a1_r1.oapi.ReadApiLogs(
             ResultsPerPage=5, Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
         )
+        if len(ret.response.Logs) == 0:
+            known_error("API-347", "ReadApiLogs")
+        assert False, "Remove known error"
         assert {self.a1_r1.config.account.account_id} == {call.AccountId for call in ret.response.Logs}
         assert len(ret.response.Logs) == 5
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=5, Filters={"QueryApiNames": ["oapi"], "QueryAccessKeys": [self.a1_r1.config.account.ak]})
@@ -305,9 +308,12 @@ class Test_ReadApiLogs(OscTinaTest):
                 'AccountId': True,
                 'QueryPayloadSize': True,
             },
-            Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(days=5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')},
+            Filters={'QueryDateAfter': (datetime.utcnow() - timedelta(days=50)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')},
             ResultsPerPage=1,
         )
+        if len(ret.response.Logs) == 0:
+            known_error("API-347", "ReadApiLogs")
+        assert False, "Remove known error"
         assert {self.a1_r1.config.account.account_id} == {call.AccountId for call in ret.response.Logs}
         assert not ret.response.ResponseContext.RequestId == ret.response.Logs[0].RequestId
         for attr in param:
@@ -367,7 +373,7 @@ class Test_ReadApiLogs(OscTinaTest):
         ret = self.a2_r1.oapi.ReadApiLogs()
         assert len(ret.response.Logs) != 0
         assert {self.a2_r1.config.account.account_id} == {call.AccountId for call in ret.response.Logs}
-        assert {"ReadTags", "ReadSubnets","ReadApiLogs"} == {call.QueryCallName for call in ret.response.Logs}
+        assert {"ReadTags", "ReadSubnets"} == {call.QueryCallName for call in ret.response.Logs}
 
     def test_T5821_valid_filter_RequestId_with_other_account(self):
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"RequestIds": [self.request_id_a2]})

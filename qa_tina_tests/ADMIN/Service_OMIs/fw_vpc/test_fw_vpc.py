@@ -89,11 +89,11 @@ class Test_fw_vpc(OscTinaTest):
         pass
 
     def test_T1875_check_netns(self):
-        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec igw ifconfig | grep Link")
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec igw ifconfig")
         assert re.search('lo', out)
         assert re.search('{}'.format(self.vpc_info[VPC_ID]), out)
         assert re.search('wan', out)
-        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec {} ifconfig | grep Link".format(self.vpc_info[VPC_ID]))
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec {} ifconfig".format(self.vpc_info[VPC_ID]))
         assert re.search('lo', out)
         assert re.search('s-', out)
         assert re.search('ifw', out)
