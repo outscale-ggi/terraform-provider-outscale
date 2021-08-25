@@ -107,14 +107,6 @@ class Test_update_image_bdm(OscTinaTest):
         finally:
             OscTinaTest.teardown_method(self, method)
 
-    def check_image(self):
-        vm_info = None
-        try:
-            vm_info = oapi.create_Vms(self.a1_r1, omi_id=self.image_id)
-        finally:
-            if vm_info:
-                oapi.delete_Vms(self.a1_r1, vm_info)
-
     def test_T5896_without_params(self):
         try:
             self.a1_r1.intel.image.update_bdm()
