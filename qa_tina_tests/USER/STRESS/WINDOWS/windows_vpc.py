@@ -45,7 +45,7 @@ def run(args):
 
 #     if not args.omi:
 #         logger.debug("OMI not specified, select default OMI")
-#         omi = oscsdk.config.region.get_info(constants.WINDOWS_2016)
+#         omi = oscsdk.config.region.get_info(constants.WINDOWS_LATEST)
 #     else:
 #         omi = args.omi
 #

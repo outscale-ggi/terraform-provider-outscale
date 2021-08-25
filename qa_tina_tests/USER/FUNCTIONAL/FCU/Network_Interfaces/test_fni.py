@@ -21,8 +21,11 @@ class Test_fni(OscTinaTest):
         cls.vpc_eip2 = None
         cls.vpc_inst1 = None
         cls.vpc_inst2 = None
+        cls.omi_id = None
         try:
-            cls.vpc_info = create_vpc(cls.a1_r1, nb_instance=2, no_eip=True, omi_id='')
+            # need centos7 for fni tests see OPS-13750
+            cls.omi_id = cls.a1_r1.config.region.get_info(constants.CENTOS7)
+            cls.vpc_info = create_vpc(cls.a1_r1, nb_instance=2, no_eip=True, omi_id=cls.omi_id)
             cls.vpc_inst1 = cls.vpc_info[SUBNETS][0][INSTANCE_SET][0]
             cls.vpc_inst2 = cls.vpc_info[SUBNETS][0][INSTANCE_SET][1]
             # allocate vpc_eip1
