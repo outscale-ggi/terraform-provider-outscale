@@ -41,7 +41,7 @@ from qa_tina_tools.tina import oapi, info_keys, wait
 #
 #     :rtype: Image
 #     """
-
+from qa_tina_tools.tina.wait import wait_Images_state
 
 SIZE = 10
 IOPS = 400
@@ -88,10 +88,11 @@ class Test_update_image_bdm(OscTinaTest):
         try:
             ret = self.a1_r1.oapi.CreateImage(VmId=self.vm_info[info_keys.VM_IDS][0], ImageName=id_generator(prefix='omi_'), NoReboot=True)
             self.image_id = ret.response.Image.ImageId
+            wait_Images_state(osc_sdk=self.a1_r1, image_ids=[self.image_id], state='available')
             self.snapshot_id = ret.response.Image.BlockDeviceMappings[0].Bsu.SnapshotId
             self.size = ret.response.Image.BlockDeviceMappings[0].Bsu.VolumeSize
             self.delete_termination_state = ret.response.Image.BlockDeviceMappings[0].Bsu.DeleteOnVmDeletion
-            wait.wait_Images_state(osc_sdk=self.a1_r1, image_ids=[self.image_id], state='available')
+
         except Exception as error:
             try:
                 self.teardown_method(method)
@@ -106,13 +107,6 @@ class Test_update_image_bdm(OscTinaTest):
                 self.a1_r1.oapi.DeleteImage(ImageId=self.image_id)
         finally:
             OscTinaTest.teardown_method(self, method)
-
-    def test_T5896_without_params(self):
-        try:
-            self.a1_r1.intel.image.update_bdm()
-            assert False, 'call should not have been successful'
-        except OscApiException as error:
-            assert_error(error, 200, 0, 'missing-parameter - Parameter cannot be empty: ImageID')
 
     def test_T5897_with_required_params(self):
         try:
@@ -142,11 +136,10 @@ class Test_update_image_bdm(OscTinaTest):
         ret = self.a1_r1.intel.image.update_bdm(owner=self.a1_r1.config.account.account_id, image_id=self.image_id,
                                                 snapshot_id=self.snapshot_id, delete_on_termination=False, volume_type='io1',
                                                 size=new_size, iops=IOPS+100)
-        for elt in ret.response.result.mapping:
-            assert elt.size == new_size
-            assert elt.volume_type == 'io1'
-            assert elt.delete_on_termination is False
-            assert elt.iops == IOPS + 100
+        assert ret.response.result.mapping[0].size == new_size
+        assert ret.response.result.mapping[0].volume_type == 'io1'
+        assert ret.response.result.mapping[0].delete_on_termination is False
+        assert ret.response.result.mapping[0].iops == IOPS + 100
 
     def test_T5901_with_snapshot_id(self):
         try:
@@ -189,8 +182,11 @@ class Test_update_image_bdm(OscTinaTest):
             self.a1_r1.intel.image.update_bdm(owner=self.a1_r1.config.account.account_id, image_id=self.image_id, iops=IOPS+100)
             assert False, 'call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 200, 0, 'missing-parameter - Insufficient parameters provided out of: DeleteOnTermination,'
-                                             ' size, volumeType. Expected at least: 1')
+            if error.message == "missing-parameter - Insufficient parameters provided out of: DeleteOnTermination, size," \
+                                " volumeType. Expected at least: 1":
+                known_error('TINA-6704', 'error messages with the call intel.update_bdm')
+            assert False, 'Remove known error'
+            assert_error(error, 200, 0, 'invalid-parameter - Parameter IOPS is not supported for: standard')
 
     def test_T5907_with_delete_on_termination(self):
         ret = self.a1_r1.intel.image.update_bdm(owner=self.a1_r1.config.account.account_id, image_id=self.image_id, delete_on_termination=False)
@@ -198,12 +194,14 @@ class Test_update_image_bdm(OscTinaTest):
 
     def test_T5908_with_invalid_owner(self):
         try:
-            self.a1_r1.intel.image.update_bdm(owner='foo', image_id=self.image_id)
+            self.a1_r1.intel.image.update_bdm(owner='foo', image_id=self.image_id, size=SIZE*TO_BYTES)
             assert False, 'call should not have been successful'
         except OscApiException as error:
-            # Plutôt no-such-owner !
-            assert_error(error, 200, 0, "missing-parameter - Insufficient parameters provided out of: DeleteOnTermination,"
-                                             " size, volumeType. Expected at least: 1")
+            if error.message == "missing-parameter - Insufficient parameters provided out of: DeleteOnTermination, size," \
+                                " volumeType. Expected at least: 1":
+                known_error('TINA-6704', 'error messages with the call intel.update_bdm')
+            assert False, 'Remove known error'
+            assert_error(error, 200, 0, '')
 
     def test_T5909_with_invalid_image_id(self):
         try:
