@@ -4,8 +4,10 @@ import string
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_tina_tools.test_base import OscTinaTest
+
 
 
 class Test_DeleteDirectLink(OscTinaTest):
@@ -27,17 +29,17 @@ class Test_DeleteDirectLink(OscTinaTest):
             self.a1_r1.oapi.DeleteDirectLink(DirectLinkId='id_invalid')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104', None)
+            check_oapi_error(error, 4104, invalid='id_invalid', prefixes='dxcon-')
         try:
             self.a1_r1.oapi.DeleteDirectLink(DirectLinkId='dxcon-1234567')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105', None)
+            check_oapi_error(error, 4105, given_id='dxcon-1234567')
         try:
             self.a1_r1.oapi.DeleteDirectLink(DirectLinkId='dxcon-123456789')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105', None)
+            check_oapi_error(error, 4105, given_id='dxcon-123456789')
 
     def test_T3903_unknown_direct_link_id(self):
         try:
