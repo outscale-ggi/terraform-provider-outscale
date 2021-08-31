@@ -1,3 +1,4 @@
+import datetime
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -40,17 +41,21 @@ class Test_UpdateAccessKey(OscTinaTest):
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
 
     def test_T4839_valid_params(self):
+        ak = None
         try:
             ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
-            self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE')
+            ret = self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE')
+            ret.check_response()
         finally:
             if ak:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
 
     def test_T4840_invalid_accesskeyid_param(self):
+        ak = None
         try:
             ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
             self.a1_r1.oapi.UpdateAccessKey(AccessKeyId='tot', State='ACTIVE')
+            assert False, 'Call should not be successful'
         except OscApiException as error:
             misc.assert_error(error, 400, '4122', 'InvalidParameterValue')
         finally:
@@ -61,6 +66,7 @@ class Test_UpdateAccessKey(OscTinaTest):
         try:
             ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
             self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='tot')
+            assert False, 'Call should not be successful'
         except OscApiException as error:
             misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4123)
         finally:
@@ -68,9 +74,11 @@ class Test_UpdateAccessKey(OscTinaTest):
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
 
     def test_T4842_without_state_param(self):
+        ak = None
         try:
             ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
             self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak)
+            assert False, 'Call should not be successful'
         except OscApiException as error:
             misc.assert_error(error, 400, '7000', 'MissingParameter')
         finally:
@@ -78,9 +86,11 @@ class Test_UpdateAccessKey(OscTinaTest):
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
 
     def test_T4843_without_accesskeyid_param(self):
+        ak = None
         try:
             ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
             self.a1_r1.oapi.UpdateAccessKey(State='ACTIVE')
+            assert False, 'Call should not be successful'
         except OscApiException as error:
             misc.assert_error(error, 400, '7000', 'MissingParameter')
         finally:
@@ -88,8 +98,10 @@ class Test_UpdateAccessKey(OscTinaTest):
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
 
     def test_T4844_without_params(self):
+        ak = None
         try:
             self.a1_r1.oapi.UpdateAccessKey()
+            assert False, 'Call should not be successful'
         except OscApiException as error:
             misc.assert_error(error, 400, '7000', 'MissingParameter')
 
@@ -104,10 +116,47 @@ class Test_UpdateAccessKey(OscTinaTest):
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
 
     def test_T5063_with_dry_run(self):
+        ak = None
         try:
             ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
             ret = self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', DryRun=True)
             assert_dry_run(ret)
+        finally:
+            if ak:
+                self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
+
+    def test_T5922_invalid_expiration_date(self):
+        ak = None
+        try:
+            ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
+            self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', ExpirationDate='foobar')
+            assert False, 'Call should not be successful'
+        except OscApiException as error:
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4123)
+        finally:
+            if ak:
+                self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
+
+    def test_T5923_with_expiration_date(self):
+        ak = None
+        try:
+            exp_date = (datetime.datetime.utcnow() + datetime.timedelta(minutes=1000)).strftime("%Y-%m-%dT%H:%M:%S.000+0000")
+            ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
+            ret = self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', ExpirationDate=exp_date)
+            assert hasattr(ret.response.AccessKey, 'ExpirationDate')
+        finally:
+            if ak:
+                self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
+
+    def test_T5924_remove_expiration_date(self):
+        ak = None
+        try:
+            exp_date = (datetime.datetime.utcnow() + datetime.timedelta(minutes=1000)).strftime("%Y-%m-%dT%H:%M:%S.000+0000")
+            ak = self.a1_r1.oapi.CreateAccessKey().response.AccessKey.AccessKeyId
+            ret = self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', ExpirationDate=exp_date)
+            assert hasattr(ret.response.AccessKey, 'ExpirationDate')
+            ret = self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE')
+            assert not hasattr(ret.response.AccessKey, 'ExpirationDate')
         finally:
             if ak:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
