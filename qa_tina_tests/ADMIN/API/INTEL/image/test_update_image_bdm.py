@@ -194,7 +194,7 @@ class Test_update_image_bdm(OscTinaTest):
 
     def test_T5908_with_invalid_owner(self):
         try:
-            self.a1_r1.intel.image.update_bdm(owner='foo', image_id=self.image_id, size=SIZE*TO_BYTES)
+            self.a1_r1.intel.image.update_bdm(owner='foo', image_id=self.image_id)
             assert False, 'call should not have been successful'
         except OscApiException as error:
             if error.message == "missing-parameter - Insufficient parameters provided out of: DeleteOnTermination, size," \
