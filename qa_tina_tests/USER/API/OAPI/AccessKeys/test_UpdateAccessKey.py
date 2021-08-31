@@ -98,7 +98,6 @@ class Test_UpdateAccessKey(OscTinaTest):
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
 
     def test_T4844_without_params(self):
-        ak = None
         try:
             self.a1_r1.oapi.UpdateAccessKey()
             assert False, 'Call should not be successful'
