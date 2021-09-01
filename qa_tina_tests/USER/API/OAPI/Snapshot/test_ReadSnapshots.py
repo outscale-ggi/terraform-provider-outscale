@@ -20,8 +20,8 @@ class Test_ReadSnapshots(Snapshot):
             cls.snap2_id = cls.a1_r1.oapi.CreateSnapshot(VolumeId=cls.volume_id2, Description='1..2..3').response.Snapshot.SnapshotId
             cls.snap3_id = cls.a1_r1.oapi.CreateSnapshot(VolumeId=cls.volume_id1, Description='4..5..6').response.Snapshot.SnapshotId
             wait_snapshots_state(cls.a1_r1, [cls.snap1_id, cls.snap2_id, cls.snap3_id], state='completed')
-            #permissions = {'Additions': {'AccountIds': [cls.a2_r1.config.account.account_id]}}
-            #cls.a1_r1.oapi.UpdateSnapshot(SnapshotId=cls.snap2_id, PermissionsToCreateVolume=permissions)
+            permissions = {'Additions': {'AccountIds': [cls.a2_r1.config.account.account_id]}}
+            cls.a1_r1.oapi.UpdateSnapshot(SnapshotId=cls.snap2_id, PermissionsToCreateVolume=permissions)
             permissions = {'Additions': {'GlobalPermission': True}}
             cls.a1_r1.oapi.UpdateSnapshot(SnapshotId=cls.snap3_id, PermissionsToCreateVolume=permissions)
         except Exception:
