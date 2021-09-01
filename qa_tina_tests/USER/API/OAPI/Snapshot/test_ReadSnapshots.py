@@ -185,3 +185,23 @@ class Test_ReadSnapshots(Snapshot):
     def test_T3811_filters_account_aliases(self):
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={'AccountAliases': ['toto']}).response.Snapshots
         assert len(ret) == 0
+
+    def test_T5925_filters_mutiple_tags(self):
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.snap1_id],
+                                   Tags=[{'Key': 'key', 'Value': 'value'}])
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.snap1_id],
+                                   Tags=[{'Key': 'key1', 'Value': 'value1'}])
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.snap2_id],
+                                   Tags=[{'Key': 'key', 'Value': 'value'}])
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.snap2_id],
+                                   Tags=[{'Key': 'key2', 'Value': 'value2'}])
+        ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key=value"]}).response.Snapshots
+        assert len(ret) == 2
+        ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key1=value1"]}).response.Snapshots
+        assert len(ret) == 1
+        ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key2=value2"]}).response.Snapshots
+        assert len(ret) == 1
+        ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key=value", "key1=value1"]}).response.Snapshots
+        assert len(ret) == 2
+        for snap in ret:
+            validate_snasphot(snap)
