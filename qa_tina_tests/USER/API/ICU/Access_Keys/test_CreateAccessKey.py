@@ -3,8 +3,7 @@ from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
-from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import known_error
+from qa_test_tools.misc import assert_error
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -50,6 +49,22 @@ class Test_CreateAccessKey(OscTinaTest):
             if ret_create:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
 
+    def test_T3971_param_method_authPassword(self):
+        sleep(30)
+        ret_create = None
+        try:
+            ret_create = self.a1_r1.icu.CreateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
+            ak = ret_create.response.accessKey.accessKeyId
+            sk = ret_create.response.accessKey.secretAccessKey
+            assert re.search(r"([A-Z0-9]{20})", ak), "AK format is not correct"
+            assert re.search(r"([A-Z0-9]{40})", sk), "SK format is not correct"
+            assert ret_create.response.accessKey.status == 'ACTIVE'
+            if self.a1_r1.config.account.account_id:
+                assert ret_create.response.accessKey.ownerId == self.a1_r1.config.account.account_id
+        finally:
+            if ret_create:
+                self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
+
     def test_T3772_check_throttling(self):
         sleep(30)
         found_error = False
@@ -80,7 +95,6 @@ class Test_CreateAccessKey(OscTinaTest):
             ret_create = self.a1_r1.icu.CreateAccessKey(Foo='Bar')
             ak = ret_create.response.accessKey.accessKeyId
             sk = ret_create.response.accessKey.secretAccessKey
-            assert ret_create.response.accessKey.ownerId
             assert re.search(r"([A-Z0-9]{20})", ak), "AK format is not correct"
             assert re.search(r"([A-Z0-9]{40})", sk), "SK format is not correct"
             assert ret_create.response.accessKey.status == 'ACTIVE'
