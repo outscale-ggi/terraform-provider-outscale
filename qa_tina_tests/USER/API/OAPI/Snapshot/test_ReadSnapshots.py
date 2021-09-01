@@ -212,4 +212,3 @@ class Test_ReadSnapshots(Snapshot):
             assert False, 'remove known error'
         except AssertionError:
             known_error('API-382', 'Change of behaviour of ReadSnapshots call when using "Tags" filter')
-
