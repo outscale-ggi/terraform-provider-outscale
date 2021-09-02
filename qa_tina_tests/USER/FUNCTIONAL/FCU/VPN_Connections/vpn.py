@@ -17,12 +17,6 @@ from qa_tina_tools.tools.tina.info_keys import INSTANCE_SET, ROUTE_TABLE_ID, SEC
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_connections_state,\
     wait_instances_state
 
-def check_ipsec_status(self, vpn_id):
-    filters = [{'Name': 'vpn-connection-id', 'Value': vpn_id}]
-    ret = self.a1_r1.fcu.DescribeVpnConnections(Filters=filters)
-    assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].status == 'UP'
-    assert ret.response.vpnConnectionSet[0].vgwTelemetry[0].statusMessage == 'IPSEC IS UP'
-
 def upgrade_ike_to_v2(sshclient, leftid, rightid):
     cmd = """
         sudo sed -i  's/^            keyexchange=.*/            keyexchange=ikev2/g'  /etc/strongswan/ipsec.conf;
@@ -224,8 +218,6 @@ class Vpn(OscTinaTest):
                 upgrade_ike_to_v2(sshclient, leftid, rightid)
                 ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                           self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
-            if self.a1_r1.config.region.name in ['in-west-1']:
-                check_ipsec_status(self, vpn_id)
             start = datetime.now()
             while (datetime.now() - start).total_seconds() < 60:
                 try:
