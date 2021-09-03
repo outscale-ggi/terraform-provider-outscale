@@ -208,7 +208,7 @@ class Test_update_image_bdm(OscTinaTest):
             self.a1_r1.intel.image.update_bdm(owner=self.a1_r1.config.account.account_id, image_id='foo')
             assert False, 'call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 200, 0, 'invalid-id-prefix - Invalid ID received: foo. Expected format: ami-, aki-, ari-')
+            assert_error(error, 200, 0, 'invalid-id-prefix - Invalid ID received: foo. Expected format: ami-, ari-, aki-')
 
     def test_T5910_with_invalid_snapshot_id(self):
         try:
