@@ -6,7 +6,7 @@ from qa_tina_tools.test_base import OscTinaTest
 @pytest.mark.region_admin
 class Test_get_server_group_capacity(OscTinaTest):
 
-    def test_T5837_with_instance_types_filter(self):
+    def test_T5837_no_params(self):
         ret = self.a1_r1.intel.monitor.get_server_group_capacity()
         for res in ret.response.result:
             assert hasattr(res, 'gpu_models'), "missing item 'gpu_models'."
