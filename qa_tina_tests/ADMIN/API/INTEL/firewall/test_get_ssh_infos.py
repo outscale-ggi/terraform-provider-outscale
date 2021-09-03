@@ -49,7 +49,7 @@ class Test_get_ssh_infos(OscTinaTest):
             assert inst_ip
             try:
                 ret = self.a1_r1.intel.netimpl.firewall.get_ssh_infos(resource=inst_id)
-                assert ret.response.result != 'ssh root@' + inst_ip
+                assert ret.response.result == 'ssh root@'
                 known_error('TINA-6688', 'get_ssh_infos does not work as expected')
             except AssertionError:
                 assert False, 'Remove known error and adapt the assertion'
@@ -81,7 +81,7 @@ class Test_get_ssh_infos(OscTinaTest):
             assert inst_ip
             try:
                 ret = self.a1_r1.intel.netimpl.firewall.get_ssh_infos(resource=inst_id)
-                assert ret.response.result != 'ssh root@' + inst_ip
+                assert ret.response.result == 'ssh root@'
                 known_error('TINA-6688', 'get_ssh_infos does not work as expected')
             except AssertionError:
                 assert False, 'Remove known error and adapt the assertion'
@@ -111,7 +111,7 @@ class Test_get_ssh_infos(OscTinaTest):
             assert inst_ip
             try:
                 ret = self.a1_r1.intel.netimpl.firewall.get_ssh_infos(resource=inst_id)
-                assert ret.response.result != 'ssh root@' + inst_ip
+                assert ret.response.result == 'ssh root@'
                 known_error('TINA-6688', 'get_ssh_infos does not work as expected')
             except AssertionError:
                 assert False, 'Remove known error and adapt the assertion'
