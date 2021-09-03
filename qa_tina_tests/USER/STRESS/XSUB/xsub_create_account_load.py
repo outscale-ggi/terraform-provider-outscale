@@ -5,7 +5,7 @@ import ssl
 import string
 import time
 
-from qa_sdk_as import OscSdkAs
+# from qa_sdk_as import OscSdkAs
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_priv.osc_api.osc_priv_api import OscPrivApi
 from qa_sdk_pub.osc_api import disable_throttling
