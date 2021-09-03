@@ -189,3 +189,33 @@ class Test_ReadVpnConnections(VpnConnection):
             assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
+    def test_T5933_after_update(self):
+        try:
+            self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
+                                   VpnOptions={"Phase1Options":{"DpdTimeoutAction":"test", "DpdTimeoutSeconds":1,"Phase1DhGroupNumbers":[1],
+                                                                "Phase1EncryptionAlgorithms":["test"], "Phase1IntegrityAlgorithms":["test"],
+                                                                "Phase1LifetimeSeconds":1, "ReplayWindowSize":1, "StartupAction":"xx"},
+                                                "Phase2Options":{"Phase2DhGroupNumbers": [0], "Phase2EncryptionAlgorithms":
+                                                                 ["test"], "Phase2IntegrityAlgorithms": ["test"],
+                                                                 "Phase2LifetimeSeconds": 0, "PreSharedKey":"PreSharedKey"}})
+            assert False, 'correct test after fix TINA-6683 by adding check response'
+        except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', '2000')
+        ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'VpnConnectionIds': [self.vpn_id]})
+# this will be changed by check oapi response
+        assert hasattr(ret.response.VpnConnections[0], "VpnOptions")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions, "Phase1Options")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions, "Phase2Options")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase1Options, "DpdTimeoutAction")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase1Options, "DpdTimeoutSeconds")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase1Options, "Phase1DhGroupNumbers")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase1Options, "Phase1EncryptionAlgorithms")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase1Options, "Phase1IntegrityAlgorithms")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase1Options, "Phase1LifetimeSeconds")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase1Options, "ReplayWindowSize")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase1Options, "StartupAction")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase2Options, "Phase2DhGroupNumbers")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase2Options, "Phase2IntegrityAlgorithms")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase2Options, "Phase2LifetimeSeconds")
+        assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase2Options, "PreSharedKey")
