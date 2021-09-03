@@ -50,8 +50,6 @@ class Test_RunInstances(OscTinaTest):
                 self.a1_r1.fcu.TerminateInstances(InstanceId=[inst_id])
             wait_instances_state(self.a1_r1, [inst_id], 'terminated')
             ret = self.a1_r1.intel.instance.get(owner=self.a1_r1.config.account.account_id, id=inst_id)
-            if value == 'terminate':
-                self.a1_r1.fcu.TerminateInstances(InstanceId=[inst_id])
             assert ret.response.result.state == 'terminated'
             assert ret.response.result.ustate == 'terminated'
 
