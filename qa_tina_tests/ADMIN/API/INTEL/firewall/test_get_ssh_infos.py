@@ -50,7 +50,7 @@ class Test_get_ssh_infos(OscTinaTest):
             try:
                 ret = self.a1_r1.intel.netimpl.firewall.get_ssh_infos(resource=inst_id)
                 assert ret.response.result == 'ssh root@' + inst_ip
-                assert False, 'Remove known error'
+                pytest.fail('Remove known error')
             except AssertionError:
                 known_error('TINA-6688', 'get_ssh_infos does not work as expected')
         finally:
@@ -82,7 +82,7 @@ class Test_get_ssh_infos(OscTinaTest):
             try:
                 ret = self.a1_r1.intel.netimpl.firewall.get_ssh_infos(resource=inst_id)
                 assert ret.response.result == 'ssh root@' + inst_ip
-                assert False, 'Remove known error'
+                pytest.fail('Remove known error')
             except AssertionError:
                 known_error('TINA-6688', 'get_ssh_infos does not work as expected')
         finally:
