@@ -205,3 +205,23 @@ class Test_ReadVolumes(OscTinaTest):
         assert len(ret) == 1
         for volume in ret:
             validate_volume_response(volume, size=20)
+
+    def test_T5932_filters_mutiple_tags(self):
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.vol_ids[0]],
+                                   Tags=[{'Key': 'key', 'Value': 'value'}])
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.vol_ids[0]],
+                                   Tags=[{'Key': 'key1', 'Value': 'value1'}])
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.vol_ids[1]],
+                                   Tags=[{'Key': 'key', 'Value': 'value'}])
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.vol_ids[1]],
+                                   Tags=[{'Key': 'key2', 'Value': 'value2'}])
+        ret = self.a1_r1.oapi.ReadVolumes(Filters={"Tags": ["key=value"]}).response.Volumes
+        assert len(ret) == 2
+        ret = self.a1_r1.oapi.ReadVolumes(Filters={"Tags": ["key1=value1"]}).response.Volumes
+        assert len(ret) == 1
+        ret = self.a1_r1.oapi.ReadVolumes(Filters={"Tags": ["key2=value2"]}).response.Volumes
+        assert len(ret) == 1
+        ret = self.a1_r1.oapi.ReadVolumes(Filters={"Tags": ["key2=value2", "key1=value1"]}).response.Volumes
+        assert len(ret) == 0
+        ret = self.a1_r1.oapi.ReadVolumes(Filters={"Tags": ["key=value", "key1=value1"]}).response.Volumes
+        assert len(ret) == 1
