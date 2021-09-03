@@ -89,7 +89,7 @@ class Test_get_ssh_infos(OscTinaTest):
             if vpc_info:
                 delete_vpc(self.a1_r1, vpc_info)
 
-    def test_t5865_for_lbu(self):
+    def test_T5865_for_lbu(self):
         try:
             lb_name = None
             lbu_name = id_generator('lbu')

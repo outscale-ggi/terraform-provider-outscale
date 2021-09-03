@@ -111,7 +111,7 @@ class Test_modify(OscTinaTest):
         except OscApiException as error:
             assert_code(error, 200, "missing-parameter - Parameter cannot be empty: ImageID")
 
-    def test_T5915_from_another_account(self):
+    def test_T5931_from_another_account(self):
         try:
             self.a1_r1.intel.image.modify(owner=self.a2_r1.config.account.account_id, image=self.image_id, name='toto')
             known_error('TINA-6707', 'intel.image.modify Issues')
