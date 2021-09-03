@@ -31,18 +31,30 @@ def my_create_account(config, queue, args):
     errs = load_errors()
     xsub = OscPrivApi(service='xsub', config=config)
     intel = OscPrivApi(service='intel', config=config)
-    osc_sdk_as = OscSdkAs('identauth', config)
+    # osc_sdk_as = OscSdkAs('identauth', config)
 
+    pzs = {}
     for _ in range(args.num_create_per_process):
         pid = None
         try:
             call_number += 1
             email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='test_xsub_create_account_').lower())
-            password = misc.id_generator(size=8, chars=string.digits)
+            password = misc.id_generator(size=20, chars=string.digits+string.ascii_letters)
             account_info = {'city': 'Saint_Cloud', 'company_name': 'Outscale', 'country': 'France',
                             'email_address': email, 'firstname': 'Test_user', 'lastname': 'Test_Last_name',
                             'password': password, 'zipcode': '92210'}
             pid = create_account(OscSdk(config=config), account_info=account_info)
+            res_azs = intel.az.find(owner=pid).response.result
+            az = None
+            for res_az in res_azs:
+                if res_az.az == args.az:
+                    az = res_az
+                    break
+            if az:
+                if az.pz not in pzs:
+                    pzs[az.pz] = 0
+                pzs[az.pz] = pzs[az.pz] + 1
+
         except OscApiException as error:
             errs.handle_api_exception(error, error_type.Create)
         except Exception as error:
@@ -51,9 +63,9 @@ def my_create_account(config, queue, args):
             try:
                 call_number += 1
                 xsub.terminate_account(pid=pid)
-                intel.user.delete(username=pid)
+                # intel.user.delete(username=pid)
                 intel.user.gc(username=pid)
-                osc_sdk_as.identauth.IdauthAccountAdmin.deleteAccount(principal={"accountPid": pid}, forceRemoval="true")
+                # osc_sdk_as.identauth.IdauthAccountAdmin.deleteAccount(principal={"accountPid": pid}, forceRemoval="true")
             except OscApiException as error:
                 errs.handle_api_exception(error, error_type.Delete)
             except Exception as error:
@@ -62,6 +74,7 @@ def my_create_account(config, queue, args):
     end = time.time()
     result['num'] = call_number
     result['duration'] = end - start
+    result['pz'] = pzs
     result['error'] = errs.get_dict()
     queue.put(result)
 
@@ -94,6 +107,7 @@ def run(args):
     durations = []
     errors = load_errors()
     nums = []
+    pzs = {}
 
     logger.info("Get results")
     while not queue.empty():
@@ -110,12 +124,19 @@ def run(args):
                 errors.add(res[key])
             elif key == 'num':
                 nums.append(res[key])
+            elif key == 'pz':
+                for val in res[key]:
+                    if val in pzs:
+                        pzs[val] = pzs[val] + res[key][val]
+                    else:
+                        pzs[val] = res[key][val]
         logger.debug(res)
     logger.info("OK = %d - KO = %d", nb_ok, nb_ko)
     logger.info("durations = %s", durations)
-    logger.info("nums = %d", nums)
+    logger.info("nums = %s", nums)
     print('duration = {}'.format(end - start))
     print('calls number = {}'.format(sum(nums)))
+    print('pzs = {}'.format(pzs))
     errors.print_errors()
 
 
@@ -146,9 +167,9 @@ if __name__ == '__main__':
     args_p.add_argument('-a', '--account', dest='account', action='store',
                         required=True, type=str, help='Set account used for the test')
     args_p.add_argument('-np', '--proc_num', dest='process_number', action='store',
-                        required=False, type=int, default=10, help='number of processes, default 10')
+                        required=False, type=int, default=1, help='number of processes, default 10')
     args_p.add_argument('-nc', '--num_create', dest='num_create_per_process', action='store',
-                        required=False, type=int, default=500, help='number of read calls per process, default 500')
+                        required=False, type=int, default=20, help='number of read calls per process, default 500')
     main_args = args_p.parse_args()
 
     run(main_args)
