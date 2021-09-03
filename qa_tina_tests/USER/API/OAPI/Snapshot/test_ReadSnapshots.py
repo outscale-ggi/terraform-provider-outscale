@@ -20,8 +20,8 @@ class Test_ReadSnapshots(Snapshot):
             cls.snap2_id = cls.a1_r1.oapi.CreateSnapshot(VolumeId=cls.volume_id2, Description='1..2..3').response.Snapshot.SnapshotId
             cls.snap3_id = cls.a1_r1.oapi.CreateSnapshot(VolumeId=cls.volume_id1, Description='4..5..6').response.Snapshot.SnapshotId
             wait_snapshots_state(cls.a1_r1, [cls.snap1_id, cls.snap2_id, cls.snap3_id], state='completed')
-            permissions = {'Additions': {'AccountIds': [cls.a2_r1.config.account.account_id]}}
-            cls.a1_r1.oapi.UpdateSnapshot(SnapshotId=cls.snap2_id, PermissionsToCreateVolume=permissions)
+            #permissions = {'Additions': {'AccountIds': [cls.a2_r1.config.account.account_id]}}
+            #cls.a1_r1.oapi.UpdateSnapshot(SnapshotId=cls.snap2_id, PermissionsToCreateVolume=permissions)
             permissions = {'Additions': {'GlobalPermission': True}}
             cls.a1_r1.oapi.UpdateSnapshot(SnapshotId=cls.snap3_id, PermissionsToCreateVolume=permissions)
         except Exception:
@@ -196,19 +196,19 @@ class Test_ReadSnapshots(Snapshot):
                                    Tags=[{'Key': 'key', 'Value': 'value'}])
         self.a1_r1.oapi.CreateTags(ResourceIds=[self.snap2_id],
                                    Tags=[{'Key': 'key2', 'Value': 'value2'}])
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.snap3_id],
+                                   Tags=[{'Key': 'key1', 'Value': 'value1'}])
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.snap3_id],
+                                   Tags=[{'Key': 'key2', 'Value': 'value2'}])
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key=value"]}).response.Snapshots
         assert len(ret) == 2
         ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key1=value1"]}).response.Snapshots
-        assert len(ret) == 1
-        ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key2=value2"]}).response.Snapshots
-        assert len(ret) == 1
-        ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key2=value2", "key1=value1"]}).response.Snapshots
         assert len(ret) == 2
+        ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key2=value2"]}).response.Snapshots
+        assert len(ret) == 2
+        ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key2=value2", "key1=value1"]}).response.Snapshots
+        assert len(ret) == 1
         for snap in ret:
             validate_snasphot(snap)
-        try:
-            ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key=value", "key1=value1"]}).response.Snapshots
-            assert len(ret) == 1
-            assert False, 'remove known error'
-        except AssertionError:
-            known_error('API-382', 'Change of behaviour of ReadSnapshots call when using "Tags" filter')
+        ret = self.a1_r1.oapi.ReadSnapshots(Filters={"Tags": ["key=value", "key1=value1"]}).response.Snapshots
+        assert len(ret) == 1
