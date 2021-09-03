@@ -1,3 +1,5 @@
+import pytest
+
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -13,7 +15,7 @@ class Test_get_requirements(OscTinaTest):
             inst_info = create_instances(self.a1_r1)
             ret = self.a1_r1.intel.slot.get_requirements(vm_id=[inst_info[info_keys.INSTANCE_ID_LIST][0]][0])
             assert ret.response.result
-            assert False, 'Remove known error and update test to check the response'
+            pytest.fail("Remove known error")
         except AssertionError:
             known_error('TINA-6694', 'get_requirements does not work')
         finally:
