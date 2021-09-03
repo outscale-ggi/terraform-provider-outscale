@@ -1,7 +1,7 @@
 
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, wait
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.test_base import known_error
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_test_tools.config.configuration import Configuration
