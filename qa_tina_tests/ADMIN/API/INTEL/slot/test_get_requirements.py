@@ -13,8 +13,8 @@ class Test_get_requirements(OscTinaTest):
         inst_info = None
         try:
             inst_info = create_instances(self.a1_r1)
-            ret = self.a1_r1.intel.slot.get_requirements(vm_id=[inst_info[info_keys.INSTANCE_ID_LIST][0]][0])
-            assert ret.response.result
+            resp = self.a1_r1.intel.slot.get_requirements(vm_id=[inst_info[info_keys.INSTANCE_ID_LIST][0]][0]).response
+            assert hasattr(resp, "result")
             pytest.fail("Remove known error")
         except AssertionError:
             known_error('TINA-6694', 'get_requirements does not work')
