@@ -49,10 +49,10 @@ class Test_get_ssh_infos(OscTinaTest):
             assert inst_ip
             try:
                 ret = self.a1_r1.intel.netimpl.firewall.get_ssh_infos(resource=inst_id)
-                assert ret.response.result == 'ssh root@'
-                known_error('TINA-6688', 'get_ssh_infos does not work as expected')
+                assert ret.response.result == 'ssh root@' + inst_ip
+                pytest.fail('Remove known error')
             except AssertionError:
-                assert False, 'Remove known error and adapt the assertion'
+                known_error('TINA-6688', 'get_ssh_infos does not work as expected')
         finally:
             if vpn_id:
                 self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_id)
@@ -81,10 +81,10 @@ class Test_get_ssh_infos(OscTinaTest):
             assert inst_ip
             try:
                 ret = self.a1_r1.intel.netimpl.firewall.get_ssh_infos(resource=inst_id)
-                assert ret.response.result == 'ssh root@'
-                known_error('TINA-6688', 'get_ssh_infos does not work as expected')
+                assert ret.response.result == 'ssh root@' + inst_ip
+                pytest.fail('Remove known error')
             except AssertionError:
-                assert False, 'Remove known error and adapt the assertion'
+                known_error('TINA-6688', 'get_ssh_infos does not work as expected')
         finally:
             if vpc_info:
                 delete_vpc(self.a1_r1, vpc_info)
@@ -111,10 +111,10 @@ class Test_get_ssh_infos(OscTinaTest):
             assert inst_ip
             try:
                 ret = self.a1_r1.intel.netimpl.firewall.get_ssh_infos(resource=inst_id)
-                assert ret.response.result == 'ssh root@'
-                known_error('TINA-6688', 'get_ssh_infos does not work as expected')
+                assert ret.response.result == 'ssh root@' + inst_ip
+                pytest.fail('Remove known error')
             except AssertionError:
-                assert False, 'Remove known error and adapt the assertion'
+                known_error('TINA-6688', 'get_ssh_infos does not work as expected')
         finally:
             if lb_name:
                 delete_lbu(self.a1_r1, lbu_name=lb_name)
