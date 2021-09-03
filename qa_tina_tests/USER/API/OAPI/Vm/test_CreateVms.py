@@ -7,6 +7,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error, id_generator
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools, oapi
 from qa_tina_tools.tina.info_keys import KEY_PAIR, PATH
@@ -552,6 +553,226 @@ echo "yes" > /tmp/userdata.txt
         finally:
             if vm_info:
                 delete_Vms(self.a1_r1, vm_info)
+
+    def test_T5869_with_empty_instance_type(self):
+        self.info = None
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='')
+            assert len(self.info) == 1
+            assert False, 'call should not have been successful'
+        except OscApiException as err:
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5870_with_wrong_instance_type(self):
+        self.info = None
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='toto')
+            assert len(self.info) == 1
+            assert False, 'call should not have been successful'
+        except OscApiException as err:
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5871_with_missing_cpu_gen(self):
+        self.info = None
+        # Pour les known error TINA 6689, TINA 6685 et TINA 6686.
+        # Ils sont en debut de test pour faire echoué les tests volentairement.
+        known_error('TINA-6689', 'Instance type should raise an error')
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='tina.c1r1')
+            assert len(self.info) == 1
+            wait_instances_state(self.a1_r1, self.info, 'running')
+        except OscApiException as err:
+            assert_oapi_error(err, 500, 'InternalError', '2000')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5872_with_missing_cpu_gen_value(self):
+        self.info = None
+        known_error('TINA-6689', 'Instance type should raise an error')
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='tinav.c1r1')
+            assert len(self.info) == 1
+            wait_instances_state(self.a1_r1, self.info, 'running')
+        except OscApiException as err:
+            assert_oapi_error(err, 500, 'InternalError', '2000')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5873_with_cpu_gen_value_set_at_zero(self):
+        self.info = None
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='tinav0.c1r1')
+            assert len(self.info) == 1
+            assert False, 'call should not have been successful'
+        except OscApiException as err:
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5874_with_missing_perf_flag_value(self):
+        self.info = None
+        known_error('TINA-6689', 'Instance type should raise an error')
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='tinav1.c1r1p')
+            assert len(self.info) == 1
+            wait_instances_state(self.a1_r1, self.info, 'running')
+        except OscApiException as err:
+            assert_oapi_error(err, 500, 'InternalError', '2000')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5875_with_perf_flag_set_at_zero(self):
+        self.info = None
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='tinav1.c1r1p0')
+            assert len(self.info) == 1
+            assert False, 'call should not have been successful'
+        except OscApiException as err:
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5876_with_perf_flag_set_at_four(self):
+        ret = None
+        known_error('TINA-6689', 'Instance type should raise an error')
+        try:
+            ret = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                            MinVmsCount=1, MaxVmsCount=1, VmType='tinav1.c1r1p4')
+            assert False, 'call should not have been successful'
+        except OscApiException as err:
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+        finally:
+            if ret:
+                ret = self.a1_r1.fcu.DescribeInstances().response.reservationSet[0].instancesSet[0].instanceId
+                self.a1_r1.oapi.StopVms(VmIds=[ret], ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=[ret])
+                wait_instances_state(self.a1_r1, [ret], state='terminated')
+                ret = None
+
+    def test_T5877_with_missing_core_value(self):
+        self.info = None
+        known_error('TINA-6685', 'Internal error when creating an instance with missing vCPU value')
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='tinav1.cr1')
+            assert len(self.info) == 1
+            assert False, 'Call should not have been successful'
+        except OscApiException as err:
+            assert_oapi_error(err, 500, 'InternalError', '2000')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5878_with_core_value_set_at_zero(self):
+        self.info = None
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='tinav1.c0r1')
+            assert len(self.info) == 1
+            assert False, 'Call should not have been successful'
+        except OscApiException as err:
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5879_with_missing_memory_value(self):
+        self.info = None
+        known_error('TINA-6686', 'Internal error when creating an instance with missing memory value')
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='tinav1.c1r')
+            assert len(self.info) == 1
+            assert False, 'Call should not have been successful'
+        except OscApiException as err:
+            assert_oapi_error(err, 500, 'InternalError', '2000')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5880_with_memory_value_set_at_zero(self):
+        self.info = None
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='tinav1.c1r0')
+            assert len(self.info) == 1
+            assert False, 'Call should not have been successful'
+        except OscApiException as err:
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5881_with_override_max_value(self):
+        self.info = None
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='tinav5.c39r181')
+            assert len(self.info) == 1
+            assert False, 'Call should not have been successful'
+        except OscApiException as err:
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
+
+    def test_T5920_with_cpu_gen_value_set_at_six(self):
+        self.info = None
+        known_error('TINA-6689', 'Instance type should raise an error')
+        try:
+            _, self.info = create_vms(ocs_sdk=self.a1_r1, MaxVmsCount=1, MinVmsCount=1, VmType='tinav6.c1r1')
+            assert len(self.info) == 1
+            assert False, 'call should not have been successful'
+        except OscApiException as err:
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+        finally:
+            if self.info:
+                self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
+                self.a1_r1.oapi.DeleteVms(VmIds=self.info)
+                wait_instances_state(self.a1_r1, self.info, state='terminated')
+                self.info = None
 
     def test_T4574_with_large_userdata(self):
         vm_info = None
