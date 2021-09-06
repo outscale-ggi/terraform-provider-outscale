@@ -99,8 +99,6 @@ class Test_public_linux_instance(Test_linux_instance):
     def test_T103_create_use_linux_dedicated_instance(self):
         if self.a1_r1.config.region.az_name == 'in-west-1b':
             pytest.skip("No dedicated server available on in-west-1b")
-        if self.a1_r1.config.region.name == 'in-west-1':
-            known_error('NO JIRA FOR NOW', 'Dedicated server is not available or not working')
         inst_id = None
         try:
             inst_id, inst_public_ip = self.create_instance(dedicated=True)
