@@ -23,7 +23,7 @@ class Test_fni(OscTinaTest):
         cls.vpc_inst2 = None
         cls.omi_id = None
         try:
-            # need centos7 for fni tests see OPS-13750
+            # need centos7 for fni tests see TINA-6433
             cls.omi_id = cls.a1_r1.config.region.get_info(constants.CENTOS7)
             cls.vpc_info = create_vpc(cls.a1_r1, nb_instance=2, no_eip=True, omi_id=cls.omi_id)
             cls.vpc_inst1 = cls.vpc_info[SUBNETS][0][INSTANCE_SET][0]
@@ -200,7 +200,7 @@ class Test_fni(OscTinaTest):
                                                                                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                                                 retry=4, timeout=10)
                 except OscSshError as error:
-                    known_error('OPS-13750', 'Assigne secondary private ip address to FNI doesn\'t work')
+                    known_error('TINA-6433', 'Assigne secondary private ip address to FNI doesn\'t work')
                 cmd = "sudo pwd"
                 out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd)
                 self.logger.info("Working directory is: %s", out)
