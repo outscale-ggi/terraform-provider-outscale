@@ -139,22 +139,12 @@ class Test_ReadVpnConnections(VpnConnection):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5138_filters_route_destination_ip_ranges_invalid_value(self):
-        try:
-            self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': ['foo']})
-            assert False, 'Call should fail'
-        except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('GTW-1620', 'Incorrect error message')
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+        ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': ['foo']})
+        assert len(ret.response.VpnConnections) == 0
 
     def test_T5139_filters_route_destination_ip_ranges_invalid_range(self):
-        try:
-            self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': ['10.0.0.0/'], 'VpnConnectionIds': [self.vpn_id]})
-            assert False, 'Call should fail'
-        except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('GTW-1620', 'Incorrect error message')
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+        ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': ['10.0.0.0/'], 'VpnConnectionIds': [self.vpn_id]})
+        assert len(ret.response.VpnConnections) == 0
 
     def test_T3581_filters_virtual_gateway_ids_id1(self):
         ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'VirtualGatewayIds': [self.vg_id]}).response.VpnConnections
