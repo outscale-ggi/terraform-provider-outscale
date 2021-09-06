@@ -51,8 +51,9 @@ class Test_ReadVmsState(OscTinaTest):
         # check terminated with AllVms Activated
         code_name = 'terminated'
         ret = self.a1_r1.oapi.ReadVmsState(AllVms=True, Filters={'VmStates': [code_name]})
-        assert len(ret.response.VmStates) == 1
-        assert ret.response.VmStates[0].VmState == code_name
+        assert len(ret.response.VmStates) < 2
+        if ret.response.VmStates == 1:
+            assert ret.response.VmStates[0].VmState == code_name
         # check running
         code_name = 'running'
         ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_name]})
