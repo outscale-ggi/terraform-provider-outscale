@@ -42,7 +42,7 @@ class Test_create_using_instance(OscTinaTest):
         cls.inst_2_pub_IP = None
 
         instance_type = 'tinav4.c4r8p1'
-        if cls.a1_r1.config.region.name == 'dv-west-1':
+        if cls.a1_r1.config.region.name in ['dv-west-1', 'in-west-2']:
             instance_type = 'tinav1.c4r8p1'
         # TODO : change path to get the correct path on the server
         user_data = user_data_windows.write_slmgr_dlv_to_console_output
