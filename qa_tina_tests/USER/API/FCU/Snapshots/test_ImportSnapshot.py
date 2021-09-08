@@ -45,12 +45,12 @@ class Test_ImportSnapshot(OscTinaTest):
         except Exception as error1:
             try:
                 cls.teardown_class()
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    known_error('OPS-14183', 'Configure OOS in IN2')
+                assert False, 'Remove known error'
             except Exception as error2:
                 raise error2
             finally:
-                if cls.a1_r1.config.region.name == 'in-west-2' and error1.message == 'This API call is disabled':
-                    known_error('OPS-14183', 'Configure OOS in IN2')
-                assert False, 'Remove known error'
                 raise error1
 
     @classmethod
