@@ -47,7 +47,6 @@ class Test_ImportSnapshot(OscTinaTest):
                 cls.teardown_class()
                 if cls.a1_r1.config.region.name == 'in-west-2':
                     known_error('OPS-14183', 'Configure OOS in IN2')
-                assert False, 'Remove known error'
             except Exception as error2:
                 raise error2
             finally:
