@@ -38,6 +38,8 @@ class Test_ImportSnapshot(OscTinaTest):
                 try:
                     ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=cls.snap_id,
                                                                  ExportToOsu={'DiskImageFormat': format_type, 'OsuBucket': cls.bucket_name})
+                    if cls.a1_r1.config.region.name == 'in-west-2':
+                        assert False, 'remove known error'
                 except OscApiException as err:
                     if cls.a1_r1.config.region.name == 'in-west-2':
                         if err.status_code == 500 and err.message == 'This API call is disabled':

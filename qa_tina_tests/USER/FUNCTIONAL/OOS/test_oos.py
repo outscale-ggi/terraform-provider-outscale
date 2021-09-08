@@ -40,6 +40,8 @@ class Test_oos(OscTinaTest):
             cls.data = misc.id_generator(prefix="data_", chars=ascii_lowercase)
             try:
                 cls.a1_r1.oos.create_bucket(Bucket=cls.bucket_name)
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    assert False, 'remove known error'
             except ClientError as err:
                 if cls.a1_r1.config.region.name == 'in-west-2':
                     if err.response['Error']['Code'] == 'InvalidAccessKeyId':
