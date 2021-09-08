@@ -115,18 +115,18 @@ class Test_DescribeVolumes(OscTinaTest):
         assert False, 'Remove known error'
         assert len(ret.response.volumeSet) == 2
 
-    def test_T00_one_tag_key_multiple_tag_values(self):
+    def test_T5948_one_tag_key_multiple_tag_values(self):
         ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key2', 'Value': ['value1', 'value2']}])
         assert len(ret.response.volumeSet) == 2
 
-    def test_T00_multiple_tag_keys(self):
+    def test_T5949_multiple_tag_keys(self):
         ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-key', 'Value': ['key1', 'key2']}])
         assert len(ret.response.volumeSet) == 3
 
-    def test_T00_multiple_tag_values(self):
+    def test_T5950_multiple_tag_values(self):
         ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-value', 'Value': ['value1', 'value2']}])
         assert len(ret.response.volumeSet) == 3
 
-    def test_T000_multiple_tag_key_value(self):
+    def test_T5951_multiple_tag_key_value(self):
         ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key1', 'Value': 'value2'}, {'Name': 'tag:key2', 'Value': 'value2'}])
         assert ret.response.volumeSet is None
