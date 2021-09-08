@@ -2,6 +2,7 @@
 import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.constants import VOLUME_SIZES, VOLUME_IOPS
 from qa_tina_tools.tools.tina.create_tools import create_volumes, create_instances_old
@@ -20,8 +21,10 @@ class Test_DescribeVolumes(OscTinaTest):
                 iops = VOLUME_IOPS[key]['min_iops']
             _, vol_ids = create_volumes(osc_sdk=cls.a1_r1, volume_type=key, size=value['min_size'], iops=iops, state='available')
             cls.vol_id_list.extend(vol_ids)
-            cls.a1_r1.fcu.CreateTags(ResourceId=vol_ids, Tag=[{'Key': 'toto', 'Value': 'tata'}])
-            cls.a1_r1.fcu.CreateTags(ResourceId=vol_ids, Tag=[{'Key': 'tata', 'Value': 'tutu'}])
+        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[0]], Tag=[{'Key': 'value1', 'Value': 'value2'}])
+        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[1]], Tag=[{'Key': 'value2', 'Value': 'value1'}])
+        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[2]], Tag=[{'Key': 'value2', 'Value': 'value3'}])
+        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[2]], Tag=[{'Key': 'value4', 'Value': 'value1'}])
 
     @classmethod
     def teardown_class(cls):
@@ -45,7 +48,7 @@ class Test_DescribeVolumes(OscTinaTest):
             elif vol.volumeType == 'gp2':
                 assert vol.iops == str(max(int(vol.size) * 3, 100))
             assert vol.attachmentSet is None
-            assert len(vol.tagSet) == 2
+            assert len(vol.tagSet) is not None
             assert vol.snapshotId is None
             assert vol.size == str(VOLUME_SIZES[vol.volumeType]['min_size'])
         assert len(ret.response.volumeSet) == len(VOLUME_SIZES), "The Number of volumes does not match"
@@ -95,13 +98,20 @@ class Test_DescribeVolumes(OscTinaTest):
                 delete_instances_old(osc_sdk=self.a1_r1, instance_id_list=[inst_id])
 
     def test_T5944_valid_filter_by_tag_key(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-key', 'Value': 'toto'}])
-        assert len(ret.response.volumeSet) == 3
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-key', 'Value': 'value2'}])
+        assert len(ret.response.volumeSet) == 2
 
     def test_T5945_valid_filter_by_tag_value(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-value', 'Value': 'tutu'}])
-        assert len(ret.response.volumeSet) == 3
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-value', 'Value': 'value1'}])
+        assert len(ret.response.volumeSet) == 2
 
     def test_T5946_valid_filter_by_tag_key_and_value(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:toto', 'Value': 'tata'}])
-        assert len(ret.response.volumeSet) == 3
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:value1', 'Value': 'value2'}])
+        assert len(ret.response.volumeSet) == 1
+
+    def test_T5947_filter_by_tag_key_and_value_wildcard(self):
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:value2', 'Value': '*'}])
+        if ret.response.volumeSet is None:
+            known_error('TINA-6737', 'tag None')
+        assert False, 'Remove known error'
+        assert len(ret.response.volumeSet) == 2
