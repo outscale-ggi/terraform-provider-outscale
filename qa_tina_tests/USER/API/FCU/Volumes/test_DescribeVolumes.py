@@ -1,4 +1,3 @@
-
 import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -47,7 +46,7 @@ class Test_DescribeVolumes(OscTinaTest):
             elif vol.volumeType == 'gp2':
                 assert vol.iops == str(max(int(vol.size) * 3, 100))
             assert vol.attachmentSet is None
-            assert len(vol.tagSet) is not None
+            assert len(vol.tagSet) > 0
             assert vol.snapshotId is None
             assert vol.size == str(VOLUME_SIZES[vol.volumeType]['min_size'])
         assert len(ret.response.volumeSet) == len(VOLUME_SIZES), "The Number of volumes does not match"
