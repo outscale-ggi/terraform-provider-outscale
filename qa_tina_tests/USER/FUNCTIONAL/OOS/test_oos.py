@@ -42,14 +42,17 @@ class Test_oos(OscTinaTest):
             cls.a1_r1.oos.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
             cls.a1_r1.oos.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
             cls.a1_r1.oos.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
-        except Exception as error:
+
+        except Exception as error1:
             try:
                 if cls.a1_r1.config.region.name == 'in-west-2':
                     known_error('OPS-14183', 'Configure OOS in IN2')
                 assert False, 'Remove known error'
                 cls.teardown_class()
+            except Exception as error2:
+                raise error2
             finally:
-                raise
+                raise error1
 
     @classmethod
     def teardown_class(cls):
