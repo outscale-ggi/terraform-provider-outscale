@@ -37,11 +37,16 @@ class Test_oos(OscTinaTest):
             cls.key_name = misc.id_generator(prefix="key_", chars=ascii_lowercase)
             cls.data = misc.id_generator(prefix="data_", chars=ascii_lowercase)
             cls.a1_r1.oos.create_bucket(Bucket=cls.bucket_name)
+            if cls.a1_r1.config.region.name == 'in-west-2':
+                assert False, 'Remove known error'
             cls.a1_r1.oos.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
             cls.a1_r1.oos.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
             cls.a1_r1.oos.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
-        except:
+        except Exception as error:
             try:
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    known_error('OPS-14224', 'Configure OOS in IN2')
+                assert False, 'Remove known error'
                 cls.teardown_class()
             finally:
                 raise
@@ -54,7 +59,6 @@ class Test_oos(OscTinaTest):
             cls.a1_r1.oos.delete_bucket(Bucket=cls.bucket_name)
         finally:
             super(Test_oos, cls).teardown_class()
-
 
     @pytest.mark.tag_redwire
     def test_T5132_generated_url(self):
