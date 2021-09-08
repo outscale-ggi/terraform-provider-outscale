@@ -21,10 +21,9 @@ class Test_DescribeVolumes(OscTinaTest):
                 iops = VOLUME_IOPS[key]['min_iops']
             _, vol_ids = create_volumes(osc_sdk=cls.a1_r1, volume_type=key, size=value['min_size'], iops=iops, state='available')
             cls.vol_id_list.extend(vol_ids)
-        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[0]], Tag=[{'Key': 'value1', 'Value': 'value2'}])
-        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[1]], Tag=[{'Key': 'value2', 'Value': 'value1'}])
-        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[2]], Tag=[{'Key': 'value2', 'Value': 'value3'}])
-        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[2]], Tag=[{'Key': 'value4', 'Value': 'value1'}])
+        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[0]], Tag=[{'Key': 'key1', 'Value': 'value2'}])
+        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[1]], Tag=[{'Key': 'key2', 'Value': 'value1'}])
+        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[2]], Tag=[{'Key': 'key2', 'Value': 'value2'}])
 
     @classmethod
     def teardown_class(cls):
@@ -98,20 +97,36 @@ class Test_DescribeVolumes(OscTinaTest):
                 delete_instances_old(osc_sdk=self.a1_r1, instance_id_list=[inst_id])
 
     def test_T5944_valid_filter_by_tag_key(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-key', 'Value': 'value2'}])
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-key', 'Value': 'key2'}])
         assert len(ret.response.volumeSet) == 2
 
     def test_T5945_valid_filter_by_tag_value(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-value', 'Value': 'value1'}])
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-value', 'Value': 'value2'}])
         assert len(ret.response.volumeSet) == 2
 
     def test_T5946_valid_filter_by_tag_key_and_value(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:value1', 'Value': 'value2'}])
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key1', 'Value': 'value2'}])
         assert len(ret.response.volumeSet) == 1
 
     def test_T5947_filter_by_tag_key_and_value_wildcard(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:value2', 'Value': '*'}])
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key2', 'Value': '*'}])
         if ret.response.volumeSet is None:
             known_error('TINA-6737', 'tag None')
         assert False, 'Remove known error'
         assert len(ret.response.volumeSet) == 2
+
+    def test_T00_one_tag_key_multiple_tag_values(self):
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key2', 'Value': ['value1', 'value2']}])
+        assert len(ret.response.volumeSet) == 2
+
+    def test_T00_multiple_tag_keys(self):
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-key', 'Value': ['key1', 'key2']}])
+        assert len(ret.response.volumeSet) == 3
+
+    def test_T00_multiple_tag_values(self):
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-value', 'Value': ['value1', 'value2']}])
+        assert len(ret.response.volumeSet) == 3
+
+    def test_T000_multiple_tag_key_value(self):
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key1', 'Value': 'value2'}, {'Name': 'tag:key2', 'Value': 'value2'}])
+        assert ret.response.volumeSet is None
