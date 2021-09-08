@@ -23,6 +23,7 @@ class Test_ImportSnapshot(OscTinaTest):
         cls.snap_id = None
         cls.task_ids = []
         cls.bucket_name = None
+        cls.bucket_created = False
         try:
             # create volume
             ret = cls.a1_r1.fcu.CreateVolume(AvailabilityZone=cls.a1_r1.config.region.az_name, Size='1')
@@ -38,6 +39,7 @@ class Test_ImportSnapshot(OscTinaTest):
                 try:
                     ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=cls.snap_id,
                                                                  ExportToOsu={'DiskImageFormat': format_type, 'OsuBucket': cls.bucket_name})
+                    cls.bucket_created = True
                     if cls.a1_r1.config.region.name == 'in-west-2':
                         assert False, 'remove known error'
                 except OscApiException as err:
@@ -59,7 +61,7 @@ class Test_ImportSnapshot(OscTinaTest):
     def teardown_class(cls):
         errors = []
         try:
-            if cls.bucket_name:
+            if cls.bucket_created:
                 try:
                     k_list = cls.a1_r1.storageservice.list_objects(Bucket=cls.bucket_name)
                     if 'Contents' in list(k_list.keys()):
