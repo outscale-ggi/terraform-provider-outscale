@@ -20,7 +20,7 @@ class Test_oos(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_oos, cls).setup_class()
-
+        cls.bucket_created = False
         try:
             cls.logger.debug("Initialize data in a bucket")
 
@@ -39,6 +39,7 @@ class Test_oos(OscTinaTest):
             cls.data = misc.id_generator(prefix="data_", chars=ascii_lowercase)
             try:
                 cls.a1_r1.oos.create_bucket(Bucket=cls.bucket_name)
+                cls.bucket_created = True
                 if cls.a1_r1.config.region.name == 'in-west-2':
                     assert False, 'remove known error'
             except ClientError as err:
@@ -61,8 +62,9 @@ class Test_oos(OscTinaTest):
     def teardown_class(cls):
         try:
             cls.logger.debug("Remove data and bucket")
-            cls.a1_r1.oos.delete_object(Bucket=cls.bucket_name, Key=cls.key_name)
-            cls.a1_r1.oos.delete_bucket(Bucket=cls.bucket_name)
+            if cls.bucket_created:
+                cls.a1_r1.oos.delete_object(Bucket=cls.bucket_name, Key=cls.key_name)
+                cls.a1_r1.oos.delete_bucket(Bucket=cls.bucket_name)
         finally:
             super(Test_oos, cls).teardown_class()
 
