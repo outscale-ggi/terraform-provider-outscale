@@ -35,8 +35,15 @@ class Test_ImportSnapshot(OscTinaTest):
             # export snapshot
             cls.bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
             for format_type in cls.supported_snap_types:
-                ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=cls.snap_id,
-                                                             ExportToOsu={'DiskImageFormat': format_type, 'OsuBucket': cls.bucket_name})
+                try:
+                    ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=cls.snap_id,
+                                                                 ExportToOsu={'DiskImageFormat': format_type, 'OsuBucket': cls.bucket_name})
+                    if cls.a1_r1.config.region.name == 'in-west-2':
+                        assert False, 'remove known error'
+                except OscApiException as err:
+                    if cls.a1_r1.config.region.name == 'in-west-2' and err.status_code == 500 and err.message == 'This API call is disabled':
+                        known_error('OPS-14183', 'Configure OOS in IN2')
+                    raise err
                 task_id = ret.response.snapshotExportTask.snapshotExportTaskId
                 cls.task_ids.append(task_id)
             wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
