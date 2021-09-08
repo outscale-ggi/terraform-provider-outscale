@@ -20,6 +20,8 @@ class Test_DescribeVolumes(OscTinaTest):
                 iops = VOLUME_IOPS[key]['min_iops']
             _, vol_ids = create_volumes(osc_sdk=cls.a1_r1, volume_type=key, size=value['min_size'], iops=iops, state='available')
             cls.vol_id_list.extend(vol_ids)
+            cls.a1_r1.fcu.CreateTags(ResourceId=vol_ids, Tag=[{'Key': 'toto', 'Value': 'tata'}])
+            cls.a1_r1.fcu.CreateTags(ResourceId=vol_ids, Tag=[{'Key': 'tata', 'Value': 'tutu'}])
 
     @classmethod
     def teardown_class(cls):
@@ -43,7 +45,7 @@ class Test_DescribeVolumes(OscTinaTest):
             elif vol.volumeType == 'gp2':
                 assert vol.iops == str(max(int(vol.size) * 3, 100))
             assert vol.attachmentSet is None
-            assert vol.tagSet is None
+            assert len(vol.tagSet) == 2
             assert vol.snapshotId is None
             assert vol.size == str(VOLUME_SIZES[vol.volumeType]['min_size'])
         assert len(ret.response.volumeSet) == len(VOLUME_SIZES), "The Number of volumes does not match"
@@ -91,3 +93,15 @@ class Test_DescribeVolumes(OscTinaTest):
         finally:
             if inst_id:
                 delete_instances_old(osc_sdk=self.a1_r1, instance_id_list=[inst_id])
+
+    def test_T5944_valid_filter_by_tag_key(self):
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-key', 'Value': 'toto'}])
+        assert len(ret.response.volumeSet) == 3
+
+    def test_T5945_valid_filter_by_tag_value(self):
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-value', 'Value': 'tutu'}])
+        assert len(ret.response.volumeSet) == 3
+
+    def test_T5946_valid_filter_by_tag_key_and_value(self):
+        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:toto', 'Value': 'tata'}])
+        assert len(ret.response.volumeSet) == 3
