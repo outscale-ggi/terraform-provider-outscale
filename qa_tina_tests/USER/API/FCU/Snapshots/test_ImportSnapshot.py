@@ -49,7 +49,7 @@ class Test_ImportSnapshot(OscTinaTest):
                 raise error2
             finally:
                 if cls.a1_r1.config.region.name == 'in-west-2' and error1.message == 'This API call is disabled':
-                    known_error('OPS-14224', 'Configure OOS in IN2')
+                    known_error('OPS-14183', 'Configure OOS in IN2')
                 assert False, 'Remove known error'
                 raise error1
 

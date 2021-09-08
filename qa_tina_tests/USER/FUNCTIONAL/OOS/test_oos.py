@@ -45,7 +45,7 @@ class Test_oos(OscTinaTest):
         except Exception as error:
             try:
                 if cls.a1_r1.config.region.name == 'in-west-2':
-                    known_error('OPS-14224', 'Configure OOS in IN2')
+                    known_error('OPS-14183', 'Configure OOS in IN2')
                 assert False, 'Remove known error'
                 cls.teardown_class()
             finally:
