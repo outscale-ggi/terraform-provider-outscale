@@ -41,10 +41,8 @@ class Test_ImportSnapshot(OscTinaTest):
                     if cls.a1_r1.config.region.name == 'in-west-2':
                         assert False, 'remove known error'
                 except OscApiException as err:
-                    if cls.a1_r1.config.region.name == 'in-west-2':
-                        if err.status_code == 500 and err.message == 'This API call is disabled':
-                            known_error('OPS-14183', 'Configure OOS in IN2')
-                        assert False, 'remove known error'
+                    if cls.a1_r1.config.region.name == 'in-west-2' and err.status_code == 500 and err.message == 'This API call is disabled':
+                        known_error('OPS-14183', 'Configure OOS in IN2')
                     raise err
                 task_id = ret.response.snapshotExportTask.snapshotExportTaskId
                 cls.task_ids.append(task_id)
