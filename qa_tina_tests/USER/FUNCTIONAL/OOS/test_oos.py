@@ -6,7 +6,9 @@ import json
 import os
 import pytest
 import requests
+from botocore.exceptions import ClientError
 
+from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import known_error
@@ -36,17 +38,20 @@ class Test_oos(OscTinaTest):
             cls.public_bucket_name = misc.id_generator(prefix="publicbucket", chars=ascii_lowercase)
             cls.key_name = misc.id_generator(prefix="key_", chars=ascii_lowercase)
             cls.data = misc.id_generator(prefix="data_", chars=ascii_lowercase)
-            cls.a1_r1.oos.create_bucket(Bucket=cls.bucket_name)
-            if cls.a1_r1.config.region.name == 'in-west-2':
-                assert False, 'Remove known error'
+            try:
+                cls.a1_r1.oos.create_bucket(Bucket=cls.bucket_name)
+            except ClientError as err:
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    if err.response['Error']['Code'] == 'InvalidAccessKeyId':
+                        known_error('OPS-14183', 'Configure OOS in IN2')
+                    assert False, 'remove known error'
+                raise err
             cls.a1_r1.oos.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
             cls.a1_r1.oos.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
             cls.a1_r1.oos.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
 
         except Exception as error1:
             try:
-                if cls.a1_r1.config.region.name == 'in-west-2':
-                    known_error('OPS-14183', 'Configure OOS in IN2')
                 cls.teardown_class()
             except Exception as error2:
                 raise error2

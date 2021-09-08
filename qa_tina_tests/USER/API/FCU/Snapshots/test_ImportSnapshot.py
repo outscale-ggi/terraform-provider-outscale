@@ -43,6 +43,7 @@ class Test_ImportSnapshot(OscTinaTest):
                         if err.status_code == 500 and err.message == 'This API call is disabled':
                             known_error('OPS-14183', 'Configure OOS in IN2')
                         assert False, 'remove known error'
+                    raise err
                 task_id = ret.response.snapshotExportTask.snapshotExportTaskId
                 cls.task_ids.append(task_id)
             wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
