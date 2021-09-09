@@ -21,6 +21,7 @@ class Test_oos(OscTinaTest):
     def setup_class(cls):
         super(Test_oos, cls).setup_class()
         cls.bucket_created = False
+        cls.known_error = None
         try:
             cls.logger.debug("Initialize data in a bucket")
 
@@ -44,7 +45,9 @@ class Test_oos(OscTinaTest):
                     assert False, 'remove known error'
             except ClientError as err:
                 if cls.a1_r1.config.region.name == 'in-west-2' and err.response['Error']['Code'] == 'InvalidAccessKeyId':
-                    known_error('OPS-14183', 'Configure OOS in IN2')
+                    cls.known_error = ('OPS-14183', 'Configure OOS in IN2')
+                    return
+                    # known_error('OPS-14183', 'Configure OOS in IN2')
                 raise err
             cls.a1_r1.oos.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
             cls.a1_r1.oos.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
@@ -70,6 +73,8 @@ class Test_oos(OscTinaTest):
 
     @pytest.mark.tag_redwire
     def test_T5132_generated_url(self):
+        if self.known_error:
+            known_error('OPS-14183', 'Configure OOS in IN2')
         params = {'Bucket': self.bucket_name, 'Key': self.key_name}
         url = self.a1_r1.oos.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
         ret = requests.get(url=url, verify=self.a1_r1.config.region.get_info(constants.VALIDATE_CERTS))
