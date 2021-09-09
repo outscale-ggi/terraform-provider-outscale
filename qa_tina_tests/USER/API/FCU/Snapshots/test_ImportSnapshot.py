@@ -24,6 +24,7 @@ class Test_ImportSnapshot(OscTinaTest):
         cls.task_ids = []
         cls.bucket_name = None
         cls.bucket_created = False
+        cls.known_error = None
         try:
             # create volume
             ret = cls.a1_r1.fcu.CreateVolume(AvailabilityZone=cls.a1_r1.config.region.az_name, Size='1')
@@ -44,7 +45,9 @@ class Test_ImportSnapshot(OscTinaTest):
                         assert False, 'remove known error'
                 except OscApiException as err:
                     if cls.a1_r1.config.region.name == 'in-west-2' and err.status_code == 500 and err.message == 'This API call is disabled':
-                        known_error('OPS-14183', 'Configure OOS in IN2')
+                        cls.known_error = ('OPS-14183', 'Configure OOS in IN2')
+                        return
+                        # known_error('OPS-14183', 'Configure OOS in IN2')
                     raise err
                 task_id = ret.response.snapshotExportTask.snapshotExportTaskId
                 cls.task_ids.append(task_id)
@@ -61,15 +64,15 @@ class Test_ImportSnapshot(OscTinaTest):
     def teardown_class(cls):
         errors = []
         try:
-            if cls.bucket_created:
-                try:
+            try:
+                if cls.bucket_created:
                     k_list = cls.a1_r1.storageservice.list_objects(Bucket=cls.bucket_name)
                     if 'Contents' in list(k_list.keys()):
                         for k in k_list['Contents']:
                             cls.a1_r1.storageservice.delete_object(Bucket=cls.bucket_name, Key=k['Key'])
                     cls.a1_r1.storageservice.delete_bucket(Bucket=cls.bucket_name)
-                except Exception as error:
-                    errors.append(error)
+            except Exception as error:
+                errors.append(error)
             if cls.snap_id:
                 # remove snapshot
                 cls.a1_r1.fcu.DeleteSnapshot(SnapshotId=cls.snap_id)
@@ -205,7 +208,10 @@ class Test_ImportSnapshot(OscTinaTest):
             assert_error(error, 400, 'MissingParameter', 'The request must contain the parameter: snapshotSize')
 
     def test_T1050_with_valid_params(self):
+        snap_id = None
         try:
+            if self.known_error:
+                known_error('OPS-14183', 'Configure OOS in IN2')
             snap_id = None
             key = None
             k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
