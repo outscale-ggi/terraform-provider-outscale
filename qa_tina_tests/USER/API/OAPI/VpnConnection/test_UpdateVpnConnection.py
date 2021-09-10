@@ -51,7 +51,7 @@ class Test_UpdateVpnConnection(OscTinaTest):
             super(Test_UpdateVpnConnection, cls).teardown_class()
 
     def test_T5934_valid_case(self):
-        known_error('TINA-6727', 'On call intel.vpn.connection.update')
+        known_error('TINA-6738', 'On call intel.vpn.connection.update')
         self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
                                         VpnOptions={"TunnelInsideIpRange":"169.254.254.8/30"})
 
@@ -61,26 +61,28 @@ class Test_UpdateVpnConnection(OscTinaTest):
     def test_T5936_non_existant_vpn_id(self):
         try:
             self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId="vpn-12345678")
+            assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5067')
 
     def test_T5937_malformed_vpn_id(self):
         try:
             self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId="xxx-12345678")
+            assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
 
     def test_T5938_with_invalid_PreSharedKey(self):
-        known_error('TINA-6727', 'On call intel.vpn.connection.update')
+        known_error('TINA-6738', 'On call intel.vpn.connection.update')
         self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":"1234567890SDFGHJK"}})
 
     def test_T5939_with_valid_PreSharedKey(self):
-        known_error('TINA-6727', 'On call intel.vpn.connection.update')
+        known_error('TINA-6738', 'On call intel.vpn.connection.update')
         presharedkey = id_generator(size=26)
         self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":presharedkey}})
 
     def test_T5940_with_all_parameters(self):
-        known_error('TINA-6727', 'On call intel.vpn.connection.update')
+        known_error('TINA-6738', 'On call intel.vpn.connection.update')
         self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
                                VpnOptions={"Phase1Options":{"DpdTimeoutAction":"test", "DpdTimeoutSeconds":1,"Phase1DhGroupNumbers":[1],
                                                             "Phase1EncryptionAlgorithms":["test"], "Phase1IntegrityAlgorithms":["test"],
