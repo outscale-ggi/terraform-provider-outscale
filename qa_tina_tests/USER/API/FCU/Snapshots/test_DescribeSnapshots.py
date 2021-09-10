@@ -99,4 +99,3 @@ class Test_DescribeSnapshots(OscTinaTest):
         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value2', 'value3']},
                                                        {'Name': 'tag:key3', 'Value': ['value1', 'value2']}])
         assert len(ret.response.snapshotSet) == 1
-
