@@ -201,7 +201,7 @@ class Test_ReadVpnConnections(VpnConnection):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5933_after_update(self):
-        known_error('TINA-6727', 'On call intel.vpn.connection.update')
+        known_error('TINA-6738', 'On call intel.vpn.connection.update')
         self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
                                VpnOptions={"Phase1Options":{"DpdTimeoutAction":"test", "DpdTimeoutSeconds":1,"Phase1DhGroupNumbers":[1],
                                                             "Phase1EncryptionAlgorithms":["test"], "Phase1IntegrityAlgorithms":["test"],
