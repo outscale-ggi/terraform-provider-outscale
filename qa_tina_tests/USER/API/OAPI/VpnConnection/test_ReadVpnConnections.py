@@ -2,6 +2,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import VpnConnection, validate_vpn_connection
 
@@ -180,17 +181,14 @@ class Test_ReadVpnConnections(VpnConnection):
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5933_after_update(self):
-        try:
-            self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
-                                   VpnOptions={"Phase1Options":{"DpdTimeoutAction":"test", "DpdTimeoutSeconds":1,"Phase1DhGroupNumbers":[1],
-                                                                "Phase1EncryptionAlgorithms":["test"], "Phase1IntegrityAlgorithms":["test"],
-                                                                "Phase1LifetimeSeconds":1, "ReplayWindowSize":1, "StartupAction":"xx"},
-                                                "Phase2Options":{"Phase2DhGroupNumbers": [0], "Phase2EncryptionAlgorithms":
-                                                                 ["test"], "Phase2IntegrityAlgorithms": ["test"],
-                                                                 "Phase2LifetimeSeconds": 0, "PreSharedKey":"PreSharedKey"}})
-            assert False, 'correct test after fix TINA-6683 by adding check response'
-        except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', '2000')
+        known_error('TINA-6727', 'On call intel.vpn.connection.update')
+        self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
+                               VpnOptions={"Phase1Options":{"DpdTimeoutAction":"test", "DpdTimeoutSeconds":1,"Phase1DhGroupNumbers":[1],
+                                                            "Phase1EncryptionAlgorithms":["test"], "Phase1IntegrityAlgorithms":["test"],
+                                                            "Phase1LifetimeSeconds":1, "ReplayWindowSize":1, "StartupAction":"xx"},
+                                            "Phase2Options":{"Phase2DhGroupNumbers": [0], "Phase2EncryptionAlgorithms":
+                                                             ["test"], "Phase2IntegrityAlgorithms": ["test"],
+                                                             "Phase2LifetimeSeconds": 0, "PreSharedKey":"PreSharedKey"}})
         ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'VpnConnectionIds': [self.vpn_id]})
 # this will be changed by check oapi response
         assert hasattr(ret.response.VpnConnections[0], "VpnOptions")
