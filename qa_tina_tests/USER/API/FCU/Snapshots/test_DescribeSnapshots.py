@@ -1,12 +1,12 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_error
+from qa_test_tools.misc import assert_error, execute_tag_tests
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 
-NB_SNAP = 3
+NB_SNAP = 4
 
 
 class Test_DescribeSnapshots(OscTinaTest):
@@ -58,44 +58,47 @@ class Test_DescribeSnapshots(OscTinaTest):
 #        ret4 = self.a2_r1.fcu.DescribeSnapshots(RestorableBy=[self.a2_r1.config.account.account_id])
 #        print('toto')
 
+#     def test_T5953_with_tag_filter(self):
+#         self.a1_r1.fcu.CreateTags(ResourceId=self.snap_ids[0:1], Tag=[{'Key': 'key1', 'Value': 'value2'}, {'Key': 'key2', 'Value': 'value3'}])
+#         self.a1_r1.fcu.CreateTags(ResourceId=self.snap_ids[1:2], Tag=[{'Key': 'key2', 'Value': 'value1'}, {'Key': 'key3', 'Value': 'value2'}])
+#         self.a1_r1.fcu.CreateTags(ResourceId=self.snap_ids[2:3], Tag=[{'Key': 'key3', 'Value': 'value1'}, {'Key': 'key1', 'Value': 'value3'}])
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value1']}])
+#         assert ret.response.snapshotSet is None
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value2']}])
+#         assert len(ret.response.snapshotSet) == 1
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value2', 'value3']}])
+#         assert len(ret.response.snapshotSet) == 2
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-key', 'Value': ['key']}])
+#         assert ret.response.snapshotSet is None
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-key', 'Value': ['key1']}])
+#         assert len(ret.response.snapshotSet) == 2
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-key', 'Value': ['key1', 'key2']}])
+#         assert len(ret.response.snapshotSet) == 3
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-value', 'Value': ['value']}])
+#         assert ret.response.snapshotSet is None
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-value', 'Value': ['value1']}])
+#         assert len(ret.response.snapshotSet) == 2
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-value', 'Value': ['value1', 'value2']}])
+#         assert len(ret.response.snapshotSet) == 3
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value2']}, {'Name': 'tag:key2', 'Value': ['value']}])
+#         assert ret.response.snapshotSet is None
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value2']}, {'Name': 'tag:key2', 'Value': ['value3']}])
+#         assert len(ret.response.snapshotSet) == 1
+#
+#         ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value2', 'value3']},
+#                                                        {'Name': 'tag:key3', 'Value': ['value1', 'value2']}])
+#         assert len(ret.response.snapshotSet) == 1
+
     def test_T5953_with_tag_filter(self):
-        self.a1_r1.fcu.CreateTags(ResourceId=self.snap_ids[0:1], Tag=[{'Key': 'key1', 'Value': 'value2'}, {'Key': 'key2', 'Value': 'value3'}])
-        self.a1_r1.fcu.CreateTags(ResourceId=self.snap_ids[1:2], Tag=[{'Key': 'key2', 'Value': 'value1'}, {'Key': 'key3', 'Value': 'value2'}])
-        self.a1_r1.fcu.CreateTags(ResourceId=self.snap_ids[2:3], Tag=[{'Key': 'key3', 'Value': 'value1'}, {'Key': 'key1', 'Value': 'value3'}])
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value1']}])
-        assert ret.response.snapshotSet is None
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value2']}])
-        assert len(ret.response.snapshotSet) == 1
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value2', 'value3']}])
-        assert len(ret.response.snapshotSet) == 2
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-key', 'Value': ['key']}])
-        assert ret.response.snapshotSet is None
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-key', 'Value': ['key1']}])
-        assert len(ret.response.snapshotSet) == 2
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-key', 'Value': ['key1', 'key2']}])
-        assert len(ret.response.snapshotSet) == 3
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-value', 'Value': ['value']}])
-        assert ret.response.snapshotSet is None
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-value', 'Value': ['value1']}])
-        assert len(ret.response.snapshotSet) == 2
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag-value', 'Value': ['value1', 'value2']}])
-        assert len(ret.response.snapshotSet) == 3
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value2']}, {'Name': 'tag:key2', 'Value': ['value']}])
-        assert ret.response.snapshotSet is None
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value2']}, {'Name': 'tag:key2', 'Value': ['value3']}])
-        assert len(ret.response.snapshotSet) == 1
-
-        ret = self.a1_r1.fcu.DescribeSnapshots(Filter=[{'Name': 'tag:key1', 'Value': ['value2', 'value3']},
-                                                       {'Name': 'tag:key3', 'Value': ['value1', 'value2']}])
-        assert len(ret.response.snapshotSet) == 1
+        execute_tag_tests(self.a1_r1, self.snap_ids, 'fcu.DescribeSnapshots', 'snapshotSet.snapshotId')
