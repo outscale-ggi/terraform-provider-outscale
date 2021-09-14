@@ -11,7 +11,6 @@ from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools, oapi, wait
 from qa_tina_tools.tina.info_keys import KEY_PAIR, PATH
-from qa_tina_tools.tina.oapi import delete_Vms, create_Vms
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state, wait_security_groups_state
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response, create_vms
 
