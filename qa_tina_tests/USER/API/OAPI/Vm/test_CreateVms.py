@@ -335,70 +335,118 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T3168_with_nic_invalid_parameter_combination(self):
         # provide nic id and subnet id
+        vm_info = None
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678',
-                                                                 'SubnetId': 'subnet-12345678'}])
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'NicId': 'eni-12345678',
+                                            'SubnetId': 'subnet-12345678'
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+
         # provide nic id and security_group_ids
+        vm_info = None
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678',
-                                                                 'SecurityGroupIds': ['sg-12345678']}])
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'NicId': 'eni-12345678',
+                                            'SecurityGroupIds': ['sg-12345678']
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+
         # provide nic id and private_ips
+        vm_info = None
         try:
-            _, self.info = create_vms(
-                ocs_sdk=self.a1_r1,
-                Nics=[{
-                    'DeviceNumber': 1,
-                    'NicId': 'eni-12345678',
-                    'PrivateIps': [{
-                        'IsPrimary': True,
-                        'PrivateIp': '120.1.2.3'}]
-                }]
-            )
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'NicId': 'eni-12345678',
+                                            'PrivateIps': [{
+                                                'IsPrimary': True,
+                                                'PrivateIp': '120.1.2.3'
+                                            }]
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+
         # provide nic id and secondary_ip_count
+        vm_info = None
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678',
-                                                                 'SecondaryPrivateIpCount': 50}])
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'NicId': 'eni-12345678',
+                                            'SecondaryPrivateIpCount': 50
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+
         # provide nic id and delete_on_vm_deletion to True
+        vm_info = None
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678',
-                                                                 'DeleteOnVmDeletion': True}])
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'NicId': 'eni-12345678',
+                                            'DeleteOnVmDeletion': True
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+
         # too much primary ips
+        vm_info = None
         try:
-            _, self.info = create_vms(
-                ocs_sdk=self.a1_r1,
-                Nics=[{
-                    'DeviceNumber': 1,
-                    'SubnetId': 'subnet-12345678',
-                    'PrivateIps': [
-                        {
-                            'IsPrimary': True,
-                            'PrivateIp': '120.1.2.3'
-                        },
-                        {
-                            'IsPrimary': True,
-                            'PrivateIp': '120.1.2.3'
-                        }
-                    ]
-                }]
-            )
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'SubnetId': 'subnet-12345678',
+                                            'PrivateIps': [
+                                                {
+                                                    'IsPrimary': True,
+                                                    'PrivateIp': '120.1.2.3'
+                                                },
+                                                {
+                                                    'IsPrimary': True,
+                                                    'PrivateIp': '120.1.2.3'
+                                                }
+                                            ]
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T3169_with_nic_invalid_ips(self):
         # private ips not ipv4
