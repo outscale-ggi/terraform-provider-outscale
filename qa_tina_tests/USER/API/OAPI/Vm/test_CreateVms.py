@@ -402,50 +402,64 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T3169_with_nic_invalid_ips(self):
         # private ips not ipv4
+        vm_info = None
         try:
-            _, self.info = create_vms(
-                ocs_sdk=self.a1_r1,
-                Nics=[{
-                    'DeviceNumber': 1,
-                    'SubnetId': 'subnet-12345678',
-                    'PrivateIps': [{
-                        'IsPrimary': True,
-                        'PrivateIp': 'hello_ips'}]
-                }]
-            )
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'SubnetId': 'subnet-12345678',
+                                            'PrivateIps': [{
+                                                'IsPrimary': True,
+                                                'PrivateIp': 'hello_ips'
+                                            }]
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+
         # private ips not ipv4
+        vm_info = None
         try:
-            _, self.info = create_vms(
-                ocs_sdk=self.a1_r1,
-                Nics=[{
-                    'DeviceNumber': 1,
-                    'SubnetId': 'subnet-12345678',
-                    'PrivateIps': [{
-                        'IsPrimary': True,
-                        'PrivateIp': '120.1.2.3.5'}]
-                }]
-            )
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'SubnetId': 'subnet-12345678',
+                                            'PrivateIps': [{
+                                                'IsPrimary': True,
+                                                'PrivateIp': '120.1.2.3.5'
+                                            }]
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+
         # private ips not ipv4
+        vm_info = None
         try:
-            _, self.info = create_vms(
-                ocs_sdk=self.a1_r1,
-                Nics=[{
-                    'DeviceNumber': 1,
-                    'SubnetId': 'subnet-12345678',
-                    'PrivateIps': [{
-                        'IsPrimary': True,
-                        'PrivateIp': '120.1.2.3000'}]
-                }]
-            )
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'SubnetId': 'subnet-12345678',
+                                            'PrivateIps': [{
+                                                'IsPrimary': True,
+                                                'PrivateIp': '120.1.2.3000'
+                                            }]
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T3398_with_bdm(self):
         ret, self.info = create_vms(ocs_sdk=self.a1_r1, BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 2}}])
@@ -727,12 +741,16 @@ echo "yes" > /tmp/userdata.txt
                 oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T5838_with_invalid_larger_userdata_size(self):
+        vm_info = None
         try:
             userdata = id_generator(size=513000, chars=string.ascii_lowercase)
-            oapi.create_Vms(self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            vm_info = oapi.create_Vms(self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4106')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
 
 #--------------------------------- Class method ---------------------------------
