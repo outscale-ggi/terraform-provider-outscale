@@ -288,10 +288,14 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T3165_with_nic_missing_device_number(self):
         # missing device_number
+        vm_info = None
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'NicId': 'eni-12345678'}])
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, nics=[{'NicId': 'eni-12345678'}])
         except OscApiException as err:
             assert_oapi_error(err, 400, 'MissingParameter', '7000')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T3166_with_nic_invalid_nic_id(self):
         # invalid id
