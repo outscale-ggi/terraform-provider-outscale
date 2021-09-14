@@ -242,12 +242,15 @@ echo "yes" > /tmp/userdata.txt
                              expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
 
     def test_T3161_with_invalid_userdata(self):
+        vm_info = None
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                      UserData='abc')
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data='abc')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T3162_with_userdata_script_powershell(self):
         userdata = """# autoexecutepowershellnopasswd
