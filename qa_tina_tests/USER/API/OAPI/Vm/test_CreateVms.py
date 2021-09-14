@@ -295,23 +295,52 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T3166_with_nic_invalid_nic_id(self):
         # invalid id
+        vm_info = None
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'abc-12345678'}])
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'NicId': 'abc-12345678'
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+
         # malformed id
+        vm_info = None
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-1234567'}])
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'NicId': 'eni-1234567'
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+
         # unknown id
+        vm_info = None
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'NicId': 'eni-12345678'}])
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      nics=[{
+                                            'DeviceNumber': 1,
+                                            'NicId': 'eni-12345678'
+                                        }]
+                                    )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidResource', '5036')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T3167_with_nic_invalid_subnet_id(self):
         # invalid id
