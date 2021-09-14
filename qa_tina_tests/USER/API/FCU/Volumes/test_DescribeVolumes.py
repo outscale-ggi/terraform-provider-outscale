@@ -1,7 +1,6 @@
 import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.constants import VOLUME_SIZES, VOLUME_IOPS
 from qa_tina_tools.tools.tina.create_tools import create_volumes, create_instances_old
@@ -109,9 +108,6 @@ class Test_DescribeVolumes(OscTinaTest):
 
     def test_T5947_filter_by_tag_key_and_value_wildcard(self):
         ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key2', 'Value': '*'}])
-        if ret.response.volumeSet is None:
-            known_error('TINA-6737', 'tag None')
-        assert False, 'Remove known error'
         assert len(ret.response.volumeSet) == 2
 
     def test_T5948_one_tag_key_multiple_tag_values(self):
