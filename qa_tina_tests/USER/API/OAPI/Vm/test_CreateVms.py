@@ -226,11 +226,15 @@ echo "yes" > /tmp/userdata.txt
         assert ret.response.instanceInitiatedShutdownBehavior.value == 'restart'
 
     def test_T2039_with_instance_shutdown_behavior_invalid(self):
+        vm_info = None
         try:
-            _, self.info = create_vms(ocs_sdk=self.a1_r1, state=None, VmInitiatedShutdownBehavior='shutdown')
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, state=None, iisb='shutdown')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T2040_with_userdata_private_only(self):
         userdata = """-----BEGIN OUTSCALE SECTION-----
