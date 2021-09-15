@@ -237,13 +237,17 @@ echo "yes" > /tmp/userdata.txt
                 oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T2040_with_userdata_private_only(self):
+        vm_info = None
         userdata = """-----BEGIN OUTSCALE SECTION-----
             private_only=true
             -----END OUTSCALE SECTION-----"""
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                    UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
-        validate_vm_response(ret.response.Vms[0],
-                             expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        try:
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            assert vm_info['vms'][0]['UserData'] == base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+                userdata = None
 
     def test_T3161_with_invalid_userdata(self):
         vm_info = None
@@ -257,41 +261,48 @@ echo "yes" > /tmp/userdata.txt
                 oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T3162_with_userdata_script_powershell(self):
+        vm_info = None
         userdata = """# autoexecutepowershellnopasswd
             Write-Host 'Hello, World!'
             # autoexecutepowershellnopasswd"""
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                    UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
-        validate_vm_response(ret.response.Vms[0],
-                             expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        try:
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            assert vm_info['vms'][0]['UserData'] == base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+                userdata = None
 
     def test_T3163_with_userdata_attract_server(self):
+        vm_info = None
         userdata = """-----BEGIN OUTSCALE SECTION-----
             tags.osc.fcu.attract_server=front80
             -----END OUTSCALE SECTION-----"""
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                    UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
-        validate_vm_response(ret.response.Vms[0],
-                             expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
+        try:
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            assert vm_info['vms'][0]['UserData'] == base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+                userdata = None
 
     def test_T3164_with_userdata_auto_attach(self):
+        vm_info = None
         public_ip = None
         try:
             public_ip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
             userdata = """-----BEGIN OUTSCALE SECTION-----
             tags.osc.fcu.eip.auto-attach={}
             -----END OUTSCALE SECTION-----""".format(public_ip)
-            ret, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                        UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
-            validate_vm_response(ret.response.Vms[0],
-                                 expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8')})
-            ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [ret.response.Vms[0].VmId]})
-            validate_vm_response(ret.response.Vms[0],
-                                 expected_vm={'UserData': base64.b64encode(userdata.encode('utf-8')).decode('utf-8'),
-                                              'PublicIp': public_ip})
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            assert vm_info['vms'][0]['PublicIp'] == public_ip
+            assert vm_info['vms'][0]['UserData'] == base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         finally:
             if public_ip:
                 self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+                userdata = None
 
     def test_T3165_with_nic_missing_device_number(self):
         # missing device_number
