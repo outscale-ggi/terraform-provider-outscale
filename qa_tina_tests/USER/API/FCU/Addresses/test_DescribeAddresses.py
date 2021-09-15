@@ -1,7 +1,7 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_error
+from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
@@ -51,7 +51,7 @@ class Test_DescribeAddresses(OscTinaTest):
             self.a2_r1.fcu.DescribeAddresses(PublicIp=self.eips_addr)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidAddress.NotFound', None)
+            misc.assert_error(error, 400, 'InvalidAddress.NotFound', None)
             assert error.message.startswith('Address not found: ')
             msg_addrs = set(error.message[len('Address not found: '):].split(', '))
             assert len(msg_addrs) == len(self.eips_addr)
@@ -67,18 +67,18 @@ class Test_DescribeAddresses(OscTinaTest):
             self.a1_r1.fcu.DescribeAddresses(Filter=[{'Name': 'tag-key', 'Value': 'tata'}])
             known_error('TINA-5164', "Call should not have been successful")
         except OscApiException as error:
-            assert_error(error, 400, '', '')
+            misc.assert_error(error, 400, '', '')
 
     def test_T4004_valid_filter_by_tag_value(self):
         try:
             self.a1_r1.fcu.DescribeAddresses(Filter=[{'Name': 'tag-value', 'Value': 'toto'}])
             known_error('TINA-5164', "Call should not have been successful")
         except OscApiException as error:
-            assert_error(error, 400, '', '')
+            misc.assert_error(error, 400, '', '')
 
     def test_T4005_valid_filter_by_tag_key_and_value(self):
         try:
             self.a1_r1.fcu.DescribeAddresses(Filter=[{'Name': 'tag:toto', 'Value': 'tata'}])
             known_error('TINA-5164', "Call should not have been successful")
         except OscApiException as error:
-            assert_error(error, 400, '', '')
+            misc.assert_error(error, 400, '', '')

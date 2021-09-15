@@ -1,13 +1,13 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_error
+from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 
-NUM_INST = 2
+NUM_INST = 4
 
 
 class Test_DescribeInstances(OscTinaTest):
@@ -50,7 +50,7 @@ class Test_DescribeInstances(OscTinaTest):
             self.a2_r1.fcu.DescribeInstances(InstanceId=[self.instance_info_a1[INSTANCE_ID_LIST][0]])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidInstanceID.NotFound',
+            misc.assert_error(error, 400, 'InvalidInstanceID.NotFound',
                          'The Instance ID does not exist: {}, for account: {}'.format(self.instance_info_a1[INSTANCE_ID_LIST][0],
                                                                                       self.a2_r1.config.account.account_id))
 
@@ -63,5 +63,9 @@ class Test_DescribeInstances(OscTinaTest):
             self.a1_r1.fcu.DescribeInstances(InstanceId=[self.instance_info_a1[INSTANCE_ID_LIST][0], 'i-1b5240d7'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidInstanceID.NotFound',
+            misc.assert_error(error, 400, 'InvalidInstanceID.NotFound',
                          'The Instance ID does not exist: i-1b5240d7, for account: {}'.format(self.a1_r1.config.account.account_id))
+
+    def test_T5957_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'Instance', self.instance_info_a1[INSTANCE_ID_LIST],
+                               'fcu.DescribeInstances', 'reservationSet.instancesSet.instanceId')

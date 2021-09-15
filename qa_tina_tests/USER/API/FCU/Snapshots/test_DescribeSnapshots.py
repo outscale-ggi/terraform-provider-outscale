@@ -101,4 +101,4 @@ class Test_DescribeSnapshots(OscTinaTest):
 #         assert len(ret.response.snapshotSet) == 1
 
     def test_T5953_with_tag_filter(self):
-        execute_tag_tests(self.a1_r1, self.snap_ids, 'fcu.DescribeSnapshots', 'snapshotSet.snapshotId')
+        execute_tag_tests(self.a1_r1, 'Snapshot', self.snap_ids, 'fcu.DescribeSnapshots', 'snapshotSet.snapshotId')
