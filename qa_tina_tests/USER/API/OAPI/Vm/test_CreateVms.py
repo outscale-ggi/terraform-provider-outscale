@@ -663,16 +663,17 @@ echo "yes" > /tmp/userdata.txt
         assert found, 'Could not find the attached volume'
 
     def test_T4157_vm_as_stopped(self):
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None, BootOnCreation=False)
-        validate_vm_response(ret.response.Vms[0], expected_vm={'VmInitiatedShutdownBehavior': 'stop'})
-        assert len(self.info) == 1
-        ret = self.a1_r1.fcu.DescribeInstanceAttribute(Attribute='instanceInitiatedShutdownBehavior', InstanceId=self.info[0])
-        assert ret.response.instanceInitiatedShutdownBehavior.value == 'stop'
-        wait_instances_state(self.a1_r1, self.info, state='stopped')
-        self.a1_r1.oapi.StopVms(VmIds=self.info, ForceStop=True)
-        self.a1_r1.oapi.DeleteVms(VmIds=self.info)
-        wait_instances_state(self.a1_r1, self.info, state='terminated')
-        self.info = None
+        vm_info = None
+        try:
+            vm_info = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                            MaxVmsCount=1, MinVmsCount=1, VmType='tinav1.c1r1', BootOnCreation=False)
+            assert vm_info.response.Vms[0].VmInitiatedShutdownBehavior == 'stop'
+            vm_info = vm_info.response.Vms[0].VmId
+            wait.wait_Vms_state(self.a1_r1, [vm_info], state='stopped')
+        finally:
+            if vm_info:
+                self.a1_r1.oapi.DeleteVms(VmIds=[vm_info])
+                wait.wait_Vms_state(self.a1_r1, [vm_info], state='terminated')
 
     def test_T5072_userdata_base64_gzip(self):
         vm_info = None
