@@ -52,10 +52,8 @@ setup(
     package_dir=PKG_DIR,
     package_data={'qa_provider_oapi': ['data/*/*/*.tf', 'data/*/*/*.ref',
                                        'data/*/*/*.check', 'data/*/*/*.txt']},
-    data_files=[('etc/osc-qa-provider-oapi', ['qa_provider_oapi/provider.auto.tfvars',
-                                              'qa_provider_oapi/variables.tf',
-                                              'qa_provider_oapi/provider.tf',
-                                              'qa_provider_oapi/resources.auto.tfvars'])],
+    data_files=[('etc/osc-qa-provider-oapi', ['qa_provider_oapi/variables.tf',
+                                              'qa_provider_oapi/provider.tf'])],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

@@ -59,6 +59,7 @@ def generate_file(path, data):
 
 region_name = os.getenv('OSC_REGION', None)
 user_terraform = os.getenv('OSC_USER', None)
+version = os.getenv('PLUGIN_VERSION', None)
 assert region_name and user_terraform, 'verify that you added the region name and your terrafor user in ' \
                                        'your venv environment '
 file_region = open(os.path.expanduser("~/.osc_regions"))
@@ -73,7 +74,8 @@ data_provider = '''
 access_key_id = {}
 secret_key_id = {}
 region = {}
-'''.format(access_key, secret_key, region_name)
+version = {}
+'''.format(access_key, secret_key, region_name, version)
 generate_file('provider.auto.tfvars', data_provider)
 data_ressources = '''
 #####Ressources for tests#####
@@ -82,6 +84,37 @@ vm_type = {}
 ###########
 '''.format(omi_id, inst_type)
 generate_file('resources.auto.tfvars', data_ressources)
+provider_conf = '''
+terraform {
+    required_providers {
+        outscale = {
+            source = "outscale-dev/outscale"
+            version = var.version
+        }
+    }
+}
+
+provider "outscale" {
+  access_key_id = var.access_key_id
+  secret_key_id = var.secret_key_id
+  region = var.region
+}
+'''
+generate_file('provider.tf', provider_conf)
+variables = '''
+# provider configuration
+variable "account_id" {}
+variable "access_key_id" {}
+variable "secret_key_id" {}
+variable "region" {}
+variable "version" {}
+
+# resources configuration
+variable "image_id" {}
+variable "vm_type" {}
+'''
+generate_file('variables.tf', variables)
+
 terraform_vars = {}
 for file_name in VARIABLES_FILE_NAME:
     with open(file_name, 'r') as var_file:
