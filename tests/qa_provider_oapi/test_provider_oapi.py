@@ -56,6 +56,7 @@ def generate_file(path, data):
     myFile = open(path, "w+")
     myFile.write(data)
     myFile.close()
+
 region_name = os.getenv('OSC_REGION', None)
 user_terraform = os.getenv('OSC_USER', None)
 assert region_name and user_terraform, 'verify that you added the region name and your terrafor user in ' \
@@ -332,14 +333,6 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         cls.logger = logging.getLogger('tpd_test')
         cls.log = None
         cls.error = False
-        try:
-
-            cls.run_cmd()
-        except AssertionError as error:
-            try:
-                cls.teardown_class()
-            finally:
-                raise error
 
     def setup_method(self, method):
         self.log = """
