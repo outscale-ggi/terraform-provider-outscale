@@ -60,9 +60,9 @@ region_name = os.getenv('OSC_REGION', None)
 user_terraform = os.getenv('OSC_USER', None)
 assert region_name and user_terraform, 'verify that you added the region name and your terrafor user in ' \
                                        'your venv environment '
-file_region = open("~/.osc_regions")
+file_region = open(os.path.expanduser("~/.osc_regions"))
 dict_region = json.load(file_region)
-file_credential = open("~/.osc_credentials")
+file_credential = open(os.path.expanduser("~/.osc_regions"))
 dict_credential = json.load(file_credential)
 omi_id = dict_region[region_name]['centos_latest']
 inst_type = dict_region[region_name]['default_vm_type']
