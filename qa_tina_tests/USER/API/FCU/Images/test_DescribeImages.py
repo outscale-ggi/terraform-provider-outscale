@@ -6,18 +6,17 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.misc import id_generator, assert_error
+from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.check_tools import get_snapshot_id_list
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_images
-from qa_tina_tools.tools.tina.create_tools import create_volumes, attach_volume, create_image, create_instances_old
-from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances_old
+from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina.wait_tools import wait_images_state
 
 VOL_SIZE_1 = 11
 VOL_SIZE_2 = 123
-DESCRIPTION = id_generator(prefix="description")
+DESCRIPTION = misc.id_generator(prefix="description")
 
 
 class Test_DescribeImages(OscTinaTest):
@@ -26,38 +25,43 @@ class Test_DescribeImages(OscTinaTest):
     def setup_class(cls):
         super(Test_DescribeImages, cls).setup_class()
         cls.inst_id = None
-        cls.vol_id = None
-        cls.image_name = id_generator(prefix='img_')
-        cls.image1_id = None
-        cls.image2_id = None
+        cls.vol_id_list = []
+        cls.image_name = misc.id_generator(prefix='img_')
+        cls.image_id_list = []
         try:
             # create 1 instance
-            _, inst_id_list = create_instances_old(cls.a1_r1, state='running')
-            cls.inst_id = inst_id_list[0]
+            _, [cls.inst_id] = create_tools.create_instances_old(cls.a1_r1, state='running')
             # create volume
-            _, vol_id_list = create_volumes(cls.a1_r1, size=VOL_SIZE_1)
-            cls.vol_id = vol_id_list[0]
+            _, [vol_id] = create_tools.create_volumes(cls.a1_r1, size=VOL_SIZE_1)
+            cls.vol_id_list.append(vol_id)
             # attach volume
-            attach_volume(cls.a1_r1, cls.inst_id, cls.vol_id, '/dev/xvdb')
+            create_tools.attach_volume(cls.a1_r1, cls.inst_id, vol_id, '/dev/xvdb')
             # create image
-            ret, cls.image1_id = create_image(cls.a1_r1, cls.inst_id, name=cls.image_name, state='available', description=DESCRIPTION)
+            ret, image1_id = create_tools.create_image(cls.a1_r1, cls.inst_id, name=cls.image_name, state='available', description=DESCRIPTION)
+            cls.image_id_list.append(image1_id)
             cls.img1_snap_id_list = get_snapshot_id_list(ret)
             assert len(cls.img1_snap_id_list) == 2, 'Could not find snapshots created when creating image'
             # add launch permissions to user 2 and user 3
             launch_permissions = {'Add': [{'UserId': str(cls.a2_r1.config.account.account_id)},
                                           {'UserId': str(cls.a3_r1.config.account.account_id)}]}
-            cls.a1_r1.fcu.ModifyImageAttribute(ImageId=cls.image1_id, LaunchPermission=launch_permissions)
+            cls.a1_r1.fcu.ModifyImageAttribute(ImageId=image1_id, LaunchPermission=launch_permissions)
             # create volume
-            _, vol_id_list = create_volumes(cls.a1_r1, size=VOL_SIZE_2, volume_type='io1', iops=100)
-            cls.vol_id = vol_id_list[0]
+            _, [vol_id] = create_tools.create_volumes(cls.a1_r1, size=VOL_SIZE_2, volume_type='io1', iops=100)
+            cls.vol_id_list.append(vol_id)
             # attach volume
-            attach_volume(cls.a1_r1, cls.inst_id, cls.vol_id, '/dev/xvdc')
+            create_tools.attach_volume(cls.a1_r1, cls.inst_id, vol_id, '/dev/xvdc')
             # create image
-            ret, cls.image2_id = create_image(cls.a1_r1, cls.inst_id, state='available')
+            ret, image2_id = create_tools.create_image(cls.a1_r1, cls.inst_id, state='available')
+            cls.image_id_list.append(image2_id)
             cls.img2_snap_id_list = get_snapshot_id_list(ret)
             assert len(cls.img2_snap_id_list) == 3, 'Could not find snapshots created when creating image'
             launch_permissions = {'Add': [{'UserId': str(cls.a2_r1.config.account.account_id)}]}
-            cls.a1_r1.fcu.ModifyImageAttribute(ImageId=cls.image2_id, LaunchPermission=launch_permissions)
+            cls.a1_r1.fcu.ModifyImageAttribute(ImageId=image2_id, LaunchPermission=launch_permissions)
+            # add images for tag filter tests
+            ret, image_id = create_tools.create_image(cls.a1_r1, cls.inst_id, state='available')
+            cls.image_id_list.append(image_id)
+            ret, image_id = create_tools.create_image(cls.a1_r1, cls.inst_id, state='available')
+            cls.image_id_list.append(image_id)
         except Exception:
             try:
                 cls.teardown_class()
@@ -68,13 +72,11 @@ class Test_DescribeImages(OscTinaTest):
     def teardown_class(cls):
         try:
             if cls.inst_id:
-                delete_instances_old(cls.a1_r1, [cls.inst_id])
-            if cls.vol_id:
-                delete_volumes(cls.a1_r1, [cls.vol_id])
-            if cls.image1_id:
-                cleanup_images(cls.a1_r1, image_id_list=[cls.image1_id], force=True)
-            if cls.image2_id:
-                cleanup_images(cls.a1_r1, image_id_list=[cls.image2_id], force=True)
+                delete_tools.delete_instances_old(cls.a1_r1, [cls.inst_id])
+            if cls.vol_id_list:
+                delete_tools.delete_volumes(cls.a1_r1, cls.vol_id_list)
+            if cls.image_id_list:
+                cleanup_images(cls.a1_r1, image_id_list=cls.image_id_list, force=True)
         except Exception as error:
             cls.logger.exception(error)
         finally:
@@ -97,12 +99,12 @@ class Test_DescribeImages(OscTinaTest):
             self.a1_r1.fcu.DescribeImages(DryRun='true')
             assert False, 'DryRun should have failed'
         except OscApiException as error:
-            assert_error(error, 400, 'DryRunOperation', 'Request would have succeeded, but DryRun flag is set.')
+            misc.assert_error(error, 400, 'DryRunOperation', 'Request would have succeeded, but DryRun flag is set.')
 
     def test_T824_executable_by_user(self):
         # add luanch permissions to user 2 and user 3
         launch_permissions = {'Add': [{'UserId': str(self.a1_r1.config.account.account_id)}]}
-        self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image1_id, LaunchPermission=launch_permissions)
+        self.a1_r1.fcu.ModifyImageAttribute(ImageId=self.image_id_list[0], LaunchPermission=launch_permissions)
 
         ret = self.a1_r1.fcu.DescribeImages(ExecutableBy=['self'])
         assert len(ret.response.imagesSet) == 1, ret.response.display()
@@ -131,13 +133,13 @@ class Test_DescribeImages(OscTinaTest):
     def test_T828_filter_bdm_snapshot_id(self):
         desc_filter = {"Name": "block-device-mapping.snapshot-id", "Value": self.img1_snap_id_list[0]}
         ret = self.a1_r1.fcu.DescribeImages(Filter=[desc_filter])
-        assert ret.response.imagesSet and len(ret.response.imagesSet) == 1 and ret.response.imagesSet[0].imageId == self.image1_id
+        assert ret.response.imagesSet and len(ret.response.imagesSet) == 1 and ret.response.imagesSet[0].imageId == self.image_id_list[0]
 
     def test_T829_filter_bdm_volume_size(self):
         desc_filter = {"Name": "block-device-mapping.volume-size", "Value": str(VOL_SIZE_2)}
         ret = self.a1_r1.fcu.DescribeImages(Filter=[desc_filter])
         try:
-            assert ret.response.imagesSet and len(ret.response.imagesSet) == 1 and ret.response.imagesSet[0].imageId == self.image2_id
+            assert ret.response.imagesSet and len(ret.response.imagesSet) == 1 and ret.response.imagesSet[0].imageId == self.image_id_list[1]
             pytest.fail('Remove known error code')
         except AssertionError:
             known_error('TINA-5352', 'Could not filter using block-device-mapping.volume-size')
@@ -145,7 +147,7 @@ class Test_DescribeImages(OscTinaTest):
     def test_T830_filter_bdm_volume_type(self):
         desc_filter = {"Name": "block-device-mapping.volume-type", "Value": "io1"}
         ret = self.a1_r1.fcu.DescribeImages(Filter=[desc_filter])
-        assert ret.response.imagesSet and len(ret.response.imagesSet) == 1 and ret.response.imagesSet[0].imageId == self.image2_id
+        assert ret.response.imagesSet and len(ret.response.imagesSet) == 3 and ret.response.imagesSet[0].imageId == self.image_id_list[1]
 
     def test_T831_filter_description(self):
         value = DESCRIPTION
@@ -235,7 +237,7 @@ class Test_DescribeImages(OscTinaTest):
     def test_T846_filter_state(self):
         value = "available"
         desc_filter = {"Name": "state", "Value": value}
-        wait_images_state(osc_sdk=self.a1_r1, image_id_list=[self.image1_id], state=value)
+        wait_images_state(osc_sdk=self.a1_r1, image_id_list=[self.image_id_list[0]], state=value)
         ret = self.a1_r1.fcu.DescribeImages(Filter=[desc_filter])
         for image in ret.response.imagesSet:
             assert value == image.imageState
@@ -248,9 +250,9 @@ class Test_DescribeImages(OscTinaTest):
             assert value == image.virtualizationType
 
     def test_T1369_valid_image_id_my_image(self):
-        ret = self.a1_r1.fcu.DescribeImages(ImageId=[self.image1_id])
+        ret = self.a1_r1.fcu.DescribeImages(ImageId=[self.image_id_list[0]])
         assert len(ret.response.imagesSet) == 1, ret.response.display()
-        assert ret.response.imagesSet[0].imageId == self.image1_id, ret.response.display()
+        assert ret.response.imagesSet[0].imageId == self.image_id_list[0], ret.response.display()
 
     def test_T1370_valid_image_id_public_image(self):
         ret = self.a1_r1.fcu.DescribeImages(ImageId=[self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)])
@@ -258,9 +260,9 @@ class Test_DescribeImages(OscTinaTest):
         assert ret.response.imagesSet[0].imageId == self.a1_r1.config.region.get_info(constants.CENTOS_LATEST), ret.response.display()
 
     def test_T1371_valid_image_id_shared_image(self):
-        ret = self.a2_r1.fcu.DescribeImages(ImageId=[self.image1_id])
+        ret = self.a2_r1.fcu.DescribeImages(ImageId=[self.image_id_list[0]])
         assert len(ret.response.imagesSet) == 1, ret.response.display()
-        assert ret.response.imagesSet[0].imageId == self.image1_id, ret.response.display()
+        assert ret.response.imagesSet[0].imageId == self.image_id_list[0], ret.response.display()
         assert ret.response.imagesSet[0].imageOwnerId == self.a1_r1.config.account.account_id
 
     def test_T1372_invalid_image_id_foo(self):
@@ -282,7 +284,7 @@ class Test_DescribeImages(OscTinaTest):
     def test_T1374_invalid_image_id_partially_exist(self):
         # i-yyyxxxxxxxx (i-xxxxxxxx exist)
         try:
-            image_id = "{}yyy{}".format(self.image1_id[:4], self.image1_id[-8:])
+            image_id = "{}yyy{}".format(self.image_id_list[0][:4], self.image_id_list[0][-8:])
             self.a1_r1.fcu.DescribeImages(ImageId=image_id)
             assert False, 'Call should have failed'
         except OscApiException as error:
@@ -291,7 +293,7 @@ class Test_DescribeImages(OscTinaTest):
 
     def test_T1375_invalid_image_if_exist_not_shared(self):
         try:
-            self.a3_r1.fcu.DescribeImages(ImageId=self.image2_id)
+            self.a3_r1.fcu.DescribeImages(ImageId=self.image_id_list[1])
             assert False, 'Call should have failed'
         except OscApiException as error:
             assert error.status_code == 400
@@ -322,7 +324,7 @@ class Test_DescribeImages(OscTinaTest):
     def test_T1527_valid_executable_self(self):
         ret = self.a3_r1.fcu.DescribeImages(ExecutableBy=['self'])
         assert len(ret.response.imagesSet) == 1, ret.response.display()
-        assert ret.response.imagesSet[0].imageId == self.image1_id
+        assert ret.response.imagesSet[0].imageId == self.image_id_list[0]
 
     def test_T1380_invalid_exectutable_foo(self):
         # https://jira.outscale.internal/browse/TINA-3872
@@ -348,17 +350,17 @@ class Test_DescribeImages(OscTinaTest):
 
     def test_T1382_valid_owner_id_my_own_AMI(self):
         ret = self.a1_r1.fcu.DescribeImages(Owner=[self.a1_r1.config.account.account_id])
-        assert len(ret.response.imagesSet) == 2, ret.response.display()
+        assert len(ret.response.imagesSet) == 4
         assert self.a1_r1.config.account.account_id in (image.imageOwnerId for image in ret.response.imagesSet)
 
     def test_T1391_with_valid_owner_id_self(self):
         ret = self.a1_r1.fcu.DescribeImages(Owner=['self'])
-        assert len(ret.response.imagesSet) == 2, ret.response.display()
+        assert len(ret.response.imagesSet) == 4
         assert self.a1_r1.config.account.account_id in (image.imageOwnerId for image in ret.response.imagesSet)
 
     def test_T1383_valid_owner_id_another_Account_shared_AMI(self):
         ret = self.a2_r1.fcu.DescribeImages(Owner=[self.a1_r1.config.account.account_id])
-        assert len(ret.response.imagesSet) == 2, ret.response.display()
+        assert len(ret.response.imagesSet) == 2
         assert self.a1_r1.config.account.account_id in (image.imageOwnerId for image in ret.response.imagesSet)
 
     def test_T1384_invalid_owner_id_foo(self):
@@ -471,3 +473,7 @@ class Test_DescribeImages(OscTinaTest):
 
     def test_T1368_invalid_filter_virtualization_type(self):
         self.check_invalid_filters(filter_name="virtualization-type", filter_value="foo")
+
+    def test_T5956_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'Image', self.image_id_list,
+                               'fcu.DescribeImages', 'imagesSet.imageId')
