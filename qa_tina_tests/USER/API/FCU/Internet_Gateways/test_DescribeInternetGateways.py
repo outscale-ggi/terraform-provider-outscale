@@ -1,6 +1,6 @@
 from qa_tina_tools.test_base import OscTinaTest
-from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_test_tools import misc
+from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina.info_keys import INTERNET_GATEWAY_ID, VPC_ID
 
 
@@ -14,7 +14,8 @@ class Test_DescribeInternetGateways(OscTinaTest):
         cls.a2_igw_id = None
         super(Test_DescribeInternetGateways, cls).setup_class()
         try:
-            cls.a1_vpc_info = create_vpc(cls.a1_r1)
+            cls.a1_vpc_info = create_tools.create_vpc(cls.a1_r1)
+            cls.a1_igw_ids.append(cls.a1_vpc_info[INTERNET_GATEWAY_ID])
             cls.a1_r1.fcu.CreateTags(Tag=[{'Key': 'tagkey1', 'Value': 'tagvalue1'}], ResourceId=cls.a1_vpc_info[INTERNET_GATEWAY_ID])
             igw_id = cls.a1_r1.fcu.CreateInternetGateway().response.internetGateway.internetGatewayId
             cls.a1_r1.fcu.CreateTags(Tag=[{'Key': 'tagkey1', 'Value': 'tagvalue2'}], ResourceId=igw_id)
@@ -26,7 +27,7 @@ class Test_DescribeInternetGateways(OscTinaTest):
             cls.a1_r1.fcu.CreateTags(Tag=[{'Key': 'tagkey2', 'Value': 'tagvalue2'}], ResourceId=igw_id)
             cls.a1_igw_ids.append(igw_id)
             cls.a1_igw_id = cls.a1_igw_ids[0]
-            cls.a2_vpc_info = create_vpc(cls.a2_r1)
+            cls.a2_vpc_info = create_tools.create_vpc(cls.a2_r1)
             cls.a2_r1.fcu.CreateTags(Tag=[{'Key': 'tagkey1', 'Value': 'tagvalue1'}], ResourceId=cls.a2_vpc_info[INTERNET_GATEWAY_ID])
             cls.a2_igw_id = cls.a2_r1.fcu.CreateInternetGateway().response.internetGateway.internetGatewayId
         except Exception as error:
@@ -38,15 +39,13 @@ class Test_DescribeInternetGateways(OscTinaTest):
     @classmethod
     def teardown_class(cls):
         try:
-            if cls.a1_vpc_info:
-                delete_vpc(cls.a1_r1, cls.a1_vpc_info)
-            if cls.a2_vpc_info:
-                delete_vpc(cls.a2_r1, cls.a2_vpc_info)
             if cls.a1_igw_ids:
-                for igw_id in cls.a1_igw_ids:
+                for igw_id in cls.a1_igw_ids[1:]:
                     cls.a1_r1.fcu.DeleteInternetGateway(InternetGatewayId=igw_id)
-            if cls.a2_igw_id:
-                cls.a2_r1.fcu.DeleteInternetGateway(InternetGatewayId=cls.a2_igw_id)
+            if cls.a1_vpc_info:
+                delete_tools.delete_vpc(cls.a1_r1, cls.a1_vpc_info)
+            if cls.a2_vpc_info:
+                delete_tools.delete_vpc(cls.a2_r1, cls.a2_vpc_info)
         finally:
             super(Test_DescribeInternetGateways, cls).teardown_class()
 
@@ -89,3 +88,7 @@ class Test_DescribeInternetGateways(OscTinaTest):
         resp = self.a1_r1.fcu.DescribeInternetGateways(Filter=[{'Name': 'tag-value', 'Value': 'tagvalue2'}]).response
         assert resp.requestId
         assert len(resp.internetGatewaySet) == 2
+
+    def test_T5958_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'InternetGateway', self.a1_igw_ids,
+                               'fcu.DescribeInternetGateways', 'internetGatewaySet.internetGatewayId')

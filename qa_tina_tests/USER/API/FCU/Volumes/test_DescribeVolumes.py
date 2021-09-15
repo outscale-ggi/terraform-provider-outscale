@@ -1,11 +1,10 @@
 import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.test_base import known_error
+from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
-from qa_tina_tools.constants import VOLUME_SIZES, VOLUME_IOPS
-from qa_tina_tools.tools.tina.create_tools import create_volumes, create_instances_old
-from qa_tina_tools.tools.tina.delete_tools import delete_volumes, delete_instances_old
+from qa_tina_tools import constants
+from qa_tina_tools.tools.tina import create_tools, delete_tools
 
 
 class Test_DescribeVolumes(OscTinaTest):
@@ -14,19 +13,20 @@ class Test_DescribeVolumes(OscTinaTest):
     def setup_class(cls):
         super(Test_DescribeVolumes, cls).setup_class()
         cls.vol_id_list = []
-        for key, value in list(VOLUME_SIZES.items()):
+        for key, value in list(constants.VOLUME_SIZES.items()):
             iops = None
-            if key in list(VOLUME_IOPS.keys()):
-                iops = VOLUME_IOPS[key]['min_iops']
-            _, vol_ids = create_volumes(osc_sdk=cls.a1_r1, volume_type=key, size=value['min_size'], iops=iops, state='available')
+            if key in list(constants.VOLUME_IOPS.keys()):
+                iops = constants.VOLUME_IOPS[key]['min_iops']
+            _, vol_ids = create_tools.create_volumes(osc_sdk=cls.a1_r1, volume_type=key, size=value['min_size'], iops=iops, state='available')
             cls.vol_id_list.extend(vol_ids)
-        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[0]], Tag=[{'Key': 'key1', 'Value': 'value2'}])
-        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[1]], Tag=[{'Key': 'key2', 'Value': 'value1'}])
-        cls.a1_r1.fcu.CreateTags(ResourceId=[cls.vol_id_list[2]], Tag=[{'Key': 'key2', 'Value': 'value2'}])
+        if len(constants.VOLUME_SIZES) < 4:
+            _, vol_ids = create_tools.create_volumes(osc_sdk=cls.a1_r1, count=4 - len(constants.VOLUME_SIZES),
+                                                     size=constants.VOLUME_SIZES['standard']['min_size'], state='available')
+            cls.vol_id_list.extend(vol_ids)
 
     @classmethod
     def teardown_class(cls):
-        delete_volumes(osc_sdk=cls.a1_r1, volume_id_list=cls.vol_id_list)
+        delete_tools.delete_volumes(osc_sdk=cls.a1_r1, volume_id_list=cls.vol_id_list)
         super(Test_DescribeVolumes, cls).teardown_class()
 
     def test_T1235_no_volumes_available(self):
@@ -39,31 +39,30 @@ class Test_DescribeVolumes(OscTinaTest):
         for vol in ret.response.volumeSet:
             assert vol.status == 'available'
             assert vol.availabilityZone == self.a1_r1.config.region.az_name
-            assert vol.volumeType in list(VOLUME_SIZES.keys())
+            assert vol.volumeType in list(constants.VOLUME_SIZES.keys())
             assert re.match(pattern, vol.volumeId)
-            if vol.volumeType in list(VOLUME_IOPS.keys()):
-                assert vol.iops == str(VOLUME_IOPS[vol.volumeType]['min_iops'])
+            if vol.volumeType in list(constants.VOLUME_IOPS.keys()):
+                assert vol.iops == str(constants.VOLUME_IOPS[vol.volumeType]['min_iops'])
             elif vol.volumeType == 'gp2':
                 assert vol.iops == str(max(int(vol.size) * 3, 100))
             assert vol.attachmentSet is None
-            assert len(vol.tagSet) > 0
             assert vol.snapshotId is None
-            assert vol.size == str(VOLUME_SIZES[vol.volumeType]['min_size'])
-        assert len(ret.response.volumeSet) == len(VOLUME_SIZES), "The Number of volumes does not match"
+            assert vol.size == str(constants.VOLUME_SIZES[vol.volumeType]['min_size'])
+        assert len(ret.response.volumeSet) == max(len(constants.VOLUME_SIZES), 4), "The Number of volumes does not match"
 
     def test_T1237_with_filter_size(self):
-        filtered_size = VOLUME_SIZES['standard']['min_size']
+        filtered_size = constants.VOLUME_SIZES['standard']['min_size']
         ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'size', 'Value': filtered_size}])
         nb_expected_vol = 0
         expected_type_list = []
-        for key, value in list(VOLUME_SIZES.items()):
+        for key, value in list(constants.VOLUME_SIZES.items()):
             if value['min_size'] == filtered_size:
                 nb_expected_vol += 1
                 expected_type_list.append(key)
         for vol in ret.response.volumeSet:
             assert vol.volumeType in expected_type_list
             assert vol.size == str(filtered_size)
-        assert len(ret.response.volumeSet) == nb_expected_vol, "The Number of volumes does not match"
+        assert len(ret.response.volumeSet) == nb_expected_vol + max(0, 4 - len(constants.VOLUME_SIZES)), "The Number of volumes does not match"
 
     def test_T1238_dry_run(self):
         try:
@@ -76,7 +75,7 @@ class Test_DescribeVolumes(OscTinaTest):
     def test_T1239_with_filter_status(self):
         inst_id = None
         try:
-            ret, inst_ids = create_instances_old(self.a1_r1, state='running')
+            ret, inst_ids = create_tools.create_instances_old(self.a1_r1, state='running')
             inst_id = inst_ids[0]
             ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'status', 'Value': 'in-use'}])
             assert len(ret.response.volumeSet) == 1, "The Number of volumes does not match"
@@ -90,42 +89,11 @@ class Test_DescribeVolumes(OscTinaTest):
             for vol in ret.response.volumeSet:
                 assert vol.status == 'available'
                 assert vol.attachmentSet is None
-            assert len(ret.response.volumeSet) == len(VOLUME_SIZES), "The Number of volumes does not match"
+            assert len(ret.response.volumeSet) == max(len(constants.VOLUME_SIZES), 4), "The Number of volumes does not match"
         finally:
             if inst_id:
-                delete_instances_old(osc_sdk=self.a1_r1, instance_id_list=[inst_id])
+                delete_tools.delete_instances_old(osc_sdk=self.a1_r1, instance_id_list=[inst_id])
 
-    def test_T5944_valid_filter_by_tag_key(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-key', 'Value': 'key2'}])
-        assert len(ret.response.volumeSet) == 2
-
-    def test_T5945_valid_filter_by_tag_value(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-value', 'Value': 'value2'}])
-        assert len(ret.response.volumeSet) == 2
-
-    def test_T5946_valid_filter_by_tag_key_and_value(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key1', 'Value': 'value2'}])
-        assert len(ret.response.volumeSet) == 1
-
-    def test_T5947_filter_by_tag_key_and_value_wildcard(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key2', 'Value': '*'}])
-        if ret.response.volumeSet is None:
-            known_error('TINA-6737', 'tag None')
-        assert False, 'Remove known error'
-        assert len(ret.response.volumeSet) == 2
-
-    def test_T5948_one_tag_key_multiple_tag_values(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key2', 'Value': ['value1', 'value2']}])
-        assert len(ret.response.volumeSet) == 2
-
-    def test_T5949_multiple_tag_keys(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-key', 'Value': ['key1', 'key2']}])
-        assert len(ret.response.volumeSet) == 3
-
-    def test_T5950_multiple_tag_values(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-value', 'Value': ['value1', 'value2']}])
-        assert len(ret.response.volumeSet) == 3
-
-    def test_T5951_multiple_tag_key_value(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key1', 'Value': 'value2'}, {'Name': 'tag:key2', 'Value': 'value2'}])
-        assert ret.response.volumeSet is None
+    def test_T5966_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'Volume', self.vol_id_list,
+                               'fcu.DescribeVolumes', 'volumeSet.volumeId')

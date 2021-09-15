@@ -1,11 +1,10 @@
 
-
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_error
+from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
 
-NB_VPC = 2
+NB_VPC = 3
 
 
 class Test_DescribeVpcs(OscTinaTest):
@@ -63,17 +62,17 @@ class Test_DescribeVpcs(OscTinaTest):
         assert len(ret.response.vpcSet) == 1
         self.a1_r1.fcu.DescribeVpcs(Filter=[{'Name': 'state', 'Value': ['pending', 'available']}])
         ret = self.a1_r1.fcu.DescribeVpcs(Filter=[{'Name': 'cidr', 'Value': Configuration.get('vpc', '10_0_0_0_16')}])
-        assert len(ret.response.vpcSet) == 2
+        assert len(ret.response.vpcSet) == NB_VPC
         ret = self.a1_r1.fcu.DescribeVpcs(Filter=[{'Name': 'cidr-block', 'Value': Configuration.get('vpc', '10_0_0_0_16')}])
-        assert len(ret.response.vpcSet) == 2
+        assert len(ret.response.vpcSet) == NB_VPC
         ret = self.a1_r1.fcu.DescribeVpcs(Filter=[{'Name': 'cidrBlock', 'Value': Configuration.get('vpc', '10_0_0_0_16')}])
-        assert len(ret.response.vpcSet) == 2
+        assert len(ret.response.vpcSet) == NB_VPC
         ret = self.a1_r1.fcu.DescribeVpcs(Filter=[{'Name': 'dhcp-options-id', 'Value': self.dhcp_id}])
         assert len(ret.response.vpcSet) == 1
         ret = self.a1_r1.fcu.DescribeVpcs(Filter=[{'Name': 'is-default', 'Value': 'false'}])
-        assert len(ret.response.vpcSet) == 3
+        assert len(ret.response.vpcSet) == NB_VPC + 1
         ret = self.a1_r1.fcu.DescribeVpcs(Filter=[{'Name': 'isDefault', 'Value': 'false'}])
-        assert len(ret.response.vpcSet) == 3
+        assert len(ret.response.vpcSet) == NB_VPC + 1
         ret = self.a1_r1.fcu.DescribeVpcs(Filter=[{'Name': 'tag:toto', 'Value': 'tata'}])
         assert len(ret.response.vpcSet) == 1
         ret = self.a1_r1.fcu.DescribeVpcs(Filter=[{'Name': 'tag-key', 'Value': 'tata'}])
@@ -126,8 +125,12 @@ class Test_DescribeVpcs(OscTinaTest):
             self.a2_r1.fcu.DescribeVpcs(VpcId=[self.vpc_id_list[0]])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidVpcID.NotFound', "The vpc ID '{}' does not exist".format(self.vpc_id_list[0]))
+            misc.assert_error(error, 400, 'InvalidVpcID.NotFound', "The vpc ID '{}' does not exist".format(self.vpc_id_list[0]))
 
     def test_T3343_with_other_account_with_filter(self):
         ret = self.a2_r1.fcu.DescribeVpcs(Filter=[{'Name': 'vpc-id', 'Value': self.vpc_id_list}])
         assert not ret.response.vpcSet
+
+    def test_T5962_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'Vpc', self.vpc_id_list,
+                               'fcu.DescribeVpcs', 'vpcSet.vpcId')

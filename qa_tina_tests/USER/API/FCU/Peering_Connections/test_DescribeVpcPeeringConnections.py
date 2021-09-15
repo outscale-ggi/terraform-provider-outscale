@@ -1,10 +1,9 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_error
+from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
-from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 from qa_tina_tools.tools.tina.wait_tools import wait_vpc_peering_connections_state
 
@@ -19,13 +18,10 @@ class Test_DescribeVpcPeeringConnections(OscTinaTest):
         cls.a1_peering = []
         cls.a2_peering = []
         try:
+            for i in range(4):
+                cls.a1_vpc.append(create_tools.create_vpc(cls.a1_r1, cidr_prefix="10.1{}".format(i), igw=False, default_rtb=True, no_ping=True))
             for i in range(2):
-                cls.a1_vpc.append(create_vpc(cls.a1_r1, cidr_prefix="10.1{}".format(i), igw=False, default_rtb=True, no_ping=True))
-                cls.a2_vpc.append(create_vpc(cls.a2_r1, cidr_prefix="10.2{}".format(i), igw=False, default_rtb=True, no_ping=True))
-            # a1_vpc1 a1_vpc2
-            # a2_vpc1 a2_vpc2
-            # a1_vpc2 a2_vpc1
-            # a2_vpc2 a1_vpc1
+                cls.a2_vpc.append(create_tools.create_vpc(cls.a2_r1, cidr_prefix="10.2{}".format(i), igw=False, default_rtb=True, no_ping=True))
             ret = cls.a1_r1.fcu.CreateVpcPeeringConnection(VpcId=cls.a1_vpc[0][VPC_ID], PeerOwnerId=cls.a1_r1.config.account.account_id,
                                                            PeerVpcId=cls.a1_vpc[1][VPC_ID])
             cls.a1_peering.append(ret.response.vpcPeeringConnection.vpcPeeringConnectionId)
@@ -38,6 +34,12 @@ class Test_DescribeVpcPeeringConnections(OscTinaTest):
             ret = cls.a2_r1.fcu.CreateVpcPeeringConnection(VpcId=cls.a2_vpc[1][VPC_ID], PeerOwnerId=cls.a1_r1.config.account.account_id,
                                                            PeerVpcId=cls.a1_vpc[0][VPC_ID])
             cls.a2_peering.append(ret.response.vpcPeeringConnection.vpcPeeringConnectionId)
+            ret = cls.a1_r1.fcu.CreateVpcPeeringConnection(VpcId=cls.a1_vpc[2][VPC_ID], PeerOwnerId=cls.a1_r1.config.account.account_id,
+                                                           PeerVpcId=cls.a1_vpc[3][VPC_ID])
+            cls.a1_peering.append(ret.response.vpcPeeringConnection.vpcPeeringConnectionId)
+            ret = cls.a1_r1.fcu.CreateVpcPeeringConnection(VpcId=cls.a1_vpc[3][VPC_ID], PeerOwnerId=cls.a1_r1.config.account.account_id,
+                                                           PeerVpcId=cls.a1_vpc[2][VPC_ID])
+            cls.a1_peering.append(ret.response.vpcPeeringConnection.vpcPeeringConnectionId)
             cls.a1_r1.fcu.CreateTags(ResourceId=[cls.a1_peering[0]], Tag=[{'Key': 'foo', 'Value': 'bar'}])
         except Exception as error:
             try:
@@ -57,15 +59,15 @@ class Test_DescribeVpcPeeringConnections(OscTinaTest):
             wait_vpc_peering_connections_state(cls.a1_r1, vpc_peering_connection_id_list=cls.a1_peering, state='deleted')
             wait_vpc_peering_connections_state(cls.a2_r1, vpc_peering_connection_id_list=cls.a2_peering, state='deleted')
             for vpc_info in cls.a1_vpc:
-                delete_vpc(cls.a1_r1, vpc_info)
+                delete_tools.delete_vpc(cls.a1_r1, vpc_info)
             for vpc_info in cls.a2_vpc:
-                delete_vpc(cls.a2_r1, vpc_info)
+                delete_tools.delete_vpc(cls.a2_r1, vpc_info)
         finally:
             super(Test_DescribeVpcPeeringConnections, cls).teardown_class()
 
     def test_T2151_without_param(self):
         ret = self.a1_r1.fcu.DescribeVpcPeeringConnections()
-        assert len(ret.response.vpcPeeringConnectionSet) == 3
+        assert len(ret.response.vpcPeeringConnectionSet) == 5
         # TODO: check response
 
     def test_T2475_with_invalid_peering_id(self):
@@ -76,7 +78,7 @@ class Test_DescribeVpcPeeringConnections(OscTinaTest):
             if error.error_code == "VpcPeeringConnectionID.NotFound":
                 known_error('TINA-4643', "Invalid error code")
             assert False, 'TODO: Remove known error'
-            assert_error(error, 400, "VpcPeeringConnectionId.Malformed", "The VpcPeeringConnectionId 'foo' does not exist")
+            misc.assert_error(error, 400, "VpcPeeringConnectionId.Malformed", "The VpcPeeringConnectionId 'foo' does not exist")
 
     def test_T2476_with_unknown_peering_id(self):
         try:
@@ -86,7 +88,7 @@ class Test_DescribeVpcPeeringConnections(OscTinaTest):
             if error.error_code == "VpcPeeringConnectionID.NotFound":
                 known_error('TINA-4643', "Invalid error code")
             assert False, 'TODO: Remove known error'
-            assert_error(error, 400, "VpcPeeringConnectionId.NotFound", "The VpcPeeringConnectionId 'pcx-12345678' does not exist")
+            misc.assert_error(error, 400, "VpcPeeringConnectionId.NotFound", "The VpcPeeringConnectionId 'pcx-12345678' does not exist")
 
     def test_T2477_with_peering_from_another_account(self):
         try:
@@ -96,7 +98,8 @@ class Test_DescribeVpcPeeringConnections(OscTinaTest):
             if error.error_code == "VpcPeeringConnectionID.NotFound":
                 known_error('TINA-4643', "Invalid error code")
             assert False, 'TODO: Remove known error'
-            assert_error(error, 400, "VpcPeeringConnectionId.NotFound", "The VpcPeeringConnectionId '{}' does not exist".format(self.a2_peering[0]))
+            misc.assert_error(error, 400, "VpcPeeringConnectionId.NotFound",
+                              "The VpcPeeringConnectionId '{}' does not exist".format(self.a2_peering[0]))
 
     def test_T2478_with_valid_peering_id(self):
         ret = self.a1_r1.fcu.DescribeVpcPeeringConnections(VpcPeeringConnectionId=self.a1_peering[0])
@@ -130,7 +133,7 @@ class Test_DescribeVpcPeeringConnections(OscTinaTest):
 
     def test_T2152_with_valid_filter_status_code(self):
         ret = self.a1_r1.fcu.DescribeVpcPeeringConnections(Filter=[{'Name': 'status-code', 'Value': ['pending-acceptance']}])
-        assert len(ret.response.vpcPeeringConnectionSet) == 3
+        assert len(ret.response.vpcPeeringConnectionSet) == 5
 
     def test_T2486_with_valid_filter_status_message(self):
         ret = self.a1_r1.fcu.DescribeVpcPeeringConnections(Filter=[{'Name': 'status-message',
@@ -211,10 +214,14 @@ class Test_DescribeVpcPeeringConnections(OscTinaTest):
             self.a1_r1.fcu.DescribeVpcPeeringConnections(Filter=[{'Name': 'foo', 'Value': ['bar']}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, "InvalidFilter", "The filter 'foo' is invalid")
+            misc.assert_error(error, 400, "InvalidFilter", "The filter 'foo' is invalid")
 
     def test_T3098_with_invalid_filter_empty_value_param(self):
         ret = self.a1_r1.fcu.DescribeVpcPeeringConnections(Filter=[{'Name':'accepter-vpc-info.vpc-id', 'Value': ['']}])
         assert not ret.response.vpcPeeringConnectionSet
         ret = self.a2_r1.fcu.DescribeVpcPeeringConnections(Filter=[{'Name':'requester-vpc-info.owner-id', 'Value': ['']}])
         assert not  ret.response.vpcPeeringConnectionSet
+
+    def test_T5960_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'VpcPeeringConnection', self.a1_peering,
+                               'fcu.DescribeVpcPeeringConnections', 'vpcPeeringConnectionSet.vpcPeeringConnectionId')
