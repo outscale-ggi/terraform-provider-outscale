@@ -1,5 +1,5 @@
-from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools import misc
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina.info_keys import INTERNET_GATEWAY_ID, VPC_ID
 

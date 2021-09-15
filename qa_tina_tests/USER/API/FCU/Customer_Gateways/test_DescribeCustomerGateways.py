@@ -26,7 +26,7 @@ class Test_DescribeCustomerGateways(OscTinaTest):
                 assert ret.response.customerGateway.ipAddress == '46.22%s.147.8' % i
                 assert ret.response.customerGateway.state == 'available'
                 cls.id_list_account1.append(ret.response.customerGateway.customerGatewayId)
-                cls.ip_list_account1.append(ret.response.customerGateway.ipAddress)  
+                cls.ip_list_account1.append(ret.response.customerGateway.ipAddress)
             for conn in [cls.a1_r1, cls.a2_r1]:
                 ret = create_customer_gateway(conn, bgp_asn=12, ip_address=cls.cgw_ip, typ='ipsec.1')
                 wait_customer_gateways_state(conn, [ret.response.customerGateway.customerGatewayId], state='available')
