@@ -1,7 +1,6 @@
 import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools import constants
@@ -95,34 +94,6 @@ class Test_DescribeVolumes(OscTinaTest):
             if inst_id:
                 delete_tools.delete_instances_old(osc_sdk=self.a1_r1, instance_id_list=[inst_id])
 
-    def test_T5944_valid_filter_by_tag_key(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-key', 'Value': 'key2'}])
-        assert len(ret.response.volumeSet) == 2
-
-    def test_T5945_valid_filter_by_tag_value(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-value', 'Value': 'value2'}])
-        assert len(ret.response.volumeSet) == 2
-
-    def test_T5946_valid_filter_by_tag_key_and_value(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key1', 'Value': 'value2'}])
-        assert len(ret.response.volumeSet) == 1
-
-    def test_T5947_filter_by_tag_key_and_value_wildcard(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key2', 'Value': '*'}])
-        assert len(ret.response.volumeSet) == 2
-
-    def test_T5948_one_tag_key_multiple_tag_values(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key2', 'Value': ['value1', 'value2']}])
-        assert len(ret.response.volumeSet) == 2
-
-    def test_T5949_multiple_tag_keys(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-key', 'Value': ['key1', 'key2']}])
-        assert len(ret.response.volumeSet) == 3
-
-    def test_T5950_multiple_tag_values(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag-value', 'Value': ['value1', 'value2']}])
-        assert len(ret.response.volumeSet) == 3
-
-    def test_T5951_multiple_tag_key_value(self):
-        ret = self.a1_r1.fcu.DescribeVolumes(Filter=[{'Name': 'tag:key1', 'Value': 'value2'}, {'Name': 'tag:key2', 'Value': 'value2'}])
-        assert ret.response.volumeSet is None
+    def test_T5966_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'Volume', self.vol_id_list,
+                               'fcu.DescribeVolumes', 'volumeSet.volumeId')
