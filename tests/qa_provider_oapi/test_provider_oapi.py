@@ -265,6 +265,11 @@ def compare_json_files(output_file_name, ref_file_name):
         assert False, 'Could not compare files, missing reference file {}'.format(ref_file_name)
     compare_json('', json_out, json_ref, {})
 
+def generate_file(path, data):
+    myFile = open(path, "w+")
+    myFile.write(data)
+    myFile.close()
+
 
 class ProviderOapiMeta(type):
     def __new__(cls, name, bases, attrs):
@@ -302,6 +307,38 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         cls.logger = logging.getLogger('tpd_test')
         cls.log = None
         cls.error = False
+        try:
+            region_name = os.getenv('OSC_REGION', None)
+            user_terraform = os.getenv('OSC_USER', None)
+            assert region_name and user_terraform, 'verify that you added the region name and your terrafor user in ' \
+                                                   'your venv environment '
+            file_region = open("~/.osc_regions")
+            dict_region = json.load(file_region)
+            file_credential = open("~/.osc_credentials")
+            dict_credential = json.load(file_credential)
+            omi_id = dict_region[region_name]['centos_latest']
+            inst_type = dict_region[region_name]['default_vm_type']
+            access_key = dict_credential[user_terraform][region_name]['ak']
+            secret_key = dict_credential[user_terraform][region_name]['sk']
+            data_provider = '''
+            access_key_id = {}
+            secret_key_id = {}
+            region = {}
+            '''.format(access_key, secret_key, region_name)
+            generate_file('./tests_terraform_exec/provider.auto.tfvars', data_provider)
+            data_ressources = '''
+            #####Ressources for tests#####
+            image_id = {}
+            vm_type = {}
+            ###########
+            '''.format(omi_id, inst_type)
+            generate_file('./tests_terraform_exec/resources.auto.tfvars', data_ressources)
+            cls.run_cmd()
+        except AssertionError as error:
+            try:
+                cls.teardown_class()
+            finally:
+                raise error
 
     def setup_method(self, method):
         self.log = """
