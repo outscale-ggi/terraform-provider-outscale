@@ -342,8 +342,8 @@ Log: {}
         """.format(method.__name__)
         self.error = False
         try:
-            self.run_cmd("/usr/local/bin/terraform init -no-color")
-            stdout, _ = self.run_cmd("/usr/local/bin/terraform version -no-color")
+            self.run_cmd("terraform init -no-color")
+            stdout, _ = self.run_cmd("terraform version -no-color")
             self.log += "\nVERSION:{}\n".format("\n".join(stdout.splitlines()[:2]))
         except Exception:
             try:
@@ -377,11 +377,11 @@ Log: {}
 
     def exec_test_step(self, tf_file_path, out_file_path):
         self.logger.debug("Exec step : {}".format(tf_file_path))
-        self.log += "\nTerraform validate:\n{}".format(self.run_cmd("/usr/local/bin/terraform validate -no-color")[0])
-        self.log += "\nTerraform plan:\n{}".format(self.run_cmd("/usr/local/bin/terraform plan -no-color")[0])
-        self.log += "\nTerraform apply:\n{}".format(self.run_cmd("/usr/local/bin/terraform apply -auto-approve -no-color")[0])
-        self.log += "\nTerraform show:\n{}".format(self.run_cmd("/usr/local/bin/terraform show -no-color")[0])
-        self.run_cmd("/usr/local/bin/terraform state pull > {}".format(out_file_path))
+        self.log += "\nTerraform validate:\n{}".format(self.run_cmd("terraform validate -no-color")[0])
+        self.log += "\nTerraform plan:\n{}".format(self.run_cmd("terraform plan -no-color")[0])
+        self.log += "\nTerraform apply:\n{}".format(self.run_cmd("terraform apply -auto-approve -no-color")[0])
+        self.log += "\nTerraform show:\n{}".format(self.run_cmd("terraform show -no-color")[0])
+        self.run_cmd("terraform state pull > {}".format(out_file_path))
 
     def exec_test(self, test_name, test_path):
         try:
@@ -435,7 +435,7 @@ Log: {}
             raise
         finally:
             try:
-                self.run_cmd("/usr/local/bin/terraform destroy -force -no-color")
+                self.run_cmd("terraform destroy -force -no-color")
             finally:
                 self.run_cmd("rm -f test.tf")
                 self.run_cmd("rm -f terraform.tfstate")
