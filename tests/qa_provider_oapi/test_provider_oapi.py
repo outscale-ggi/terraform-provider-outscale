@@ -73,14 +73,14 @@ access_key_id = {}
 secret_key_id = {}
 region = {}
 '''.format(access_key, secret_key, region_name)
-generate_file('./tests_terraform_exec/provider.auto.tfvars', data_provider)
+generate_file('provider.auto.tfvars', data_provider)
 data_ressources = '''
 #####Ressources for tests#####
 image_id = {}
 vm_type = {}
 ###########
 '''.format(omi_id, inst_type)
-generate_file('./tests_terraform_exec/resources.auto.tfvars', data_ressources)
+generate_file('resources.auto.tfvars', data_ressources)
 terraform_vars = {}
 for file_name in VARIABLES_FILE_NAME:
     with open(file_name, 'r') as var_file:
