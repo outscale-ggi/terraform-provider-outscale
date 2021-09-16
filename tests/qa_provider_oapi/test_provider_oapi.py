@@ -70,11 +70,13 @@ omi_id = dict_region[region_name]['centos_latest']
 inst_type = dict_region[region_name]['default_vm_type']
 access_key = dict_credential[user_terraform][region_name]['ak']
 secret_key = dict_credential[user_terraform][region_name]['sk']
+account_id = dict_credential[user_terraform][region_name]['account_id']
 data_provider = '''
+account_id = "{}"
 access_key_id = "{}"
 secret_key_id = "{}"
 region = "{}"
-'''.format(access_key, secret_key, region_name)
+'''.format(account_id, access_key, secret_key, region_name)
 generate_file('provider.auto.tfvars', data_provider)
 data_ressources = '''
 #####Ressources for tests#####
