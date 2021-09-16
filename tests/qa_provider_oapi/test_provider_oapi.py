@@ -74,8 +74,7 @@ data_provider = '''
 access_key_id = {}
 secret_key_id = {}
 region = {}
-version = {}
-'''.format(access_key, secret_key, region_name, str(version))
+'''.format(access_key, secret_key, region_name)
 generate_file('provider.auto.tfvars', data_provider)
 data_ressources = '''
 #####Ressources for tests#####
@@ -89,7 +88,7 @@ terraform {
     required_providers {
         outscale = {
             source = "outscale-dev/outscale"
-            version = var.version_plugin
+            version = "{}"
         }
     }
 }
@@ -99,7 +98,7 @@ provider "outscale" {
   secret_key_id = var.secret_key_id
   region = var.region
 }
-'''
+'''.format(version)
 generate_file('provider.tf', provider_conf)
 variables = '''
 # provider configuration
@@ -107,7 +106,6 @@ variable "account_id" {}
 variable "access_key_id" {}
 variable "secret_key_id" {}
 variable "region" {}
-variable "version_plugin" {}
 
 # resources configuration
 variable "image_id" {}
