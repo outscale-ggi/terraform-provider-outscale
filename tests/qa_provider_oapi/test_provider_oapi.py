@@ -84,20 +84,20 @@ vm_type = {}
 '''.format(omi_id, inst_type)
 generate_file('resources.auto.tfvars', data_ressources)
 provider_conf = '''
-terraform {
-    required_providers {
-        outscale = {
+terraform {{
+    required_providers {{
+        outscale = {{
             source = "outscale-dev/outscale"
-            version = {{}}
-        }
-    }
-}
+            version = {}
+        }}
+    }}
+}}
 
-provider "outscale" {
+provider "outscale" {{
   access_key_id = var.access_key_id
   secret_key_id = var.secret_key_id
   region = var.region
-}
+}}
 '''.format(version)
 generate_file('provider.tf', provider_conf)
 variables = '''
