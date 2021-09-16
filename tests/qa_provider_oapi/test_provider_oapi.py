@@ -75,7 +75,7 @@ access_key_id = {}
 secret_key_id = {}
 region = {}
 version = {}
-'''.format(access_key, secret_key, region_name, version)
+'''.format(access_key, secret_key, region_name, str(version))
 generate_file('provider.auto.tfvars', data_provider)
 data_ressources = '''
 #####Ressources for tests#####
