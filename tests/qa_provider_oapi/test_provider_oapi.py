@@ -71,15 +71,15 @@ inst_type = dict_region[region_name]['default_vm_type']
 access_key = dict_credential[user_terraform][region_name]['ak']
 secret_key = dict_credential[user_terraform][region_name]['sk']
 data_provider = '''
-access_key_id = {}
-secret_key_id = {}
-region = {}
+access_key_id = "{}"
+secret_key_id = "{}"
+region = "{}"
 '''.format(access_key, secret_key, region_name)
 generate_file('provider.auto.tfvars', data_provider)
 data_ressources = '''
 #####Ressources for tests#####
-image_id = {}
-vm_type = {}
+image_id = "{}"
+vm_type = "{}"
 ###########
 '''.format(omi_id, inst_type)
 generate_file('resources.auto.tfvars', data_ressources)
@@ -88,7 +88,7 @@ terraform {{
     required_providers {{
         outscale = {{
             source = "outscale-dev/outscale"
-            version = {}
+            version = "{}"
         }}
     }}
 }}
