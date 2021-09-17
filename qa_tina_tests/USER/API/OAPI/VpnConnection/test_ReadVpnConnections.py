@@ -15,9 +15,7 @@ class Test_ReadVpnConnections(VpnConnection):
         cls.vpn_ids = []
         cls.cgw_ids = []
         cls.vgw_ids = []
-        cls.quotas = {'vpg_limit', 6}
-        cls.quotas = {'cgw_limit', 6}
-        cls.quotas = {'vpnc_limit', 6}
+        cls.quotas = {'vpg_limit': 6, 'vpnc_limit': 6, 'cgw_limit': 6}
         super(Test_ReadVpnConnections, cls).setup_class()
         try:
             cls.a1_r1.oapi.CreateVpnConnectionRoute(VpnConnectionId=cls.vpn_id, DestinationIpRange='172.13.1.4/24')
