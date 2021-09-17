@@ -1,5 +1,4 @@
 
-
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, execute_tag_tests
 from qa_tina_tools.test_base import OscTinaTest

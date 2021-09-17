@@ -7,15 +7,15 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 
-class Test_RunInstances(OscTinaTest):
+class Test_gc(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
-        super(Test_RunInstances, cls).setup_class()
+        super(Test_gc, cls).setup_class()
 
     @classmethod
     def teardown_class(cls):
-        super(Test_RunInstances, cls).teardown_class()
+        super(Test_gc, cls).teardown_class()
 
     @pytest.mark.region_admin
     def test_T5941_run_instance_with_shutdown_behavior_terminate(self):
