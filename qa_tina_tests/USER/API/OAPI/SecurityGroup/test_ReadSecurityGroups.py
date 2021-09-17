@@ -275,6 +275,6 @@ class Test_ReadSecurityGroups(SecurityGroup):
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_with_other_account_filters.json'), self.hints)
 
     def test_T5978_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'SecurityGroup', [self.sg1.SecurityGroupId, self.sg2.SecurityGroupId, 
+        misc.execute_tag_tests(self.a1_r1, 'SecurityGroup', [self.sg1.SecurityGroupId, self.sg2.SecurityGroupId,
                                                              self.sg3.SecurityGroupId, self.sg4.SecurityGroupId],
                                'oapi.ReadSecurityGroups', 'SecurityGroups.SecurityGroupId')

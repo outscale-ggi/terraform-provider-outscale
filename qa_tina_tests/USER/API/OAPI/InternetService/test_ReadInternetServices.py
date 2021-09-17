@@ -18,7 +18,7 @@ class Test_ReadInternetServices(OscTinaTest):
         cls.ret_link = None
         cls.net_id = None
         try:
-            for i in range(NUM_INTERNET_SERVICES):
+            for _ in range(NUM_INTERNET_SERVICES):
                 net_id = cls.a1_r1.oapi.CreateInternetService().response.InternetService.InternetServiceId
                 cls.is_ids.append(net_id)
 

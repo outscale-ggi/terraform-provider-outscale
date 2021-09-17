@@ -5,7 +5,7 @@ import pytest
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, delete_tools
-from qa_tina_tools.tools.tina import info_keys 
+from qa_tina_tools.tools.tina import info_keys
 
 NUM_NAT_SERVICES = 4
 
