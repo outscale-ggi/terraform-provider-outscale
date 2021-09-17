@@ -58,7 +58,7 @@ class Test_DescribeSnapshots(OscTinaTest):
 #        ret4 = self.a2_r1.fcu.DescribeSnapshots(RestorableBy=[self.a2_r1.config.account.account_id])
 #        print('toto')
 
-    def test_T5953_with_tag_filter(self):
+    def test_T5953_with_tag_filters(self):
         self.a1_r1.fcu.CreateTags(ResourceId=self.snap_ids[0:1], Tag=[{'Key': 'key1', 'Value': 'value2'}, {'Key': 'key2', 'Value': 'value3'}])
         self.a1_r1.fcu.CreateTags(ResourceId=self.snap_ids[1:2], Tag=[{'Key': 'key2', 'Value': 'value1'}, {'Key': 'key3', 'Value': 'value2'}])
         self.a1_r1.fcu.CreateTags(ResourceId=self.snap_ids[2:3], Tag=[{'Key': 'key3', 'Value': 'value1'}, {'Key': 'key1', 'Value': 'value3'}])
