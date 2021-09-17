@@ -201,7 +201,7 @@ echo "yes" > /tmp/userdata.txt
         vm_info = None
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, bsu_optimized=True, vm_type='c4.large')
-            assert vm_info[info_keys.VMS][0]['BsuOptimized'] == True
+            assert vm_info[info_keys.VMS][0]['BsuOptimized']
             assert vm_info[info_keys.VMS][0]['VmType'] == 'c4.large'
         finally:
             if vm_info:
