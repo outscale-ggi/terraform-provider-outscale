@@ -45,6 +45,11 @@ class Test_DescribeImages(OscTinaTest):
             launch_permissions = {'Add': [{'UserId': str(cls.a2_r1.config.account.account_id)},
                                           {'UserId': str(cls.a3_r1.config.account.account_id)}]}
             cls.a1_r1.fcu.ModifyImageAttribute(ImageId=image1_id, LaunchPermission=launch_permissions)
+            # add images for tag filter tests
+            ret, image_id = create_tools.create_image(cls.a1_r1, cls.inst_id, state='available')
+            cls.image_id_list.append(image_id)
+            ret, image_id = create_tools.create_image(cls.a1_r1, cls.inst_id, state='available')
+            cls.image_id_list.append(image_id)
             # create volume
             _, [vol_id] = create_tools.create_volumes(cls.a1_r1, size=VOL_SIZE_2, volume_type='io1', iops=100)
             cls.vol_id_list.append(vol_id)
@@ -57,11 +62,6 @@ class Test_DescribeImages(OscTinaTest):
             assert len(cls.img2_snap_id_list) == 3, 'Could not find snapshots created when creating image'
             launch_permissions = {'Add': [{'UserId': str(cls.a2_r1.config.account.account_id)}]}
             cls.a1_r1.fcu.ModifyImageAttribute(ImageId=image2_id, LaunchPermission=launch_permissions)
-            # add images for tag filter tests
-            ret, image_id = create_tools.create_image(cls.a1_r1, cls.inst_id, state='available')
-            cls.image_id_list.append(image_id)
-            ret, image_id = create_tools.create_image(cls.a1_r1, cls.inst_id, state='available')
-            cls.image_id_list.append(image_id)
         except Exception:
             try:
                 cls.teardown_class()
@@ -139,7 +139,7 @@ class Test_DescribeImages(OscTinaTest):
         desc_filter = {"Name": "block-device-mapping.volume-size", "Value": str(VOL_SIZE_2)}
         ret = self.a1_r1.fcu.DescribeImages(Filter=[desc_filter])
         try:
-            assert ret.response.imagesSet and len(ret.response.imagesSet) == 1 and ret.response.imagesSet[0].imageId == self.image_id_list[1]
+            assert ret.response.imagesSet and len(ret.response.imagesSet) == 1 and ret.response.imagesSet[0].imageId == self.image_id_list[3]
             pytest.fail('Remove known error code')
         except AssertionError:
             known_error('TINA-5352', 'Could not filter using block-device-mapping.volume-size')
@@ -147,7 +147,7 @@ class Test_DescribeImages(OscTinaTest):
     def test_T830_filter_bdm_volume_type(self):
         desc_filter = {"Name": "block-device-mapping.volume-type", "Value": "io1"}
         ret = self.a1_r1.fcu.DescribeImages(Filter=[desc_filter])
-        assert ret.response.imagesSet and len(ret.response.imagesSet) == 3 and ret.response.imagesSet[0].imageId == self.image_id_list[1]
+        assert ret.response.imagesSet and len(ret.response.imagesSet) == 1 and ret.response.imagesSet[0].imageId == self.image_id_list[3]
 
     def test_T831_filter_description(self):
         value = DESCRIPTION
@@ -293,7 +293,7 @@ class Test_DescribeImages(OscTinaTest):
 
     def test_T1375_invalid_image_if_exist_not_shared(self):
         try:
-            self.a3_r1.fcu.DescribeImages(ImageId=self.image_id_list[1])
+            self.a3_r1.fcu.DescribeImages(ImageId=self.image_id_list[3])
             assert False, 'Call should have failed'
         except OscApiException as error:
             assert error.status_code == 400
