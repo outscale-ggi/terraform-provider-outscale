@@ -12,6 +12,7 @@ from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools, oapi, wait
+from qa_tina_tools.tina import info_keys
 from qa_tina_tools.tina.info_keys import KEY_PAIR, PATH
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state, wait_security_groups_state
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response, create_vms
@@ -104,14 +105,12 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T3160_invalid_parameter_combination(self):
         try:
-            self.a1_r1.oapi.CreateVms(ImageId='ami-12345678', SubnetId='subnet-12345678',
-                                      Nics=[{'NicId': 'eni-12345678'}])
+            self.a1_r1.oapi.CreateVms(ImageId='ami-12345678', SubnetId='subnet-12345678', Nics=[{'NicId': 'eni-12345678'}])
             assert False, "call should not have been successful"
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
         try:
-            self.a1_r1.oapi.CreateVms(ImageId='ami-12345678', SecurityGroupIds=['sg-12345678'],
-                                      Nics=[{'NicId': 'eni-12345678'}])
+            self.a1_r1.oapi.CreateVms(ImageId='ami-12345678', SecurityGroupIds=['sg-12345678'], Nics=[{'NicId': 'eni-12345678'}])
             assert False, "call should not have been successful"
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidParameter', '3002')
@@ -192,40 +191,64 @@ echo "yes" > /tmp/userdata.txt
             )
 
     def test_T2033_with_vm_type(self):
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None, VmType='t2.small')
-        validate_vm_response(ret.response.Vms[0], expected_vm={'VmType': 't2.small'})
+        vm_info = None
+        try:
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='t2.small')
+            assert vm_info[info_keys.VMS][0]['VmType'] == 't2.small'
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T2034_with_bsu_optimized(self):
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None, BsuOptimized=True, VmType='c4.large')
-        validate_vm_response(ret.response.Vms[0], expected_vm={'VmType': 'c4.large', 'BsuOptimized': True})
+        vm_info = None
+        try:
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, bsu_optimized=True, vm_type='c4.large')
+            assert vm_info[info_keys.VMS][0]['BsuOptimized']
+            assert vm_info[info_keys.VMS][0]['VmType'] == 'c4.large'
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T2035_without_instance_shutdown_behavior(self):
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None)
-        validate_vm_response(ret.response.Vms[0], expected_vm={'VmInitiatedShutdownBehavior': 'stop'})
-        assert len(self.info) == 1
-        ret = self.a1_r1.fcu.DescribeInstanceAttribute(Attribute='instanceInitiatedShutdownBehavior', InstanceId=self.info[0])
-        assert ret.response.instanceInitiatedShutdownBehavior.value == 'stop'
+        vm_info = None
+        try:
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, state='running')
+            assert vm_info[info_keys.VMS][0]['VmInitiatedShutdownBehavior'] == 'stop'
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T2036_with_instance_shutdown_behavior_stop(self):
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None, VmInitiatedShutdownBehavior='stop')
-        validate_vm_response(ret.response.Vms[0], expected_vm={'VmInitiatedShutdownBehavior': 'stop'})
-        assert len(self.info) == 1
-        ret = self.a1_r1.fcu.DescribeInstanceAttribute(Attribute='instanceInitiatedShutdownBehavior', InstanceId=self.info[0])
-        assert ret.response.instanceInitiatedShutdownBehavior.value == 'stop'
+        vm_info = None
+        try:
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, state='running', iisb='stop')
+            assert vm_info[info_keys.VMS][0]['VmInitiatedShutdownBehavior'] == 'stop'
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T2037_with_instance_shutdown_behavior_terminate(self):
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None, VmInitiatedShutdownBehavior='terminate')
-        validate_vm_response(ret.response.Vms[0], xpected_vm={'VmInitiatedShutdownBehavior': 'terminate'})
-        assert len(self.info) == 1
-        ret = self.a1_r1.fcu.DescribeInstanceAttribute(Attribute='instanceInitiatedShutdownBehavior', InstanceId=self.info[0])
-        assert ret.response.instanceInitiatedShutdownBehavior.value == 'terminate'
+        vm_info = None
+        try:
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, state='running', iisb='terminate')
+            assert vm_info[info_keys.VMS][0]['VmInitiatedShutdownBehavior'] == 'terminate'
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T2038_with_instance_shutdown_behavior_restart(self):
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None, VmInitiatedShutdownBehavior='restart')
-        validate_vm_response(ret.response.Vms[0], expected_vm={'VmInitiatedShutdownBehavior': 'restart'})
-        assert len(self.info) == 1
-        ret = self.a1_r1.fcu.DescribeInstanceAttribute(Attribute='instanceInitiatedShutdownBehavior', InstanceId=self.info[0])
-        assert ret.response.instanceInitiatedShutdownBehavior.value == 'restart'
+        vm_info = None
+        try:
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, state='running', iisb='restart')
+            assert vm_info[info_keys.VMS][0]['VmInitiatedShutdownBehavior'] == 'restart'
+
+            self.a1_r1.oapi.StopVms(VmIds=[vm_info[info_keys.VMS][0]['VmId']])
+            wait.wait_Vms_state(self.a1_r1, [vm_info[info_keys.VMS][0]['VmId']], state='running')
+
+            self.a1_r1.oapi.UpdateVm(VmId=vm_info[info_keys.VMS][0]['VmId'], VmInitiatedShutdownBehavior='stop')
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T2039_with_instance_shutdown_behavior_invalid(self):
         vm_info = None
