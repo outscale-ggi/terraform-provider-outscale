@@ -2,10 +2,9 @@ import pytest
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
-from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
-from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
+from qa_tina_tools.tools.tina import cleanup_tools, wait_tools
 
 NUM_SUBNETS = 5
 
@@ -26,18 +25,17 @@ class Test_ReadSubnets(OscTinaTest):
     @classmethod
     def setup_class(cls):
 
-        super(Test_ReadSubnets, cls).setup_class()
-
         cls.net_id = None
-        cls.subnet_id = []
+        cls.subnet_ids = []
+        super(Test_ReadSubnets, cls).setup_class()
         try:
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16')).response.Net.NetId
-            wait_vpcs_state(cls.a1_r1, [cls.net_id], state='available')
+            wait_tools.wait_vpcs_state(cls.a1_r1, [cls.net_id], state='available')
             for i in range(NUM_SUBNETS):
-                cls.subnet_id.append(
+                cls.subnet_ids.append(
                     cls.a1_r1.fcu.CreateSubnet(CidrBlock=Configuration.get('subnet', '10_0_{}_0_24'.format(i + 1)),
                                                VpcId=cls.net_id).response.subnet.subnetId)
-            cls.a1_r1.oapi.CreateTags(ResourceIds=[cls.subnet_id[0]], Tags=[{'Key': 'sub_key', 'Value': 'sub_value'}])
+            cls.a1_r1.oapi.CreateTags(ResourceIds=[cls.subnet_ids[0]], Tags=[{'Key': 'sub_key', 'Value': 'sub_value'}])
 
         except:
             try:
@@ -48,7 +46,7 @@ class Test_ReadSubnets(OscTinaTest):
     @classmethod
     def teardown_class(cls):
         try:
-            cleanup_vpcs(cls.a1_r1, vpc_id_list=[cls.net_id], force=True)
+            cleanup_tools.cleanup_vpcs(cls.a1_r1, vpc_id_list=[cls.net_id], force=True)
         finally:
             super(Test_ReadSubnets, cls).teardown_class()
 
@@ -59,10 +57,10 @@ class Test_ReadSubnets(OscTinaTest):
 
     def test_T2263_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.ReadSubnets(DryRun=True)
-        assert_dry_run(ret)
+        misc.assert_dry_run(ret)
 
     def test_T2932_filters_subnet(self):
-        resp = self.a1_r1.oapi.ReadSubnets(Filters={"SubnetIds": [self.subnet_id[0]]}).response.Subnets
+        resp = self.a1_r1.oapi.ReadSubnets(Filters={"SubnetIds": [self.subnet_ids[0]]}).response.Subnets
         assert len(resp) == 1
         for sub in resp:
             assert hasattr(sub, 'Tags'), 'Tags does not exist in the response'
@@ -169,4 +167,7 @@ class Test_ReadSubnets(OscTinaTest):
             self.a1_r1.oapi.ReadSubnets(Filters={"Tags": 'sub=sub_value'})
             assert False, 'Call should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+
+    def test_T5980_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'Subnet', self.subnet_ids, 'oapi.ReadSubnets', 'Subnets.SubnetId')

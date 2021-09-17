@@ -2,24 +2,25 @@
 
 import pytest
 
-from qa_test_tools.misc import assert_dry_run
+from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
-from qa_tina_tools.tools.tina.create_tools import create_nat
-from qa_tina_tools.tools.tina.delete_tools import delete_nat
-from qa_tina_tools.tools.tina.info_keys import NAT_GW, VPC_INFO, VPC_ID, SUBNETS, \
-    SUBNET_ID
+from qa_tina_tools.tools.tina import create_tools, delete_tools
+from qa_tina_tools.tools.tina import info_keys
 
+NUM_NAT_SERVICES = 4
 
 class Test_ReadNatServices(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
-        super(Test_ReadNatServices, cls).setup_class()
+        cls.nat_ids = []
         cls.nat_infos = []
+        super(Test_ReadNatServices, cls).setup_class()
         try:
-            for _ in range(2):
-                cls.nat_infos.append(create_nat(cls.a1_r1))
-            cls.a1_r1.oapi.CreateTags(ResourceIds=[cls.nat_infos[0][NAT_GW].id], Tags=[{'Key': 'key', 'Value': 'value'}])
+            for _ in range(NUM_NAT_SERVICES):
+                nat_info = create_tools.create_nat(cls.a1_r1)
+                cls.nat_infos.append(nat_info)
+                cls.nat_ids.append(nat_info[info_keys.NAT_GW].id)
         except:
             try:
                 cls.teardown_class()
@@ -30,17 +31,17 @@ class Test_ReadNatServices(OscTinaTest):
     def teardown_class(cls):
         try:
             for nat_info in cls.nat_infos:
-                delete_nat(cls.a1_r1, nat_info)
+                delete_tools.delete_nat(cls.a1_r1, nat_info)
         finally:
             super(Test_ReadNatServices, cls).teardown_class()
 
     def test_T2541_dry_run(self):
         ret = self.a1_r1.oapi.ReadNatServices(DryRun=True)
-        assert_dry_run(ret)
+        misc.assert_dry_run(ret)
 
     def test_T2542_without_param(self):
         ret = self.a1_r1.oapi.ReadNatServices()
-        assert len(ret.response.NatServices) == 2
+        assert len(ret.response.NatServices) == NUM_NAT_SERVICES
 
     # TODO: add tests:
     # - invalid dry run
@@ -75,22 +76,26 @@ class Test_ReadNatServices(OscTinaTest):
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3437_other_account_with_filter(self):
-        ret = self.a2_r1.oapi.ReadNatServices(Filters={'NatServiceIds': [self.nat_infos[0][NAT_GW].id]}).response.NatServices
+        ret = self.a2_r1.oapi.ReadNatServices(Filters={'NatServiceIds': [self.nat_infos[0][info_keys.NAT_GW].id]}).response.NatServices
         assert not ret
 
     def test_T3829_with_nat_service_ids_filter(self):
-        ret = self.a1_r1.oapi.ReadNatServices(Filters={'NatServiceIds': [self.nat_infos[0][NAT_GW].id]}).response.NatServices
+        ret = self.a1_r1.oapi.ReadNatServices(Filters={'NatServiceIds': [self.nat_infos[0][info_keys.NAT_GW].id]}).response.NatServices
         assert len(ret) == 1
-        assert len(ret[0].Tags) == 1
 
     def test_T3830_with_net_ids_filter(self):
-        ret = self.a1_r1.oapi.ReadNatServices(Filters={'NetIds': [self.nat_infos[0][VPC_INFO][VPC_ID]]}).response.NatServices
+        ret = self.a1_r1.oapi.ReadNatServices(Filters={'NetIds': [self.nat_infos[0][info_keys.VPC_INFO][info_keys.VPC_ID]]}).response.NatServices
         assert len(ret) == 1
 
     def test_T3831_with_states_filter(self):
         ret = self.a1_r1.oapi.ReadNatServices(Filters={'States': ['available']}).response.NatServices
-        assert len(ret) == 2
+        assert len(ret) == NUM_NAT_SERVICES
 
     def test_T3832_with_subnet_ids_filter(self):
-        ret = self.a1_r1.oapi.ReadNatServices(Filters={'SubnetIds': [self.nat_infos[0][VPC_INFO][SUBNETS][0][SUBNET_ID]]}).response.NatServices
+        ret = self.a1_r1.oapi.ReadNatServices(
+            Filters={'SubnetIds': [self.nat_infos[0][info_keys.VPC_INFO][info_keys.SUBNETS][0][info_keys.SUBNET_ID]]}).response.NatServices
         assert len(ret) == 1
+
+    def test_T5970_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'NatService', self.nat_ids,
+                               'oapi.ReadNatServices', 'NatServices.NatServiceId')
