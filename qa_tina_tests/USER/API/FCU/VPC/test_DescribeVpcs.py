@@ -1,5 +1,6 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.test_base import known_error
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
@@ -132,5 +133,7 @@ class Test_DescribeVpcs(OscTinaTest):
         assert not ret.response.vpcSet
 
     def test_T5962_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'Vpc', self.vpc_id_list,
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Vpc', self.vpc_id_list,
                                'fcu.DescribeVpcs', 'vpcSet.vpcId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')

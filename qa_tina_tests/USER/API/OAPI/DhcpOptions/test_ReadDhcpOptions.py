@@ -2,6 +2,7 @@ import pytest
 
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest, get_export_value
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
 from qa_tina_tests.USER.API.OAPI.DhcpOptions.DhcpOptions import validate_dhcp_options
@@ -147,5 +148,7 @@ class Test_ReadDhcpOptions(OscTinaTest):
         assert not ret
 
     def test_T5968_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'DhcpOption', self.dhcp_options_list,
-                               'oapi.ReadDhcpOptions', 'DhcpOptionsSets.DhcpOptionsSetId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'DhcpOption', self.dhcp_options_list,
+                                            'oapi.ReadDhcpOptions', 'DhcpOptionsSets.DhcpOptionsSetId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')

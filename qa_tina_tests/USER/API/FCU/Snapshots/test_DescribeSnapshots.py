@@ -1,6 +1,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error, execute_tag_tests
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
@@ -88,4 +89,6 @@ class Test_DescribeSnapshots(OscTinaTest):
 #         assert len(ret.response.snapshotSet) == 1
 
     def test_T5953_with_tag_filter(self):
-        execute_tag_tests(self.a1_r1, 'Snapshot', self.snap_ids, 'fcu.DescribeSnapshots', 'snapshotSet.snapshotId')
+        indexes, _ = execute_tag_tests(self.a1_r1, 'Snapshot', self.snap_ids, 'fcu.DescribeSnapshots', 'snapshotSet.snapshotId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')

@@ -2,6 +2,7 @@ import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools import constants
 from qa_tina_tools.tools.tina import create_tools, delete_tools
@@ -95,5 +96,6 @@ class Test_DescribeVolumes(OscTinaTest):
                 delete_tools.delete_instances_old(osc_sdk=self.a1_r1, instance_id_list=[inst_id])
 
     def test_T5966_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'Volume', self.vol_id_list,
-                               'fcu.DescribeVolumes', 'volumeSet.volumeId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Volume', self.vol_id_list, 'fcu.DescribeVolumes', 'volumeSet.volumeId')
+        assert indexes == [5, 6, 7, 8, 9, 10, 24, 25, 26, 27, 28, 29]
+        known_error('TINA-6757', 'DescribeVolumes does not support wildcards in key value of tag:key filtering')

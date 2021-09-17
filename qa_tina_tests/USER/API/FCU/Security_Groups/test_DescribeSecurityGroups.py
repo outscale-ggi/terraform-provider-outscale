@@ -320,5 +320,7 @@ class Test_DescribeSecurityGroups(OscTinaTest):
             misc.assert_error(error, 400, '', None)
 
     def test_T5962_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'SecurityGroup', self.priv_sg_ids,
-                               'fcu.DescribeSecurityGroups', 'securityGroupInfo.groupId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'SecurityGroup', self.priv_sg_ids,
+                                            'fcu.DescribeSecurityGroups', 'securityGroupInfo.groupId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')

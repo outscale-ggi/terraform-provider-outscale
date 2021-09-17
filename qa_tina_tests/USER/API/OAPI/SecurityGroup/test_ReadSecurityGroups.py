@@ -6,6 +6,7 @@ import pytest
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.compare_objects import verify_response
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
 
@@ -275,6 +276,8 @@ class Test_ReadSecurityGroups(SecurityGroup):
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_with_other_account_filters.json'), self.hints)
 
     def test_T5978_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'SecurityGroup', [self.sg1.SecurityGroupId, self.sg2.SecurityGroupId,
-                                                             self.sg3.SecurityGroupId, self.sg4.SecurityGroupId],
-                               'oapi.ReadSecurityGroups', 'SecurityGroups.SecurityGroupId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'SecurityGroup', [self.sg1.SecurityGroupId, self.sg2.SecurityGroupId,
+                                                                          self.sg3.SecurityGroupId, self.sg4.SecurityGroupId],
+                                                                          'oapi.ReadSecurityGroups', 'SecurityGroups.SecurityGroupId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')
