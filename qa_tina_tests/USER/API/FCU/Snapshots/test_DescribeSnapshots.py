@@ -45,18 +45,6 @@ class Test_DescribeSnapshots(OscTinaTest):
         except OscApiException as error:
             assert_error(error, 400, 'InvalidSnapshot.NotFound', "The snapshot '" + self.snap_ids[0] + "' does not exist.")
 
-#    def test_TXXX_filter_restorable_by(self):
-#        _, vol_id_list = create_volumes(osc_sdk=self.a1_r1, state='available')
-#        snap_id = self.a1_r1.fcu.CreateSnapshot(VolumeId=vol_id_list[0]).response.snapshotId
-#        wait_snapshots_state(self.a1_r1, [snap_id], 'completed')
-#        self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=snap_id,
-#                                               CreateVolumePermission={'Add': [{'UserId': self.a2_r1.config.account.account_id}]})
-#        ret1 = self.a1_r1.fcu.DescribeSnapshots(RestorableBy=[self.a1_r1.config.account.account_id])
-#        ret2 = self.a1_r1.fcu.DescribeSnapshots(RestorableBy=[self.a2_r1.config.account.account_id])
-#        ret3 = self.a2_r1.fcu.DescribeSnapshots(RestorableBy=[self.a1_r1.config.account.account_id])
-#        ret4 = self.a2_r1.fcu.DescribeSnapshots(RestorableBy=[self.a2_r1.config.account.account_id])
-#        print('toto')
-
 #     def test_T5953_with_tag_filter(self):
 #         self.a1_r1.fcu.CreateTags(ResourceId=self.snap_ids[0:1], Tag=[{'Key': 'key1', 'Value': 'value2'}, {'Key': 'key2', 'Value': 'value3'}])
 #         self.a1_r1.fcu.CreateTags(ResourceId=self.snap_ids[1:2], Tag=[{'Key': 'key2', 'Value': 'value1'}, {'Key': 'key3', 'Value': 'value2'}])
