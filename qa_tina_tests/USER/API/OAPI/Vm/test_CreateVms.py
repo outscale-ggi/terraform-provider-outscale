@@ -1,4 +1,6 @@
 
+from __future__ import division
+
 import base64
 import string
 import zlib
@@ -863,7 +865,7 @@ echo "yes" > /tmp/userdata.txt
     def test_T4574_with_large_userdata(self):
         vm_info = None
         try:
-            userdata = id_generator(size=300000, chars=string.ascii_lowercase)
+            userdata = id_generator(size=(int)(512000*3/4), chars=string.ascii_lowercase)
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
         finally:
             if vm_info:
@@ -872,7 +874,7 @@ echo "yes" > /tmp/userdata.txt
     def test_T5838_with_invalid_larger_userdata_size(self):
         vm_info = None
         try:
-            userdata = id_generator(size=513000, chars=string.ascii_lowercase)
+            userdata = id_generator(size=(int)(513000*3/4), chars=string.ascii_lowercase)
             vm_info = oapi.create_Vms(self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
