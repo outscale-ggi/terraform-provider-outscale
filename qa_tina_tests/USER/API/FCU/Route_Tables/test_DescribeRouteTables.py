@@ -1,6 +1,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, SUBNETS, SUBNET_ID
@@ -72,5 +73,7 @@ class Test_DescribeRouteTables(OscTinaTest):
         assert ret.response.routeTableSet[0].associationSet[0].routeTableId == self.rt_ids[0]
 
     def test_T5961_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'RouteTable', self.rt_ids,
-                               'fcu.DescribeRouteTables', 'routeTableSet.routeTableId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'RouteTable', self.rt_ids,
+                                            'fcu.DescribeRouteTables', 'routeTableSet.routeTableId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')

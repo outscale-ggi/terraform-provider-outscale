@@ -5,6 +5,7 @@ import pytest
 
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
@@ -207,4 +208,6 @@ class Test_ReadVolumes(OscTinaTest):
             validate_volume_response(volume, size=20)
 
     def test_T5983_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'Volume', self.vol_ids, 'oapi.ReadVolumes', 'Volumes.VolumeId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Volume', self.vol_ids, 'oapi.ReadVolumes', 'Volumes.VolumeId')
+        assert indexes == [5, 6, 7, 8, 9, 10, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'ReadVolumes does not support wildcards filtering')

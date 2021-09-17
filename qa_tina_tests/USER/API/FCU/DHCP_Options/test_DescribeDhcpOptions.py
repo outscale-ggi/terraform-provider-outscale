@@ -1,6 +1,8 @@
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
 
@@ -97,5 +99,7 @@ class Test_DescribeDhcpOptions(OscTinaTest):
         assert ret.response.dhcpOptionsSet is None
 
     def test_T5955_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'DhcpOptions', self.dhcp_options_list,
-                               'fcu.DescribeDhcpOptions', 'dhcpOptionsSet.dhcpOptionsId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'DhcpOptions', self.dhcp_options_list,
+                                            'fcu.DescribeDhcpOptions', 'dhcpOptionsSet.dhcpOptionsId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')

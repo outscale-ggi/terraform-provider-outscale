@@ -1,5 +1,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait
 from qa_tina_tools.tools.tina import wait_tools
@@ -105,5 +106,7 @@ class Test_DescribeVpnConnections(OscTinaTest):
         assert ret.response.vpnConnectionSet[0].vpnConnectionId == self.vpn_connection_ids[0]
 
     def test_T5964_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'VpnConnection', self.vpn_connection_ids,
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'VpnConnection', self.vpn_connection_ids,
                                'fcu.DescribeVpnConnections', 'vpnConnectionSet.vpnConnectionId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')

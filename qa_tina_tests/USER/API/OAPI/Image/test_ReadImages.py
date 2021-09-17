@@ -5,6 +5,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions import OscTestException
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
@@ -321,5 +322,7 @@ class Test_ReadImages(OscTinaTest):
         assert hasattr(ret[0], 'ImageType')
 
     def test_T5969_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'Image', self.image_ids,
-                               'oapi.ReadImages', 'Images.ImageId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Image', self.image_ids,
+                                            'oapi.ReadImages', 'Images.ImageId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')

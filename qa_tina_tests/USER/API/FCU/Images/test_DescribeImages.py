@@ -475,5 +475,7 @@ class Test_DescribeImages(OscTinaTest):
         self.check_invalid_filters(filter_name="virtualization-type", filter_value="foo")
 
     def test_T5956_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'Image', self.image_id_list,
-                               'fcu.DescribeImages', 'imagesSet.imageId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Image', self.image_id_list,
+                                            'fcu.DescribeImages', 'imagesSet.imageId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')

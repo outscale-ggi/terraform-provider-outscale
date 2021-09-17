@@ -1,6 +1,7 @@
 import pytest
 
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
 NUM_VGW = 4
@@ -71,4 +72,7 @@ class Test_ReadVirtualGateways(OscTinaTest):
         assert len(ret) == 1
 
     def test_T5981_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'VirtualGateway', self.vgw_ids, 'oapi.ReadVirtualGateways', 'VirtualGateways.VirtualGatewayId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'VirtualGateway', self.vgw_ids,
+                                            'oapi.ReadVirtualGateways', 'VirtualGateways.VirtualGatewayId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')
