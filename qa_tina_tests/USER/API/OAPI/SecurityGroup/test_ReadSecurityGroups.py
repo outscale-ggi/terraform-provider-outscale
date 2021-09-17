@@ -5,8 +5,8 @@ import pytest
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.compare_objects import verify_response
-from qa_test_tools.misc import assert_oapi_error
-from qa_tina_tools.tools.tina.info_keys import VPC_ID
+from qa_test_tools import misc
+from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
 
 
@@ -130,7 +130,7 @@ class Test_ReadSecurityGroups(SecurityGroup):
         try:
             self.a1_r1.oapi.ReadSecurityGroups(Filters=filters)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5481_filters_descriptions(self):
         filters = {'Descriptions': [self.sg1.Description, self.sg3.Description]}
@@ -182,7 +182,7 @@ class Test_ReadSecurityGroups(SecurityGroup):
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_inbound_rule_to_port_ranges.json'), self.hints)
 
     def test_T5489_filters_net_ids(self):
-        filters = {'NetIds': [self.vpc_info[VPC_ID]]}
+        filters = {'NetIds': [self.vpc_info[info_keys.VPC_ID]]}
         resp = self.a1_r1.oapi.ReadSecurityGroups(Filters=filters).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_filters_net_ids.json'), self.hints)
 
@@ -273,3 +273,8 @@ class Test_ReadSecurityGroups(SecurityGroup):
         resp = self.a2_r1.oapi.ReadSecurityGroups(Filters=filters).response
         assert len(resp.SecurityGroups) == 0
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'read_with_other_account_filters.json'), self.hints)
+
+    def test_T5978_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'SecurityGroup', [self.sg1.SecurityGroupId, self.sg2.SecurityGroupId, 
+                                                             self.sg3.SecurityGroupId, self.sg4.SecurityGroupId],
+                               'oapi.ReadSecurityGroups', 'SecurityGroups.SecurityGroupId')

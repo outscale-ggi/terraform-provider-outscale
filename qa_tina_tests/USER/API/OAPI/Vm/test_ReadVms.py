@@ -11,6 +11,8 @@ from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi
 from qa_tina_tools.tina.oapi import info_keys
 
+NUM_VMS = 4
+
 class Test_ReadVms(OscTinaTest):
 
     @classmethod
@@ -18,7 +20,7 @@ class Test_ReadVms(OscTinaTest):
         cls.vm_info = None
         super(Test_ReadVms, cls).setup_class()
         try:
-            cls.vm_info = oapi.create_Vms(cls.a1_r1, nb=3)
+            cls.vm_info = oapi.create_Vms(cls.a1_r1, nb=NUM_VMS)
             hints = []
             hints.append(cls.a1_r1.config.region.name)
             hints.append(cls.a1_r1.config.region.az_name)
@@ -78,7 +80,7 @@ class Test_ReadVms(OscTinaTest):
         assert not ret
 
     def test_T4390_with_tagged_vm(self):
-        self.a1_r1.oapi.CreateTags(ResourceIds=[self.vm_info[info_keys.VM_IDS][1]], Tags=[{'Key': 'key', 'Value': 'value'}])
+        self.a1_r1.oapi.CreateTags(ResourceIds=[self.vm_info[info_keys.VM_IDS][1]], Tags=[{'Key': 'toto', 'Value': 'titi'}])
         ret = self.a1_r1.oapi.ReadVms(Filters={'VmIds': [self.vm_info[info_keys.VM_IDS][1]]})
         assert hasattr(ret.response.Vms[0], 'Tags')
 
@@ -88,3 +90,6 @@ class Test_ReadVms(OscTinaTest):
             assert False, 'call should not have been successful'
         except OscApiException as err:
             misc.assert_oapi_error(err, 400, 'InvalidParameter', '3001')
+
+    def test_T5982_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'Vm', self.vm_info[info_keys.VM_IDS], 'oapi.ReadVms', 'Vms.VmId')

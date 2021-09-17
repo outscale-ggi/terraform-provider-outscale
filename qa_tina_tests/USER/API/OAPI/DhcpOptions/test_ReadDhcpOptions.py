@@ -1,18 +1,13 @@
 import pytest
 
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_dry_run
+from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest, get_export_value
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
 from qa_tina_tests.USER.API.OAPI.DhcpOptions.DhcpOptions import validate_dhcp_options
 
 
 class Test_ReadDhcpOptions(OscTinaTest):
-
-    @classmethod
-    def add_to_dhcp_list(cls, ret):
-        dhcp_id = ret.DhcpOptionsSetId
-        cls.dhcp_options_list.append(dhcp_id)
 
     @classmethod
     def setup_class(cls):
@@ -136,7 +131,7 @@ class Test_ReadDhcpOptions(OscTinaTest):
 
     def test_T3451_dry_run(self):
         ret = self.a1_r1.oapi.ReadDhcpOptions()
-        assert_dry_run(ret)
+        misc.assert_dry_run(ret)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3452_other_account(self):
@@ -150,3 +145,7 @@ class Test_ReadDhcpOptions(OscTinaTest):
     def test_T3453_other_account_with_filter(self):
         ret = self.a2_r1.oapi.ReadDhcpOptions(Filters={'DhcpOptionsSetIds': self.dhcp_options_list}).response.DhcpOptionsSets
         assert not ret
+
+    def test_T5968_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'DhcpOption', self.dhcp_options_list,
+                               'oapi.ReadDhcpOptions', 'DhcpOptionsSets.DhcpOptionsSetId')

@@ -1,22 +1,22 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
+from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import VpnConnection, validate_vpn_connection
 
-NUM_VPN_CONN = 3
-
+NUM_VPN_CONN = 4
 
 class Test_ReadVpnConnections(VpnConnection):
 
     @classmethod
     def setup_class(cls):
-        super(Test_ReadVpnConnections, cls).setup_class()
         cls.vpn_ids = []
         cls.cgw_ids = []
         cls.vgw_ids = []
+        cls.QUOTAS = {'vpg_limit', 6}
+        super(Test_ReadVpnConnections, cls).setup_class()
         try:
             cls.a1_r1.oapi.CreateVpnConnectionRoute(VpnConnectionId=cls.vpn_id, DestinationIpRange='172.13.1.4/24')
 
@@ -33,17 +33,19 @@ class Test_ReadVpnConnections(VpnConnection):
                     ClientGatewayId=cls.cgw_ids[-1], VirtualGatewayId=cls.vgw_ids[-1], ConnectionType='ipsec.1',
                     StaticRoutesOnly=False).response.VpnConnection.VpnConnectionId)
 
-            cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[0:1], Tags=[{'Key': 'vpn_key', 'Value': 'vpn_value'}])
+            cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[0:1], Tags=[{'Key': 'toto', 'Value': 'titi'}])
             if NUM_VPN_CONN > 1:
-                cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[1:2], Tags=[{'Key': 'vpn_key1', 'Value': 'vpn_value'}])
+                cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[1:2], Tags=[{'Key': 'toto1', 'Value': 'titi'}])
             if NUM_VPN_CONN > 2:
-                cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[2:3], Tags=[{'Key': 'vpn_key', 'Value': 'vpn_value1'}])
+                cls.a1_r1.oapi.CreateTags(ResourceIds=cls.vpn_ids[2:3], Tags=[{'Key': 'toto', 'Value': 'titi1'}])
 
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
+            except Exception as error2:
+                raise error2
             finally:
-                raise
+                raise error1
 
     @classmethod
     def teardown_class(cls):
@@ -136,7 +138,7 @@ class Test_ReadVpnConnections(VpnConnection):
             self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': False})
             assert False, 'Call should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5138_filters_route_destination_ip_ranges_invalid_value(self):
         ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': ['foo']})
@@ -157,48 +159,28 @@ class Test_ReadVpnConnections(VpnConnection):
             validate_vpn_connection(vpn, expected_vpn={'VirtualGatewayId': self.vg_id2})
 
     def test_T5115_filters_tags(self):
-        try:
-            ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"Tags": ['vpn_key=vpn_value']}).response.VpnConnections
-            assert False, 'Remove known error'
-            assert len(ret) == 1
-        except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('TINA-6739', 'Incorrect internal error')
+        ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"Tags": ['toto=titi']}).response.VpnConnections
+        assert len(ret) == 1
 
     def test_T5116_filters_tagkeys(self):
-        try:
-            ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"TagKeys": ['vpn_key']}).response.VpnConnections
-            assert False, 'Remove known error'
-            assert len(ret) == 2
-        except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('TINA-6739', 'Incorrect internal error')
+        ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"TagKeys": ['toto']}).response.VpnConnections
+        assert len(ret) == 2
 
     def test_T5117_filters_tagvalues(self):
-        try:
-            ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"TagValues": ['vpn_value']}).response.VpnConnections
-            assert False, 'Remove known error'
-            assert len(ret) == 2
-        except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('TINA-6739', 'Incorrect internal error')
+        ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"TagValues": ['titi']}).response.VpnConnections
+        assert len(ret) == 2
 
     def test_T5118_filters_invalid_tags(self):
-        try:
-            ret = self.a1_r1.oapi.ReadVpnConnections( Filters={"Tags": ['incorrect_vpn=incorrect_vpn_value']}).response.VpnConnections
-            assert False, 'Remove known error'
-            assert len(ret) == 0
-        except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', '2000')
-            known_error('TINA-6739', 'Incorrect internal error')
+        ret = self.a1_r1.oapi.ReadVpnConnections( Filters={"Tags": ['incorrect_vpn=incorrect_titi']}).response.VpnConnections
+        assert len(ret) == 0
 
     def test_T5119_filters_incorrect_tags_type(self):
         try:
-            self.a1_r1.oapi.ReadVpnConnections(Filters={"Tags": 'vpn=vpn_value'})
+            self.a1_r1.oapi.ReadVpnConnections(Filters={"Tags": 'vpn=titi'})
             assert False, 'Remove known error'
             assert False, 'Call should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5933_after_update(self):
         known_error('TINA-6738', 'On call intel.vpn.connection.update')
@@ -226,3 +208,6 @@ class Test_ReadVpnConnections(VpnConnection):
         assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase2Options, "Phase2IntegrityAlgorithms")
         assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase2Options, "Phase2LifetimeSeconds")
         assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase2Options, "PreSharedKey")
+
+    def test_T5983_with_tag_filter(self):
+        misc.execute_tag_tests(self.a1_r1, 'VpnConnection', self.vpn_ids, 'oapi.ReadVpnConnections', 'VpnConnections.VpnConnectionId')
