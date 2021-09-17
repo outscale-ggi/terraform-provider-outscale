@@ -83,7 +83,7 @@ class Test_ApiAccessPolicyWithUser(OscTestAAP):
                     errors[api_call] = "Remove known error"
             except OscApiException as error:
                 if api_call == 'icu.UpdateAccessKey' and error.error_code == 'ApiAccessDeniedException':
-                    known_errors[api_call] = ('SECSVC-398', "[TrustedEnv] IAM call not in AEL filtered by AAR")
+                    known_errors[api_call] = ('TINA-6614', 'ICU/EIM issues with ApiAccessRules and ApiAccessPolicies')
                 elif api_call == "eim.ListAccessKeys" and error.status_code == 401 and error.error_code == 'AuthFailure':
                     known_errors[api_call] = ('TINA-6614', "ICU/EIM issues with ApiAccessRules and ApiAccessPolicies")
                 elif api_call in ['icu.CreateAccessKey', 'icu.UpdateAccessKey']: # Unable to manage AK/SK ExpirationDate with ICU

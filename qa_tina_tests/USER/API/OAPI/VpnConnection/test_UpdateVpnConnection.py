@@ -51,71 +51,44 @@ class Test_UpdateVpnConnection(OscTinaTest):
             super(Test_UpdateVpnConnection, cls).teardown_class()
 
     def test_T5934_valid_case(self):
-        try:
-            self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
-                                            VpnOptions={"TunnelInsideIpRange":"169.254.254.8/30"})
-        except OscApiException as error:
-            if error.status_code == 500 and error.message == 'InternalError':
-                known_error("TINA-6683", "oapi.UpdateVpnConnection InternalError")
-            assert False, "remove known error code"
-            assert_oapi_error(error, 400, 'xx', 'xx')
+        known_error('TINA-6738', 'On call intel.vpn.connection.update')
+        self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
+                                        VpnOptions={"TunnelInsideIpRange":"169.254.254.8/30"})
 
     def test_T5935_required_params_only(self):
-        try:
-            self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id)
-        except OscApiException as error:
-            if error.status_code == 500 and error.message == 'InternalError':
-                known_error("TINA-6683", "oapi.UpdateVpnConnection InternalError")
-            assert False, "remove known error code"
-            assert_oapi_error(error, 400, 'xx', 'xx')
+        self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id)
 
     def test_T5936_non_existant_vpn_id(self):
         try:
             self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId="vpn-12345678")
+            assert False, 'Call should fail'
         except OscApiException as error:
-            if error.status_code == 400 and error.message == 'DefaultError':
-                known_error("TINA-6683", "oapi.UpdateVpnConnection DefaultError")
-            assert False, "remove known error code"
-            assert_oapi_error(error, 400, 'xx', 'xx')
+            assert_oapi_error(error, 400, 'InvalidResource', '5067')
 
     def test_T5937_malformed_vpn_id(self):
         try:
             self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId="xxx-12345678")
+            assert False, 'Call should fail'
         except OscApiException as error:
-            if error.status_code == 400 and error.message == 'DefaultError':
-                known_error("TINA-6683", "oapi.UpdateVpnConnection DefaultError")
-            assert False, "remove known error code"
-            assert_oapi_error(error, 400, 'xx', 'xx')
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+
     def test_T5938_with_invalid_PreSharedKey(self):
-        try:
-            self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":"1234567890SDFGHJK"}})
-        except OscApiException as error:
-            if error.status_code == 500 and error.message == 'InternalError':
-                known_error("TINA-6683", "oapi.UpdateVpnConnection InternalError")
-            assert False, "remove known error code"
-            assert_oapi_error(error, 400, 'xx', 'xx')
+        known_error('TINA-6738', 'On call intel.vpn.connection.update')
+        self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":"1234567890SDFGHJK"}})
 
     def test_T5939_with_valid_PreSharedKey(self):
+        known_error('TINA-6738', 'On call intel.vpn.connection.update')
         presharedkey = id_generator(size=26)
-        try:
-            self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":presharedkey}})
-        # TODO add check response
-        except OscApiException as error:
-            if error.status_code == 500 and error.message == 'InternalError':
-                known_error("TINA-6683", "oapi.UpdateVpnConnection InternalError")
-            assert False, "remove known error code"
+        self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":presharedkey}})
+
     def test_T5940_with_all_parameters(self):
-        try:
-            self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
-                                   VpnOptions={"Phase1Options":{"DpdTimeoutAction":"test", "DpdTimeoutSeconds":1,"Phase1DhGroupNumbers":[1],
-                                                                "Phase1EncryptionAlgorithms":["test"], "Phase1IntegrityAlgorithms":["test"],
-                                                                "Phase1LifetimeSeconds":1, "ReplayWindowSize":1, "StartupAction":"xx"},
-                                                "Phase2Options":{"Phase2DhGroupNumbers": [0], "Phase2EncryptionAlgorithms":
-                                                                 ["test"], "Phase2IntegrityAlgorithms": ["test"],
-                                                                 "Phase2LifetimeSeconds": 0, "PreSharedKey":"PreSharedKey"}})
-            assert False, 'correct test after fix TINA-6683 by adding check response'
-        except OscApiException as error:
-            if error.status_code == 500 and error.message == 'InternalError':
-                known_error("TINA-6683", "oapi.UpdateVpnConnection InternalError")
-            assert False, "remove known error code"
+        known_error('TINA-6738', 'On call intel.vpn.connection.update')
+        self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
+                               VpnOptions={"Phase1Options":{"DpdTimeoutAction":"test", "DpdTimeoutSeconds":1,"Phase1DhGroupNumbers":[1],
+                                                            "Phase1EncryptionAlgorithms":["test"], "Phase1IntegrityAlgorithms":["test"],
+                                                            "Phase1LifetimeSeconds":1, "ReplayWindowSize":1, "StartupAction":"xx"},
+                                            "Phase2Options":{"Phase2DhGroupNumbers": [0], "Phase2EncryptionAlgorithms":
+                                                             ["test"], "Phase2IntegrityAlgorithms": ["test"],
+                                                             "Phase2LifetimeSeconds": 0, "PreSharedKey":"PreSharedKey"},
+                                            "TunnelInsideIpRange":"169.254.254.8/30"})
 # TODO add functionnal test

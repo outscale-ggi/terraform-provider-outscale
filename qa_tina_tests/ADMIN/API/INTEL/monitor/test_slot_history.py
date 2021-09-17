@@ -26,6 +26,7 @@ class Test_slot_history(OscTinaTest):
     def test_T5349_only_dates(self):
         try:
             ret = self.a1_r1.intel.monitor.slot_history(dt1=self.start_date, dt2=self.end_date)
+            assert False, 'Remove known error code'
         except OscApiException as error:
             assert_error(error, 200, -32603, "Internal error.")
             known_error('TINA-6102', 'Unexpected internal error.')
@@ -35,6 +36,7 @@ class Test_slot_history(OscTinaTest):
         server_name = self.a1_r1.intel.hardware.get_servers().response.result[0].name
         try:
             ret = self.a1_r1.intel.monitor.slot_history(what=server_name)
+            assert False, 'Remove known error code'
         except OscApiException as error:
             assert_error(error, 200, -32603, "Internal error.")
             known_error('TINA-6102', 'Unexpected internal error.')

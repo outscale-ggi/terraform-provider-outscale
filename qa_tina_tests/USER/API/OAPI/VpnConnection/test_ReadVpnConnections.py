@@ -2,6 +2,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import VpnConnection, validate_vpn_connection
 
@@ -156,41 +157,58 @@ class Test_ReadVpnConnections(VpnConnection):
             validate_vpn_connection(vpn, expected_vpn={'VirtualGatewayId': self.vg_id2})
 
     def test_T5115_filters_tags(self):
-        ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"Tags": ['vpn_key=vpn_value']}).response.VpnConnections
-        assert len(ret) == 1
+        try:
+            ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"Tags": ['vpn_key=vpn_value']}).response.VpnConnections
+            assert False, 'Remove known error'
+            assert len(ret) == 1
+        except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', '2000')
+            known_error('TINA-6739', 'Incorrect internal error')
 
     def test_T5116_filters_tagkeys(self):
-        ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"TagKeys": ['vpn_key']}).response.VpnConnections
-        assert len(ret) == 2
+        try:
+            ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"TagKeys": ['vpn_key']}).response.VpnConnections
+            assert False, 'Remove known error'
+            assert len(ret) == 2
+        except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', '2000')
+            known_error('TINA-6739', 'Incorrect internal error')
 
     def test_T5117_filters_tagvalues(self):
-        ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"TagValues": ['vpn_value']}).response.VpnConnections
-        assert len(ret) == 2
+        try:
+            ret = self.a1_r1.oapi.ReadVpnConnections(Filters={"TagValues": ['vpn_value']}).response.VpnConnections
+            assert False, 'Remove known error'
+            assert len(ret) == 2
+        except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', '2000')
+            known_error('TINA-6739', 'Incorrect internal error')
 
     def test_T5118_filters_invalid_tags(self):
-        ret = self.a1_r1.oapi.ReadVpnConnections(
-            Filters={"Tags": ['incorrect_vpn=incorrect_vpn_value']}).response.VpnConnections
-        assert len(ret) == 0
+        try:
+            ret = self.a1_r1.oapi.ReadVpnConnections( Filters={"Tags": ['incorrect_vpn=incorrect_vpn_value']}).response.VpnConnections
+            assert False, 'Remove known error'
+            assert len(ret) == 0
+        except OscApiException as error:
+            assert_oapi_error(error, 500, 'InternalError', '2000')
+            known_error('TINA-6739', 'Incorrect internal error')
 
     def test_T5119_filters_incorrect_tags_type(self):
         try:
             self.a1_r1.oapi.ReadVpnConnections(Filters={"Tags": 'vpn=vpn_value'})
+            assert False, 'Remove known error'
             assert False, 'Call should fail'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5933_after_update(self):
-        try:
-            self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
-                                   VpnOptions={"Phase1Options":{"DpdTimeoutAction":"test", "DpdTimeoutSeconds":1,"Phase1DhGroupNumbers":[1],
-                                                                "Phase1EncryptionAlgorithms":["test"], "Phase1IntegrityAlgorithms":["test"],
-                                                                "Phase1LifetimeSeconds":1, "ReplayWindowSize":1, "StartupAction":"xx"},
-                                                "Phase2Options":{"Phase2DhGroupNumbers": [0], "Phase2EncryptionAlgorithms":
-                                                                 ["test"], "Phase2IntegrityAlgorithms": ["test"],
-                                                                 "Phase2LifetimeSeconds": 0, "PreSharedKey":"PreSharedKey"}})
-            assert False, 'correct test after fix TINA-6683 by adding check response'
-        except OscApiException as error:
-            assert_oapi_error(error, 500, 'InternalError', '2000')
+        known_error('TINA-6738', 'On call intel.vpn.connection.update')
+        self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
+                               VpnOptions={"Phase1Options":{"DpdTimeoutAction":"test", "DpdTimeoutSeconds":1,"Phase1DhGroupNumbers":[1],
+                                                            "Phase1EncryptionAlgorithms":["test"], "Phase1IntegrityAlgorithms":["test"],
+                                                            "Phase1LifetimeSeconds":1, "ReplayWindowSize":1, "StartupAction":"xx"},
+                                            "Phase2Options":{"Phase2DhGroupNumbers": [0], "Phase2EncryptionAlgorithms":
+                                                             ["test"], "Phase2IntegrityAlgorithms": ["test"],
+                                                             "Phase2LifetimeSeconds": 0, "PreSharedKey":"PreSharedKey"}})
         ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'VpnConnectionIds': [self.vpn_id]})
 # this will be changed by check oapi response
         assert hasattr(ret.response.VpnConnections[0], "VpnOptions")
