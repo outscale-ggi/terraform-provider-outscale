@@ -3,6 +3,7 @@ import pytest
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import cleanup_tools, wait_tools
 
@@ -170,4 +171,6 @@ class Test_ReadSubnets(OscTinaTest):
             misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
 
     def test_T5980_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'Subnet', self.subnet_ids, 'oapi.ReadSubnets', 'Subnets.SubnetId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Subnet', self.subnet_ids, 'oapi.ReadSubnets', 'Subnets.SubnetId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')

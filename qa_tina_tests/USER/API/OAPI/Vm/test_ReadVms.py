@@ -7,6 +7,7 @@ from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.compare_objects import verify_response, create_hints
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi
 from qa_tina_tools.tina.oapi import info_keys
@@ -92,4 +93,6 @@ class Test_ReadVms(OscTinaTest):
             misc.assert_oapi_error(err, 400, 'InvalidParameter', '3001')
 
     def test_T5982_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'Vm', self.vm_info[info_keys.VM_IDS], 'oapi.ReadVms', 'Vms.VmId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Vm', self.vm_info[info_keys.VM_IDS], 'oapi.ReadVms', 'Vms.VmId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')

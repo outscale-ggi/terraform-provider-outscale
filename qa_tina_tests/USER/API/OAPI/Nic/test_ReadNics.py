@@ -3,6 +3,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.tools.tina import create_tools, delete_tools, wait_tools, info_keys
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 
@@ -104,4 +105,6 @@ class Test_ReadNics(Nic):
         assert not ret
 
     def test_T5975_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'Nic', self.nic_ids, 'oapi.ReadNics', 'Nics.NicId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Nic', self.nic_ids, 'oapi.ReadNics', 'Nics.NicId')
+        assert indexes == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+        known_error('TINA-6756', 'ReadNics does not support wildcards filtering')

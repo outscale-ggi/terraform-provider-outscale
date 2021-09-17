@@ -3,6 +3,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import wait_tools
 
@@ -88,5 +89,7 @@ class Test_ReadInternetServices(OscTinaTest):
         assert len(ret.response.InternetServices) == 1
 
     def test_T5970_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'InternetService', self.is_ids,
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'InternetService', self.is_ids,
                                'oapi.ReadInternetServices', 'InternetServices.InternetServiceId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')
