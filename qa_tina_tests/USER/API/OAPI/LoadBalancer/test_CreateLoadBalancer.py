@@ -623,20 +623,23 @@ class Test_CreateLoadBalancer(LoadBalancer):
                         ignored_keys=["DnsName"])
 
     def test_T5808_public_lbu_with_empty_public_ip(self):
-        try:
-            public_ip = ''
-            name = id_generator(prefix='lbu-')
+        hints = []
+        public_ip = ''
+        name = id_generator(prefix='lbu-')
 
-            self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                               LoadBalancerName=name,
-                                               PublicIp=public_ip,
-                                               SubregionNames=[self.a1_r1.config.region.az_name])
-            self.lb_names.append(name)
-            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
-            assert False, "Call should not have been successful, request must contain valid public ip param"
-        except OscApiException as error:
-            assert False, "Remove known error code"
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
+        ret = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                                                 LoadBalancerName=name, PublicIp=public_ip, SubregionNames=[self.a1_r1.config.region.az_name])
+        self.lb_names.append(name)
+
+        hints.append(name)
+        hints.append(self.a1_r1.config.region.az_name)
+
+        hints = create_hints(hints)
+
+        verify_response(ret.response,
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5808_public_lbu_with_empty_public_ip.json'),
+                        hints,
+                        ignored_keys=["DnsName"])
 
     def test_T5809_public_lbu_with_invalid_value_public_ip(self):
         try:
