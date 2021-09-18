@@ -30,7 +30,7 @@ class Test_ReadNics(Nic):
                                                         state='running', inst_type='c4.large')
             cls.vm_ids = cls.vm_info[info_keys.INSTANCE_ID_LIST]
             cls.nic_link_id = cls.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId=cls.vm_ids[0], NicId=cls.nic_ids[0]).response.LinkNicId
-            ret = cls.a1_r1.oapi.CreateNic(SubnetId=cls.subnet_id2).response.Nic
+            ret = cls.a1_r1.oapi.CreateNic(SubnetId=cls.subnet_id1).response.Nic
             cls.nic_ids.append(ret.NicId)
         except:
             try:
@@ -70,7 +70,7 @@ class Test_ReadNics(Nic):
 
     def test_T2684_filters_subnet_id(self):
         ret = self.a1_r1.oapi.ReadNics(Filters={'SubnetIds': [self.subnet_id2]}).response.Nics
-        assert len(ret) == 2
+        assert len(ret) == 1
         nic = ret[0]
         assert nic.NicId == self.nic_ids[2]
         assert nic.SubnetId == self.subnet_id2
