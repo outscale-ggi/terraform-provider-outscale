@@ -64,10 +64,12 @@ class Test_delete_recursive(OscTinaTest):
                 except:
                     print('Could not delete vpc')
             resp = self.a1_r1.fcu.DescribeVpnConnections().response
-            tmp_list = [v.state for v in resp.vpnConnectionSet]
-            states = set(tmp_list)
-            assert not resp.vpnConnectionSet or (len(states) == 1 and states.pop() == 'deleted')
+            if resp.vpnConnectionSet:
+                tmp_list = [v.state for v in resp.vpnConnectionSet]
+                states = set(tmp_list)
+                assert not resp.vpnConnectionSet or (len(states) == 1 and states.pop() == 'deleted')
             resp = self.a1_r1.fcu.DescribeVpnGateways().response
-            tmp_list = [v.state for v in resp.vpnGatewaySet]
-            states = set(tmp_list)
-            assert not resp.vpnGatewaySet or (len(states) == 1 and states.pop() == 'deleted')
+            if resp.vpnGatewaySet:
+                tmp_list = [v.state for v in resp.vpnGatewaySet]
+                states = set(tmp_list)
+                assert len(states) == 1 and states.pop() == 'deleted'

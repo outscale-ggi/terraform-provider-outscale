@@ -410,6 +410,7 @@ class Test_oos(OscTinaTest):
         """
         bucket_name = None
         md5s = []
+        paths = []
         try:
             tmp = misc.id_generator(prefix="bucket", chars=ascii_lowercase)
             filename = misc.id_generator(prefix="data", chars=ascii_lowercase) + '.txt'
@@ -417,6 +418,7 @@ class Test_oos(OscTinaTest):
             self.a1_r1.oos.create_bucket(Bucket=tmp)
             bucket_name = tmp
             path_to_file = storage.write_data(pow(10, 1), filename)
+            paths.append(path_to_file)
             mpu = storage.s3multipartupload(
                 self.a1_r1,
                 'oos',
@@ -443,8 +445,9 @@ class Test_oos(OscTinaTest):
             assert objects['Contents'][0]['Key'] == 'data.txt'
             path_to_downloaded_file = os.path.join('/tmp', downloaded_file_name)
             self.a1_r1.oos.download_file(Bucket=bucket_name, Key='data.txt', Filename=path_to_downloaded_file)
+            paths.append(path_to_downloaded_file)
             assert filecmp.cmp(path_to_downloaded_file, path_to_file)
-            for file in [path_to_downloaded_file, path_to_file]:
+            for file in paths:
                 fichier = open(file, 'r')
                 md5s.append(hashlib.sha256(str.encode(fichier.read())).hexdigest())
             assert md5s.count(md5s[0]) == 2
@@ -456,7 +459,7 @@ class Test_oos(OscTinaTest):
                     self.a1_r1.oos.delete_bucket(Bucket=bucket_name)
                 except Exception as error:
                     errors.append(error)
-            for file in [path_to_downloaded_file, path_to_file]:
+            for file in paths:
                 os.remove(file)
             if errors:
                 raise errors[0]
@@ -475,6 +478,7 @@ class Test_oos(OscTinaTest):
         """
         bucket_name = None
         md5s = []
+        paths = []
         try:
             tmp = misc.id_generator(prefix="bucket", chars=ascii_lowercase)
             filename = misc.id_generator(prefix="data", chars=ascii_lowercase) + '.txt'
@@ -482,6 +486,7 @@ class Test_oos(OscTinaTest):
             self.a1_r1.oos.create_bucket(Bucket=tmp)
             bucket_name = tmp
             path_to_file = storage.write_data(pow(10, 1), filename)
+            paths.append(path_to_file)
             mpu = storage.s3multipartupload(
                 self.a1_r1,
                 'oos',
@@ -512,8 +517,9 @@ class Test_oos(OscTinaTest):
             assert objects['Contents'][0]['Key'] == 'data.txt'
             path_to_downloaded_file = os.path.join('/tmp', downloaded_file_name)
             self.a1_r1.oos.download_file(Bucket=bucket_name, Key='data.txt', Filename=path_to_downloaded_file)
+            paths.append(path_to_downloaded_file)
             assert filecmp.cmp(path_to_downloaded_file, path_to_file)
-            for file in [path_to_downloaded_file, path_to_file]:
+            for file in paths:
                 fichier = open(file, 'r')
                 md5s.append(hashlib.sha256(str.encode(fichier.read())).hexdigest())
             assert md5s.count(md5s[0]) == 2
@@ -525,7 +531,7 @@ class Test_oos(OscTinaTest):
                     self.a1_r1.oos.delete_bucket(Bucket=bucket_name)
                 except Exception as error:
                     errors.append(error)
-            for file in [path_to_downloaded_file, path_to_file]:
+            for file in paths:
                 os.remove(file)
             if errors:
                 raise errors[0]
