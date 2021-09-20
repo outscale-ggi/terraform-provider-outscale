@@ -1,6 +1,7 @@
 import time
 
-from qa_tina_tools.test_base import OscTinaTest, known_error
+from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.wait import wait_VpnConnections_state
 from qa_tina_tools.tools.tina.create_tools import get_random_public_ip
 from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_gateways_state, wait_vpn_gateways_attachment_state, \
