@@ -16,7 +16,7 @@ class Test_VpnConnection(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_VpnConnection, cls).setup_class()
-        cls.loop = 10
+        cls.loop = 20
         ret = cls.a1_r1.oapi.CreateClientGateway(BgpAsn=12, PublicIp=Configuration.get('ipaddress', 'cgw_ip'), ConnectionType='ipsec.1')
         cls.cgw_id = ret.response.ClientGateway.ClientGatewayId
         wait.wait_ClientGateways_state(cls.a1_r1, [cls.cgw_id], state='available')
@@ -87,7 +87,7 @@ class Test_VpnConnection(OscTinaTest):
                 self.a1_r1.intel.core.async_cancel(id=call_id)
             for call_id in error_call_ids:
                 self.a1_r1.intel.core.async_cancel(id=call_id)
-            known_error('TINA-6790', 'Pending calls remain when actions are done to close together')
+            known_error('TINA-6764', 'Pending calls remain when actions are done to close together')
             raise OscTestException('{} calls detected.'.format(len(pending_call_ids) + len(error_call_ids)))
         assert False, 'Remove known error code'
         if errors:
