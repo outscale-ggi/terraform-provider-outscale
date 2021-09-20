@@ -2,6 +2,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import SUBNET_ID, SUBNETS
 from qa_tina_tools.tools.tina.create_tools import create_vpc
@@ -62,5 +63,7 @@ class Test_DescribeNatGateways(OscTinaTest):
             misc.assert_error(error, 400, 'NatGatewayNotFound', "The NAT gateway 'ng-12345678' does not exist")
 
     def test_T5959_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'NatGateway', self.ng_ids,
-                               'fcu.DescribeNatGateways', 'natGatewaySet.natGatewayId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'NatGateway', self.ng_ids,
+                                            'fcu.DescribeNatGateways', 'natGatewaySet.natGatewayId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')

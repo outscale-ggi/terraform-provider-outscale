@@ -3,6 +3,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_customer_gateways
 from qa_tina_tools.tools.tina.create_tools import create_customer_gateway
@@ -140,5 +141,7 @@ class Test_DescribeCustomerGateways(OscTinaTest):
                                                                                                         'Value': 'available'}])
 
     def test_T5954_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'CustomerGateway', self.id_list_account1,
-                               'fcu.DescribeCustomerGateways', 'customerGatewaySet.customerGatewayId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'CustomerGateway', self.id_list_account1,
+                                            'fcu.DescribeCustomerGateways', 'customerGatewaySet.customerGatewayId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('TINA-6758', 'DescribeCustomerGateways does not support wildcards in tag:key filtering')

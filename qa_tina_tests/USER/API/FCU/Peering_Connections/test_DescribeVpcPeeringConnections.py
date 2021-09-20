@@ -223,5 +223,7 @@ class Test_DescribeVpcPeeringConnections(OscTinaTest):
         assert not  ret.response.vpcPeeringConnectionSet
 
     def test_T5960_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'VpcPeeringConnection', self.a1_peering,
-                               'fcu.DescribeVpcPeeringConnections', 'vpcPeeringConnectionSet.vpcPeeringConnectionId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'VpcPeeringConnection', self.a1_peering,
+                                            'fcu.DescribeVpcPeeringConnections', 'vpcPeeringConnectionSet.vpcPeeringConnectionId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')

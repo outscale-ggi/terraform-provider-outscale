@@ -1,6 +1,8 @@
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
@@ -53,7 +55,7 @@ class Test_DescribeDhcpOptions(OscTinaTest):
     def test_T1508_no_param(self):
         ret = self.a1_r1.fcu.DescribeDhcpOptions()
         # 4 DHCP options created and 1 per defaut
-        assert len(ret.response.dhcpOptionsSet) == 5, ' The amount of DHCP options displayed, does not match the amount expected'
+        assert len(ret.response.dhcpOptionsSet) == 4, ' The amount of DHCP options displayed, does not match the amount expected'
         validate_dhcp_options(ret=ret, dhcp_conf=DHCP_CONFIGS[0], dhcp_item=self.dhcp_options_list[0])
         validate_dhcp_options(ret=ret, dhcp_conf=DHCP_CONFIGS[1], dhcp_item=self.dhcp_options_list[1])
         validate_dhcp_options(ret=ret, dhcp_conf=DHCP_CONFIGS[2], dhcp_item=self.dhcp_options_list[2])
@@ -76,7 +78,7 @@ class Test_DescribeDhcpOptions(OscTinaTest):
         for key in supported_keys:
             filter_dict = {'Name': 'key', 'Value': key}
             ret = self.a1_r1.fcu.DescribeDhcpOptions(Filter=[filter_dict])
-            assert len(ret.response.dhcpOptionsSet) == 5, ' The amount of DHCP options displayed, does not match the amount expected'
+            assert len(ret.response.dhcpOptionsSet) == 4, ' The amount of DHCP options displayed, does not match the amount expected'
 
     def test_T1519_using_filter_value(self):
         filter_dict = {'Name': 'value', 'Value': DHCP_CONFIGS[0]['Value']}
@@ -102,5 +104,7 @@ class Test_DescribeDhcpOptions(OscTinaTest):
         assert ret.response.dhcpOptionsSet is None
 
     def test_T5955_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'DhcpOptions', self.dhcp_options_list,
-                               'fcu.DescribeDhcpOptions', 'dhcpOptionsSet.dhcpOptionsId')
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'DhcpOptions', self.dhcp_options_list,
+                                            'fcu.DescribeDhcpOptions', 'dhcpOptionsSet.dhcpOptionsId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')

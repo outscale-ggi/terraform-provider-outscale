@@ -1,8 +1,8 @@
 
-
 import pytest
 
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina import info_keys
@@ -97,5 +97,7 @@ class Test_ReadNatServices(OscTinaTest):
         assert len(ret) == 1
 
     def test_T5970_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'NatService', self.nat_ids,
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'NatService', self.nat_ids,
                                'oapi.ReadNatServices', 'NatServices.NatServiceId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')

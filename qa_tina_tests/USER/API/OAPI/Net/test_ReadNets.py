@@ -1,7 +1,9 @@
+
 import pytest
 
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 
@@ -107,5 +109,7 @@ class Test_ReadNets(OscTinaTest):
         assert len(ret.Nets) == 0
 
     def test_T5972_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'Net', self.net_id_list,
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Net', self.net_id_list,
                                'oapi.ReadNets', 'Nets.NetId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')

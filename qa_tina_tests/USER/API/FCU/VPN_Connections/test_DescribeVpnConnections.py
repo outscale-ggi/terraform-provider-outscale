@@ -1,10 +1,13 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina import info_keys
+from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_attachment_state,\
+    wait_customer_gateways_state, wait_vpn_connections_state
 
 NUM_VPN_CONNS = 4
 
@@ -27,18 +30,21 @@ class Test_DescribeVpnConnections(OscTinaTest):
                 # create CGW with pub instance IP
                 ret = cls.a1_r1.fcu.CreateCustomerGateway(BgpAsn=65000, IpAddress=cls.inst_cgw_info[info_keys.INSTANCE_SET][i]['ipAddress'],
                                                           Type='ipsec.1')
+                wait_customer_gateways_state(cls.a1_r1, [ret.response.customerGateway.customerGatewayId], state='available')
                 cls.cgw_ids.append(ret.response.customerGateway.customerGatewayId)
             # create and attach VGW
             ret = cls.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1')
             cls.vgw_id = ret.response.vpnGateway.vpnGatewayId
             cls.vpc_info = create_tools.create_vpc(osc_sdk=cls.a1_r1, nb_instance=1, default_rtb=True)
             cls.ret_attach = cls.a1_r1.fcu.AttachVpnGateway(VpcId=cls.vpc_info[info_keys.VPC_ID], VpnGatewayId=cls.vgw_id)
+            wait_vpn_gateways_attachment_state(cls.a1_r1, [cls.vgw_id], 'attached')
             # create VPN connection
             for i in range(NUM_VPN_CONNS):
                 ret = cls.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=cls.cgw_ids[i],
                                                         Type='ipsec.1',
                                                         VpnGatewayId=cls.vgw_id,
                                                         Options={'StaticRoutesOnly': True})
+                wait_vpn_connections_state(cls.a1_r1, [ret.response.vpnConnection.vpnConnectionId], state='available')
                 cls.vpn_connection_ids.append(ret.response.vpnConnection.vpnConnectionId)
         except Exception as error:
             try:
@@ -105,5 +111,7 @@ class Test_DescribeVpnConnections(OscTinaTest):
         assert ret.response.vpnConnectionSet[0].vpnConnectionId == self.vpn_connection_ids[0]
 
     def test_T5964_with_tag_filter(self):
-        misc.execute_tag_tests(self.a1_r1, 'VpnConnection', self.vpn_connection_ids,
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'VpnConnection', self.vpn_connection_ids,
                                'fcu.DescribeVpnConnections', 'vpnConnectionSet.vpnConnectionId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')
