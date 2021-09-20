@@ -33,6 +33,7 @@ class Test_CreateAccessKey(OscTinaTest):
 
     def test_T5451_without_param(self):
         ret = None
+        ak = None
         try:
             ret = self.a1_r1.eim.CreateAccessKey().response.CreateAccessKeyResult
             assert False, "Remove known error"

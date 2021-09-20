@@ -71,7 +71,7 @@ class Test_ReadNics(Nic):
         ret = self.a1_r1.oapi.ReadNics(Filters={'SubnetIds': [self.subnet_id2]}).response.Nics
         assert len(ret) == 2
         nic = ret[0]
-        assert nic.NicId == self.nic_ids[2]
+        assert nic.NicId in self.nic_ids[2:]
         assert nic.SubnetId == self.subnet_id2
 
     def test_T2685_filters_private_ip(self):

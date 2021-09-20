@@ -1,4 +1,6 @@
-from qa_tina_tools.test_base import OscTinaTest
+import time
+
+from qa_tina_tools.test_base import OscTinaTest, known_error
 from qa_tina_tools.tina.wait import wait_VpnConnections_state
 from qa_tina_tools.tools.tina.create_tools import get_random_public_ip
 from qa_tina_tools.tools.tina.wait_tools import wait_customer_gateways_state, wait_vpn_gateways_state, wait_vpn_gateways_attachment_state, \
@@ -17,6 +19,7 @@ class Test_delete_recursive(OscTinaTest):
         super(Test_delete_recursive, cls).teardown_class()
 
     def test_T5073_recursive_true(self):
+        known_error('TINA-6762', "Remaining pending call vpn.delete_tunnel")
         vpc_id = None
         vgw_id = None
         cgw_id = None
@@ -33,6 +36,7 @@ class Test_delete_recursive(OscTinaTest):
             vpn_conn_id = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=cgw_id, Type='ipsec.1', VpnGatewayId=vgw_id,
                                                              Options={'StaticRoutesOnly': True}).response.vpnConnection.vpnConnectionId
             wait_vpn_connections_state(self.a1_r1, [vpn_conn_id], state='available')
+            time.sleep(120)
             self.a1_r1.intel.vpn.virtual_private_gateway.delete(owner=self.a1_r1.config.account.account_id, vpg_id=vgw_id, recursive=True)
             wait_VpnConnections_state(self.a1_r1, [vpn_conn_id], state='deleted')
             vpn_conn_id = None

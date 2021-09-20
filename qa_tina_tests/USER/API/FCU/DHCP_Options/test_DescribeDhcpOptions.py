@@ -2,6 +2,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
+from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
 
 
@@ -33,7 +34,9 @@ class Test_DescribeDhcpOptions(OscTinaTest):
     @classmethod
     def setup_class(cls):
         cls.dhcp_options_list = []
+        cls.vpc_info = None
         super(Test_DescribeDhcpOptions, cls).setup_class()
+        cls.vpc_info = create_tools.create_vpc(osc_sdk=cls.a1_r1)
         for i in range(4):
             cls.dhcp_options_list.append(cls.a1_r1.fcu.CreateDhcpOptions(DhcpConfiguration=[DHCP_CONFIGS[i]]).response.dhcpOptions.dhcpOptionsId)
 
@@ -42,6 +45,8 @@ class Test_DescribeDhcpOptions(OscTinaTest):
         try:
             if cls.dhcp_options_list:
                 cleanup_dhcp_options(osc_sdk=cls.a1_r1, dhcpOptionsIds=cls.dhcp_options_list)
+            if cls.vpc_info:
+                delete_tools.delete_vpc(cls.a1_r1, cls.vpc_info)
         finally:
             super(Test_DescribeDhcpOptions, cls).teardown_class()
 

@@ -40,7 +40,6 @@ class Test_ReadPublicIps(OscTinaTest):
         assert hasattr(ret[0], 'PublicIp')
         assert hasattr(ret[0], 'PublicIpId')
         assert ret[0].PublicIpId.startswith('eipalloc')
-        assert len(ret[0].Tags) == 1
 
     def test_T2266_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.ReadPublicIps(DryRun=True)
