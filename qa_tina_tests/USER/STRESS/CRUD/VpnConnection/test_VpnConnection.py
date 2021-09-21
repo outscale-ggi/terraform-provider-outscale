@@ -1,13 +1,13 @@
 
 import time
+import pytest
 
 from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.test_base import known_error
+from qa_test_tools.exceptions.test_exceptions import OscTestException
 
 from qa_tina_tools.tina import wait, cleanup
 from qa_tina_tools.test_base import OscTinaTest
-from qa_test_tools.exceptions.test_exceptions import OscTestException
-import pytest
-from qa_test_tools.test_base import known_error
 
 
 @pytest.mark.region_admin
