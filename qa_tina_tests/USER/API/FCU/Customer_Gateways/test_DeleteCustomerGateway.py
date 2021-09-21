@@ -95,10 +95,13 @@ class Test_DeleteCustomerGateway(OscTinaTest):
         try:
             ret = self.a1_r1.fcu.CreateVpnGateway(Type="ipsec.1")
             vgw_id = ret.response.vpnGateway.vpnGatewayId
+            wait.wait_VirtualGateways_state(self.a1_r1, [vgw_id], state='available')
             ret = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=self.gateway_id_list[0]['id'], Type='ipsec.1', VpnGatewayId=vgw_id)
             vpn_id = ret.response.vpnConnection.vpnConnectionId
+            wait.wait_VpnConnections_state(self.a1_r1, [vpn_id], state='available')
             try:
                 self.a1_r1.fcu.DeleteCustomerGateway(CustomerGatewayId=self.gateway_id_list[0]['id'])
+                assert False, 'Call should not have been successful'
             except OscApiException as error:
                 assert_error(error, 400, 'IncorrectState', 'The customer gateway is in use.')
         finally:
@@ -107,3 +110,4 @@ class Test_DeleteCustomerGateway(OscTinaTest):
                 wait.wait_VpnConnections_state(self.a1_r1, vpn_connection_ids=[vpn_id], state="deleted", wait_time=5, threshold=40, cleanup=True)
             if vgw_id:
                 self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=vgw_id)
+                wait.wait_VirtualGateways_state(self.a1_r1, [vgw_id], state='deleted')

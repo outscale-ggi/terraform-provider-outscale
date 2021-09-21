@@ -31,7 +31,7 @@ class Test_UpdateVm(OscTinaTest):
             cls.vpc_id = ret.response.vpc.vpcId
             ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock='10.0.0.0/24', VpcId=cls.vpc_id)
             cls.subnet_id = [ret.response.subnet.subnetId]
-            _, cls.vpc_inst_ids = create_vms(cls.a1_r1, state='pending', SubnetId=cls.subnet_id[0])
+            _, cls.vpc_inst_ids = create_vms(cls.a1_r1, SubnetId=cls.subnet_id[0])
             _, cls.vm_ids = create_vms(ocs_sdk=cls.a1_r1, MaxVmsCount=2, MinVmsCount=2)
             cls.vm_ids += cls.vpc_inst_ids
             cls.a1_r1.fcu.StopInstances(InstanceId=[cls.vm_ids[1]], Force=True)

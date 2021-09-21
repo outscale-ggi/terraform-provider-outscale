@@ -16,13 +16,13 @@ class Test_CancelExportTask(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
-        super(Test_CancelExportTask, cls).setup_class()
         cls.supported_snap_types = ['qcow2']
         cls.vol_id = None
         cls.snap_id = None
         cls.task_ids = []
         cls.bucket_name = None
         cls.has_setup_error = None
+        super(Test_CancelExportTask, cls).setup_class()
         try:
             # create volume
             cls.inst_info = create_instances(cls.a1_r1)
@@ -97,6 +97,9 @@ class Test_CancelExportTask(OscTinaTest):
                                                       ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                    'OsuBucket': bucket_name})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
+        self.a1_r1.storageservice.list_buckets()
+        wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='active',
+                                         snapshot_export_task_id_list=[task_id])
         self.a1_r1.fcu.CancelExportTask(ExportTaskId=task_id)
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='cancelled',
                                          snapshot_export_task_id_list=[task_id])
