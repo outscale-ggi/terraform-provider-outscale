@@ -44,8 +44,6 @@ class Test_ConfirmPrivateVirtualInterface(OscTinaTest):
         self.conn_id = ret.response.connectionId
 
     def teardown_method(self, method):
-        if self.known_error:
-            known_error('OPS-14319', 'NEW IN2 : no Directlink on in2')
         try:
             if self.conn_id:
                 self.a1_r1.intel.dl.connection.delete(owner=self.a1_r1.config.account.account_id, connection_id=self.conn_id)
