@@ -15,15 +15,14 @@ class Test_CreateConnection(OscTinaTest):
         cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
         super(Test_CreateConnection, cls).setup_class()
         cls.known_error = False
-        cls.ret = None
         try:
-            cls.ret = cls.a1_r1.directlink.DescribeLocations()
+            ret = cls.a1_r1.directlink.DescribeLocations()
             if cls.a1_r1.config.region.name == 'in-west-2':
-                if len(cls.ret.response.locations) == 0:
+                if len(ret.response.locations) == 0:
                     cls.known_error = True
                     return
                 assert False, 'remove known error'
-            cls.location = cls.ret.response.locations[0].locationCode
+            cls.location = ret.response.locations[0].locationCode
 
         except Exception as error1:
             try:

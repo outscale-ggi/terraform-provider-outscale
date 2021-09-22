@@ -15,17 +15,16 @@ class Test_AllocatePrivateVirtualInterface(OscTinaTest):
     def setup_class(cls):
         cls.conn_id = None
         cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
-        cls.ret = None
         cls.known_error = False
         super(Test_AllocatePrivateVirtualInterface, cls).setup_class()
         try:
-            cls.ret = cls.a1_r1.directlink.DescribeLocations()
+            ret = cls.a1_r1.directlink.DescribeLocations()
             if cls.a1_r1.config.region.name == 'in-west-2':
-                if len(cls.ret.response.locations) == 0:
+                if len(ret.response.locations) == 0:
                     cls.known_error = True
                     return
                 assert False, 'remove known error'
-            cls.location_code = cls.ret.response.locations[0].locationCode
+            cls.location_code = ret.response.locations[0].locationCode
         except Exception as error1:
             try:
                 cls.teardown_class()
