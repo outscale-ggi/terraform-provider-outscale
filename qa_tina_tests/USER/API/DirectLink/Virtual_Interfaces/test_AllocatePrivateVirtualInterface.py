@@ -20,8 +20,11 @@ class Test_AllocatePrivateVirtualInterface(OscTinaTest):
         super(Test_AllocatePrivateVirtualInterface, cls).setup_class()
         try:
             cls.ret = cls.a1_r1.directlink.DescribeLocations()
-            if cls.a1_r1.config.region.name == 'in-west-2' and len(cls.ret.response.locations) == 0:
-                assert False, 'Remove known error'
+            if cls.a1_r1.config.region.name == 'in-west-2':
+                if len(cls.ret.response.locations) == 0:
+                    cls.known_error = True
+                    return
+                assert False, 'remove known error'
             cls.location_code = cls.ret.response.locations[0].locationCode
         except Exception as error1:
             try:
@@ -29,16 +32,12 @@ class Test_AllocatePrivateVirtualInterface(OscTinaTest):
             except Exception as error2:
                 raise error2
             finally:
-                if cls.a1_r1.config.region.name == 'in-west-2' and len(cls.ret.response.locations) == 0:
-                    cls.known_error = True
-                    return
                 raise error1
 
     def setup_method(self, method):
         self.conn_id = None
         OscTinaTest.setup_method(self, method)
-        if self.a1_r1.config.region.name == 'in-west-2' and len(self.ret.response.locations) == 0:
-            self.known_error = True
+        if self.known_error:
             return
         ret = self.a1_r1.directlink.CreateConnection(location=self.location_code, bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
         self.conn_id = ret.response.connectionId

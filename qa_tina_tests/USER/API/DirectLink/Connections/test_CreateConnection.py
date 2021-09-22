@@ -18,8 +18,11 @@ class Test_CreateConnection(OscTinaTest):
         cls.ret = None
         try:
             cls.ret = cls.a1_r1.directlink.DescribeLocations()
-            if cls.a1_r1.config.region.name == 'in-west-2' and len(cls.ret.response.locations) == 0:
-                assert False, 'Remove known error'
+            if cls.a1_r1.config.region.name == 'in-west-2':
+                if len(cls.ret.response.locations) == 0:
+                    cls.known_error = True
+                    return
+                assert False, 'remove known error'
             cls.location = cls.ret.response.locations[0].locationCode
 
         except Exception as error1:
@@ -28,9 +31,6 @@ class Test_CreateConnection(OscTinaTest):
             except Exception as error2:
                 raise error2
             finally:
-                if cls.a1_r1.config.region.name == 'in-west-2' and len(cls.ret.response.locations) == 0:
-                    cls.known_error = True
-                    return
                 raise error1
 
     @classmethod
