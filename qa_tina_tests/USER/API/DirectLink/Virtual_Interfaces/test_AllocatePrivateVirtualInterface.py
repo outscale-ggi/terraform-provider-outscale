@@ -24,7 +24,7 @@ class Test_AllocatePrivateVirtualInterface(OscTinaTest):
                     cls.known_error = True
                     return
                 assert False, 'remove known error'
-            cls.location_code = cls.ret.response.locations[0].locationCode
+            cls.location_code = ret.response.locations[0].locationCode
         except Exception as error1:
             try:
                 cls.teardown_class()

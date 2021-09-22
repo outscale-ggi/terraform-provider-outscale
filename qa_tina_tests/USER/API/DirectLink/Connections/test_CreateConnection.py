@@ -22,7 +22,7 @@ class Test_CreateConnection(OscTinaTest):
                     cls.known_error = True
                     return
                 assert False, 'remove known error'
-            cls.location = cls.ret.response.locations[0].locationCode
+            cls.location = ret.response.locations[0].locationCode
 
         except Exception as error1:
             try:
