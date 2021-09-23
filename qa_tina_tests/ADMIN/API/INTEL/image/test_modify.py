@@ -92,7 +92,8 @@ class Test_modify(OscTinaTest):
             self.a1_r1.intel.image.modify(owner=self.a1_r1.config.account.account_id, image=self.image_id)
             assert False, 'Remove known error'
         except OscApiException as error:
-            assert_code(error, 503, "missing-parameter - Insufficient parameters provided out of: Description, manifest, name, setAsPublic, users. Expected at least: 1")
+            assert_code(error, 503, "missing-parameter - Insufficient parameters provided out of: Description, manifest,"
+                                    " name, setAsPublic, users. Expected at least: 1")
 
     def test_T5856_without_owner(self):
         try:
