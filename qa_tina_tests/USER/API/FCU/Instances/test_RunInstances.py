@@ -317,6 +317,9 @@ private_only=true
                                               InstanceType='tinav5.c39r181', MaxCount=1, MinCount=1)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            if error.error_code == "InsufficientInstanceCapacity":
+                known_error('OPS-14329', 'NEW IN2: configure instance type properties')
+            assert False, 'Remove known error'
             assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: tinav5.c39r181')
         finally:
             if ret:
