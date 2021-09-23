@@ -41,6 +41,7 @@ VARIABLES = ['region']
 SET_KEY_VALUES = ['resources', 'tags']
 ID_PREFIX = '##id-'
 ID_SUFFIX = '##'
+TERRAFORM_PATH = os.getenv('TERRAFORM_PATH', None)
 
 ROOT_DIR = os.path.join(os.path.dirname(__file__), 'data')
 LOG_HANDLER = logging.StreamHandler()
@@ -375,8 +376,8 @@ Log: {}
         """.format(method.__name__)
         self.error = False
         try:
-            self.run_cmd("terraform init -no-color")
-            stdout, _ = self.run_cmd("terraform version -no-color")
+            self.run_cmd(TERRAFORM_PATH + " init -no-color")
+            stdout, _ = self.run_cmd(TERRAFORM_PATH+" version -no-color")
             self.log += "\nVERSION:{}\n".format("\n".join(stdout.splitlines()[:2]))
         except Exception:
             try:
@@ -388,7 +389,7 @@ Log: {}
     def teardown_method(self, method):
         try:
             pass
-            # self.run_cmd("terraform destroy -force -no-color")
+            # self.run_cmd(TERRAFORM_PATH+" destroy -force -no-color")
         finally:
             if self.error:
                 self.logger.error(self.log)
@@ -410,11 +411,11 @@ Log: {}
 
     def exec_test_step(self, tf_file_path, out_file_path):
         self.logger.debug("Exec step : {}".format(tf_file_path))
-        self.log += "\nTerraform validate:\n{}".format(self.run_cmd("terraform validate -no-color")[0])
-        self.log += "\nTerraform plan:\n{}".format(self.run_cmd("terraform plan -no-color")[0])
-        self.log += "\nTerraform apply:\n{}".format(self.run_cmd("terraform apply -auto-approve -no-color")[0])
-        self.log += "\nTerraform show:\n{}".format(self.run_cmd("terraform show -no-color")[0])
-        self.run_cmd("terraform state pull > {}".format(out_file_path))
+        self.log += "\nTerraform validate:\n{}".format(self.run_cmd(TERRAFORM_PATH+" validate -no-color")[0])
+        self.log += "\nTerraform plan:\n{}".format(self.run_cmd(TERRAFORM_PATH+" plan -no-color")[0])
+        self.log += "\nTerraform apply:\n{}".format(self.run_cmd(TERRAFORM_PATH+" apply -auto-approve -no-color")[0])
+        self.log += "\nTerraform show:\n{}".format(self.run_cmd(TERRAFORM_PATH+" show -no-color")[0])
+        self.run_cmd(TERRAFORM_PATH+" state pull > {}".format(out_file_path))
 
     def exec_test(self, test_name, test_path):
         try:
@@ -468,7 +469,7 @@ Log: {}
             raise
         finally:
             try:
-                self.run_cmd("terraform destroy -force -no-color")
+                self.run_cmd(TERRAFORM_PATH+" destroy -force -no-color")
             finally:
                 self.run_cmd("rm -f test.tf")
                 self.run_cmd("rm -f terraform.tfstate")
