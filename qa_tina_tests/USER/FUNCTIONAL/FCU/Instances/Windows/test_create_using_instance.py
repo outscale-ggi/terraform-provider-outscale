@@ -43,9 +43,7 @@ class Test_create_using_instance(OscTinaTest):
         cls.inst_1_pub_IP = None
         cls.inst_2_pub_IP = None
 
-        instance_type = 'tinav4.c4r8p1'
-        if cls.a1_r1.config.region.name in ['dv-west-1', 'in-west-2']:
-            instance_type = 'tinav1.c4r8p1'
+        instance_type = 'tinav3.c4r8p2'
         # TODO : change path to get the correct path on the server
         user_data = user_data_windows.write_slmgr_dlv_to_console_output
         # user_data = user_data_windows.windows_startup
@@ -193,7 +191,7 @@ class Test_create_using_instance(OscTinaTest):
                 assert False, 'Remove known error'
         except OscTestException:
             if self.a1_r1.config.region.name == 'in-west-2':
-                known_error('OPS-13139', 'Licensing error')
+                known_error('OPS-14219', 'Licensing error')
             raise
         check_winrm_access(inst_1_pub_ip, password)
 
@@ -219,7 +217,7 @@ class Test_create_using_instance(OscTinaTest):
                 assert False, 'Remove known error'
         except OscTestException:
             if self.a1_r1.config.region.name in ['in-west-2', 'dv-west-1']:
-                known_error('OPS-13139', 'Licensing error')
+                known_error('OPS-14219', 'Licensing error')
             raise
         check_winrm_access(inst_2_pub_ip, password)
 
