@@ -2,6 +2,8 @@ from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -63,6 +65,21 @@ class Test_UpdateAccessKey(OscTinaTest):
             ak = self.a1_r1.icu.CreateAccessKey().response.accessKey.accessKeyId
             self.a1_r1.icu.UpdateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
                                            AccessKeyId=ak, Status='active')
+        finally:
+            if ak:
+                self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
+
+    def test_T5992_with_method_login_password_incorrect(self):
+        ak = None
+        sleep(30)
+        try:
+            ak = self.a1_r1.icu.CreateAccessKey().response.accessKey.accessKeyId
+            self.a1_r1.icu.UpdateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
+                                                      osc_api.EXEC_DATA_LOGIN: 'foo', osc_api.EXEC_DATA_PASSWORD: 'bar'},
+                                           AccessKeyId=ak, Status='active')
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            misc.assert_error(error, 403, 'InvalidLoginPassword', 'Account foo failed to authenticate.')
         finally:
             if ak:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)

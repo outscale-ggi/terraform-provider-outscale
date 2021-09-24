@@ -3,7 +3,8 @@ from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
-from qa_test_tools.misc import assert_error
+from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -74,7 +75,7 @@ class Test_ListAccessKeys(OscTinaTest):
             self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'IcuClientException', 'Field AuthenticationMethod is required')
+            misc.assert_error(error, 400, 'IcuClientException', 'Field AuthenticationMethod is required')
 
     def test_T3978_with_method_ak_sk(self):
         sleep(11)
@@ -87,6 +88,15 @@ class Test_ListAccessKeys(OscTinaTest):
         ret = self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
         assert len(ret.response.accessKeys) >= 1
         # TODO: check returned attributes
+
+    def test_T5990_with_method_login_password_incorrect(self):
+        sleep(11)
+        try:
+            self.a1_r1.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
+                                                     osc_api.EXEC_DATA_LOGIN: 'foo', osc_api.EXEC_DATA_PASSWORD: 'bar'})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            misc.assert_error(error, 403, 'InvalidLoginPassword', 'Account foo failed to authenticate.')
 
     def test_T5746_with_extra_param(self):
         self.a1_r1.icu.ListAccessKeys(Foo='Bar')

@@ -3,7 +3,8 @@ from time import sleep
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
-from qa_test_tools.misc import assert_error
+from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -20,6 +21,7 @@ class Test_CreateAccessKey(OscTinaTest):
 
     def test_T3966_non_authenticated(self):
         sleep(30)
+        ak = None
         ret_create = None
         try:
             tag = [{'Key': 'Name', 'Value': 'Marketplace'}]
@@ -27,13 +29,14 @@ class Test_CreateAccessKey(OscTinaTest):
             ak = ret_create.response.accessKey.accessKeyId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'IcuClientException', 'Field AuthenticationMethod is required')
+            misc.assert_error(error, 400, 'IcuClientException', 'Field AuthenticationMethod is required')
         finally:
-            if ret_create:
+            if ret_create and ak:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
 
     def test_T344_without_param(self):
         sleep(30)
+        ak = None
         ret_create = None
         try:
             ret_create = self.a1_r1.icu.CreateAccessKey()
@@ -46,11 +49,12 @@ class Test_CreateAccessKey(OscTinaTest):
             if self.a1_r1.config.account.account_id:
                 assert ret_create.response.accessKey.ownerId == self.a1_r1.config.account.account_id
         finally:
-            if ret_create:
+            if ret_create and ak:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
 
     def test_T3971_param_method_authPassword(self):
         sleep(30)
+        ak = None
         ret_create = None
         try:
             ret_create = self.a1_r1.icu.CreateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword})
@@ -62,7 +66,22 @@ class Test_CreateAccessKey(OscTinaTest):
             if self.a1_r1.config.account.account_id:
                 assert ret_create.response.accessKey.ownerId == self.a1_r1.config.account.account_id
         finally:
-            if ret_create:
+            if ret_create and ak:
+                self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
+
+    def test_T5987_param_method_authPassword_incorrect(self):
+        sleep(30)
+        ak = None
+        ret_create = None
+        try:
+            ret_create = self.a1_r1.icu.CreateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
+                                                                   osc_api.EXEC_DATA_LOGIN: 'foo', osc_api.EXEC_DATA_PASSWORD: 'bar'})
+            ak = ret_create.response.accessKey.accessKeyId
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            misc.assert_error(error, 403, 'InvalidLoginPassword', 'Account foo failed to authenticate.')
+        finally:
+            if ret_create and ak:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
 
     def test_T3772_check_throttling(self):
@@ -90,6 +109,7 @@ class Test_CreateAccessKey(OscTinaTest):
 
     def test_T5743_with_extra_param(self):
         sleep(30)
+        ak = None
         ret_create = None
         try:
             ret_create = self.a1_r1.icu.CreateAccessKey(Foo='Bar')
@@ -101,5 +121,5 @@ class Test_CreateAccessKey(OscTinaTest):
             if self.a1_r1.config.account.account_id:
                 assert ret_create.response.accessKey.ownerId == self.a1_r1.config.account.account_id
         finally:
-            if ret_create:
+            if ret_create and ak:
                 self.a1_r1.icu.DeleteAccessKey(AccessKeyId=ak)
