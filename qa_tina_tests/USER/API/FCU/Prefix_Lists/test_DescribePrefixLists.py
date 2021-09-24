@@ -37,7 +37,7 @@ class Test_DescribePrefixLists(OscTinaTest):
 
     def test_T5687_with_filter_prefix_list_id(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-id",
-                                                           "Value": ["pl-", "pl-"]}]).response
+                                                           "Value": [self.prefix_list_ids[0], self.prefix_list_ids[1]]}]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                            'read_with_filter_prefix_list_id.{}.json'.format(self.a1_r1.config.region.name)), self.hints)
 
