@@ -106,7 +106,8 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
                                                     CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1])
         ret.check_response()
         try:
-            misc.compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule, CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1])
+            misc.compare_validate_objects(self.api_access_rule, ret.response.ApiAccessRule,
+                                          CaIds=self.ca_ids[0:1], Cns=[create_tools.CLIENT_CERT_CN1])
             raise OscApiException
         except AttributeError:
             known_error('GTW-1544', 'Missing elements in response.')

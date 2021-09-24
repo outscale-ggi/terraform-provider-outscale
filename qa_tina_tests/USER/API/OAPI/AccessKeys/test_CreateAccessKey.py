@@ -8,9 +8,8 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from specs import check_tools
 from qa_test_tools import misc
-from qa_test_tools.misc import assert_dry_run
-from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools.test_base import known_error
+from qa_tina_tools.test_base import OscTinaTest
 
 
 class Test_CreateAccessKey(OscTinaTest):
@@ -132,4 +131,4 @@ class Test_CreateAccessKey(OscTinaTest):
 
     def test_T5060_with_DryRun(self):
         ret_create = self.a1_r1.oapi.CreateAccessKey(DryRun=True)
-        assert_dry_run(ret_create)
+        misc.assert_dry_run(ret_create)
