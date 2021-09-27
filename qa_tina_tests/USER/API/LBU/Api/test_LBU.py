@@ -1,4 +1,6 @@
 
+from time import sleep
+import datetime
 
 import re
 
@@ -7,8 +9,10 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import qa_sdk_pub.osc_api as osc_api
 from qa_test_tools.misc import assert_error
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
+MIN_OVERTIME = 4
 
 class Test_LBU(OscTinaTest):
 
@@ -74,3 +78,120 @@ class Test_LBU(OscTinaTest):
         osc_api.enable_throttling()
         assert nb_ok != 0
         assert nb_ko != 0
+
+    def test_T6017_before_date_time_stamp(self):
+        try:
+            date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+            self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "RequestExpired", None)
+
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
+        date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+        self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+
+    def test_T6018_before_date_stamp(self):
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+    def test_T6019_before_stamps(self):
+        try:
+            date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+            date_stamp = date_time.strftime('%Y%m%d')
+            self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
+                                                          osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "RequestExpired", None)
+
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
+        date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
+                                                      osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+
+    def test_T6020_incorrect_date_time_stamp(self):
+        try:
+            date_time_stamp = 'toto'
+            self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "InvalidParameterValue", None)
+
+    def test_T6021_incorrect_date_stamp(self):
+        date_stamp = 'toto'
+        self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+    def test_T6022_empty_date_time_stamp(self):
+        try:
+            date_time_stamp = ''
+            self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "MissingParameter", None)
+
+    def test_T6023_empty_date_stamp(self):
+        try:
+            date_stamp = ''
+            self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 401, 'AuthFailure', None)
+
+    def test_T6024_after_date_time_stamp(self):
+        try:
+            date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=MIN_OVERTIME)
+            date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+            ret = self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                                osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            known_error("TINA-6773", "No error raised when sending request with date header in the future")
+            assert False, 'Call should not have been successful : {}'.format(ret.response.requestId)
+        except OscApiException as error:
+            assert False, "remove known error code"
+            assert_error(error, 400, "RequestExpired", None)
+
+        date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
+        date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+        self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                      osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+
+    def test_T6025_after_date_stamp(self):
+        sleep(1)
+        date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=MIN_OVERTIME)
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                      osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+        sleep(1)
+        date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                      osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+    def test_T6026_after_stamps(self):
+        try:
+            date_time = datetime.datetime.utcnow() + datetime.timedelta(days=MIN_OVERTIME)
+            date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+            date_stamp = date_time.strftime('%Y%m%d')
+            ret = self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                                osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
+                                                                osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            known_error("TINA-6773", "No error raised when sending request with date header in the future")
+            assert False, 'Call should not have been successful : {}'.format(ret.response.requestId)
+        except OscApiException as error:
+            assert False, "remove known error code"
+            assert_error(error, 400, "RequestExpired", None)
+
+        date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
+        date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.lbu.DescribeLoadBalancers(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                      osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
+                                                      osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
