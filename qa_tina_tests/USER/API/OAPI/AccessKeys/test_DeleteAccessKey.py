@@ -5,6 +5,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -97,6 +98,24 @@ class Test_DeleteAccessKey(OscTinaTest):
             ret_delete = self.a1_r1.oapi.DeleteAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword},
                                                          AccessKeyId=ak)
             ret_delete.check_response()
+        finally:
+            if ret_create and not ret_delete:
+                self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
+
+    def test_T5994_with_method_authLoginPassword_incorrect(self):
+        ret_create = None
+        ret_delete = None
+        try:
+            ret_create = self.a1_r1.oapi.CreateAccessKey()
+            ak = ret_create.response.AccessKey.AccessKeyId
+            ret_delete = self.a1_r1.oapi.DeleteAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
+                                                                    osc_api.EXEC_DATA_LOGIN: 'foo', osc_api.EXEC_DATA_PASSWORD: 'bar'},
+                                                         AccessKeyId=ak)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            known_error('API-400', 'Incorrect error message')
+            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
         finally:
             if ret_create and not ret_delete:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
