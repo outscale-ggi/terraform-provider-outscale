@@ -2,6 +2,7 @@
 import time
 import pytest
 
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -14,14 +15,22 @@ class Test_DescribeVirtualInterfaces(OscTinaTest):
         cls.quotas = {'dl_connection_limit': 1, 'dl_interface_limit': 1}
         cls.ret_loc = None
         cls.ret_alloc = None
+        cls.known_error = False
         super(Test_DescribeVirtualInterfaces, cls).setup_class()
         try:
             cls.ret_loc = cls.a1_r1.directlink.DescribeLocations()
-        except Exception:
+            if cls.a1_r1.config.region.name == 'in-west-2':
+                if len(cls.ret_loc.response.locations) == 0:
+                    cls.known_error = True
+                    return
+                assert False, 'remove known error'
+        except Exception as error1:
             try:
                 cls.teardown_class()
+            except Exception as error2:
+                raise error2
             finally:
-                raise
+                raise error1
 
     @classmethod
     def teardown_class(cls):
@@ -41,6 +50,8 @@ class Test_DescribeVirtualInterfaces(OscTinaTest):
         retcon1 = None
         vgw_id = None
         allocvitualinter = None
+        if self.known_error:
+            known_error('OPS-14319', 'NEW IN2 : no Directlink on in2')
         try:
             retloc = self.a1_r1.directlink.DescribeLocations()
             ret = self.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1')

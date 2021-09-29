@@ -14,11 +14,16 @@ class Test_DescribePrefixLists(OscTinaTest):
         super(Test_DescribePrefixLists, cls).setup_class()
         ret = cls.a1_r1.fcu.DescribePrefixLists()
         hints = []
-        for prefix_list in ret.response.prefixListSet:
-            hints.append(prefix_list.prefixListId)
-            hints.append(prefix_list.prefixListName)
-            for cidr in prefix_list.cidrSet:
-                hints.append(cidr)
+        prefix_list_names = sorted([prefix_list.prefixListName for prefix_list in ret.response.prefixListSet])
+        cls.prefix_list_ids = sorted([prefix_list.prefixListId for prefix_list in ret.response.prefixListSet])
+        for prefix_list_name in prefix_list_names:
+            for prefix_list in ret.response.prefixListSet:
+                if prefix_list_name == prefix_list.prefixListName:
+                    hints.append(prefix_list.prefixListId)
+                    hints.append(prefix_list.prefixListName)
+                    for cidr in prefix_list.cidrSet:
+                        hints.append(cidr)
+                    break
         cls.hints = create_hints(hints)
 
     @classmethod
@@ -28,13 +33,13 @@ class Test_DescribePrefixLists(OscTinaTest):
     def test_T5686_no_param(self):
         resp = self.a1_r1.fcu.DescribePrefixLists().response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                           'read_no_param.json'), self.hints)
+                                           'read_no_param.{}.json'.format(self.a1_r1.config.region.name)), self.hints)
 
     def test_T5687_with_filter_prefix_list_id(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-id",
-                                                           "Value": ["pl-dcbd245b", "pl-1b504c88"]}]).response
+                                                           "Value": [self.prefix_list_ids[0], self.prefix_list_ids[1]]}]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                           'read_with_filter_prefix_list_id.json'), self.hints)
+                                           'read_with_filter_prefix_list_id.{}.json'.format(self.a1_r1.config.region.name)), self.hints)
 
     def test_T5694_with_filter_empty_prefix_list_id(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-id", "Value": []}]).response
@@ -52,7 +57,7 @@ class Test_DescribePrefixLists(OscTinaTest):
 
     def test_T5698_with_filter_invalid_type_prefix_list_id(self):
         try:
-            self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name":"prefix-list-id", "Value": [["pl-dcbd245b"]]}])
+            self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name":"prefix-list-id", "Value": [[self.prefix_list_ids[0]]]}])
             assert False, "call should not have been successful"
         except OscApiException as error:
             misc.assert_error(error, 400, "InvalidParameterValue", "Unexpected parameter Filter.1.Value.1.1")
@@ -64,10 +69,10 @@ class Test_DescribePrefixLists(OscTinaTest):
 
     def test_T5688_with_filter_prefix_list_name(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-name",
-                                                           "Value": ["com.outscale.in-west-1.fcu",
-                                                                     "com.outscale.in-west-1.kms"]}]).response
+                                                           "Value": ["com.outscale.{}.fcu".format(self.a1_r1.config.region.name),
+                                                                     "com.outscale.{}.kms".format(self.a1_r1.config.region.name)]}]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                           'read_with_filter_prefix_list_name.json'), self.hints)
+                                           'read_with_filter_prefix_list_name.{}.json'.format(self.a1_r1.config.region.name)), self.hints)
 
     def test_T5693_with_filter_empty_prefix_list_name(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(Filter=[{"Name": "prefix-list-name", "Value":[]}]).response
@@ -101,9 +106,9 @@ class Test_DescribePrefixLists(OscTinaTest):
             misc.assert_error(error, 400, "InvalidParameterValue", "Unexpected parameter Filter.1.Name.foo")
 
     def test_T5689_with_prefix_list_ids(self):
-        resp = self.a1_r1.fcu.DescribePrefixLists(PrefixListId=["pl-dcbd245b", "pl-ce82d320"]).response
+        resp = self.a1_r1.fcu.DescribePrefixLists(PrefixListId=[self.prefix_list_ids[0], self.prefix_list_ids[1]]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                           'read_with_prefix_list_ids.json'), self.hints)
+                                           'read_with_prefix_list_ids.{}.json'.format(self.a1_r1.config.region.name)), self.hints)
 
     def test_T5701_with_invalid_type_prefix_list_ids(self):
         try:
@@ -132,19 +137,20 @@ class Test_DescribePrefixLists(OscTinaTest):
     def test_T5713_with_empty_prefix_list_ids(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(PrefixListId=[]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                           'read_with_empty_prefix_list_ids.json'), self.hints)
+                                           'read_with_empty_prefix_list_ids.{}.json'.format(self.a1_r1.config.region.name)), self.hints)
 
     def test_T5690_with_valid_next_token(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(MaxResults=5).response
         next_token = resp.nextToken
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                           'read_with_max_result.json'), self.hints)
+                                           'read_with_max_result.{}.json'.format(self.a1_r1.config.region.name)), self.hints)
         resp = self.a1_r1.fcu.DescribePrefixLists(NextToken=next_token).response
-        if len(resp.prefixListSet) == 3:
-            known_error('TINA-6563', 'Incorrect pagination')
-        assert False, 'Remove known error code'
+        if self.a1_r1.config.region.name == 'in-west-1':
+            if len(resp.prefixListSet) == 3:
+                known_error('TINA-6563', 'Incorrect pagination')
+            assert False, 'Remove known error code'
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                           'read_with_next_token.json'), self.hints)
+                                           'read_with_next_token.{}.json'.format(self.a1_r1.config.region.name)), self.hints)
 
     def test_T5691_with_invalid_next_token(self):
         try:
@@ -163,12 +169,12 @@ class Test_DescribePrefixLists(OscTinaTest):
     def test_T5699_with_max_results_out_of_range(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(MaxResults=4).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                           'read_with_max_results_out_of_range.json'), self.hints)
+                                           'read_with_max_results_out_of_range.{}.json'.format(self.a1_r1.config.region.name)), self.hints)
 
     def test_T5816_with_max_results_10000(self):
         resp = self.a1_r1.fcu.DescribePrefixLists(MaxResults=10000).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                           'read_with_max_results_10000.json'), self.hints)
+                                           'read_with_max_results_10000.{}.json'.format(self.a1_r1.config.region.name)), self.hints)
 
     def test_T5700_with_invalid_type_max_results(self):
         try:

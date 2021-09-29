@@ -14,6 +14,7 @@ from qa_test_tools.account_tools import create_account, delete_account
 from qa_test_tools.compare_objects import verify_response
 from qa_test_tools.config import OscConfig, config_constants
 from qa_test_tools.misc import assert_dry_run
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools
 
@@ -122,6 +123,18 @@ class Test_UpdateApiAccessPolicy(OscTinaTest):
         verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                        'read_login_password.json'), None)
 
+    def test_T5998_login_password_incorrect(self):
+        try:
+            self.account_sdk.oapi.UpdateApiAccessPolicy(
+                exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
+                           osc_api.EXEC_DATA_LOGIN: 'foo', osc_api.EXEC_DATA_PASSWORD: 'bar'},
+                MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            known_error('API-400', 'Incorrect error message')
+            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+
     # <global> Add all others tests with ak/sk authentication
     def test_T5767_ak_sk(self):
         ret = self.account_sdk.oapi.UpdateApiAccessPolicy(
@@ -134,7 +147,7 @@ class Test_UpdateApiAccessPolicy(OscTinaTest):
     # /!\ when update succeed with RequireTrustedEnv=True MFA authent will be required for teardown
 
     #     (re-set with RequireTrustedEnv=False with MFA authent)
-    def test_T5768_multi_athent(self):
+    def test_T5768_multi_authent(self):
         ca1files = None
         certfiles_ca1cn1 = None
         ca_pid = None
