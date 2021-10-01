@@ -1,3 +1,6 @@
+
+import os
+
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from qa_test_tools import misc
@@ -19,6 +22,11 @@ class Test_CreateCa(OscTinaTest):
     @classmethod
     def teardown_class(cls):
         try:
+            for tmp_file_path in cls.tmp_file_paths:
+                try:
+                    os.remove(tmp_file_path)
+                except:
+                    print('Could not remove file {}'.format(tmp_file_path))
             for ca_id in cls.cas:
                 cls.a1_r1.oapi.DeleteCa(CaId=ca_id)
         finally:
