@@ -96,7 +96,7 @@ class Test_ReadNatServices(OscTinaTest):
             Filters={'SubnetIds': [self.nat_infos[0][info_keys.VPC_INFO][info_keys.SUBNETS][0][info_keys.SUBNET_ID]]}).response.NatServices
         assert len(ret) == 1
 
-    def test_T5970_with_tag_filter(self):
+    def test_T5971_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'NatService', self.nat_ids,
                                'oapi.ReadNatServices', 'NatServices.NatServiceId')
         assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
