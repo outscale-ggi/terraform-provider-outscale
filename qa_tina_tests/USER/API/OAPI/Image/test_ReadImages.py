@@ -4,7 +4,8 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions import OscTestException
-from qa_test_tools.misc import assert_oapi_error, id_generator
+from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
@@ -15,31 +16,33 @@ class Test_ReadImages(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
+        cls.image_ids = []
         super(Test_ReadImages, cls).setup_class()
-        cls.image_id = None
-        cls.image_id2 = None
-        cls.image_id3 = None
         cls.snap1_id = None
         cls.volume_ids = None
         try:
             image_id = cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
-            cls.image_id = cls.a1_r1.oapi.CreateImage(SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name,
-                                                      ImageName='test').response.Image.ImageId
-            cls.image_id2 = cls.a1_r1.oapi.CreateImage(SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name,
-                                                       ImageName='test1').response.Image.ImageId
-            cls.image_id3 = cls.a1_r1.oapi.CreateImage(SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name,
-                                                       ImageName='test2', Description='my description').response.Image.ImageId
-            cls.a1_r1.oapi.UpdateImage(ImageId=cls.image_id2,
+            cls.image_ids.append(cls.a1_r1.oapi.CreateImage(SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name,
+                                                            ImageName='test').response.Image.ImageId)
+            cls.image_ids.append(cls.a1_r1.oapi.CreateImage(SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name,
+                                                            ImageName='test1').response.Image.ImageId)
+            cls.image_ids.append(cls.a1_r1.oapi.CreateImage(SourceImageId=image_id, SourceRegionName=cls.a1_r1.config.region.name,
+                                                            ImageName='test2', Description='my description').response.Image.ImageId)
+            cls.a1_r1.oapi.UpdateImage(ImageId=cls.image_ids[1],
                                        PermissionsToLaunch={'Additions': {'AccountIds': [cls.a2_r1.config.account.account_id]}})
-            cls.a1_r1.oapi.UpdateImage(ImageId=cls.image_id3,
+            cls.a1_r1.oapi.UpdateImage(ImageId=cls.image_ids[2],
                                        PermissionsToLaunch={'Removals': {'GlobalPermission': True}})
             _, cls.volume_ids = create_volumes(cls.a1_r1, size=2)
             wait_volumes_state(cls.a1_r1, cls.volume_ids, state='available')
             cls.snap1_id = cls.a1_r1.oapi.CreateSnapshot(VolumeId=cls.volume_ids[0]).response.Snapshot.SnapshotId
-            cls.ami_name = id_generator(prefix='imgname ')
-            cls.image_id4 = cls.a1_r1.oapi.CreateImage(ImageName=cls.ami_name, RootDeviceName='/dev/sda1', BlockDeviceMappings=[
-                {'DeviceName': '/dev/sda1',
-                 'Bsu': {'SnapshotId': cls.snap1_id, 'VolumeSize': 4, 'VolumeType': 'io1', 'Iops': 100}}]).response.Image.ImageId
+            cls.ami_name = misc.id_generator(prefix='imgname ')
+            cls.image_ids.append(cls.a1_r1.oapi.CreateImage(
+                ImageName=cls.ami_name, RootDeviceName='/dev/sda1',
+                BlockDeviceMappings=[{'DeviceName': '/dev/sda1',
+                                      'Bsu': {'SnapshotId': cls.snap1_id,
+                                              'VolumeSize': 4,
+                                              'VolumeType': 'io1',
+                                              'Iops': 100}}]).response.Image.ImageId)
             # to be clear permission on image_id :
             #           - AccountIds = []
             #           - GlobalPermission = True
@@ -61,24 +64,9 @@ class Test_ReadImages(OscTinaTest):
     def teardown_class(cls):
         errors = []
         try:
-            if cls.image_id:
+            for img_id in cls.image_ids:
                 try:
-                    cls.a1_r1.oapi.DeleteImage(ImageId=cls.image_id)
-                except Exception as error:
-                    errors.append(error)
-            if cls.image_id2:
-                try:
-                    cls.a1_r1.oapi.DeleteImage(ImageId=cls.image_id2)
-                except Exception as error:
-                    errors.append(error)
-            if cls.image_id3:
-                try:
-                    cls.a1_r1.oapi.DeleteImage(ImageId=cls.image_id3)
-                except Exception as error:
-                    errors.append(error)
-            if cls.image_id4:
-                try:
-                    cls.a1_r1.oapi.DeleteImage(ImageId=cls.image_id4)
+                    cls.a1_r1.oapi.DeleteImage(ImageId=img_id)
                 except Exception as error:
                     errors.append(error)
             if cls.snap1_id:
@@ -96,7 +84,7 @@ class Test_ReadImages(OscTinaTest):
     def test_T2304_empty_filters(self):
         ret = self.a1_r1.oapi.ReadImages().response.Images
         assert len(ret) >= 3
-        image = next((i for i in ret if i.ImageId == self.image_id), None)
+        image = next((i for i in ret if i.ImageId == self.image_ids[0]), None)
         assert image.AccountId == self.a1_r1.config.account.account_id
         assert image.Architecture == 'x86_64'
         assert len(image.BlockDeviceMappings) == 1
@@ -123,9 +111,9 @@ class Test_ReadImages(OscTinaTest):
             assert img.AccountId == self.a1_r1.config.account.account_id
 
     def test_T2306_filters_image_id(self):
-        ret = self.a1_r1.oapi.ReadImages(Filters={'ImageIds': [self.image_id]}).response.Images
+        ret = self.a1_r1.oapi.ReadImages(Filters={'ImageIds': [self.image_ids[0]]}).response.Images
         assert len(ret) == 1
-        assert ret[0].ImageId == self.image_id
+        assert ret[0].ImageId == self.image_ids[0]
 
     def test_T5545_filters_hypervisors(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'Hypervisors': ['xen']})
@@ -185,7 +173,7 @@ class Test_ReadImages(OscTinaTest):
             self.a1_r1.oapi.ReadImages(Filters={'PermissionsToLaunchGlobalPermission': [True, False]})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110', None)
+            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110', None)
 
     def test_T2316_filters_a1_permissions_global_permission_and_accounts_ids(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={
@@ -200,13 +188,13 @@ class Test_ReadImages(OscTinaTest):
     def test_T3385_filters_image_names(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'ImageNames': [self.ami_name]}).response.Images
         assert len(ret) == 1
-        assert ret[0].ImageId == self.image_id4
+        assert ret[0].ImageId == self.image_ids[3]
         assert ret[0].ImageName == self.ami_name
 
     def test_T3386_filters_descriptions(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'Descriptions': ['my description']}).response.Images
         assert len(ret) == 1
-        assert ret[0].ImageId == self.image_id3
+        assert ret[0].ImageId == self.image_ids[2]
         assert ret[0].Description == 'my description'
 
     def test_T3387_filters_architectures(self):
@@ -290,7 +278,7 @@ class Test_ReadImages(OscTinaTest):
     @pytest.mark.tag_sec_confidentiality
     def test_T3411_other_account(self):
         ret = self.a2_r1.oapi.ReadImages().response.Images
-        assert self.image_id3 not in [img.ImageId for img in ret]
+        assert self.image_ids[2] not in [img.ImageId for img in ret]
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3412_other_account_with_filter(self):
@@ -304,7 +292,7 @@ class Test_ReadImages(OscTinaTest):
     def test_T3739_filters_imagenames(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'ImageNames': ['test']}).response.Images
         assert len(ret) == 1
-        assert ret[0].ImageId == self.image_id
+        assert ret[0].ImageId == self.image_ids[0]
 
     def test_T4513_filters_outscale_imageids(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={'ImageIds': [self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)]}).response.Images
@@ -332,3 +320,9 @@ class Test_ReadImages(OscTinaTest):
         assert ret[0].StateComment
         assert hasattr(ret[0], 'Tags')
         assert hasattr(ret[0], 'ImageType')
+
+    def test_T5969_with_tag_filter(self):
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Image', self.image_ids,
+                                            'oapi.ReadImages', 'Images.ImageId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')

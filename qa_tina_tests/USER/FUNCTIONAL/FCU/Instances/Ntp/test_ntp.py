@@ -27,7 +27,7 @@ class Test_ntp(OscTinaTest):
         try:
             cls.inst_info[CENTOS] = create_instances(osc_sdk=cls.a1_r1, omi_id=cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST))
             try:
-                ubuntu_omi = cls.a1_r1.config.region.get_info(constants.UBUNTU)
+                ubuntu_omi = cls.a1_r1.config.region.get_info(constants.UBUNTU_LATEST)
                 if ubuntu_omi != "None":
                     cls.inst_info[UBUNTU] = create_instances(osc_sdk=cls.a1_r1, omi_id=ubuntu_omi)
             except ValueError:

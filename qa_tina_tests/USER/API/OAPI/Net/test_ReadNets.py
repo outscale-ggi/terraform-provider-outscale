@@ -1,14 +1,15 @@
+
 import pytest
 
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_dry_run
+from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 
 
 class Test_ReadNets(OscTinaTest):
 
-    nb_nets = 2
 
     @classmethod
     def setup_class(cls):
@@ -20,6 +21,7 @@ class Test_ReadNets(OscTinaTest):
             cls.dhcp_id = net.DhcpOptionsSetId
             cls.net_id_list.append(cls.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16'), Tenancy='dedicated').response.Net.NetId)
             cls.net_id_list.append(cls.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16')).response.Net.NetId)
+            cls.net_id_list.append(cls.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '20_0_0_0_16')).response.Net.NetId)
             wait_vpcs_state(cls.a1_r1, cls.net_id_list, state='available')
             cls.a1_r1.oapi.CreateTags(ResourceIds=[cls.net_id_list[0]], Tags=[{'Key': 'toto', 'Value': 'tata'}])
             cls.a1_r1.oapi.CreateTags(ResourceIds=[cls.net_id_list[1]], Tags=[{'Key': 'tata', 'Value': 'titi'}])
@@ -46,7 +48,7 @@ class Test_ReadNets(OscTinaTest):
 
     def test_T2237_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.ReadNets(DryRun=True)
-        assert_dry_run(ret)
+        misc.assert_dry_run(ret)
 
     def test_T2396_verify_response_content(self):
         for net_resp in self.net_id_list:
@@ -64,7 +66,7 @@ class Test_ReadNets(OscTinaTest):
 
     def test_T2397_with_valid_filter_DhcpOptionsSetIds(self):
         ret = self.a1_r1.oapi.ReadNets(Filters={'DhcpOptionsSetIds': [self.dhcp_id]}).response
-        assert len(ret.Nets) == 3
+        assert len(ret.Nets) == 4
 
     def test_T2398_with_valid_filter_IpRanges(self):
         ret = self.a1_r1.oapi.ReadNets(Filters={'IpRanges': [Configuration.get('vpc', '10_0_0_0_16')]}).response
@@ -76,7 +78,7 @@ class Test_ReadNets(OscTinaTest):
 
     def test_T2400_with_valid_filter_States(self):
         ret = self.a1_r1.oapi.ReadNets(Filters={'States': ['available']}).response
-        assert len(ret.Nets) == 3
+        assert len(ret.Nets) == 4
 
     def test_T2401_with_valid_filter_TagKeys(self):
         ret = self.a1_r1.oapi.ReadNets(Filters={'TagKeys': ['toto']}).response
@@ -102,6 +104,12 @@ class Test_ReadNets(OscTinaTest):
 
     def test_T5062_with_is_default_Tags(self):
         ret = self.a1_r1.oapi.ReadNets(Filters={'IsDefault': False}).response
-        assert len(ret.Nets) == 3
+        assert len(ret.Nets) == 4
         ret = self.a1_r1.oapi.ReadNets(Filters={'IsDefault': True}).response
         assert len(ret.Nets) == 0
+
+    def test_T5972_with_tag_filter(self):
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Net', self.net_id_list,
+                               'oapi.ReadNets', 'Nets.NetId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')

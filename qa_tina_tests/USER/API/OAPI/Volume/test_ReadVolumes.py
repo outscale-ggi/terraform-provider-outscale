@@ -4,9 +4,10 @@ import datetime
 import pytest
 
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.misc import assert_dry_run
+from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_volumes_state, wait_snapshots_state
+from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
 
 
@@ -15,24 +16,24 @@ class Test_ReadVolumes(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
-        super(Test_ReadVolumes, cls).setup_class()
         cls.vol_ids = []
         cls.snap_id = None
         cls.vms = None
+        super(Test_ReadVolumes, cls).setup_class()
         try:
             cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(VolumeType='standard', Size=2, SubregionName=cls.azs[0]).response.Volume.VolumeId)
             cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(VolumeType='gp2', Size=2, SubregionName=cls.azs[0]).response.Volume.VolumeId)
             if cls.a1_r1.config.region.az_name != 'in-west-1b':
                 cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(VolumeType='io1', Size=4, Iops=100, SubregionName=cls.azs[0]).response.Volume.VolumeId)
             cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(Size=20, SubregionName=cls.azs[0]).response.Volume.VolumeId)
-            wait_volumes_state(cls.a1_r1, cls.vol_ids, state='available')
+            wait_tools.wait_volumes_state(cls.a1_r1, cls.vol_ids, state='available')
             cls.snap_id = cls.a1_r1.oapi.CreateSnapshot(VolumeId=cls.vol_ids[0]).response.Snapshot.SnapshotId
-            wait_snapshots_state(cls.a1_r1, [cls.snap_id], state='completed')
+            wait_tools.wait_snapshots_state(cls.a1_r1, [cls.snap_id], state='completed')
             cls.vol_ids.append(cls.a1_r1.oapi.CreateVolume(SnapshotId=cls.snap_id, SubregionName=cls.azs[0]).response.Volume.VolumeId)
             image_id = cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
             cls.vms = cls.a1_r1.oapi.CreateVms(ImageId=image_id,
                                                VmType=cls.a1_r1.config.region.get_info(constants.DEFAULT_INSTANCE_TYPE)).response.Vms
-            wait_instances_state(cls.a1_r1, [cls.vms[0].VmId], state='running')
+            wait_tools.wait_instances_state(cls.a1_r1, [cls.vms[0].VmId], state='running')
         except Exception:
             try:
                 cls.teardown_class()
@@ -49,7 +50,7 @@ class Test_ReadVolumes(OscTinaTest):
             if cls.vms:
                 try:
                     cls.a1_r1.oapi.DeleteVms(VmIds=[cls.vms[0].VmId])
-                    wait_instances_state(cls.a1_r1, [cls.vms[0].VmId], state='terminated')
+                    wait_tools.wait_instances_state(cls.a1_r1, [cls.vms[0].VmId], state='terminated')
                 except:
                     print('Could not delete instances')
         finally:
@@ -65,7 +66,7 @@ class Test_ReadVolumes(OscTinaTest):
 
     def test_T2249_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.ReadVolumes(DryRun=True)
-        assert_dry_run(ret)
+        misc.assert_dry_run(ret)
 
     def test_T2968_filters_volume_type_standard(self):
         ret = self.a1_r1.oapi.ReadVolumes(Filters={'VolumeTypes': ['standard']}).response.Volumes
@@ -205,3 +206,8 @@ class Test_ReadVolumes(OscTinaTest):
         assert len(ret) == 1
         for volume in ret:
             validate_volume_response(volume, size=20)
+
+    def test_T5983_with_tag_filter(self):
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Volume', self.vol_ids, 'oapi.ReadVolumes', 'Volumes.VolumeId')
+        assert indexes == [5, 6, 7, 8, 9, 10, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'ReadVolumes does not support wildcards filtering')

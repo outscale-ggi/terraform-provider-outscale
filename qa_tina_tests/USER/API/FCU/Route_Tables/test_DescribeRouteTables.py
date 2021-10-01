@@ -1,12 +1,12 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_error
+from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
-from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_tina_tools.tools.tina import create_tools, delete_tools
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, SUBNETS, SUBNET_ID
 
-NUM_RTS = 3
+NUM_RTS = 4
 
 
 class Test_DescribeRouteTables(OscTinaTest):
@@ -17,7 +17,7 @@ class Test_DescribeRouteTables(OscTinaTest):
         cls.rt_ids = []
         super(Test_DescribeRouteTables, cls).setup_class()
         try:
-            cls.vpc_info = create_vpc(cls.a1_r1, nb_subnet=1, igw=True, default_rtb=True)
+            cls.vpc_info = create_tools.create_vpc(cls.a1_r1, nb_subnet=1, igw=True, default_rtb=True)
             cls.vpc_id = cls.vpc_info[VPC_ID]
             for _ in range(NUM_RTS):
                 rt_info = cls.a1_r1.fcu.CreateRouteTable(VpcId=cls.vpc_id)
@@ -42,7 +42,7 @@ class Test_DescribeRouteTables(OscTinaTest):
                 for i in cls.rt_ids:
                     cls.a1_r1.fcu.DeleteRouteTable(RouteTableId=i)
             if cls.vpc_info:
-                delete_vpc(cls.a1_r1, cls.vpc_info)
+                delete_tools.delete_vpc(cls.a1_r1, cls.vpc_info)
         finally:
             super(Test_DescribeRouteTables, cls).teardown_class()
 
@@ -62,7 +62,7 @@ class Test_DescribeRouteTables(OscTinaTest):
             self.a2_r1.fcu.DescribeRouteTables(RouteTableId=[self.rt_ids[0]])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidRouteTableID.NotFound', "The routeTable IDs u'{}' do not exist".format(self.rt_ids[0]))
+            misc.assert_error(error, 400, 'InvalidRouteTableID.NotFound', "The routeTable IDs u'{}' do not exist".format(self.rt_ids[0]))
 
     def test_T3276_with_other_account_with_filter(self):
         ret = self.a2_r1.fcu.DescribeRouteTables(Filter=[{'Name': 'route-table-id', 'Value': self.rt_ids[0]}])
@@ -71,3 +71,9 @@ class Test_DescribeRouteTables(OscTinaTest):
     def test_T5547_with_association_rtb_id_filter(self):
         ret = self.a1_r1.fcu.DescribeRouteTables(Filter=[{'Name': 'association.route-table-association-id', 'Value': self.rtb_assoc_id}])
         assert ret.response.routeTableSet[0].associationSet[0].routeTableId == self.rt_ids[0]
+
+    def test_T5961_with_tag_filter(self):
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'RouteTable', self.rt_ids,
+                                            'fcu.DescribeRouteTables', 'routeTableSet.routeTableId')
+        assert indexes == [5, 6, 7, 8, 9, 10]
+        known_error('TINA-6757', 'Call does not support wildcard in key value of tag:key')

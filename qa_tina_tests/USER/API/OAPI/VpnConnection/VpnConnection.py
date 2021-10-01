@@ -29,12 +29,13 @@ class VpnConnection(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
-        super(VpnConnection, cls).setup_class()
         cls.vg_id = None
         cls.cg_id = None
         cls.vpn_id = None
+        cls.vg_id2 = None
         cls.cg_id2 = None
         cls.vpn_id2 = None
+        super(VpnConnection, cls).setup_class()
         try:
             # Virtual Gateway
             cls.vg_id = cls.a1_r1.oapi.CreateVirtualGateway(

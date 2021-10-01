@@ -1,13 +1,17 @@
 
 
 import re
+import datetime
 
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 import qa_sdk_pub.osc_api as osc_api
 from qa_test_tools.misc import assert_error
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
+
+MIN_OVERTIME = 4
 
 
 class Test_FCU(OscTinaTest):
@@ -74,3 +78,119 @@ class Test_FCU(OscTinaTest):
         osc_api.enable_throttling()
         assert nb_ok != 0
         assert nb_ko != 0
+
+    def test_T6027_before_date_time_stamp(self):
+        try:
+            date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+            self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "RequestExpired", None)
+
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
+        date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+        self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+
+    def test_T6028_before_date_stamp(self):
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+    def test_T6029_before_stamps(self):
+        try:
+            date_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+            date_stamp = date_time.strftime('%Y%m%d')
+            self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
+                                                          osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "RequestExpired", None)
+
+        date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
+        date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
+                                                      osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+
+    def test_T6030_incorrect_date_time_stamp(self):
+        try:
+            date_time_stamp = 'toto'
+            self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "InvalidParameterValue", None)
+
+    def test_T6031_incorrect_date_stamp(self):
+        date_stamp = 'toto'
+        self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+    def test_T6032_empty_date_time_stamp(self):
+        try:
+            date_time_stamp = ''
+            self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, "MissingParameter", None)
+
+    def test_T6033_empty_date_stamp(self):
+        try:
+            date_stamp = ''
+            self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 401, 'AuthFailure', None)
+
+    def test_T6034_after_date_time_stamp(self):
+        try:
+            date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=MIN_OVERTIME)
+            date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+            ret = self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                                osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            known_error("TINA-6773", "No error raised when sending request with date header in the future")
+            assert False, 'Call should not have been successful : {}'.format(ret.response.requestId)
+        except OscApiException as error:
+            assert False, "remove known error code"
+            assert_error(error, 400, "RequestExpired", None)
+
+        date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
+        date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+        self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                      osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+
+    def test_T6035_after_date_stamp(self):
+        date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=MIN_OVERTIME)
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                      osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+        date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                      osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
+
+    def test_T6036_after_stamps(self):
+        try:
+            date_time = datetime.datetime.utcnow() + datetime.timedelta(days=MIN_OVERTIME)
+            date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+            date_stamp = date_time.strftime('%Y%m%d')
+            ret = self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                                osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
+                                                                osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
+            known_error("TINA-6773", "No error raised when sending request with date header in the future")
+            assert False, 'Call should not have been successful : {}'.format(ret.response.requestId)
+        except OscApiException as error:
+            assert False, "remove known error code"
+            assert_error(error, 400, "RequestExpired", None)
+
+        date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
+        date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
+        date_stamp = date_time.strftime('%Y%m%d')
+        self.a1_r1.fcu.DescribeSecurityGroups(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0,
+                                                      osc_api.EXEC_DATA_DATE_STAMP: date_stamp,
+                                                      osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})

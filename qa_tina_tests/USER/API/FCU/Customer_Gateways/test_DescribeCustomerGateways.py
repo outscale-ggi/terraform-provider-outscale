@@ -2,7 +2,8 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_error
+from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_customer_gateways
 from qa_tina_tools.tools.tina.create_tools import create_customer_gateway
@@ -16,27 +17,28 @@ class Test_DescribeCustomerGateways(OscTinaTest):
         super(Test_DescribeCustomerGateways, cls).setup_class()
         cls.cgw_ip = Configuration.get('ipaddress', 'cgw_ip')
         try:
-            cls.id_list = []
-            for i in range(2):
+            cls.id_list_account1 = []
+            cls.ip_list_account1 = []
+            cls.id_account2 = []
+            for i in range(3):
                 ret = create_customer_gateway(cls.a1_r1, bgp_asn=12, ip_address='46.22%s.147.8' % i, typ='ipsec.1')
                 wait_customer_gateways_state(cls.a1_r1, [ret.response.customerGateway.customerGatewayId], state='available')
                 assert ret.response.customerGateway.bgpAsn == '12'
                 assert ret.response.customerGateway.ipAddress == '46.22%s.147.8' % i
                 assert ret.response.customerGateway.state == 'available'
-                cls.id_list.append({'cg_id': ret.response.customerGateway.customerGatewayId, 'ip': ret.response.customerGateway.ipAddress})
-            gateway_id_list = []
+                cls.id_list_account1.append(ret.response.customerGateway.customerGatewayId)
+                cls.ip_list_account1.append(ret.response.customerGateway.ipAddress)
             for conn in [cls.a1_r1, cls.a2_r1]:
                 ret = create_customer_gateway(conn, bgp_asn=12, ip_address=cls.cgw_ip, typ='ipsec.1')
                 wait_customer_gateways_state(conn, [ret.response.customerGateway.customerGatewayId], state='available')
-                assert ret.status_code == 200, ret.response.display()
                 assert ret.response.customerGateway.bgpAsn == '12'
                 assert ret.response.customerGateway.ipAddress == cls.cgw_ip
                 assert ret.response.customerGateway.state == 'available'
-                gateway_id_list.append({'cg_id': ret.response.customerGateway.customerGatewayId, 'ip': ret.response.customerGateway.ipAddress})
-            cls.id_list_account1 = [cls.id_list[0]['cg_id'], cls.id_list[1]['cg_id'], gateway_id_list[0]['cg_id']]
-            cls.ip_list_account1 = [cls.id_list[0]['ip'], cls.id_list[1]['ip'], gateway_id_list[0]['ip']]
-            cls.id_account2 = gateway_id_list[1]['cg_id']
-            cls.a1_r1.fcu.CreateTags(Tag=[{'Key': 'tag', 'Value': 'Hello'}], ResourceId=cls.id_list_account1[2])
+                if conn == cls.a1_r1:
+                    cls.id_list_account1.append(ret.response.customerGateway.customerGatewayId)
+                    cls.ip_list_account1.append(ret.response.customerGateway.ipAddress)
+                else:
+                    cls.id_account2 = ret.response.customerGateway.customerGatewayId
         except Exception as error:
             try:
                 cls.teardown_class()
@@ -60,8 +62,8 @@ class Test_DescribeCustomerGateways(OscTinaTest):
 
     def test_T776_with_valid_filter(self):
         ret = self.a1_r1.fcu.DescribeCustomerGateways(Filter=[{'Name': 'state', 'Value': 'available'}])
-        assert len(ret.response.customerGatewaySet) == 3
-        ret = self.a1_r1.fcu.DescribeCustomerGateways(Filter=[{'Name': 'customer-gateway-id', 'Value': self.id_list_account1[2]}])
+        assert len(ret.response.customerGatewaySet) == 4
+        ret = self.a1_r1.fcu.DescribeCustomerGateways(Filter=[{'Name': 'customer-gateway-id', 'Value': self.id_list_account1[3]}])
         assert len(ret.response.customerGatewaySet) == 1
         ret = self.a1_r1.fcu.DescribeCustomerGateways(Filter=[{'Name': 'ip-address', 'Value': self.ip_list_account1[1]}])
         assert len(ret.response.customerGatewaySet) >= 1
@@ -75,12 +77,6 @@ class Test_DescribeCustomerGateways(OscTinaTest):
         ret = self.a1_r1.fcu.DescribeCustomerGateways(Filter=[{'Name': 'ip-address', 'Value': self.ip_list_account1[1]},
                                                                  {'Name': 'customer-gateway-id', 'Value': self.id_list_account1[1]}])
         assert len(ret.response.customerGatewaySet) == 1
-        ret = self.a1_r1.fcu.DescribeCustomerGateways(Filter=[{'Name': 'tag:tag', 'Value': 'Hello'}])
-        assert len(ret.response.customerGatewaySet) >= 1
-        ret = self.a1_r1.fcu.DescribeCustomerGateways(Filter=[{'Name': 'tag-key', 'Value': 'tag'}])
-        assert len(ret.response.customerGatewaySet) >= 1
-        ret = self.a1_r1.fcu.DescribeCustomerGateways(Filter=[{'Name': 'tag-value', 'Value': 'Hello'}])
-        assert len(ret.response.customerGatewaySet) >= 1
 
     def test_T777_with_invalid_filter_ip_address(self):
         ret = self.a1_r1.fcu.DescribeCustomerGateways(Filter=[{'Name': 'ip-address', 'Value': 'foo'}])
@@ -119,26 +115,33 @@ class Test_DescribeCustomerGateways(OscTinaTest):
             self.a1_r1.fcu.DescribeCustomerGateways(CustomerGatewayId='toto')
             pytest.fail('Call should not have been successful, invalid id')
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidCustomerGatewayID.NotFound', "The customerGateway ID 'toto' does not exist")
+            misc.assert_error(error, 400, 'InvalidCustomerGatewayID.NotFound', "The customerGateway ID 'toto' does not exist")
         try:
             self.a1_r1.fcu.DescribeCustomerGateways(CustomerGatewayId='cwg-xxxxxxxx')
             pytest.fail('Call should not have been successful, invalid id')
         except OscApiException as error:
-            assert_error(error, 400, "InvalidCustomerGatewayID.NotFound", "The customerGateway ID 'cwg-xxxxxxxx' does not exist")
+            misc.assert_error(error, 400, "InvalidCustomerGatewayID.NotFound", "The customerGateway ID 'cwg-xxxxxxxx' does not exist")
         try:
             name = self.id_list_account1[0].replace('cgw-', 'cgw-xxx')
             self.a1_r1.fcu.DescribeCustomerGateways(CustomerGatewayId=name)
             pytest.fail('Call should not have been successful, invalid id')
         except OscApiException as error:
-            assert_error(error, 400, "InvalidCustomerGatewayID.NotFound", "The customerGateway ID '{}' does not exist".format(name))
+            misc.assert_error(error, 400, "InvalidCustomerGatewayID.NotFound", "The customerGateway ID '{}' does not exist".format(name))
 
     def test_T780_with_other_account_cgw_id(self):
         try:
-            self.a1_r1.fcu.DescribeCustomerGateways(CustomerGatewayId=self.id_account2)
+            self.a1_r1.fcu.DescribeCustomerGateways(CustomerGatewayId=[self.id_account2])
             pytest.fail('Call should not have been successful, id from another account')
         except OscApiException as error:
-            assert_error(error, 400, 'InvalidCustomerGatewayID.NotFound', "The customerGateway ID '{}' does not exist".format(self.id_account2))
+            misc.assert_error(error, 400, 'InvalidCustomerGatewayID.NotFound',
+                              "The customerGateway ID '{}' does not exist".format(self.id_account2))
 
     def test_T781_with_valid_filter_and_cgw_id(self):
         self.a1_r1.fcu.DescribeCustomerGateways(CustomerGatewayId=self.id_list_account1[0], Filter=[{'Name': 'state',
                                                                                                         'Value': 'available'}])
+
+    def test_T5954_with_tag_filter(self):
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'CustomerGateway', self.id_list_account1,
+                                            'fcu.DescribeCustomerGateways', 'customerGatewaySet.customerGatewayId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('TINA-6758', 'DescribeCustomerGateways does not support wildcards in tag:key filtering')

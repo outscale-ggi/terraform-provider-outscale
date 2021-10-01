@@ -29,7 +29,8 @@ class Test_RebootVms(OscTinaTest):
         try:
             # ret = cls.a1_r1.oapi.ReadVms(Filters={'VmIds': cls.info[INSTANCE_ID_LIST]}).response.Vms
             # cls.info[INSTANCE_ID_LIST] = [inst.VmId for inst in ret]
-            delete_instances(cls.a1_r1, cls.info)
+            if cls.info:
+                delete_instances(cls.a1_r1, cls.info)
         finally:
             super(Test_RebootVms, cls).teardown_class()
 

@@ -1,17 +1,18 @@
 import pytest
 
-from qa_test_tools.misc import assert_dry_run
+from qa_test_tools import misc
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
-NUM_VGW = 3
+NUM_VGW = 4
 
 
 class Test_ReadVirtualGateways(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
-        super(Test_ReadVirtualGateways, cls).setup_class()
         cls.vgw_ids = []
+        super(Test_ReadVirtualGateways, cls).setup_class()
         try:
             for _ in range(NUM_VGW):
                 cls.vgw_ids.append(cls.a1_r1.oapi.CreateVirtualGateway(ConnectionType='ipsec.1').response.VirtualGateway.VirtualGatewayId)
@@ -34,7 +35,7 @@ class Test_ReadVirtualGateways(OscTinaTest):
 
     def test_T2374_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.ReadVirtualGateways(DryRun=True)
-        assert_dry_run(ret)
+        misc.assert_dry_run(ret)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3445_other_account(self):
@@ -64,8 +65,14 @@ class Test_ReadVirtualGateways(OscTinaTest):
 
     def test_T3657_filters_states(self):
         ret = self.a1_r1.oapi.ReadVirtualGateways(Filters={'States': ['available']}).response.VirtualGateways
-        assert len(ret) == 3
+        assert len(ret) == NUM_VGW
 
     def test_T3658_filters_virtual_gateway_ids(self):
         ret = self.a1_r1.oapi.ReadVirtualGateways(Filters={'VirtualGatewayIds': [self.vgw_ids[0]]}).response.VirtualGateways
         assert len(ret) == 1
+
+    def test_T5981_with_tag_filter(self):
+        indexes, _ = misc.execute_tag_tests(self.a1_r1, 'VirtualGateway', self.vgw_ids,
+                                            'oapi.ReadVirtualGateways', 'VirtualGateways.VirtualGatewayId')
+        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        known_error('API-399', 'Read calls do not support wildcards in tag filtering')

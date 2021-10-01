@@ -1,5 +1,6 @@
 
 import base64
+import string
 
 import pytest
 
@@ -30,7 +31,7 @@ class Test_UpdateVm(OscTinaTest):
             cls.vpc_id = ret.response.vpc.vpcId
             ret = cls.a1_r1.fcu.CreateSubnet(CidrBlock='10.0.0.0/24', VpcId=cls.vpc_id)
             cls.subnet_id = [ret.response.subnet.subnetId]
-            _, cls.vpc_inst_ids = create_vms(cls.a1_r1, state='pending', SubnetId=cls.subnet_id[0])
+            _, cls.vpc_inst_ids = create_vms(cls.a1_r1, SubnetId=cls.subnet_id[0])
             _, cls.vm_ids = create_vms(ocs_sdk=cls.a1_r1, MaxVmsCount=2, MinVmsCount=2)
             cls.vm_ids += cls.vpc_inst_ids
             cls.a1_r1.fcu.StopInstances(InstanceId=[cls.vm_ids[1]], Force=True)
@@ -381,6 +382,22 @@ class Test_UpdateVm(OscTinaTest):
             self.a1_r1.oapi.UpdateVm(UserData=data_false, VmId=inst_id)
             ret = self.a1_r1.fcu.DescribeInstanceAttribute(InstanceId=inst_id, Attribute='userData')
             assert ret.response.userData.value == data_false, 'Incorrect user data value'
+        finally:
+            if vm_info:
+                oapi.delete_Vms(self.a1_r1, vm_info)
+
+    def test_T5839_with_invalid_larger_userdata_size(self):
+        vm_info = None
+        try:
+            vm_info = oapi.create_Vms(self.a1_r1)
+            inst_id = vm_info[info_keys.VM_IDS][0]
+            oapi.stop_Vms(self.a1_r1, vm_info[info_keys.VM_IDS])
+
+            userdata = id_generator(size=513000, chars=string.ascii_lowercase)
+            self.a1_r1.oapi.UpdateVm(UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'), VmId=inst_id)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4106')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)

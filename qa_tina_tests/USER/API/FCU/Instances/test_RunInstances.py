@@ -50,13 +50,6 @@ class Test_RunInstances(OscTinaTest):
                 self.a1_r1.fcu.TerminateInstances(InstanceId=[inst_id])
             wait_instances_state(self.a1_r1, [inst_id], 'terminated')
             ret = self.a1_r1.intel.instance.get(owner=self.a1_r1.config.account.account_id, id=inst_id)
-            if value == 'terminate':
-                if ret.response.result.terminating:
-                    assert False, 'Remove known error'
-                else:
-                    self.a1_r1.fcu.TerminateInstances(InstanceId=[inst_id])
-                    known_error('TINA-6590', '...')
-            assert ret.response.result.terminating
             assert ret.response.result.state == 'terminated'
             assert ret.response.result.ustate == 'terminated'
 
@@ -106,7 +99,7 @@ private_only=true
             assert_error(err, 400, 'InvalidParameterValue', 'Invalid IOPS: 20000 Min: 100 Max: 13000')
         finally:
             if ret:
-                self.a1_r1.fcu.TerminateInstances(ret.response.instancesSet[0].instanceID)
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
 
     @pytest.mark.region_gpu
     def test_T3013_with_insufficient_capacity(self):
@@ -174,6 +167,185 @@ private_only=true
             token = ['151475']
             self.a1_r1.fcu.RunInstances(ClientToken=token, ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                         MaxCount=1, MinCount=1)
-            assert False, 'Cal should not have been successful'
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 400, 'InvalidParameterType', "Value of parameter \'Token\' must be of type: str. Received: {\'1\': \'151475\'}")
+
+    def test_T5842_with_wrong_instance_type(self):
+        ret = None
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='toto', MaxCount=1, MinCount=1)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: toto')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5843_with_missing_cpu_gen(self):
+        ret = None
+        # Pour les known error TINA 6689, TINA 6685 et TINA 6686.
+        # Ils sont en debut de test pour faire echoué les tests volentairement.
+        known_error('TINA-6689', 'Instance type should raise an error')
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tina.c1r1', MaxCount=1, MinCount=1)
+            wait_instances_state(self.a1_r1, [ret.response.instancesSet[0].instanceId], 'running')
+        except OscApiException as error:
+            assert_error(error, 500, 'InternalError', 'Internal Error')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5844_with_missing_cpu_gen_value(self):
+        ret = None
+        known_error('TINA-6689', 'Instance type should raise an error')
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tinav.c1r1', MaxCount=1, MinCount=1)
+            wait_instances_state(self.a1_r1, [ret.response.instancesSet[0].instanceId], 'running')
+        except OscApiException as error:
+            assert_error(error, 500, 'InternalError', 'Internal Error')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5845_with_cpu_gen_value_set_at_zero(self):
+        ret = None
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tinav0.c1r1', MaxCount=1, MinCount=1)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: tinav0.c1r1')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5846_with_missing_perf_flag_value(self):
+        ret = None
+        known_error('TINA-6689', 'Instance type should raise an error')
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tinav1.c1r1p', MaxCount=1, MinCount=1)
+            wait_instances_state(self.a1_r1, [ret.response.instancesSet[0].instanceId], 'running')
+        except OscApiException as error:
+            assert_error(error, 500, 'InternalError', 'Internal Error')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5847_with_perf_flag_set_at_zero(self):
+        ret = None
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tinav1.c1r1p0', MaxCount=1, MinCount=1)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: tinav1.c1r1p0')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5848_with_perf_flag_set_at_four(self):
+        ret = None
+        known_error('TINA-6689', 'Instance type should raise an error')
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tinav1.c1r1p4', MaxCount=1, MinCount=1)
+        except OscApiException as error:
+            assert_error(error, 500, 'InsufficientInstanceCapacity', 'Insufficient Capacity')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5849_with_missing_core_value(self):
+        ret = None
+        known_error('TINA-6685', 'Internal error when creating an instance with missing vCPU value')
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tinav1.cr1', MaxCount=1, MinCount=1)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 500, 'InternalError', 'Internal Error')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5850_with_core_value_set_at_zero(self):
+        ret = None
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tinav1.c0r1', MaxCount=1, MinCount=1)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: tinav1.c0r1')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5851_with_missing_memory_value(self):
+        ret = None
+        known_error('TINA-6686', 'Internal error when creating an instance with missing memory value')
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tinav1.c1r', MaxCount=1, MinCount=1)
+
+        except OscApiException as error:
+            assert_error(error, 500, 'InternalError', 'Internal Error')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5852_with_memory_value_set_at_zero(self):
+        ret = None
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tinav1.c1r0', MaxCount=1, MinCount=1)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: tinav1.c1r0')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5853_with_override_max_value(self):
+        ret = None
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tinav5.c39r181', MaxCount=1, MinCount=1)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            if error.error_code == "InsufficientInstanceCapacity":
+                known_error('OPS-14329', 'NEW IN2: configure instance type properties')
+            assert False, 'Remove known error'
+            assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: tinav5.c39r181')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5868_with_empty_instance_type(self):
+        ret = None
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='', MaxCount=1, MinCount=1)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: ')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
+
+    def test_T5919_with_cpu_gen_value_set_at_six(self):
+        ret = None
+        known_error('TINA-6689', 'Instance type should raise an error')
+        try:
+            ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
+                                              InstanceType='tinav6.c1r1', MaxCount=1, MinCount=1)
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: tinav6.c1r1')
+        finally:
+            if ret:
+                terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])

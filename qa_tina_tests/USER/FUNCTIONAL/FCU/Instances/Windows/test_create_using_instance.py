@@ -7,6 +7,8 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
 from qa_test_tools.config.configuration import Configuration
+from qa_test_tools.exceptions import OscTestException
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools import user_data_windows
 from qa_tina_tools.tina.check_tools import check_data_from_console, check_winrm_access
@@ -41,9 +43,7 @@ class Test_create_using_instance(OscTinaTest):
         cls.inst_1_pub_IP = None
         cls.inst_2_pub_IP = None
 
-        instance_type = 'tinav4.c4r8p1'
-        if cls.a1_r1.config.region.name == 'dv-west-1':
-            instance_type = 'tinav1.c4r8p1'
+        instance_type = 'tinav3.c4r8p2'
         # TODO : change path to get the correct path on the server
         user_data = user_data_windows.write_slmgr_dlv_to_console_output
         # user_data = user_data_windows.windows_startup
@@ -105,7 +105,7 @@ class Test_create_using_instance(OscTinaTest):
 
             # run instance
             inst_1 = cls.a1_r1.fcu.RunInstances(
-                ImageId=cls.a1_r1.config.region.get_info('windows_omi'),
+                ImageId=cls.a1_r1.config.region.get_info('windows_latest'),
                 MaxCount='1',
                 MinCount='1',
                 SecurityGroupId=cls.sg_id,
@@ -115,7 +115,7 @@ class Test_create_using_instance(OscTinaTest):
             )
 
             inst_2 = cls.a1_r1.fcu.RunInstances(
-                ImageId=cls.a1_r1.config.region.get_info('windows_omi'),
+                ImageId=cls.a1_r1.config.region.get_info('windows_latest'),
                 MaxCount='1',
                 MinCount='1',
                 SecurityGroupId=cls.sg_id1,
@@ -185,7 +185,14 @@ class Test_create_using_instance(OscTinaTest):
         # self.logger.info("ip : {0}".format(inst_1_pub_IP))
         # self.logger.info("Login Administrator / password {0}".format(password))
 
-        check_data_from_console(self.a1_r1, self.inst_1_id)
+        try:
+            check_data_from_console(self.a1_r1, self.inst_1_id)
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert False, 'Remove known error'
+        except OscTestException:
+            if self.a1_r1.config.region.name == 'in-west-2':
+                known_error('OPS-14219', 'Licensing error')
+            raise
         check_winrm_access(inst_1_pub_ip, password)
 
     @pytest.mark.tag_redwire
@@ -206,12 +213,12 @@ class Test_create_using_instance(OscTinaTest):
 
         try:
             check_data_from_console(self.a1_r1, self.inst_2_id)
-            if self.a1_r1.config.region.name  == 'dv-west-1':
-                pytest.fail('Remove known error')
-        except AssertionError:
-            if self.a1_r1.config.region.name != 'dv-west-1':
-                raise
-            # else / if DV1: continue...
+            if self.a1_r1.config.region.name in ['in-west-2', 'dv-west-1']:
+                assert False, 'Remove known error'
+        except OscTestException:
+            if self.a1_r1.config.region.name in ['in-west-2', 'dv-west-1']:
+                known_error('OPS-14219', 'Licensing error')
+            raise
         check_winrm_access(inst_2_pub_ip, password)
 
     # def test_LARS(self):

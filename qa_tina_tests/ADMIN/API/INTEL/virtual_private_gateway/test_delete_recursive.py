@@ -1,3 +1,6 @@
+import time
+
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.wait import wait_VpnConnections_state
 from qa_tina_tools.tools.tina.create_tools import get_random_public_ip
@@ -17,6 +20,7 @@ class Test_delete_recursive(OscTinaTest):
         super(Test_delete_recursive, cls).teardown_class()
 
     def test_T5073_recursive_true(self):
+        known_error('TINA-6762', "Remaining pending call vpn.delete_tunnel")
         vpc_id = None
         vgw_id = None
         cgw_id = None
@@ -33,7 +37,7 @@ class Test_delete_recursive(OscTinaTest):
             vpn_conn_id = self.a1_r1.fcu.CreateVpnConnection(CustomerGatewayId=cgw_id, Type='ipsec.1', VpnGatewayId=vgw_id,
                                                              Options={'StaticRoutesOnly': True}).response.vpnConnection.vpnConnectionId
             wait_vpn_connections_state(self.a1_r1, [vpn_conn_id], state='available')
-
+            time.sleep(120)
             self.a1_r1.intel.vpn.virtual_private_gateway.delete(owner=self.a1_r1.config.account.account_id, vpg_id=vgw_id, recursive=True)
             wait_VpnConnections_state(self.a1_r1, [vpn_conn_id], state='deleted')
             vpn_conn_id = None
@@ -65,10 +69,12 @@ class Test_delete_recursive(OscTinaTest):
                 except:
                     print('Could not delete vpc')
             resp = self.a1_r1.fcu.DescribeVpnConnections().response
-            tmp_list = [v.state for v in resp.vpnConnectionSet]
-            states = set(tmp_list)
-            assert not resp.vpnConnectionSet or (len(states) == 1 and states.pop() == 'deleted')
+            if resp.vpnConnectionSet:
+                tmp_list = [v.state for v in resp.vpnConnectionSet]
+                states = set(tmp_list)
+                assert not resp.vpnConnectionSet or (len(states) == 1 and states.pop() == 'deleted')
             resp = self.a1_r1.fcu.DescribeVpnGateways().response
-            tmp_list = [v.state for v in resp.vpnGatewaySet]
-            states = set(tmp_list)
-            assert not resp.vpnGatewaySet or (len(states) == 1 and states.pop() == 'deleted')
+            if resp.vpnGatewaySet:
+                tmp_list = [v.state for v in resp.vpnGatewaySet]
+                states = set(tmp_list)
+                assert len(states) == 1 and states.pop() == 'deleted'

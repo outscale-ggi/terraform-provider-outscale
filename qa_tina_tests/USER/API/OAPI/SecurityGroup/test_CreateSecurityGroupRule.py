@@ -53,8 +53,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
             IpRange='10.0.0.12/32',
             SecurityGroupId=self.sg3.SecurityGroupId)
         ret.check_response()
-        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                   'create_rule_valid_case_outbound.json'),
+        verify_response(ret.response, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'create_rule_valid_case_outbound.json'),
                         self.hints)
 
     def test_T2723_with_sg_to_link_param_inbound(self):

@@ -64,7 +64,7 @@ class Test_fw_vpc(OscTinaTest):
         retry = 30
         wait = 30
         for i in range(retry):
-            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'ntpq -pn')
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'chronyc sources')
             if re.search(r'\*({})'.format('|'.join(self.a1_r1.config.region.get_info(constants.FW_NTP_SERVER_PREFIX))), out):
                 break
             if i == retry - 1:
@@ -72,7 +72,7 @@ class Test_fw_vpc(OscTinaTest):
             time.sleep(wait)
 
     def test_T1869_check_zabbix(self):
-        assert SshTools.check_service(self.sshclient, 'zabbix-agent', 'zabbix_agent.* is running')
+        assert SshTools.check_service(self.sshclient, 'zabbix-agent', 'zabbix_agent|running')
 
     def test_T1870_check_consul(self):
         assert SshTools.check_service(self.sshclient, 'consul')
@@ -89,11 +89,11 @@ class Test_fw_vpc(OscTinaTest):
         pass
 
     def test_T1875_check_netns(self):
-        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec igw ifconfig | grep Link")
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec igw ifconfig")
         assert re.search('lo', out)
         assert re.search('{}'.format(self.vpc_info[VPC_ID]), out)
         assert re.search('wan', out)
-        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec {} ifconfig | grep Link".format(self.vpc_info[VPC_ID]))
+        out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ip netns exec {} ifconfig".format(self.vpc_info[VPC_ID]))
         assert re.search('lo', out)
         assert re.search('s-', out)
         assert re.search('ifw', out)
@@ -110,7 +110,7 @@ class Test_fw_vpc(OscTinaTest):
 
     def test_T1878_check_fdcp(self):
         out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "ps ax | grep dhcp")
-        pattern = re.compile('/sbin/dhclient')
+        pattern = re.compile('/usr/local/outscale/virtualenv36/bin/fdhcp')
         assert re.search(pattern, out)
 
     def test_T1876_check_hostname(self):
@@ -120,7 +120,7 @@ class Test_fw_vpc(OscTinaTest):
 
     def test_T1877_check_kernel(self):
         out, _, _ = SshTools.exec_command_paramiko(self.sshclient, "uname -a")
-        pattern = re.compile(' 4.14.14 ')
+        pattern = re.compile(' 4.19.141 ')
         assert re.search(pattern, out)
 
     def test_T1926_check_cpu_generation(self):

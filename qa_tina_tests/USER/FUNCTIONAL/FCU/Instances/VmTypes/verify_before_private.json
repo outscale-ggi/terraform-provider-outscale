@@ -1,0 +1,114 @@
+{
+    "requestId": "erased",
+    "reservationSet": [
+        {
+            "reservationId": "r-7c2eabef",
+            "ownerId": "###VALUE0###",
+            "groupSet": [
+                {
+                    "groupId": "###VALUE8###",
+                    "groupName": "KTBEHB"
+                }
+            ],
+            "instancesSet": [
+                {
+                    "instanceId": "###VALUE7###",
+                    "imageId": "###VALUE3###",
+                    "instanceState": {
+                        "code": "16",
+                        "name": "running"
+                    },
+                    "privateDnsName": "ip-10-0-1-64.in-west-2.compute.internal",
+                    "dnsName": "ows-10-27-14-19.in-west-2.compute.outscale.com",
+                    "keyName": "KEYPAIR_SRWSPE",
+                    "amiLaunchIndex": "0",
+                    "productCodes": null,
+                    "instanceType": "tinav1.c1r1p2",
+                    "launchTime": "2021-08-07T11:35:57.623Z",
+                    "placement": {
+                        "availabilityZone": "###VALUE2###",
+                        "groupName": null,
+                        "tenancy": "default"
+                    },
+                    "kernelId": null,
+                    "monitoring": {
+                        "state": "disabled"
+                    },
+                    "subnetId": "###VALUE10###",
+                    "vpcId": "###VALUE9###",
+                    "privateIpAddress": "10.0.1.64",
+                    "ipAddress": "10.27.14.19",
+                    "sourceDestCheck": "true",
+                    "groupSet": [
+                        {
+                            "groupId": "###VALUE8###",
+                            "groupName": "KTBEHB"
+                        }
+                    ],
+                    "architecture": "x86_64",
+                    "rootDeviceType": "ebs",
+                    "rootDeviceName": "/dev/sda1",
+                    "blockDeviceMapping": [
+                        {
+                            "deviceName": "/dev/sda1",
+                            "ebs": {
+                                "volumeId": "vol-fe2d104f",
+                                "status": "attached",
+                                "attachTime": "2021-08-07T11:35:57.623Z",
+                                "deleteOnTermination": "true"
+                            }
+                        }
+                    ],
+                    "virtualizationType": "hvm",
+                    "clientToken": null,
+                    "hypervisor": "xen",
+                    "networkInterfaceSet": [
+                        {
+                            "networkInterfaceId": "eni-adcb703b",
+                            "subnetId": "subnet-59e615dd",
+                            "vpcId": "###VALUE9###",
+                            "description": "Primary network interface",
+                            "ownerId": "###VALUE0###",
+                            "status": "in-use",
+                            "macAddress": "aa:1a:a7:c6:5e:57",
+                            "privateIpAddress": "10.0.1.64",
+                            "privateDnsName": "ip-10-0-1-64.in-west-2.compute.internal",
+                            "sourceDestCheck": "true",
+                            "groupSet": [
+                                {
+                                    "groupId": "###VALUE8###",
+                                    "groupName": "KTBEHB"
+                                }
+                            ],
+                            "attachment": {
+                                "attachmentId": "eni-attach-8a961c98",
+                                "deviceIndex": "0",
+                                "status": "attached",
+                                "attachTime": "2021-08-07T11:35:57.623Z",
+                                "deleteOnTermination": "true"
+                            },
+                            "association": {
+                                "publicIp": "10.27.14.19",
+                                "publicDnsName": "ows-10-27-14-19.in-west-2.compute.outscale.com",
+                                "ipOwnerId": "###VALUE0###"
+                            },
+                            "privateIpAddressesSet": [
+                                {
+                                    "privateIpAddress": "10.0.1.64",
+                                    "privateDnsName": "ip-10-0-1-64.in-west-2.compute.internal",
+                                    "primary": "true",
+                                    "association": {
+                                        "publicIp": "10.27.14.19",
+                                        "publicDnsName": "ows-10-27-14-19.in-west-2.compute.outscale.com",
+                                        "ipOwnerId": "###VALUE0###"
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "ebsOptimized": "false"
+                }
+            ]
+        }
+    ]
+}

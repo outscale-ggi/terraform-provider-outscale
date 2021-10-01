@@ -55,7 +55,7 @@ class Test_fw_ring(OscTinaTest):
         retry = 30
         wait = 30
         for i in range(retry):
-            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'ntpq -pn')
+            out, _, _ = SshTools.exec_command_paramiko(self.sshclient, 'chronyc sources')
             if re.search(r'\*({})'.format('|'.join(self.a1_r1.config.region.get_info(constants.FW_NTP_SERVER_PREFIX))), out):
                 break
             if i == retry - 1:
@@ -63,7 +63,7 @@ class Test_fw_ring(OscTinaTest):
             time.sleep(wait)
 
     def test_T1856_check_zabbix(self):
-        assert SshTools.check_service(self.sshclient, 'zabbix-agent', 'zabbix_agent.* is running')
+        assert SshTools.check_service(self.sshclient, 'zabbix-agent', 'zabbix_agent|running')
 
     def test_T1857_check_consul(self):
         assert SshTools.check_service(self.sshclient, 'consul')
