@@ -20,7 +20,7 @@ class Test_delete_recursive(OscTinaTest):
         super(Test_delete_recursive, cls).teardown_class()
 
     def test_T5073_recursive_true(self):
-        known_error('TINA-6762', "Remaining pending call vpn.delete_tunnel")
+        known_error('TINA-6014', "Pending calls after resources deletion")
         vpc_id = None
         vgw_id = None
         cgw_id = None

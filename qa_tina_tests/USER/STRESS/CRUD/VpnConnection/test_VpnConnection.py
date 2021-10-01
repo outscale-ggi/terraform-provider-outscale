@@ -87,7 +87,7 @@ class Test_VpnConnection(OscTinaTest):
                 self.a1_r1.intel.core.async_cancel(id=call_id)
             for call_id in error_call_ids:
                 self.a1_r1.intel.core.async_cancel(id=call_id)
-            known_error('TINA-6764', 'Pending calls remain when actions are done to close together')
+            known_error('TINA-6014', 'Pending calls after resources deletion')
             raise OscTestException('{} calls detected.'.format(len(pending_call_ids) + len(error_call_ids)))
         assert False, 'Remove known error code'
         if errors:
