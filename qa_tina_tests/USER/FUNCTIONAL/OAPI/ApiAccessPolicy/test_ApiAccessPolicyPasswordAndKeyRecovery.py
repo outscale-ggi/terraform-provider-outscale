@@ -21,7 +21,7 @@ class Test_ApiAccessPolicyPasswordAndKeyRecovery(OscTestAAP):
         self.osc_sdk.config.account.password = new_password
         resp = self.osc_sdk.icu.ListAccessKeys(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
                                                              osc_api.EXEC_DATA_CERTIFICATE: [self.client_cert[2], self.client_cert[1]]}).response
-        assert len(resp.accessKeys)
+        assert resp.accessKeys
         resp = self.osc_sdk.oapi.CreateAccessKey(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
                                                              osc_api.EXEC_DATA_CERTIFICATE: [self.client_cert[2], self.client_cert[1]]},
                                                  ExpirationDate=self.exp_date).response
