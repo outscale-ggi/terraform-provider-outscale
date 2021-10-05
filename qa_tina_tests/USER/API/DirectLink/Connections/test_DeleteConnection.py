@@ -61,7 +61,7 @@ class Test_DeleteConnection(OscTinaTest):
             self.a1_r1.directlink.DeleteConnection(connectionId='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'DirectConnectClientException', "Connection 'foo' does not exists.")
+            assert_error(error, 400, 'DirectConnectClientException', "Invalid ID received: foo. Expected format: dxcon-")
 
     def test_T584_no_param(self):
         if self.known_error:
@@ -79,7 +79,7 @@ class Test_DeleteConnection(OscTinaTest):
             self.a2_r1.directlink.DeleteConnection(connectionId=self.conn_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'DirectConnectClientException', "Connection '{}' does not exists.".format(self.conn_id))
+            assert_error(error, 400, 'DirectConnectClientException', "Connection '{}' does not exist.".format(self.conn_id))
 
     def test_T5734_with_extra_param(self):
         if self.known_error:
