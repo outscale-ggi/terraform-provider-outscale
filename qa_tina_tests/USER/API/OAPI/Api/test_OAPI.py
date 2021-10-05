@@ -49,6 +49,8 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_METHOD: 'GET'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            assert_error(error, 404 , "12000", "InvalidAction")
+            known_error("API-410", "Error has changed")
             assert_error(error, 405 , "2", "AccessDenied")
 
     # @pytest.mark.tag_sec_traceability
@@ -100,8 +102,8 @@ class Test_OAPI(OscTinaTest):
             assert '/' + call in DOCUMENTATIONS['oapi'][self.version][PATHS]
 
     def test_T4688_check_oapi_including_version(self):
-        batcmd = "curl -X POST https://api.{}.outscale.com/api/V1/ReadPublicIpRanges".format(self.a1_r1.config.region.name)
-        batcmd += " -d '{}'"
+        batcmd = 'curl -X POST https://api.{}.outscale.com/api/V1/ReadPublicIpRanges'.format(self.a1_r1.config.region.name)
+        batcmd += ' -H "Content-Type: application/json" -d "{}"'
         result = subprocess.check_output(batcmd, shell=True)
         json_result = json.loads(result)
         assert 'Errors' not in json_result
@@ -151,6 +153,8 @@ class Test_OAPI(OscTinaTest):
                 if tag.ResourceId in sg_ids and tag.Key == 'key':
                     assert tag.Value == tag_value
         except OscApiException as error:
+            assert_error(error, 404 , "12000", "InvalidAction")
+            known_error("API-410", "Error has changed")
             assert_error(error, 405 , "2", "AccessDenied")
         finally:
             if resp_tags:
@@ -168,11 +172,9 @@ class Test_OAPI(OscTinaTest):
     def test_T4907_incorrect_content_type(self):
         try:
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_CONTENT_TYPE: 'application/toto'})
-            known_error('GTW-1439', 'Call with incorrect content type should not be successful.')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert False, 'Remove known error code'
-            assert error.message == 'Wrong sign method : only OSC/AWS supported.'
+            assert_oapi_error(error, 415 , "UnsupportedMediaType", 3010)
 
     def test_T4918_before_date_time_stamp(self):
         try:
@@ -181,7 +183,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 401, "AccessDenied", 1)
+            assert_oapi_error(error, 401 , "AccessDenied", 15)
 
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -205,7 +207,7 @@ class Test_OAPI(OscTinaTest):
                                                           osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 401, "AccessDenied", 1)
+            assert_oapi_error(error, 401, "AccessDenied", 15)
 
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -219,7 +221,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 401, "AccessDenied", 1)
+            assert_oapi_error(error, 401, "AccessDenied", 15)
 
     def test_T4922_incorrect_date_stamp(self):
         date_stamp = 'toto'
@@ -231,7 +233,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 401, "AccessDenied", 1)
+            assert_oapi_error(error, 401, "AccessDenied", 15)
 
     def test_T4924_empty_date_stamp(self):
         try:
@@ -251,7 +253,7 @@ class Test_OAPI(OscTinaTest):
                                                                 osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful : {}'.format(ret.response.ResponseContext.RequestId)
         except OscException as error:
-            assert_oapi_error(error, 401, "AccessDenied", 1)
+            assert_oapi_error(error, 401, "AccessDenied", 15)
 
         date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -279,7 +281,7 @@ class Test_OAPI(OscTinaTest):
                                                                 osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful : {}'.format(ret.response.ResponseContext.RequestId)
         except OscException as error:
-            assert_oapi_error(error, 401, "AccessDenied", 1)
+            assert_oapi_error(error, 401, "AccessDenied", 15)
 
         date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -291,6 +293,6 @@ class Test_OAPI(OscTinaTest):
     def test_T5321_method_options(self):
         ret = self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_METHOD: 'OPTIONS'})
         assert ret.status_code == 204
-        assert ret.headers['Access-Control-Allow-Methods'] == 'OPTIONS,POST'
+        assert ret.headers['Access-Control-Allow-Methods'] == 'GET,OPTIONS,POST'
         assert ret.headers['Access-Control-Allow-Origin'] == '*'
         assert ret.headers['Access-Control-Max-Age'] == '86400'
