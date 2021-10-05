@@ -324,5 +324,5 @@ class Test_ReadImages(OscTinaTest):
     def test_T5969_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Image', self.image_ids,
                                             'oapi.ReadImages', 'Images.ImageId')
-        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        assert indexes == [6, 24, 25, 26, 27, 28, 29]
         known_error('API-399', 'Read calls do not support wildcards in tag filtering')
