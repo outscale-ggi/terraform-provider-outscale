@@ -747,9 +747,8 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T5871_with_missing_cpu_gen(self):
         vm_info = None
-        # Pour les known error TINA 6689, TINA 6685 et TINA 6686.
-        # Ils sont en debut de test pour faire echoué les tests volentairement.
-        known_error('TINA-6689', 'Instance type should raise an error')
+        # Pour le known error TINA 6790.Il est en debut de test pour faire échouer les tests volentairement.
+        known_error('TINA-6790', 'Instance type should raise an error')
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tina.c1r1')
         except OscApiException as err:
@@ -760,7 +759,7 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T5872_with_missing_cpu_gen_value(self):
         vm_info = None
-        known_error('TINA-6689', 'Instance type should raise an error')
+        known_error('TINA-6790', 'Instance type should raise an error')
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav.c1r1')
         except OscApiException as err:
@@ -782,7 +781,7 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T5874_with_missing_perf_flag_value(self):
         vm_info = None
-        known_error('TINA-6689', 'Instance type should raise an error')
+        known_error('TINA-6790', 'Instance type should raise an error')
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav1.c1r1p')
         except OscApiException as err:
@@ -804,13 +803,12 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T5876_with_perf_flag_set_at_four(self):
         vm_info = None
-        known_error('TINA-6689', 'Instance type should raise an error')
         try:
             vm_info = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                                 MinVmsCount=1, MaxVmsCount=1, VmType='tinav1.c1r1p4').response.Vms[0].VmId
             assert False, 'call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InsufficientCapacity', '10001')
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
         finally:
             if vm_info:
                 self.a1_r1.oapi.DeleteVms(VmIds=[vm_info])
@@ -818,12 +816,11 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T5877_with_missing_core_value(self):
         vm_info = None
-        known_error('TINA-6685', 'Internal error when creating an instance with missing vCPU value')
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav1.cr1')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 500, 'InternalError', '2000')
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -841,12 +838,11 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T5879_with_missing_memory_value(self):
         vm_info = None
-        known_error('TINA-6686', 'Internal error when creating an instance with missing memory value')
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav1.c1r')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 500, 'InternalError', '2000')
+            assert_oapi_error(err, 400, 'InvalidResource', '5024')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -875,7 +871,7 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T5920_with_cpu_gen_value_set_at_six(self):
         vm_info = None
-        known_error('TINA-6689', 'Instance type should raise an error')
+        known_error('TINA-6790', 'Instance type should raise an error')
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav6.c1r1')
             assert False, 'call should not have been successful'
