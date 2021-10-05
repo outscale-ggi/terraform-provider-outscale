@@ -115,7 +115,7 @@ class Test_AllocatePrivateVirtualInterface(OscTinaTest):
                 ownerAccount=self.a1_r1.config.account.account_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Connection is not available")
+            assert_error(error, 400, "DirectConnectClientException", "Connection is not in valid state")
         finally:
             if ret:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=ret.response.virtualInterfaceId)
