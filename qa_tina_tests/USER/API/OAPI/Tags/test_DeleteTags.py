@@ -2,6 +2,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -87,6 +88,8 @@ class Test_DeleteTags(OscTinaTest):
             self.a1_r1.oapi.DeleteTags(ResourceIds=[self.is_id], Tags=[{'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
+            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            known_error('API-415', 'Error did change')
             assert_oapi_error(err, 400, 'InvalidParameterValue', '4069')
 
     def test_T2517_empty_tags_key(self):
