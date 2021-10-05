@@ -6,6 +6,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_tina_tools.test_base import OscTinaTest
+from qa_test_tools.test_base import known_error
 
 
 @pytest.mark.region_directlink
@@ -85,6 +86,8 @@ class Test_CreateDirectLink(OscTinaTest):
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='alpha1Gbps', DirectLinkName='test_name', Location=self.location)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047', None)
+            known_error("API-413", "Change error code on oapi call CreateDirectLink")
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045', None)
         try:
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='1', DirectLinkName='test_name', Location=self.location)
