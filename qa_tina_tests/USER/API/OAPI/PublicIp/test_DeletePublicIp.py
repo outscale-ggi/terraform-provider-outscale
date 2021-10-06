@@ -5,7 +5,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
-from qa_support_tools.account.cleanup_service_instances import delete_lbu
+from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 
 
 class Test_DeletePublicIp(OscTinaTest):

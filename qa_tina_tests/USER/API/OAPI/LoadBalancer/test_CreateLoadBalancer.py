@@ -702,10 +702,8 @@ class Test_CreateLoadBalancer(LoadBalancer):
         vm_info = None
         try:
             public_ip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
-    
             vm_info = oapi.create_Vms(self.a1_r1)
             self.a1_r1.oapi.LinkPublicIp(VmId=vm_info[info_keys.VM_IDS][0], PublicIp=public_ip)
-    
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
                                                    LoadBalancerName=name,
