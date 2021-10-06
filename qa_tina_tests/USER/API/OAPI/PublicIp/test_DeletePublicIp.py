@@ -1,9 +1,11 @@
-
+from time import sleep
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
+from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_tina_tools.test_base import OscTinaTest
+from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
+from qa_support_tools.account.cleanup_service_instances import delete_lbu
 
 
 class Test_DeletePublicIp(OscTinaTest):
@@ -101,3 +103,29 @@ class Test_DeletePublicIp(OscTinaTest):
     def test_T2931_with_valid_public_ip_id(self):
         self.a1_r1.oapi.DeletePublicIp(PublicIpId=self.ip_id)
         self.ip = None
+
+    def test_T5812_del_public_ip_before_public_lbu(self):
+        ret_ip = self.a1_r1.oapi.CreatePublicIp()
+        public_ip = ret_ip.response.PublicIp.PublicIp
+        name = id_generator(prefix='lbu-')
+        try:
+            self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                                                     LoadBalancerName=name,
+                                                     PublicIp=public_ip,
+                                                     SubregionNames=[self.a1_r1.config.region.az_name])
+            try:
+                self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
+                assert False, "Call should not have been successful"
+            except OscApiException as error:
+                assert_oapi_error(error, 409, 'ResourceConflict', '9031')
+        finally:
+            if name:
+                try:
+                    self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
+                    delete_lbu(self.a1_r1, name)
+                    cleanup_load_balancers(self.a1_r1,  filters={'LoadBalancerNames': name}, force=True)
+                except:
+                    print('Could not delete lbu')
+            if public_ip:
+                sleep(5)
+                self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
