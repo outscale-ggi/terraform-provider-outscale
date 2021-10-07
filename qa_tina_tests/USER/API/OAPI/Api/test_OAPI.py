@@ -101,6 +101,21 @@ class Test_OAPI(OscTinaTest):
         for call in result2['Calls']:
             assert '/' + call in DOCUMENTATIONS['oapi'][self.version][PATHS]
 
+    def test_T6060_check_oapi_details_and_version(self):
+        batcmd = "curl -X POST https://api.{}.outscale.com/api/v1".format(self.a1_r1.config.region.name)
+        result = subprocess.check_output(batcmd, shell=True)
+        result1 = json.loads(result)
+        assert 'Version' in result1
+        batcmd += '.' + result1['Minor']
+        result = subprocess.check_output(batcmd, shell=True)
+        result2 = json.loads(result)
+        assert 'Version' in result2 and result1['Version'] == result2['Version']
+        assert version.parse(result2['Version']).major == self.version.major
+        assert version.parse(result2['Version']).minor == self.version.minor
+        assert len(DOCUMENTATIONS['oapi'][self.version][PATHS]) == len(result2['Calls'])
+        for call in result2['Calls']:
+            assert '/' + call in DOCUMENTATIONS['oapi'][self.version][PATHS]
+
     def test_T4688_check_oapi_including_version(self):
         batcmd = 'curl -X POST https://api.{}.outscale.com/api/V1/ReadPublicIpRanges'.format(self.a1_r1.config.region.name)
         batcmd += ' -H "Content-Type: application/json" -d "{}"'
