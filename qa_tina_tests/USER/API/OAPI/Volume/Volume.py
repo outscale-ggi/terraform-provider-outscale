@@ -31,6 +31,7 @@ def validate_volume_response(volume, **kwargs):
     state = kwargs.get('state')
     tags = kwargs.get('tags')
     linked_volumes = kwargs.get('linked_volumes')
+    creation_date = kwargs.get('creation_date')
 
     if vol_id:
         assert volume.VolumeId == vol_id
@@ -61,3 +62,5 @@ def validate_volume_response(volume, **kwargs):
                             .format(getattr(link, key), value, key))
     if size:
         assert volume.Size == size
+    if creation_date:
+        assert volume.CreationDate == creation_date
