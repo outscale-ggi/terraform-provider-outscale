@@ -21,6 +21,7 @@ def validate_snasphot(snap, **kwargs):
     assert snap.State in ['completed', 'pending', 'pending/queued']
     assert isinstance(snap.Progress, int)
     assert 0 <= snap.Progress <= 100
+    assert hasattr(snap, 'CreationDate')
     permission = kwargs.get('permission')
     if permission:
         if hasattr(permission, 'AccountIds'):
