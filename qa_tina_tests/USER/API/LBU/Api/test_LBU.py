@@ -176,6 +176,7 @@ class Test_LBU(OscTinaTest):
                                                       osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
 
     def test_T6026_after_stamps(self):
+        sleep(2)
         try:
             date_time = datetime.datetime.utcnow() + datetime.timedelta(days=MIN_OVERTIME)
             date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')

@@ -97,5 +97,5 @@ class Test_DescribeVolumes(OscTinaTest):
 
     def test_T5966_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Volume', self.vol_id_list, 'fcu.DescribeVolumes', 'volumeSet.volumeId')
-        assert indexes == [5, 6, 7, 8, 9, 10, 24, 25, 26, 27, 28, 29]
+        assert indexes == [6, 24, 25, 26, 27, 28, 29]
         known_error('TINA-6757', 'DescribeVolumes does not support wildcards in key value of tag:key filtering')

@@ -83,7 +83,7 @@ class Test_DeleteVirtualInterface(OscTinaTest):
             self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId='dxvif-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Virtual interface 'dxvif-12345678' does not exists.")
+            assert_error(error, 400, "DirectConnectClientException", "Virtual interface 'dxvif-12345678' does not exist.")
 
     def test_T5740_with_extra_param(self):
         if self.known_error:

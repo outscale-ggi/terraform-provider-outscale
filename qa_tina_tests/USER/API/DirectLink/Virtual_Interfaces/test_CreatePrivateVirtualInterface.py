@@ -59,7 +59,7 @@ class Test_CreatePrivateVirtualInterface(OscTinaTest):
             interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                                  newPrivateVirtualInterface=interface)
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Connection is not available")
+            assert_error(error, 400, "DirectConnectClientException", "Connection is not in valid state")
         finally:
             if interface_info:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)
@@ -185,7 +185,7 @@ class Test_CreatePrivateVirtualInterface(OscTinaTest):
                 interface_info2 = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                                       newPrivateVirtualInterface=interface)
             except OscApiException as error:
-                assert_error(error, 400, "DirectConnectClientException", "An Interface already exists with this VPN gateway: 2")
+                assert_error(error, 400, "DirectConnectClientException", "Interface already exists with same parameters")
             finally:
                 if interface_info2:
                     self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info2.response.virtualInterfaceId)

@@ -82,7 +82,7 @@ class Test_CreateVolume(OscTinaTest):
             else:
                 min_size = VOLUME_SIZES[kwargs['VolumeType']]['min_size']
                 max_size = VOLUME_SIZES[kwargs['VolumeType']]['max_size']
-                assert error.message == "Volume size must be between '{}' and '{}'".format(min_size, max_size)
+                assert error.message == "Volume size must be between '{}' and '{}' GiB".format(min_size, max_size)
             good_exception_raise = True
         finally:
             if vol_id:

@@ -69,13 +69,16 @@ class Test_CreateLoadBalancerTags(OscTinaTest):
                                                    Tags=[{'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4069)
+            assert_oapi_error(error, 400, 'MissingParameter', 7000)
 
     def test_T4695_missing_tag_value(self):
         create_lbu_tags_resp = None
         try:
             create_lbu_tags_resp = self.a1_r1.oapi.CreateLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
                                                                           Tags=[{'Key': 'key'}]).response
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert_oapi_error(error, 400, 'MissingParameter', 7000)
         finally:
             if create_lbu_tags_resp:
                 self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],

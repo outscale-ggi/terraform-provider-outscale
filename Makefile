@@ -146,7 +146,7 @@ pylint: init-ci
 pylint-mr: init-ci
 	@echo "Static code analysis..."
 	export PYTHONPATH=$(PYTHON_PATH);                 \
-    pylint --rcfile=./pylint.conf $$(git diff --name-only $(MR_SRC) $(MR_DST) | grep "\.py$$");
+    pylint --rcfile=./pylint.conf ./qa_tina_tests/__init__.py $$(git diff --name-only $(MR_SRC) $(MR_DST) | grep "\.py$$");
 
 pylint-diff: init-ci
 	@echo "Static code analysis..."
@@ -166,7 +166,7 @@ bandit: init-ci
 bandit-mr: init-ci
 	@echo "Static code analysis..."
 	export PYTHONPATH=$(PYTHON_PATH);                         \
-    bandit -r -l --configfile bandit.conf $$(git diff --name-only $(MR_SRC) $(MR_DST) | grep "\.py$$");
+    bandit -r -l --configfile bandit.conf ./qa_tina_tests/__init__.py $$(git diff --name-only $(MR_SRC) $(MR_DST) | grep "\.py$$");
 
 bandit-diff: init-ci
 	@echo "Static code analysis..."
