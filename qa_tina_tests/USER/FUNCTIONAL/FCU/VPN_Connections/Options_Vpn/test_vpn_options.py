@@ -15,8 +15,10 @@ options = [ "aes128-sha256-modp1024!",
 @pytest.mark.region_internet
 class Test_vpn_options(Vpn):
 
+    @pytest.mark.centos7
     def test_T5427_vpn_static_strongswan_v1_multi_options(self):
         self.exec_test_vpn(static=True, racoon=False, default_rtb=True, options=options, ike="ikev1")
 
+    @pytest.mark.centos7
     def test_T5428_vpn_static_strongswan_v2_multi_options(self):
         self.exec_test_vpn(static=True, racoon=False, default_rtb=True, options=options, ike="ikev2")
