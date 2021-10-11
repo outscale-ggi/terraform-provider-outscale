@@ -2,11 +2,11 @@
 import string
 import json
 
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdks.osc_sdk import OscSdk
 from qa_tina_tools.test_base import OscTinaTest
 from qa_test_tools import account_tools, misc
-from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools.config import OscConfig
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.test_base import known_error
 
 
