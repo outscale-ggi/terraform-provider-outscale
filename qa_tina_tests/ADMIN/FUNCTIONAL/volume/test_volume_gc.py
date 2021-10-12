@@ -75,7 +75,6 @@ class Test_volume_gc(OscTinaTest):
                     self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
             if self.volume_id:
                 self.a1_r1.fcu.DeleteVolume(VolumeId=self.volume_id)
-                self.volume_id = None
             if self.inst_info:
                 delete_tools.delete_instances(self.a1_r1, self.inst_info)
         finally:
