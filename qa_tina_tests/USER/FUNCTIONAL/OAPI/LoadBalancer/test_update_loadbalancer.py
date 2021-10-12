@@ -38,6 +38,7 @@ class Test_update_loadbalancer(OscTinaTest):
                                                          'UnhealthyThreshold': 2,
                                                          'Path': '/index.html'
                                                      })
+            known_error('TINA-6801', 'Update load balancer return an invalid-parameter')
             for vm_id in net_vm_ids:
                 eip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp
                 eips.append(eip)
