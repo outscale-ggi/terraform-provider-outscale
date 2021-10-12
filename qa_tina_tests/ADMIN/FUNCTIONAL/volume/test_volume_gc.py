@@ -1,9 +1,3 @@
-# Créer un volume de 50Go
-# Rempli le
-# Créer 5 snapshot
-# delete vol
-# delete gc
-# wait snapshots completed
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants
 from qa_tina_tools.test_base import OscTinaTest
