@@ -1,3 +1,5 @@
+import pytest
+
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants
 from qa_tina_tools.test_base import OscTinaTest
@@ -11,9 +13,9 @@ MOUNTDIR = 'test_set_dir'
 FILENAME = 'test_set_file.txt'
 VOL_SIZE = 50
 WRITE_SIZE = 10
-NB_SNAP_VOL = 5
+NB_SNAP_VOL = 10
 
-
+@pytest.mark.region_admin
 class Test_volume_gc(OscTinaTest):
 
     @classmethod
@@ -36,14 +38,13 @@ class Test_volume_gc(OscTinaTest):
         self.snapshot_ids = []
         try:
             # create instance
-            self.inst_info = create_tools.create_instances(self.a1_r1, state='running',
-                                                           omi_id=self.a1_r1.config.region.get_info(config_constants.CENTOS7))
+            self.inst_info = create_tools.create_instances(self.a1_r1, state='running')
             # create volumes
-            _, self.volume_id = create_tools.create_volumes(self.a1_r1, size=VOL_SIZE, state='available')
+            _, [self.volume_id] = create_tools.create_volumes(self.a1_r1, size=VOL_SIZE, state='available')
             # attach volumes
             self.attach_resp = self.a1_r1.fcu.AttachVolume(Device=DEVICE,
                                                            InstanceId=self.inst_info[info_keys.INSTANCE_ID_LIST][0],
-                                                           VolumeId=self.volume_id[0]).response
+                                                           VolumeId=self.volume_id).response
             # wait instance is ready
             wait_tools.wait_instances_state(self.a1_r1, self.inst_info[info_keys.INSTANCE_ID_LIST], state='ready')
             # create ssh client
@@ -56,12 +57,9 @@ class Test_volume_gc(OscTinaTest):
             write_to_volume(sshclient, MOUNTDIR, FILENAME, WRITE_SIZE)
             # detach vol
             if self.attach_resp:
-                self.a1_r1.fcu.DetachVolume(VolumeId=self.volume_id[0])
-                wait_tools.wait_volumes_state(self.a1_r1, self.volume_id, state='available')
-            # create snapshots
-            for _ in range(NB_SNAP_VOL):
-                ret = self.a1_r1.fcu.CreateSnapshot(VolumeId=self.volume_id[0])
-                self.snapshot_ids.append(ret.response.snapshotId)
+                self.a1_r1.fcu.DetachVolume(VolumeId=self.volume_id)
+                wait_tools.wait_volumes_state(self.a1_r1, [self.volume_id], state='available')
+
         except Exception as error:
             try:
                 self.teardown_method(method)
@@ -76,7 +74,7 @@ class Test_volume_gc(OscTinaTest):
                 for snap_id in self.snapshot_ids:
                     self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
             if self.volume_id:
-                self.a1_r1.fcu.DeleteVolume(VolumeId=self.volume_id[0])
+                self.a1_r1.fcu.DeleteVolume(VolumeId=self.volume_id)
                 self.volume_id = None
             if self.inst_info:
                 delete_tools.delete_instances(self.a1_r1, self.inst_info)
@@ -84,14 +82,14 @@ class Test_volume_gc(OscTinaTest):
             super(Test_volume_gc, self).teardown_method(method)
 
     def test_T6067_volume_gc_valid_call(self):
-        vol_id = self.volume_id[0]
-        if self.volume_id:
-            self.a1_r1.fcu.DeleteVolume(VolumeId=self.volume_id[0])
-            self.volume_id = None
-        self.a1_r1.intel.volume.gc()
+        vol_id = self.volume_id
+        # create snapshots
         for _ in range(NB_SNAP_VOL):
-            ret = wait_tools.wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=self.snapshot_ids)
-            assert ret.status_code == 200
+            self.snapshot_ids.append(self.a1_r1.fcu.CreateSnapshot(VolumeId=vol_id).response.snapshotId)
+        self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)
+        self.volume_id = None
+        self.a1_r1.intel.volume.gc()
+        wait_tools.wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=self.snapshot_ids)
         if vol_id:
-            ret = self.a1_r1.intel.volume.find(id=vol_id[0]).response.result
+            ret = self.a1_r1.intel.volume.find(id=vol_id).response.result
             assert len(ret) == 0
