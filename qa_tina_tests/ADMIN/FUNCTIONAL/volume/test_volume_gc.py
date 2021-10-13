@@ -82,7 +82,6 @@ class Test_volume_gc(OscTinaTest):
             super(Test_volume_gc, self).teardown_method(method)
 
     def test_T6067_volume_gc_valid_call(self):
-        ret = None
         vol_id = self.volume_id
         # create snapshots
         for _ in range(NB_SNAP_VOL):
