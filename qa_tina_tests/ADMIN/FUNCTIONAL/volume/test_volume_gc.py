@@ -94,7 +94,6 @@ class Test_volume_gc(OscTinaTest):
             wait_tools.wait_snapshots_state(osc_sdk=self.a1_r1, state='completed',
                                             snapshot_id_list=self.snapshot_ids)
         except AssertionError:
-            ret = self.a1_r1.fcu.DescribeSnapshots().response.snapshotSet
-            for snap in reversed(ret):
-                if snap.status != 'completed':
-                    known_error('TINA-6805', 'Not all snapshots reach completed status')
+            status = set(self.a1_r1.fcu.DescribeSnapshots().response.snapshotSet)
+            if len(status) > 1 or status.pop() != 'completed':
+                known_error('TINA-6805', 'Not all snapshots reach completed status')
