@@ -139,10 +139,6 @@ class Test_oos(OscTinaTest):
                 'https://{}.{}-website.{}.outscale.com'.format(bucket_name, service, self.a1_r1.config.region.name),
                 verify=self.a1_r1.config.region.get_info(constants.VALIDATE_CERTS)
             )
-            if "InvalidURI" in response.text:
-                known_error('OPS-14142', "OOS website bucket issue on IN1")
-            else:
-                assert False, 'Remove known error'
             assert "Hello World it's the index !" in response.text
         finally:
             errors = []
