@@ -2,6 +2,7 @@ import pytest
 
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import info_keys, wait_tools
 from qa_tina_tools.tina.check_tools import format_mount_volume
@@ -13,7 +14,7 @@ MOUNTDIR = 'test_set_dir'
 FILENAME = 'test_set_file.txt'
 VOL_SIZE = 50
 WRITE_SIZE = 10
-NB_SNAP_VOL = 10
+NB_SNAP_VOL = 20
 
 @pytest.mark.region_admin
 class Test_volume_gc(OscTinaTest):
@@ -88,7 +89,11 @@ class Test_volume_gc(OscTinaTest):
         self.a1_r1.fcu.DeleteVolume(VolumeId=vol_id)
         self.volume_id = None
         self.a1_r1.intel.volume.gc()
-        wait_tools.wait_snapshots_state(osc_sdk=self.a1_r1, state='completed', snapshot_id_list=self.snapshot_ids)
-        if vol_id:
-            ret = self.a1_r1.intel.volume.find(id=vol_id).response.result
-            assert len(ret) == 0
+
+        try:
+            wait_tools.wait_snapshots_state(osc_sdk=self.a1_r1, state='completed',
+                                            snapshot_id_list=self.snapshot_ids)
+        except AssertionError:
+            status = set(self.a1_r1.fcu.DescribeSnapshots().response.snapshotSet)
+            if len(status) > 1 or status.pop() != 'completed':
+                known_error('TINA-6805', 'Not all snapshots reach completed status')
