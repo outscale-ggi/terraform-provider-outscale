@@ -1,5 +1,5 @@
 import string
-from typing import Generator
+from typing import Generator, List
 from _pytest.fixtures import SubRequest
 import pytest
 
@@ -32,7 +32,7 @@ class Test_ReadDirectLinks(OscTinaTest):
 
     # fixture with param (need parametrize with indirect): create n DirectLink
     @pytest.fixture(scope="class")
-    def direct_link_list(self, request:SubRequest) -> list[OscObject]:
+    def direct_link_list(self, request:SubRequest) -> List[OscObject]:
         self.logger.debug("Create DirectLink list")
         count = request.param
         direct_link_list = []
@@ -65,7 +65,7 @@ class Test_ReadDirectLinks(OscTinaTest):
             self.a1_r1.oapi.DeleteDirectLink(DirectLinkId=direct_link.DirectLinkId)
 
     @pytest.mark.parametrize("direct_link_list", [2], indirect=True)
-    def test_T3904_empty_filters(self, direct_link_list:list[OscObject]):
+    def test_T3904_empty_filters(self, direct_link_list:List[OscObject]):
         dl_list = self.a1_r1.oapi.ReadDirectLinks().response.DirectLinks
         assert len(dl_list) == 2
         assert direct_link_list[0].DirectLinkId in [dl.DirectLinkId for dl in dl_list]
@@ -79,25 +79,25 @@ class Test_ReadDirectLinks(OscTinaTest):
     #    assert len(dl_list) == 0
 
     @pytest.mark.parametrize("direct_link_list", [2], indirect=True)
-    def test_T3905_filters_direct_link_ids_not_exist(self, direct_link_list:list[OscObject]):
+    def test_T3905_filters_direct_link_ids_not_exist(self, direct_link_list:List[OscObject]):
         _ = direct_link_list # fix Pylint: Unused argument
         dl_list = self.a1_r1.oapi.ReadDirectLinks(Filters={'DirectLinkIds': ['dxcon-12345678']}).response.DirectLinks
         assert len(dl_list) == 0
 
     @pytest.mark.parametrize("direct_link_list", [2], indirect=True)
-    def test_T6076_filters_direct_link_ids_invalid_value(self, direct_link_list:list[OscObject]):
+    def test_T6076_filters_direct_link_ids_invalid_value(self, direct_link_list:List[OscObject]):
         _ = direct_link_list # fix Pylint: Unused argument
         dl_list = self.a1_r1.oapi.ReadDirectLinks(Filters={'DirectLinkIds': ['foo']}).response.DirectLinks
         assert len(dl_list) == 0
 
     @pytest.mark.parametrize("direct_link_list", [2], indirect=True)
-    def test_T6077_filters_direct_link_ids_empty_list(self, direct_link_list:list[OscObject]):
+    def test_T6077_filters_direct_link_ids_empty_list(self, direct_link_list:List[OscObject]):
         _ = direct_link_list # fix Pylint: Unused argument
         dl_list = self.a1_r1.oapi.ReadDirectLinks(Filters={'DirectLinkIds': []}).response.DirectLinks
         assert len(dl_list) == 0
 
     @pytest.mark.parametrize("direct_link_list", [2], indirect=True)
-    def test_T6078_filters_direct_link_ids_valid(self, direct_link_list:list[OscObject]):
+    def test_T6078_filters_direct_link_ids_valid(self, direct_link_list:List[OscObject]):
         dl_list = self.a1_r1.oapi.ReadDirectLinks(Filters={'DirectLinkIds': [direct_link_list[0].DirectLinkId]}).response.DirectLinks
         assert len(dl_list) == 1
         assert direct_link_list[0].DirectLinkId in [dl.DirectLinkId for dl in dl_list]
@@ -111,21 +111,21 @@ class Test_ReadDirectLinks(OscTinaTest):
     #    check_tools.check_oapi_error(error.value, 4110)
 
     @pytest.mark.parametrize("direct_link_list", [2], indirect=True)
-    def test_T6079_filters_direct_link_ids_invalid_type_str(self, direct_link_list:list[OscObject]):
+    def test_T6079_filters_direct_link_ids_invalid_type_str(self, direct_link_list:List[OscObject]):
         _ = direct_link_list # fix Pylint: Unused argument
         with pytest.raises(OscApiException) as error:
             self.a1_r1.oapi.ReadDirectLinks(Filters={'DirectLinkIds': "foo"})
         check_tools.check_oapi_error(error.value, 4110)
 
     @pytest.mark.parametrize("direct_link_list", [2], indirect=True)
-    def test_T6080_filters_direct_link_ids_invalid_type_bool(self, direct_link_list:list[OscObject]):
+    def test_T6080_filters_direct_link_ids_invalid_type_bool(self, direct_link_list:List[OscObject]):
         _ = direct_link_list # fix Pylint: Unused argument
         with pytest.raises(OscApiException) as error:
             self.a1_r1.oapi.ReadDirectLinks(Filters={'DirectLinkIds': True})
         check_tools.check_oapi_error(error.value, 4110)
 
     @pytest.mark.parametrize("direct_link_list", [2], indirect=True)
-    def test_T6081_filters_direct_link_ids_none(self, direct_link_list:list[OscObject]):
+    def test_T6081_filters_direct_link_ids_none(self, direct_link_list:List[OscObject]):
         _ = direct_link_list # fix Pylint: Unused argument
         with pytest.raises(OscApiException) as error:
             self.a1_r1.oapi.ReadDirectLinks(Filters={'DirectLinkIds': None})
