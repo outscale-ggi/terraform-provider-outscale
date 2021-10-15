@@ -12,6 +12,7 @@ class Test_vpn_dynamic(Vpn):
     def test_T126_test_vpn_dynamic(self):
         self.exec_test_vpn(static=False, racoon=True, default_rtb=True)
 
+    @pytest.mark.centos7
     @pytest.mark.tag_redwire
     def test_T5141_test_vpn_dynamic_strongswan(self):
         self.exec_test_vpn(static=False, racoon=False, default_rtb=True)

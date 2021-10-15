@@ -1,14 +1,15 @@
 import os
 import time
+from time import sleep
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error, assert_dry_run
 from qa_test_tools.compare_objects import verify_response, create_hints
-from qa_test_tools.test_base import known_error
+from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
 from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_lbu
 from qa_tina_tools.tina import oapi, info_keys
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
 
@@ -671,16 +672,10 @@ class Test_CreateLoadBalancer(LoadBalancer):
         hints = []
         public_ip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
         name = id_generator(prefix='lbu-')
-        try:
-            ret = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+        ret = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
                                                      LoadBalancerName=name,
                                                      PublicIp=public_ip,
                                                      SubregionNames=[self.a1_r1.config.region.az_name])
-            self.lb_names.append(name)
-            assert False, 'Remove known error code'
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
-            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
         hints.append(name)
         hints.append(public_ip)
         hints.append(self.a1_r1.config.region.az_name)
@@ -691,43 +686,15 @@ class Test_CreateLoadBalancer(LoadBalancer):
                         os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5811_public_lbu_with_eip.json'),
                         hints,
                         ignored_keys=["DnsName"])
-
-        if public_ip:
-            self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
-
-    def test_T5812_del_public_lbu_before_public_ip(self):
-        hints = []
-        ret_ip = self.a1_r1.oapi.CreatePublicIp()
-        public_ip = ret_ip.response.PublicIp.PublicIp
-        name = id_generator(prefix='lbu-')
-        try:
-            ret = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                                     LoadBalancerName=name,
-                                                     PublicIp=public_ip,
-                                                     SubregionNames=[self.a1_r1.config.region.az_name])
-            self.lb_names.append(name)
-            assert False, 'Remove known error code'
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
-            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
-        hints.append(name)
-        hints.append(public_ip)
-        hints.append(self.a1_r1.config.region.az_name)
-
-        hints = create_hints(hints)
-
-        verify_response(ret.response,
-                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5812_del_public_lbu_before_public_ip.json'),
-                        hints,
-                        ignored_keys=["DnsName"])
-
         if name:
             try:
                 self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
+                delete_lbu(self.a1_r1, name)
+                cleanup_load_balancers(self.a1_r1,  filters={'LoadBalancerNames': name}, force=True)
             except:
                 print('Could not delete lbu')
-
         if public_ip:
+            sleep(2)
             self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
 
     def test_T5813_public_lbu_with_used_public_ip(self):
@@ -735,20 +702,15 @@ class Test_CreateLoadBalancer(LoadBalancer):
         vm_info = None
         try:
             public_ip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
-
             vm_info = oapi.create_Vms(self.a1_r1)
             self.a1_r1.oapi.LinkPublicIp(VmId=vm_info[info_keys.VM_IDS][0], PublicIp=public_ip)
-
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                               LoadBalancerName=name,
-                                               PublicIp=public_ip,
-                                               SubregionNames=[self.a1_r1.config.region.az_name])
-            self.lb_names.append(name)
-            assert False, 'Remove known error code'
+                                                   LoadBalancerName=name,
+                                                   PublicIp=public_ip,
+                                                   SubregionNames=[self.a1_r1.config.region.az_name])
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
-            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
+            assert_oapi_error(error, 409, 'ResourceConflict', '9031')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)

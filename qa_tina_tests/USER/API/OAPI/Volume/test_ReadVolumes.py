@@ -225,5 +225,5 @@ class Test_ReadVolumes(OscTinaTest):
 
     def test_T5983_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Volume', self.vol_ids, 'oapi.ReadVolumes', 'Volumes.VolumeId')
-        assert indexes == [5, 6, 7, 8, 9, 10, 24, 25, 26, 27, 28, 29]
+        assert indexes == [6, 24, 25, 26, 27, 28, 29]
         known_error('API-399', 'ReadVolumes does not support wildcards filtering')
