@@ -129,7 +129,7 @@ init-build:
 
 init-ci: init-dev
 	@echo "Init test environment..."
-	pip install pylint==2.6.0;
+	pip install pylint==2.11.1;
 	pip install bandit==1.7.0;
 
 check-init: init-ci init-build
