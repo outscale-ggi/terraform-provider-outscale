@@ -38,7 +38,7 @@ class Test_get_ssh_infos(OscTinaTest):
             vpn_id = ret.response.vpnConnection.vpnConnectionId
             wait_tools.wait_vpn_connections_state(self.a1_r1, [vpn_id], state='available')
 
-            ret = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=vgw_id)
+            ret = self.a1_r1.intel.netimpl.firewall.find_firewalls(resource=vgw_id)
             inst_id = ret.response.result.master.vm
             wait_tools.wait_instance_service_state(self.a1_r1, [inst_id], state='ready')
             ret = self.a1_r1.intel.nic.find(filters={'vm': inst_id})
@@ -69,7 +69,7 @@ class Test_get_ssh_infos(OscTinaTest):
         try:
             vpc_info = create_vpc(self.a1_r1, nb_instance=1, igw=True)
 
-            ret = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=vpc_info[VPC_ID])
+            ret = self.a1_r1.intel.netimpl.firewall.find_firewalls(resource=vpc_info[VPC_ID])
             inst_id = ret.response.result.master.vm
 
             ret = self.a1_r1.intel.nic.find(filters={'vm': inst_id})
