@@ -1,14 +1,16 @@
 
 import os
-
+from time import sleep
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
 from qa_test_tools.compare_objects import create_hints, verify_response
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.tina import oapi, info_keys
+from qa_tina_tools.tools.tina.delete_tools import delete_lbu
+from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer
-
 
 class Test_UpdateLoadBalancer(LoadBalancer):
 
@@ -529,3 +531,62 @@ class Test_UpdateLoadBalancer(LoadBalancer):
         resp = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=self.vpc_lb_name, SecurityGroups=[]).response
         verify_response(resp, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'update_empty_sg_sgroup.json'),
                         self.hints, self.ignored_keys)
+
+    def test_T6092_update_lbu_with_new_eip(self):
+        public_ip_1 = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
+        name = id_generator(prefix='lbu-')
+        ret_1 = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                                                   LoadBalancerName=name,
+                                                   PublicIp=public_ip_1,
+                                                   SubregionNames=[self.a1_r1.config.region.az_name])
+
+        public_ip_2 = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
+        try:
+            ret_2 = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=name,
+                                                       PublicIp=public_ip_2)
+            known_error('TINA-6818', 'Update EIP for load balancer return an MissingParameter')
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert False, 'Remove known error'
+            assert_oapi_error(error, 400, 'MissingParameter', 7000)
+
+        if name:
+            try:
+                self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
+                delete_lbu(self.a1_r1, name)
+                cleanup_load_balancers(self.a1_r1,  filters={'LoadBalancerNames': name}, force=True)
+            except:
+                print('Could not delete lbu')
+        if public_ip_1:
+            sleep(2)
+            self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip_1)
+        if public_ip_2:
+            sleep(2)
+            self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip_2)
+
+    def test_T6093_update_lbu_with_empty_eip(self):
+        public_ip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
+        name = id_generator(prefix='lbu-')
+        ret_1 = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                                                   LoadBalancerName=name,
+                                                   PublicIp=public_ip,
+                                                   SubregionNames=[self.a1_r1.config.region.az_name])
+        try:
+            ret_2 = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=name,
+                                                       PublicIp='')
+            known_error('TINA-6818', 'Update EIP for load balancer return an MissingParameter')
+            assert False, 'Call should not have been successful'
+        except OscApiException as error:
+            assert False, 'Remove known error'
+            assert_oapi_error(error, 400, 'MissingParameter', 7000)
+
+        if name:
+            try:
+                self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
+                delete_lbu(self.a1_r1, name)
+                cleanup_load_balancers(self.a1_r1,  filters={'LoadBalancerNames': name}, force=True)
+            except:
+                print('Could not delete lbu')
+        if public_ip:
+            sleep(2)
+            self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
