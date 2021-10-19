@@ -24,22 +24,12 @@ class Test_slot_history(OscTinaTest):
         assert len(ret.response.result) > 0, 'Could not find any history'
 
     def test_T5349_only_dates(self):
-        try:
-            ret = self.a1_r1.intel.monitor.slot_history(dt1=self.start_date, dt2=self.end_date)
-            assert False, 'Remove known error code'
-        except OscApiException as error:
-            assert_error(error, 200, -32603, "Internal error.")
-            known_error('TINA-6102', 'Unexpected internal error.')
+        ret = self.a1_r1.intel.monitor.slot_history(dt1=self.start_date, dt2=self.end_date)
         assert len(ret.response.result) > 0, 'Could not find any history'
 
     def test_T5340_server_without_dates(self):
         server_name = self.a1_r1.intel.hardware.get_servers().response.result[0].name
-        try:
-            ret = self.a1_r1.intel.monitor.slot_history(what=server_name)
-            assert False, 'Remove known error code'
-        except OscApiException as error:
-            assert_error(error, 200, -32603, "Internal error.")
-            known_error('TINA-6102', 'Unexpected internal error.')
+        ret = self.a1_r1.intel.monitor.slot_history(what=server_name)
         assert len(ret.response.result) > 0, 'Could not find any history'
 
     def test_T5350_server_with_dates(self):
@@ -67,9 +57,9 @@ class Test_slot_history(OscTinaTest):
             pytest.skip('Could not find any vgw.')
         vgw_id = None
         for res in ret.response.result:
-            tmp_res = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=res.id).response.result
-            if hasattr(tmp_res, 'master'):
-                vgw_id = res.id
+            tmp_res = self.a1_r1.intel.netimpl.firewall.find_firewalls(filters={'resource': res.id}).response.result
+            if len(tmp_res):
+                vgw_id = tmp_res[0].vm
                 break
         if not vgw_id:
             pytest.skip('Could not find any vgw.')
@@ -82,9 +72,9 @@ class Test_slot_history(OscTinaTest):
             pytest.skip('Could not find any vpc.')
         vpc_id = None
         for res in ret.response.result:
-            tmp_res = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=res.id).response.result
-            if hasattr(tmp_res, 'master'):
-                vpc_id = res.id
+            tmp_res = self.a1_r1.intel.netimpl.firewall.find_firewalls(filters={'resource': res.id}).response.result
+            if len(tmp_res):
+                vpc_id = tmp_res[0].vm
                 break
         if not vpc_id:
             pytest.skip('Could not find any vgw.')
