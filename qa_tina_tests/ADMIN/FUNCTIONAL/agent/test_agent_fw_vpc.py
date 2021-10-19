@@ -164,8 +164,8 @@ class Test_agent_fw_vpc(OscTinaTest):
             dest_addr=self.vpc_info[info_keys.SUBNETS][3][info_keys.INSTANCE_SET][0]['privateIpAddress'],
         )
 
-        ret = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=self.vpc_info[info_keys.VPC_ID])
-        inst_id = ret.response.result.master.vm
+        ret = self.a1_r1.intel.netimpl.firewall.find_firewalls(filters={'resource': self.vpc_info[info_keys.VPC_ID]})
+        inst_id = ret.response.result[0].vm
 
         ret = self.a1_r1.intel.nic.find(filters={'vm': inst_id})
 

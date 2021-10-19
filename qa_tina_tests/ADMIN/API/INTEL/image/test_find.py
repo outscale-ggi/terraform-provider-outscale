@@ -45,7 +45,7 @@ class Test_find(OscTinaTest):
         assert len(ret.response.result) == 1
 
     def test_T5572_with_key(self):
-        ret = self.a1_r1.intel.image.find(tags={'key1': None})
+        ret = self.a1_r1.intel.image.find(tag_keys=['key1'])
         assert len(ret.response.result) == 2
 
     def test_T5574_with_inexistant_value(self):

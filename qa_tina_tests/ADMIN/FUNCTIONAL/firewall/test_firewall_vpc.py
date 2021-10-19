@@ -64,8 +64,8 @@ class Test_firewall_vpc(OscTinaTest):
             sshclient, 'ping -W 1 -c 1 {}'.format(self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress']), retry=5, timeout=5)
         assert "1 packets transmitted, 1 received, 0% packet loss" in out
 
-        ret = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=self.vpc_info[VPC_ID])
-        inst_id = ret.response.result.master.vm
+        ret = self.a1_r1.intel.netimpl.firewall.find_firewalls(filters={'resource': self.vpc_info[VPC_ID]})
+        inst_id = ret.response.result[0].vm
 
         self.a1_r1.intel.instance.shutdown(owner=self.a1_r1.config.region.get_info(constants.FW_OWNER), instance_ids=[inst_id], force=True)
         self.a1_r1.intel.instance.terminate(owner=self.a1_r1.config.region.get_info(constants.FW_OWNER), instance_ids=[inst_id])
@@ -88,8 +88,8 @@ class Test_firewall_vpc(OscTinaTest):
             sshclient, 'ping -W 1 -c 1 {}'.format(self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress']), retry=5, timeout=5)
         assert "1 packets transmitted, 1 received, 0% packet loss" in out
 
-        ret = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=self.vpc_info[VPC_ID])
-        inst_id = ret.response.result.master.vm
+        ret = self.a1_r1.intel.netimpl.firewall.find_firewalls(filters={'resource': self.vpc_info[VPC_ID]})
+        inst_id = ret.response.result[0].vm
 
         self.a1_r1.intel.instance.shutdown(owner=self.a1_r1.config.region.get_info(constants.FW_OWNER), instance_ids=[inst_id], force=True)
 
