@@ -121,7 +121,6 @@ class Test_DeletePublicIp(OscTinaTest):
         finally:
             if name:
                 try:
-                    self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
                     delete_lbu(self.a1_r1, name)
                     cleanup_load_balancers(self.a1_r1,  filters={'LoadBalancerNames': name}, force=True)
                 except:
