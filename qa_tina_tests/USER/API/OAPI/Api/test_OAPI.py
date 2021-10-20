@@ -50,8 +50,6 @@ class Test_OAPI(OscTinaTest):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_error(error, 404 , "12000", "InvalidAction")
-            known_error("API-410", "Error has changed")
-            assert_error(error, 405 , "2", "AccessDenied")
 
     # @pytest.mark.tag_sec_traceability
     # def test_T2225_check_log(self):
@@ -169,8 +167,6 @@ class Test_OAPI(OscTinaTest):
                     assert tag.Value == tag_value
         except OscApiException as error:
             assert_error(error, 404 , "12000", "InvalidAction")
-            known_error("API-410", "Error has changed")
-            assert_error(error, 405 , "2", "AccessDenied")
         finally:
             if resp_tags:
                 self.a1_r1.oapi.DeleteTags(ResourceIds=sg_ids, Tags=[{'Key': tag_key, 'Value': tag_value}])
