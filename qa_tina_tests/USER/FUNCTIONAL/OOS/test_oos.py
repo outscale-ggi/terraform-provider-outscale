@@ -21,7 +21,7 @@ class Test_oos(OscTinaTest):
     def setup_class(cls):
         super(Test_oos, cls).setup_class()
         cls.bucket_created = False
-        cls.known_error = None
+        cls.known_error = False
         try:
             cls.logger.debug("Initialize data in a bucket")
 
@@ -44,8 +44,9 @@ class Test_oos(OscTinaTest):
                 if cls.a1_r1.config.region.name == 'in-west-2':
                     assert False, 'remove known error'
             except ClientError as err:
-                if cls.a1_r1.config.region.name == 'in-west-2' and err.response['Error']['Code'] == 'InvalidAccessKeyId':
-                    cls.known_error = ('OPS-14183', 'Configure OOS in IN2')
+                if cls.a1_r1.config.region.name == 'in-west-2' and\
+                        err.args[0] == 'An error occurred (403) when calling the CreateBucket operation: Forbidden':
+                    cls.known_error = True
                     return
                     # known_error('OPS-14183', 'Configure OOS in IN2')
                 raise err
