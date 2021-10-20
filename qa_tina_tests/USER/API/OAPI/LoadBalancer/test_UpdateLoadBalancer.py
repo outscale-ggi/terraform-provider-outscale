@@ -568,8 +568,7 @@ class Test_UpdateLoadBalancer(LoadBalancer):
                 self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip_2)
 
     def test_T6093_update_lbu_with_empty_eip(self):
-        public_ip_1 = None
-        public_ip_2 = None
+        public_ip = None
         name = id_generator(prefix='lbu-')
         ret_create_lbu = None
         try:
