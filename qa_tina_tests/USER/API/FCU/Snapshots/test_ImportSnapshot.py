@@ -158,7 +158,7 @@ class Test_ImportSnapshot(OscTinaTest):
             bucket_name = id_generator(prefix='t1056', chars=ascii_lowercase)
             # create snapshot export task
             ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id,
-                                                          ExportToOsu={'DiskImageFormat': self.supported_snap_types[0], 'OsuBucket': bucket_name})
+                                                          ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name})
             task_id = ret.response.snapshotExportTask.snapshotExportTaskId
             # wait completion export task
             wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
