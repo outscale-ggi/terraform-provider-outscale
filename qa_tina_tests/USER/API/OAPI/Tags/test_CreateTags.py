@@ -46,8 +46,6 @@ class Test_CreateTags(OscTinaTest):
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'MissingParameter', '7000')
-            known_error('API-415', 'Error did change')
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4069')
 
     def test_T2505_with_empty_key(self):
         try:
