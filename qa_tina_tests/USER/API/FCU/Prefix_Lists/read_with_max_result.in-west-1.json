@@ -4,13 +4,6 @@
     "prefixListSet": [
         {
             "cidrSet": [
-                "###VALUE27###"
-            ],
-            "prefixListId": "###VALUE25###",
-            "prefixListName": "###VALUE26###"
-        },
-        {
-            "cidrSet": [
                 "###VALUE20###"
             ],
             "prefixListId": "###VALUE9###",
@@ -36,6 +29,13 @@
             ],
             "prefixListId": "###VALUE12###",
             "prefixListName": "###VALUE13###"
+        },
+        {
+            "cidrSet": [
+                "###VALUE20###"
+            ],
+            "prefixListId": "###VALUE3###",
+            "prefixListName": "###VALUE4###"
         }
     ]
 }
