@@ -113,7 +113,7 @@ class Vpn(OscTinaTest):
 
     def teardown_method(self, method):
         try:
-            # delete all created ressources in setup
+            # delete all created resources in setup
             if self.vgw_id:
                 self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=self.vgw_id)
                 wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='deleted')
