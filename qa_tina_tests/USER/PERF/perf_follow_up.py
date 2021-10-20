@@ -29,7 +29,7 @@ LOGGING_LEVEL = logging.DEBUG
 
 PERF_TYPES = ['perf_objects_oos', 'perf_put_object_marine', 'perf_objects_osu', 'perf_oos', 'perf_osu', 'perf_snapshot',
               'perf_describe', 'perf_volume', 'perf_sg', 'perf_inst', 'perf_inst_windows', 'perf_inst_vpc',
-              'perf_simple_snapshot']
+              'perf_simple_snapshot', 'perf_ip_allocation']
 
 if __name__ == '__main__':
 
