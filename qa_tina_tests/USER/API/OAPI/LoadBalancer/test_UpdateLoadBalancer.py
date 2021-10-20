@@ -538,10 +538,11 @@ class Test_UpdateLoadBalancer(LoadBalancer):
         ret_create_lbu = None
         try:
             public_ip_1 = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
-            ret_create_lbu = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                                                LoadBalancerName=name,
-                                                                PublicIp=public_ip_1,
-                                                                SubregionNames=[self.a1_r1.config.region.az_name])
+            ret_create_lbu = self.a1_r1.oapi.CreateLoadBalancer(
+                Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                LoadBalancerName=name,
+                PublicIp=public_ip_1,
+                SubregionNames=[self.a1_r1.config.region.az_name])
 
             public_ip_2 = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
             try:
@@ -573,10 +574,11 @@ class Test_UpdateLoadBalancer(LoadBalancer):
         ret_create_lbu = None
         try:
             public_ip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
-            ret_create_lbu = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                                                LoadBalancerName=name,
-                                                                PublicIp=public_ip,
-                                                                SubregionNames=[self.a1_r1.config.region.az_name])
+            ret_create_lbu = self.a1_r1.oapi.CreateLoadBalancer(
+                Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                LoadBalancerName=name,
+                PublicIp=public_ip,
+                SubregionNames=[self.a1_r1.config.region.az_name])
             try:
                 ret = self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=name,
                                                            PublicIp='')
