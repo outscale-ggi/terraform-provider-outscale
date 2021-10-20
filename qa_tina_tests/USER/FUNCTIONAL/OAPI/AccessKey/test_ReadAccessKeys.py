@@ -44,7 +44,6 @@ class Test_ReadAccessKeys(OscTinaTest):
 
             try:
                 ret = user_sdk.icu.ListAccessKeys()
-                assert False, 'Remove known error code'
                 assert [key.accessKeyId for key in ret.response.accessKeys] == [user_key.AccessKeyId]
             except OscApiException as error:
                 misc.assert_error(error, 400, 'NotImplemented', 'IAM authentication is not supported for ICU.')
