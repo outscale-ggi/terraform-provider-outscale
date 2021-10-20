@@ -17,14 +17,12 @@ class Test_ImportSnapshot(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_ImportSnapshot, cls).setup_class()
-        # vdi et vdmk not supported
-        cls.supported_snap_types = ['qcow2']
         cls.vol_id = None
         cls.snap_id = None
         cls.task_ids = []
         cls.bucket_name = None
         cls.bucket_created = False
-        cls.known_error = None
+        cls.known_error = False
         try:
             # create volume
             ret = cls.a1_r1.fcu.CreateVolume(AvailabilityZone=cls.a1_r1.config.region.az_name, Size='1')
@@ -36,22 +34,21 @@ class Test_ImportSnapshot(OscTinaTest):
             wait_snapshots_state(osc_sdk=cls.a1_r1, state='completed', snapshot_id_list=[cls.snap_id])
             # export snapshot
             cls.bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
-            for format_type in cls.supported_snap_types:
-                try:
-                    ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=cls.snap_id,
-                                                                 ExportToOsu={'DiskImageFormat': format_type, 'OsuBucket': cls.bucket_name})
-                    cls.bucket_created = True
-                    if cls.a1_r1.config.region.name == 'in-west-2':
-                        assert False, 'remove known error'
-                except OscApiException as err:
-                    if cls.a1_r1.config.region.name == 'in-west-2' and err.status_code == 500 and err.message == 'This API call is disabled':
-                        cls.known_error = ('OPS-14183', 'Configure OOS in IN2')
-                        return
-                        # known_error('OPS-14183', 'Configure OOS in IN2')
-                    raise err
-                task_id = ret.response.snapshotExportTask.snapshotExportTaskId
-                cls.task_ids.append(task_id)
-            wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
+            ret = cls.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=cls.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
+                                                                                              'OsuBucket': cls.bucket_name})
+            task_id = ret.response.snapshotExportTask.snapshotExportTaskId
+            cls.task_ids.append(task_id)
+            try:
+                wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    assert False, 'remove known error'
+            except AssertionError as err:
+                if err.args[0] == "Threshold reach for wait_snapshotExportTasks_state" and cls.a1_r1.config.region.name == 'in-west-2':
+                    cls.known_error = True
+                    return
+                raise err
+            cls.bucket_created = True
+
         except Exception as error1:
             try:
                 cls.teardown_class()
@@ -161,7 +158,7 @@ class Test_ImportSnapshot(OscTinaTest):
             bucket_name = id_generator(prefix='t1056', chars=ascii_lowercase)
             # create snapshot export task
             ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id,
-                                                          ExportToOsu={'DiskImageFormat': self.supported_snap_types[0], 'OsuBucket': bucket_name})
+                                                          ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name})
             task_id = ret.response.snapshotExportTask.snapshotExportTaskId
             # wait completion export task
             wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
