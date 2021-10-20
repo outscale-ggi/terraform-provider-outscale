@@ -86,8 +86,6 @@ class Test_CreateDirectLink(OscTinaTest):
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='alpha1Gbps', DirectLinkName='test_name', Location=self.location)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047', None)
-            known_error("API-413", "Change error code on oapi call CreateDirectLink")
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045', None)
         try:
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='1', DirectLinkName='test_name', Location=self.location)
