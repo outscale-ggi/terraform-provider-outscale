@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+import qa_sdk_pub.osc_api as osc_api
 from qa_tina_tests.USER.PERF.perf_common import log_error
 
 
@@ -11,7 +12,7 @@ def test_func(func, logger, key, result):
             try:
                 logger.debug("%s : %d/%d", str(func), num+1, retry)
                 start_desc = datetime.now()
-                func(max_retry=0)
+                func(exec_data={osc_api.EXEC_DATA_MAX_RETRY: 0})
                 result[key] = (datetime.now() - start_desc).total_seconds()
                 break
             except OscApiException as error:
@@ -30,5 +31,9 @@ def perf_describe(oscsdk, logger, queue, args):
     test_func(oscsdk.fcu.DescribeVolumes, logger, 'desc_vol', result)
     test_func(oscsdk.fcu.DescribeImages, logger, 'desc_img', result)
     test_func(oscsdk.fcu.DescribeSnapshots, logger, 'desc_snap', result)
+    test_func(oscsdk.oapi.ReadVms, logger, 'read_inst', result)
+    test_func(oscsdk.oapi.ReadVolumes, logger, 'read_vol', result)
+    test_func(oscsdk.oapi.ReadImages, logger, 'read_img', result)
+    test_func(oscsdk.oapi.ReadSnapshots, logger, 'read_snap', result)
 
     queue.put(result.copy())
