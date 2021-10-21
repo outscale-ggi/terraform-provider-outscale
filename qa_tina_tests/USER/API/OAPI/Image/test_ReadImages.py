@@ -326,3 +326,8 @@ class Test_ReadImages(OscTinaTest):
                                             'oapi.ReadImages', 'Images.ImageId')
         assert indexes == [6, 24, 25, 26, 27, 28, 29]
         known_error('API-399', 'Read calls do not support wildcards in tag filtering')
+
+    def test_T6097_filters_accountaliases_with_self_value(self):
+        ret = self.a1_r1.oapi.ReadImages(Filters={'AccountAliases': ['self']})
+        image_ids = [image.ImageId for image in ret.response.Images]
+        assert set(image_ids) == set(self.image_ids)
