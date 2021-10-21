@@ -42,7 +42,7 @@ class Test_LinkPrivateIps(Nic):
 
     def find_ip(self):
         while True:
-            ip = '10.0.1.{}'.format(random.randint(4,254))
+            ip = '10.0.1.{}'.format(random.sample(range(4,254), 1)[0])
             if ip not in [self.private_ip1, self.private_ip2]:
                 return ip
 

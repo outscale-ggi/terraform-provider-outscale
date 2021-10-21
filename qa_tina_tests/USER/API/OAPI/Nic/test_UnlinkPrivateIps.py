@@ -7,6 +7,13 @@ from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 
 
+def find_ip(used):
+    while True:
+        ip = '10.0.1.{}'.format(random.sample(range(4,254), 1)[0])
+        if ip not in used:
+            return ip
+
+
 class Test_UnlinkPrivateIps(Nic):
 
     @classmethod
@@ -25,7 +32,7 @@ class Test_UnlinkPrivateIps(Nic):
             self.private_ip = ret.PrivateIps[0].PrivateIp
             self.test_ips = []
             for _ in range(4):
-                self.test_ips.append(self.find_ip(self.test_ips + [self.private_ip]))
+                self.test_ips.append(find_ip(self.test_ips + [self.private_ip]))
             assert self.a1_r1.oapi.LinkPrivateIps(NicId=self.nic_id, PrivateIps=self.test_ips)
         except:
             try:
@@ -39,12 +46,6 @@ class Test_UnlinkPrivateIps(Nic):
                 self.a1_r1.oapi.DeleteNic(NicId=self.nic_id)
         finally:
             super(Test_UnlinkPrivateIps, self).teardown_method(method)
-
-    def find_ip(self, used):
-        while True:
-            ip = '10.0.1.{}'.format(random.randint(4,254))
-            if ip not in used:
-                return ip
 
     def test_T2703_with_multiple_ips(self):
         self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=self.test_ips)
@@ -113,7 +114,7 @@ class Test_UnlinkPrivateIps(Nic):
 
     def test_T2702_with_multiple_ip_one_valid_one_not_linked(self):
         try:
-            self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=[self.find_ip(self.test_ips + [self.private_ip]), self.test_ips[0]])
+            self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=[find_ip(self.test_ips + [self.private_ip]), self.test_ips[0]])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
