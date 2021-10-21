@@ -2,11 +2,15 @@ from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.state import InstanceState
-from qa_tina_tools.tools.tina.create_tools import create_instances, create_keypair
-from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_keypair
-from qa_tina_tools.tools.tina import info_keys
+from qa_tina_tools.tools.tina.create_tools import create_instances, create_keypair,\
+    create_vpc
+from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_keypair,\
+    delete_vpc
+from qa_tina_tools.tools.tina import info_keys, wait_tools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tina import check_tools
+from qa_tina_tools.tina.info_keys import SUBNETS, KEY_PAIR, PATH
+from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 
 
 class Test_instance_metadata(OscTinaTest):
@@ -16,8 +20,10 @@ class Test_instance_metadata(OscTinaTest):
         cls.url = 'http://169.254.169.254/latest/meta-data/'
         cls.kp_info = None
         cls.inst_info = None
+        cls.vpc_info = None
         super(Test_instance_metadata, cls).setup_class()
         try:
+            cls.vpc_info = create_vpc(osc_sdk=cls.a1_r1, nb_instance=1)
             cls.kp_info = create_keypair(cls.a1_r1)
             cls.inst_info = create_instances(cls.a1_r1, state=InstanceState.Running.value, key_name=cls.kp_info[info_keys.NAME])
             inst = cls.inst_info[info_keys.INSTANCE_SET][0]
@@ -40,6 +46,8 @@ class Test_instance_metadata(OscTinaTest):
                 delete_instances(cls.a1_r1, cls.inst_info)
             if cls.kp_info:
                 delete_keypair(cls.a1_r1, cls.kp_info)
+            if cls.vpc_info:
+                delete_vpc(cls.a1_r1, cls.vpc_info)
         finally:
             super(Test_instance_metadata, cls).teardown_class()
 
@@ -120,6 +128,51 @@ class Test_instance_metadata(OscTinaTest):
             ('public-ipv4s', nic0.public_ip),
             ('security-groups', nic0.groups[0].name),
             ('security-group-ids', nic0.groups[0].id),
-            ('subnet-id', nic0.private_subnet),
+        ]:
+            self.check(metadata_category, expected_msg, self.url)
+
+    def test_T6099_check_meta_data_on_private_vm(self):
+        wait_tools.wait_instances_state(self.a1_r1,
+                             [self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0]], state='ready')
+        instance = self.a1_r1.intel.instance.get(owner=self.a1_r1.config.account.account_id,
+                                             id=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0]).response.result
+        self.connection = check_tools.check_ssh_connection(self.a1_r1, instance.id, instance.public_ip, self.vpc_info[KEY_PAIR][PATH],
+                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        for metadata_category, expected_msg in [
+            ('ami-id', instance.image),
+            ('ami-launch-index', instance.launch_index),
+            ('placement/availability-zone', instance.az),
+            ('block-device-mapping/ami', instance.mapping[0].device),
+            ('block-device-mapping/root', instance.mapping[0].device),
+            ('hostname', instance.private_dns),
+            ('instance-id', instance.id),
+            ('instance-type', instance.type),
+            ('local-hostname', instance.private_dns),
+            ('mac', instance.mac_addr),
+            ('local-ipv4', instance.private_ip),
+            ('public-hostname', instance.public_dns),
+            ('public-ipv4', instance.public_ip),
+            ('reservation-id', instance.reservation),
+            ('security-groups', instance.groups[0].name),
+        ]:
+            self.check(metadata_category, expected_msg, self.url)
+        nic0 = instance.nics[0]
+        # NIC checks
+        self.url += 'network/interfaces/macs/{}/'.format(nic0.macaddr)
+        for metadata_category, expected_msg in [
+            ('device-number', 0),
+            ('interface-id', nic0.id),
+            ('gateway-ipv4', instance.gateway_ip),
+            ('ipv4-associations/', nic0.public_ip),
+            ('local-hostname', nic0.private_dns),
+            ('mac', nic0.macaddr),
+            ('owner-id', nic0.owner),
+            ('public-hostname', nic0.public_dns),
+            ('local-ipv4s', nic0.ip),
+            ('public-ipv4s', nic0.public_ip),
+            ('security-groups', nic0.groups[0].name),
+            ('security-group-ids', nic0.groups[0].id),
+            ('subnet-id', instance.subnet),
+            ('vpc-id', instance.network),
         ]:
             self.check(metadata_category, expected_msg, self.url)
