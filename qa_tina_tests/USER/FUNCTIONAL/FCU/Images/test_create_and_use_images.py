@@ -41,7 +41,7 @@ class Test_create_and_use_images(OscTinaTest):
             super(Test_create_and_use_images, cls).teardown_class()
 
     @pytest.mark.tag_redwire
-    def test_T64_create_use_image(self):
+    def test_T64_create_and_use_image(self):
         image_id = None
         info = None
         try:
