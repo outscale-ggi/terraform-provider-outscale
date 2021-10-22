@@ -2,9 +2,12 @@ import string
 
 import pytest
 
-from qa_test_tools.misc import id_generator
+from qa_sdk_common.exceptions import OscApiException
+from qa_test_tools.misc import id_generator, assert_error
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
+from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_snapshots_state
 from qa_tina_tools.tools.state import SnapshotStatus, VolumeStatus
@@ -13,8 +16,14 @@ from qa_tina_tools.tools.state import SnapshotStatus, VolumeStatus
 @pytest.mark.region_admin
 class Test_get_product_type(OscTinaTest):
 
-    def test_Txxx_with_valid_parameter(self):
+    def test_T6062_with_valid_parameters(self):
+        img_id = None
+        inst_info = None
+        vol_id_list = None
+        snap_id = None
+
         try:
+
             inst_info = create_instances(self.a1_r1, state="running")
             img_name = id_generator(prefix="omi-", size=8, chars=string.ascii_lowercase)
             img_id = self.a1_r1.fcu.CreateImage(InstanceId=inst_info[INSTANCE_ID_LIST][0],
@@ -32,9 +41,20 @@ class Test_get_product_type(OscTinaTest):
                                                                       snapshot_id=snap_id)
             assert ret.response.result.id == '0001'
             assert ret.response.result.name == 'Linux/UNIX'
-            ret2 = self.a1_r1.intel.oapi.product_type.get_product_types(owner_id=self.a1_r1.config.account.account_id, snapshot_id=snap_id)
-            print("kaka")
+            try:
+                self.a1_r1.intel.oapi.product_type.get_product_types(owner_id=self.a1_r1.config.account.account_id, snapshot_id=snap_id)
+                #TODO add the check response
+                assert False, 'Remove known error'
+            except OscApiException as err:
+                assert_error(err, 200, -32603, 'Internal error.')
+                known_error('TINA-6794', 'get_product_types does not work')
+
         finally:
-            self.a1_r1.fcu.DeregisterImage(ImageId=img_id)
-            if cls.inst_info:
-                delete_instances(cls.a1_r1, cls.inst_info)
+            if img_id:
+                self.a1_r1.fcu.DeregisterImage(ImageId=img_id)
+            if inst_info:
+                delete_instances(self.a1_r1, inst_info)
+            if snap_id:
+                self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
+            if vol_id_list:
+                delete_volumes(self.a1_r1, vol_id_list)

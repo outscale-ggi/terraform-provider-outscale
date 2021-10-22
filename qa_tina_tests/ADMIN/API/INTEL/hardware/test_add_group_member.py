@@ -28,3 +28,7 @@ class Test_add_group_member(OscTinaTest):
             self.a1_r1.intel.hardware.add_group_member(group='xx', servers=['xx'])
         except OscApiException as err:
             assert_error(err, 200, 0, 'no-such-servergroup')
+
+    def test_T6061_already_exists(self):
+        ret = self.a1_r1.intel.hardware.get_groups(name=['PRODUCTION'])
+        self.a1_r1.intel.hardware.add_group_member(group='PRODUCTION', servers=[ret.response.result[0].members[0].server])
