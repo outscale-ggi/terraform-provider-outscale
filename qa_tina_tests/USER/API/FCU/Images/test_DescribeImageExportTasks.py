@@ -22,9 +22,10 @@ class Test_DescribeImageExportTasks(OscTinaTest):
         cls.quotas = {'image_export_limit': NUM_EXPORT_TASK + 1}
         cls.image_ids = []
         cls.inst_info = None
-        cls.image_exp_ids = []
+        image_exp_ids = []
         cls.bucket_names = []
         cls.known_error = False
+        cls.images_exp_created = False
         super(Test_DescribeImageExportTasks, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1)
@@ -35,18 +36,22 @@ class Test_DescribeImageExportTasks(OscTinaTest):
                 cls.image_ids.append(image_id)
                 bucket_name = id_generator(prefix='bucket', chars=ascii_lowercase)
                 cls.bucket_names.append(bucket_name)
-                try:
-                    image_export = cls.a1_r1.fcu.CreateImageExportTask(ImageId=image_id,
-                                                                       ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name})
-                    image_export_id = image_export.response.imageExportTask.imageExportTaskId
-                    cls.image_exp_ids.append(image_export_id)
-                    if cls.a1_r1.config.region.name == 'in-west-2':
-                        assert False, 'remove known error'
-                except OscApiException as err:
-                    if cls.a1_r1.config.region.name == 'in-west-2' and err.status_code == 500 and err.message == 'This API call is disabled':
-                        cls.known_error = True
-                        return
-                    raise err
+                image_export = cls.a1_r1.fcu.CreateImageExportTask(ImageId=image_id,
+                                                                   ExportToOsu={'DiskImageFormat': 'qcow2',
+                                                                                'OsuBucket': bucket_name})
+                image_export_id = image_export.response.imageExportTask.imageExportTaskId
+                image_exp_ids.append(image_export_id)
+            try:
+                wait_image_export_tasks_state(osc_sdk=cls.a1_r1, state='completed',
+                                              image_export_task_id_list=image_exp_ids)
+                cls.images_exp_created = True
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    pytest.fail('remove known error')
+            except AssertionError as err:
+                if err.args[0] == "Threshold reach for wait_imageExportTasks_state" and cls.a1_r1.config.region.name == 'in-west-2':
+                    cls.known_error = True
+                    return
+                raise err
 
         except Exception as error1:
             try:
@@ -59,7 +64,7 @@ class Test_DescribeImageExportTasks(OscTinaTest):
     @classmethod
     def teardown_class(cls):
         try:
-            if cls.image_exp_ids:
+            if cls.images_exp_created:
                 for bucket_name in cls.bucket_names:
                     if bucket_name:
                         k_list = cls.a1_r1.storageservice.list_objects(Bucket=bucket_name)
@@ -67,10 +72,10 @@ class Test_DescribeImageExportTasks(OscTinaTest):
                             for k in k_list['Contents']:
                                 cls.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=k['Key'])
                         cls.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
-                for image_id in cls.image_ids:
-                    cls.a1_r1.fcu.DeregisterImage(ImageId=image_id)
-                if cls.inst_info:
-                    delete_instances(cls.a1_r1, cls.inst_info)
+            for image_id in cls.image_ids:
+                cls.a1_r1.fcu.DeregisterImage(ImageId=image_id)
+            if cls.inst_info:
+                delete_instances(cls.a1_r1, cls.inst_info)
         finally:
             super(Test_DescribeImageExportTasks, cls).teardown_class()
 
