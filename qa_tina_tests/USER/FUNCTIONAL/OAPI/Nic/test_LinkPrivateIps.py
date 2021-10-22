@@ -34,7 +34,7 @@ class Test_LinkPrivateIps(OscTinaTest):
         finally:
             super(Test_LinkPrivateIps, cls).teardown_class()
 
-    def test_6098_allocate_each_private_ip(self):
+    def test_T6098_allocate_each_private_ip(self):
         errors = {}
         for i in range(4, 255):
             try:
