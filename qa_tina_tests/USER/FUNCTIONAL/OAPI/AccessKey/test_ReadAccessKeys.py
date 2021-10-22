@@ -12,7 +12,7 @@ from qa_test_tools.test_base import known_error
 
 class Test_ReadAccessKeys(OscTinaTest):
 
-    def test_6064_check_eim_oapi_key_list(self):
+    def test_T6064_check_eim_oapi_key_list(self):
         account_pid = None
         try:
             # create account
