@@ -22,7 +22,7 @@ class Test_DescribeImageExportTasks(OscTinaTest):
         cls.quotas = {'image_export_limit': NUM_EXPORT_TASK + 1}
         cls.image_ids = []
         cls.inst_info = None
-        image_exp_ids = []
+        cls.image_exp_ids = []
         cls.bucket_names = []
         cls.known_error = False
         cls.images_exp_created = False
@@ -40,10 +40,10 @@ class Test_DescribeImageExportTasks(OscTinaTest):
                                                                    ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                 'OsuBucket': bucket_name})
                 image_export_id = image_export.response.imageExportTask.imageExportTaskId
-                image_exp_ids.append(image_export_id)
+                cls.image_exp_ids.append(image_export_id)
             try:
                 wait_image_export_tasks_state(osc_sdk=cls.a1_r1, state='completed',
-                                              image_export_task_id_list=image_exp_ids)
+                                              image_export_task_id_list=cls.image_exp_ids)
                 cls.images_exp_created = True
                 if cls.a1_r1.config.region.name == 'in-west-2':
                     pytest.fail('remove known error')
