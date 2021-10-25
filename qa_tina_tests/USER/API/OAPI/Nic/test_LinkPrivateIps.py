@@ -160,10 +160,10 @@ class Test_LinkPrivateIps(Nic):
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5036')
 
-    def test_6100_primary_ip_same_nic(self):
+    def test_T6100_primary_ip_same_nic(self):
         self.a1_r1.oapi.LinkPrivateIps(NicId=self.nic_id1, PrivateIps=[self.private_ip1], AllowRelink=True)
 
-    def test_6101_primary_ip_other_nic(self):
+    def test_T6101_primary_ip_other_nic(self):
         try:
             self.a1_r1.oapi.LinkPrivateIps(NicId=self.nic_id1, PrivateIps=[self.private_ip2], AllowRelink=True)
         except OscApiException as error:
