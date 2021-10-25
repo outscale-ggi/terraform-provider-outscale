@@ -1,4 +1,3 @@
-from qa_test_tools.config.configuration import Configuration
 from qa_tina_tools.test_base import OscTinaTest
 
 
