@@ -142,6 +142,10 @@ class Test_GetProductTypes(OscTinaTest):
         description = self.a1_r1.fcu.DescribeImages(ImageId=[self.img_id_a1])
         ret = self.a1_r1.fcu.GetProductTypes(SnapshotId=description.response.imagesSet[0].
                                              blockDeviceMapping[0].ebs.snapshotId)
+        if self.a1_r1.config.region.name == 'in-west-2':
+            if ret.response.productTypeSet is None:
+                known_error('OPS-14497', 'GetProductTypes return None')
+            assert False, 'remove known error'
         assert ret.response.productTypeSet[0].description is not None
         assert ret.response.requestId
 
