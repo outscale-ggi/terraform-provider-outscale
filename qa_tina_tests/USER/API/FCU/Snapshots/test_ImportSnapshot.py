@@ -130,11 +130,11 @@ class Test_ImportSnapshot(OscTinaTest):
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
 
     def test_T1054_with_invalid_url(self):
+        snap_id = None
+        key = None
         try:
             if self.known_error:
                 known_error('OPS-14183', 'Configure OOS in IN2')
-            snap_id = None
-            key = None
             k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
@@ -260,11 +260,11 @@ class Test_ImportSnapshot(OscTinaTest):
                 self.a1_r1.fcu.DeleteSnapshot(SnapshotId=snap_id)
 
     def test_T1058_with_wrong_size(self):
+        snap_id = None
+        key = None
         try:
             if self.known_error:
                 known_error('OPS-14183', 'Configure OOS in IN2')
-            snap_id = None
-            key = None
             k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']

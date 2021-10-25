@@ -23,6 +23,7 @@ class Test_CancelExportTask(OscTinaTest):
         cls.bucket_name = None
         cls.has_setup_error = None
         cls.known_error = False
+        cls.bucket_created = False
         super(Test_CancelExportTask, cls).setup_class()
         try:
             # create volume
@@ -51,6 +52,7 @@ class Test_CancelExportTask(OscTinaTest):
                     cls.known_error = True
                     return
                 wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
+                cls.bucket_created = True
         except Exception as error1:
             try:
                 cls.teardown_class()
@@ -62,7 +64,7 @@ class Test_CancelExportTask(OscTinaTest):
     @classmethod
     def teardown_class(cls):
         try:
-            if cls.bucket_name:
+            if cls.bucket_created:
                 k_list = cls.a1_r1.storageservice.list_objects(Bucket=cls.bucket_name)
                 if 'Contents' in list(k_list.keys()):
                     for k in k_list['Contents']:
