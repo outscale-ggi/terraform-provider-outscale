@@ -22,6 +22,7 @@ class Test_CancelExportTask(OscTinaTest):
         cls.task_ids = []
         cls.bucket_name = None
         cls.has_setup_error = None
+        cls.known_error = False
         super(Test_CancelExportTask, cls).setup_class()
         try:
             # create volume
@@ -45,8 +46,11 @@ class Test_CancelExportTask(OscTinaTest):
                                                                           'OsuBucket': cls.bucket_name})
                 task_id = ret.response.snapshotExportTask.snapshotExportTaskId
                 cls.task_ids.append(task_id)
-                wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed',
-                                                 snapshot_export_task_id_list=cls.task_ids)
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
+                    cls.known_error = True
+                    return
+                wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
         except Exception as error1:
             try:
                 cls.teardown_class()
@@ -85,6 +89,8 @@ class Test_CancelExportTask(OscTinaTest):
 
     def test_T5456_valid_export_task_id(self):
         try:
+            if self.known_error:
+                known_error('OPS-14183', 'Configure OOS in IN2')
             self.a1_r1.fcu.CancelExportTask(ExportTaskId=self.task_ids[0])
             known_error('TINA-6158', 'cancel of a completed export snapshot task does not return an error')
         except OscApiException as error:
@@ -92,6 +98,8 @@ class Test_CancelExportTask(OscTinaTest):
             assert_error(error, ' ', ' ', ' ')
 
     def test_T5457_check_cancelled_state(self):
+        if self.known_error:
+            known_error('OPS-14183', 'Configure OOS in IN2')
         bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id_boot,
                                                       ExportToOsu={'DiskImageFormat': 'qcow2',
