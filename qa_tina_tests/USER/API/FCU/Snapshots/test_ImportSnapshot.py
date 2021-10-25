@@ -108,6 +108,8 @@ class Test_ImportSnapshot(OscTinaTest):
         try:
             snap_id = None
             key = None
+            if self.known_error:
+                known_error('OPS-14183', 'Configure OOS in IN2')
             k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
@@ -129,6 +131,8 @@ class Test_ImportSnapshot(OscTinaTest):
 
     def test_T1054_with_invalid_url(self):
         try:
+            if self.known_error:
+                known_error('OPS-14183', 'Configure OOS in IN2')
             snap_id = None
             key = None
             k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
@@ -155,6 +159,8 @@ class Test_ImportSnapshot(OscTinaTest):
         snap_id = None
         key = None
         try:
+            if self.known_error:
+                known_error('OPS-14183', 'Configure OOS in IN2')
             bucket_name = id_generator(prefix='t1056', chars=ascii_lowercase)
             # create snapshot export task
             ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id,
@@ -191,6 +197,8 @@ class Test_ImportSnapshot(OscTinaTest):
 
     def test_T1057_without_snapshot_size(self):
         try:
+            if self.known_error:
+                known_error('OPS-14183', 'Configure OOS in IN2')
             key = None
             k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
@@ -232,6 +240,8 @@ class Test_ImportSnapshot(OscTinaTest):
         try:
             snap_id = None
             key = None
+            if self.known_error:
+                known_error('OPS-14183', 'Configure OOS in IN2')
             k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
@@ -251,6 +261,8 @@ class Test_ImportSnapshot(OscTinaTest):
 
     def test_T1058_with_wrong_size(self):
         try:
+            if self.known_error:
+                known_error('OPS-14183', 'Configure OOS in IN2')
             snap_id = None
             key = None
             k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
@@ -279,6 +291,8 @@ class Test_ImportSnapshot(OscTinaTest):
         try:
             snap_id = None
             key = None
+            if self.known_error:
+                known_error('OPS-14183', 'Configure OOS in IN2')
             k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
             if 'Contents' in list(k_list.keys()):
                 key = k_list['Contents'][0]['Key']
