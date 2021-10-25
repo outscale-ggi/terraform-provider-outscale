@@ -131,7 +131,7 @@ class Test_UnlinkPrivateIps(Nic):
         except OscApiException as error:
             assert_oapi_error(error, 400, 'InvalidResource', '5077')
 
-    def test_6102_primary_ip(self):
+    def test_T6102_primary_ip(self):
         try:
             self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=[self.private_ip])
         except OscApiException as error:
