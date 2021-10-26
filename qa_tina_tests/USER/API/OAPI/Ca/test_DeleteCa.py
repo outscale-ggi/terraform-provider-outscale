@@ -14,15 +14,23 @@ class Test_DeleteCa(OscTinaTest):
     @classmethod
     def setup_class(cls):
         cls.tmp_file_paths = None
+        cls.tmp_file_paths_bis = None
+        cls.tmp_file_paths_third = None
         cls.ca_id = None
         cls.ca_id_bis = None
+        cls.ca_id_third = None
         super(Test_DeleteCa, cls).setup_class()
         cls.ca1files, _, _, _, _, _, _, cls.tmp_file_paths = create_certificate_setup(root_name='ca')
         with open(cls.ca1files[1]) as cafile:
             cls.ca_id = cls.a1_r1.oapi.CreateCa(CaPem=cafile.read(), Description='test ca').response.Ca.CaId
+
         cls.ca1files, _, _, _, _, _, _, cls.tmp_file_paths_bis = create_certificate_setup(root_name='cabis')
         with open(cls.ca1files[1]) as cafile:
             cls.ca_id_bis = cls.a1_r1.oapi.CreateCa(CaPem=cafile.read(), Description='test ca bis').response.Ca.CaId
+
+        cls.ca1files, _, _, _, _, _, _, cls.tmp_file_paths_third = create_certificate_setup(root_name='cathird')
+        with open(cls.ca1files[1]) as cafile:
+            cls.ca_id_third = cls.a1_r1.oapi.CreateCa(CaPem=cafile.read(), Description='test ca third').response.Ca.CaId
 
     @classmethod
     def teardown_class(cls):
@@ -31,11 +39,16 @@ class Test_DeleteCa(OscTinaTest):
                 cls.a1_r1.oapi.DeleteCa(CaId=cls.ca_id)
             if cls.ca_id_bis:
                 cls.a1_r1.oapi.DeleteCa(CaId=cls.ca_id_bis)
+            if cls.ca_id_third:
+                cls.a1_r1.oapi.DeleteCa(CaId=cls.ca_id_third)
             if cls.tmp_file_paths:
                 for tmp_file_path in cls.tmp_file_paths:
                     os.remove(tmp_file_path)
             if cls.tmp_file_paths_bis:
                 for tmp_file_path in cls.tmp_file_paths_bis:
+                    os.remove(tmp_file_path)
+            if cls.tmp_file_paths_third:
+                for tmp_file_path in cls.tmp_file_paths_third:
                     os.remove(tmp_file_path)
         finally:
             super(Test_DeleteCa, cls).teardown_class()
@@ -80,12 +93,10 @@ class Test_DeleteCa(OscTinaTest):
             self.a1_r1.oapi.DeleteCa(
                 exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.LoginPassword,
                            osc_api.EXEC_DATA_LOGIN: 'foo', osc_api.EXEC_DATA_PASSWORD: 'bar'},
-                CaId=self.ca_id_bis)
-            self.__class__.ca_id_bis = None
+                CaId=self.ca_id_third)
+            self.__class__.ca_id_third = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 4110)
-            known_error("API-412", "Change error code on oapi call DeleteCa")
             check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
             check_oapi_error(error, 1)
