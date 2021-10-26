@@ -8,6 +8,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
+from specs import check_oapi_error
 
 
 class Test_RebootVms(OscTinaTest):
@@ -53,7 +54,7 @@ class Test_RebootVms(OscTinaTest):
             self.a1_r1.oapi.RebootVms(VmIds=['foo'])
             assert False, 'Call with invalid ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='foo', prefixes='i-')
 
     def test_T2089_from_running(self):
         self.a1_r1.oapi.RebootVms(VmIds=[self.info[INSTANCE_ID_LIST][0]])

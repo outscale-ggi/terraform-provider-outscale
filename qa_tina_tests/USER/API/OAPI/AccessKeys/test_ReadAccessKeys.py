@@ -8,6 +8,7 @@ from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_ReadAccessKeys(OscTinaTest):
@@ -129,9 +130,9 @@ class Test_ReadAccessKeys(OscTinaTest):
                                            Filters={'AccessKeyIds': [ak]})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_oapi_error(error, 1)
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)

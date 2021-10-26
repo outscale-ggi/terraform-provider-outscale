@@ -8,6 +8,7 @@ from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
+from specs import check_oapi_error
 
 
 class Test_LinkNic(Nic):
@@ -86,7 +87,7 @@ class Test_LinkNic(Nic):
             self.nic_link_ids.append(self.a1_r1.oapi.LinkNic(DeviceNumber=9, VmId=vm_ids[0], NicId=self.nic_ids[17]).response.LinkNicId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2660_link_on_same_device_number(self):
         vm_ids = [self.vpc_inst_info[INSTANCE_ID_LIST][2]]
@@ -97,7 +98,7 @@ class Test_LinkNic(Nic):
             self.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId=vm_ids[0], NicId=self.nic_ids[4])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'ResourceConflict', '9004')
+            check_oapi_error(error, 9004)
 
     def test_T2661_link_on_2_different_vm(self):
         vm_ids = self.vpc_inst_info[INSTANCE_ID_LIST][3:5]
@@ -108,14 +109,14 @@ class Test_LinkNic(Nic):
             self.a1_r1.oapi.LinkNic(DeviceNumber=2, VmId=vm_ids[1], NicId=self.nic_ids[5])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'ResourceConflict', '9029')
+            check_oapi_error(error, 9029)
 
     def test_T2647_empty_param(self):
         try:
             self.a1_r1.oapi.LinkNic()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2648_empty_nic_id(self):
         try:
@@ -124,7 +125,7 @@ class Test_LinkNic(Nic):
             self.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId=vm_ids[0], NicId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2649_invalid_nic_id(self):
         try:
@@ -133,7 +134,7 @@ class Test_LinkNic(Nic):
             self.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId=vm_ids[0], NicId='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='toto', prefixes='eni-')
 
     def test_T2650_unknown_nic_id(self):
         try:
@@ -142,42 +143,42 @@ class Test_LinkNic(Nic):
             self.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId=vm_ids[0], NicId='eni-123154678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='eni-123154678')
 
     def test_T2651_empty_vm_id(self):
         try:
             self.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId='', NicId=self.nic_ids[0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2652_invalid_vm_id(self):
         try:
             self.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId='toto', NicId=self.nic_ids[0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='toto', prefixes='i-')
 
     def test_T2653_unknown_vm_id(self):
         try:
             self.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId='i-123456789', NicId=self.nic_ids[0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='i-123456789')
 
     def test_T2654_missing_device_number(self):
         try:
             self.a1_r1.oapi.LinkNic(VmId='i-123456789', NicId=self.nic_ids[0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2655_missing_vm_id(self):
         try:
             self.a1_r1.oapi.LinkNic(DeviceNumber=1, NicId=self.nic_ids[0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2656_missing_nic(self):
         try:
@@ -186,7 +187,7 @@ class Test_LinkNic(Nic):
             self.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId=vm_ids[0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2657_vm_nic_not_in_same_subnet(self):
         try:
@@ -195,7 +196,7 @@ class Test_LinkNic(Nic):
             self.a1_r1.oapi.LinkNic(DeviceNumber=1, VmId=vm_ids[0], NicId=self.nic_ids[0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            check_oapi_error(error, 4045)
 
     def test_T3482_dry_run(self):
         vm_ids = [self.vpc_inst_info[INSTANCE_ID_LIST][5]]
@@ -211,4 +212,4 @@ class Test_LinkNic(Nic):
             self.nic_link_ids.append(self.a2_r1.oapi.LinkNic(DeviceNumber=1, VmId=vm_ids[0], NicId=self.nic_ids[0]).response.LinkNicId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5036')
+            check_oapi_error(error, 5036, id=self.nic_ids[0])

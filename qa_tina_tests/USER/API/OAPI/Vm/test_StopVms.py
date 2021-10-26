@@ -10,6 +10,7 @@ from qa_tina_tools.tools.tina.delete_tools import terminate_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vms_state_response
+from specs import check_oapi_error
 
 
 class Test_StopVms(OscTinaTest):
@@ -53,7 +54,7 @@ class Test_StopVms(OscTinaTest):
             self.a1_r1.oapi.StopVms(VmIds=['foo'])
             assert False, 'Call with invalid ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='foo', prefixes='i-')
 
     def test_T2115_from_running(self):
         vm_id = self.info[INSTANCE_ID_LIST][0]

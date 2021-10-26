@@ -3,6 +3,7 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import VpnConnection
+from specs import check_oapi_error
 
 
 class Test_CreateVpnConnectionRoute(VpnConnection):
@@ -29,22 +30,22 @@ class Test_CreateVpnConnectionRoute(VpnConnection):
             self.a1_r1.oapi.CreateVpnConnectionRoute(VpnConnectionId='tata', DestinationIpRange='172.13.1.4/24')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='vpn-')
         try:
             self.a1_r1.oapi.CreateVpnConnectionRoute(VpnConnectionId='vpn-1234567', DestinationIpRange='172.13.1.4/24')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='vpn-1234567')
         try:
             self.a1_r1.oapi.CreateVpnConnectionRoute(VpnConnectionId='vpn-123456789', DestinationIpRange='172.13.1.4/24')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='vpn-123456789')
         try:
             self.a1_r1.oapi.CreateVpnConnectionRoute(VpnConnectionId='vpn-12345678', DestinationIpRange='172.13.1.4/24')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5067')
+            check_oapi_error(error, 5067, id='vpn-12345678')
 
     def test_T3351_static_routes_non_active(self):
         try:

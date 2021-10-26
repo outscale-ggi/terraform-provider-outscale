@@ -2,8 +2,8 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_DeleteNetAccessPoint(OscTinaTest):
@@ -43,31 +43,31 @@ class Test_DeleteNetAccessPoint(OscTinaTest):
             self.a1_r1.oapi.DeleteNetAccessPoint()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T3334_invalid_net_access_point_id(self):
         try:
             self.a1_r1.oapi.DeleteNetAccessPoint(NetAccessPointId='tata')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='vpce-')
         try:
             self.a1_r1.oapi.DeleteNetAccessPoint(NetAccessPointId='vpce-1234567')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='vpce-1234567')
         try:
             self.a1_r1.oapi.DeleteNetAccessPoint(NetAccessPointId='vpce-123456789')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='vpce-123456789')
 
     def test_T3335_unknown_net_access_point_id(self):
         try:
             self.a1_r1.oapi.DeleteNetAccessPoint(NetAccessPointId='vpce-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5034')
+            check_oapi_error(error, 5034, id='vpce-12345678')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3719_other_user(self):
@@ -75,7 +75,7 @@ class Test_DeleteNetAccessPoint(OscTinaTest):
             self.a2_r1.oapi.DeleteNetAccessPoint(NetAccessPointId=self.net_ap_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5034')
+            check_oapi_error(error, 5034, id=self.net_ap_id)
 
     def test_T3720_valid_params(self):
         self.a1_r1.oapi.DeleteNetAccessPoint(NetAccessPointId=self.net_ap_id)

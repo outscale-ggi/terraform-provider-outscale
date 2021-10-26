@@ -7,6 +7,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
+from specs import check_oapi_error
 
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
@@ -45,56 +46,56 @@ class Test_LinkFlexibleGpu(OscTinaTest):
             self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=self.fg_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T4198_incorrect_vm_id(self):
         try:
             self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=self.fg_id, VmId='XXXXXXXX')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='XXXXXXXX', prefixes='i-')
 
     def test_T4199_invalid_vm_id(self):
         try:
             self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=self.fg_id, VmId=['i-12345678'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T4200_unknown_vm_id(self):
         try:
             self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=self.fg_id, VmId='i-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id='i-12345678')
 
     def test_T4201_missing_flexible_gpu_id(self):
         try:
             self.a1_r1.oapi.LinkFlexibleGpu(VmId=self.inst_info[INSTANCE_ID_LIST][0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T4202_incorrect_flexible_gpu_id(self):
         try:
             self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId='XXXXXXXX', VmId=self.inst_info[INSTANCE_ID_LIST][0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='XXXXXXXX', prefixes='i-')
 
     def test_T4203_unknown_flexible_gpu_id(self):
         try:
             self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId='fgpu-12345678', VmId=self.inst_info[INSTANCE_ID_LIST][0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5074')
+            check_oapi_error(error, 5074)
 
     def test_T4204_invalid_flexible_gpu_id(self):
         try:
             self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=['fgpu-12345678'], VmId=self.inst_info[INSTANCE_ID_LIST][0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T4205_invalid_dry_run(self):
         ret_link = None
@@ -102,7 +103,7 @@ class Test_LinkFlexibleGpu(OscTinaTest):
             ret_link = self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=self.fg_id, VmId=self.inst_info[INSTANCE_ID_LIST][0], DryRun='XXXXXXXX')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
         finally:
             if ret_link:
                 self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id)

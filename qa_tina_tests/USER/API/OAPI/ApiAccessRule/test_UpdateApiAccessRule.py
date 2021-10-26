@@ -5,6 +5,7 @@ from qa_tina_tools.tools.tina import create_tools
 from qa_test_tools.test_base import known_error
 from qa_test_tools import misc
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
+from specs import check_oapi_error
 
 
 class Test_UpdateApiAccessRule(ApiAccessRule):
@@ -38,14 +39,14 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
             self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
+            check_oapi_error(error, 4118)
 
     def test_T5281_same_description(self):
         self.my_setup()
         try:
             self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Description='description')
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
+            check_oapi_error(error, 4118)
 
     def test_T5282_same_ca_ids(self):
         self.my_setup()
@@ -154,7 +155,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
             self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, CaIds="foobar")
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5292_update_incorrect_cns(self):
         self.my_setup()
@@ -162,7 +163,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
             self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Cns=create_tools.CLIENT_CERT_CN1)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5293_update_incorrect_description(self):
         self.my_setup()
@@ -170,7 +171,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
             self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Description=['NewDescription'])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5294_update_incorrect_ip_ranges(self):
         self.my_setup()
@@ -178,7 +179,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
             self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, IpRanges="1.1.1.1/32")
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5295_dry_run(self):
         self.my_setup()
@@ -190,14 +191,14 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
             self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId="foobar", Description='NewDescription')
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
+            check_oapi_error(error, 4118)
 
     def test_T5297_unknown_rule_id(self):
         try:
             self.osc_sdk.oapi.UpdateApiAccessRule(ApiAccessRuleId="aar-12345678", Description='NewDescription')
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
+            check_oapi_error(error, 4118)
 
     def test_T5298_other_account(self):
         self.my_setup()
@@ -205,7 +206,7 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
             self.a2_r1.oapi.UpdateApiAccessRule(ApiAccessRuleId=self.api_access_rule.ApiAccessRuleId, Description='NewDescription')
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
+            check_oapi_error(error, 4118)
 
     def test_T5721_login_password(self):
         self.my_setup()
@@ -234,6 +235,6 @@ class Test_UpdateApiAccessRule(ApiAccessRule):
                                                   IpRanges=["1.1.1.1/32"])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_oapi_error(error, 1)

@@ -18,6 +18,9 @@ from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_netwo
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response, create_vms
 
 #--------------------------------- Class method ---------------------------------
+from specs import check_oapi_error
+
+
 class Test_CreateVms(OscTinaTest):
 
     @classmethod
@@ -71,13 +74,13 @@ echo "yes" > /tmp/userdata.txt
         try:
             self.a1_r1.oapi.CreateVms(ImageId='tata')
             assert False, "call should not have been successful"
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='tata', prefixes='aki-, ami-, ari-')
         try:
             self.a1_r1.oapi.CreateVms(ImageId='vpc-12345678')
             assert False, "call should not have been successful"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(err, 4104, invalid='vpc-12345678', prefixes='aki-, ami-, ari-')
 
     def test_T2939_unknown_image_id(self):
         try:
@@ -100,8 +103,8 @@ echo "yes" > /tmp/userdata.txt
         try:
             self.a1_r1.oapi.CreateVms(ImageId='ami-123456')
             assert False, "call should not have been successful"
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+        except OscApiException as error:
+            check_oapi_error(error, 4105, given_id='ami-123456')
 
     def test_T3160_invalid_parameter_combination(self):
         try:
@@ -351,8 +354,8 @@ echo "yes" > /tmp/userdata.txt
                                         }]
                                     )
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='abc-12345678', prefixes='eni-')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -368,7 +371,7 @@ echo "yes" > /tmp/userdata.txt
                                     )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(err, 4105, given_id='eni-1234567')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -400,8 +403,8 @@ echo "yes" > /tmp/userdata.txt
                                         }]
                                     )
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='abc-12345678', prefixes='subnet-')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -417,7 +420,7 @@ echo "yes" > /tmp/userdata.txt
                                     )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(err, 4105, given_id='subnet-1234567')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -897,7 +900,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4106')
+            check_oapi_error(error, 4106, param='UserData', vlength='513000', length='{(0, 512000)}')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -1005,14 +1008,14 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
         try:
             create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['tata-12345678']}])
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='tata-12345678', prefixes='sg-')
         # malformed id
         try:
             create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['sg-1234567']}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='sg-1234567')
 
     def test_T3171_with_nic_valid_nic_id(self):
         self.nic_id = self.a1_r1.oapi.CreateNic(SubnetId=self.subnet_id).response.Nic.NicId

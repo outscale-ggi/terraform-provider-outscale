@@ -5,6 +5,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_UpdateImage(OscTinaTest):
@@ -35,15 +36,15 @@ class Test_UpdateImage(OscTinaTest):
             self.a1_r1.oapi.UpdateImage()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2332_invalid_image_id(self):
         try:
-            permissions = {'Additions': {'AccountIds': [self.a2_r1.config.account.account_id]}}
+            permissions = {'Additions': {'AccountIds': [self.a1_r1.config.account.account_id]}}
             self.a1_r1.oapi.UpdateImage(ImageId='tata', PermissionsToLaunch=permissions)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='ami-, ari-, aki-')
 
     def test_T2333_unknown_image_id(self):
         try:
@@ -51,14 +52,14 @@ class Test_UpdateImage(OscTinaTest):
             self.a1_r1.oapi.UpdateImage(ImageId='ami-12345678', PermissionsToLaunch=permissions)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5023')
+            check_oapi_error(error, 5023, id='ami-12345678')
 
     def test_T2334_no_permissions(self):
         try:
             self.a1_r1.oapi.UpdateImage(ImageId=self.image_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2335_permission_addition_account_ids_valid(self):
         permissions = {'Additions': {'AccountIds': [self.a2_r1.config.account.account_id]}}
@@ -74,7 +75,7 @@ class Test_UpdateImage(OscTinaTest):
             self.a1_r1.oapi.UpdateImage(ImageId=self.image_id, PermissionsToLaunch=permissions)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='tata')
 
     def test_T2338_permission_addition_invalid_global_permissions(self):
         try:
@@ -82,7 +83,7 @@ class Test_UpdateImage(OscTinaTest):
             self.a1_r1.oapi.UpdateImage(ImageId=self.image_id, PermissionsToLaunch=permissions)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T2339_permission_addition_global_permissions(self):
         permissions = {'Additions': {'GlobalPermission': True}}
@@ -99,7 +100,7 @@ class Test_UpdateImage(OscTinaTest):
             self.a1_r1.oapi.UpdateImage(ImageId=self.image_id, PermissionsToLaunch=permissions)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
+            check_oapi_error(error, 3002)
 
     def test_T2342_permission_removal_account_ids_valid(self):
         permissions = {'Removals': {'AccountIds': [self.a2_r1.config.account.account_id]}}
@@ -115,4 +116,4 @@ class Test_UpdateImage(OscTinaTest):
         try:
             self.a2_r1.oapi.UpdateImage(ImageId=self.image_id, PermissionsToLaunch=permissions)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5023)
+            check_oapi_error(error, 5023, id=self.image_id)

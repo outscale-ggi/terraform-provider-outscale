@@ -2,12 +2,13 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
+from specs import check_oapi_error
 
 
 @pytest.mark.region_gpu
@@ -203,7 +204,7 @@ class Test_ReadFlexibleGpus(OscTinaTest):
         try:
             self.a1_r1.oapi.ReadFlexibleGpus(Filters=['ModelNames', 'nvidia-m60'])
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T4232_none_filter(self):
         if self.insufficient_capacity:
@@ -211,7 +212,7 @@ class Test_ReadFlexibleGpus(OscTinaTest):
         try:
             self.a1_r1.oapi.ReadFlexibleGpus(Filters={None: None}).response.FlexibleGpus
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T4233_filters_model_name_non_existent(self):
         if self.insufficient_capacity:
@@ -219,7 +220,7 @@ class Test_ReadFlexibleGpus(OscTinaTest):
         try:
             self.a1_r1.oapi.ReadFlexibleGpus(Filters={'other': ['nvidia-k2']})
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T4234_without_filters(self):
         if self.insufficient_capacity:
@@ -251,7 +252,7 @@ class Test_ReadFlexibleGpus(OscTinaTest):
         try:
             self.a1_r1.oapi.ReadFlexibleGpus(Filters={'Generations': 'v4'}).response.FlexibleGpus
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T5101_with_other_account_generations_filters(self):

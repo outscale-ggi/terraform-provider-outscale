@@ -2,9 +2,10 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
+from specs import check_oapi_error
 
 
 class Test_DeleteNet(OscTinaTest):
@@ -42,7 +43,7 @@ class Test_DeleteNet(OscTinaTest):
             self.a1_r1.oapi.DeleteNet()
             assert False, "call should not have been successful, missing param"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
 
     def test_T2393_without_param_existing_net(self):
         net_id = None
@@ -52,7 +53,7 @@ class Test_DeleteNet(OscTinaTest):
             self.a1_r1.oapi.DeleteNet()
             assert False, "call should not have been successful, missing net id"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
         finally:
             if net_id:
                 self.a1_r1.oapi.DeleteNet(NetId=net_id)
@@ -64,8 +65,8 @@ class Test_DeleteNet(OscTinaTest):
             wait_vpcs_state(self.a1_r1, [net_id], state='available')
             self.a1_r1.oapi.DeleteNet(NetId='toto')
             assert False, "call should not have been successful, invalid net id"
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='toto', prefixes='vpc-')
         finally:
             if net_id:
                 self.a1_r1.oapi.DeleteNet(NetId=net_id)
@@ -79,7 +80,7 @@ class Test_DeleteNet(OscTinaTest):
             self.a1_r1.oapi.DeleteNet(NetId=net_id)
             assert False, "call should not have been successful, invalid param"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5065')
+            check_oapi_error(err, 5065, id=net_id)
         finally:
             if net_id:
                 self.a2_r1.oapi.DeleteNet(NetId=net_id)

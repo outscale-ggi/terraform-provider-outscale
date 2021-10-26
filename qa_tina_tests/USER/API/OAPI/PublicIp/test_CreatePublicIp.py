@@ -1,7 +1,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_CreatePublicIp(OscTinaTest):
@@ -34,4 +34,4 @@ class Test_CreatePublicIp(OscTinaTest):
         try:
             self.a1_r1.oapi.CreatePublicIp(toto='toto')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)

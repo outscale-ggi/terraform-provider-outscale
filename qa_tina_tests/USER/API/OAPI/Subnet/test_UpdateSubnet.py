@@ -3,6 +3,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
+from specs import check_oapi_error
 
 
 class Test_UpdateSubnet(OscTinaTest):
@@ -61,18 +62,18 @@ class Test_UpdateSubnet(OscTinaTest):
         try:
             self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True, SubnetId='tata')
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='tata', prefixes='subnet-')
         try:
             self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True, SubnetId='subnet-1234567')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='subnet-1234567')
         try:
             self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True, SubnetId='subnet-123456789')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='subnet-123456789')
 
     def test_T3725_unknown_subnet_id(self):
         try:

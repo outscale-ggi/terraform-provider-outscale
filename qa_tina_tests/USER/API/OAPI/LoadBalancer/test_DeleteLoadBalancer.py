@@ -6,6 +6,7 @@ from qa_test_tools.misc import id_generator, assert_oapi_error
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer
+from specs import check_oapi_error
 
 
 class Test_DeleteLoadBalancer(LoadBalancer):
@@ -44,14 +45,14 @@ class Test_DeleteLoadBalancer(LoadBalancer):
             self.a1_r1.oapi.DeleteLoadBalancer()
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T2604_unknown_name(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName='tata')
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5030')
+            check_oapi_error(error, 5030)
 
     def test_T2605_valid_param(self):
         self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=self.lb_name)
@@ -66,4 +67,4 @@ class Test_DeleteLoadBalancer(LoadBalancer):
             self.a2_r1.oapi.DeleteLoadBalancer(LoadBalancerName=self.lb_name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5030', None)
+            check_oapi_error(error, 5030)
