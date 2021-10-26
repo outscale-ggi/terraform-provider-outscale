@@ -5,6 +5,7 @@ from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpc_endpoints_state
+from specs import check_oapi_error
 
 NUM_NET_AP = 4
 SERVICE_NAMES = ['api', 'oos']
@@ -91,14 +92,14 @@ class Test_ReadNetAccessPoints(OscTinaTest):
             ret = self.a1_r1.oapi.ReadNetAccessPoints(Filters={'titi': ['titi']})
             assert not ret.response.NetAccessPoints
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T3736_filter_net_ids_with_invalid_type(self):
         try:
             ret = self.a1_r1.oapi.ReadNetAccessPoints(Filters={'NetIds': [True]})
             assert not ret.response.NetAccessPoint
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T3807_filter_servicenames(self):
         ret = self.a1_r1.oapi.ReadNetAccessPoints(Filters={'ServiceNames': ['com.outscale.{}.oos'.format(self.a1_r1.config.region.name)]})

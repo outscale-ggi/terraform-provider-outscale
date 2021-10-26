@@ -7,6 +7,7 @@ from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
+from specs import check_oapi_error
 
 
 class Test_CreateCa(OscTinaTest):
@@ -37,14 +38,14 @@ class Test_CreateCa(OscTinaTest):
             self.a1_r1.oapi.CreateCa()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T5300_without_CaPem(self):
         try:
             self.a1_r1.oapi.CreateCa(Description='test ca')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T5301_required_params(self):
         with open(self.ca1files[1]) as cafile:
@@ -57,7 +58,7 @@ class Test_CreateCa(OscTinaTest):
             self.a1_r1.oapi.CreateCa(CaPem="test", Description='test ca')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4124')
+            check_oapi_error(error, 4124)
 
     def test_T5303_dry_run(self):
         with open(self.ca1files[1]) as cafile:
@@ -87,6 +88,6 @@ class Test_CreateCa(OscTinaTest):
             self.cas.append(ret.response.Ca.CaId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_oapi_error(error, 1)

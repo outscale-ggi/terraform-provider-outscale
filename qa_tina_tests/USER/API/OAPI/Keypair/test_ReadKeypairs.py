@@ -7,6 +7,7 @@ from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import NAME, FINGERPRINT
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_keypair
+from specs import check_oapi_error
 
 
 class Test_ReadKeypairs(OscTinaTest):
@@ -77,18 +78,18 @@ class Test_ReadKeypairs(OscTinaTest):
             self.a1_r1.oapi.ReadKeypairs(Filters={"Tags": 'key_pair=key_pair_value'})
             assert False, 'Call should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T5096_with_tagskey_filter(self):
         try:
             self.a1_r1.oapi.ReadKeypairs(Filters={"TagKeys": ['key_pair']})
             assert False, 'Call should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T5097_with_tagvalues_filter(self):
         try:
             self.a1_r1.oapi.ReadKeypairs(Filters={"TagValues": ['key_pair_value']})
             assert False, 'Call should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)

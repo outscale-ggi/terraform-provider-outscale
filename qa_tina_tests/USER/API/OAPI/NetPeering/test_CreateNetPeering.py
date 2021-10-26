@@ -4,12 +4,13 @@ import re
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 from qa_tina_tools.tools.tina.wait_tools import wait_vpc_peering_connections_state
+from specs import check_oapi_error
 
 
 class Test_CreateNetPeering(OscTinaTest):
@@ -72,28 +73,28 @@ class Test_CreateNetPeering(OscTinaTest):
             self.a1_r1.oapi.CreateNetPeering(AccepterNetId=self.vpc_info_2[VPC_ID])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2415_without_accepter_net_id(self):
         try:
             self.a1_r1.oapi.CreateNetPeering(SourceNetId=self.vpc_info_1[VPC_ID])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2416_with_invalid_source_net_id(self):
         try:
             self.a1_r1.oapi.CreateNetPeering(SourceNetId='foo', AccepterNetId=self.vpc_info_2[VPC_ID])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='foo', prefixes='vpc-')
 
     def test_T2417_with_unknown_source_net_id(self):
         try:
             self.a1_r1.oapi.CreateNetPeering(SourceNetId='vpc-12345678', AccepterNetId=self.vpc_info_2[VPC_ID])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5065')
+            check_oapi_error(error, 5065, id='vpc-12345678')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T2418_with_source_net_id_from_another_account(self):
@@ -102,7 +103,7 @@ class Test_CreateNetPeering(OscTinaTest):
             self.a1_r1.oapi.CreateNetPeering(SourceNetId=vpc_info_3[VPC_ID], AccepterNetId=self.vpc_info_2[VPC_ID])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5065')
+            check_oapi_error(error, 5065, id=vpc_info_3[VPC_ID])
         finally:
             delete_vpc(self.a2_r1, vpc_info_3)
 
@@ -111,7 +112,7 @@ class Test_CreateNetPeering(OscTinaTest):
             self.a1_r1.oapi.CreateNetPeering(SourceNetId=self.vpc_info_1[VPC_ID], AccepterNetId='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5065')
+            check_oapi_error(error, 5065, id='foo')
 
     def test_T2420_with_unknown_accepter_net_id(self):
         try:
@@ -121,7 +122,7 @@ class Test_CreateNetPeering(OscTinaTest):
             assert ret.response.NetPeering.State.Message == 'Failed due to incorrect VPC-ID, Account ID, or overlapping CIDR range'
             # Jira TINA-4643...
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5065')
+            check_oapi_error(error, 5065, id='vpc-12345678')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T2421_with_accepter_net_id_from_another_account(self):
@@ -133,7 +134,7 @@ class Test_CreateNetPeering(OscTinaTest):
             assert ret.response.NetPeering.State.Message == "Pending acceptance by {}".format(
                 self.a2_r1.config.account.account_id)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5065')
+            check_oapi_error(error, 5065, id=vpc_info_3[VPC_ID])
         finally:
             delete_vpc(self.a2_r1, vpc_info_3)
             self.peering = None
@@ -143,7 +144,7 @@ class Test_CreateNetPeering(OscTinaTest):
             self.a1_r1.oapi.CreateNetPeering(SourceNetId=self.vpc_info_1[VPC_ID], AccepterNetId=self.vpc_info_1[VPC_ID])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            check_oapi_error(error, 4045)
 
     def test_T2422_with_same_ip_range(self):
         vpc_info_3 = create_vpc(self.a1_r1, cidr_prefix="10.1", igw=False, default_rtb=True, no_ping=True)

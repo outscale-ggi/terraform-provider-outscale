@@ -10,6 +10,7 @@ from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_volumes
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
+from specs import check_oapi_error
 
 
 class Test_ReadImages(OscTinaTest):
@@ -173,7 +174,7 @@ class Test_ReadImages(OscTinaTest):
             self.a1_r1.oapi.ReadImages(Filters={'PermissionsToLaunchGlobalPermission': [True, False]})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110', None)
+            check_oapi_error(error, 4110)
 
     def test_T2316_filters_a1_permissions_global_permission_and_accounts_ids(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={

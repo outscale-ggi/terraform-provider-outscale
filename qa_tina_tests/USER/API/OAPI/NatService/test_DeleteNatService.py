@@ -3,12 +3,13 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import SUBNETS, SUBNET_ID, PUBLIC_IP
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_public_ip
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_public_ip
 from qa_tina_tools.tools.tina.wait_tools import wait_nat_gateways_state
+from specs import check_oapi_error
 
 
 class Test_DeleteNatService(OscTinaTest):
@@ -67,21 +68,21 @@ class Test_DeleteNatService(OscTinaTest):
             self.a1_r1.oapi.DeleteNatService()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2538_invalid_id(self):
         try:
             self.a1_r1.oapi.DeleteNatService(NatServiceId='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='foo', prefixes='nat-')
 
     def test_T2539_unknown_id(self):
         try:
             self.a1_r1.oapi.DeleteNatService(NatServiceId='nat-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5032')
+            check_oapi_error(error, 5032, id='nat-12345678')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T2540_with_id_from_another_account(self):
@@ -91,7 +92,7 @@ class Test_DeleteNatService(OscTinaTest):
             nat_id = ret.response.NatService.NatServiceId
             self.a1_r1.oapi.DeleteNatService(NatServiceId=nat_id)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5032')
+            check_oapi_error(error, 5032, id=nat_id)
         finally:
             if nat_id:
                 self.a1_r1.oapi.DeleteNatService(NatServiceId=nat_id)
@@ -105,7 +106,7 @@ class Test_DeleteNatService(OscTinaTest):
             ret = self.a1_r1.oapi.DeleteNatService(DryRun=True)
             assert_dry_run(ret)
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
         finally:
             if nat_id:
                 self.a1_r1.oapi.DeleteNatService(NatServiceId=nat_id)

@@ -2,8 +2,9 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_oapi_error
+from qa_test_tools.misc import id_generator
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
+from specs import check_oapi_error
 
 
 class Test_DeleteLoadBalancerListeners(LoadBalancer):
@@ -53,26 +54,26 @@ class Test_DeleteLoadBalancerListeners(LoadBalancer):
             self.a1_r1.oapi.DeleteLoadBalancerListeners()
             assert False, "call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2618_with_no_port(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancerListeners(LoadBalancerName='Tata')
             assert False, "call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2619_with_invalid_port(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancerListeners(LoadBalancerName=self.lb_name, LoadBalancerPorts=[123456879])
             assert False, "call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5028')
+            check_oapi_error(error, 5028)
         try:
             self.a1_r1.oapi.DeleteLoadBalancerListeners(LoadBalancerName=self.lb_name, LoadBalancerPorts=[4210])
             assert False, "call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5028')
+            check_oapi_error(error, 5028)
 
     def test_T3549_valid_dry_run(self):
         self.a1_r1.oapi.DeleteLoadBalancerListeners(LoadBalancerName=self.lb_name, LoadBalancerPorts=[8080], DryRun=True)
@@ -83,7 +84,7 @@ class Test_DeleteLoadBalancerListeners(LoadBalancer):
             self.a2_r1.oapi.DeleteLoadBalancerListeners(LoadBalancerName=self.lb_name, LoadBalancerPorts=[8080])
             assert False, "call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5030')
+            check_oapi_error(error, 5030)
 
     def test_T2620_valid_case(self):
         lb = self.a1_r1.oapi.DeleteLoadBalancerListeners(LoadBalancerName=self.lb_name, LoadBalancerPorts=[8080]).response.LoadBalancer

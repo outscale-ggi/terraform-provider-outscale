@@ -1,9 +1,10 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
+from specs import check_oapi_error
 
 
 class Test_CreateRouteTable(OscTinaTest):
@@ -34,7 +35,7 @@ class Test_CreateRouteTable(OscTinaTest):
             self.a1_r1.oapi.CreateRouteTable()
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2759_with_valid_params(self):
         ret = self.a1_r1.oapi.CreateRouteTable(NetId=self.net)
@@ -48,10 +49,10 @@ class Test_CreateRouteTable(OscTinaTest):
         try:
             self.a1_r1.oapi.CreateRouteTable(NetId='vpc-toto')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='vpc-toto')
 
     def test_T2761_with_unknown_net_id(self):
         try:
             self.a1_r1.oapi.CreateRouteTable(NetId='vpc-76ce8cb1')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5065')
+            check_oapi_error(error, 5065, id='vpc-76ce8cb1')

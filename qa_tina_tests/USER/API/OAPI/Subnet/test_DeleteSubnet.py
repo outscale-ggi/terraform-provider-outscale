@@ -5,6 +5,7 @@ from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.info_keys import SUBNETS, SUBNET_ID, VPC_ID
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
+from specs import check_oapi_error
 
 
 class Test_DeleteSubnet(OscTinaTest):
@@ -48,15 +49,15 @@ class Test_DeleteSubnet(OscTinaTest):
         try:
             self.a1_r1.oapi.DeleteSubnet(SubnetId='subnet-toto')
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+        except OscApiException as error:
+            check_oapi_error(error, 4105, given_id='subnet-toto')
 
     def test_T2573_invalid_prefix_id(self):
         try:
             self.a1_r1.oapi.DeleteSubnet(SubnetId='titi-toto')
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='titi-toto', prefixes='subnet-')
 
     def test_T2574_inexistant_id(self):
         try:

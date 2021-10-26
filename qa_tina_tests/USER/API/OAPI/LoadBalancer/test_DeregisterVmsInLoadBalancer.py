@@ -1,8 +1,9 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_oapi_error
+from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.setup_tools import setup_public_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_lbu
+from specs import check_oapi_error
 
 
 class Test_DeregisterVmsInLoadBalancer(OscTinaTest):
@@ -39,7 +40,7 @@ class Test_DeregisterVmsInLoadBalancer(OscTinaTest):
                 print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2798_incorrect_lb_name(self):
         try:
@@ -51,7 +52,7 @@ class Test_DeregisterVmsInLoadBalancer(OscTinaTest):
                 print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, invalid loadbalancer name'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5030')
+            check_oapi_error(error, 5030)
 
     def test_T2799_missing_vms(self):
         try:
@@ -63,7 +64,7 @@ class Test_DeregisterVmsInLoadBalancer(OscTinaTest):
                 print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2800_incorrect_vms(self):
         try:
@@ -74,7 +75,10 @@ class Test_DeregisterVmsInLoadBalancer(OscTinaTest):
                 print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, invalid vm id'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            if error.data != 'The VmId \'{id}\' doesn\'t exist.':
+                assert False, 'Remove known error'
+                check_oapi_error(error, 5063, id='i-12345678')
+            known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
 
     def test_T2801_lb_name_incorrect_type(self):
         try:
@@ -85,7 +89,7 @@ class Test_DeregisterVmsInLoadBalancer(OscTinaTest):
                 print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, incorrect parameter type'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T2802_vms_non_list_type(self):
         try:
@@ -96,7 +100,7 @@ class Test_DeregisterVmsInLoadBalancer(OscTinaTest):
                 print('Could not register vms in lbu')
             assert False, 'Call should not have been successful, incorrect parameter type'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T2804_correct_params(self):
         assert self.a1_r1.oapi.DeregisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name, BackendVmIds=[self.inst_ids[0]])
@@ -112,7 +116,10 @@ class Test_DeregisterVmsInLoadBalancer(OscTinaTest):
             self.a1_r1.oapi.DeregisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name, BackendVmIds=[self.inst_ids[0]])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            if error.data != 'The VmId \'{id}\' doesn\'t exist.':
+                assert False, 'Remove known error'
+                check_oapi_error(error, 5063, id=self.inst_ids[0])
+            known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
         finally:
             self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name, BackendVmIds=[self.inst_ids[0]])
 
@@ -121,4 +128,4 @@ class Test_DeregisterVmsInLoadBalancer(OscTinaTest):
             assert self.a1_r1.oapi.DeregisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name, BackendVmIds=[self.inst_ids[0]], ExtraParam='foobar')
             self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name, BackendVmIds=[self.inst_ids[0]])
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)

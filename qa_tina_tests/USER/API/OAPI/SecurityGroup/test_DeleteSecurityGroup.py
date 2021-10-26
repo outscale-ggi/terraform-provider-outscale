@@ -7,6 +7,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.compare_objects import verify_response
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_DeleteSecurityGroup(OscTinaTest):
@@ -49,7 +50,7 @@ class Test_DeleteSecurityGroup(OscTinaTest):
             self.a1_r1.oapi.DeleteSecurityGroup(SecurityGroupId='1234')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='1234', prefixes='sg-')
 
     def test_T2734_with_wrong_name(self):
         try:

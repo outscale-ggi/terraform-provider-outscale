@@ -2,13 +2,13 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_network_interfaces_state
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
-
+from specs import check_oapi_error
 
 NUM_NIC = 3
 
@@ -50,28 +50,28 @@ class Test_UnlinkNic(Nic):
             self.a1_r1.oapi.UnlinkNic()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2688_empty_nic_link_id(self):
         try:
             self.a1_r1.oapi.UnlinkNic(LinkNicId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2689_invalid_nic_link_id(self):
         try:
             self.a1_r1.oapi.UnlinkNic(LinkNicId='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='toto', prefixes='eni-attach-')
 
     def test_T2690_unknown_nic_link_id(self):
         try:
             self.a1_r1.oapi.UnlinkNic(LinkNicId='eni-attach-123154678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='eni-attach-123154678')
 
     def test_T2691_valid_case(self):
         nic_id = self.nic_ids[0]
@@ -107,6 +107,6 @@ class Test_UnlinkNic(Nic):
             self.a2_r1.oapi.UnlinkNic(LinkNicId=nic_link_id,)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5007')
+            check_oapi_error(error, 5007, id=nic_link_id)
         finally:
             self.a1_r1.oapi.UnlinkNic(LinkNicId=nic_link_id)

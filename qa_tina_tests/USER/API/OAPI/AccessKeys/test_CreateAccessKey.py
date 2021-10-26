@@ -30,7 +30,7 @@ class Test_CreateAccessKey(OscTinaTest):
             ak = ret_create.response.AccessKey.AccessKeyId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_tools.check_oapi_error(error, 1)
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -70,9 +70,9 @@ class Test_CreateAccessKey(OscTinaTest):
             ak = ret_create.response.AccessKey.AccessKeyId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_tools.check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_tools.check_oapi_error(error, 1)
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)

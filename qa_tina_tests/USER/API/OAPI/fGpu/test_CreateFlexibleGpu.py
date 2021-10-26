@@ -1,8 +1,9 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
@@ -28,42 +29,42 @@ class Test_CreateFlexibleGpu(OscTinaTest):
             self.a1_r1.oapi.CreateFlexibleGpu(SubregionName=self.subregionname)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T4181_missing_subregion_name(self):
         try:
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T4182_incorrect_model_name(self):
         try:
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName='XXXXXXXX', SubregionName=self.subregionname)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T4183_incorrect_subregion_name(self):
         try:
             self.a1_r1.oapi.CreateFlexibleGpu(SubregionName='XXXXXXXX', ModelName=self.modelname)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5009')
+            check_oapi_error(error, 5009)
 
     def test_T4184_invalid_model_name(self):
         try:
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName=[self.modelname], SubregionName=self.subregionname)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T4185_invalid_subregion_name(self):
         try:
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=[self.subregionname])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     @pytest.mark.region_gpu
     def test_T4303_valid_deletion_on_vm_deletion(self):
@@ -83,7 +84,7 @@ class Test_CreateFlexibleGpu(OscTinaTest):
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DeleteOnVmDeletion='XXXXXXXX')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T4187_invalid_dry_run(self):
         ret = None
@@ -91,7 +92,7 @@ class Test_CreateFlexibleGpu(OscTinaTest):
             ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DryRun='XXXXXXXX')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
         finally:
             if ret:
                 self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=ret.response.FlexibleGpu.FlexibleGpuId)
@@ -101,7 +102,7 @@ class Test_CreateFlexibleGpu(OscTinaTest):
             self.a1_r1.oapi.CreateFlexibleGpu()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     @pytest.mark.region_gpu
     def test_T4188_valid_params(self):
@@ -155,14 +156,14 @@ class Test_CreateFlexibleGpu(OscTinaTest):
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation='v5')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
         try:
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation='4')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
         try:
             self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation=['v5'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
