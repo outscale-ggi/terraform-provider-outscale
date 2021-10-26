@@ -1,7 +1,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
+from specs import check_oapi_error
 
 
 class Test_CreateNic(Nic):
@@ -27,28 +27,28 @@ class Test_CreateNic(Nic):
             self.a1_r1.oapi.CreateNic()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2629_with_empty_subnet_id(self):
         try:
             self.a1_r1.oapi.CreateNic(SubnetId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2630_with_invalid_subnet_id(self):
         try:
             self.a1_r1.oapi.CreateNic(SubnetId='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='toto', prefixes='subnet-')
 
     def test_T2631_with_unknown_subnet_id(self):
         try:
             self.a1_r1.oapi.CreateNic(SubnetId='sub-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='sub-12345678', prefixes='subnet-')
 
     def test_T2632_with_valid_subnet(self):
         ret = self.a1_r1.oapi.CreateNic(SubnetId=self.subnet_id1).response.Nic
@@ -88,14 +88,14 @@ class Test_CreateNic(Nic):
             self.a1_r1.oapi.CreateNic(SecurityGroupIds=['tata'], SubnetId=self.subnet_id1)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='sg-')
 
     def test_T2636_with_firewall_rules_set_ids_unknown(self):
         try:
             self.a1_r1.oapi.CreateNic(SecurityGroupIds=['sg-12345678'], SubnetId=self.subnet_id1)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5020')
+            check_oapi_error(error, 5020, id='sg-12345678')
 
     def test_T2637_with_private_ips_empty(self):
         ret = self.a1_r1.oapi.CreateNic(PrivateIps=[], SubnetId=self.subnet_id1).response.Nic
@@ -111,7 +111,7 @@ class Test_CreateNic(Nic):
             self.nic_id = self.a1_r1.oapi.CreateNic(PrivateIps=[{'IsPrimary': True}], SubnetId=self.subnet_id1).response.Nic.NicId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T5330_with_private_ips_missing_is_primary(self):
         ret = self.a1_r1.oapi.CreateNic(PrivateIps=[{'PrivateIp': '10.0.1.20'}], SubnetId=self.subnet_id1)
@@ -125,7 +125,7 @@ class Test_CreateNic(Nic):
                                                      SubnetId=self.subnet_id1).response.Nic.NicId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2639_with_private_ips_invalid_ip2(self):
         try:
@@ -133,7 +133,7 @@ class Test_CreateNic(Nic):
                                       SubnetId=self.subnet_id1)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2640_with_private_ips_1_primary(self):
         ret = self.a1_r1.oapi.CreateNic(PrivateIps=[{'IsPrimary': True, 'PrivateIp': '10.0.1.20'}],

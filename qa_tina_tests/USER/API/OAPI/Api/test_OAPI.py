@@ -9,9 +9,8 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscException
 import qa_sdk_pub.osc_api as osc_api
-from specs.check_tools import get_documentation, DOCUMENTATIONS, PATHS
+from specs.check_tools import get_documentation, DOCUMENTATIONS, PATHS, check_oapi_error
 from qa_test_tools import misc
-from qa_test_tools.misc import assert_error, assert_oapi_error
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
@@ -35,21 +34,21 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.foo()
             assert False, 'Call should have been successful'
         except OscApiException as error:
-            assert_error(error, 404, "12000", "InvalidAction")
+            check_oapi_error(error, 12000)
 
     def test_T2223_invalid_param(self):
         try:
             self.a1_r1.oapi.ReadVolumes(foo='bar')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, "3001", "InvalidParameter")
+            check_oapi_error(error, 3001)
 
     def test_T2224_method_get(self):
         try:
             self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_METHOD: 'GET'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 404 , "12000", "InvalidAction")
+            check_oapi_error(error, 12000)
 
     # @pytest.mark.tag_sec_traceability
     # def test_T2225_check_log(self):
@@ -62,7 +61,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 401, "1", "AccessDenied")
+            check_oapi_error(error, 1)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T2227_invalid_authentication(self):
@@ -72,7 +71,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadVolumes()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 401, "1", "AccessDenied")
+            check_oapi_error(error, 1)
         finally:
             self.a1_r1.config.account.sk = sk_bkp
 
@@ -166,7 +165,7 @@ class Test_OAPI(OscTinaTest):
                 if tag.ResourceId in sg_ids and tag.Key == 'key':
                     assert tag.Value == tag_value
         except OscApiException as error:
-            assert_error(error, 404 , "12000", "InvalidAction")
+            check_oapi_error(error, 12000)
         finally:
             if resp_tags:
                 self.a1_r1.oapi.DeleteTags(ResourceIds=sg_ids, Tags=[{'Key': tag_key, 'Value': tag_value}])
@@ -185,7 +184,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_CONTENT_TYPE: 'application/toto'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 415 , "UnsupportedMediaType", 3010)
+            check_oapi_error(error, 3010)
 
     def test_T4918_before_date_time_stamp(self):
         try:
@@ -194,7 +193,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 401 , "AccessDenied", 15)
+            check_oapi_error(error, 15)
 
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -218,7 +217,7 @@ class Test_OAPI(OscTinaTest):
                                                           osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 401, "AccessDenied", 15)
+            check_oapi_error(error, 15)
 
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -232,7 +231,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 401, "AccessDenied", 15)
+            check_oapi_error(error, 15)
 
     def test_T4922_incorrect_date_stamp(self):
         date_stamp = 'toto'
@@ -244,7 +243,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 401, "AccessDenied", 15)
+            check_oapi_error(error, 15)
 
     def test_T4924_empty_date_stamp(self):
         try:
@@ -252,9 +251,9 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
+            check_oapi_error(error, 4118)
             known_error('GTW-2001', 'Incorrect error')
-            assert_oapi_error(error, 401, "AccessDenied", 1)
+            check_oapi_error(error, 1)
 
     def test_T5025_after_date_time_stamp(self):
         try:
@@ -264,7 +263,7 @@ class Test_OAPI(OscTinaTest):
                                                                 osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful : {}'.format(ret.response.ResponseContext.RequestId)
         except OscException as error:
-            assert_oapi_error(error, 401, "AccessDenied", 15)
+            check_oapi_error(error, 15)
 
         date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -292,7 +291,7 @@ class Test_OAPI(OscTinaTest):
                                                                 osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful : {}'.format(ret.response.ResponseContext.RequestId)
         except OscException as error:
-            assert_oapi_error(error, 401, "AccessDenied", 15)
+            check_oapi_error(error, 15)
 
         date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')

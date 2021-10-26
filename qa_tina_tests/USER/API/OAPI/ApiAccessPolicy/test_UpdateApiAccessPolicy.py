@@ -131,9 +131,9 @@ class Test_UpdateApiAccessPolicy(OscTinaTest):
                 MaxAccessKeyExpirationSeconds=0, RequireTrustedEnv=False)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_oapi_error(error, 1)
 
     # <global> Add all others tests with ak/sk authentication
     def test_T5767_ak_sk(self):

@@ -1,9 +1,9 @@
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
+from specs import check_oapi_error
 
 DEFAULT_GPU_ID = "fgpu-12345678"
 DEFAULT_MODEL_NAME = "nvidia-k2"
@@ -50,7 +50,7 @@ class Test_UpdateFlexibleGpu(OscTinaTest):
             self.a1_r1.oapi.UpdateFlexibleGpu(DeleteOnVmDeletion=True)
             assert False, 'the call should not be successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T4643_without_attr(self):
         ret = self.a1_r1.oapi.UpdateFlexibleGpu(FlexibleGpuId=self.fgpu_id)
@@ -61,32 +61,32 @@ class Test_UpdateFlexibleGpu(OscTinaTest):
             self.a1_r1.oapi.UpdateFlexibleGpu(FlexibleGpuId='toto')
             assert False, 'the call should not be successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='toto', prefixes='fgpu-')
 
     def test_T4645_with_unknown_fgpu_id(self):
         try:
             self.a1_r1.oapi.UpdateFlexibleGpu(FlexibleGpuId='fgpu-12345678')
             assert False, 'the call should not be successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5074')
+            check_oapi_error(error, 5074)
 
     def test_T4646_with_invalid_fgpu_id_type(self):
         try:
             self.a1_r1.oapi.UpdateFlexibleGpu(FlexibleGpuId=[self.fgpu_id], DeleteOnVmDeletion=True)
             assert False, 'the call should not be successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T4647_with_invalid_DeleteOnVm_type(self):
         try:
             self.a1_r1.oapi.UpdateFlexibleGpu(FlexibleGpuId=self.fgpu_id, DeleteOnVmDeletion=[True])
             assert False, 'the call should not be successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T4648_with_other_account(self):
         try:
             self.a2_r1.oapi.UpdateFlexibleGpu(FlexibleGpuId=self.fgpu_id)
             assert False, 'the call should not be successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5074')
+            check_oapi_error(error, 5074)

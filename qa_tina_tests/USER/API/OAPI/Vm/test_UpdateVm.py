@@ -14,6 +14,7 @@ from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instanc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_instances_state
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
+from specs import check_oapi_error
 
 
 class Test_UpdateVm(OscTinaTest):
@@ -397,7 +398,7 @@ class Test_UpdateVm(OscTinaTest):
             self.a1_r1.oapi.UpdateVm(UserData=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'), VmId=inst_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4106')
+            check_oapi_error(error, 4106, param='Value', vlength='684000', length='{(0, 512000)}')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)

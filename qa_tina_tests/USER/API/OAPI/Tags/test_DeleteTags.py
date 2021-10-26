@@ -3,6 +3,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_DeleteTags(OscTinaTest):
@@ -58,8 +59,8 @@ class Test_DeleteTags(OscTinaTest):
     def test_T2512_resource_id_string_type(self):
         try:
             self.a1_r1.oapi.DeleteTags(ResourceIds=['toto'], Tags=[{'Key': 'key', 'Value': 'value'}])
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4025')
+        except OscApiException as error:
+            check_oapi_error(error, 4025, id='toto')
 
     def test_T2513_incorrect_type_resource_id(self):
         try:

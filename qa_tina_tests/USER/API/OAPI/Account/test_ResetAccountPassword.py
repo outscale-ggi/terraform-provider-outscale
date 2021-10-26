@@ -8,6 +8,7 @@ from qa_sdk_pub.osc_api.osc_oapi_api import OscOApi
 from qa_test_tools import misc, account_tools
 from qa_test_tools.config import config_constants
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_ResetAccountPassword(OscTinaTest):
@@ -57,4 +58,4 @@ class Test_ResetAccountPassword(OscTinaTest):
                                            Token=self.rettoken.response.passwordToken, Password=self.password)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 409, '9074', 'ResourceConflict')
+            check_oapi_error(error, 9074)

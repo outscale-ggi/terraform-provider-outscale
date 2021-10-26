@@ -3,6 +3,7 @@ from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
+from specs import check_oapi_error
 
 
 class Test_CreateSubnet(OscTinaTest):
@@ -64,8 +65,8 @@ class Test_CreateSubnet(OscTinaTest):
         try:
             self.a1_r1.oapi.CreateSubnet(NetId='xxx-12345678', IpRange=Configuration.get('subnet', '10_0_1_0_24'))
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='xxx-12345678', prefixes='vpc-')
 
     def test_T2564_unknown_net_id(self):
         try:

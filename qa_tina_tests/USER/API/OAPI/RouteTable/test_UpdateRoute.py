@@ -7,6 +7,7 @@ from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import ROUTE_TABLE_ID, INTERNET_GATEWAY_ID
+from specs import check_oapi_error
 
 
 class Test_UpdateRoute(OscTinaTest):
@@ -39,21 +40,21 @@ class Test_UpdateRoute(OscTinaTest):
             self.a1_r1.oapi.UpdateRoute()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2027_with_invalid_params(self):
         try:
             self.a1_r1.oapi.UpdateRoute(DestinationIpRange='100.0.0.0/24', RouteTableId=self.vpc_info[ROUTE_TABLE_ID], VmId="i-12345678")
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id="i-12345678")
 
     def test_T2941_with_invalid_vm_id_params(self):
         try:
             self.a1_r1.oapi.UpdateRoute(DestinationIpRange='100.0.0.0/24', RouteTableId=self.vpc_info[ROUTE_TABLE_ID], VmId="i-123456")
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='i-123456')
 
     def test_T2028_with_valid_params(self):
         self.a1_r1.oapi.UpdateRoute(DestinationIpRange='100.0.0.0/24', RouteTableId=self.vpc_info[ROUTE_TABLE_ID],
@@ -71,4 +72,4 @@ class Test_UpdateRoute(OscTinaTest):
                                         GatewayId=self.vpc_info[INTERNET_GATEWAY_ID])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5046')
+            check_oapi_error(error, 5046, id=self.vpc_info[ROUTE_TABLE_ID])

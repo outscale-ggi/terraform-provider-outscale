@@ -3,8 +3,9 @@ import random
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
+from specs import check_oapi_error
 
 
 def find_ip(used):
@@ -55,56 +56,56 @@ class Test_UnlinkPrivateIps(Nic):
             self.a1_r1.oapi.UnlinkPrivateIps()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2693_with_empty_nic_id(self):
         try:
             self.a1_r1.oapi.UnlinkPrivateIps(NicId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2694_with_invalid_nic_id(self):
         try:
             self.a1_r1.oapi.UnlinkPrivateIps(NicId='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2695_with_unknown_nic_id(self):
         try:
             self.a1_r1.oapi.UnlinkPrivateIps(NicId='eni-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2696_with_missing_private_ips(self):
         try:
             self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2697_with_missing_nic_id(self):
         try:
             self.a1_r1.oapi.UnlinkPrivateIps(PrivateIps=['10.0.1.35'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2698_with_invalid_ips_str(self):
         try:
             self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=['tata'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2699_with_unknown_ips_str(self):
         try:
             self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=['295.16.34.5'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2700_with_valid_combination(self):
         assert self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=[self.test_ips[0]])
@@ -117,7 +118,7 @@ class Test_UnlinkPrivateIps(Nic):
             self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=[find_ip(self.test_ips + [self.private_ip]), self.test_ips[0]])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            check_oapi_error(error, 4045)
 
     def test_T3511_dry_run(self):
         ret = self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=[self.test_ips[1]], DryRun=True)
@@ -129,10 +130,10 @@ class Test_UnlinkPrivateIps(Nic):
             self.a2_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=[self.test_ips[2]])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5077')
+            check_oapi_error(error, 5077, id=self.nic_id)
 
     def test_6102_primary_ip(self):
         try:
             self.a1_r1.oapi.UnlinkPrivateIps(NicId=self.nic_id, PrivateIps=[self.private_ip])
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            check_oapi_error(error, 4045)

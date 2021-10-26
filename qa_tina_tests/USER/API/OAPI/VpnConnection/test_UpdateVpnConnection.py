@@ -5,6 +5,7 @@ from qa_tina_tools.tina import oapi, wait
 from qa_test_tools.test_base import known_error
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_test_tools.config.configuration import Configuration
+from specs import check_oapi_error
 
 
 class Test_UpdateVpnConnection(OscTinaTest):
@@ -70,7 +71,7 @@ class Test_UpdateVpnConnection(OscTinaTest):
             self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId="xxx-12345678")
             assert False, 'Call should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='xxx-12345678', prefixes='vpn-')
 
     def test_T5938_with_invalid_PreSharedKey(self):
         known_error('TINA-6738', 'On call intel.vpn.connection.update')

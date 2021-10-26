@@ -5,6 +5,7 @@ import string
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_UpdateAccount(OscTinaTest):
@@ -28,14 +29,14 @@ class Test_UpdateAccount(OscTinaTest):
             self.a1_r1.oapi.UpdateAccount()
             assert False, "The updateAccount call should not succeed."
         except OscApiException as error:
-            assert_oapi_error(error, 400, "MissingParameter", 7000)
+            check_oapi_error(error, 7000)
 
     def test_T4913_email_duplicate(self):
         try:
             self.a1_r1.oapi.UpdateAccount(Email=self.a2_r1.config.account.login)
             assert False, 'Call with duplicate email should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'ResourceConflict', 9073)
+            check_oapi_error(error, 9073)
 
     def test_T4914_email_new(self):
         email = 'qa+T573_{}@outscale.com'.format(id_generator(size=8))
@@ -48,7 +49,7 @@ class Test_UpdateAccount(OscTinaTest):
             self.a1_r1.oapi.UpdateAccount(Email='foo')
             assert False, 'Call with invalid account should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
+            check_oapi_error(error, 4118)
 
     def test_T4916_with_invalid_parameter(self):
         passwd = id_generator(size=4, chars=string.ascii_lowercase)
@@ -56,7 +57,7 @@ class Test_UpdateAccount(OscTinaTest):
             self.a1_r1.oapi.UpdateAccount(Password=passwd)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', 3001)
+            check_oapi_error(error, 3001)
 
     def test_T4917_with_valid_params(self):
         account_info = self.generate_params()

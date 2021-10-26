@@ -6,6 +6,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 @pytest.mark.region_directlink
@@ -39,58 +40,58 @@ class Test_CreateDirectLink(OscTinaTest):
             self.a1_r1.oapi.CreateDirectLink()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T3898_missing_parameters(self):
         try:
             self.a1_r1.oapi.CreateDirectLink(DirectLinkName='test_name')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLink(Location='test_location')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='1Gbps')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='1Gbps', DirectLinkName='test_name')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLink(DirectLinkName='test_name', Location=self.location)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='1Gbps', Location='test_location')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T3899_unknown_location(self):
         try:
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='1Gbps', DirectLinkName='test_name', Location='unknown_location')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5052', None)
+            check_oapi_error(error, 5052)
 
     def test_T3900_invalid_bandwidth(self):
         try:
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='alpha1Gbps', DirectLinkName='test_name', Location=self.location)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045', None)
+            check_oapi_error(error, 4047)
         try:
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='1', DirectLinkName='test_name', Location=self.location)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045', None)
+            check_oapi_error(error, 4047)
 
     @pytest.mark.region_directlink
     def test_T4070_valid_params(self):
