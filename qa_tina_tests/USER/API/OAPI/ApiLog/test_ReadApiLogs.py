@@ -9,6 +9,7 @@ from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
+from specs import check_oapi_error
 
 param = [
     'AccountId',
@@ -98,28 +99,28 @@ class Test_ReadApiLogs(OscTinaTest):
             self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=1001)
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4113', None)
+            check_oapi_error(err, 4113)
         try:
             self.a1_r1.oapi.ReadApiLogs(ResultsPerPage='1001')
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4110', None)
+            check_oapi_error(err, 4110)
         try:
             self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=0)
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4113', None)
+            check_oapi_error(err, 4113)
 
     def test_T3203_invalid_NextPageToken_value(self):
         try:
             self.a1_r1.oapi.ReadApiLogs(NextPageToken=123456)
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4110', None)
+            check_oapi_error(err, 4110)
         try:
             self.a1_r1.oapi.ReadApiLogs(NextPageToken='')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4117', None)
+            check_oapi_error(err, 4117)
 
     def test_T3204_verify_calls_on_log(self):
         call = [
@@ -187,7 +188,7 @@ class Test_ReadApiLogs(OscTinaTest):
         try:
             self.a1_r1.oapi.ReadVm()
         except Exception as error:
-            misc.assert_oapi_error(error, 404, 'InvalidAction', 12000)
+            check_oapi_error(error, 12000)
         time.sleep(20)
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409, 200, ]}, ResultsPerPage=1000)
         assert len(ret.response.Logs) != 0
@@ -231,7 +232,7 @@ class Test_ReadApiLogs(OscTinaTest):
             self.a1_r1.oapi.ReadApiLogs(Filters={'QueryDateAfter': '2017'})
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', "4110")
+            check_oapi_error(err, 4110)
 
     def test_T4179_invalid_filter_incorrect_date_order(self):
         try:
@@ -251,28 +252,28 @@ class Test_ReadApiLogs(OscTinaTest):
             self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": ['700']})
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', "4110")
+            check_oapi_error(err, 4110)
 
     def test_T3219_invalid_filter_QueryIpAddresses(self):
         try:
             self.a1_r1.oapi.ReadApiLogs(Filters={"QueryIpAddresses": ['0.1']})
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', "4112")
+            check_oapi_error(err, 4112)
 
     def test_T3220_invalid_filter_QueryApiNames(self):
         try:
             self.a1_r1.oapi.ReadApiLogs(Filters={"QueryApiNames": [1]})
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', "4110")
+            check_oapi_error(err, 4110)
 
     def test_T3221_invalid_params(self):
         try:
             self.a1_r1.oapi.ReadApiLogs(titi='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', "3001")
+            check_oapi_error(err, 4110)
 
     def test_T3222_valid_With_Value(self):
         for attr in param:
@@ -287,7 +288,7 @@ class Test_ReadApiLogs(OscTinaTest):
             self.a1_r1.oapi.ReadApiLogs(With={'toto': True}, ResultsPerPage=1)
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', "3001")
+            check_oapi_error(err, 3001)
 
     def test_T3229_verify_response_of_With_Value(self):
         ret = self.a1_r1.oapi.ReadApiLogs(

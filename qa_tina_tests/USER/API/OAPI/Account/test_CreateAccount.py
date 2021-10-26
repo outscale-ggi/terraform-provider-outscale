@@ -4,6 +4,7 @@ import string
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_CreateAccount(OscTinaTest):
@@ -34,7 +35,7 @@ class Test_CreateAccount(OscTinaTest):
             self.a1_r1.oapi.CreateAccount()
             assert False, 'CreateAccount should have failed'
         except OscApiException as error:
-            misc.assert_error(error, 400, "7000", "MissingParameter")
+            check_oapi_error(error, 7000)
 
     def test_T4757_required_param_default_account(self):
         account_info = self.generate_params()
@@ -61,7 +62,7 @@ class Test_CreateAccount(OscTinaTest):
             self.a1_r1.oapi.CreateAccount(**params)
             assert False, 'CreateAccount should have failed'
         except OscApiException as error:
-            misc.assert_error(error, 409, "9007", 'ResourceConflict')
+            check_oapi_error(error, 9007)
 
     def test_T4759_invalid_email_address(self):
         try:
@@ -72,7 +73,7 @@ class Test_CreateAccount(OscTinaTest):
             self.a1_r1.oapi.CreateAccount(**ret)
             assert False, 'CreateAccount should have failed'
         except OscApiException as error:
-            misc.assert_error(error, 400, "4047", "InvalidParameterValue")
+            check_oapi_error(error, 4047)
 
     def test_T4760_invalid_customer_id(self):
         name = 'foo'
@@ -81,4 +82,4 @@ class Test_CreateAccount(OscTinaTest):
             self.a1_r1.oapi.CreateAccount(**ret)
             assert False, 'CreateAccount should have failed'
         except OscApiException as error:
-            misc.assert_error(error, 400, "4047", "InvalidParameterValue")
+            check_oapi_error(error, 4047)

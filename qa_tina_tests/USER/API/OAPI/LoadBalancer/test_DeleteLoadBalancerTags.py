@@ -1,8 +1,10 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import id_generator, assert_dry_run
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_DeleteLoadBalancerTags(OscTinaTest):
@@ -52,63 +54,67 @@ class Test_DeleteLoadBalancerTags(OscTinaTest):
             self.a1_r1.oapi.DeleteLoadBalancerTags(Tags=[{'Key': 'key1'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', 7000)
+            check_oapi_error(error, 7000)
 
     def test_T4715_missing_tags(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', 7000)
+            check_oapi_error(error, 7000)
 
     def test_T4716_incorrect_load_balancer_names(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=['_test_lbu'], Tags=[{'Key': 'key1'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5030)
+            check_oapi_error(error, 5030)
 
     def test_T4717_incorrect_tags(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Toto': 'key1'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', 3001)
+            check_oapi_error(error, 3001)
 
     def test_T4718_incorrect_tag_key(self):
         try:
-            self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': ''}])
+            self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName],
+                                                   Tags=[{'Key': ''}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4108)
+            if error.data != 'The provided value \'{value}\' for parameter \'{key}\' must be of type \'{form}\'.':
+                assert False, 'remove known error'
+                check_oapi_error(error, 4108, value='', key='Key', form='1 character')
+            known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
 
     def test_T4719_unknown_load_balancer_names(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=['test_lbu'], Tags=[{'Key': 'key1'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5030)
+            check_oapi_error(error, 5030)
 
     def test_T4720_incorrect_load_balancer_names_type(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=self.ret_lbu_a1[0].LoadBalancerName, Tags=[{'Key': 'key1'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     def test_T4721_incorrect_tags_type(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags={'Key': 'key1'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     def test_T4722_incorrect_tag_key_type(self):
         try:
             self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': ['key1']}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     def test_T4723_dry_run(self):
         ret = self.a1_r1.oapi.DeleteLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName], Tags=[{'Key': 'key1'}], DryRun=True)

@@ -6,6 +6,7 @@ from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
+from specs import check_oapi_error
 
 
 class Test_DeleteVolume(OscTinaTest):
@@ -56,13 +57,13 @@ class Test_DeleteVolume(OscTinaTest):
         try:
             self.a1_r1.oapi.DeleteVolume(VolumeId='tata')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='vol-')
 
     def test_T2966_malformed_volume_id(self):
         try:
             self.a1_r1.oapi.DeleteVolume(VolumeId='vol-123456')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='vol-123456')
 
     def test_T2967_unknown_volume_id(self):
         try:

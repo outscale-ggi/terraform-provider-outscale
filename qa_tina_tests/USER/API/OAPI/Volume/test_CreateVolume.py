@@ -5,6 +5,7 @@ from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
+from specs import check_oapi_error
 
 
 class Test_CreateVolume(OscTinaTest):
@@ -97,7 +98,7 @@ class Test_CreateVolume(OscTinaTest):
             self.a1_r1.oapi.CreateVolume(SnapshotId='tata', SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='snap-')
 
     def test_T2954_unknown_snapshot_id(self):
         try:
@@ -111,7 +112,7 @@ class Test_CreateVolume(OscTinaTest):
             self.a1_r1.oapi.CreateVolume(SnapshotId='snap-123456', SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='snap-123456')
 
     def test_T2956_unknown_volume_type(self):
         try:
