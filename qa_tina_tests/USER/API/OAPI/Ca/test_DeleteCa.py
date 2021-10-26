@@ -84,8 +84,6 @@ class Test_DeleteCa(OscTinaTest):
             self.__class__.ca_id_bis = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
-            known_error("API-412", "Change error code on oapi call DeleteCa")
             misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
             known_error('API-400', 'Incorrect error message')
             misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
