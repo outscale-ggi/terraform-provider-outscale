@@ -1,8 +1,6 @@
 from __future__ import division
 import re
 
-import pytest
-
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import known_error
@@ -238,7 +236,7 @@ class Test_CreateVolume(OscTinaTest):
             try:
                 assert error.message == msg
                 if self.a1_r1.config.region.name == 'in-west-2':
-                    pytest.fail('Remove known error')
+                    assert False, 'remove known error'
             except AssertionError:
                 if self.a1_r1.config.region.name == 'in-west-2':
                     known_error('OPS-14350', 'New IN2: fix iops size ratio')
@@ -258,7 +256,7 @@ class Test_CreateVolume(OscTinaTest):
             try:
                 assert error.message == msg
                 if self.a1_r1.config.region.name == 'in-west-2':
-                    pytest.fail('Remove known error')
+                    assert False, 'remove known error'
             except AssertionError:
                 if self.a1_r1.config.region.name == 'in-west-2':
                     known_error('OPS-14350', 'New IN2: fix iops size ratio')
