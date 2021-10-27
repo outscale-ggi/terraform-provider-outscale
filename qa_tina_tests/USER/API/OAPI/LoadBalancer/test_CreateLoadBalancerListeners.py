@@ -1,7 +1,8 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_oapi_error
+from specs import check_oapi_error
+from qa_test_tools.misc import id_generator
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
 
 
@@ -40,7 +41,7 @@ class Test_CreateLoadBalancerListeners(LoadBalancer):
             self.a1_r1.oapi.CreateLoadBalancerListeners(LoadBalancerName=self.lb_name)
             assert False, "call should not have been successful, must contain Listeners param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2610_with_invalid_instance_protocol(self):
         try:
@@ -51,7 +52,7 @@ class Test_CreateLoadBalancerListeners(LoadBalancer):
                                                                     'BackendProtocol': 'toto'}])
             assert False, "call should not have been successful, invalid instance protocol"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4095')
+            check_oapi_error(error, 4095)
 
     def test_T2611_with_invalid_lb_name(self):
         try:
@@ -60,7 +61,7 @@ class Test_CreateLoadBalancerListeners(LoadBalancer):
                                                                     'LoadBalancerPort': 8080}])
             assert False, "call should not have been successful, invalid LoadBalancerName param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5030')
+            check_oapi_error(error, 5030)
 
     def test_T2612_with_invalid_lb_port(self):
         try:
@@ -69,7 +70,7 @@ class Test_CreateLoadBalancerListeners(LoadBalancer):
                                                                     'LoadBalancerPort': 0}])
             assert False, "call should not have been successful, invalid LoadBalancerPort"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4037')
+            check_oapi_error(error, 4037)
 
         try:
             self.a1_r1.oapi.CreateLoadBalancerListeners(LoadBalancerName=self.lb_name,
@@ -77,7 +78,7 @@ class Test_CreateLoadBalancerListeners(LoadBalancer):
                                                                     'LoadBalancerPort': 65536}])
             assert False, "call should not have been successful, invalid LoadBalancerPort"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4037')
+            check_oapi_error(error, 4037)
 
     def test_T2613_with_invalid_protocol(self):
         try:
@@ -86,7 +87,7 @@ class Test_CreateLoadBalancerListeners(LoadBalancer):
                                                                     'LoadBalancerPort': 8080}])
             assert False, "call should not have been successful, invalid protocol"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4095')
+            check_oapi_error(error, 4095)
 
     def test_T2614_with_invalid_instance_port(self):
         try:
@@ -95,7 +96,7 @@ class Test_CreateLoadBalancerListeners(LoadBalancer):
                                                                     'LoadBalancerPort': 2000}])
             assert False, "call should not have been successful, invalid BackendPort"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4095')
+            check_oapi_error(error, 4095)
 
         try:
             self.a1_r1.oapi.CreateLoadBalancerListeners(LoadBalancerName=self.lb_name,
@@ -104,7 +105,7 @@ class Test_CreateLoadBalancerListeners(LoadBalancer):
                                                              'LoadBalancerPort': 1025}])
             assert False, "call should not have been successful, invalid BackendPort"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4095')
+            check_oapi_error(error, 4095)
 
     def test_T2615_with_valid_param(self):
         lb = self.a1_r1.oapi.CreateLoadBalancerListeners(LoadBalancerName=self.lb_name,

@@ -1,8 +1,9 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc_old
@@ -41,35 +42,35 @@ class Test_UpdateNet(OscTinaTest):
         try:
             self.a1_r1.oapi.UpdateNet()
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2890_missing_param(self):
         try:
             self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId=self.default_dhcp_options)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.UpdateNet(NetId=self.vpc_id)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2891_invalid_param(self):
         try:
             self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId='tata', NetId=self.vpc_id)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
         try:
             self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId='dopt-12345678', NetId=self.vpc_id)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5018')
+            check_oapi_error(error, 5018, id='dopt-12345678')
         try:
             self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId=self.dopt_id, NetId='tata')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='vpc-')
         try:
             self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId=self.dopt_id, NetId='vpc-12345678')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5065')
+            check_oapi_error(error, 5065, id='vpc-12345678')
 
     def test_T2892_valid_param(self):
         net = self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId=self.dopt_id, NetId=self.vpc_id).response.Net
@@ -95,7 +96,7 @@ class Test_UpdateNet(OscTinaTest):
             self.a2_r1.oapi.UpdateNet(DhcpOptionsSetId=dopt_id, NetId=self.vpc_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5065)
+            check_oapi_error(error, 5065, id=self.vpc_id)
 
     def test_T4903_with_default_dhcpoptions(self):
         self.a1_r1.oapi.UpdateNet(DhcpOptionsSetId="default", NetId=self.vpc_id)

@@ -3,7 +3,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import PEERING
 from qa_tina_tools.tools.tina.create_tools import create_peering
@@ -23,21 +24,21 @@ class Test_RejectNetPeering(OscTinaTest):
             self.a1_r1.oapi.RejectNetPeering()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2003_invalid_id(self):
         try:
             self.a1_r1.oapi.RejectNetPeering(NetPeeringId='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='foo', prefixes='pcx-')
 
     def test_T2004_unknown_ids(self):
         try:
             self.a1_r1.oapi.RejectNetPeering(NetPeeringId='pcx-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5035')
+            check_oapi_error(error, 5035, id='pcx-12345678')
 
     def test_T2005_with_peering_in_valid_state(self):
         valid_states = ['pending-acceptance', 'rejected']
@@ -57,7 +58,7 @@ class Test_RejectNetPeering(OscTinaTest):
                 self.a1_r1.oapi.RejectNetPeering(NetPeeringId=peering_info[PEERING].id)
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 409, 'InvalidState', '6004')
+                check_oapi_error(error, 6004)
             finally:
                 delete_peering(self.a1_r1, peering_info)
 
@@ -69,7 +70,7 @@ class Test_RejectNetPeering(OscTinaTest):
             peering_info[PEERING].status.name = 'rejected'
             delete_peering(self.a1_r1, peering_info)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'OperationNotSupported', '8011')
+            check_oapi_error(error, 8011)
 
     def test_T3199_with_peering_between_two_account(self):
         a1_vpc = None

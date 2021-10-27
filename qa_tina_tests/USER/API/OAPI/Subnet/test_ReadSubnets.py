@@ -1,6 +1,7 @@
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
@@ -168,7 +169,7 @@ class Test_ReadSubnets(OscTinaTest):
             self.a1_r1.oapi.ReadSubnets(Filters={"Tags": 'sub=sub_value'})
             assert False, 'Call should fail'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5980_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Subnet', self.subnet_ids, 'oapi.ReadSubnets', 'Subnets.SubnetId')

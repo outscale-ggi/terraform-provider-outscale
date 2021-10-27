@@ -1,7 +1,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
@@ -43,82 +43,82 @@ class Test_CreateVolume(OscTinaTest):
         try:
             self.a1_r1.oapi.CreateVolume(SubregionName=self.azs[0])
         except Exception as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2949_missing_param(self):
         try:
             self.a1_r1.oapi.CreateVolume()
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateVolume(Size=2)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateVolume(Iops=10)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateVolume(SnapshotId='snap-12345678')
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateVolume(VolumeType='standard')
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2950_missing_size_or_snapshot_param(self):
         try:
             self.a1_r1.oapi.CreateVolume(SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2951_invalid_subregion(self):
         try:
             self.a1_r1.oapi.CreateVolume(Size=2, SubregionName='alpha')
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5009')
+            check_oapi_error(error, 5009)
 
     def test_T2952_invalid_size(self):
         try:
             self.a1_r1.oapi.CreateVolume(Size=-1, SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
+            check_oapi_error(error, 4078)
 
     def test_T2953_invalid_snapshot_id(self):
         try:
             self.a1_r1.oapi.CreateVolume(SnapshotId='tata', SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='snap-')
 
     def test_T2954_unknown_snapshot_id(self):
         try:
             self.a1_r1.oapi.CreateVolume(SnapshotId='snap-12345678', SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5054')
+            check_oapi_error(error, 5054)
 
     def test_T2955_malformed_snapshot_id(self):
         try:
             self.a1_r1.oapi.CreateVolume(SnapshotId='snap-123456', SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='snap-123456')
 
     def test_T2956_unknown_volume_type(self):
         try:
             self.a1_r1.oapi.CreateVolume(Size=2, VolumeType='mytype', SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2957_volume_type_gp2_invalid_size(self):
         try:
@@ -127,7 +127,7 @@ class Test_CreateVolume(OscTinaTest):
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
+            check_oapi_error(error, 4078)
 
     def test_T2958_volume_type_io1_invalid_size(self):
         try:
@@ -136,7 +136,7 @@ class Test_CreateVolume(OscTinaTest):
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
+            check_oapi_error(error, 4078)
 
     def test_T2959_volume_type_io1_invalid_iops(self):
         try:
@@ -145,31 +145,31 @@ class Test_CreateVolume(OscTinaTest):
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
         try:
             ret = self.a1_r1.oapi.CreateVolume(VolumeType='io1', SubregionName=self.azs[0],
                                                Size=4, Iops=99).response.Volume
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4029')
+            check_oapi_error(error, 4029)
         try:
             ret = self.a1_r1.oapi.CreateVolume(VolumeType='io1', SubregionName=self.azs[0],
                                                Size=4, Iops=25).response.Volume
             self.vol_ids.append(ret.VolumeId)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4029')
+            check_oapi_error(error, 4029)
         try:
             self.a1_r1.oapi.CreateVolume(VolumeType='io1', Size=4, Iops=-1, SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4029')
+            check_oapi_error(error, 4029)
         try:
             self.a1_r1.oapi.CreateVolume(VolumeType='io1', Size=4, SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            check_oapi_error(error, 4045)
 
     def test_T2960_valid_volume_type(self):
         ret = self.a1_r1.oapi.CreateVolume(VolumeType='standard', SubregionName=self.azs[0], Size=2).response.Volume
@@ -211,7 +211,7 @@ class Test_CreateVolume(OscTinaTest):
             snap_id = ret_snap.SnapshotId
             ret_vol2 = self.a1_r1.oapi.CreateVolume(SnapshotId=snap_id, SubregionName=self.azs[0], Size=1).response.Volume
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4125)
+            check_oapi_error(error, 4125)
         finally:
             if ret_vol2:
                 self.a1_r1.oapi.DeleteVolume(VolumeId=ret_vol2.VolumeId)

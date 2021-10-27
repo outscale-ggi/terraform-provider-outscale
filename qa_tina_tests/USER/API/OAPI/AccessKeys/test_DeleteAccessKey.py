@@ -4,6 +4,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
@@ -25,14 +26,14 @@ class Test_DeleteAccessKey(OscTinaTest):
             self.a1_r1.oapi.DeleteAccessKey()
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_error(error, 400, '7000', 'MissingParameter')
+            check_oapi_error(error, 7000)
 
     def test_T4818_with_param_but_empty(self):
         try:
             self.a1_r1.oapi.DeleteAccessKey(AccessKeyId='')
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', 7000)
+            check_oapi_error(error, 7000)
 
     def test_T4819_empty_param_with_more_than_one_existing(self):
         ret_create = None
@@ -42,7 +43,7 @@ class Test_DeleteAccessKey(OscTinaTest):
             self.a1_r1.oapi.DeleteAccessKey(AccessKeyId='')
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_error(error, 400, '7000', 'MissingParameter')
+            check_oapi_error(error, 7000)
         finally:
             if ret_create:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -52,7 +53,7 @@ class Test_DeleteAccessKey(OscTinaTest):
             self.a1_r1.oapi.DeleteAccessKey(AccessKeyId='foo')
             assert False, "Exception should have been raised"
         except OscApiException as error:
-            misc.assert_error(error, 400, '5076', 'InvalidResource')
+            check_oapi_error(error, 5076)
 
     def test_T4821_invalid_accesskeyid_validAK_not_existant(self):
         try:
@@ -60,7 +61,7 @@ class Test_DeleteAccessKey(OscTinaTest):
             self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
             assert False, "Exception should have been raised"
         except OscApiException as error:
-            misc.assert_error(error, 400, '5076', 'InvalidResource')
+            check_oapi_error(error, 5076)
 
     def test_T4822_invalid_accesskeyid_AK_partially_existant(self):
         ret_create = None
@@ -72,7 +73,7 @@ class Test_DeleteAccessKey(OscTinaTest):
             ret_delete = self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak_modified)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_error(error, 400, '5076', 'InvalidResource')
+            check_oapi_error(error, 5076)
         finally:
             if ret_create and not ret_delete:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -113,9 +114,9 @@ class Test_DeleteAccessKey(OscTinaTest):
                                                          AccessKeyId=ak)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_oapi_error(error, 1)
         finally:
             if ret_create and not ret_delete:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -129,7 +130,7 @@ class Test_DeleteAccessKey(OscTinaTest):
             ret_delete = self.a2_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            misc.assert_error(error, 400, '5076', 'InvalidResource')
+            check_oapi_error(error, 5076)
         finally:
             if ret_create and not ret_delete:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)

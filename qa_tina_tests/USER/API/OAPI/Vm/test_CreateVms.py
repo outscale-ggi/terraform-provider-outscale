@@ -1,4 +1,3 @@
-
 from __future__ import division
 
 import base64
@@ -6,18 +5,23 @@ import string
 import zlib
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.misc import assert_oapi_error, id_generator
+from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import check_tools, oapi, wait
 from qa_tina_tools.tina import info_keys
 from qa_tina_tools.tina.info_keys import KEY_PAIR, PATH
-from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state, wait_security_groups_state
+from qa_tina_tools.tools.tina.wait_tools import wait_instances_state, wait_network_interfaces_state, \
+    wait_security_groups_state
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vm_response, create_vms
 
-#--------------------------------- Class method ---------------------------------
+
+# --------------------------------- Class method ---------------------------------
+
+
 class Test_CreateVms(OscTinaTest):
 
     @classmethod
@@ -47,9 +51,12 @@ echo "yes" > /tmp/userdata.txt
             super(Test_CreateVms, self).teardown_method(method)
 
     def check_user_data(self, vm_info, gzip=False, decode=True):
-        sshclient = check_tools.check_ssh_connection(self.a1_r1, vm_info['vms'][0]['VmId'], vm_info['vms'][0]['PublicIp'],
-                                                     vm_info[KEY_PAIR][PATH], self.a1_r1.config.region.get_info(constants.CENTOS_USER))
-        _, _, _ = SshTools.exec_command_paramiko(sshclient, 'curl -o output http://169.254.169.254/latest/user-data', decode=decode)
+        sshclient = check_tools.check_ssh_connection(self.a1_r1, vm_info['vms'][0]['VmId'],
+                                                     vm_info['vms'][0]['PublicIp'],
+                                                     vm_info[KEY_PAIR][PATH],
+                                                     self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+        _, _, _ = SshTools.exec_command_paramiko(sshclient, 'curl -o output http://169.254.169.254/latest/user-data',
+                                                 decode=decode)
         out, _, _ = SshTools.exec_command_paramiko(sshclient, 'cat output', decode=decode)
         if gzip:
             self.logger.debug(zlib.decompress(out))
@@ -59,61 +66,63 @@ echo "yes" > /tmp/userdata.txt
             out, _, _ = SshTools.exec_command_paramiko(sshclient, 'cat /tmp/userdata.txt')
             assert out.startswith('yes')
 
-    #--------------------------------- Tests Cases ---------------------------------
+    # --------------------------------- Tests Cases ---------------------------------
     def test_T2937_missing_param(self):
         try:
             self.a1_r1.oapi.CreateVms()
             assert False, "call should not have been successful"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
 
     def test_T2938_invalid_image_id(self):
         try:
             self.a1_r1.oapi.CreateVms(ImageId='tata')
             assert False, "call should not have been successful"
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='tata', prefixes='aki-, ami-, ari-')
         try:
             self.a1_r1.oapi.CreateVms(ImageId='vpc-12345678')
             assert False, "call should not have been successful"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(err, 4104, invalid='vpc-12345678', prefixes='aki-, ami-, ari-')
 
     def test_T2939_unknown_image_id(self):
         try:
             self.a1_r1.oapi.CreateVms(ImageId='ami-12345678')
             assert False, "call should not have been successful"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5023')
+            check_oapi_error(err, 5023, id='ami-12345678')
         try:
             self.a1_r1.oapi.CreateVms(ImageId='aki-12345678')
             assert False, "call should not have been successful"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5023')
+            check_oapi_error(err, 5023, id='aki-12345678')
         try:
             self.a1_r1.oapi.CreateVms(ImageId='ari-12345678')
             assert False, "call should not have been successful"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5023')
+            check_oapi_error(err, 5023, id='ari-12345678')
 
     def test_T2940_malformed_image_id(self):
         try:
             self.a1_r1.oapi.CreateVms(ImageId='ami-123456')
             assert False, "call should not have been successful"
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+        except OscApiException as error:
+            check_oapi_error(error, 4105, given_id='ami-123456')
 
     def test_T3160_invalid_parameter_combination(self):
         try:
-            self.a1_r1.oapi.CreateVms(ImageId='ami-12345678', SubnetId='subnet-12345678', Nics=[{'NicId': 'eni-12345678'}])
+            self.a1_r1.oapi.CreateVms(ImageId='ami-12345678', SubnetId='subnet-12345678',
+                                      Nics=[{'NicId': 'eni-12345678'}])
             assert False, "call should not have been successful"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+            check_oapi_error(err, 3002)
         try:
-            self.a1_r1.oapi.CreateVms(ImageId='ami-12345678', SecurityGroupIds=['sg-12345678'], Nics=[{'NicId': 'eni-12345678'}])
+            self.a1_r1.oapi.CreateVms(ImageId='ami-12345678', SecurityGroupIds=['sg-12345678'],
+                                      Nics=[{'NicId': 'eni-12345678'}])
             assert False, "call should not have been successful"
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+            check_oapi_error(err, 3002)
 
     def test_T2029_no_param(self):
         ret, self.info = create_vms(ocs_sdk=self.a1_r1, state=None)
@@ -256,7 +265,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, state=None, iisb='shutdown')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -267,7 +276,8 @@ echo "yes" > /tmp/userdata.txt
             private_only=true
             -----END OUTSCALE SECTION-----"""
         try:
-            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
             assert vm_info['vms'][0]['UserData'] == base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         finally:
             if vm_info:
@@ -280,7 +290,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data='abc')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -291,7 +301,8 @@ echo "yes" > /tmp/userdata.txt
             Write-Host 'Hello, World!'
             # autoexecutepowershellnopasswd"""
         try:
-            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
             assert vm_info['vms'][0]['UserData'] == base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         finally:
             if vm_info:
@@ -304,7 +315,8 @@ echo "yes" > /tmp/userdata.txt
             tags.osc.fcu.attract_server=front80
             -----END OUTSCALE SECTION-----"""
         try:
-            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
             assert vm_info['vms'][0]['UserData'] == base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         finally:
             if vm_info:
@@ -319,7 +331,8 @@ echo "yes" > /tmp/userdata.txt
             userdata = """-----BEGIN OUTSCALE SECTION-----
             tags.osc.fcu.eip.auto-attach={}
             -----END OUTSCALE SECTION-----""".format(public_ip)
-            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
             assert vm_info['vms'][0]['PublicIp'] == public_ip
             assert vm_info['vms'][0]['UserData'] == base64.b64encode(userdata.encode('utf-8')).decode('utf-8')
         finally:
@@ -335,7 +348,7 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, nics=[{'NicId': 'eni-12345678'}])
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -346,13 +359,13 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'NicId': 'abc-12345678'
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'NicId': 'abc-12345678'
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='abc-12345678', prefixes='eni-')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -362,13 +375,13 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'NicId': 'eni-1234567'
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'NicId': 'eni-1234567'
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(err, 4105, given_id='eni-1234567')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -378,13 +391,13 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'NicId': 'eni-12345678'
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'NicId': 'eni-12345678'
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5036')
+            check_oapi_error(err, 5036, id='eni-12345678')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -395,13 +408,13 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'SubnetId': 'abc-12345678'
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'SubnetId': 'abc-12345678'
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='abc-12345678', prefixes='subnet-')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -411,13 +424,13 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'SubnetId': 'subnet-1234567'
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'SubnetId': 'subnet-1234567'
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(err, 4105, given_id='subnet-1234567')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -427,13 +440,13 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'SubnetId': 'subnet-12345678'
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'SubnetId': 'subnet-12345678'
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5057')
+            check_oapi_error(err, 5057, id='subnet-12345678')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -444,14 +457,14 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'NicId': 'eni-12345678',
-                                            'SubnetId': 'subnet-12345678'
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'NicId': 'eni-12345678',
+                                          'SubnetId': 'subnet-12345678'
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+            check_oapi_error(err, 3002)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -461,14 +474,14 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'NicId': 'eni-12345678',
-                                            'SecurityGroupIds': ['sg-12345678']
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'NicId': 'eni-12345678',
+                                          'SecurityGroupIds': ['sg-12345678']
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+            check_oapi_error(err, 3002)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -478,17 +491,17 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'NicId': 'eni-12345678',
-                                            'PrivateIps': [{
-                                                'IsPrimary': True,
-                                                'PrivateIp': '120.1.2.3'
-                                            }]
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'NicId': 'eni-12345678',
+                                          'PrivateIps': [{
+                                              'IsPrimary': True,
+                                              'PrivateIp': '120.1.2.3'
+                                          }]
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+            check_oapi_error(err, 3002)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -498,14 +511,14 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'NicId': 'eni-12345678',
-                                            'SecondaryPrivateIpCount': 50
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'NicId': 'eni-12345678',
+                                          'SecondaryPrivateIpCount': 50
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+            check_oapi_error(err, 3002)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -515,14 +528,14 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'NicId': 'eni-12345678',
-                                            'DeleteOnVmDeletion': True
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'NicId': 'eni-12345678',
+                                          'DeleteOnVmDeletion': True
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+            check_oapi_error(err, 3002)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -532,23 +545,23 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'SubnetId': 'subnet-12345678',
-                                            'PrivateIps': [
-                                                {
-                                                    'IsPrimary': True,
-                                                    'PrivateIp': '120.1.2.3'
-                                                },
-                                                {
-                                                    'IsPrimary': True,
-                                                    'PrivateIp': '120.1.2.3'
-                                                }
-                                            ]
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'SubnetId': 'subnet-12345678',
+                                          'PrivateIps': [
+                                              {
+                                                  'IsPrimary': True,
+                                                  'PrivateIp': '120.1.2.3'
+                                              },
+                                              {
+                                                  'IsPrimary': True,
+                                                  'PrivateIp': '120.1.2.3'
+                                              }
+                                          ]
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', '3002')
+            check_oapi_error(err, 3002)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -559,17 +572,17 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'SubnetId': 'subnet-12345678',
-                                            'PrivateIps': [{
-                                                'IsPrimary': True,
-                                                'PrivateIp': 'hello_ips'
-                                            }]
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'SubnetId': 'subnet-12345678',
+                                          'PrivateIps': [{
+                                              'IsPrimary': True,
+                                              'PrivateIp': 'hello_ips'
+                                          }]
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(err, 4047)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -579,17 +592,17 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'SubnetId': 'subnet-12345678',
-                                            'PrivateIps': [{
-                                                'IsPrimary': True,
-                                                'PrivateIp': '120.1.2.3.5'
-                                            }]
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'SubnetId': 'subnet-12345678',
+                                          'PrivateIps': [{
+                                              'IsPrimary': True,
+                                              'PrivateIp': '120.1.2.3.5'
+                                          }]
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(err, 4047)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -599,23 +612,24 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
                                       nics=[{
-                                            'DeviceNumber': 1,
-                                            'SubnetId': 'subnet-12345678',
-                                            'PrivateIps': [{
-                                                'IsPrimary': True,
-                                                'PrivateIp': '120.1.2.3000'
-                                            }]
-                                        }]
-                                    )
+                                          'DeviceNumber': 1,
+                                          'SubnetId': 'subnet-12345678',
+                                          'PrivateIps': [{
+                                              'IsPrimary': True,
+                                              'PrivateIp': '120.1.2.3000'
+                                          }]
+                                      }]
+                                      )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(err, 4047)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
 
     def test_T3398_with_bdm(self):
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1, BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 2}}])
+        ret, self.info = create_vms(ocs_sdk=self.a1_r1,
+                                    BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 2}}])
         assert len(self.info) == 1
         for inst in ret.response.Vms:
             validate_vm_response(
@@ -628,19 +642,20 @@ echo "yes" > /tmp/userdata.txt
                         'VolumeId': 'vol-',
                     },
                 },
-                     {
-                         'DeviceName': '/dev/sdb',
-                         'Bsu': {
-                             'DeleteOnVmDeletion': True,
-                             'State': 'attaching',
-                             'VolumeId': 'vol-',
-                         },
-                     }]
+                    {
+                        'DeviceName': '/dev/sdb',
+                        'Bsu': {
+                            'DeleteOnVmDeletion': True,
+                            'State': 'attaching',
+                            'VolumeId': 'vol-',
+                        },
+                    }]
             )
 
     def test_T3399_with_bdm_with_volume_type_gp2(self):
         ret, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                    BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 2, 'VolumeType': 'gp2'}}])
+                                    BlockDeviceMappings=[
+                                        {'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 2, 'VolumeType': 'gp2'}}])
         assert len(self.info) == 1
         for inst in ret.response.Vms:
             validate_vm_response(
@@ -657,7 +672,8 @@ echo "yes" > /tmp/userdata.txt
 
     def test_T3400_with_bdm_with_volume_type_io1(self):
         ret, self.info = create_vms(ocs_sdk=self.a1_r1,
-                                    BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'Iops': 100, 'VolumeSize': 4, 'VolumeType': 'io1'}}])
+                                    BlockDeviceMappings=[{'DeviceName': '/dev/sdb',
+                                                          'Bsu': {'Iops': 100, 'VolumeSize': 4, 'VolumeType': 'io1'}}])
         assert len(self.info) == 1
         for inst in ret.response.Vms:
             validate_vm_response(
@@ -673,7 +689,8 @@ echo "yes" > /tmp/userdata.txt
             )
 
     def test_T5120_with_bdm_with_empty_volume_type(self):
-        ret, self.info = create_vms(ocs_sdk=self.a1_r1, BlockDeviceMappings=[{'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 4, 'VolumeType': ''}}])
+        ret, self.info = create_vms(ocs_sdk=self.a1_r1, BlockDeviceMappings=[
+            {'DeviceName': '/dev/sdb', 'Bsu': {'VolumeSize': 4, 'VolumeType': ''}}])
         assert len(self.info) == 1
 
         for inst in ret.response.Vms:
@@ -693,7 +710,8 @@ echo "yes" > /tmp/userdata.txt
             Filters={'VolumeIds': [bdm.Bsu.VolumeId for bdm in ret.response.Vms[0].BlockDeviceMappings]})
         found = False
         for vol in ret_volumes.response.Volumes:
-            if vol.LinkedVolumes and len(vol.LinkedVolumes) == 1 and vol.LinkedVolumes[0].DeviceName == '/dev/sdb' and vol.VolumeType == 'standard':
+            if vol.LinkedVolumes and len(vol.LinkedVolumes) == 1 and vol.LinkedVolumes[
+                0].DeviceName == '/dev/sdb' and vol.VolumeType == 'standard':
                 found = True
                 break
         assert found, 'Could not find the attached volume'
@@ -702,7 +720,8 @@ echo "yes" > /tmp/userdata.txt
         vm_info = None
         try:
             vm_info = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
-                                            MaxVmsCount=1, MinVmsCount=1, VmType='tinav1.c1r1', BootOnCreation=False)
+                                                MaxVmsCount=1, MinVmsCount=1, VmType='tinav1.c1r1',
+                                                BootOnCreation=False)
             assert vm_info.response.Vms[0].VmInitiatedShutdownBehavior == 'stop'
             vm_info = vm_info.response.Vms[0].VmId
             wait.wait_Vms_state(self.a1_r1, [vm_info], state='stopped')
@@ -728,7 +747,7 @@ echo "yes" > /tmp/userdata.txt
                                                 MaxVmsCount=1, MinVmsCount=1, VmType='').response.Vms[0].VmId
             assert False, 'call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+            check_oapi_error(err, 5024)
         finally:
             if vm_info:
                 self.a1_r1.oapi.DeleteVms(VmIds=[vm_info])
@@ -740,7 +759,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='toto')
             assert False, 'call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+            check_oapi_error(err, 5024)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -752,7 +771,7 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tina.c1r1')
         except OscApiException as err:
-            assert_oapi_error(err, 400, '', '')
+            check_oapi_error(err, '')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -763,7 +782,7 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav.c1r1')
         except OscApiException as err:
-            assert_oapi_error(err, 500, 'InternalError', '2000')
+            check_oapi_error(err, 2000)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -774,7 +793,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav0.c1r1')
             assert False, 'call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+            check_oapi_error(err, 5024)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -785,7 +804,7 @@ echo "yes" > /tmp/userdata.txt
         try:
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav1.c1r1p')
         except OscApiException as err:
-            assert_oapi_error(err, 500, 'InternalError', '2000')
+            check_oapi_error(err, 2000)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -796,7 +815,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav1.c1r1p0')
             assert False, 'call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+            check_oapi_error(err, 5024)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -805,10 +824,11 @@ echo "yes" > /tmp/userdata.txt
         vm_info = None
         try:
             vm_info = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
-                                                MinVmsCount=1, MaxVmsCount=1, VmType='tinav1.c1r1p4').response.Vms[0].VmId
+                                                MinVmsCount=1, MaxVmsCount=1, VmType='tinav1.c1r1p4').response.Vms[
+                0].VmId
             assert False, 'call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+            check_oapi_error(err, 5024)
         finally:
             if vm_info:
                 self.a1_r1.oapi.DeleteVms(VmIds=[vm_info])
@@ -820,7 +840,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav1.cr1')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+            check_oapi_error(err, 5024)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -831,7 +851,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav1.c0r1')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+            check_oapi_error(err, 5024)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -842,7 +862,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav1.c1r')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+            check_oapi_error(err, 5024)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -853,7 +873,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav1.c1r0')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+            check_oapi_error(err, 5024)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -864,7 +884,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav5.c39r181')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+            check_oapi_error(err, 5024)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -876,7 +896,7 @@ echo "yes" > /tmp/userdata.txt
             vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav6.c1r1')
             assert False, 'call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5024')
+            check_oapi_error(err, 5024)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -884,8 +904,9 @@ echo "yes" > /tmp/userdata.txt
     def test_T4574_with_large_userdata(self):
         vm_info = None
         try:
-            userdata = id_generator(size=(int)(512000*3/4), chars=string.ascii_lowercase)
-            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
+            userdata = id_generator(size=(int)(512000 * 3 / 4), chars=string.ascii_lowercase)
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1,
+                                      user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -893,17 +914,17 @@ echo "yes" > /tmp/userdata.txt
     def test_T5838_with_invalid_larger_userdata_size(self):
         vm_info = None
         try:
-            userdata = id_generator(size=(int)(513000*3/4), chars=string.ascii_lowercase)
+            userdata = id_generator(size=(int)(513000 * 3 / 4), chars=string.ascii_lowercase)
             vm_info = oapi.create_Vms(self.a1_r1, user_data=base64.b64encode(userdata.encode('utf-8')).decode('utf-8'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4106')
+            check_oapi_error(error, 4106, param='UserData', vlength='513000', length='{(0, 512000)}')
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
 
 
-#--------------------------------- Class method ---------------------------------
+# --------------------------------- Class method ---------------------------------
 class Test_CreateVmsWithSubnet(OscTinaTest):
 
     @classmethod
@@ -916,7 +937,8 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
         cls.sg_id = None
         try:
             cls.net_id = cls.a1_r1.oapi.CreateNet(IpRange='10.1.0.0/16').response.Net.NetId
-            cls.subnet_id = cls.a1_r1.oapi.CreateSubnet(NetId=cls.net_id, IpRange='10.1.0.0/24').response.Subnet.SubnetId
+            cls.subnet_id = cls.a1_r1.oapi.CreateSubnet(NetId=cls.net_id,
+                                                        IpRange='10.1.0.0/24').response.Subnet.SubnetId
         except Exception:
             try:
                 cls.teardown_class()
@@ -954,7 +976,7 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
         finally:
             super(Test_CreateVmsWithSubnet, self).teardown_method(method)
 
-    #--------------------------------- Tests Cases ---------------------------------
+    # --------------------------------- Tests Cases ---------------------------------
     def test_T2031_with_subnet_id(self):
         ret, self.vm_id_list = create_vms(ocs_sdk=self.a1_r1, state='running', SubnetId=self.subnet_id)
         validate_vm_response(
@@ -1003,16 +1025,18 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
     def test_T3170_with_nic_invalid_sg_id(self):
         # invalid id
         try:
-            create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['tata-12345678']}])
+            create_vms(ocs_sdk=self.a1_r1,
+                       Nics=[{'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['tata-12345678']}])
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='tata-12345678', prefixes='sg-')
         # malformed id
         try:
-            create_vms(ocs_sdk=self.a1_r1, Nics=[{'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['sg-1234567']}])
+            create_vms(ocs_sdk=self.a1_r1,
+                       Nics=[{'DeviceNumber': 1, 'SubnetId': self.subnet_id, 'SecurityGroupIds': ['sg-1234567']}])
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+        except OscApiException as error:
+            check_oapi_error(error, 4105, given_id='sg-1234567')
 
     def test_T3171_with_nic_valid_nic_id(self):
         self.nic_id = self.a1_r1.oapi.CreateNic(SubnetId=self.subnet_id).response.Nic.NicId
@@ -1059,7 +1083,8 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
         finally:
             if nic_id2:
                 self.a1_r1.oapi.UnlinkNic(LinkNicId=ret.response.Vms[0].Nics[1].LinkNic.LinkNicId)
-                wait_network_interfaces_state(osc_sdk=self.a1_r1, network_interface_id_list=[nic_id2], state='available')
+                wait_network_interfaces_state(osc_sdk=self.a1_r1, network_interface_id_list=[nic_id2],
+                                              state='available')
                 self.a1_r1.oapi.DeleteNic(NicId=nic_id2)
             if subnet_id2:
                 self.a1_r1.fcu.DeleteSubnet(SubnetId=subnet_id2)
@@ -1080,7 +1105,7 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
                     Nics=[{'DeviceNumber': 0, 'NicId': self.nic_id}, {'DeviceNumber': 8, 'NicId': nic_id1}])
                 assert False, 'Call should not have been successful'
             except OscApiException as err:
-                assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+                check_oapi_error(err, 4047)
 
         finally:
             if nic_id1:
@@ -1146,7 +1171,7 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5022')
+            check_oapi_error(err, 5022)
 
     def test_T3175_with_nic_valid_subnet_id_with_1_private_ip(self):
         ret, self.vm_id_list = create_vms(

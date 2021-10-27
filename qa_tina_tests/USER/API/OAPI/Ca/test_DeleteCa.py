@@ -3,7 +3,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
-from qa_test_tools import misc
+from specs import check_oapi_error
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
@@ -58,14 +58,14 @@ class Test_DeleteCa(OscTinaTest):
             self.a1_r1.oapi.DeleteCa()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T5306_invalid_CaId(self):
         try:
             self.a1_r1.oapi.DeleteCa(CaId='ca-test123456')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
+            check_oapi_error(error, 4118)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T5307_with_other_account(self):
@@ -73,7 +73,7 @@ class Test_DeleteCa(OscTinaTest):
             self.a2_r1.oapi.DeleteCa(CaId=self.ca_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4122')
+            check_oapi_error(error, 4122)
             known_error('GTW-1542', 'Incorrect error message on DeleteCa')
 
     def test_T5308_valid_params(self):
@@ -97,6 +97,6 @@ class Test_DeleteCa(OscTinaTest):
             self.__class__.ca_id_third = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_oapi_error(error, 1)

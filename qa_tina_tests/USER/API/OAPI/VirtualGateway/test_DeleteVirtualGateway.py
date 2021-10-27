@@ -1,7 +1,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state
 
@@ -53,7 +54,7 @@ class Test_DeleteVirtualGateway(OscTinaTest):
             self.a2_r1.oapi.DeleteVirtualGateway(VirtualGatewayId=vgw_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5068')
+            check_oapi_error(error, 5068, id=vgw_id)
         finally:
             if vgw_id:
                 try:
@@ -68,7 +69,7 @@ class Test_DeleteVirtualGateway(OscTinaTest):
             wait_vpn_gateways_state(self.a1_r1, [vgw_id], state='available')
             self.a2_r1.oapi.DeleteVirtualGateway()
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         finally:
             if vgw_id:
                 try:

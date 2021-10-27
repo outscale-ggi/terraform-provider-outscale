@@ -2,7 +2,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
@@ -41,28 +42,28 @@ class Test_DeleteNic(Nic):
             self.a1_r1.oapi.DeleteNic()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2643_with_empty_nic_id(self):
         try:
             self.a1_r1.oapi.DeleteNic(NicId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2644_with_invalid_nic_id(self):
         try:
             self.a1_r1.oapi.DeleteNic(NicId='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='toto', prefixes='eni-')
 
     def test_T2645_with_unknown_nic_id(self):
         try:
             self.a1_r1.oapi.DeleteNic(NicId='eni-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5036')
+            check_oapi_error(error, 5036, id='eni-12345678')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3555_with_other_user(self):
@@ -70,7 +71,7 @@ class Test_DeleteNic(Nic):
             self.a2_r1.oapi.DeleteNic(NicId=self.nic_ids[0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5036')
+            check_oapi_error(error, 5036, id=self.nic_ids[0])
 
     def test_T2646_valid_param(self):
         self.a1_r1.oapi.DeleteNic(NicId=self.nic_ids[0])

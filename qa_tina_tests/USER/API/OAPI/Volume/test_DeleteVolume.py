@@ -2,8 +2,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 
@@ -50,25 +50,25 @@ class Test_DeleteVolume(OscTinaTest):
         try:
             self.a1_r1.oapi.DeleteVolume()
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2965_invalid_volume_id(self):
         try:
             self.a1_r1.oapi.DeleteVolume(VolumeId='tata')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='vol-')
 
     def test_T2966_malformed_volume_id(self):
         try:
             self.a1_r1.oapi.DeleteVolume(VolumeId='vol-123456')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='vol-123456')
 
     def test_T2967_unknown_volume_id(self):
         try:
             self.a1_r1.oapi.DeleteVolume(VolumeId='vol-12345678')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5064')
+            check_oapi_error(error, 5064, id='vol-12345678')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3520_with_other_user(self):
@@ -77,4 +77,4 @@ class Test_DeleteVolume(OscTinaTest):
             self.a2_r1.oapi.DeleteVolume(VolumeId=self.vol_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5064')
+            check_oapi_error(error, 5064, id=self.vol_id)

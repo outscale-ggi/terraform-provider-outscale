@@ -3,7 +3,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_oapi_error
+from specs import check_oapi_error
+from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -61,28 +62,28 @@ class Test_ReadLoadBalancerTags(OscTinaTest):
             self.a1_r1.oapi.ReadLoadBalancerTags()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', 7000)
+            check_oapi_error(error, 7000)
 
     def test_T4731_incorrect_load_balancer_names(self):
         try:
             self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=['_test_lbu'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5030)
+            check_oapi_error(error, 5030)
 
     def test_T4732_unknown_load_balancer_names(self):
         try:
             self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=['test_lbu'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5030)
+            check_oapi_error(error, 5030)
 
     def test_T4733_incorrect_load_balancer_names_type(self):
         try:
             self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=self.ret_lbu_a1[0].LoadBalancerName)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T4734_valid_params(self):

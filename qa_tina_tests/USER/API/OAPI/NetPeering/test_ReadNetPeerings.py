@@ -2,6 +2,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
@@ -183,7 +184,7 @@ class Test_ReadNetPeerings(OscTinaTest):
             self.a1_r1.oapi.ReadNetPeerings(Filters={'foo': ['bar']})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3447_with_other_account(self):

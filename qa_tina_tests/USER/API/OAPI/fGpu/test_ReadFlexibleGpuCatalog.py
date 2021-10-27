@@ -1,8 +1,9 @@
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
+from specs import check_oapi_error
 from qa_sdk_pub import osc_api
-from qa_test_tools.misc import assert_error, assert_dry_run
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -27,7 +28,7 @@ class Test_ReadFlexibleGpuCatalog(OscTinaTest):
             self.a1_r1.oapi.ReadFlexibleGpuCatalog(titi='toto')
             assert False, "call should not be passed"
         except OscApiException as err:
-            assert_error(err, 400, '3001', 'InvalidParameter')
+            check_oapi_error(err, 3001)
 
     def test_T4407_with_dryrun_true(self):
         ret = self.a1_r1.oapi.ReadFlexibleGpuCatalog(DryRun=True)

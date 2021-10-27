@@ -3,7 +3,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
-from qa_test_tools import misc
+from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
@@ -58,7 +58,7 @@ class Test_UpdateAccessKey(OscTinaTest):
             self.a1_r1.oapi.UpdateAccessKey(AccessKeyId='tot', State='ACTIVE')
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '4122', 'InvalidParameterValue')
+            check_oapi_error(error, 4122)
         finally:
             if ak:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -69,7 +69,7 @@ class Test_UpdateAccessKey(OscTinaTest):
             self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='tot')
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4123)
+            check_oapi_error(error, 4123)
         finally:
             if ak:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -81,7 +81,7 @@ class Test_UpdateAccessKey(OscTinaTest):
             self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak)
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '7000', 'MissingParameter')
+            check_oapi_error(error, 7000)
         finally:
             if ak:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -93,7 +93,7 @@ class Test_UpdateAccessKey(OscTinaTest):
             self.a1_r1.oapi.UpdateAccessKey(State='ACTIVE')
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '7000', 'MissingParameter')
+            check_oapi_error(error, 7000)
         finally:
             if ak:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -103,7 +103,7 @@ class Test_UpdateAccessKey(OscTinaTest):
             self.a1_r1.oapi.UpdateAccessKey()
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '7000', 'MissingParameter')
+            check_oapi_error(error, 7000)
 
     def test_T4845_with_method_login_password(self):
         ak = None
@@ -124,9 +124,9 @@ class Test_UpdateAccessKey(OscTinaTest):
                                             AccessKeyId=ak, State='ACTIVE')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_oapi_error(error, 1)
         finally:
             if ak:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)
@@ -148,7 +148,7 @@ class Test_UpdateAccessKey(OscTinaTest):
             self.a1_r1.oapi.UpdateAccessKey(AccessKeyId=ak, State='ACTIVE', ExpirationDate='foobar')
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4123)
+            check_oapi_error(error, 4123)
         finally:
             if ak:
                 self.a1_r1.oapi.DeleteAccessKey(AccessKeyId=ak)

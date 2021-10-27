@@ -2,6 +2,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions import OscTestException
 from qa_test_tools import misc
@@ -173,7 +174,7 @@ class Test_ReadImages(OscTinaTest):
             self.a1_r1.oapi.ReadImages(Filters={'PermissionsToLaunchGlobalPermission': [True, False]})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110', None)
+            check_oapi_error(error, 4110)
 
     def test_T2316_filters_a1_permissions_global_permission_and_accounts_ids(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={

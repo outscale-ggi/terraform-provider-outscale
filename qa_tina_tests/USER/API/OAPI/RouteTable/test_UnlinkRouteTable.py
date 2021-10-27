@@ -1,8 +1,9 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 
@@ -81,4 +82,4 @@ class Test_UnlinkRouteTable(OscTinaTest):
             self.ret_unlink = self.a2_r1.oapi.UnlinkRouteTable(LinkRouteTableId=self.link_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5047')
+            check_oapi_error(error, 5047, id=self.link_id)

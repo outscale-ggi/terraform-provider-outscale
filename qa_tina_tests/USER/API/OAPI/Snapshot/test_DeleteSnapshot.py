@@ -2,7 +2,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
+from specs import check_oapi_error
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
 
@@ -22,21 +22,21 @@ class Test_DeleteSnapshot(Snapshot):
             self.a1_r1.oapi.DeleteSnapshot()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T2185_invalid_snapshot_id(self):
         try:
             self.a1_r1.oapi.DeleteSnapshot(SnapshotId='tata')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104', None)
+            check_oapi_error(error, 4104, invalid='tata', prefixes='snap-')
 
     def test_T2186_unknown_snapshot_id(self):
         try:
             self.a1_r1.oapi.DeleteSnapshot(SnapshotId='snap-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5054', None)
+            check_oapi_error(error, 5054, id='snap-12345678', owner=self.a1_r1.config.account.account_id)
 
     def test_T2187_valid_case(self):
         snap_id = None
@@ -58,7 +58,7 @@ class Test_DeleteSnapshot(Snapshot):
             self.a2_r1.oapi.DeleteSnapshot(SnapshotId=snap_id)
             assert False, ('Call should not have been successful')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5054')
+            check_oapi_error(error, 5054, id=snap_id, owner=self.a2_r1.config.account.account_id)
         finally:
             if snap_id:
                 self.a1_r1.oapi.DeleteSnapshot(SnapshotId=snap_id)

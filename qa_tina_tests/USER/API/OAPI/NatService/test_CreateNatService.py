@@ -3,7 +3,8 @@
 import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_public_ip
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_public_ip
@@ -62,42 +63,42 @@ class Test_CreateNatService(OscTinaTest):
             self.a1_r1.oapi.CreateNatService(SubnetId=self.vpc_info[SUBNETS][0][SUBNET_ID])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2530_without_subnet_id(self):
         try:
             self.a1_r1.oapi.CreateNatService(PublicIpId=self.pub_ip_info[PUBLIC_IP].id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2531_with_invalid_link_id(self):
         try:
             self.a1_r1.oapi.CreateNatService(PublicIpId='foo', SubnetId=self.vpc_info[SUBNETS][0][SUBNET_ID])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='foo', prefixes='eipalloc-')
 
     def test_T2532_with_invalid_subnet_id(self):
         try:
             self.a1_r1.oapi.CreateNatService(PublicIpId=self.pub_ip_info[PUBLIC_IP].id, SubnetId='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='foo', prefixes='subnet-')
 
     def test_T2533_with_unknown_link_id(self):
         try:
             self.a1_r1.oapi.CreateNatService(PublicIpId='eipalloc-12345678', SubnetId=self.vpc_info[SUBNETS][0][SUBNET_ID])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5025')
+            check_oapi_error(error, 5025, id='eipalloc-12345678')
 
     def test_T2534_with_unknown_subnet_id(self):
         try:
             self.a1_r1.oapi.CreateNatService(PublicIpId=self.pub_ip_info[PUBLIC_IP].id, SubnetId='subnet-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5057')
+            check_oapi_error(error, 5057, id='subnet-12345678')
 
     # TODO add tests:
     # - dry run failure

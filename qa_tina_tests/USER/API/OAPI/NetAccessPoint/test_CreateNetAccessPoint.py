@@ -1,6 +1,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -11,34 +11,34 @@ class Test_CreateNetAccessPoint(OscTinaTest):
             self.a1_r1.oapi.CreateNetAccessPoint()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateNetAccessPoint(NetId='vpc-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateNetAccessPoint(ServiceName='myservice')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T3330_invalid_net_id(self):
         try:
             self.a1_r1.oapi.CreateNetAccessPoint(NetId='tata', ServiceName='myservice')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='vpc-')
         try:
             self.a1_r1.oapi.CreateNetAccessPoint(NetId='vpc-1234567', ServiceName='myservice')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='vpc-1234567')
         try:
             self.a1_r1.oapi.CreateNetAccessPoint(NetId='vpc-123456789', ServiceName='myservice')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='vpc-123456789')
 
     def test_T3331_unknown_service_name(self):
         net_id = None
@@ -47,7 +47,7 @@ class Test_CreateNetAccessPoint(OscTinaTest):
             self.a1_r1.oapi.CreateNetAccessPoint(NetId=net_id, ServiceName='unknown_service')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5040')
+            check_oapi_error(error, 5040)
         finally:
             if net_id:
                 self.a1_r1.oapi.DeleteNet(NetId=net_id)
@@ -58,12 +58,12 @@ class Test_CreateNetAccessPoint(OscTinaTest):
             self.a1_r1.oapi.CreateNetAccessPoint(NetId=net_id, ServiceName='myservice', RouteTableIds=['tata'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='rtb-')
         try:
             self.a1_r1.oapi.CreateNetAccessPoint(NetId=net_id, ServiceName='myservice', RouteTableIds=['rtb-1234567'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='rtb-1234567')
         if net_id:
             self.a1_r1.oapi.DeleteNet(NetId=net_id)
 
