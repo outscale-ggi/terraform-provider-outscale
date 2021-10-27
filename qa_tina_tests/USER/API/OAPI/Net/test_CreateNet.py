@@ -1,6 +1,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state

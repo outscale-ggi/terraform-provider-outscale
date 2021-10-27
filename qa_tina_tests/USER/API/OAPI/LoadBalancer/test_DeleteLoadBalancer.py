@@ -2,7 +2,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_oapi_error
+from qa_test_tools.misc import id_generator
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer

@@ -2,6 +2,7 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_CreateVirtualGateway(OscTinaTest):
@@ -37,7 +38,7 @@ class Test_CreateVirtualGateway(OscTinaTest):
                 vgw_ids.append(self.a1_r1.oapi.CreateVirtualGateway(ConnectionType='ipsec.1').response.VirtualGateway.VirtualGatewayId)
             assert False, 'Last call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, "TooManyResources (QuotaExceded)", 10039)
+            check_oapi_error(error, 10039)
         finally:
             if vgw_ids:
                 try:

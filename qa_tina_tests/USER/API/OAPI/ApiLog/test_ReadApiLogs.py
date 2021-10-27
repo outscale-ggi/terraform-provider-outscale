@@ -4,7 +4,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from qa_test_tools import misc
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error, id_generator
+from qa_test_tools.misc import assert_dry_run, id_generator
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import PUBLIC
@@ -66,7 +66,7 @@ class Test_ReadApiLogs(OscTinaTest):
                 cls.a1_r1.oapi.CreateKeypair(KeypairName=cls.keypair_name, PublicKey=pub_key)
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 409, 'ResourceConflict', '9011')
+                check_oapi_error(error, 9011)
         finally:
             if ret:
                 cls.a1_r1.oapi.DeleteKeypair(KeypairName=cls.keypair_name)
@@ -245,7 +245,7 @@ class Test_ReadApiLogs(OscTinaTest):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', "4098")
+            check_oapi_error(err, 4098)
 
     def test_T3218_invalid_filter_ResponseStatusCodes(self):
         try:

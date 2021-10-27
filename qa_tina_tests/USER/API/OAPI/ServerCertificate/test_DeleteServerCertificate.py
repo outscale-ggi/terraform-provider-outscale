@@ -11,6 +11,9 @@ from qa_tina_tools.tools.tina import create_tools
 # Parameter    In      Type       Required
 # DryRun       body    boolean    false
 # Name         body    string     false
+from specs import check_oapi_error
+
+
 class Test_DeleteServerCertificate(OscTinaTest):
 
     @classmethod
@@ -55,7 +58,7 @@ class Test_DeleteServerCertificate(OscTinaTest):
             self.sc_resp = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', 7000)
+            check_oapi_error(error, 7000)
 
     def test_T4863_unexisting_name(self):
         try:
@@ -63,7 +66,7 @@ class Test_DeleteServerCertificate(OscTinaTest):
             self.sc_resp = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)
+            check_oapi_error(error, 4122)
 
     def test_T4864_invalid_name(self):
         try:
@@ -71,7 +74,7 @@ class Test_DeleteServerCertificate(OscTinaTest):
             self.sc_resp = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)
+            check_oapi_error(error, 4122)
 
     def test_T4865_incorrect_name_type(self):
         try:
@@ -79,7 +82,7 @@ class Test_DeleteServerCertificate(OscTinaTest):
             self.sc_resp = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     def test_T4866_dry_run(self):
         dr_ret = self.a1_r1.oapi.DeleteServerCertificate(Name=self.sc_name, DryRun=True)
@@ -93,4 +96,4 @@ class Test_DeleteServerCertificate(OscTinaTest):
             self.a2_r1.oapi.DeleteServerCertificate(Name=self.sc_name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)
+            check_oapi_error(error, 4122)

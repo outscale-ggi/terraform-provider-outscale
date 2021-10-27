@@ -11,6 +11,7 @@ from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi
 from qa_tina_tools.tina.oapi import info_keys
+from specs import check_oapi_error
 
 NUM_VMS = 4
 
@@ -90,7 +91,7 @@ class Test_ReadVms(OscTinaTest):
             self.a1_r1.oapi.ReadVms(Filters={"VmStates": ['running']})
             assert False, 'call should not have been successful'
         except OscApiException as err:
-            misc.assert_oapi_error(err, 400, 'InvalidParameter', '3001')
+            check_oapi_error(err, 3001)
 
     def test_T5982_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Vm', self.vm_info[info_keys.VM_IDS], 'oapi.ReadVms', 'Vms.VmId')

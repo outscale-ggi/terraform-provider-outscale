@@ -5,7 +5,7 @@ import string
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, id_generator, assert_dry_run
+from qa_test_tools.misc import id_generator, assert_dry_run
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, info_keys
@@ -77,7 +77,7 @@ class Test_UpdateVm(OscTinaTest):
             self.a1_r1.oapi.UpdateVm(DeletionProtection=False)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2128_incorrect_instance_id(self):
         inst_id = 'toto'
@@ -93,21 +93,21 @@ class Test_UpdateVm(OscTinaTest):
             self.a1_r1.oapi.UpdateVm(VmId=inst_id, DeletionProtection=False)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id=inst_id)
 
     def test_T2130_unknown_attribute_name(self):
         try:
             self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], Toto=False)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T2131_incorrect_type_attribute(self):
         try:
             self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], DeletionProtection='false')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T2132_BlockDeviceMapping(self):
         self.a1_r1.oapi.UpdateVm(
@@ -130,7 +130,7 @@ class Test_UpdateVm(OscTinaTest):
                                          {'Bsu': {'DeleteOnVmDeletion': 'false', "VolumeId": self.vol_ids[0]}}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T2134_BlockMappingDevice_missing_dot(self):
         try:
@@ -150,7 +150,7 @@ class Test_UpdateVm(OscTinaTest):
             assert self.vol_ids[0] in (x.Bsu.VolumeId for x in ret.response.BlockDeviceMappings)
 
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2135_DisableApiTermination(self):
         self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], DeletionProtection=True)
@@ -175,14 +175,14 @@ class Test_UpdateVm(OscTinaTest):
             pytest.fail("UpdateVm should not have succeeded")
         except OscApiException as error:
             # this is the good error only if the vm_id selected have configuration compatibility problems.
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4017')
+            check_oapi_error(error, 4017)
 
     def test_T2138_modify_ebs_optimized_running(self):
         try:
             self.a1_r1.oapi.UpdateVm(BsuOptimized=False, VmId=self.vm_ids[0])
             assert False, "UpdateVm should not have succeeded"
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
 
     def test_T2139_GroupId(self):
         # sg_id = None
@@ -206,7 +206,7 @@ class Test_UpdateVm(OscTinaTest):
             self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], VmInitiatedShutdownBehavior='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2142_InstanceType(self):
         self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[1], VmType='m4.xlarge')
@@ -220,7 +220,7 @@ class Test_UpdateVm(OscTinaTest):
             self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[1], VmType='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5024')
+            check_oapi_error(error, 5024)
 
     def test_T2144_SourceDestCheck(self):
         self.a1_r1.oapi.UpdateVm(VmId=self.vpc_inst_ids[0], IsSourceDestChecked=True)
@@ -233,14 +233,14 @@ class Test_UpdateVm(OscTinaTest):
             self.a1_r1.oapi.UpdateVm(VmId=self.vpc_inst_ids[0], IsSourceDestChecked='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T2146_SourceDestCheck_public_instance(self):
         try:
             self.a1_r1.oapi.UpdateVm(VmId=self.vm_ids[0], IsSourceDestChecked=True)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'ResourceConflict', '9062')
+            check_oapi_error(error, 9062)
 
     def test_T2147_user_data_private_only_true_false(self):
         inst_info = None
@@ -320,7 +320,7 @@ class Test_UpdateVm(OscTinaTest):
             self.a2_r1.oapi.UpdateVm(VmId=self.vm_ids[1], VmType='m4.xlarge')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id=self.vm_ids[1])
 
     def test_T3188_userdata_auto_attach(self):
         public_ip = None

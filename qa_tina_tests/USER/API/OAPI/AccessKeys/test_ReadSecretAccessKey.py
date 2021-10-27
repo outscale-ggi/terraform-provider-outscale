@@ -25,7 +25,7 @@ class Test_ReadSecretAccessKey(OscTinaTest):
             self.a1_r1.oapi.ReadSecretAccessKey()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T5668_valid_ak(self):
         ret = self.a1_r1.oapi.ReadSecretAccessKey(AccessKeyId=self.ak)

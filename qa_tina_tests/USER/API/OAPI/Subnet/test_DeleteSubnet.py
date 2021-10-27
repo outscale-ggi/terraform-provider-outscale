@@ -1,5 +1,5 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.create_tools import create_vpc
@@ -39,11 +39,11 @@ class Test_DeleteSubnet(OscTinaTest):
 
     def test_T2571_missing_resource_id(self):
         try:
-            ret = self.a1_r1.oapi.DeleteSubnet()
+            self.a1_r1.oapi.DeleteSubnet()
             assert False, 'Call should not have been successful'
             assert_dry_run(ret)
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2572_invalid_id(self):
         try:
@@ -64,14 +64,14 @@ class Test_DeleteSubnet(OscTinaTest):
             self.a1_r1.oapi.DeleteSubnet(SubnetId='subnet-0246d185')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5057')
+            check_oapi_error(err, 5057, id='subnet-0246d185')
 
     def test_T2575_incorrect_id_type(self):
         try:
             self.a1_r1.oapi.DeleteSubnet(SubnetId=True)
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4110')
+        except OscApiException as error:
+            check_oapi_error(error, 4110)
 
     def test_T2576_too_many_subnet_id(self):
         try:
@@ -79,11 +79,11 @@ class Test_DeleteSubnet(OscTinaTest):
                 SubnetId=[self.vpc_info[SUBNETS][1][SUBNET_ID], self.vpc_info[SUBNETS][2][SUBNET_ID]])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(err, 4110)
 
     def test_T2577_subnet_from_diffrent_user(self):
         try:
             self.a2_r1.oapi.DeleteSubnet(SubnetId=self.vpc_info[SUBNETS][3][SUBNET_ID])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5057')
+            check_oapi_error(err, 5057, id=self.vpc_info[SUBNETS][3][SUBNET_ID])

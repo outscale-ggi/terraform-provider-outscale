@@ -2,7 +2,6 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances
@@ -40,14 +39,14 @@ class Test_StopVms(OscTinaTest):
             self.a1_r1.oapi.StopVms()
             assert False, 'Call without ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2113_with_empty_ids(self):
         try:
             self.a1_r1.oapi.StopVms(VmIds=[])
             assert False, 'Call without ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2114_with_invalid_ids(self):
         try:
@@ -87,7 +86,7 @@ class Test_StopVms(OscTinaTest):
         try:
             self.a1_r1.oapi.StopVms(VmIds=[vm_id], ForceStop='foo')
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(err, 4110)
 
     def test_T2118_from_ready(self):
         vm_id = self.info[INSTANCE_ID_LIST][3]
@@ -137,21 +136,21 @@ class Test_StopVms(OscTinaTest):
             self.a1_r1.oapi.StopVms(VmIds=[vm_id])
             assert False, 'Call with terminated instance should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
 
     def test_T2122_with_unknown_param(self):
         vm_id = self.info[INSTANCE_ID_LIST][6]
         try:
             self.a1_r1.oapi.StopVms(VmIds=[vm_id], foo='bar')
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', '3001')
+            check_oapi_error(err, 3001)
 
     def test_T2123_with_unknown_ids(self):
         try:
             self.a1_r1.oapi.StopVms(VmIds=['i-12345678'])
             assert False, 'Call with invalid ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id='i-12345678')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T2124_with_instance_from_another_account(self):
@@ -160,7 +159,7 @@ class Test_StopVms(OscTinaTest):
             self.a1_r1.oapi.StopVms(VmIds=info[INSTANCE_ID_LIST])
             assert False, 'Call with instance from another account should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id=info[INSTANCE_ID_LIST][0])
         finally:
             delete_instances(self.a2_r1, info)
 
@@ -182,4 +181,4 @@ class Test_StopVms(OscTinaTest):
             assert False, 'Call with invalid instance should not have been successful'
         except OscApiException as error:
             wait_instances_state(osc_sdk=self.a1_r1, instance_id_list=[vm_id], state='running')
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id='i-12345678')

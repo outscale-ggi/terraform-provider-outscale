@@ -1,6 +1,7 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 
 class Test_CreateTags(OscTinaTest):
@@ -44,21 +45,21 @@ class Test_CreateTags(OscTinaTest):
             self.a1_r1.oapi.CreateTags(ResourceIds=[self.is_id], Tags=[{'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
 
     def test_T2505_with_empty_key(self):
         try:
             self.a1_r1.oapi.CreateTags(ResourceIds=[self.is_id], Tags=[{'Key': '', 'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4069')
+            check_oapi_error(err, 4069)
 
     def test_T2506_without_value(self):
         try:
             self.a1_r1.oapi.CreateTags(ResourceIds=[self.is_id], Tags=[{'Key': 'key'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
 
     def test_T2507_with_empty_value(self):
         self.a1_r1.oapi.CreateTags(ResourceIds=[self.is_id], Tags=[{'Key': 'key', 'Value': ''}])
@@ -68,18 +69,18 @@ class Test_CreateTags(OscTinaTest):
             self.a1_r1.oapi.CreateTags(ResourceIds=[self.is_id], Tags=[{'Value': 'value'}], DryRun=True)
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
 
     def test_T2509_invalid_params(self):
         try:
             self.a1_r1.oapi.CreateTags(ResourceIds=[self.is_id], Tags=[{'Key': 'key', 'Value': 'value', 'toto': 'toto'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', '3001')
+            check_oapi_error(err, 3001)
 
     def test_T2510_without_resource_id(self):
         try:
             self.a1_r1.oapi.CreateTags(ResourceIds=[], Tags=[{'Key': 'key', 'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)

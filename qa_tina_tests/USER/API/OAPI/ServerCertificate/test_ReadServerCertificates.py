@@ -13,6 +13,9 @@ from qa_tina_tools.tools.tina import create_tools
 # FirstResult   body    integer    false
 # MaxResults    body    integer    false
 # Path          body    string     false
+from specs import check_oapi_error
+
+
 class Test_ReadServerCertificates(OscTinaTest):
 
     @classmethod
@@ -62,7 +65,7 @@ class Test_ReadServerCertificates(OscTinaTest):
         try:
             self.a1_r1.oapi.ReadServerCertificates(FirstResult=1).response
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', 3001)
+            check_oapi_error(error, 3001)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T4879_other_account(self):

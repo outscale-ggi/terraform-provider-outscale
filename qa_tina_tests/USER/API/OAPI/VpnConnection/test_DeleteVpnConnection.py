@@ -1,7 +1,6 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import VpnConnection
 from specs import check_oapi_error
 
@@ -13,7 +12,7 @@ class Test_DeleteVpnConnection(VpnConnection):
             self.a1_r1.oapi.DeleteVpnConnection()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T3355_invalid_vpn_connection_id(self):
         try:
