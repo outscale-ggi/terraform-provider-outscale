@@ -1037,6 +1037,7 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
     def test_T4401_with_two_valid_nic_id(self):
         nic_id2 = None
         subnet_id2 = None
+        ret = None
         try:
             subnet_id2 = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id,
                                                       IpRange='10.1.1.0/24').response.Subnet.SubnetId
