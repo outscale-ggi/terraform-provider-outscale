@@ -1,4 +1,5 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import known_error
@@ -7,7 +8,6 @@ from qa_tina_tools.tina.setup_tools import setup_private_load_balancer, setup_pu
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_lbu
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
-from specs import check_oapi_error
 
 
 class Test_RegisterVmsInLoadBalancer(OscTinaTest):

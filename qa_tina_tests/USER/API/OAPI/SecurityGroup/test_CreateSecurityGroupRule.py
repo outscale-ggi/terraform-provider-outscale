@@ -2,9 +2,9 @@
 import os
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.compare_objects import verify_response
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
-from specs import check_oapi_error
 
 
 class Test_CreateSecurityGroupRule(SecurityGroup):

@@ -1,11 +1,11 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.tools.tina import wait_tools
 from qa_tina_tests.USER.API.OAPI.VpnConnection.VpnConnection import VpnConnection, validate_vpn_connection
-from specs import check_oapi_error
 
 NUM_VPN_CONN = 4
 

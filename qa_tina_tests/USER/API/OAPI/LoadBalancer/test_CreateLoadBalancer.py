@@ -4,6 +4,7 @@ from time import sleep
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import id_generator, assert_dry_run
 from qa_test_tools.compare_objects import verify_response, create_hints
 from qa_test_tools.test_base import known_error
@@ -13,7 +14,6 @@ from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_lbu
 from qa_tina_tools.tina import oapi, info_keys
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
-from specs import check_oapi_error
 
 
 class Test_CreateLoadBalancer(LoadBalancer):
@@ -359,7 +359,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             )
             self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
         except OscApiException as error:
-            check_oapi_error(error)
+            check_oapi_error(error, '')
 
     def test_T2591_with_valid_security_group(self):
         name = id_generator(prefix='lbu-')
@@ -559,7 +559,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid availabilityZone"
         except OscApiException as error:
-            check_oapi_error(error)
+            check_oapi_error(error, '')
 
     def test_T4160_private_with_incompatible_subnet_and_subregion(self):
         if not hasattr(self, 'a1_r2'):
@@ -572,7 +572,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, subregion and subnet are incompatible"
         except OscApiException as error:
-            check_oapi_error(error)
+            check_oapi_error(error, '')
 
     def test_T4738_multi_lbu_same_name_diff_users(self):
         ret_create_lbu1 = None

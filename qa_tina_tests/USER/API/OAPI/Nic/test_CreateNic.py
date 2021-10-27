@@ -1,7 +1,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 from specs import check_oapi_error
+from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
 
 
 class Test_CreateNic(Nic):

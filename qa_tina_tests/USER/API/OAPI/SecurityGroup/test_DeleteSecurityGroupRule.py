@@ -4,12 +4,12 @@ import os
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.test_base import known_error
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.compare_objects import verify_response
 from qa_tina_tests.USER.API.FCU.Security_Groups.test_RevokeSecurityGroupIngress import to_dict
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
-from specs import check_oapi_error
 
 
 def cleanup_sg(osc_sdk, sg_id):

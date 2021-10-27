@@ -9,7 +9,6 @@ from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 
 
-
 class Test_DeleteRouteTable(OscTinaTest):
 
     @classmethod
@@ -47,7 +46,7 @@ class Test_DeleteRouteTable(OscTinaTest):
             ret = self.a1_r1.oapi.DeleteRouteTable(RouteTableId=self.route_table_id)
             ret.check_response()
         except OscApiException as error:
-            check_oapi_error(error)
+            check_oapi_error(error, '')
 
     def test_T2821_valid_params_dry_run(self):
         ret = self.a1_r1.oapi.DeleteRouteTable(RouteTableId=self.route_table_id, DryRun=True)

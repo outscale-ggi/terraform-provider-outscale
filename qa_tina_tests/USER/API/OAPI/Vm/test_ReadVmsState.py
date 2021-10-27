@@ -5,13 +5,13 @@ import pytest
 import pytz
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import info_keys
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
-from specs import check_oapi_error
 
 
 class Test_ReadVmsState(OscTinaTest):
@@ -60,7 +60,7 @@ class Test_ReadVmsState(OscTinaTest):
         ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_name]})
         assert ret.status_code == 200, ret.response.display()
         assert len(ret.response.VmStates) == 2
-        for i in range(len(ret.response.VmStates)):
+        for i,_ in enumerate(ret.response.VmStates):
             assert ret.response.VmStates[i].VmState == code_name
 
     def test_T2071_no_param(self):

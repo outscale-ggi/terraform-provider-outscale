@@ -3,6 +3,7 @@ import os
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools
@@ -13,7 +14,6 @@ from qa_tina_tools.tools.tina import create_tools
 # FirstResult   body    integer    false
 # MaxResults    body    integer    false
 # Path          body    string     false
-from specs import check_oapi_error
 
 
 class Test_ReadServerCertificates(OscTinaTest):

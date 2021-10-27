@@ -2,6 +2,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import id_generator, assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
@@ -9,7 +10,6 @@ from qa_tina_tools.tools.tina.create_tools import create_instances, create_volum
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_images_state
-from specs import check_oapi_error
 
 
 class Test_CreateImage(OscTinaTest):

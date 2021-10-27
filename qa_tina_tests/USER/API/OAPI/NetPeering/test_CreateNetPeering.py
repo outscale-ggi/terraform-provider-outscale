@@ -4,13 +4,13 @@ import re
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tools.tools.tina.info_keys import VPC_ID
 from qa_tina_tools.tools.tina.wait_tools import wait_vpc_peering_connections_state
-from specs import check_oapi_error
 
 
 class Test_CreateNetPeering(OscTinaTest):

@@ -3,13 +3,13 @@
 import re
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_public_ip
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_public_ip
 from qa_tina_tools.tools.tina.info_keys import VPC_ID, SUBNETS, SUBNET_ID, PUBLIC_IP
 from qa_tina_tools.tools.tina.wait_tools import wait_nat_gateways_state
-from specs import check_oapi_error
 
 
 class Test_CreateNatService(OscTinaTest):

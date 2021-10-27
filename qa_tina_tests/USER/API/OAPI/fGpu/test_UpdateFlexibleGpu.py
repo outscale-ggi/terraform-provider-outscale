@@ -1,9 +1,9 @@
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
+from specs import check_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
-from specs import check_oapi_error
 
 DEFAULT_GPU_ID = "fgpu-12345678"
 DEFAULT_MODEL_NAME = "nvidia-k2"

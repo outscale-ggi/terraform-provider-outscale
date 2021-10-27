@@ -1,12 +1,12 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
-from specs import check_oapi_error
 
 
 class Test_CreateKeypair(OscTinaTest):

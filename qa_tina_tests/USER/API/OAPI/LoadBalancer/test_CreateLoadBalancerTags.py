@@ -2,11 +2,11 @@
 
 import string
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import id_generator, assert_dry_run
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
-from specs import check_oapi_error
 
 
 class Test_CreateLoadBalancerTags(OscTinaTest):
@@ -126,7 +126,7 @@ class Test_CreateLoadBalancerTags(OscTinaTest):
             if error.data != 'The length of the provided value for parameter \'{param}\' is invalid: \'{vlength}\'. ' \
                              'The expected length is \'{length}\'.':
                 assert False, 'remove known error'
-                check_oapi_error(error, 4106, param=name, vlength=len(name), length='32')
+                check_oapi_error(error, 4106, param=tag_name, vlength=len(tag_name), length='32')
             known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
         finally:
             if create_lbu_tags_resp:
@@ -281,7 +281,7 @@ class Test_CreateLoadBalancerTags(OscTinaTest):
             if error.data != 'The length of the provided value for parameter \'{param}\' is invalid: \'{vlength}\'. ' \
                              'The expected length is \'{length}\'.':
                 assert False, 'remove known error'
-                check_oapi_error(error, 4106, param=name, vlength=len(name), length='32')
+                check_oapi_error(error, 4106, param=incorrect_key, vlength=len(incorrect_key), length='32')
             known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
         finally:
             read = self.a1_r1.oapi.ReadLoadBalancerTags(LoadBalancerNames=[self.ret_lbu_a1[0].LoadBalancerName]).response

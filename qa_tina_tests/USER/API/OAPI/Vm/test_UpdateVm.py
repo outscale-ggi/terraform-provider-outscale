@@ -5,6 +5,7 @@ import string
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import id_generator, assert_dry_run
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
@@ -14,7 +15,6 @@ from qa_tina_tools.tools.tina.delete_tools import stop_instances, delete_instanc
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state, wait_instances_state
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import create_vms
-from specs import check_oapi_error
 
 
 class Test_UpdateVm(OscTinaTest):

@@ -1,10 +1,10 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.tools.tina import create_tools
 from qa_tina_tests.USER.API.OAPI.ApiAccessRule.ApiAccessRule import ApiAccessRule
-from specs import check_oapi_error
 
 
 class Test_CreateApiAccessRule(ApiAccessRule):

@@ -2,12 +2,12 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import  assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import NAME
 from qa_tina_tools.tools.tina.create_tools import create_keypair
 from qa_tina_tools.tools.tina.delete_tools import delete_keypair
-from specs import check_oapi_error
 
 
 class Test_DeleteKeypair(OscTinaTest):

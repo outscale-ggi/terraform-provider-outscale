@@ -1,8 +1,8 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
-from specs import check_oapi_error
 
 
 class Test_UpdateSubnet(OscTinaTest):
@@ -66,7 +66,7 @@ class Test_UpdateSubnet(OscTinaTest):
         try:
             self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True, SubnetId='subnet-1234567')
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
+        except OscApiException as error:
             check_oapi_error(error, 4105, given_id='subnet-1234567')
         try:
             self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True, SubnetId='subnet-123456789')

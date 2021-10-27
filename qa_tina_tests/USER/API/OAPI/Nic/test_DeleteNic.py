@@ -2,11 +2,11 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
-from specs import check_oapi_error
 
 
 class Test_DeleteNic(Nic):

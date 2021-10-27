@@ -5,10 +5,10 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
 from qa_sdk_pub.osc_api import DefaultPubConfig
 from qa_sdk_pub.osc_api.osc_oapi_api import OscOApi
+from specs import check_oapi_error
 from qa_test_tools import misc, account_tools
 from qa_test_tools.config import config_constants
 from qa_tina_tools.test_base import OscTinaTest
-from specs import check_oapi_error
 
 
 class Test_ResetAccountPassword(OscTinaTest):

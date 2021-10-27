@@ -2,11 +2,11 @@
 import os
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.compare_objects import verify_response, create_hints
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, info_keys, delete_tools
-from specs import check_oapi_error
 
 
 class Test_UpdateListenerRule(OscTinaTest):

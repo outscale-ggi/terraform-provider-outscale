@@ -4,6 +4,7 @@
 import os
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools
@@ -18,7 +19,6 @@ from qa_tina_tools.tools.tina import create_tools
 # Path         body    string     false
 # PrivateKey   body    string     true
 # Note: only tested with self signed certificates
-from specs import check_oapi_error
 
 
 class Test_CreateServerCertificate(OscTinaTest):

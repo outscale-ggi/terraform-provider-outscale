@@ -3,13 +3,13 @@ import time
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_dry_run, assert_error
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.wait import wait_Vms_state, wait_Volumes_state
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
-from specs import check_oapi_error
 
 NEW_SIZE = 8
 

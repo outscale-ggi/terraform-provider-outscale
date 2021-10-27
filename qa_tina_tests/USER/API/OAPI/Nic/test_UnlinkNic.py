@@ -2,13 +2,13 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_network_interfaces_state
 from qa_tina_tests.USER.API.OAPI.Nic.Nic import Nic
-from specs import check_oapi_error
 
 NUM_NIC = 3
 

@@ -2,6 +2,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -9,7 +10,6 @@ from qa_tina_tools.tools.tina.delete_tools import terminate_instances, delete_in
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tests.USER.API.OAPI.Vm.Vm import validate_vms_state_response
-from specs import check_oapi_error
 
 NUM_INST = 10
 
@@ -101,7 +101,7 @@ class Test_StartVms(OscTinaTest):
         for inst in vms:
             assert inst.VmId in inst_id_list
             assert inst.PreviousState == 'stopped'
-            assert inst.CurrentState == 'pending' or inst.CurrentState == 'running'
+            assert inst.CurrentState in ('pending', 'running')
 
     def test_T2106_from_terminated(self):
         inst_num = self.get_insts()
@@ -158,7 +158,7 @@ class Test_StartVms(OscTinaTest):
         for inst in ret.response.Vms:
             assert inst.VmId in inst_id_list
             assert inst.PreviousState == 'running'
-            assert inst.CurrentState == 'pending' or inst.CurrentState == 'running'
+            assert inst.CurrentState in ('pending', 'running')
 
     def test_T2111_with_multiple_valid_and_invalid_instances(self):
         inst_num = self.get_insts()

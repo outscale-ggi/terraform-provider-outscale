@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools import misc
-from qa_tina_tools.test_base import OscTinaTest
 from specs import check_oapi_error
+from qa_tina_tools.test_base import OscTinaTest
 
 
 class Test_ReadConsumptionAccount(OscTinaTest):
