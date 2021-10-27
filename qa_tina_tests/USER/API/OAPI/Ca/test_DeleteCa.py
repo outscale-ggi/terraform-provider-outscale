@@ -97,8 +97,6 @@ class Test_DeleteCa(OscTinaTest):
             self.__class__.ca_id_third = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 4110)
-            known_error("API-412", "Change error code on oapi call DeleteCa")
             check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
             check_oapi_error(error, 1)
