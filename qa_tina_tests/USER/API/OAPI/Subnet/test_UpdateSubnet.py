@@ -71,7 +71,7 @@ class Test_UpdateSubnet(OscTinaTest):
         try:
             self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True, SubnetId='subnet-123456789')
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
+        except OscApiException as error:
             check_oapi_error(error, 4105, given_id='subnet-123456789')
 
     def test_T3725_unknown_subnet_id(self):
