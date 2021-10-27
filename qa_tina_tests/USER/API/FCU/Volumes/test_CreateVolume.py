@@ -1,11 +1,8 @@
 from __future__ import division
 import re
 
-import pytest
-
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.constants import VOLUME_MAX_SIZE, VOLUME_SIZES, VOLUME_IOPS, MAX_IO1_RATIO
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
@@ -214,15 +211,8 @@ class Test_CreateVolume(OscTinaTest):
                          'The Snapshot ID does not exist: {}, for account: {}'.format(self.snap_id, self.a2_r1.config.account.account_id))
 
     def test_T4589_io1_max_iops_ratio(self):
-        try:
-            self.create_volume_type(VolumeType='io1', Iops=int(((VOLUME_SIZES['io1']['min_size']) * MAX_IO1_RATIO)),
-                                    Size=VOLUME_SIZES['io1']['min_size'])
-            if self.a1_r1.config.region.name == 'in-west-2':
-                assert False, 'remove known error'
-        except OscApiException as error:
-            if self.a1_r1.config.region.name == 'in-west-2' and error.error_code == "InvalidParameterValue":
-                known_error('OPS-14350', 'New IN2: fix iops size ratio')
-            raise
+        self.create_volume_type(VolumeType='io1', Iops=int(((VOLUME_SIZES['io1']['min_size']) * MAX_IO1_RATIO)),
+                                Size=VOLUME_SIZES['io1']['min_size'])
 
     def test_T4590_io1_out_of_range_iops_ratio(self):
         try:
@@ -235,14 +225,7 @@ class Test_CreateVolume(OscTinaTest):
             assert error.error_code == 'InvalidParameterValue'
             msg = 'Iops to volume size ratio is too high: {}. Max: {}'.format(
                 (((VOLUME_SIZES['io1']['min_size']) * MAX_IO1_RATIO) + 1) / VOLUME_SIZES['io1']['min_size'], MAX_IO1_RATIO)
-            try:
-                assert error.message == msg
-                if self.a1_r1.config.region.name == 'in-west-2':
-                    pytest.fail('Remove known error')
-            except AssertionError:
-                if self.a1_r1.config.region.name == 'in-west-2':
-                    known_error('OPS-14350', 'New IN2: fix iops size ratio')
-                raise
+            assert error.message == msg
 
     def test_T730_with_invalid_iops_ratio(self):
         try:
@@ -255,14 +238,7 @@ class Test_CreateVolume(OscTinaTest):
             assert error.error_code == 'InvalidParameterValue'
             ratio = round(VOLUME_IOPS['io1']['max_iops'] / VOLUME_SIZES['io1']['min_size'], 1)
             msg = 'Iops to volume size ratio is too high: {}. Max: {}'.format(ratio, MAX_IO1_RATIO)
-            try:
-                assert error.message == msg
-                if self.a1_r1.config.region.name == 'in-west-2':
-                    pytest.fail('Remove known error')
-            except AssertionError:
-                if self.a1_r1.config.region.name == 'in-west-2':
-                    known_error('OPS-14350', 'New IN2: fix iops size ratio')
-                raise
+            assert error.message == msg
 
     def test_T2170_with_invalid_volume_type(self):
         try:
