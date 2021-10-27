@@ -4,11 +4,12 @@ import pytest
 
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run, assert_error
+from qa_test_tools.misc import assert_dry_run, assert_error
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.wait import wait_Vms_state, wait_Volumes_state
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
+from specs import check_oapi_error
 
 NEW_SIZE = 8
 
@@ -97,7 +98,7 @@ class Test_UpdateVolume(OscTinaTest):
             self.a1_r1.oapi.UpdateVolume()
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T5234_with_dry_run(self):
         resp = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=NEW_SIZE, DryRun=True)
@@ -108,7 +109,7 @@ class Test_UpdateVolume(OscTinaTest):
             self.a1_r1.oapi.UpdateVolume(Size=NEW_SIZE)
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T5235_with_unknown_volume_id(self):
         try:
@@ -122,7 +123,7 @@ class Test_UpdateVolume(OscTinaTest):
             self.a1_r1.oapi.UpdateVolume(VolumeId=[self.vol_ids['standard']], Size=NEW_SIZE)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5239_with_invalid_vol_id(self):
         try:
@@ -135,42 +136,42 @@ class Test_UpdateVolume(OscTinaTest):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'])
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T5238_with_invalid_size(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5243_with_invalid_size_type(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=[NEW_SIZE])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5244_with_too_big(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=10000000000)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
+            check_oapi_error(error, 4078)
 
     def test_T5245_with_too_small(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=0)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T5241_with_lower_size(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=1)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4078')
+            check_oapi_error(error, 4078)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T5242_from_another_account(self):
@@ -178,7 +179,7 @@ class Test_UpdateVolume(OscTinaTest):
             self.a2_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], Size=NEW_SIZE)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5064')
+            check_oapi_error(error, 5064, id=self.vol_ids['standard'])
 
     def test_T5322_with_attached_instance(self):
         linked = None
@@ -190,7 +191,7 @@ class Test_UpdateVolume(OscTinaTest):
             assert False, 'Call should not have been successful'
 
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
 
         finally:
             if linked:
@@ -229,14 +230,14 @@ class Test_UpdateVolume(OscTinaTest):
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], VolumeType=['io1'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, '4110', 'InvalidParameterValue')
+            check_oapi_error(error, 4110)
 
     def test_T5596_with_invalid_vol_type(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['standard'], VolumeType='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, '4047', 'InvalidParameterValue')
+            check_oapi_error(error, 4047)
 
     def test_T5597_with_iops(self):
         ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['io1'], Iops=200).response
@@ -248,28 +249,28 @@ class Test_UpdateVolume(OscTinaTest):
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['io1'], Iops='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, '4110', 'InvalidParameterValue')
+            check_oapi_error(error, 4110)
 
     def test_T5599_with_invalid_iops_type(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['io1'], Iops=[200])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, '4110', 'InvalidParameterValue')
+            check_oapi_error(error, 4110)
 
     def test_T5600_with_iops_too_small(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['io1'], Iops=0)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, '4047', 'InvalidParameterValue')
+            check_oapi_error(error, 4047)
 
     def test_T5601_with_iops_too_big(self):
         try:
             self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['io1'], Iops=13001)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, '4029', 'InvalidParameterValue')
+            check_oapi_error(error, 4029)
 
     def test_T5602_with_lower_iops(self):
         ret = self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_ids['io1'], Iops=100).response
@@ -286,7 +287,7 @@ class Test_UpdateVolume(OscTinaTest):
             assert False, 'Call should not have been successful'
 
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
 
         finally:
             if linked:

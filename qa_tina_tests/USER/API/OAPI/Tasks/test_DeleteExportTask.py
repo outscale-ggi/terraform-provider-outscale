@@ -1,6 +1,5 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from specs import check_oapi_error
 
@@ -19,7 +18,7 @@ class Test_DeleteExportTask(OscTinaTest):
         try:
             self.a1_r1.oapi.DeleteExportTask()
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T3028_invalid_export_task_id(self):
         try:
@@ -31,15 +30,15 @@ class Test_DeleteExportTask(OscTinaTest):
         try:
             self.a1_r1.oapi.DeleteExportTask(ExportTaskId='image-export-12345678')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5058')
+            check_oapi_error(error, 5058, id='image-export-12345678')
         try:
             self.a1_r1.oapi.DeleteExportTask(ExportTaskId='snap-copy-12345678')
         except OscApiException as error:
-            check_oapi_error(error, 4104, invalid='snap-copy-12345678', prefixes='snap-export-, image-export-')
+            check_oapi_error(error, 4104, invalid='snap-copy-12345678', prefixes='image-export-, snap-export-')
         try:
             self.a1_r1.oapi.DeleteExportTask(ExportTaskId='snap-export-12345678')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5058')
+            check_oapi_error(error, 5058, id='snap-export-12345678')
 
     def test_T3030_malformed_export_task_id(self):
         try:

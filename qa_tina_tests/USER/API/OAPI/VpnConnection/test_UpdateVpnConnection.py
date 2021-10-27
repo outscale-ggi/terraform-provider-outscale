@@ -3,7 +3,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, wait
 from qa_test_tools.test_base import known_error
-from qa_test_tools.misc import assert_oapi_error, id_generator
+from qa_test_tools.misc import id_generator
 from qa_test_tools.config.configuration import Configuration
 from specs import check_oapi_error
 
@@ -64,7 +64,7 @@ class Test_UpdateVpnConnection(OscTinaTest):
             self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId="vpn-12345678")
             assert False, 'Call should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5067')
+            check_oapi_error(error, 5067, id='vpn-12345678')
 
     def test_T5937_malformed_vpn_id(self):
         try:

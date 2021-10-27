@@ -6,6 +6,7 @@ from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import cleanup_tools, wait_tools
+from specs import check_oapi_error
 
 NUM_SUBNETS = 5
 
@@ -168,7 +169,7 @@ class Test_ReadSubnets(OscTinaTest):
             self.a1_r1.oapi.ReadSubnets(Filters={"Tags": 'sub=sub_value'})
             assert False, 'Call should fail'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5980_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Subnet', self.subnet_ids, 'oapi.ReadSubnets', 'Subnets.SubnetId')

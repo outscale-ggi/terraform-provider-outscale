@@ -2,12 +2,13 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
+from specs import check_oapi_error
 
 
 class Test_UnlinkVolume(OscTinaTest):
@@ -81,7 +82,7 @@ class Test_UnlinkVolume(OscTinaTest):
         try:
             self.a1_r1.oapi.UnlinkVolume(VolumeId=self.vol_id)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3546_other_account(self):
@@ -91,7 +92,7 @@ class Test_UnlinkVolume(OscTinaTest):
             self.ret_link = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5064')
+            check_oapi_error(error, 5064, id=self.vol_id)
 
     @pytest.mark.region_admin
     def test_T5129_with_force_unlink_false(self):

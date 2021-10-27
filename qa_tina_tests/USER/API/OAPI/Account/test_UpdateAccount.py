@@ -3,7 +3,7 @@ import string
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_oapi_error
+from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
 from specs import check_oapi_error
 

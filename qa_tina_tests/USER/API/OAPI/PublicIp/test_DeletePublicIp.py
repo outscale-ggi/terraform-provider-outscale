@@ -2,7 +2,7 @@ from time import sleep
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, id_generator
+from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
@@ -118,7 +118,7 @@ class Test_DeletePublicIp(OscTinaTest):
                 self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
                 assert False, "Call should not have been successful"
             except OscApiException as error:
-                assert_oapi_error(error, 409, 'ResourceConflict', '9031')
+                check_oapi_error(error, 9031)
         finally:
             if name:
                 try:

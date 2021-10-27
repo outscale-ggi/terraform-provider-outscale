@@ -4,7 +4,7 @@ from time import sleep
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import id_generator, assert_dry_run
 from qa_test_tools.compare_objects import verify_response, create_hints
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
@@ -359,7 +359,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             )
             self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
         except OscApiException as error:
-            assert_oapi_error(error, 400, '', '')
+            check_oapi_error(error)
 
     def test_T2591_with_valid_security_group(self):
         name = id_generator(prefix='lbu-')
@@ -559,7 +559,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid availabilityZone"
         except OscApiException as error:
-            assert_oapi_error(error, 400, '', '')
+            check_oapi_error(error)
 
     def test_T4160_private_with_incompatible_subnet_and_subregion(self):
         if not hasattr(self, 'a1_r2'):
@@ -572,7 +572,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, subregion and subnet are incompatible"
         except OscApiException as error:
-            assert_oapi_error(error, 400, '', '')
+            check_oapi_error(error)
 
     def test_T4738_multi_lbu_same_name_diff_users(self):
         ret_create_lbu1 = None

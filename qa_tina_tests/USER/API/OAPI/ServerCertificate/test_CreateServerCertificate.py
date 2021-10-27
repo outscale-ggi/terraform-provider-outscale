@@ -18,6 +18,9 @@ from qa_tina_tools.tools.tina import create_tools
 # Path         body    string     false
 # PrivateKey   body    string     true
 # Note: only tested with self signed certificates
+from specs import check_oapi_error
+
+
 class Test_CreateServerCertificate(OscTinaTest):
 
     @classmethod
@@ -61,28 +64,28 @@ class Test_CreateServerCertificate(OscTinaTest):
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, PrivateKey=self.key).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', 7000)
+            check_oapi_error(error, 7000)
 
     def test_T4848_invalid_body(self):
         try:
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body="aaaaaaaaaa", PrivateKey=self.key).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4124)
+            check_oapi_error(error, 4124)
 
     def test_T4849_incorrect_body_type(self):
         try:
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=[self.cert], PrivateKey=self.key).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     def test_T4850_missing_name(self):
         try:
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Body=self.cert, PrivateKey=self.key).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', 7000)
+            check_oapi_error(error, 7000)
 
     def test_T4851_invalid_name(self):
         try:
@@ -90,35 +93,35 @@ class Test_CreateServerCertificate(OscTinaTest):
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
+            check_oapi_error(error, 4118)
 
     def test_T4852_incorrect_name_type(self):
         try:
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=[self.sc_name], Body=self.cert, PrivateKey=self.key).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     def test_T4853_missing_private_key(self):
         try:
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', 7000)
+            check_oapi_error(error, 7000)
 
     def test_T4854_invalid_private_key(self):
         try:
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey="aaaaaaaaaa").response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4124)
+            check_oapi_error(error, 4124)
 
     def test_T4855_incorrect_private_key_type(self):
         try:
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=[self.key]).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     def test_T4856_dry_run(self):
         dr_ret = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key, DryRun=True)
@@ -134,14 +137,14 @@ class Test_CreateServerCertificate(OscTinaTest):
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key, Path='/toto').response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
+            check_oapi_error(error, 4118)
 
     def test_T4859_with_incorrect_path_type(self):
         try:
             self.sc_resp = self.a1_r1.oapi.CreateServerCertificate(Name=self.sc_name, Body=self.cert, PrivateKey=self.key, Path=['/toto/']).response
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     def test_T4860_twice_with_same_name(self):
         resp = None
@@ -152,7 +155,7 @@ class Test_CreateServerCertificate(OscTinaTest):
                                                                PrivateKey=self.key, Path='/test/').response
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 409, 'ResourceConflict', 9073)
+                check_oapi_error(error, 9073)
         finally:
             if resp:
                 self.a1_r1.oapi.DeleteServerCertificate(Name=resp.ServerCertificate.Name)
