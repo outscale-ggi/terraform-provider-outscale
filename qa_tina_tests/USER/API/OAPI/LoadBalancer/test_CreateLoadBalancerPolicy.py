@@ -97,7 +97,7 @@ class Test_CreateLoadBalancerPolicy(LoadBalancer):
                 LoadBalancerName=self.lb_name, PolicyName=id_generator(prefix='policy-'), PolicyType='invalid')
             assert False, "call should not have been successful"
         except OscApiException as error:
-            check_oapi_error(error, 4128, value='Invalid', param_name='PolicyType', supported_value='App, loadBalancer')
+            check_oapi_error(error, 4128, value='Invalid', param_name='PolicyType', supported_value='app, loadBalancer')
 
     def test_T4677_multi_lbu_same_name_diff_users(self):
         ret_create_lbu = None
@@ -117,10 +117,10 @@ class Test_CreateLoadBalancerPolicy(LoadBalancer):
                 except:
                     print('Could not delete lbu')
 
-    def test_T5448_invalid_PolicyType(self):
+    def test_T5448_invalid_PolicyType_with_special_cr(self):
         try:
             self.a1_r1.oapi.CreateLoadBalancerPolicy(LoadBalancerName=self.lb_name, PolicyName=id_generator(prefix='policy-'),
-                                                     PolicyType='load_balance')
+                                                     PolicyType='load_balancé')
             assert False, "call should not have been successful"
         except OscApiException as error:
-            check_oapi_error(error, 4128, value='LoadBalance', param_name='PolicyType', supported_value='App, loadBalancer')
+            check_oapi_error(error, 4128, value='load_balancé', param_name='PolicyType', supported_value='app, loadBalancer')
