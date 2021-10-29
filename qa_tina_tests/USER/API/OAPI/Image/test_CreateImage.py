@@ -264,7 +264,7 @@ class Test_CreateImage(OscTinaTest):
             self.a1_r1.oapi.CreateImage(SourceImageId='tata', SourceRegionName=self.a1_r1.config.region.name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 4104, invalid='tata', prefixes='aki-, ami-, ari-')
+            check_oapi_error(error, 4104, invalid='tata', no_data_check=True)
 
     def test_T2291_from_copy_unknown_image_id(self):
         try:
@@ -437,7 +437,7 @@ class Test_CreateImage(OscTinaTest):
                 {'DeviceName': '/dev/sda1', 'Bsu': {'SnapshotId': self.snap1_id}, 'VirtualDeviceName': '/dev/sda1'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 4076)
+            check_oapi_error(error, 4076, name='/dev/sda1')
 
     def test_T2329_from_snap_bdm_without_snap(self):
         try:

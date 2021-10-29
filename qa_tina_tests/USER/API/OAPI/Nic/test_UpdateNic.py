@@ -96,7 +96,7 @@ class Test_UpdateNic(Nic):
             self.a1_r1.oapi.UpdateNic(NicId=self.nic_id, SecurityGroupIds=['tata'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 4104, invalid='tata, toto', prefixes='sg-')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='sg-')
 
     def test_T2712_with_unknown_firewall_rules_set_ids(self):
         try:

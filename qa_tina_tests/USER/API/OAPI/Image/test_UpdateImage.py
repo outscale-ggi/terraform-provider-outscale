@@ -43,7 +43,7 @@ class Test_UpdateImage(OscTinaTest):
             self.a1_r1.oapi.UpdateImage(ImageId='tata', PermissionsToLaunch=permissions)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 4104, invalid='tata', prefixes='ami-, ari-, aki-')
+            check_oapi_error(error, 4104, invalid='tata', no_data_check=True)
 
     def test_T2333_unknown_image_id(self):
         try:

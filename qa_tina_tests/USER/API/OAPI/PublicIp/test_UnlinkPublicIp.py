@@ -193,7 +193,7 @@ class Test_UnlinkPublicIp(OscTinaTest):
             ret = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 5025, id=self.standard_eips[0].publicIp)
+            check_oapi_error(error, 5025, id=self.inst_info[INSTANCE_ID_LIST][0])
         finally:
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.standard_eips[0].publicIp)

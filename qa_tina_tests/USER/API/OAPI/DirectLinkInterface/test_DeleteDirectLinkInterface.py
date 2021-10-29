@@ -62,7 +62,7 @@ class Test_DeleteDirectLinkInterface(OscTinaTest):
             self.a1_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId='dxvif-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 5073, id='dxcon-12345678')
+            check_oapi_error(error, 5073, id='dxvif-12345678')
 
     @pytest.mark.region_admin
     @pytest.mark.region_directlink

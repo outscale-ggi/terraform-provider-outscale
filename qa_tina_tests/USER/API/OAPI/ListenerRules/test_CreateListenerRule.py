@@ -181,13 +181,9 @@ class Test_CreateListenerRule(OscTinaTest):
                 self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=ret_lr.response.ListenerRule.ListenerRuleName)
 
     def test_T4792_incorrect_content_lrd_action(self):
-        try:
-            self.check_error(7000, list_rule_desc={'Action': 'xxx', 'ListenerRuleName': self.rule_name, 'Priority': 100, 'HostNamePattern': '*.com'})
-            assert False, 'Remove known error code'
-        except AssertionError:
-            known_error('TINA-4973', 'Call should have failed')
-        except Exception:
-            assert False, 'Remove known error code'
+        self.check_error(4047, list_rule_desc={'Action': 'xxx', 'ListenerRuleName': self.rule_name, 'Priority': 100, 'HostNamePattern': '*.com'})
+        known_error('API-427', 'Error code change')
+        self.check_error(7000, list_rule_desc={'Action': 'xxx', 'ListenerRuleName': self.rule_name, 'Priority': 100, 'HostNamePattern': '*.com'})
 
     def test_T4793_incorrect_content_lrd_hostpattern(self):
         self.check_error(4047, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'HostNamePattern': '_.com'})
@@ -226,6 +222,8 @@ class Test_CreateListenerRule(OscTinaTest):
                 self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=ret.response.ListenerRule.ListenerRuleName)
 
     def test_T4795_incorrect_content_lrd_pathpattern(self):
+        self.check_error(4047, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'PathPattern': ';.com'})
+        known_error('API-427', 'Error code change')
         self.check_error(4110, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'PathPattern': ';.com'})
         self.check_error(4110, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'PathPattern': "*.abc.*.abc.*.abc.*.com"})
         self.check_error(4110, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'PathPattern': "1234567890" * 13})

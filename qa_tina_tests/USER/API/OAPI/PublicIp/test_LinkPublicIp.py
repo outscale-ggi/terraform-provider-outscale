@@ -1,6 +1,7 @@
 import pytest
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
+    OscSdkException
 from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
@@ -8,6 +9,7 @@ from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
 from qa_tina_tools.tools.tina.info_keys import SUBNET_ID, SUBNETS, INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_addresses_state
+from qa_test_tools.test_base import known_error
 
 
 NUM_STANDARD_EIPS = 1
@@ -288,7 +290,7 @@ class Test_LinkPublicIp(OscTinaTest):
             ret = self.a2_r1.oapi.LinkPublicIp(VmId=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0], PublicIp=self.vpc_eips[0].publicIp)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 5063, id=self.vpc_eips[0].publicIp)
+            check_oapi_error(error, 5063, id=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0])
         finally:
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[0].publicIp)

@@ -1,10 +1,12 @@
 
 import pytest
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
+    OscSdkException
 from specs import check_oapi_error
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
+from qa_test_tools.test_base import known_error
 
 
 class Test_DeleteSnapshot(Snapshot):
@@ -36,7 +38,11 @@ class Test_DeleteSnapshot(Snapshot):
             self.a1_r1.oapi.DeleteSnapshot(SnapshotId='snap-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 5054, id='snap-12345678', owner=self.a1_r1.config.account.account_id)
+            try:
+                check_oapi_error(error, 5054, id='snap-12345678', owner=self.a1_r1.config.account.account_id)
+            except OscSdkException:
+                known_error('API-425', 'placeholders are not replaced')
+            assert False, 'Remove known error code'
 
     def test_T2187_valid_case(self):
         snap_id = None
@@ -58,7 +64,11 @@ class Test_DeleteSnapshot(Snapshot):
             self.a2_r1.oapi.DeleteSnapshot(SnapshotId=snap_id)
             assert False, ('Call should not have been successful')
         except OscApiException as error:
-            check_oapi_error(error, 5054, id=snap_id, owner=self.a2_r1.config.account.account_id)
+            try:
+                check_oapi_error(error, 5054, id=snap_id, owner=self.a2_r1.config.account.account_id)
+            except OscSdkException:
+                known_error('API-425', 'placeholders are not replaced')
+            assert False, 'Remove known error code'
         finally:
             if snap_id:
                 self.a1_r1.oapi.DeleteSnapshot(SnapshotId=snap_id)
