@@ -48,7 +48,7 @@ class Test_DeleteExportTask(OscTinaTest):
         try:
             self.a1_r1.oapi.DeleteExportTask(ExportTaskId='snap-copy-123456789')
         except OscApiException as error:
-            check_oapi_error(error, 4104, invalid='snap-copy-123456789', prefixes='image-export-, snap-export-')
+            check_oapi_error(error, 4104, no_data_check=True)
         try:
             self.a1_r1.oapi.DeleteExportTask(ExportTaskId='snap-export-1234')
         except OscApiException as error:
