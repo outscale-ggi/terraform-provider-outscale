@@ -144,7 +144,7 @@ class Test_CreateNet(OscTinaTest):
             net_id = self.a1_r1.oapi.CreateNet(IpRange=cidrblock).response.Net.NetId
             assert False, 'Call should not have been successful, Invalid IpRange'
         except OscApiException as error:
-            assert error.data ==
+            assert error.data == \
                 "The provided value ('{cidrBlock}') for the parameter 'IpRange' is invalid. The block size has to be between {min} and {max}."
             known_error('GTW-XXXX', 'Incorrect error message')
             check_oapi_error(error, 4014, cidrBlock=cidrblock, min='/28', max='/16')
