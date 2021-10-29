@@ -1,7 +1,8 @@
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
 from specs import check_oapi_error
 from qa_test_tools.misc import assert_dry_run
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_volumes_state
 from qa_tina_tests.USER.API.OAPI.Volume.Volume import validate_volume_response
@@ -104,7 +105,11 @@ class Test_CreateVolume(OscTinaTest):
             self.a1_r1.oapi.CreateVolume(SnapshotId='snap-12345678', SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            check_oapi_error(error, 5054, id='snap-12345678')
+            try:
+                check_oapi_error(error, 5054, id='snap-12345678', owner=self.a1_r1.config.account.account_id)
+            except OscSdkException:
+                known_error('API-425', 'placeholders are not replaced')
+            assert False, 'Remove known error code'
 
     def test_T2955_malformed_snapshot_id(self):
         try:
