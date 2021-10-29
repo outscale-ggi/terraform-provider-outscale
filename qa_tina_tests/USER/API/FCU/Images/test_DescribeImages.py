@@ -198,11 +198,6 @@ class Test_DescribeImages(OscTinaTest):
     def test_T839_filter_owner_alias(self):
         desc_filter = {"Name": "owner-alias", "Value": "Outscale"}
         ret = self.a1_r1.fcu.DescribeImages(Filter=[desc_filter])
-        if self.a1_r1.config.region.name == 'in-west-2':
-            if ret.response.imagesSet is None:
-                known_error('OPS-14322', 'New IN2: OMIs Outscale owner alias not set')
-            assert False, 'Remove known error'
-        assert ret.response.imagesSet and len(ret.response.imagesSet) > 0
         for img in ret.response.imagesSet:
             assert img.imageOwnerAlias == 'Outscale'
 
