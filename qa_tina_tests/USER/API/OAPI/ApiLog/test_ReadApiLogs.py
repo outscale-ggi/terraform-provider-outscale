@@ -273,7 +273,7 @@ class Test_ReadApiLogs(OscTinaTest):
             self.a1_r1.oapi.ReadApiLogs(titi='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            check_oapi_error(err, 4110)
+            check_oapi_error(err, 3001)
 
     def test_T3222_valid_With_Value(self):
         for attr in param:
