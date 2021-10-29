@@ -314,7 +314,7 @@ private_only=true
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if self.a1_r1.config.region.name == "in-west-2":
-                if error.error_code == "InsufficientInstanceCapacity" or error.error_code == "MemoryLimitExceeded":
+                if error.error_code in ["InsufficientInstanceCapacity","MemoryLimitExceeded"]:
                     known_error('OPS-14329', 'NEW IN2: configure instance type properties')
                 assert False, 'Remove known error'
             else:
