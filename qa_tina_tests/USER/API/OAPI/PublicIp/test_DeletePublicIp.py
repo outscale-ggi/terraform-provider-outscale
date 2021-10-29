@@ -1,9 +1,11 @@
 from time import sleep
 import pytest
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
+    OscSdkException
 from specs import check_oapi_error
 from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
@@ -95,6 +97,11 @@ class Test_DeletePublicIp(OscTinaTest):
             self.a2_r1.oapi.DeletePublicIp(PublicIp=self.ip)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
+            try:
+                check_oapi_error(error, 5025, id=self.ip)
+            except OscSdkException:
+                known_error('API-425', 'No placeholder replacement in error message')
+            assert False, 'Remove known error code'
             check_oapi_error(error, 5025, id=self.ip)
 
     def test_T2013_with_valid_public_ip(self):

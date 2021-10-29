@@ -34,7 +34,9 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.foo()
             assert False, 'Call should have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 12000)
+            check_oapi_error(error, 12000, invalid_action='Foo')
+            known_error('API-245', 'Incorrect error message')
+            check_oapi_error(error, 12000, invalid_action='foo')
 
     def test_T2223_invalid_param(self):
         try:
@@ -48,7 +50,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadVolumes(exec_data={osc_api.EXEC_DATA_METHOD: 'GET'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 12000)
+            check_oapi_error(error, 12000, invalid_action="CallName 'ReadVolumes' : unsupported method 'GET'")
 
     # @pytest.mark.tag_sec_traceability
     # def test_T2225_check_log(self):
@@ -165,7 +167,7 @@ class Test_OAPI(OscTinaTest):
                 if tag.ResourceId in sg_ids and tag.Key == 'key':
                     assert tag.Value == tag_value
         except OscApiException as error:
-            check_oapi_error(error, 12000)
+            check_oapi_error(error, 12000, invalid_action="CallName 'CreateTags' : unsupported method 'GET'")
         finally:
             if resp_tags:
                 self.a1_r1.oapi.DeleteTags(ResourceIds=sg_ids, Tags=[{'Key': tag_key, 'Value': tag_value}])
@@ -184,7 +186,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_CONTENT_TYPE: 'application/toto'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 3010)
+            check_oapi_error(error, 3010, call_name='ReadSecurityGroups', type='application/json')
 
     def test_T4918_before_date_time_stamp(self):
         try:
@@ -193,7 +195,7 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            check_oapi_error(error, 15)
+            check_oapi_error(error, 15, timestamp=date_time_stamp)
 
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -217,7 +219,7 @@ class Test_OAPI(OscTinaTest):
                                                           osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            check_oapi_error(error, 15)
+            check_oapi_error(error, 15, timestamp=date_time_stamp)
 
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -231,7 +233,9 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            check_oapi_error(error, 15)
+            check_oapi_error(error, 15, timestamp='Toto')
+            known_error('API-245', 'Incorrect error message')
+            check_oapi_error(error, 15, timestamp=date_time_stamp)
 
     def test_T4922_incorrect_date_stamp(self):
         date_stamp = 'toto'
@@ -243,15 +247,15 @@ class Test_OAPI(OscTinaTest):
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            check_oapi_error(error, 15)
+            check_oapi_error(error, 15, timestamp=date_time_stamp)
 
     def test_T4924_empty_date_stamp(self):
+        date_stamp = ''
         try:
-            date_stamp = ''
             self.a1_r1.oapi.ReadSecurityGroups(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
             assert False, 'Call should not have been successful'
         except OscException as error:
-            check_oapi_error(error, 4118)
+            check_oapi_error(error, 4118, timestamp='')
             known_error('GTW-2001', 'Incorrect error')
             check_oapi_error(error, 1)
 
@@ -263,7 +267,7 @@ class Test_OAPI(OscTinaTest):
                                                                 osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful : {}'.format(ret.response.ResponseContext.RequestId)
         except OscException as error:
-            check_oapi_error(error, 15)
+            check_oapi_error(error, 15, timestamp=date_time_stamp)
 
         date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -291,7 +295,7 @@ class Test_OAPI(OscTinaTest):
                                                                 osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful : {}'.format(ret.response.ResponseContext.RequestId)
         except OscException as error:
-            check_oapi_error(error, 15)
+            check_oapi_error(error, 15, timestamp=date_time_stamp)
 
         date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')

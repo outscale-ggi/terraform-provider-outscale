@@ -188,7 +188,7 @@ class Test_ReadApiLogs(OscTinaTest):
         try:
             self.a1_r1.oapi.ReadVm()
         except Exception as error:
-            check_oapi_error(error, 12000)
+            check_oapi_error(error, 12000, invalid_action='ReadVm')
         time.sleep(20)
         ret = self.a1_r1.oapi.ReadApiLogs(Filters={"ResponseStatusCodes": [409, 200, ]}, ResultsPerPage=1000)
         assert len(ret.response.Logs) != 0

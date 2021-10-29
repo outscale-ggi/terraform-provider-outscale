@@ -2,10 +2,8 @@ from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.state import InstanceState
-from qa_tina_tools.tools.tina.create_tools import create_instances, create_keypair,\
-    create_vpc
-from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_keypair,\
-    delete_vpc
+from qa_tina_tools.tools.tina import create_tools
+from qa_tina_tools.tools.tina import delete_tools
 from qa_tina_tools.tools.tina import info_keys, wait_tools
 from qa_tina_tools.tools.tina.wait_tools import wait_instances_state
 from qa_tina_tools.tina import check_tools
@@ -23,9 +21,9 @@ class Test_instance_metadata(OscTinaTest):
         cls.vpc_info = None
         super(Test_instance_metadata, cls).setup_class()
         try:
-            cls.vpc_info = create_vpc(osc_sdk=cls.a1_r1, nb_instance=1)
-            cls.kp_info = create_keypair(cls.a1_r1)
-            cls.inst_info = create_instances(cls.a1_r1, state=InstanceState.Running.value, key_name=cls.kp_info[info_keys.NAME])
+            cls.vpc_info = create_tools.create_vpc(osc_sdk=cls.a1_r1, nb_instance=1)
+            cls.kp_info = create_tools.create_keypair(cls.a1_r1)
+            cls.inst_info = create_tools.create_instances(cls.a1_r1, state=InstanceState.Running.value, key_name=cls.kp_info[info_keys.NAME])
             inst = cls.inst_info[info_keys.INSTANCE_SET][0]
             cls.a1_r1.fcu.CreateTags(ResourceId=[inst['instanceId']], Tag=[{'Key': 'key1', 'Value': 'value1'},
                                                                            {'Key': 'key2', 'Value': 'value2'},
@@ -43,11 +41,11 @@ class Test_instance_metadata(OscTinaTest):
     def teardown_class(cls):
         try:
             if cls.inst_info:
-                delete_instances(cls.a1_r1, cls.inst_info)
+                delete_tools.delete_instances(cls.a1_r1, cls.inst_info)
             if cls.kp_info:
-                delete_keypair(cls.a1_r1, cls.kp_info)
+                delete_tools.delete_keypair(cls.a1_r1, cls.kp_info)
             if cls.vpc_info:
-                delete_vpc(cls.a1_r1, cls.vpc_info)
+                delete_tools.delete_vpc(cls.a1_r1, cls.vpc_info)
         finally:
             super(Test_instance_metadata, cls).teardown_class()
 

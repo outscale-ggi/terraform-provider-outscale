@@ -81,7 +81,7 @@ class Test_LinkFlexibleGpu(OscTinaTest):
             self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId='XXXXXXXX', VmId=self.inst_info[INSTANCE_ID_LIST][0])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 4104, invalid='XXXXXXXX', prefixes='i-')
+            check_oapi_error(error, 4104, invalid='XXXXXXXX', prefixes='fgpu-')
 
     def test_T4203_unknown_flexible_gpu_id(self):
         try:

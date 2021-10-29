@@ -68,7 +68,7 @@ class Test_DeleteImage(OscTinaTest):
             self.a1_r1.oapi.DeleteImage(ImageId='tata')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 4104, invalid='tata', prefixes='aki-, ami-, ari-')
+            check_oapi_error(error, 4104, invalid='tata', no_data_check=True)
 
     def test_T2303_unknown_image_id(self):
         try:

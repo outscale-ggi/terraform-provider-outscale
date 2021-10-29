@@ -104,7 +104,7 @@ class Test_CreateVolume(OscTinaTest):
             self.a1_r1.oapi.CreateVolume(SnapshotId='snap-12345678', SubregionName=self.azs[0])
             assert False, "Call should not have been successful"
         except OscApiException as error:
-            check_oapi_error(error, 5054)
+            check_oapi_error(error, 5054, id='snap-12345678')
 
     def test_T2955_malformed_snapshot_id(self):
         try:

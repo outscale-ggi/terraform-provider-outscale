@@ -288,7 +288,7 @@ class Test_LinkPublicIp(OscTinaTest):
             ret = self.a2_r1.oapi.LinkPublicIp(VmId=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0], PublicIp=self.vpc_eips[0].publicIp)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 5063, id=self.vpc_eips[0].publicIp)
+            check_oapi_error(error, 5063, id=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0])
         finally:
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[0].publicIp)
