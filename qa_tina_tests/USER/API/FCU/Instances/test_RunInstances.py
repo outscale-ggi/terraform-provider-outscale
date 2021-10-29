@@ -310,7 +310,7 @@ private_only=true
         ret = None
         try:
             ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
-                                              InstanceType='tinav5.c39r181', MaxCount=1, MinCount=1)
+                                              InstanceType='tinav5.c79r181', MaxCount=1, MinCount=1)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if self.a1_r1.config.region.name == "in-west-2":
