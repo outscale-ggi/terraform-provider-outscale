@@ -318,7 +318,7 @@ private_only=true
                     known_error('OPS-14329', 'NEW IN2: configure instance type properties')
                 assert False, 'Remove known error'
             else:
-                assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: tinav5.c39r181')
+                assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: tinav5.c79r181')
         finally:
             if ret:
                 terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])
