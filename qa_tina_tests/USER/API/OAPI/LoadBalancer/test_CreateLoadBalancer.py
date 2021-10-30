@@ -688,32 +688,35 @@ class Test_CreateLoadBalancer(LoadBalancer):
 
     def test_T5811_public_lbu_with_public_ip(self):
         hints = []
-        public_ip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
+        public_ip = None
+        ret = None
         name = id_generator(prefix='lbu-')
-        ret = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                                 LoadBalancerName=name,
-                                                 PublicIp=public_ip,
-                                                 SubregionNames=[self.a1_r1.config.region.az_name])
-        hints.append(name)
-        hints.append(public_ip)
-        hints.append(self.a1_r1.config.region.az_name)
+        try:
+            public_ip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
+            ret = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
+                                                     LoadBalancerName=name,
+                                                     PublicIp=public_ip,
+                                                     SubregionNames=[self.a1_r1.config.region.az_name])
+            hints.append(name)
+            hints.append(public_ip)
+            hints.append(self.a1_r1.config.region.az_name)
 
-        hints = create_hints(hints)
+            hints = create_hints(hints)
 
-        verify_response(ret.response,
-                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5811_public_lbu_with_eip.json'),
-                        hints,
-                        ignored_keys=["DnsName"])
-        if name:
-            try:
-                self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
-                delete_lbu(self.a1_r1, name)
-                cleanup_load_balancers(self.a1_r1,  filters={'LoadBalancerNames': name}, force=True)
-            except:
-                print('Could not delete lbu')
-        if public_ip:
-            sleep(2)
-            self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
+            verify_response(ret.response,
+                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5811_public_lbu_with_eip.json'),
+                            hints,
+                            ignored_keys=["DnsName"])
+        finally:
+            if  ret:
+                try:
+                    delete_lbu(self.a1_r1, name)
+                    cleanup_load_balancers(self.a1_r1,  filters={'LoadBalancerNames': name}, force=True)
+                except Exception as error:
+                    print('Could not delete lbu : {}'.format(error))
+            if public_ip:
+                sleep(2)
+                self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
 
     def test_T5813_public_lbu_with_used_public_ip(self):
         public_ip = None
