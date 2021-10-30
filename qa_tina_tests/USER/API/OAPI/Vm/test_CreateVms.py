@@ -79,12 +79,12 @@ echo "yes" > /tmp/userdata.txt
             self.a1_r1.oapi.CreateVms(ImageId='tata')
             assert False, "call should not have been successful"
         except OscApiException as error:
-            check_oapi_error(error, 4104, invalid='tata', prefixes='aki-, ami-, ari-')
+            check_oapi_error(error, 4104, invalid='tata', no_data_check=True)
         try:
             self.a1_r1.oapi.CreateVms(ImageId='vpc-12345678')
             assert False, "call should not have been successful"
         except OscApiException as err:
-            check_oapi_error(err, 4104, invalid='vpc-12345678', prefixes='aki-, ami-, ari-')
+            check_oapi_error(err, 4104, invalid='vpc-12345678', no_data_check=True)
 
     def test_T2939_unknown_image_id(self):
         try:
@@ -881,7 +881,7 @@ echo "yes" > /tmp/userdata.txt
     def test_T5881_with_override_max_value(self):
         vm_info = None
         try:
-            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav5.c39r181')
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav5.c79r181')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             check_oapi_error(err, 5024)
