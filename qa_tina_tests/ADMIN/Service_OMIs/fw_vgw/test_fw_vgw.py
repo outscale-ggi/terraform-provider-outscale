@@ -39,7 +39,7 @@ class Test_fw_vgw(OscTinaTest):
             cls.vpn_id = ret.response.vpnConnection.vpnConnectionId
             wait_tools.wait_vpn_connections_state(cls.a1_r1, [cls.vpn_id], state='available')
 
-            ret = cls.a1_r1.intel.netimpl.firewall.get_firewalls(resource=cls.vgw_id)
+            ret = cls.a1_r1.intel.netimpl.firewall.find_firewalls(resource=cls.vgw_id)
             inst_id = ret.response.result.master.vm
             wait_tools.wait_instance_service_state(cls.a1_r1, [inst_id], state='ready')
             ret = cls.a1_r1.intel.nic.find(filters={'vm': inst_id})
