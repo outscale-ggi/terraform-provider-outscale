@@ -24,7 +24,7 @@ class Test_fw_vpc(OscTinaTest):
             cls.vpc_info = create_vpc(cls.a1_r1, nb_instance=1, igw=True)
 
             ret = cls.a1_r1.intel.netimpl.firewall.find_firewalls(filters={'resource': cls.vpc_info[VPC_ID]})
-            inst_id = ret.response.result.master.vm
+            inst_id = ret.response.result[0].vm
 
             ret = cls.a1_r1.intel.nic.find(filters={'vm': inst_id})
 
