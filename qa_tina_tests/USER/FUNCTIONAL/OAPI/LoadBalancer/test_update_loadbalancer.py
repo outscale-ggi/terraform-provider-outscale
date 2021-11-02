@@ -1,12 +1,14 @@
 
+from time import sleep
 import pytest
 
 from qa_test_tools.misc import id_generator
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools.config import config_constants
-from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, info_keys, setup_tools, check_tools
+from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
+from qa_tina_tools.tools.tina.delete_tools import delete_lbu
 
 
 class Test_update_loadbalancer(OscTinaTest):
@@ -38,7 +40,6 @@ class Test_update_loadbalancer(OscTinaTest):
                                                          'UnhealthyThreshold': 2,
                                                          'Path': '/index.html'
                                                      })
-            known_error('TINA-6801', 'Update load balancer return an invalid-parameter')
             for vm_id in net_vm_ids:
                 eip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp
                 eips.append(eip)
@@ -61,11 +62,7 @@ class Test_update_loadbalancer(OscTinaTest):
             self.a1_r1.oapi.UpdateLoadBalancer(LoadBalancerName=lb_name, SecurityGroups=[lb_sg_id])
 
             check_tools.dns_test(self.a1_r1, lb_info[info_keys.LBU_DNS], threshold=2)
-
-            pytest.fail('Remove known error code')
         except AssertionError as error:
-            if str(error).startswith('Load balancer {} could not be reached'.format(lb_info[info_keys.LBU_DNS])):
-                known_error('TINA-6432', 'New rules do not seem to be pushed')
             raise error
         # for debug purposes
         except Exception as error:
@@ -73,8 +70,13 @@ class Test_update_loadbalancer(OscTinaTest):
             raise error
         finally:
             if lb_info:
-                oapi.delete_LoadBalancer(self.a1_r1, lb_info)
+                try:
+                    delete_lbu(self.a1_r1, lb_name)
+                    cleanup_load_balancers(self.a1_r1,  filters={'LoadBalancerNames': lb_name}, force=True)
+                except Exception as error:
+                    print('Could not delete lbu : {}'.format(error))
             if lb_sg_id:
+                sleep(5)
                 oapi.delete_SecurityGroup(self.a1_r1, lb_sg_id)
             if net_info:
                 oapi.delete_Net(self.a1_r1, net_info)
