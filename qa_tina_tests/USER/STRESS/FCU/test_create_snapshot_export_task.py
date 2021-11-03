@@ -17,8 +17,7 @@ from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state, wait_snaps
 CALL_NUMBER = 50
 
 
-@pytest.mark.region_synchro_osu
-@pytest.mark.region_osu
+@pytest.mark.storageservice
 class Test_create_snapshot_export_task(OscTinaTest):
 
     @classmethod
