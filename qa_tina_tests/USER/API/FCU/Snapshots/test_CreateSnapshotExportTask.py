@@ -262,12 +262,11 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
                                                                               '<?xml version="1.0" encoding="UTF-8"?>' + \
                                                                               '<Error><Code>InvalidAccessKeyId</Code>')
 
-
-def test_T5541_with_differents_disk_image_format(self):
+    def test_T5541_with_differents_disk_image_format(self):
         disk_format_list = ['raw']
         for disk_format in disk_format_list:
             ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': disk_format,
-                                                                                          'OsuBucket': self.bucket_name})
+                                                                                                'OsuBucket': self.bucket_name})
             task_id = ret.response.snapshotExportTask.snapshotExportTaskId
             wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed',
                                              snapshot_export_task_id_list=[task_id])
