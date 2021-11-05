@@ -3,11 +3,9 @@
 from string import ascii_lowercase
 
 import pytest
-from botocore.exceptions import ClientError
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import id_generator, assert_error
-from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_lbu
@@ -74,15 +72,7 @@ class Test_ModifyLoadBalancerAttributes(OscTinaTest):
         ret_create_bucket = None
         bucket_name = id_generator(prefix="bucket", chars=ascii_lowercase)
         try:
-            try:
-                ret_create_bucket = self.a1_r1.storageservice.create_bucket(Bucket=bucket_name)
-                if self.a1_r1.config.region.name == 'in-west-2':
-                    assert False, 'remove known error'
-            except ClientError as err:
-                if self.a1_r1.config.region.name == 'in-west-2' and \
-                        err.args[0] == 'An error occurred (403) when calling the CreateBucket operation: Forbidden':
-                    known_error('OPS-14183', 'Configure OOS in IN2')
-                    return
+            ret_create_bucket = self.a1_r1.storageservice.create_bucket(Bucket=bucket_name)
             access_log = {'S3BucketName': bucket_name, 'S3BucketPrefix': 'prefix', 'EmitInterval': 5, 'Enabled': True}
             self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerAttributes={'AccessLog': access_log}, LoadBalancerName=self.lb_name)
             ret = self.a1_r1.lbu.DescribeLoadBalancerAttributes(LoadBalancerName=self.lb_name)

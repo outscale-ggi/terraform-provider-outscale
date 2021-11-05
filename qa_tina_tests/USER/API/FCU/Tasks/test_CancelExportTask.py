@@ -91,8 +91,6 @@ class Test_CancelExportTask(OscTinaTest):
 
     def test_T5456_valid_export_task_id(self):
         try:
-            if self.known_error:
-                known_error('OPS-14183', 'Configure OOS in IN2')
             self.a1_r1.fcu.CancelExportTask(ExportTaskId=self.task_ids[0])
             known_error('TINA-6158', 'cancel of a completed export snapshot task does not return an error')
         except OscApiException as error:
@@ -100,8 +98,6 @@ class Test_CancelExportTask(OscTinaTest):
             assert_error(error, ' ', ' ', ' ')
 
     def test_T5457_check_cancelled_state(self):
-        if self.known_error:
-            known_error('OPS-14183', 'Configure OOS in IN2')
         bucket_name = id_generator(prefix='snap', chars=ascii_lowercase)
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id_boot,
                                                       ExportToOsu={'DiskImageFormat': 'qcow2',
