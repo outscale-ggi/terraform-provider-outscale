@@ -22,7 +22,6 @@ class Test_ImportSnapshot(OscTinaTest):
         cls.task_ids = []
         cls.bucket_name = None
         cls.bucket_created = False
-        cls.known_error = False
         try:
             # create volume
             ret = cls.a1_r1.fcu.CreateVolume(AvailabilityZone=cls.a1_r1.config.region.az_name, Size='1')
@@ -38,15 +37,7 @@ class Test_ImportSnapshot(OscTinaTest):
                                                                                               'OsuBucket': cls.bucket_name})
             task_id = ret.response.snapshotExportTask.snapshotExportTaskId
             cls.task_ids.append(task_id)
-            try:
-                wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
-                if cls.a1_r1.config.region.name == 'in-west-2':
-                    assert False, 'remove known error'
-            except AssertionError as err:
-                if err.args[0] == "Threshold reach for wait_snapshotExportTasks_state" and cls.a1_r1.config.region.name == 'in-west-2':
-                    cls.known_error = True
-                    return
-                raise err
+            wait_snapshot_export_tasks_state(osc_sdk=cls.a1_r1, state='completed', snapshot_export_task_id_list=cls.task_ids)
             cls.bucket_created = True
 
         except Exception as error1:
@@ -207,8 +198,6 @@ class Test_ImportSnapshot(OscTinaTest):
     def test_T1050_with_valid_params(self):
         snap_id = None
         try:
-            if self.known_error:
-                known_error('OPS-14183', 'Configure OOS in IN2')
             snap_id = None
             key = None
             k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)
