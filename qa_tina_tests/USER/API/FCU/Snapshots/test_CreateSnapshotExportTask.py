@@ -1,7 +1,6 @@
 from string import ascii_lowercase
 
 import pytest
-from botocore.exceptions import ClientError
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
@@ -80,9 +79,6 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
         assert ret.response.snapshotExportTask.snapshotExport.snapshotId == self.snap_id
         assert ret.response.snapshotExportTask.exportToOsu.diskImageFormat == 'qcow2'
         assert ret.response.snapshotExportTask.exportToOsu.osuBucket == self.bucket_name
-        if self.a1_r1.config.region.name == 'in-west-2':
-            wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
-            known_error('OPS-14183', 'Configure OOS in IN2')
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
         self.bucket_created = True
         k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)['Contents']
@@ -131,9 +127,6 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
                                                                                             'OsuBucket': self.bucket_name})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         self.logger.debug(ret.response.display())
-        if self.a1_r1.config.region.name == 'in-west-2':
-            wait_snapshot_export_tasks_state(osc_sdk=self.a2_r1, state='failed', snapshot_export_task_id_list=[task_id])
-            known_error('OPS-14183', 'Configure OOS in IN2')
         wait_snapshot_export_tasks_state(osc_sdk=self.a2_r1, state='completed', snapshot_export_task_id_list=[task_id])
         self.bucket_created = True
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
@@ -175,17 +168,8 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
 
     @pytest.mark.region_storageservice
     def test_T3891_with_existing_osu_bucket(self):
-        try:
-            self.a1_r1.oos.create_bucket(Bucket=self.bucket_name)
-            self.bucket_created = True
-            if self.a1_r1.config.region.name == 'in-west-2':
-                assert False, 'remove known error'
-        except ClientError as err:
-            if self.a1_r1.config.region.name == 'in-west-2' and \
-                    err.args[0] == 'An error occurred (403) when calling the CreateBucket operation: Forbidden':
-                known_error('OPS-14183', 'Configure OOS in IN2')
-                return
-            raise err
+        self.a1_r1.oos.create_bucket(Bucket=self.bucket_name)
+        self.bucket_created = True
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                             'OsuBucket': self.bucket_name})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
@@ -205,9 +189,6 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
                                                                                             'OsuBucket': self.bucket_name, 'OsuKey': 'osu_key'})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         assert not hasattr(ret.response.snapshotExportTask.exportToOsu, 'osuKey')
-        if self.a1_r1.config.region.name == 'in-west-2':
-            wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
-            known_error('OPS-14183', 'Configure OOS in IN2')
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
         self.bucket_created = True
         k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)['Contents']
@@ -226,9 +207,6 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
                                                                                             'OsuPrefix': 'osu_prefix-'})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         assert hasattr(ret.response.snapshotExportTask.exportToOsu, 'osuPrefix')
-        if self.a1_r1.config.region.name == 'in-west-2':
-            wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
-            known_error('OPS-14183', 'Configure OOS in IN2')
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
         self.bucket_created = True
         k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)['Contents']
@@ -246,9 +224,6 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
                                                                                             'aksk':{'AccessKey': self.a1_r1.config.account.ak,
                                                                                                     'SecretKey': self.a1_r1.config.account.sk}})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
-        if self.a1_r1.config.region.name == 'in-west-2':
-            wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
-            known_error('OPS-14183', 'Configure OOS in IN2')
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
         self.bucket_created = True
 
@@ -272,18 +247,18 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
     def test_T3896_with_invalid_ak_sk(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                             'OsuBucket': self.bucket_name,
-                                                                                           'aksk':{'AccessKey': 'foo', 'SecretKey': 'bar'}})
+                                                                                            'aksk': {'AccessKey': 'foo',
+                                                                                                     'SecretKey': 'bar'}})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         try:
             wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
-            if self.a1_r1.config.region.name == 'in-west-2':
-                known_error('OPS-14183', 'Configure OOS in IN2')
             raise OscTestException('Remove known error')
         except AssertionError:
             known_error('TINA-6147', 'Create export snapshot task with invalid ak/sk should have the failed state')
         ret = self.a1_r1.fcu.DescribeSnapshotExportTasks(SnapshotExportTaskId=[task_id])
         assert ret.response.snapshotExportTaskSet[0].statusMessage.startswith('Error accessing bucket ' + \
-                                                                              '{}: S3ResponseError: 403 Forbidden\n'.format(self.bucket_name) + \
+                                                                              '{}: S3ResponseError: 403 Forbidden\n'.format(
+                                                                                  self.bucket_name) + \
                                                                               '<?xml version="1.0" encoding="UTF-8"?>' + \
                                                                               '<Error><Code>InvalidAccessKeyId</Code>')
 
@@ -291,12 +266,8 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
         disk_format_list = ['raw']
         for disk_format in disk_format_list:
             ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': disk_format,
-                                                                                          'OsuBucket': self.bucket_name})
+                                                                                                'OsuBucket': self.bucket_name})
             task_id = ret.response.snapshotExportTask.snapshotExportTaskId
-            if self.a1_r1.config.region.name == 'in-west-2':
-                wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed',
-                                                 snapshot_export_task_id_list=[task_id])
-                known_error('OPS-14183', 'Configure OOS in IN2')
             wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed',
                                              snapshot_export_task_id_list=[task_id])
             self.bucket_created = True
