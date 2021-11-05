@@ -24,7 +24,6 @@ class Test_DescribeImageExportTasks(OscTinaTest):
         cls.inst_info = None
         cls.image_exp_ids = []
         cls.bucket_names = []
-        cls.known_error = False
         super(Test_DescribeImageExportTasks, cls).setup_class()
         try:
             cls.inst_info = create_instances(cls.a1_r1)
@@ -35,19 +34,10 @@ class Test_DescribeImageExportTasks(OscTinaTest):
                 cls.image_ids.append(image_id)
                 bucket_name = id_generator(prefix='bucket', chars=ascii_lowercase)
                 cls.bucket_names.append(bucket_name)
-                try:
-                    image_export = cls.a1_r1.fcu.CreateImageExportTask(ImageId=image_id,
-                                                                       ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name})
-                    image_export_id = image_export.response.imageExportTask.imageExportTaskId
-                    cls.image_exp_ids.append(image_export_id)
-                    if cls.a1_r1.config.region.name == 'in-west-2':
-                        assert False, 'remove known error'
-                except OscApiException as err:
-                    if cls.a1_r1.config.region.name == 'in-west-2' and err.status_code == 500 and err.message == 'This API call is disabled':
-                        cls.known_error = True
-                        return
-                    raise err
-
+                image_export = cls.a1_r1.fcu.CreateImageExportTask(ImageId=image_id,
+                                                                   ExportToOsu={'DiskImageFormat': 'qcow2', 'OsuBucket': bucket_name})
+                image_export_id = image_export.response.imageExportTask.imageExportTaskId
+                cls.image_exp_ids.append(image_export_id)
         except Exception as error1:
             try:
                 cls.teardown_class()
@@ -75,15 +65,11 @@ class Test_DescribeImageExportTasks(OscTinaTest):
             super(Test_DescribeImageExportTasks, cls).teardown_class()
 
     def test_T5356_without_params(self):
-        if self.known_error:
-            known_error('OPS-14183', 'Configure OOS in IN2')
         ret = self.a1_r1.fcu.DescribeImageExportTasks().response
         assert ret.requestId
         assert len(ret.imageExportTaskSet) >= NUM_EXPORT_TASK
 
     def test_T5357_with_image_export_task_id(self):
-        if self.known_error:
-            known_error('OPS-14183', 'Configure OOS in IN2')
         ret = self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId=[self.image_exp_ids[0]]).response.imageExportTaskSet
         if len(ret) != 1:
             known_error('TINA-6064', 'DescribeImageExportTasks')
@@ -96,8 +82,6 @@ class Test_DescribeImageExportTasks(OscTinaTest):
         assert ret.imageExport.imageId == self.image_ids[0]
 
     def test_T5358_with_image_export_task_ids(self):
-        if self.known_error:
-            known_error('OPS-14183', 'Configure OOS in IN2')
         ret = self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId=self.image_exp_ids[:-1]).response
         if len(ret.imageExportTaskSet) != NUM_EXPORT_TASK:
             known_error('TINA-6064', 'DescribeImageExportTasks')
@@ -115,8 +99,6 @@ class Test_DescribeImageExportTasks(OscTinaTest):
             assert img_task.statusMessage  # to be checked after resolving the ticket.
 
     def test_T5359_with_invalid_image_export_task_id(self):
-        if self.known_error:
-            known_error('OPS-14183', 'Configure OOS in IN2')
         try:
             ret = self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId=['foo']).response
             if len(ret.imageExportTaskSet) != 0:
@@ -128,8 +110,6 @@ class Test_DescribeImageExportTasks(OscTinaTest):
             assert_error(error, 400, '', '')
 
     def test_T5365_with_invalid_type_image_export_task_id(self):
-        if self.known_error:
-            known_error('OPS-14183', 'Configure OOS in IN2')
         try:
             ret = self.a1_r1.fcu.DescribeImageExportTasks(imageExportTaskId='foo').response
             if len(ret.imageExportTaskSet) != 0:
@@ -142,7 +122,5 @@ class Test_DescribeImageExportTasks(OscTinaTest):
 
     @pytest.mark.tag_sec_confidentiality
     def test_T5366_from_another_account(self):
-        if self.known_error:
-            known_error('OPS-14183', 'Configure OOS in IN2')
         ret = self.a2_r1.fcu.DescribeImageExportTasks(imageExportTaskId=[self.image_exp_ids[0]]).response
         assert ret.imageExportTaskSet is None
