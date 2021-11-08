@@ -234,7 +234,9 @@ class Vpn(OscTinaTest):
                 ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                       self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
                 pre_shared_key = ('{} {} : PSK "{}"').format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], vgw_ip, presharedkey)
-                _, _, _ = SshTools.exec_command_paramiko(sshclient, 'sudo echo "{}" | sudo tee /etc/strongswan/ipsec.secrets; sudo strongswan stop; sudo strongswan start'.format(pre_shared_key))
+                _, _, _ = SshTools.exec_command_paramiko(sshclient,
+                                                         """sudo echo "{}" | sudo tee /etc/strongswan/ipsec.secrets;sudo strongswan stop;
+                                                         sudo strongswan start""".format(pre_shared_key))
                 ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                       self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
         finally:
