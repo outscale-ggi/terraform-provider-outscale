@@ -127,7 +127,7 @@ class Vpn(OscTinaTest):
         finally:
             super(Vpn, self).teardown_method(method)
 
-    def exec_test_vpn(self, static, racoon, default_rtb=True, options=None, ike="ikev1", migration=None, vti=True, xfrm=False):
+    def exec_test_vpn(self, static, racoon, default_rtb=True, options=None, ike="ikev1", migration=None, vti=True, xfrm=False, presharedkey=None):
 
         # initialize a VPC with 1 subnet, 1 instance and an igw
         self.vpc_info = create_vpc(osc_sdk=self.a1_r1, nb_instance=1, default_rtb=default_rtb)
@@ -229,6 +229,16 @@ class Vpn(OscTinaTest):
                     break
                 except Exception:
                     time.sleep(5)
+            if presharedkey:
+                ret = self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":presharedkey}})
+                ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
+                      self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
+                pre_shared_key = ('{} {} : PSK "{}"').format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], vgw_ip, presharedkey)
+                _, _, _ = SshTools.exec_command_paramiko(sshclient,
+                                                         """sudo echo "{}" | sudo tee /etc/strongswan/ipsec.secrets;sudo strongswan stop;
+                                                         sudo strongswan start""".format(pre_shared_key))
+                ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
+                      self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
         finally:
             # delete VPN connection
             ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_id)
