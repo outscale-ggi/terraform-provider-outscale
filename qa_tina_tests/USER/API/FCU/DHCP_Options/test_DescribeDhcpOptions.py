@@ -18,8 +18,8 @@ def validate_dhcp_options(ret, dhcp_conf, dhcp_item):
                 assert configuration_set.key == dhcp_conf['Key']
                 # check length
                 assert len(configuration_set.valueSet) == len(dhcp_conf['Value'])
-                for i in range(len(configuration_set.valueSet)):
-                    assert configuration_set.valueSet[i].value == dhcp_conf['Value'][i]
+                for i, val in enumerate(configuration_set.valueSet):
+                    assert val.value == dhcp_conf['Value'][i]
     except AssertionError as error:
         raise error
 
