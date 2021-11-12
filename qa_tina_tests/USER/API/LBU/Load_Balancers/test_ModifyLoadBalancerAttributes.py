@@ -73,7 +73,6 @@ class Test_ModifyLoadBalancerAttributes(OscTinaTest):
         bucket_name = id_generator(prefix="bucket", chars=ascii_lowercase)
         try:
             ret_create_bucket = self.a1_r1.storageservice.create_bucket(Bucket=bucket_name)
-
             access_log = {'S3BucketName': bucket_name, 'S3BucketPrefix': 'prefix', 'EmitInterval': 5, 'Enabled': True}
             self.a1_r1.lbu.ModifyLoadBalancerAttributes(LoadBalancerAttributes={'AccessLog': access_log}, LoadBalancerName=self.lb_name)
             ret = self.a1_r1.lbu.DescribeLoadBalancerAttributes(LoadBalancerName=self.lb_name)

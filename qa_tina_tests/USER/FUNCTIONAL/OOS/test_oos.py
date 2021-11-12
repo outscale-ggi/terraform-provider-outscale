@@ -6,13 +6,13 @@ import json
 import os
 import pytest
 import requests
-from botocore.exceptions import ClientError
 
 from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import storage
+
 
 @pytest.mark.region_oos
 class Test_oos(OscTinaTest):
@@ -21,7 +21,6 @@ class Test_oos(OscTinaTest):
     def setup_class(cls):
         super(Test_oos, cls).setup_class()
         cls.bucket_created = False
-        cls.known_error = False
         try:
             cls.logger.debug("Initialize data in a bucket")
 
@@ -38,18 +37,8 @@ class Test_oos(OscTinaTest):
             cls.public_bucket_name = misc.id_generator(prefix="publicbucket", chars=ascii_lowercase)
             cls.key_name = misc.id_generator(prefix="key_", chars=ascii_lowercase)
             cls.data = misc.id_generator(prefix="data_", chars=ascii_lowercase)
-            try:
-                cls.a1_r1.oos.create_bucket(Bucket=cls.bucket_name)
-                cls.bucket_created = True
-                if cls.a1_r1.config.region.name == 'in-west-2':
-                    assert False, 'remove known error'
-            except ClientError as err:
-                if cls.a1_r1.config.region.name == 'in-west-2' and\
-                        err.args[0] == 'An error occurred (403) when calling the CreateBucket operation: Forbidden':
-                    cls.known_error = True
-                    return
-                    # known_error('OPS-14183', 'Configure OOS in IN2')
-                raise err
+            cls.a1_r1.oos.create_bucket(Bucket=cls.bucket_name)
+            cls.bucket_created = True
             cls.a1_r1.oos.put_object(Bucket=cls.bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
             cls.a1_r1.oos.create_bucket(Bucket=cls.public_bucket_name, ACL='public-read')
             cls.a1_r1.oos.put_object(Bucket=cls.public_bucket_name, Key=cls.key_name, Body=str.encode(cls.data))
@@ -74,8 +63,6 @@ class Test_oos(OscTinaTest):
 
     @pytest.mark.tag_redwire
     def test_T5132_generated_url(self):
-        if self.known_error:
-            known_error('OPS-14183', 'Configure OOS in IN2')
         params = {'Bucket': self.bucket_name, 'Key': self.key_name}
         url = self.a1_r1.oos.generate_presigned_url(ClientMethod='get_object', Params=params, ExpiresIn=3600)
         ret = requests.get(url=url, verify=self.a1_r1.config.region.get_info(constants.VALIDATE_CERTS))

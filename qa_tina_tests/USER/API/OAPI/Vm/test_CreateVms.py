@@ -1,4 +1,3 @@
-
 from __future__ import division
 
 import base64
@@ -1062,7 +1061,7 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
                 }],
             )
         finally:
-            if nic_id2:
+            if nic_id2 and ret:
                 self.a1_r1.oapi.UnlinkNic(LinkNicId=ret.response.Vms[0].Nics[1].LinkNic.LinkNicId)
                 wait_network_interfaces_state(osc_sdk=self.a1_r1, network_interface_id_list=[nic_id2], state='available')
                 self.a1_r1.oapi.DeleteNic(NicId=nic_id2)
