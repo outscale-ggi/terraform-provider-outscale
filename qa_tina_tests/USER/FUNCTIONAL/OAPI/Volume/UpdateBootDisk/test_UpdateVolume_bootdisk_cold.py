@@ -64,6 +64,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -82,6 +83,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -99,6 +101,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -117,6 +120,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -134,6 +138,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -152,6 +157,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
@@ -170,6 +176,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
         try:
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
+            self.known_error = True
             known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
