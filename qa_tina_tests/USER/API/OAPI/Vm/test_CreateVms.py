@@ -864,7 +864,7 @@ echo "yes" > /tmp/userdata.txt
     def test_T5881_with_override_max_value(self):
         vm_info = None
         try:
-            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav5.c39r181')
+            vm_info = oapi.create_Vms(osc_sdk=self.a1_r1, vm_type='tinav5.c79r181')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
             assert_oapi_error(err, 400, 'InvalidResource', '5024')
