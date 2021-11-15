@@ -1,3 +1,4 @@
+import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_tina_tools.test_base import OscTinaTest
@@ -18,6 +19,8 @@ class Test_UpdateVpnConnection(OscTinaTest):
         cls.cgw_ip = None
         super(Test_UpdateVpnConnection, cls).setup_class()
         try:
+            if cls.a1_r1.config.region.name == "in-west-2":
+                pytest.skip('UpdateVpnConnection call not yet available on IN2')
             cls.net_info = oapi.create_Net(cls.a1_r1)
             cls.cgw_ip = Configuration.get('ipaddress', 'cgw_ip')
             cls.vgw_id = cls.a1_r1.oapi.CreateVirtualGateway(ConnectionType='ipsec.1').response.VirtualGateway.VirtualGatewayId
