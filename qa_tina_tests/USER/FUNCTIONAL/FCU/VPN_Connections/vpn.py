@@ -189,7 +189,7 @@ class Vpn(OscTinaTest):
             self.a1_r1.oapi.RebootVms(VmIds=[self.inst_cgw_info[INSTANCE_ID_LIST][0]])
             wait_instances_state(self.a1_r1, [self.inst_cgw_info[INSTANCE_ID_LIST][0]], state='ready')
             sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw_info[INSTANCE_SET][0]['instanceId'],
-                                                         self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
+                                                            self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             setup_customer_gateway(self.a1_r1, sshclient, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
                                    self.inst_cgw_info, vgw_ip, psk_key, static, vpn_id, racoon, 0, ike=ike, vti=vti,xfrm=xfrm)
@@ -230,15 +230,17 @@ class Vpn(OscTinaTest):
                 except Exception:
                     time.sleep(5)
             if presharedkey:
-                time.sleep(600)
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw_info[INSTANCE_SET][0]['instanceId'],
+                                                         self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
                 ret = self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":presharedkey}})
-                time.sleep(30)
-                ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
-                      self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
                 pre_shared_key = ('{} {} : PSK "{}"').format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], vgw_ip, presharedkey)
                 _, _, _ = SshTools.exec_command_paramiko(sshclient,
-                                                         """sudo echo "{}" | sudo tee /etc/strongswan/ipsec.secrets;sudo strongswan stop;
-                                                         sudo strongswan start""".format(pre_shared_key))
+                                                         """sudo echo "{}" | sudo tee /etc/strongswan/ipsec.secrets;
+                                                         """.format(pre_shared_key))
+                _, status, err = SshTools.exec_command_paramiko(sshclient,"""echo  'sudo  service strongswan restart' >
+                 ~/.script.sh; sudo bash +x ~/.script.sh; sh -x ~/.script.sh;""", timeout=30, retry=30, eof_time_out=300)
+                assert not status, "Unable to start Strongswan: {}".format(err)
                 ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                       self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
         finally:
