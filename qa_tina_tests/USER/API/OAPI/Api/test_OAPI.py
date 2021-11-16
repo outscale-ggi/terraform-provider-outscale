@@ -23,7 +23,8 @@ class Test_OAPI(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_OAPI, cls).setup_class()
-        cls.version = get_documentation('oapi')
+        ver = cls.a1_r1.oapi.ReadVms().version
+        cls.version = get_documentation('oapi', ver=ver)
 
     @pytest.mark.tag_sec_traceability
     def test_T2221_check_request_id(self):
