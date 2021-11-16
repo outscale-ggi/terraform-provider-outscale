@@ -4,6 +4,7 @@ import string
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_test_tools.test_base import known_error
 from specs import check_oapi_error
 from qa_test_tools.misc import assert_oapi_error, id_generator
 from qa_tina_tools.test_base import OscTinaTest
@@ -50,6 +51,8 @@ class Test_DeleteDirectLink(OscTinaTest):
 
     @pytest.mark.region_directlink
     def test_T4071_valid_params(self):
+        if self.a1_r1.config.region.name == 'in-west-2':
+            known_error('OPS-14319', 'no directlink on IN2')
         location = self.a1_r1.oapi.ReadLocations().response.Locations[0].Code
         direct_link_name = id_generator(size=8, chars=string.ascii_lowercase)
         ret = self.a1_r1.oapi.CreateDirectLink(DirectLinkName=direct_link_name, Location=location, Bandwidth='1Gbps')
@@ -59,6 +62,8 @@ class Test_DeleteDirectLink(OscTinaTest):
     @pytest.mark.region_directlink
     def test_T4072_with_another_account(self):
         direct_link_id = None
+        if self.a1_r1.config.region.name == 'in-west-2':
+            known_error('OPS-14319', 'no directlink on IN2')
         try:
             location = self.a1_r1.oapi.ReadLocations().response.Locations[0].Code
             direct_link_name = id_generator(size=8, chars=string.ascii_lowercase)
