@@ -230,7 +230,9 @@ class Vpn(OscTinaTest):
                 except Exception:
                     time.sleep(5)
             if presharedkey:
+                time.sleep(600)
                 ret = self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":presharedkey}})
+                time.sleep(30)
                 ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                       self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
                 pre_shared_key = ('{} {} : PSK "{}"').format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], vgw_ip, presharedkey)
