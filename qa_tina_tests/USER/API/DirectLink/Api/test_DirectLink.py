@@ -47,10 +47,6 @@ class Test_DirectLink(OscTinaTest):
             assert error.error_code == "SerializationException"
             assert hasattr(error, 'message')
 
-    # def test_T3848_check_log(self):
-    #    # TODO add test to check log
-    #    known_error('PQA-253', 'Add tool to check API logs.')
-
     @pytest.mark.tag_sec_confidentiality
     def test_T3849_without_authentication(self):
         try:

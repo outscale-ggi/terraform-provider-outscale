@@ -1,7 +1,6 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from specs import check_oapi_error
-from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
@@ -36,8 +35,6 @@ class Test_CreateRoute(OscTinaTest):
             self.a1_r1.oapi.CreateRoute()
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
-            check_oapi_error(error, 7000)
-            known_error('API-427', 'Error code change')
             check_oapi_error(error, 3002)
 
     def test_T2016_with_invalid_params(self):

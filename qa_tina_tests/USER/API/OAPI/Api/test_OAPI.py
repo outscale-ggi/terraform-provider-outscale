@@ -36,7 +36,7 @@ class Test_OAPI(OscTinaTest):
             assert False, 'Call should have been successful'
         except OscApiException as error:
             check_oapi_error(error, 12000, invalid_action='Foo')
-            known_error('API-245', 'Incorrect error message')
+            known_error('API-425', 'Incorrect error message')
             check_oapi_error(error, 12000, invalid_action='foo')
 
     def test_T2223_invalid_param(self):
@@ -52,11 +52,6 @@ class Test_OAPI(OscTinaTest):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             check_oapi_error(error, 12000, invalid_action="CallName 'ReadVolumes' : unsupported method 'GET'")
-
-    # @pytest.mark.tag_sec_traceability
-    # def test_T2225_check_log(self):
-    #    # TODO add test to check log
-    #    known_error('PQA-253', 'Add tool to check API logs.')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T2226_without_authentication(self):
@@ -235,7 +230,7 @@ class Test_OAPI(OscTinaTest):
             assert False, 'Call should not have been successful'
         except OscException as error:
             check_oapi_error(error, 15, timestamp='Toto')
-            known_error('API-245', 'Incorrect error message')
+            known_error('API-425', 'Incorrect error message')
             check_oapi_error(error, 15, timestamp=date_time_stamp)
 
     def test_T4922_incorrect_date_stamp(self):
