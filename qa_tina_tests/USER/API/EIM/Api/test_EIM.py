@@ -31,10 +31,6 @@ class Test_EIM(OscTinaTest):
     def test_T3855_method_get(self):
         self.a1_r1.eim.ListUsers(method='GET')
 
-    # def test_T3856_check_log(self):
-    #    # TODO add test to check log
-    #    known_error('PQA-253', 'Add tool to check API logs.')
-
     @pytest.mark.tag_sec_confidentiality
     def test_T3857_without_authentication(self):
         try:

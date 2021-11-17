@@ -35,10 +35,6 @@ class Test_LBU(OscTinaTest):
     def test_T3871_method_get(self):
         self.a1_r1.lbu.DescribeLoadBalancers(method='GET')
 
-    # def test_T3872_check_log(self):
-    #    # TODO add test to check log
-    #    known_error('PQA-253', 'Add tool to check API logs.')
-
     @pytest.mark.tag_sec_confidentiality
     def test_T3873_without_authentication(self):
         try:

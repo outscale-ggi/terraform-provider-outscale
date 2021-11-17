@@ -36,8 +36,6 @@ class Test_CreateRoute(OscTinaTest):
             self.a1_r1.oapi.CreateRoute()
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
-            check_oapi_error(error, 7000)
-            known_error('API-427', 'Error code change')
             check_oapi_error(error, 3002)
 
     def test_T2016_with_invalid_params(self):
