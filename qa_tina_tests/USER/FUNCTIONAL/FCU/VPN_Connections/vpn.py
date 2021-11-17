@@ -238,9 +238,11 @@ class Vpn(OscTinaTest):
                 _, _, _ = SshTools.exec_command_paramiko(sshclient,
                                                          """sudo echo "{}" | sudo tee /etc/strongswan/ipsec.secrets;
                                                          """.format(pre_shared_key))
-                _, status, err = SshTools.exec_command_paramiko(sshclient,"""echo  'sudo  service strongswan restart' >
-                 ~/.script.sh; sudo bash +x ~/.script.sh; sh -x ~/.script.sh;""", timeout=30, retry=30, eof_time_out=300)
+                _, status, err = SshTools.exec_command_paramiko(sshclient,
+                            "echo  'sudo  strongswan stop' > ~/.script.sh; sudo bash +x ~/.script.sh; sh -x ~/.script.sh;", timeout=10, retry=10)
                 assert not status, "Unable to start Strongswan: {}".format(err)
+                _, status, err = SshTools.exec_command_paramiko(sshclient,
+                            "echo  'sudo  strongswan start' > ~/.script.sh; sudo bash +x ~/.script.sh; sh -x ~/.script.sh;", timeout=10, retry=10)
                 ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
                       self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
         finally:
