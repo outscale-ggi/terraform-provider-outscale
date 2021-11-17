@@ -181,7 +181,7 @@ class Test_CreateListenerRule(OscTinaTest):
                 self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=ret_lr.response.ListenerRule.ListenerRuleName)
 
     def test_T4792_incorrect_content_lrd_action(self):
-        self.check_error(7000, list_rule_desc={'Action': 'xxx', 'ListenerRuleName': self.rule_name, 'Priority': 100, 'HostNamePattern': '*.com'})
+        self.check_error(4047, list_rule_desc={'Action': 'xxx', 'ListenerRuleName': self.rule_name, 'Priority': 100, 'HostNamePattern': '*.com'})
 
     def test_T4793_incorrect_content_lrd_hostpattern(self):
         self.check_error(4047, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'HostNamePattern': '_.com'})
