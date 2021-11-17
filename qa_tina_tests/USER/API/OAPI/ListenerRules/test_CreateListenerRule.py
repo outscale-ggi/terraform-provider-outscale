@@ -220,9 +220,9 @@ class Test_CreateListenerRule(OscTinaTest):
                 self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=ret.response.ListenerRule.ListenerRuleName)
 
     def test_T4795_incorrect_content_lrd_pathpattern(self):
-        self.check_error(4110, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'PathPattern': ';.com'})
-        self.check_error(4110, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'PathPattern': "*.abc.*.abc.*.abc.*.com"})
-        self.check_error(4110, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'PathPattern': "1234567890" * 13})
+        self.check_error(4047, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'PathPattern': ';.com'})
+        self.check_error(4047, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'PathPattern': "*.abc.*.abc.*.abc.*.com"})
+        self.check_error(4047, list_rule_desc={'ListenerRuleName': self.rule_name, 'Priority': 100, 'PathPattern': "1234567890" * 13})
 
     def test_T4796_valid_lrd_pathpattern(self):
         ret_lr = []
