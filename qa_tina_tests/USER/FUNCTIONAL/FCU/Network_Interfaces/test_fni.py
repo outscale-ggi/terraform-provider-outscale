@@ -199,7 +199,7 @@ class Test_fni(OscTinaTest):
                                                                                 dest_private_addr=private_address.privateIpAddress,
                                                                                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                                                 retry=4, timeout=10)
-                except OscSshError as error:
+                except OscSshError:
                     known_error('PQA-3945', 'Enhance test coverage related to FNI topic')
                 cmd = "sudo pwd"
                 out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd)
