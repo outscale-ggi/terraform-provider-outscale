@@ -200,7 +200,7 @@ class Test_fni(OscTinaTest):
                                                                                 username=self.a1_r1.config.region.get_info(constants.CENTOS_USER),
                                                                                 retry=4, timeout=10)
                 except OscSshError as error:
-                    known_error('TINA-6433', 'Assigne secondary private ip address to FNI doesn\'t work')
+                    known_error('PQA-3945', 'Enhance test coverage related to FNI topic')
                 cmd = "sudo pwd"
                 out, _, _ = SshTools.exec_command_paramiko(sshclient_jhost, cmd)
                 self.logger.info("Working directory is: %s", out)
