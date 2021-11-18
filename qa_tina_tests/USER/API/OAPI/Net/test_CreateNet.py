@@ -146,7 +146,7 @@ class Test_CreateNet(OscTinaTest):
         except OscApiException as error:
             assert error.data == \
                 "The provided value ('{cidrBlock}') for the parameter 'IpRange' is invalid. The block size has to be between {min} and {max}."
-            known_error('GTW-XXXX', 'Incorrect error message')
+            known_error('API-425', 'Incorrect error message')
             check_oapi_error(error, 4014, cidrBlock=cidrblock, min='/28', max='/16')
         finally:
             if net_id:
