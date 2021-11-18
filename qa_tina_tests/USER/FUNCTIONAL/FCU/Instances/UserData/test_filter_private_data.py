@@ -32,6 +32,7 @@ class Test_filter_private_data(OscTinaTest):
                                                          self.a1_r1.config.region.get_info(config_constants.CENTOS_USER))
             out, _, _ = SshTools.exec_command_paramiko(sshclient, 'curl http://169.254.169.254/latest/user-data', decode=True)
 
+            assert True, 'Remove known error code'
             print(out)
             assert out == 'This is some public data'
         except OscApiException as error:
