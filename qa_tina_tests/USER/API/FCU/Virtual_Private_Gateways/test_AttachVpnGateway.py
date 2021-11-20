@@ -11,11 +11,11 @@ class Test_AttachVpnGateway(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
-        super(Test_AttachVpnGateway, cls).setup_class()
         cls.vpc_infos = None
         cls.vgw_id1 = None
         cls.vgw_id2 = None
         cls.atach_status = False
+        super(Test_AttachVpnGateway, cls).setup_class()
         try:
             cls.vgw_id1 = cls.a1_r1.fcu.CreateVpnGateway(Type='ipsec.1').response.vpnGateway.vpnGatewayId
             cls.vgw_id2 = cls.a2_r1.fcu.CreateVpnGateway(Type='ipsec.1').response.vpnGateway.vpnGatewayId
