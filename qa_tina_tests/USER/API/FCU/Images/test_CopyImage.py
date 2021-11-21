@@ -11,18 +11,15 @@ class Test_CopyImage(OscTinaTest):
 
     @classmethod
     def setup_class(cls):
-        super(Test_CopyImage, cls).setup_class()
-
         cls.inst_id = None
         cls.image_name = id_generator(prefix='img_')
         cls.image_id = None
         cls.vol_id = None
         cls.centos = None
-
+        super(Test_CopyImage, cls).setup_class()
         try:
             # get centos public image
             cls.centos = cls.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
-
         except Exception as error:
             cls.logger.exception("An unexpected error happened, while setup")
             cls.teardown_class()
