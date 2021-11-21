@@ -60,11 +60,7 @@ class Test_DescribeSecurityGroups(OscTinaTest):
     def test_T5398_no_params(self):
         ret = self.a1_r1.fcu.DescribeSecurityGroups()
         assert len(ret.response.securityGroupInfo) == NB_PUB_SG + NB_PRIV_SG + 1 + 1
-        try:
-            ret.check_response()
-            assert False, 'Remove known error'
-        except OscSdkException:
-            known_error('API-156', 'incorrect response structure')
+        ret.check_response()
 
     def test_T5399_with_invalid_group_id(self):
         try:
