@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import pytest
 
 from qa_tina_tests.USER.FUNCTIONAL.FCU.VPN_Connections.vpn import Vpn
 
