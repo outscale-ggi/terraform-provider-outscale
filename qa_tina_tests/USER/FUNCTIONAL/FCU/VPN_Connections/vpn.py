@@ -293,7 +293,6 @@ class Vpn(OscTinaTest):
                                                                     echo not found
                                                                 fi" > ~/.test.sh; sudo bash +x ~/.test.sh; sh -x ~/.test.sh;
                                                                 """)
-                print(out)
                 assert 'not found' in out, " incorrect content of ipsec.conf"
         finally:
             # delete VPN connection
