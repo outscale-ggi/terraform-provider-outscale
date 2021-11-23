@@ -287,10 +287,10 @@ class Vpn(OscTinaTest):
                                                                  os.path.expanduser(self.a1_r1.config.region.get_info(constants.FW_KP)),
                                                                  'root', retry=30, timeout=10)
                 out, _, _ = SshTools.exec_command_paramiko(sshclient,
-                                                           """echo if grep -q 'conn tun' /etc/strongswan/ipsec.conf; then
+                                                           """echo "if grep -q 'conn tun' /etc/strongswan/ipsec.conf; then
                                                                     echo found
                                                                 else
-                                                                    echo not found
+                                                                    echo not found"
                                                                 fi > ~/.test.sh; sudo bash +x ~/.test.sh; sh -x ~/.test.sh;
                                                                 """)
                 assert out == 'not found', " incorrect content of ipsec.conf"
