@@ -282,9 +282,18 @@ class Vpn(OscTinaTest):
                 wait.wait_VpnConnections_state(self.a1_r1, [vpn_id], state='deleted', cleanup=True)
                 vpn_id = None
                 out, _, _ = SshTools.exec_command_paramiko(sshclient, "find /etc/strongswan/ -empty -name ipsec.secrets")
-                assert out == "/etc/strongswan/ipsec.secrets", " incorrect content of ipsec.secrets"
-                out, _, _ = SshTools.exec_command_paramiko(sshclient, "grep -rin 'conn tun' /etc/strongswan/ipsec.conf")
-                assert out == "", " incorrect content of ipsec.conf"
+                assert "/etc/strongswan/ipsec.secrets" in out, " incorrect content of ipsec.secrets"
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_ip,
+                                                                 os.path.expanduser(self.a1_r1.config.region.get_info(constants.FW_KP)),
+                                                                 'root', retry=30, timeout=10)
+                out, _, _ = SshTools.exec_command_paramiko(sshclient,
+                                                           """echo "if grep -q 'conn tun' /etc/strongswan/ipsec.conf; then
+                                                                    echo found
+                                                                else
+                                                                    echo not found
+                                                                fi" > ~/.test.sh; sudo bash +x ~/.test.sh; sh -x ~/.test.sh;
+                                                                """)
+                assert 'not found' in out, " incorrect content of ipsec.conf"
         finally:
             # delete VPN connection
             if vpn_id:
