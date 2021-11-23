@@ -290,8 +290,8 @@ class Vpn(OscTinaTest):
                                                            """echo "if grep -q 'conn tun' /etc/strongswan/ipsec.conf; then
                                                                     echo found
                                                                 else
-                                                                    echo not found"
-                                                                fi > ~/.test.sh; sudo bash +x ~/.test.sh; sh -x ~/.test.sh;
+                                                                    echo not found
+                                                                fi" > ~/.test.sh; sudo bash +x ~/.test.sh; sh -x ~/.test.sh;
                                                                 """)
                 assert out == 'not found', " incorrect content of ipsec.conf"
         finally:
