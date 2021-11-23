@@ -286,7 +286,8 @@ class Vpn(OscTinaTest):
                 sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_ip,
                                                                  os.path.expanduser(self.a1_r1.config.region.get_info(constants.FW_KP)),
                                                                  'root', retry=30, timeout=10)
-                out, _, _ = SshTools.exec_command_paramiko(sshclient, "grep -rnw '/etc/strongswan/ipsec.conf' -e 'conn tun'")
+                out, _, _ = SshTools.exec_command_paramiko(sshclient, "grep -rnw '/etc/strongswan/ipsec.conf' -e 'default'")
+                print(out)
                 assert out == "", " incorrect content of ipsec.conf"
         finally:
             # delete VPN connection
