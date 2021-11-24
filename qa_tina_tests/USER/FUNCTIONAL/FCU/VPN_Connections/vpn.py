@@ -96,9 +96,11 @@ class Vpn(OscTinaTest):
             if hasattr(method,'pytestmark'):
                 self.list_mark = [m.name for m in method.pytestmark]
                 if 'centos7' in self.list_mark:
-                    if self.a1_r1.config.region.name == 'in-west-2':
-                        pytest.skip('No centos7 on in2')
-                    omi_id = self.a1_r1.config.region.get_info(constants.CENTOS7)
+                    try:
+                        omi_id = self.a1_r1.config.region.get_info(constants.CENTOS7)
+                    except Exception as error:
+                        pytest.skip("Could not find centos7_omi for region in-west-2")
+
             # create a pub instance for the CGW
             self.inst_cgw_info = create_instances(osc_sdk=self.a1_r1, omi_id= omi_id)
 
