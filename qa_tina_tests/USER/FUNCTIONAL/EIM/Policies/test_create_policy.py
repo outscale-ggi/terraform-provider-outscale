@@ -1,6 +1,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdks.osc_sdk import OscSdk
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_test_tools.config import OscConfig, config_constants
 from qa_test_tools.config.region import Feature
@@ -95,7 +96,7 @@ class Test_create_policy(OscTinaTest):
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
+                check_oapi_error(error, 4)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
@@ -147,7 +148,7 @@ class Test_create_policy(OscTinaTest):
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
+                check_oapi_error(error, 4)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
@@ -201,7 +202,7 @@ class Test_create_policy(OscTinaTest):
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
+                check_oapi_error(error, 4)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
@@ -260,7 +261,7 @@ class Test_create_policy(OscTinaTest):
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
+                check_oapi_error(error, 4)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
@@ -312,7 +313,7 @@ class Test_create_policy(OscTinaTest):
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
+                check_oapi_error(error, 4)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
@@ -364,7 +365,7 @@ class Test_create_policy(OscTinaTest):
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4', None)
+                check_oapi_error(error, 4)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
@@ -413,7 +414,7 @@ class Test_create_policy(OscTinaTest):
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4')
+                check_oapi_error(error, 4)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
@@ -461,7 +462,7 @@ class Test_create_policy(OscTinaTest):
                 self.account_sdk.oapi.ReadVms()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4')
+                check_oapi_error(error, 4)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=self.user_name)
@@ -537,7 +538,7 @@ class Test_create_policy(OscTinaTest):
                 self.account_sdk.oapi.ReadVolumes()
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                misc.assert_oapi_error(error, 401, 'AccessDenied', '4')
+                check_oapi_error(error, 4)
             try:
                 self.account_sdk.fcu.DescribeInstanceTypes()
                 assert False, 'Call should not have been successful'

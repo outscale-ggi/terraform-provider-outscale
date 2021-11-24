@@ -1,9 +1,10 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs.check_tools import check_oapi_error
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.misc import assert_oapi_error, assert_error
+from qa_test_tools.misc import assert_error
 from qa_tina_tools.tina import oapi, info_keys, wait
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, stop_instances
@@ -33,7 +34,7 @@ class Test_fgpu_life_cycle(FgpuLifeCycle):
             self.check_gpu_instance(total_gpu=2, vcores=fgpu_life_cycle.GPU_TYPE_CORES, memory_ram=fgpu_life_cycle.GPU_TYPE_RAMS)
             self.check_gpu_fgpu_status(gpu_in_use=2, reserved_fgpu=2, fgpu_state='attached')
         except OscApiException as err:
-            assert_oapi_error(err, 409, 'ResourceConflict', '9072')
+            check_oapi_error(err, 9072)
     # add error (?) cases , link fgpu to gpu instance
 
     def test_T4276_create_fgpu(self):

@@ -1,6 +1,7 @@
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.test_base import OscTinaTest
@@ -44,7 +45,7 @@ class Test_create_vm(OscTinaTest):
                 vm_id_bis = self.a1_r1.oapi.CreateVms(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                                       ClientToken=token).response.Vms[0].VmId
             except OscApiException as error:
-                misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4119)
+                check_oapi_error(error, 4119)
             finally:
                 if vm_id_bis:
                     delete_tools.terminate_instances(self.a1_r1, [vm_id_bis])
