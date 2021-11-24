@@ -2,6 +2,8 @@ from datetime import datetime
 import re
 import time
 
+import pytest
+
 from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.test_base import OscTinaTest
@@ -94,6 +96,8 @@ class Vpn(OscTinaTest):
             if hasattr(method,'pytestmark'):
                 self.list_mark = [m.name for m in method.pytestmark]
                 if 'centos7' in self.list_mark:
+                    if self.a1_r1.config.region.name == 'in-west-2':
+                        pytest.skip('No centos7 on in2')
                     omi_id = self.a1_r1.config.region.get_info(constants.CENTOS7)
             # create a pub instance for the CGW
             self.inst_cgw_info = create_instances(osc_sdk=self.a1_r1, omi_id= omi_id)
