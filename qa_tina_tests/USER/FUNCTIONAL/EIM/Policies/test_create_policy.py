@@ -1,7 +1,7 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_sdks.osc_sdk import OscSdk
 from specs import check_oapi_error
+from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.config import OscConfig, config_constants
 from qa_test_tools.config.region import Feature
