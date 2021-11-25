@@ -2,8 +2,8 @@ import os
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from specs import check_oapi_error
 from qa_test_tools.compare_objects import verify_response
-from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
@@ -24,9 +24,9 @@ class Test_ReadApiAccessPolicy(OscTinaTest):
                                                            osc_api.EXEC_DATA_LOGIN: 'foo', osc_api.EXEC_DATA_PASSWORD: 'bar'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_oapi_error(error, 1)
 
     def test_T5783_no_param(self):
         ret = self.a1_r1.oapi.ReadApiAccessPolicy()

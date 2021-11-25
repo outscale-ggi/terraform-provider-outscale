@@ -100,6 +100,7 @@ def perf_inst_vpc(oscsdk, logger, queue, args):
             wait.wait_PublicIps_state(oscsdk, [ip_info.PublicIp.PublicIp], cleanup=True)
         if sg_info:
             oapi.delete_SecurityGroup(oscsdk, sg_info)
+            time.sleep(15)  # erase when TINA-6014 is solved 2.5.22
         if net_info:
             oapi.delete_Net(oscsdk, net_info)
         if kp_info:

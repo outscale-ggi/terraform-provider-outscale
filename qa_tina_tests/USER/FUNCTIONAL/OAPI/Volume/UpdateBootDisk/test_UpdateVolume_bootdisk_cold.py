@@ -6,6 +6,7 @@ from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, wait, info_keys
 from qa_tina_tools.tina.check_tools import verify_disk_size
 
+
 class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
 
     @classmethod
@@ -64,7 +65,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
             self.known_error = True
-            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+            known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
@@ -83,7 +84,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
             self.known_error = True
-            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+            known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
@@ -101,7 +102,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
             self.known_error = True
-            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+            known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
@@ -120,7 +121,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
             self.known_error = True
-            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+            known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
@@ -138,7 +139,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
             self.known_error = True
-            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+            known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
@@ -157,7 +158,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
             self.known_error = True
-            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+            known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp
@@ -176,7 +177,7 @@ class Test_UpdateVolume_bootdisk_cold(OscTinaTest):
             oapi.start_Vms(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]])
         except AssertionError:
             self.known_error = True
-            known_error('TINA-6606', 'problem when starting instance after update boot disk')
+            known_error('TINA-6874', 'Vm in pending state when StartVms is called at the same time as UpdateVolume')
 
         ret = wait.wait_Vms_state(self.a1_r1, [self.vm_info[info_keys.VM_IDS][0]], state='ready')
         public_ip = ret.response.Vms[0].PublicIp

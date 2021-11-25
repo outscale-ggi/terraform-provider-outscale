@@ -198,6 +198,7 @@ class Test_DescribeImages(OscTinaTest):
     def test_T839_filter_owner_alias(self):
         desc_filter = {"Name": "owner-alias", "Value": "Outscale"}
         ret = self.a1_r1.fcu.DescribeImages(Filter=[desc_filter])
+        assert ret.response.imagesSet and len(ret.response.imagesSet) > 0
         for img in ret.response.imagesSet:
             assert img.imageOwnerAlias == 'Outscale'
 

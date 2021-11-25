@@ -1,6 +1,8 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.misc import assert_dry_run
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 
@@ -35,7 +37,7 @@ class Test_CreateNet(OscTinaTest):
             assert False, "call should not have been successful, bad number of parameter"
             wait_vpcs_state(self.a1_r1, [net_id], state='available')
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
         finally:
             if net_id:
                 self.a1_r1.oapi.DeleteNet(NetId=net_id)
@@ -47,7 +49,7 @@ class Test_CreateNet(OscTinaTest):
             assert False, "call should not have been successful, bad parameter"
             wait_vpcs_state(self.a1_r1, [net_id], state='available')
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameter', '3001')
+            check_oapi_error(err, 3001)
 
         finally:
             if net_id:
@@ -75,7 +77,7 @@ class Test_CreateNet(OscTinaTest):
             net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc', '10_0_0_0_16'), Tenancy='toto').response.Net.NetId
             wait_vpcs_state(self.a1_r1, [net_id], state='available')
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(err, 4047)
 
         finally:
             if net_id:
@@ -98,7 +100,7 @@ class Test_CreateNet(OscTinaTest):
                     wait_vpcs_state(self.a1_r1, [net_id], state='available')
         except OscApiException as err:
             # DryRun value is a Bool, String doesn't work into DryRun.
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(err, 4110)
         finally:
             if net_ids:
                 for net_id in net_ids:
@@ -138,10 +140,14 @@ class Test_CreateNet(OscTinaTest):
     def test_T2391_with_invalid_iprange(self):
         net_id = None
         try:
-            net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc_invalid', '158_8_4_21_29')).response.Net.NetId
-            assert False, 'Invalid IpRange'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4014')
+            cidrblock = Configuration.get('vpc_invalid', '158_8_4_21_29')
+            net_id = self.a1_r1.oapi.CreateNet(IpRange=cidrblock).response.Net.NetId
+            assert False, 'Call should not have been successful, Invalid IpRange'
+        except OscApiException as error:
+            assert error.data == \
+                "The provided value ('{cidrBlock}') for the parameter 'IpRange' is invalid. The block size has to be between {min} and {max}."
+            known_error('API-425', 'Incorrect error message')
+            check_oapi_error(error, 4014, cidrBlock=cidrblock, min='/28', max='/16')
         finally:
             if net_id:
                 try:
@@ -154,7 +160,7 @@ class Test_CreateNet(OscTinaTest):
             assert False, 'Invalid IpRange'
             wait_vpcs_state(self.a1_r1, [net_id], state='available')
         except OscApiException as err:
-            assert_oapi_error(err, 409, 'ResourceConflict', '9050')
+            check_oapi_error(err, 9050)
         finally:
             if net_id:
                 try:
@@ -163,10 +169,15 @@ class Test_CreateNet(OscTinaTest):
                     print('Could not delete net')
         net_id = None
         try:
-            net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc_invalid', '255_255_255_0_15')).response.Net.NetId
+            cidrblock = Configuration.get('vpc_invalid', '255_255_255_0_15')
+            net_id = self.a1_r1.oapi.CreateNet(IpRange=cidrblock).response.Net.NetId
             assert False, 'Invalid IpRange'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4014')
+        except OscApiException as error:
+            if error.data != 'The provided value (\'{cidrBlock}\') for the parameter \'IpRange\' is invalid. ' \
+                             'The block size has to be between {min} and {max}.':
+                assert False, 'Remove known error'
+                check_oapi_error(error, 4014, cidrBlock=cidrblock, min='/28', max='/16')
+            known_error('TINA-6823', 'Erreur 4014 has a problem with its error message')
         finally:
             if net_id:
                 try:
@@ -178,7 +189,7 @@ class Test_CreateNet(OscTinaTest):
             net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc_invalid', '10_0_0_0_42')).response.Net.NetId
             assert False, 'Invalid IpRange'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(err, 4047)
         finally:
             if net_id:
                 try:
@@ -190,7 +201,7 @@ class Test_CreateNet(OscTinaTest):
             net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc_invalid', '255_255_0_256_16')).response.Net.NetId
             assert False, 'Invalid IpRange'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(err, 4047)
         finally:
             if net_id:
                 self.a1_r1.oapi.DeleteNet(NetId=net_id)
@@ -199,7 +210,7 @@ class Test_CreateNet(OscTinaTest):
             net_id = self.a1_r1.oapi.CreateNet(IpRange=Configuration.get('vpc_invalid', '105333_0_0_0_16')).response.Net.NetId
             assert False, 'Invalid IpRange'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(err, 4047)
         finally:
             if net_id:
                 self.a1_r1.oapi.DeleteNet(NetId=net_id)

@@ -2,7 +2,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
@@ -48,7 +49,7 @@ class Test_DeleteRoute(OscTinaTest):
                                         DestinationIpRange='100.0.0.0/24')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5046')
+            check_oapi_error(error, 5046, id=self.vpc_info[ROUTE_TABLE_ID])
 
     def test_T3509_valid_dry_run(self):
         self.a1_r1.oapi.CreateRoute(DestinationIpRange='100.0.0.0/24', RouteTableId=self.vpc_info[ROUTE_TABLE_ID],
@@ -64,4 +65,4 @@ class Test_DeleteRoute(OscTinaTest):
             self.a1_r1.oapi.DeleteRoute(DryRun=True)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)

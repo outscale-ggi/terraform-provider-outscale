@@ -2,8 +2,9 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.misc import id_generator, assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import id_generator, assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances, create_volumes
 from qa_tina_tools.tools.tina.delete_tools import delete_instances, delete_volumes
@@ -66,14 +67,14 @@ class Test_CreateImage(OscTinaTest):
             self.a1_r1.oapi.CreateImage()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T2318_only_name(self):
         try:
             self.a1_r1.oapi.CreateImage(ImageName=self.ami_name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T2677_invalid_parameters_combinations(self):
         try:
@@ -81,63 +82,63 @@ class Test_CreateImage(OscTinaTest):
                                         SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
         try:
             self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name, SourceRegionName=self.a1_r1.config.region.name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
         try:
             self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name,
                                         BlockDeviceMappings=[{'DeviceName': '/dev/sda1', 'Bsu': {'SnapshotId': self.snap1_id}}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
         try:
             self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name, Architecture='x86')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
         try:
             self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name, RootDeviceName='/dev/sda1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
         try:
             self.a1_r1.oapi.CreateImage(SourceImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
                                         ImageName=self.ami_name, RootDeviceName='/dev/sda1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
         try:
             self.a1_r1.oapi.CreateImage(VmId=self.inst_id, FileLocation='%s/NewOmi' % self.a1_r1.config.account.account_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
         try:
             self.a1_r1.oapi.CreateImage(NoReboot=True, FileLocation='%s/NewOmi' % self.a1_r1.config.account.account_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
         try:
             self.a1_r1.oapi.CreateImage(Architecture='x86', FileLocation='%s/NewOmi' % self.a1_r1.config.account.account_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
         try:
             self.a1_r1.oapi.CreateImage(RootDeviceName='/dev/sda1', FileLocation='%s/NewOmi' % self.a1_r1.config.account.account_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
     def test_T2213_from_vm_valid_params(self):
         self.image_id = self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name).response.Image.ImageId
@@ -152,21 +153,21 @@ class Test_CreateImage(OscTinaTest):
             self.a1_r1.oapi.CreateImage(VmId='tata', ImageName='ami1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104', None)
+            check_oapi_error(error, 4104, invalid='tata', prefixes='i-')
 
     def test_T2296_from_vm_unknown_vm_id(self):
         try:
             self.a1_r1.oapi.CreateImage(VmId='i-12345678', ImageName='ami1')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063', None)
+            check_oapi_error(error, 5063, id='i-12345678')
 
     def test_T2297_from_vm_no_name(self):
         try:
             self.a1_r1.oapi.CreateImage(VmId='i-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
     def test_T2298_from_vm_valid_case(self):
         ret = self.a1_r1.oapi.CreateImage(VmId=self.inst_id, ImageName=self.ami_name).response.Image
@@ -263,14 +264,14 @@ class Test_CreateImage(OscTinaTest):
             self.a1_r1.oapi.CreateImage(SourceImageId='tata', SourceRegionName=self.a1_r1.config.region.name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104', None)
+            check_oapi_error(error, 4104, invalid='tata', no_data_check=True)
 
     def test_T2291_from_copy_unknown_image_id(self):
         try:
             self.a1_r1.oapi.CreateImage(SourceImageId='ami-12345678', SourceRegionName=self.a1_r1.config.region.name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5023', None)
+            check_oapi_error(error, 5023, id='ami-12345678')
 
     def test_T2292_from_copy_unknown_invalid_region(self):
         try:
@@ -278,7 +279,7 @@ class Test_CreateImage(OscTinaTest):
                                         SourceRegionName='alpha')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'OperationNotSupported', '8019', None)
+            check_oapi_error(error, 8019)
 
     def test_T2293_from_copy_valid_case(self):
         source_img_id = self.a1_r1.config.region.get_info(constants.CENTOS_LATEST)
@@ -428,7 +429,7 @@ class Test_CreateImage(OscTinaTest):
                 {'DeviceName': '/dev/sda1', 'Bsu': {'SnapshotId': self.snap1_id, 'Iops': 100}}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045', None)
+            check_oapi_error(error, 4045)
 
     def test_T2328_from_snap_bdm_with_snap_and_virtual(self):
         try:
@@ -436,7 +437,7 @@ class Test_CreateImage(OscTinaTest):
                 {'DeviceName': '/dev/sda1', 'Bsu': {'SnapshotId': self.snap1_id}, 'VirtualDeviceName': '/dev/sda1'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4076', None)
+            check_oapi_error(error, 4076, name='/dev/sda1')
 
     def test_T2329_from_snap_bdm_without_snap(self):
         try:
@@ -444,7 +445,7 @@ class Test_CreateImage(OscTinaTest):
                 {'DeviceName': '/dev/sda1', 'Bsu': {'VolumeSize': 2}}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7003', None)
+            check_oapi_error(error, 7003)
 
     def test_T2330_from_snap_bdm_without_snap_with_virtual(self):
         try:
@@ -452,7 +453,7 @@ class Test_CreateImage(OscTinaTest):
                 {'DeviceName': '/dev/sda1', 'VirtualDeviceName': 'ephemeral1'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7003', None)
+            check_oapi_error(error, 7003)
 
     def test_T4576_from_instance_with_additional_volume(self):
         self.image_id = self.a1_r1.oapi.CreateImage(VmId=self.inst_id2, ImageName=self.ami_name).response.Image.ImageId

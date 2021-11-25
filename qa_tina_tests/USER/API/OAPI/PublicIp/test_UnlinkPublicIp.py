@@ -1,7 +1,10 @@
 import pytest
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException,\
+    OscSdkException
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
@@ -60,7 +63,7 @@ class Test_UnlinkPublicIp(OscTinaTest):
             self.a1_r1.oapi.UnlinkPublicIp()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2812_with_both_compatible_params(self):
         ret = None
@@ -69,7 +72,7 @@ class Test_UnlinkPublicIp(OscTinaTest):
             self.a1_r1.oapi.UnlinkPublicIp(LinkPublicIpId=ret.response.LinkPublicIpId, PublicIp=self.standard_eips[0].publicIp)
             ret = None
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
+            check_oapi_error(error, 3002)
         finally:
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.standard_eips[0].publicIp)
@@ -84,7 +87,7 @@ class Test_UnlinkPublicIp(OscTinaTest):
             ret2 = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
+            check_oapi_error(error, 3002)
         finally:
             if ret1:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.standard_eips[0].publicIp)
@@ -192,7 +195,12 @@ class Test_UnlinkPublicIp(OscTinaTest):
             ret = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5025')
+            try:
+                check_oapi_error(error, 5025, id=self.inst_info[INSTANCE_ID_LIST][0])
+            except OscSdkException:
+                known_error('API-425', 'placeholders not replaced')
+            assert False, 'Remove known error code'
+
         finally:
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.standard_eips[0].publicIp)

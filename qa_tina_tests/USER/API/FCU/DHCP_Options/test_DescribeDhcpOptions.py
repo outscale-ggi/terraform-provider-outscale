@@ -18,8 +18,8 @@ def validate_dhcp_options(ret, dhcp_conf, dhcp_item):
                 assert configuration_set.key == dhcp_conf['Key']
                 # check length
                 assert len(configuration_set.valueSet) == len(dhcp_conf['Value'])
-                for i in range(len(configuration_set.valueSet)):
-                    assert configuration_set.valueSet[i].value == dhcp_conf['Value'][i]
+                for i, val in enumerate(configuration_set.valueSet):
+                    assert val.value == dhcp_conf['Value'][i]
     except AssertionError as error:
         raise error
 
@@ -55,7 +55,7 @@ class Test_DescribeDhcpOptions(OscTinaTest):
     def test_T1508_no_param(self):
         ret = self.a1_r1.fcu.DescribeDhcpOptions()
         # 4 DHCP options created and 1 per defaut
-        assert len(ret.response.dhcpOptionsSet) == 4, ' The amount of DHCP options displayed, does not match the amount expected'
+        assert len(ret.response.dhcpOptionsSet) == 5, ' The amount of DHCP options displayed, does not match the amount expected'
         validate_dhcp_options(ret=ret, dhcp_conf=DHCP_CONFIGS[0], dhcp_item=self.dhcp_options_list[0])
         validate_dhcp_options(ret=ret, dhcp_conf=DHCP_CONFIGS[1], dhcp_item=self.dhcp_options_list[1])
         validate_dhcp_options(ret=ret, dhcp_conf=DHCP_CONFIGS[2], dhcp_item=self.dhcp_options_list[2])
@@ -78,7 +78,7 @@ class Test_DescribeDhcpOptions(OscTinaTest):
         for key in supported_keys:
             filter_dict = {'Name': 'key', 'Value': key}
             ret = self.a1_r1.fcu.DescribeDhcpOptions(Filter=[filter_dict])
-            assert len(ret.response.dhcpOptionsSet) == 4, ' The amount of DHCP options displayed, does not match the amount expected'
+            assert len(ret.response.dhcpOptionsSet) == 5, ' The amount of DHCP options displayed, does not match the amount expected'
 
     def test_T1519_using_filter_value(self):
         filter_dict = {'Name': 'value', 'Value': DHCP_CONFIGS[0]['Value']}

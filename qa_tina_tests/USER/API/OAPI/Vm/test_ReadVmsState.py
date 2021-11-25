@@ -5,7 +5,8 @@ import pytest
 import pytz
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import info_keys
@@ -59,7 +60,7 @@ class Test_ReadVmsState(OscTinaTest):
         ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': [code_name]})
         assert ret.status_code == 200, ret.response.display()
         assert len(ret.response.VmStates) == 2
-        for i in range(len(ret.response.VmStates)):
+        for i,_ in enumerate(ret.response.VmStates):
             assert ret.response.VmStates[i].VmState == code_name
 
     def test_T2071_no_param(self):
@@ -133,14 +134,14 @@ class Test_ReadVmsState(OscTinaTest):
             ret = self.a1_r1.oapi.ReadVmsState(Filters={'VmStates': ['foo']})  # Code expected not name
             assert len(ret.response.VmStates) == 0
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T2084_with_invalid_vm_id(self):
         vm_id = 'foo'
         try:
             self.a1_r1.oapi.ReadVmsState(Filters={'VmIds': [vm_id]})
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid=vm_id, prefixes='i-')
 
     def test_T2085_with_unknown_vm_id(self):
         vm_id = 'i-12345678'

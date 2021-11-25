@@ -4,7 +4,8 @@ import string
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, id_generator
+from specs import check_oapi_error
+from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait
 
@@ -37,31 +38,31 @@ class Test_DeleteDirectLinkInterface(OscTinaTest):
             self.a1_r1.oapi.DeleteDirectLinkInterface()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T3912_invalid_direct_link_interface_id(self):
         try:
             self.a1_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId='id_invalid')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104', None)
+            check_oapi_error(error, 4104, invalid='id_invalid', prefixes='dxvif-')
         try:
             self.a1_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId='dxvif-1234567')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105', None)
+            check_oapi_error(error, 4105, given_id='dxvif-1234567')
         try:
             self.a1_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId='dxvif-123456789')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105', None)
+            check_oapi_error(error, 4105, given_id='dxvif-123456789')
 
     def test_T3913_unknown_direct_link_interface_id(self):
         try:
             self.a1_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId='dxvif-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5073', None)
+            check_oapi_error(error, 5073, id='dxvif-12345678')
 
     @pytest.mark.region_admin
     @pytest.mark.region_directlink
@@ -118,7 +119,7 @@ class Test_DeleteDirectLinkInterface(OscTinaTest):
             self.a2_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId=directlink_interface_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5073')
+            check_oapi_error(error, 5073, id=directlink_interface_id)
         finally:
             if ret_dli:
                 self.a1_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId=directlink_interface_id)

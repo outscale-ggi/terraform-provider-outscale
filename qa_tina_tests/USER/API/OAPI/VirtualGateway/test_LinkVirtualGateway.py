@@ -1,8 +1,9 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpn_gateways_state, wait_vpcs_state
 
@@ -74,4 +75,4 @@ class Test_LinkVirtualGateway(OscTinaTest):
             self.ret_link = self.a2_r1.oapi.LinkVirtualGateway(VirtualGatewayId=self.vgw_id, NetId=self.net_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5068')
+            check_oapi_error(error, 5068, id=self.vgw_id)

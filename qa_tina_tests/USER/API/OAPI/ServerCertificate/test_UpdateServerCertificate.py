@@ -3,8 +3,8 @@ import os
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools import misc
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait
 from qa_tina_tools.tools.tina import create_tools
@@ -15,6 +15,8 @@ from qa_tina_tools.tools.tina import create_tools
 # Name         body    string    false
 # NewName      body    string    false
 # NewPath      body    string    false
+
+
 class Test_UpdateServerCertificate(OscTinaTest):
 
     @classmethod
@@ -81,7 +83,7 @@ class Test_UpdateServerCertificate(OscTinaTest):
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', 7000)
+            check_oapi_error(error, 7000)
 
     def test_T4884_invalid_name(self):
         invalid_name = '@&é"(§è!çà)'
@@ -91,7 +93,7 @@ class Test_UpdateServerCertificate(OscTinaTest):
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)
+            check_oapi_error(error, 4122)
 
     def test_T4885_invalid_name_type(self):
         new_name = misc.id_generator(prefix='sc-')
@@ -100,7 +102,7 @@ class Test_UpdateServerCertificate(OscTinaTest):
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     def test_T4886_incorrect_name(self):
         incorrect_name = 'incorrect_name'
@@ -110,7 +112,7 @@ class Test_UpdateServerCertificate(OscTinaTest):
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)
+            check_oapi_error(error, 4122)
 
     def test_T4887_missing_new_param(self):
         resp = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name).response
@@ -124,7 +126,7 @@ class Test_UpdateServerCertificate(OscTinaTest):
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
+            check_oapi_error(error, 4118)
 
     def test_T4889_invalid_new_name_type(self):
         new_name = misc.id_generator(prefix='sc-')
@@ -133,7 +135,7 @@ class Test_UpdateServerCertificate(OscTinaTest):
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     def test_T4890_invalid_new_path(self):
         new_name = misc.id_generator(prefix='sc-')
@@ -143,7 +145,7 @@ class Test_UpdateServerCertificate(OscTinaTest):
             assert False, 'Remove known error'
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4118)
+            check_oapi_error(error, 4118)
 
     def test_T4891_invalid_new_path_type(self):
         new_name = misc.id_generator(prefix='sc-')
@@ -152,7 +154,7 @@ class Test_UpdateServerCertificate(OscTinaTest):
             self.sc_name = new_name
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4110)
+            check_oapi_error(error, 4110)
 
     def test_T4892_dry_run(self):
         dr_ret = self.a1_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewPath='/toto/', DryRun=True)
@@ -165,4 +167,4 @@ class Test_UpdateServerCertificate(OscTinaTest):
             self.a2_r1.oapi.UpdateServerCertificate(Name=self.sc_name, NewPath='/toto/')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4122)
+            check_oapi_error(error, 4122)

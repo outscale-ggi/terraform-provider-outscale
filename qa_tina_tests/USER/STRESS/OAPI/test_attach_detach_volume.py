@@ -120,7 +120,6 @@ class Test_attach_detach_volume(OscTinaTest):
                 self.is_attached = True
 
                 wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
-                #known_error ("TINA-6448", "Volume remains attaching")
 
                 out, status, _ = SshTools.exec_command_paramiko(self.sshclient, CMD)
                 assert status == 0
@@ -209,7 +208,6 @@ class Test_attach_detach_volume(OscTinaTest):
                 self.is_attached = True
 
                 wait.wait_Volumes_state(self.a1_r1, [self.vol_id], state='in-use')
-                #known_error ("TINA-6448", "Volume remains attaching")
 
                 out, status, _ = SshTools.exec_command_paramiko(self.sshclient, CMD)
                 assert status == 0

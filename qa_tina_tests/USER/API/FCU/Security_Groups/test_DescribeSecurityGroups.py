@@ -1,7 +1,7 @@
 
 import string
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscSdkException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
@@ -60,11 +60,7 @@ class Test_DescribeSecurityGroups(OscTinaTest):
     def test_T5398_no_params(self):
         ret = self.a1_r1.fcu.DescribeSecurityGroups()
         assert len(ret.response.securityGroupInfo) == NB_PUB_SG + NB_PRIV_SG + 1 + 1
-        try:
-            ret.check_response()
-            assert False, 'Remove known error'
-        except OscSdkException:
-            known_error('API-156', 'incorrect response structure')
+        ret.check_response()
 
     def test_T5399_with_invalid_group_id(self):
         try:

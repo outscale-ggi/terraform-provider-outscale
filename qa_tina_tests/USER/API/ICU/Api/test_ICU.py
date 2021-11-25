@@ -48,10 +48,6 @@ class Test_ICU(OscTinaTest):
             assert error.error_code == "SerializationException"
             assert hasattr(error, 'message')
 
-    # def test_T3864_check_log(self):
-    #    # TODO add test to check log
-    #    known_error('PQA-253', 'Add tool to check API logs.')
-
     @pytest.mark.tag_sec_confidentiality
     def test_T3865_without_authentication(self):
         time.sleep(11)

@@ -1,8 +1,9 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.misc import assert_oapi_error, id_generator
+from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import PUBLIC
 from qa_tina_tools.tools.tina.create_tools import generate_key
@@ -20,21 +21,21 @@ class Test_CreateKeypair(OscTinaTest):
             self.a1_r1.oapi.CreateKeypair()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2345_invalid_character_name(self):
         try:
             self.a1_r1.oapi.CreateKeypair(KeyName='èàé')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T2346_space_character_name(self):
         try:
             self.a1_r1.oapi.CreateKeypair(KeyName='        ')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T2347_invalid_length_name(self):
         keypair_name = id_generator(prefix='keypair_', size=256)
@@ -42,7 +43,7 @@ class Test_CreateKeypair(OscTinaTest):
             self.a1_r1.oapi.CreateKeypair(KeyName=keypair_name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T2348_valid_name(self):
         ret = None
@@ -70,7 +71,7 @@ class Test_CreateKeypair(OscTinaTest):
                 self.a1_r1.oapi.CreateKeypair(KeypairName=self.keypair_name)
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 409, 'ResourceConflict', '9011')
+                check_oapi_error(error, 9011)
         finally:
             if ret:
                 self.a1_r1.oapi.DeleteKeypair(KeypairName=self.keypair_name)
@@ -82,7 +83,7 @@ class Test_CreateKeypair(OscTinaTest):
             self.a1_r1.oapi.CreateKeypair(KeypairName=self.keypair_name, PublicKey='publicKey')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4032')
+            check_oapi_error(error, 4032)
 
     def test_T2355_valid_import(self):
         ret = None
@@ -95,7 +96,7 @@ class Test_CreateKeypair(OscTinaTest):
             assert ret.KeypairName == self.keypair_name
             assert ret.KeypairFingerprint is not None
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4032')
+            check_oapi_error(error, 4032)
             assert False, 'It\'s a regression'
         finally:
             if ret:
@@ -115,10 +116,10 @@ class Test_CreateKeypair(OscTinaTest):
                 self.a1_r1.oapi.CreateKeypair(KeypairName=self.keypair_name, PublicKey=pub_key)
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 409, 'ResourceConflict', '9011')
+                check_oapi_error(error, 9011)
 
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4032')
+            check_oapi_error(error, 4032)
             assert False, 'It\'s a regression'
         finally:
             if ret:

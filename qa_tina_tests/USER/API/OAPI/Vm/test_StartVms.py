@@ -2,8 +2,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.exceptions.test_exceptions import OscTestException
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import terminate_instances, delete_instances, stop_instances
@@ -52,21 +52,21 @@ class Test_StartVms(OscTinaTest):
             self.a1_r1.oapi.StartVms()
             assert False, 'Call without ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2100_with_empty_ids(self):
         try:
             self.a1_r1.oapi.StartVms(VmIds=[])
             assert False, 'Call without ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2101_with_invalid_ids(self):
         try:
             self.a1_r1.oapi.StartVms(VmIds=['foo'])
             assert False, 'Call with invalid ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='foo', prefixes='i-')
 
     def test_T2102_from_running(self):
         inst_num = self.get_insts()
@@ -89,7 +89,7 @@ class Test_StartVms(OscTinaTest):
             self.a1_r1.fcu.StopInstances(InstanceId=inst_id_list, Force=False)
             self.a1_r1.oapi.StartVms(VmIds=inst_id_list)
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
 
     def test_T2105_from_stopped(self):
         inst_num = self.get_insts()
@@ -101,7 +101,7 @@ class Test_StartVms(OscTinaTest):
         for inst in vms:
             assert inst.VmId in inst_id_list
             assert inst.PreviousState == 'stopped'
-            assert inst.CurrentState == 'pending' or inst.CurrentState == 'running'
+            assert inst.CurrentState in ('pending', 'running')
 
     def test_T2106_from_terminated(self):
         inst_num = self.get_insts()
@@ -111,7 +111,7 @@ class Test_StartVms(OscTinaTest):
         try:
             self.a1_r1.oapi.StartVms(VmIds=inst_id_list)
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
 
     def test_T2107_with_unknown_param(self):
         inst_num = self.get_insts()
@@ -120,14 +120,14 @@ class Test_StartVms(OscTinaTest):
         try:
             self.a1_r1.oapi.StartVms(VmIds=inst_id_list, foo='bar')
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T2108_with_unknown_ids(self):
         try:
             self.a1_r1.oapi.StartVms(VmIds=['i-12345678'])
             assert False, 'Call with invalid ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id='i-12345678')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T2109_with_instance_from_another_account(self):
@@ -137,7 +137,7 @@ class Test_StartVms(OscTinaTest):
             self.a1_r1.oapi.StartVms(VmIds=inst_id_list)
             assert False, 'Call with instance from another account should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id=inst_id_list[0])
 
     def test_T2103_from_ready(self):
         inst_num = self.get_insts()
@@ -158,7 +158,7 @@ class Test_StartVms(OscTinaTest):
         for inst in ret.response.Vms:
             assert inst.VmId in inst_id_list
             assert inst.PreviousState == 'running'
-            assert inst.CurrentState == 'pending' or inst.CurrentState == 'running'
+            assert inst.CurrentState in ('pending', 'running')
 
     def test_T2111_with_multiple_valid_and_invalid_instances(self):
         inst_num = self.get_insts()
@@ -168,4 +168,4 @@ class Test_StartVms(OscTinaTest):
             self.a1_r1.oapi.StartVms(VmIds=inst_id_list + ['i-12345678'])
             assert False, 'Call with invalid instance should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id='i-12345678')

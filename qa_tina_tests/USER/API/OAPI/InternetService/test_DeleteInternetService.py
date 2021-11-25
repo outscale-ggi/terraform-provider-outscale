@@ -1,7 +1,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_internet_gateways_state
 
@@ -48,8 +49,8 @@ class Test_DeleteInternetService(OscTinaTest):
         try:
             self.a1_r1.oapi.DeleteInternetService()
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+        except OscApiException as error:
+            check_oapi_error(error, 7000)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3460_valid_params_other_account(self):
@@ -58,8 +59,8 @@ class Test_DeleteInternetService(OscTinaTest):
             wait_internet_gateways_state(self.a1_r1, [net_id], state='available')
             self.a2_r1.oapi.DeleteInternetService(InternetServiceId=net_id)
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5001')
+        except OscApiException as error:
+            check_oapi_error(error, 5001)
         finally:
             if net_id:
                 try:
@@ -71,8 +72,8 @@ class Test_DeleteInternetService(OscTinaTest):
         try:
             self.a1_r1.oapi.DeleteInternetService(InternetServiceId='toto')
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='toto', prefixes='igw-')
 
     def test_T3816_deleted_internet_service(self):
         net_id = None
@@ -81,5 +82,5 @@ class Test_DeleteInternetService(OscTinaTest):
             wait_internet_gateways_state(self.a1_r1, [net_id], state='available')
             self.a1_r1.oapi.DeleteInternetService(InternetServiceId=net_id)
             self.a1_r1.oapi.DeleteInternetService(InternetServiceId=net_id)
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5001')
+        except OscApiException as error:
+            check_oapi_error(error, 5001)

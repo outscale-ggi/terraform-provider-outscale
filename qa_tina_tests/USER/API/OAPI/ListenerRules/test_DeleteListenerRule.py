@@ -1,4 +1,5 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import create_tools, info_keys, delete_tools
@@ -50,14 +51,14 @@ class Test_DeleteListenerRule(OscTinaTest):
             self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName='toto')
             assert False, 'call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '5029', 'InvalidResource')
+            check_oapi_error(error, 5029)
 
     def test_T4800_with_no_param(self):
         try:
             self.a1_r1.oapi.DeleteListenerRule()
             assert False, 'call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '7000', 'MissingParameter')
+            check_oapi_error(error, 7000)
 
     def test_T4801_with_valid_param(self):
         ret = self.a1_r1.oapi.DeleteListenerRule(ListenerRuleName=self.rname)

@@ -1,6 +1,8 @@
 from datetime import datetime
 import re
 import time
+import os
+from netaddr import IPNetwork, IPAddress
 
 import pytest
 
@@ -118,7 +120,7 @@ class Vpn(OscTinaTest):
 
     def teardown_method(self, method):
         try:
-            # delete all created ressources in setup
+            # delete all created resources in setup
             if self.vgw_id:
                 self.a1_r1.fcu.DeleteVpnGateway(VpnGatewayId=self.vgw_id)
                 wait_tools.wait_vpn_gateways_state(self.a1_r1, [self.vgw_id], state='deleted')
@@ -132,7 +134,8 @@ class Vpn(OscTinaTest):
         finally:
             super(Vpn, self).teardown_method(method)
 
-    def exec_test_vpn(self, static, racoon, default_rtb=True, options=None, ike="ikev1", migration=None, vti=True, xfrm=False):
+    def exec_test_vpn(self, static, racoon, default_rtb=True, options=None, ike="ikev1", migration=None, vti=True, xfrm=False,
+                      presharedkey=None, tunnelinsideiprange=None, check_conf=None):
 
         # initialize a VPC with 1 subnet, 1 instance and an igw
         self.vpc_info = create_vpc(osc_sdk=self.a1_r1, nb_instance=1, default_rtb=default_rtb)
@@ -194,7 +197,7 @@ class Vpn(OscTinaTest):
             self.a1_r1.oapi.RebootVms(VmIds=[self.inst_cgw_info[INSTANCE_ID_LIST][0]])
             wait_instances_state(self.a1_r1, [self.inst_cgw_info[INSTANCE_ID_LIST][0]], state='ready')
             sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw_info[INSTANCE_SET][0]['instanceId'],
-                                                         self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
+                                                            self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
                                                          self.a1_r1.config.region.get_info(constants.CENTOS_USER))
             setup_customer_gateway(self.a1_r1, sshclient, self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'],
                                    self.inst_cgw_info, vgw_ip, psk_key, static, vpn_id, racoon, 0, ike=ike, vti=vti,xfrm=xfrm)
@@ -234,10 +237,73 @@ class Vpn(OscTinaTest):
                     break
                 except Exception:
                     time.sleep(5)
+            if presharedkey:
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw_info[INSTANCE_SET][0]['instanceId'],
+                                                         self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                ret = self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":presharedkey}})
+                pre_shared_key = ('{} {} : PSK "{}"').format(self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], vgw_ip, presharedkey)
+                _, _, _ = SshTools.exec_command_paramiko(sshclient,
+                                                         """sudo echo "{}" | sudo tee /etc/strongswan/ipsec.secrets;
+                                                         """.format(pre_shared_key))
+                _, status, err = SshTools.exec_command_paramiko(sshclient,
+                            "echo  'sudo  strongswan stop' > ~/.script.sh; sudo bash +x ~/.script.sh; sh -x ~/.script.sh;", timeout=10, retry=10)
+                assert not status, "Unable to start Strongswan: {}".format(err)
+                _, status, err = SshTools.exec_command_paramiko(sshclient,
+                            "echo  'sudo  strongswan start' > ~/.script.sh; sudo bash +x ~/.script.sh; sh -x ~/.script.sh;", timeout=10, retry=10)
+                ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
+                      self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
+            if tunnelinsideiprange:
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, self.inst_cgw_info[INSTANCE_SET][0]['instanceId'],
+                                                         self.inst_cgw_info[INSTANCE_SET][0]['ipAddress'], self.inst_cgw_info[KEY_PAIR][PATH],
+                                                         self.a1_r1.config.region.get_info(constants.CENTOS_USER))
+                ret = self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=vpn_id, VpnOptions={"TunnelInsideIpRange":str(tunnelinsideiprange)+"/30"})
+                vti_conf = """sudo ip tun del vti0;
+                sudo ip tunnel add vti0 mode vti local {} remote {} key 12;
+                sudo ip addr add {} remote {}/30 dev vti0;
+                sudo ip link set vti0 up mtu 1436;""".format(
+                    self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'], vgw_ip, str(tunnelinsideiprange+2), str(tunnelinsideiprange))
+                _, status, err = SshTools.exec_command_paramiko(sshclient, vti_conf)
+                _, status, err = SshTools.exec_command_paramiko(sshclient,
+                    "sudo sed -i 's/neighbor 169.254.254.1/neighbor {}/g' /etc/frr/bgpd.conf;sudo systemctl stop frr;  sudo systemctl start  frr"
+                    .format(str(tunnelinsideiprange+1)), timeout=10, retry=10)
+                assert not status, "Unable to start Strongswan: {}".format(err)
+                ping(sshclient, self.inst_cgw_info[INSTANCE_SET][0]['privateIpAddress'],
+                      self.vpc_info[SUBNETS][0][INSTANCE_SET][0]['privateIpAddress'])
+            if check_conf:
+                ret = self.a1_r1.intel.netimpl.firewall.find_firewalls(filters={'resource': self.vgw_id})
+                inst_id = ret.response.result[0].vm
+                wait_tools.wait_instance_service_state(self.a1_r1, [inst_id], state='ready')
+                ret = self.a1_r1.intel.nic.find(filters={'vm': inst_id})
+                inst_ip = None
+                for nic in ret.response.result:
+                    if IPAddress(nic.ips[0].ip) in IPNetwork(self.a1_r1.config.region.get_info(constants.FW_ADMIN_SUBNET)):
+                        inst_ip = nic.ips[0].ip
+                assert inst_ip
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_ip,
+                                                                 os.path.expanduser(self.a1_r1.config.region.get_info(constants.FW_KP)),
+                                                                 'root', retry=30, timeout=10)
+                ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_id)
+                wait.wait_VpnConnections_state(self.a1_r1, [vpn_id], state='deleted', cleanup=True)
+                vpn_id = None
+                out, _, _ = SshTools.exec_command_paramiko(sshclient, "find /etc/strongswan/ -empty -name ipsec.secrets")
+                assert "/etc/strongswan/ipsec.secrets" in out, " incorrect content of ipsec.secrets"
+                sshclient = check_tools.check_ssh_connection(self.a1_r1, inst_id, inst_ip,
+                                                                 os.path.expanduser(self.a1_r1.config.region.get_info(constants.FW_KP)),
+                                                                 'root', retry=30, timeout=10)
+                out, _, _ = SshTools.exec_command_paramiko(sshclient,
+                                                           """echo "if grep -q 'conn tun' /etc/strongswan/ipsec.conf; then
+                                                                    echo found
+                                                                else
+                                                                    echo not found
+                                                                fi" > ~/.test.sh; sudo bash +x ~/.test.sh; sh -x ~/.test.sh;
+                                                                """)
+                assert 'not found' in out, " incorrect content of ipsec.conf"
         finally:
             # delete VPN connection
-            ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_id)
-            wait.wait_VpnConnections_state(self.a1_r1, [vpn_id], state='deleted', cleanup=True)
+            if vpn_id:
+                ret = self.a1_r1.fcu.DeleteVpnConnection(VpnConnectionId=vpn_id)
+                wait.wait_VpnConnections_state(self.a1_r1, [vpn_id], state='deleted', cleanup=True)
 
             self.a1_r1.fcu.DetachVpnGateway(VpcId=self.vpc_info[VPC_ID], VpnGatewayId=self.vgw_id)
             wait_tools.wait_vpn_gateways_attachment_state(self.a1_r1, [self.vgw_id], 'detached')

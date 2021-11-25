@@ -3,7 +3,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.info_keys import PEERING
 from qa_tina_tools.tools.tina.create_tools import create_peering
@@ -23,21 +24,21 @@ class Test_DeleteNetPeering(OscTinaTest):
             self.a1_r1.oapi.DeleteNetPeering()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T1986_invalid_id(self):
         try:
             self.a1_r1.oapi.DeleteNetPeering(NetPeeringId='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='foo', prefixes='pcx-')
 
     def test_T1987_unknown_ids(self):
         try:
             self.a1_r1.oapi.DeleteNetPeering(NetPeeringId='pcx-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5035')
+            check_oapi_error(error, 5035, id='pcx-12345678')
 
     def test_T1988_with_peering_in_valid_state(self):
         valid_states = ['pending-acceptance', 'active', 'failed', 'deleted']
@@ -57,7 +58,7 @@ class Test_DeleteNetPeering(OscTinaTest):
                 self.a1_r1.oapi.DeleteNetPeering(NetPeeringId=peering_info[PEERING].id)
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 409, 'InvalidState', '6004')
+                check_oapi_error(error, 6004)
             finally:
                 delete_peering(self.a1_r1, peering_info)
 
@@ -68,6 +69,6 @@ class Test_DeleteNetPeering(OscTinaTest):
             self.a2_r1.oapi.DeleteNetPeering(NetPeeringId=peering_info[PEERING].id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5035')
+            check_oapi_error(error, 5035, id=peering_info[PEERING].id)
         finally:
             delete_peering(self.a1_r1, peering_info)

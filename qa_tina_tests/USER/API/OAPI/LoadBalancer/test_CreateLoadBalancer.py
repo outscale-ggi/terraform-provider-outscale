@@ -1,16 +1,20 @@
 import os
 import time
+from time import sleep
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_oapi_error, assert_dry_run
+from specs import check_oapi_error
+from qa_test_tools.misc import id_generator, assert_dry_run
 from qa_test_tools.compare_objects import verify_response, create_hints
 from qa_test_tools.test_base import known_error
+from qa_tina_tools.tools.tina.cleanup_tools import cleanup_load_balancers
 from qa_tina_tools.constants import TWO_REGIONS_NEEDED
 from qa_tina_tools.tools.tina.create_tools import create_vpc
-from qa_tina_tools.tools.tina.delete_tools import delete_vpc
+from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_lbu
 from qa_tina_tools.tina import oapi, info_keys
 from qa_tina_tests.USER.API.OAPI.LoadBalancer.LoadBalancer import LoadBalancer, validate_load_balancer_global_form
+
 
 class Test_CreateLoadBalancer(LoadBalancer):
 
@@ -40,7 +44,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.a1_r1.oapi.CreateLoadBalancer()
             assert False, "Call should not have been successful, request must contain LoadBalancerName"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2581_with_invalid_load_balancer_name(self):
         try:
@@ -51,7 +55,11 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid LoadBalancerName"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4106')
+            if error.data != 'The length of the provided value for parameter \'{param}\' is invalid: \'{vlength}\'. ' \
+                             'The expected length is \'{length}\'.':
+                assert False, 'remove known error'
+                check_oapi_error(error, 4106, param=name, vlength=len(name), length='32')
+            known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
         try:
             name = 'lbu_-1'
             self.a1_r1.oapi.CreateLoadBalancer(
@@ -60,7 +68,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid LoadBalancerName"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4036')
+            check_oapi_error(error, 4036)
 
         char_list = "!\"#$%&'()*/:;<>?[\\]^`{|}~"
         for char in char_list:
@@ -72,7 +80,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
                     LoadBalancerName=group_name, SubregionNames=[self.a1_r1.config.region.az_name])
                 assert False, "Creategroup must fail with invalid groupName"
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameterValue', '4036')
+                check_oapi_error(error, 4036)
             finally:
                 if ret:
                     self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=group_name)
@@ -87,7 +95,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain Listener param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2583_with_invalid_listener(self):
         try:
@@ -98,7 +106,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid Listener param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4095')
+            check_oapi_error(error, 4095)
         try:
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(
@@ -107,7 +115,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid Listener param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4095')
+            check_oapi_error(error, 4095)
         try:
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(
@@ -116,7 +124,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid Listener param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4095')
+            check_oapi_error(error, 4095)
         try:
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(
@@ -125,7 +133,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid Listener param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4037')
+            check_oapi_error(error, 4037)
 
     def test_T2584_with_invalid_sub_region_names(self):
         try:
@@ -136,7 +144,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid availabilityZone"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         try:
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(
@@ -145,7 +153,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid availabilityZone"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4095')
+            check_oapi_error(error, 4095)
         try:
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(
@@ -155,7 +163,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid availabilityZone"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'OperationNotSupported', '8010')
+            check_oapi_error(error, 8010)
 
     def test_T2585_with_invalid_security_group(self):
         try:
@@ -168,7 +176,10 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid security group param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            if error.data != 'The provided value \'{invalid}\' does not respect the expected ID prefix \'{prefixes}\'.':
+                assert False, 'remove known error'
+                check_oapi_error(error, 4104, invalid='toto', prefixes='sg-')
+            known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
         try:
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(
@@ -180,8 +191,10 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid security group param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
-
+            if error.data != 'The provided value \'{invalid}\' does not respect the expected ID prefix \'{prefixes}\'.':
+                assert False, 'remove known error'
+                check_oapi_error(error, 4104, invalid='toto', prefixes='sg-')
+            known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
         name = id_generator(prefix='lbu-')
         self.a1_r1.oapi.CreateLoadBalancer(
             Listeners=[{"BackendPort": 65535, "BackendProtocol":"HTTP", 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
@@ -200,7 +213,10 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid load_balancer_type param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            if error.data != 'The provided value \'{invalid}\' does not respect the expected ID prefix \'{prefixes}\'.':
+                assert False, 'remove known error'
+                check_oapi_error(error, 4104, invalid='toto', prefixes='')
+            known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
 
     def test_T2587_with_invalid_subnet(self):
         try:
@@ -212,7 +228,10 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid subnet param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            if error.data != 'The provided value \'{invalid}\' does not respect the expected ID prefix \'{prefixes}\'.':
+                assert False, 'remove known error'
+                check_oapi_error(error, 4104, invalid='toto', prefixes='subnet-')
+            known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
         try:
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(
@@ -223,7 +242,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid subnet param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'OperationNotSupported', '8010')
+            check_oapi_error(error, 8010)
         try:
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(
@@ -234,7 +253,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain only 1 subnet"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'OperationNotSupported', '8010')
+            check_oapi_error(error, 8010)
 
     def test_T2588_with_existing_name_diff_param(self):
         name = id_generator(prefix='lbu-')
@@ -250,7 +269,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
                 LoadBalancerName=name, SubregionNames=[self.a1_r1.config.region.az_name])
             self.lb_names.append(name)
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'ResourceConflict', '9013')
+            check_oapi_error(error, 9013)
 
     def test_T2589_with_existing_name_same_param(self):
         name = id_generator(prefix='lbu-')
@@ -266,7 +285,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             )
             assert False, "Call should not have been successful, same name and same params"
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'ResourceConflict', '9013')
+            check_oapi_error(error, 9013)
 
     def test_T2590_with_valid_listener(self):
         name = id_generator(prefix='lbu-')
@@ -340,7 +359,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             )
             self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
         except OscApiException as error:
-            assert_oapi_error(error, 400, '', '')
+            check_oapi_error(error, '')
 
     def test_T2591_with_valid_security_group(self):
         name = id_generator(prefix='lbu-')
@@ -402,7 +421,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
                 LoadBalancerName=name, LoadBalancerType='internet-facing', SecurityGroups=[self.sg_id],
                 Subnets=[new_vpc['subnets'][0]['subnet_id']])
         except OscApiException as error:
-            assert_oapi_error(error, 424, "DependencyProblem", '1003')
+            check_oapi_error(error, 1003)
         finally:
             if new_vpc:
                 delete_vpc(self.a1_r1, new_vpc)
@@ -442,7 +461,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, security group not in vpc"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5020')
+            check_oapi_error(error, 5020)
 
     def test_T2596_name_starting_with_dash(self):
         try:
@@ -455,7 +474,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, lbu name starts with '-'"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4036')
+            check_oapi_error(error, 4036)
 
     def test_T2597_name_ending_with_dash(self):
         try:
@@ -468,7 +487,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, lbu name ends with '-'"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4036')
+            check_oapi_error(error, 4036)
 
     def test_T2598_private_internal_without_security_group(self):
         name = id_generator(prefix='lbu-')
@@ -527,7 +546,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, public can't have security group"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
+            check_oapi_error(error, 3002)
 
     def test_T4159_public_other_sub_region(self):
         if not hasattr(self, 'a1_r2'):
@@ -540,7 +559,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid availabilityZone"
         except OscApiException as error:
-            assert_oapi_error(error, 400, '', '')
+            check_oapi_error(error, '')
 
     def test_T4160_private_with_incompatible_subnet_and_subregion(self):
         if not hasattr(self, 'a1_r2'):
@@ -553,7 +572,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, subregion and subnet are incompatible"
         except OscApiException as error:
-            assert_oapi_error(error, 400, '', '')
+            check_oapi_error(error, '')
 
     def test_T4738_multi_lbu_same_name_diff_users(self):
         ret_create_lbu1 = None
@@ -593,7 +612,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
             assert False, 'Could should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 409, "ResourceConflict", '9013')
+            check_oapi_error(error, 9013)
 
     def test_T5806_lbu_dry_run(self):
         name = id_generator(prefix='lbu-')
@@ -652,7 +671,7 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid public ip param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T5810_public_lbu_with_invalid_type_public_ip(self):
         try:
@@ -665,90 +684,54 @@ class Test_CreateLoadBalancer(LoadBalancer):
             self.lb_names.append(name)
             assert False, "Call should not have been successful, request must contain valid public ip param"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5811_public_lbu_with_public_ip(self):
         hints = []
-        public_ip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
+        public_ip = None
+        ret = None
         name = id_generator(prefix='lbu-')
         try:
+            public_ip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
             ret = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
                                                      LoadBalancerName=name,
                                                      PublicIp=public_ip,
                                                      SubregionNames=[self.a1_r1.config.region.az_name])
-            self.lb_names.append(name)
-            assert False, 'Remove known error code'
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
-            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
-        hints.append(name)
-        hints.append(public_ip)
-        hints.append(self.a1_r1.config.region.az_name)
+            hints.append(name)
+            hints.append(public_ip)
+            hints.append(self.a1_r1.config.region.az_name)
 
-        hints = create_hints(hints)
+            hints = create_hints(hints)
 
-        verify_response(ret.response,
-                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5811_public_lbu_with_eip.json'),
-                        hints,
-                        ignored_keys=["DnsName"])
-
-        if public_ip:
-            self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
-
-    def test_T5812_del_public_lbu_before_public_ip(self):
-        hints = []
-        ret_ip = self.a1_r1.oapi.CreatePublicIp()
-        public_ip = ret_ip.response.PublicIp.PublicIp
-        name = id_generator(prefix='lbu-')
-        try:
-            ret = self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                                     LoadBalancerName=name,
-                                                     PublicIp=public_ip,
-                                                     SubregionNames=[self.a1_r1.config.region.az_name])
-            self.lb_names.append(name)
-            assert False, 'Remove known error code'
-        except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
-            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
-        hints.append(name)
-        hints.append(public_ip)
-        hints.append(self.a1_r1.config.region.az_name)
-
-        hints = create_hints(hints)
-
-        verify_response(ret.response,
-                        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5812_del_public_lbu_before_public_ip.json'),
-                        hints,
-                        ignored_keys=["DnsName"])
-
-        if name:
-            try:
-                self.a1_r1.oapi.DeleteLoadBalancer(LoadBalancerName=name)
-            except:
-                print('Could not delete lbu')
-
-        if public_ip:
-            self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
+            verify_response(ret.response,
+                            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'T5811_public_lbu_with_eip.json'),
+                            hints,
+                            ignored_keys=["DnsName"])
+        finally:
+            if  ret:
+                try:
+                    delete_lbu(self.a1_r1, name)
+                    cleanup_load_balancers(self.a1_r1,  filters={'LoadBalancerNames': name}, force=True)
+                except Exception as error:
+                    print('Could not delete lbu : {}'.format(error))
+            if public_ip:
+                sleep(2)
+                self.a1_r1.oapi.DeletePublicIp(PublicIp=public_ip)
 
     def test_T5813_public_lbu_with_used_public_ip(self):
         public_ip = None
         vm_info = None
         try:
             public_ip = self.a1_r1.oapi.CreatePublicIp().response.PublicIp.PublicIp
-
             vm_info = oapi.create_Vms(self.a1_r1)
             self.a1_r1.oapi.LinkPublicIp(VmId=vm_info[info_keys.VM_IDS][0], PublicIp=public_ip)
-
             name = id_generator(prefix='lbu-')
             self.a1_r1.oapi.CreateLoadBalancer(Listeners=[{'BackendPort': 80, 'LoadBalancerPort': 80, 'LoadBalancerProtocol': 'HTTP'}],
-                                               LoadBalancerName=name,
-                                               PublicIp=public_ip,
-                                               SubregionNames=[self.a1_r1.config.region.az_name])
-            self.lb_names.append(name)
-            assert False, 'Remove known error code'
+                                                   LoadBalancerName=name,
+                                                   PublicIp=public_ip,
+                                                   SubregionNames=[self.a1_r1.config.region.az_name])
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4108')
-            known_error('API-335', 'Add an EIP to a LoadBalancer return missing-parameter message')
+            check_oapi_error(error, 9031)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)

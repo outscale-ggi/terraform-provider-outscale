@@ -1,6 +1,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
 from qa_tina_tests.USER.API.OAPI.DhcpOptions.DhcpOptions import validate_dhcp_options
@@ -31,14 +31,14 @@ class Test_CreateDhcpOptions(OscTinaTest):
             self.a1_r1.oapi.CreateDhcpOptions()
             assert False, "Not supposed to succeed"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2864_with_invalid_value_domain_name_servers(self):
         try:
             self.a1_r1.oapi.CreateDhcpOptions(DomainNameServers=['foo'])
             assert False, "Not supposed to create a DomainNameServers with invalid IP"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4045')
+            check_oapi_error(error, 4045)
 
     def test_T2865_with_domain_name_servers(self):
         domain_name_servers = [Configuration.get('ipaddress', 'dns_google')]
@@ -91,7 +91,7 @@ class Test_CreateDhcpOptions(OscTinaTest):
             validate_dhcp_options(ret, expected_dhcp={'DomainName': self.default_domain_name, 'NtpServers': ntp_servers,
                                                       'DomainNameServers': ['OutscaleProvidedDNS'], 'Default': False})
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2871_with_multiple_ntp_servers(self):
         ntp_servers = [Configuration.get('ntp_servers', 'fr1'), Configuration.get('ntp_servers', 'fr2'),
@@ -117,7 +117,7 @@ class Test_CreateDhcpOptions(OscTinaTest):
             self.add_to_dhcp_list(ret=ret)
             assert False, "Not supposed to succeed"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2874_all_param(self):
         ntp_servers = [Configuration.get('ntp_servers', 'fr1')]

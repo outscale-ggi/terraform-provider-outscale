@@ -1,7 +1,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_dry_run, assert_oapi_error
+from specs import check_oapi_error
+from qa_test_tools.misc import id_generator, assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.setup_tools import setup_public_load_balancer
 from qa_tina_tools.tools.tina.delete_tools import delete_instances_old, delete_lbu
@@ -60,4 +61,4 @@ class Test_ReadVmsHealth(OscTinaTest):
         try:
             self.a2_r1.oapi.ReadVmsHealth(LoadBalancerName=self.lbu_name)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5030)
+            check_oapi_error(error, 5030)

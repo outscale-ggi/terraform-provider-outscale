@@ -25,7 +25,7 @@ class Test_ReadSecretAccessKey(OscTinaTest):
             self.a1_r1.oapi.ReadSecretAccessKey()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_tools.check_oapi_error(error, 7000)
 
     def test_T5668_valid_ak(self):
         ret = self.a1_r1.oapi.ReadSecretAccessKey(AccessKeyId=self.ak)
@@ -43,14 +43,14 @@ class Test_ReadSecretAccessKey(OscTinaTest):
             self.a1_r1.oapi.ReadSecretAccessKey(Foo='Bar')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_tools.check_oapi_error(error, 3001)
 
     def test_T5671_additional_unknown_param(self):
         try:
             self.a1_r1.oapi.ReadSecretAccessKey(AccessKeyId=self.ak, Foo='Bar')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_tools.check_oapi_error(error, 3001)
 
     def test_T5672_invalid_ak(self):
         ret = self.a1_r1.oapi.ReadSecretAccessKey(AccessKeyId='foobar')
@@ -65,7 +65,7 @@ class Test_ReadSecretAccessKey(OscTinaTest):
             self.a1_r1.oapi.ReadSecretAccessKey(AccessKeyId=[self.ak])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_tools.check_oapi_error(error, 4110)
 
     def test_T5675_ak_other_account(self):
         if not hasattr(self, 'a2_r1'):
@@ -88,6 +88,6 @@ class Test_ReadSecretAccessKey(OscTinaTest):
                                                       AccessKeyId=self.ak)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_tools.check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_tools.check_oapi_error(error, 1)

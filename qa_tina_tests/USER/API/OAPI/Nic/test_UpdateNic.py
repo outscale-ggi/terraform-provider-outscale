@@ -2,7 +2,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -49,21 +50,21 @@ class Test_UpdateNic(Nic):
             self.a1_r1.oapi.UpdateNic()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2705_with_empty_nic_id(self):
         try:
             self.a1_r1.oapi.UpdateNic(NicId='')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2706_with_invalid_nic_id(self):
         try:
             self.a1_r1.oapi.UpdateNic(NicId='toto', Description='new_description')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='toto', prefixes='eni-')
 
     def test_T2707_with_unknown_nic_id(self):
         try:
@@ -71,14 +72,14 @@ class Test_UpdateNic(Nic):
                                       Description='new_description')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5036')
+            check_oapi_error(error, 5036, id='eni-12345678')
 
     def test_T2708_with_valid_nic_id(self):
         try:
             self.a1_r1.oapi.UpdateNic(NicId=self.nic_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2709_with_description(self):
         self.a1_r1.oapi.UpdateNic(NicId=self.nic_id, Description='new_description')
@@ -88,21 +89,21 @@ class Test_UpdateNic(Nic):
             self.a1_r1.oapi.UpdateNic(NicId=self.nic_id, SecurityGroupIds=[])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2711_with_invalid_firewall_rules_set_ids(self):
         try:
-            self.a1_r1.oapi.UpdateNic(NicId=self.nic_id, SecurityGroupIds=['tata', 'toto'])
+            self.a1_r1.oapi.UpdateNic(NicId=self.nic_id, SecurityGroupIds=['tata'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='tata', prefixes='sg-')
 
     def test_T2712_with_unknown_firewall_rules_set_ids(self):
         try:
             self.a1_r1.oapi.UpdateNic(NicId=self.nic_id, SecurityGroupIds=['sg-123456789', 'sg-12478516'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105')
+            check_oapi_error(error, 4105, given_id='sg-123456789')
 
     def test_T2713_with_valid_firewall_rules_set_ids(self):
         self.a1_r1.oapi.UpdateNic(NicId=self.nic_id, SecurityGroupIds=[self.firewall_id1])
@@ -120,4 +121,4 @@ class Test_UpdateNic(Nic):
             self.a2_r1.oapi.UpdateNic(NicId=self.nic_id, Description='new_description')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5036')
+            check_oapi_error(error, 5036, id=self.nic_id)

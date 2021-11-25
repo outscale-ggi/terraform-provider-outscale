@@ -33,19 +33,19 @@ class Test_isolation_mode(OscTinaTest):
             cmd = "sudo ping " + priv_ip + " -c 1"
             _, status, _ = SshTools.exec_command_paramiko(sshclient, cmd, retry=10)
         # get fw vm and terminate it
-            fw_vm = self.a1_r1.intel.netimpl.firewall.get_firewalls(resource=vpc_info[VPC_ID])
+            fw_vm = self.a1_r1.intel.netimpl.firewall.find_firewalls(filters={'resource': vpc_info[VPC_ID]})
         # stop vms
             self.a1_r1.fcu.StopInstances(InstanceId=vpc_info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], Force=True)
             wait_instances_state(self.a1_r1, vpc_info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], 'stopped')
         # terminate fw vm
-            ret = self.a1_r1.intel.instance.terminate(owner="438422465534", instance_ids=[fw_vm.response.result.master.vm])
-            wait_instance_service_state(self.a1_r1, [fw_vm.response.result.master.vm], 'terminated')
+            ret = self.a1_r1.intel.instance.terminate(owner="438422465534", instance_ids=[fw_vm.response.result[0].vm])
+            wait_instance_service_state(self.a1_r1, [fw_vm.response.result[0].vm], 'terminated')
         # modify isolation mode
             ret = self.a1_r1.intel.vpc.modify(owner=self.a1_r1.config.account.account_id,
                                               vpc_id=vpc_info[VPC_ID], isolation_mode='ovsvpc', force=True)
         # create vpc fw
             ret = self.a1_r1.intel.netimpl.create_firewalls(resource=vpc_info[VPC_ID])
-            wait_instance_service_state(self.a1_r1, [ret.response.result.master.vm], 'ready')
+            wait_instance_service_state(self.a1_r1, [ret.response.result.vm], 'ready')
             start_instances(self.a1_r1, vpc_info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST])
             wait_instances_state(self.a1_r1, vpc_info[info_keys.SUBNETS][0][info_keys.INSTANCE_ID_LIST], 'ready')
             ret = self.a1_r1.intel.instance.find(owner=self.a1_r1.config.account.account_id , limit=2, network=vpc_info[VPC_ID])

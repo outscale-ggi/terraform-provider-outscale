@@ -1,7 +1,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
@@ -60,28 +61,28 @@ class Test_UnlinkFlexibleGpu(OscTinaTest):
             self.a1_r1.oapi.UnlinkFlexibleGpu()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T4209_invalid_flexible_gpu_id(self):
         try:
             self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=['fgpu-12345678'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T4210_incorrect_flexible_gpu_id(self):
         try:
             self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId='XXXXXXXXXX')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='XXXXXXXXXX', prefixes='fgpu-')
 
     def test_T4211_unknown_flexible_gpu_id(self):
         try:
             self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId='fgpu-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5074')
+            check_oapi_error(error, 5074)
 
     def test_T4212_invalid_dry_run(self):
         try:
@@ -89,7 +90,7 @@ class Test_UnlinkFlexibleGpu(OscTinaTest):
             self.ret_link = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T4213_valid_params(self):
         ret_unlink = self.a1_r1.oapi.UnlinkFlexibleGpu(FlexibleGpuId=self.fg_id)

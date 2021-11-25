@@ -6,7 +6,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_oapi_error
+from specs import check_oapi_error
+from qa_test_tools.misc import id_generator
 from qa_test_tools.config import config_constants
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -67,21 +68,21 @@ class Test_CreateImageExportTask(OscTinaTest):
             self.a1_r1.oapi.CreateImageExportTask(OsuExport={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test'})
             assert False, "CreateImageExportTask should not have succeeded"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T2829_without_disk_image_format(self):
         try:
             self.a1_r1.oapi.CreateImageExportTask(ImageId=self.image_id, OsuExport={'OsuBucket': 'test'})
             assert False, "CreateImageExportTask should not have succeeded"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T2830_without_osu_bucket(self):
         try:
             self.a1_r1.oapi.CreateImageExportTask(ImageId=self.image_id, OsuExport={'DiskImageFormat': 'qcow2'})
             assert False, "CreateImageExportTask should not have succeeded"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T2831_public_image(self):
         try:
@@ -89,14 +90,14 @@ class Test_CreateImageExportTask(OscTinaTest):
                                                   OsuExport={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test'})
             assert False, "CreateImageExportTask should not have succeeded"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'OperationNotSupported', '8017', None)
+            check_oapi_error(error, 8017)
 
     def test_T2832_shared_image(self):
         try:
             self.a2_r1.oapi.CreateImageExportTask(ImageId=self.shared_image_id, OsuExport={'DiskImageFormat': 'qcow2', 'OsuBucket': 'test'})
             assert False, "CreateImageExportTask should not have succeeded"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'OperationNotSupported', '8017', None)
+            check_oapi_error(error, 8017)
 
     # TODO: add valid tests (need OSU)
 

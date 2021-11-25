@@ -1,7 +1,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -53,48 +54,48 @@ class Test_DeleteTags(OscTinaTest):
             self.a1_r1.oapi.DeleteTags(ResourceIds=[], Tags=[{'Key': 'key', 'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
 
     def test_T2512_resource_id_string_type(self):
         try:
             self.a1_r1.oapi.DeleteTags(ResourceIds=['toto'], Tags=[{'Key': 'key', 'Value': 'value'}])
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4025')
+        except OscApiException as error:
+            check_oapi_error(error, 4025, id='toto')
 
     def test_T2513_incorrect_type_resource_id(self):
         try:
             self.a1_r1.oapi.DeleteTags(ResourceIds=[True], Tags=[{'Key': 'key', 'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(err, 4110)
 
     def test_T2514_missing_tags(self):
         try:
             self.a1_r1.oapi.DeleteTags(ResourceIds=[self.is_id])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
 
     def test_T2515_incorrect_type_tags(self):
         try:
             self.a1_r1.oapi.DeleteTags(ResourceIds=[self.is_id], Tags={'Key': 'key', 'Value': 'value'})
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(err, 4110)
 
     def test_T2516_missing_tags_key(self):
         try:
             self.a1_r1.oapi.DeleteTags(ResourceIds=[self.is_id], Tags=[{'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4069')
+            check_oapi_error(err, 7000)
 
     def test_T2517_empty_tags_key(self):
         try:
             self.a1_r1.oapi.DeleteTags(ResourceIds=[self.is_id], Tags=[{'Key': '', 'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4069')
+            check_oapi_error(err, 4069)
 
     def test_T2518_single_resource_single_tags(self):
         self.a1_r1.oapi.DeleteTags(ResourceIds=[self.is_id], Tags=[{'Key': 'toto', 'Value': 'value'}])
@@ -114,4 +115,4 @@ class Test_DeleteTags(OscTinaTest):
             self.a2_r1.oapi.DeleteTags(ResourceIds=[self.is_id], Tags=[{'Key': 'key', 'Value': 'value'}])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5044')
+            check_oapi_error(error, 5044)
