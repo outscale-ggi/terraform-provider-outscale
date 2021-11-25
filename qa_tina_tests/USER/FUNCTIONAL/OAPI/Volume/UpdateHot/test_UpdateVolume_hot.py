@@ -1,9 +1,9 @@
 import uuid
 
 from qa_sdk_common.exceptions import OscApiException
+from specs import check_oapi_error
 from qa_common_tools.ssh import SshTools
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, wait, info_keys
 from qa_tina_tools.tina.check_tools import check_volume
@@ -91,7 +91,7 @@ class Test_UpdateVolume_hot(OscTinaTest):
             check_volume(self.sshclient, self.dev, 20, with_format=False, text_to_check=self.text_to_check, no_create=True,
                          volume_type='io1', perf_iops=True, iops_io1=self.initial_iops, extend=True)
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
 
     def test_T5630_hot_vol_with_iops(self):
         self.a1_r1.oapi.UpdateVolume(VolumeId=self.vol_id, Iops=400)
@@ -104,4 +104,4 @@ class Test_UpdateVolume_hot(OscTinaTest):
             check_volume(self.sshclient, self.dev, self.initial_size, with_format=False, text_to_check=self.text_to_check,
                          no_create=True, volume_type='standard', perf_iops=True, iops_io1=150, extend=True)
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)

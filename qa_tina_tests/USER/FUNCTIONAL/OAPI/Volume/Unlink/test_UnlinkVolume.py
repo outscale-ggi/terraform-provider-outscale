@@ -1,9 +1,10 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools import misc
+from specs import check_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, wait, info_keys
+
 
 DEVICE_NAME = '/dev/xvdc'
 
@@ -20,7 +21,7 @@ class Test_UnlinkVolume(OscTinaTest):
             self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
         finally:
             if vol_id:
                 wait.wait_Volumes_state(self.a1_r1, [vol_id], state='available')
@@ -39,7 +40,7 @@ class Test_UnlinkVolume(OscTinaTest):
             self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
         finally:
             if vol_id:
                 wait.wait_Volumes_state(self.a1_r1, [vol_id], state='available')
@@ -110,7 +111,7 @@ class Test_UnlinkVolume(OscTinaTest):
             try:
                 self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             except OscApiException as error:
-                misc.assert_oapi_error(error, 400, 'InvalidState', '6003')
+                check_oapi_error(error, 6003)
         finally:
             try:
                 self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
@@ -131,7 +132,7 @@ class Test_UnlinkVolume(OscTinaTest):
             self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'OperationNotSupported', '8003')
+            check_oapi_error(error, 8003)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -145,7 +146,7 @@ class Test_UnlinkVolume(OscTinaTest):
             self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'OperationNotSupported', '8003')
+            check_oapi_error(error, 8003)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -160,7 +161,7 @@ class Test_UnlinkVolume(OscTinaTest):
             self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'OperationNotSupported', '8003')
+            check_oapi_error(error, 8003)
         finally:
             if vm_info:
                 oapi.delete_Vms(self.a1_r1, vm_info)
@@ -187,11 +188,9 @@ class Test_UnlinkVolume(OscTinaTest):
             self.a1_r1.oapi.UnlinkVolume(VolumeId=vol_id)
             assert False, 'Call should not be successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'OperationNotSupported', '8003')
+            check_oapi_error(error, 8003)
 
     def test_T5591_inst_terminated_unlink_boot(self):
-        vm_info = None
-        vol_id = None
         try:
             vm_info = oapi.create_Vms(self.a1_r1, state='running')
             vol_id = vm_info[info_keys.VMS][0]['BlockDeviceMappings'][0]['Bsu']['VolumeId']
@@ -200,6 +199,6 @@ class Test_UnlinkVolume(OscTinaTest):
             assert False, 'Call should not be successful'
         except OscApiException as error:
             try:
-                misc.assert_oapi_error(error, 400, 'InvalidResource', '5064')
+                check_oapi_error(error, 5064, id=vol_id)
             except AssertionError:
-                misc.assert_oapi_error(error, 409, 'InvalidState', '6003')
+                check_oapi_error(error, 6003)

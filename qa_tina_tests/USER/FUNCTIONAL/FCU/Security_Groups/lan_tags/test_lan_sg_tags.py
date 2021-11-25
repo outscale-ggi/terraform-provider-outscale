@@ -120,7 +120,7 @@ class Test_lan_sg_tags(OscTinaTest):
             self.add_tag(self.vpc_info_empty[info_keys.VPC_ID], 'osc.fcu.enable_lan_security_groups', '1')
             assert False, 'Remove known error code'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 500, 'Internal Error', 'InternalError')
+            misc.assert_error(error, 500, 'Internal Error', 'InternalError')
             known_error('TINA-6583', 'Unexpected internal error')
 
     def test_T1934_set_enable_full_enable(self):
