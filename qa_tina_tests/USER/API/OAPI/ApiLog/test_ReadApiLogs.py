@@ -80,7 +80,14 @@ class Test_ReadApiLogs(OscTinaTest):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=3)
         ret.check_response()
         self.logger.debug(ret.response.display())
-        assert len(ret.response.Logs) >= 1
+        if self.a1_r1.config.region.name in ('ap-northeast-1', 'eu-west-2', 'us-east-2', 'us-west-1'):
+            try:
+                assert len(ret.response.Logs) >= 1
+                assert False, 'Remove known error'
+            except Exception:
+                known_error('OPS-14644', 'ReadApiLogs does not contain any results (on eu2 and sv1)')
+        else:
+            assert len(ret.response.Logs) >= 1
         account_ids = {log.AccountId for log in ret.response.Logs}
         assert len(account_ids) == 1 and self.a1_r1.config.account.account_id in account_ids, 'incorrect account id(s)'
         if self.a1_r1.config.region.name == "cloudgouv-eu-west-1":
