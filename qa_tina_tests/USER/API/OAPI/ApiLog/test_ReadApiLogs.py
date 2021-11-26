@@ -80,12 +80,7 @@ class Test_ReadApiLogs(OscTinaTest):
         ret = self.a1_r1.oapi.ReadApiLogs(ResultsPerPage=3)
         ret.check_response()
         self.logger.debug(ret.response.display())
-        if (
-                self.a1_r1.config.region.name == "ap-northeast-1" or
-                self.a1_r1.config.region.name == "eu-west-2" or
-                self.a1_r1.config.region.name == "us-east-2" or
-                self.a1_r1.config.region.name == "us-west-1"
-           ):
+        if self.a1_r1.config.region.name in ('ap-northeast-1', 'eu-west-2', 'us-east-2', 'us-west-1'):
             try:
                 assert len(ret.response.Logs) >= 1
                 assert False, 'Remove known error'
