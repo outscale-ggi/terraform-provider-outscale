@@ -84,10 +84,10 @@ class Test_ModifyLoadBalancerAttributes(OscTinaTest):
             raise error
         finally:
             if ret_create_bucket:
-                ret = self.a1_r1.oos.list_objects(Bucket=bucket_name)
+                ret = self.a1_r1.storageservice.list_objects(Bucket=bucket_name)
                 if 'Contents' in list(ret.keys()):
                     for j in ret['Contents']:
-                        self.a1_r1.oos.delete_object(Bucket=bucket_name, Key=j['Key'])
+                        self.a1_r1.storageservice.delete_object(Bucket=bucket_name, Key=j['Key'])
                 self.a1_r1.storageservice.delete_bucket(Bucket=bucket_name)
 
     # def test_T0003_with_access_log(self):
