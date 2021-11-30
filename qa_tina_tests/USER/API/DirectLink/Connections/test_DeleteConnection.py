@@ -2,9 +2,10 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_error, id_generator
+from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
+from specs.check_tools import check_directlink_error
 
 
 @pytest.mark.region_admin
@@ -37,7 +38,7 @@ class Test_DeleteConnection(OscTinaTest):
         OscTinaTest.setup_method(self, method)
         if self.known_error:
             return
-        ret = self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
+        ret = self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps', connectionName=misc.id_generator(prefix='dl_'))
         self.conn_id = ret.response.connectionId
 
     def teardown_method(self, method):
@@ -61,7 +62,7 @@ class Test_DeleteConnection(OscTinaTest):
             self.a1_r1.directlink.DeleteConnection(connectionId='foo')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'DirectConnectClientException', "Invalid ID received: foo. Expected format: dxcon-")
+            check_directlink_error(error, 4104, invalid='foo', prefixes='dxcon-')
 
     def test_T584_no_param(self):
         if self.known_error:
@@ -70,7 +71,7 @@ class Test_DeleteConnection(OscTinaTest):
             self.a1_r1.directlink.DeleteConnection()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'DirectConnectClientException', 'Field connectionId is required')
+            check_directlink_error(error, 7000, missing_parameters='connectionId')
 
     def test_T4649_other_account(self):
         if self.known_error:
@@ -79,7 +80,7 @@ class Test_DeleteConnection(OscTinaTest):
             self.a2_r1.directlink.DeleteConnection(connectionId=self.conn_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'DirectConnectClientException', "Connection '{}' does not exist.".format(self.conn_id))
+            check_directlink_error(error, 5072, id=self.conn_id)
 
     def test_T5734_with_extra_param(self):
         if self.known_error:
