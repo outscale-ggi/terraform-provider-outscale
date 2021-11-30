@@ -4,6 +4,8 @@ import time
 import os
 from netaddr import IPNetwork, IPAddress
 
+import pytest
+
 from qa_common_tools.ssh import SshTools, OscCommandError
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.test_base import OscTinaTest
@@ -96,7 +98,10 @@ class Vpn(OscTinaTest):
             if hasattr(method,'pytestmark'):
                 self.list_mark = [m.name for m in method.pytestmark]
                 if 'centos7' in self.list_mark:
-                    omi_id = self.a1_r1.config.region.get_info(constants.CENTOS7)
+                    try:
+                        omi_id = self.a1_r1.config.region.get_info(constants.CENTOS7)
+                    except ValueError:
+                        pytest.skip("Could not find centos7_omi {}".format(self.a1_r1.config.region.name))
             # create a pub instance for the CGW
             self.inst_cgw_info = create_instances(osc_sdk=self.a1_r1, omi_id= omi_id)
 

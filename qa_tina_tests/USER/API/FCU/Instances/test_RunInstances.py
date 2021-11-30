@@ -313,12 +313,7 @@ private_only=true
                                               InstanceType='tinav5.c79r181', MaxCount=1, MinCount=1)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            if self.a1_r1.config.region.name == "in-west-2":
-                if error.error_code in ["InsufficientInstanceCapacity","MemoryLimitExceeded"]:
-                    known_error('OPS-14329', 'NEW IN2: configure instance type properties')
-                assert False, 'Remove known error'
-            else:
-                assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: tinav5.c79r181')
+            assert_error(error, 400, 'InvalidParameterValue', 'Invalid value for InstanceType: tinav5.c79r181')
         finally:
             if ret:
                 terminate_instances(self.a1_r1, [ret.response.instancesSet[0].instanceId])

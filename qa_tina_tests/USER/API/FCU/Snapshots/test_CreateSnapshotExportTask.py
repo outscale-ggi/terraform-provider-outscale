@@ -22,6 +22,7 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
         cls.vol_id = None
         cls.snap_id = None
         cls.bucket_name = None
+        cls.bucket_created = False
         try:
             _, [cls.vol_id] = create_volumes(cls.a1_r1, state='available')
             cls.snap_id = cls.a1_r1.fcu.CreateSnapshot(VolumeId=cls.vol_id).response.snapshotId
@@ -47,6 +48,7 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
 
     def setup_method(self, method):
         super(Test_CreateSnapshotExportTask, self).setup_method(method)
+        self.bucket_created = False
         try:
             self.bucket_name = misc.id_generator(prefix='snap', chars=ascii_lowercase)
         except Exception as error1:
@@ -59,9 +61,10 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
 
     def teardown_method(self, method):
         try:
-            if self.a1_r1.config.region.get_info(constants.STORAGESERVICE) in ['oos', 'osu']:
-                delete_buckets(self.a1_r1, [self.bucket_name])
-                delete_buckets(self.a2_r1, [self.bucket_name])
+            if self.bucket_created:
+                if self.a1_r1.config.region.get_info(constants.STORAGESERVICE) in ['oos', 'osu']:
+                    delete_buckets(self.a1_r1, [self.bucket_name])
+                    delete_buckets(self.a2_r1, [self.bucket_name])
         finally:
             super(Test_CreateSnapshotExportTask, self).teardown_method(method)
 
@@ -77,6 +80,7 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
         assert ret.response.snapshotExportTask.exportToOsu.diskImageFormat == 'qcow2'
         assert ret.response.snapshotExportTask.exportToOsu.osuBucket == self.bucket_name
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
+        self.bucket_created = True
         k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)['Contents']
         assert len(k_list) == 1
         assert k_list[0]['Size'] > 0
@@ -124,6 +128,7 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         self.logger.debug(ret.response.display())
         wait_snapshot_export_tasks_state(osc_sdk=self.a2_r1, state='completed', snapshot_export_task_id_list=[task_id])
+        self.bucket_created = True
         self.a1_r1.fcu.ModifySnapshotAttribute(SnapshotId=self.snap_id,
                                                CreateVolumePermission={'Remove': [{'UserId': self.a2_r1.config.account.account_id}]})
 
@@ -164,6 +169,7 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
     @pytest.mark.region_storageservice
     def test_T3891_with_existing_osu_bucket(self):
         self.a1_r1.storageservice.create_bucket(Bucket=self.bucket_name)
+        self.bucket_created = True
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                             'OsuBucket': self.bucket_name})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
@@ -184,6 +190,7 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         assert not hasattr(ret.response.snapshotExportTask.exportToOsu, 'osuKey')
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
+        self.bucket_created = True
         k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)['Contents']
         assert len(k_list) == 1
         assert k_list[0]['Size'] > 0
@@ -201,6 +208,7 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         assert hasattr(ret.response.snapshotExportTask.exportToOsu, 'osuPrefix')
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
+        self.bucket_created = True
         k_list = self.a1_r1.storageservice.list_objects(Bucket=self.bucket_name)['Contents']
         assert len(k_list) == 1
         assert k_list[0]['Size'] > 0
@@ -217,6 +225,7 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
                                                                                                     'SecretKey': self.a1_r1.config.account.sk}})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
+        self.bucket_created = True
 
     def test_T3895_with_invalid_osu_prefix(self):
         if self.a1_r1.config.region.get_info(constants.STORAGESERVICE) != Feature.OSU.value:
@@ -238,7 +247,8 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
     def test_T3896_with_invalid_ak_sk(self):
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                             'OsuBucket': self.bucket_name,
-                                                                                           'aksk':{'AccessKey': 'foo', 'SecretKey': 'bar'}})
+                                                                                            'aksk': {'AccessKey': 'foo',
+                                                                                                     'SecretKey': 'bar'}})
         task_id = ret.response.snapshotExportTask.snapshotExportTaskId
         try:
             wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='failed', snapshot_export_task_id_list=[task_id])
@@ -247,7 +257,8 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
             known_error('TINA-6147', 'Create export snapshot task with invalid ak/sk should have the failed state')
         ret = self.a1_r1.fcu.DescribeSnapshotExportTasks(SnapshotExportTaskId=[task_id])
         assert ret.response.snapshotExportTaskSet[0].statusMessage.startswith('Error accessing bucket ' + \
-                                                                              '{}: S3ResponseError: 403 Forbidden\n'.format(self.bucket_name) + \
+                                                                              '{}: S3ResponseError: 403 Forbidden\n'.format(
+                                                                                  self.bucket_name) + \
                                                                               '<?xml version="1.0" encoding="UTF-8"?>' + \
                                                                               '<Error><Code>InvalidAccessKeyId</Code>')
 
@@ -255,6 +266,8 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
         disk_format_list = ['raw']
         for disk_format in disk_format_list:
             ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': disk_format,
-                                                                                          'OsuBucket': self.bucket_name})
+                                                                                                'OsuBucket': self.bucket_name})
             task_id = ret.response.snapshotExportTask.snapshotExportTaskId
-            wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed', snapshot_export_task_id_list=[task_id])
+            wait_snapshot_export_tasks_state(osc_sdk=self.a1_r1, state='completed',
+                                             snapshot_export_task_id_list=[task_id])
+            self.bucket_created = True

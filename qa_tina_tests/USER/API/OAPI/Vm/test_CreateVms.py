@@ -1057,6 +1057,7 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
     def test_T4401_with_two_valid_nic_id(self):
         nic_id2 = None
         subnet_id2 = None
+        ret = None
         try:
             subnet_id2 = self.a1_r1.oapi.CreateSubnet(NetId=self.net_id,
                                                       IpRange='10.1.1.0/24').response.Subnet.SubnetId
@@ -1081,7 +1082,7 @@ class Test_CreateVmsWithSubnet(OscTinaTest):
                 }],
             )
         finally:
-            if nic_id2:
+            if nic_id2 and ret:
                 self.a1_r1.oapi.UnlinkNic(LinkNicId=ret.response.Vms[0].Nics[1].LinkNic.LinkNicId)
                 wait_network_interfaces_state(osc_sdk=self.a1_r1, network_interface_id_list=[nic_id2],
                                               state='available')
