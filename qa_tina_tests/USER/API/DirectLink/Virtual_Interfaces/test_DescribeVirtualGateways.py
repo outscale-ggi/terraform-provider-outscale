@@ -2,7 +2,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools import misc
+from specs.check_tools import check_directlink_error
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -27,4 +27,4 @@ class Test_DescribeVirtualGateways(OscTinaTest):
             self.a1_r1.directlink.DescribeVirtualGateways(Foo='Bar')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, 'DirectConnectClientException', "Operation doesn't expect any parameters")
+            check_directlink_error(error, 3001)
