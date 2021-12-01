@@ -22,8 +22,6 @@ class Test_CreateDirectLink(OscTinaTest):
         ret = cls.a1_r1.oapi.ReadLocations()
         if ret.response.Locations:
             cls.location = ret.response.Locations[0].Code
-        if cls.a1_r1.config.region.name == 'in-west-2':
-            cls.known_error = True
 
     def setup_method(self, method):
         super(Test_CreateDirectLink, self).setup_method(method)
@@ -40,16 +38,12 @@ class Test_CreateDirectLink(OscTinaTest):
 
     def test_T3897_empty_param(self):
         try:
-            if self.known_error:
-                known_error('OPS-14319', 'no directlink on IN2')
             self.a1_r1.oapi.CreateDirectLink()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
 
     def test_T3898_missing_parameters(self):
-        if self.known_error:
-            known_error('OPS-14319', 'no directlink on IN2')
         try:
             self.a1_r1.oapi.CreateDirectLink(DirectLinkName='test_name')
             assert False, 'Call should not have been successful'
@@ -82,8 +76,6 @@ class Test_CreateDirectLink(OscTinaTest):
             assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
 
     def test_T3899_unknown_location(self):
-        if self.known_error:
-            known_error('OPS-14319', 'no directlink on IN2')
         try:
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='1Gbps', DirectLinkName='test_name', Location='unknown_location')
             assert False, 'Call should not have been successful'
@@ -91,8 +83,6 @@ class Test_CreateDirectLink(OscTinaTest):
             assert_oapi_error(error, 400, 'InvalidResource', '5052', None)
 
     def test_T3900_invalid_bandwidth(self):
-        if self.known_error:
-            known_error('OPS-14319', 'no directlink on IN2')
         try:
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='alpha1Gbps', DirectLinkName='test_name', Location=self.location)
             assert False, 'Call should not have been successful'
@@ -106,16 +96,22 @@ class Test_CreateDirectLink(OscTinaTest):
 
     @pytest.mark.region_directlink
     def test_T4070_valid_params(self):
-        if self.known_error:
-            known_error('OPS-14319', 'no directlink on IN2')
         direct_link_name = id_generator(size=8, chars=string.ascii_lowercase)
-        ret = self.a1_r1.oapi.CreateDirectLink(DirectLinkName=direct_link_name, Location=self.location, Bandwidth='1Gbps')
-        self.direct_link_id = ret.response.DirectLink.DirectLinkId
-        ret.check_response()
-        assert ret.response.DirectLink.RegionName == self.a1_r1.config.region.name
-        assert ret.response.DirectLink.AccountId == self.a1_r1.config.account.account_id
-        assert ret.response.DirectLink.State == 'pending'
-        assert ret.response.DirectLink.Bandwidth == '1Gbps'
-        assert ret.response.DirectLink.Location == self.location
-        assert ret.response.DirectLink.DirectLinkName == direct_link_name
-        assert ret.response.DirectLink.RegionName == self.a1_r1.config.region.name
+        try:
+            ret = self.a1_r1.oapi.CreateDirectLink(DirectLinkName=direct_link_name, Location=self.location, Bandwidth='1Gbps')
+            self.direct_link_id = ret.response.DirectLink.DirectLinkId
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert False, "remove known error"
+            ret.check_response()
+            assert ret.response.DirectLink.RegionName == self.a1_r1.config.region.name
+            assert ret.response.DirectLink.AccountId == self.a1_r1.config.account.account_id
+            assert ret.response.DirectLink.State == 'pending'
+            assert ret.response.DirectLink.Bandwidth == '1Gbps'
+            assert ret.response.DirectLink.Location == self.location
+            assert ret.response.DirectLink.DirectLinkName == direct_link_name
+        except OscApiException as error:
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert_oapi_error(error, 400, 'InsufficientCapacity', '10001', None)
+                known_error('OPS-14319', 'no directlink on IN2')
+            else:
+                raise error
