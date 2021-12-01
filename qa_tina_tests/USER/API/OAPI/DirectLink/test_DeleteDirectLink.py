@@ -49,19 +49,24 @@ class Test_DeleteDirectLink(OscTinaTest):
 
     @pytest.mark.region_directlink
     def test_T4071_valid_params(self):
-        if self.a1_r1.config.region.name == 'in-west-2':
-            known_error('OPS-14319', 'no directlink on IN2')
-        location = self.a1_r1.oapi.ReadLocations().response.Locations[0].Code
-        direct_link_name = id_generator(size=8, chars=string.ascii_lowercase)
-        ret = self.a1_r1.oapi.CreateDirectLink(DirectLinkName=direct_link_name, Location=location, Bandwidth='1Gbps')
-        direct_link_id = ret.response.DirectLink.DirectLinkId
-        self.a1_r1.oapi.DeleteDirectLink(DirectLinkId=direct_link_id)
+        try:
+            location = self.a1_r1.oapi.ReadLocations().response.Locations[0].Code
+            direct_link_name = id_generator(size=8, chars=string.ascii_lowercase)
+            ret = self.a1_r1.oapi.CreateDirectLink(DirectLinkName=direct_link_name, Location=location, Bandwidth='1Gbps')
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert False, "remove known error"
+            direct_link_id = ret.response.DirectLink.DirectLinkId
+            self.a1_r1.oapi.DeleteDirectLink(DirectLinkId=direct_link_id)
+        except OscApiException as error:
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert_oapi_error(error, 400, 'InsufficientCapacity', '10001', None)
+                known_error('OPS-14319', 'no directlink on IN2')
+            else:
+                raise error
 
     @pytest.mark.region_directlink
     def test_T4072_with_another_account(self):
         direct_link_id = None
-        if self.a1_r1.config.region.name == 'in-west-2':
-            known_error('OPS-14319', 'no directlink on IN2')
         try:
             location = self.a1_r1.oapi.ReadLocations().response.Locations[0].Code
             direct_link_name = id_generator(size=8, chars=string.ascii_lowercase)
@@ -70,6 +75,11 @@ class Test_DeleteDirectLink(OscTinaTest):
             self.a2_r1.oapi.DeleteDirectLink(DirectLinkId=direct_link_id)
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert_oapi_error(error, 400, 'InsufficientCapacity', '10001', None)
+                known_error('OPS-14319', 'no directlink on IN2')
+            else:
+                raise error
             assert_oapi_error(error, 400, 'InvalidResource', '5072', None)
         finally:
             if direct_link_id:
