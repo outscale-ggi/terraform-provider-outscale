@@ -48,11 +48,11 @@ class Test_CreateDirectLinkInterface(OscTinaTest):
         directlink_interface_id = None
         direct_link_name = id_generator(size=8, chars=string.ascii_lowercase)
         direct_link_interface_name = id_generator(size=10, chars=string.ascii_lowercase)
-        if self.a1_r1.config.region.name == 'in-west-2':
-            known_error('OPS-14319', 'no directlink on IN2')
         try:
             location_var = self.a1_r1.oapi.ReadLocations().response.Locations[0].Code
             ret_dl = self.a1_r1.oapi.CreateDirectLink(DirectLinkName=direct_link_name, Location=location_var, Bandwidth='1Gbps')
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert False, "remove known error"
             wait.wait_DirectLinks_state(self.a1_r1, [ret_dl.response.DirectLink.DirectLinkId], state="pending")
             self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id,
                                                     connection_id=ret_dl.response.DirectLink.DirectLinkId)
@@ -62,6 +62,12 @@ class Test_CreateDirectLinkInterface(OscTinaTest):
                                                                                      'VirtualGatewayId': self.virtual_gateway_id,
                                                                                      'DirectLinkInterfaceName': direct_link_interface_name})
             directlink_interface_id = ret_dli.response.DirectLinkInterface.DirectLinkInterfaceId
+        except OscApiException as error:
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert_oapi_error(error, 400, 'InsufficientCapacity', '10001', None)
+                known_error('OPS-14319', 'no directlink on IN2')
+            else:
+                raise error
         finally:
             if directlink_interface_id:
                 self.a1_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId=directlink_interface_id)
