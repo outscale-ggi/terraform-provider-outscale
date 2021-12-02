@@ -5,7 +5,7 @@ import pytest
 from specs import check_oapi_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.test_base import known_error
-from qa_test_tools.misc import assert_oapi_error, id_generator
+from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -21,7 +21,7 @@ class Test_DeleteDirectLink(OscTinaTest):
             self.a1_r1.oapi.DeleteDirectLink()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T3902_invalid_direct_link_id(self):
         try:
@@ -45,7 +45,7 @@ class Test_DeleteDirectLink(OscTinaTest):
             self.a1_r1.oapi.DeleteDirectLink(DirectLinkId='dxcon-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5072', None)
+            check_oapi_error(error, 5072, id='dxcon-12345678')
 
     @pytest.mark.region_directlink
     def test_T4071_valid_params(self):
@@ -59,7 +59,7 @@ class Test_DeleteDirectLink(OscTinaTest):
             self.a1_r1.oapi.DeleteDirectLink(DirectLinkId=direct_link_id)
         except OscApiException as error:
             if self.a1_r1.config.region.name == 'in-west-2':
-                assert_oapi_error(error, 400, 'InsufficientCapacity', '10001', None)
+                check_oapi_error(error, 10001)
                 known_error('OPS-14319', 'no directlink on IN2')
             else:
                 raise error
@@ -76,11 +76,11 @@ class Test_DeleteDirectLink(OscTinaTest):
             assert False, "Call shouldn't be successful"
         except OscApiException as error:
             if self.a1_r1.config.region.name == 'in-west-2':
-                assert_oapi_error(error, 400, 'InsufficientCapacity', '10001', None)
+                check_oapi_error(error, 10001)
                 known_error('OPS-14319', 'no directlink on IN2')
             else:
                 raise error
-            assert_oapi_error(error, 400, 'InvalidResource', '5072', None)
+            check_oapi_error(error, 5072, id=direct_link_id)
         finally:
             if direct_link_id:
                 self.a1_r1.oapi.DeleteDirectLink(DirectLinkId=direct_link_id)
