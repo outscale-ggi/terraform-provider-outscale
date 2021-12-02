@@ -7,6 +7,7 @@ from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
+from specs import check_oapi_error
 
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
@@ -23,17 +24,24 @@ class Test_UnlinkFlexibleGpu(OscTinaTest):
         cls.known_error = False
         super(Test_UnlinkFlexibleGpu, cls).setup_class()
         try:
-            if cls.a1_r1.config.region.name == 'in-west-2':
-                cls.known_error = True
-                return
             cls.inst_info = create_instances(cls.a1_r1, inst_type='tinav4.c10r10')
-            cls.fg_id = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME,
-                                                         SubregionName=cls.a1_r1.config.region.az_name).response.FlexibleGpu.FlexibleGpuId
-        except:
+            try:
+                cls.fg_id = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME,
+                                                             SubregionName=cls.a1_r1.config.region.az_name).response.FlexibleGpu.FlexibleGpuId
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    assert False, 'remove known error'
+            except OscApiException as error:
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    check_oapi_error(error, 10001)
+                    cls.known_error = True
+                    return
+        except Exception as error1:
             try:
                 cls.teardown_class()
+            except Exception as error2:
+                raise error2
             finally:
-                raise
+                raise error1
 
     @classmethod
     def teardown_class(cls):
@@ -46,6 +54,8 @@ class Test_UnlinkFlexibleGpu(OscTinaTest):
     def setup_method(self, method):
         self.ret_link = None
         OscTinaTest.setup_method(self, method)
+        if self.known_error:
+            return
         try:
             self.ret_link = self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=self.fg_id, VmId=self.inst_info[INSTANCE_ID_LIST][0])
             wait_flexible_gpu_state(self.a1_r1, [self.fg_id], state='attaching')
