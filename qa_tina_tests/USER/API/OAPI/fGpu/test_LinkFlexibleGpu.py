@@ -1,3 +1,4 @@
+
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
@@ -8,6 +9,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
+from specs import check_oapi_error
 
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
@@ -23,16 +25,24 @@ class Test_LinkFlexibleGpu(OscTinaTest):
         cls.known_error = False
         super(Test_LinkFlexibleGpu, cls).setup_class()
         try:
-            if cls.a1_r1.config.region.name == 'in-west-2':
-                cls.known_error = True
             cls.inst_info = create_instances(cls.a1_r1, inst_type='tinav4.c10r10')
-            cls.fg_id = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME,
-                                                         SubregionName=cls.a1_r1.config.region.az_name).response.FlexibleGpu.FlexibleGpuId
-        except:
+            try:
+                cls.fg_id = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME,
+                                                             SubregionName=cls.a1_r1.config.region.az_name).response.FlexibleGpu.FlexibleGpuId
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    assert False, 'remove known error'
+            except OscApiException as error:
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    check_oapi_error(error, 10001)
+                    cls.known_error = True
+                    return
+        except Exception as error1:
             try:
                 cls.teardown_class()
+            except Exception as error2:
+                raise error2
             finally:
-                raise
+                raise error1
 
     @classmethod
     def teardown_class(cls):
@@ -45,9 +55,9 @@ class Test_LinkFlexibleGpu(OscTinaTest):
             super(Test_LinkFlexibleGpu, cls).teardown_class()
 
     def test_T4197_missing_vm_id(self):
-        if self.known_error:
-            known_error('BLD-3003', 'no gpu on IN2')
         try:
+            if self.known_error:
+                known_error('BLD-3003', 'no gpu on IN2')
             self.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=self.fg_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
