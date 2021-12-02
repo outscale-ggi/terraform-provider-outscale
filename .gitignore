@@ -1,7 +1,7 @@
 *.pyc
 /.pytest_cache/
 .venv
-/.idea/
+.idea/
 qa_common_tools
 qa_support_tools
 qa_tina_tools
