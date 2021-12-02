@@ -1,9 +1,10 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import assert_dry_run, assert_oapi_error
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 DEFAULT_MODEL_NAME = "nvidia-k2"
 
@@ -73,13 +74,19 @@ class Test_CreateFlexibleGpu(OscTinaTest):
     def test_T4303_valid_deletion_on_vm_deletion(self):
         resp = None
         try:
-            if self.known_error:
-                known_error('BLD-3003', 'no gpu on IN2')
             ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DeleteOnVmDeletion=False)
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert False, "remove known error"
             ret.check_response()
             assert not ret.response.FlexibleGpu.DeleteOnVmDeletion
             assert ret.response.FlexibleGpu.ModelName == self.modelname
             assert ret.response.FlexibleGpu.SubregionName == self.subregionname
+        except OscApiException as error:
+            if self.a1_r1.config.region.name == 'in-west-2':
+                check_oapi_error(error, 10001)
+                known_error('BLD-3003', 'no gpu on IN2')
+            else:
+                raise error
         finally:
             if resp:
                 self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=resp.FlexibleGpu.FlexibleGpuId)
@@ -113,17 +120,21 @@ class Test_CreateFlexibleGpu(OscTinaTest):
     def test_T4188_valid_params(self):
         resp = None
         try:
-            if self.known_error:
-                known_error('BLD-3003', 'no gpu on IN2')
             ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname)
             ret.check_response()
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert False, "remove known error"
             assert not ret.response.FlexibleGpu.DeleteOnVmDeletion
             assert ret.response.FlexibleGpu.ModelName == self.modelname
             assert ret.response.FlexibleGpu.SubregionName == self.subregionname
             assert ret.response.FlexibleGpu.State == 'allocated'
             assert not hasattr(ret.response.FlexibleGpu, 'VmId')
-        except Exception as error:
-            raise error
+        except OscApiException as error:
+            if self.a1_r1.config.region.name == 'in-west-2':
+                check_oapi_error(error, 10001)
+                known_error('BLD-3003', 'no gpu on IN2')
+            else:
+                raise error
         finally:
             if resp:
                 self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=resp.FlexibleGpu.FlexibleGpuId)
@@ -134,11 +145,17 @@ class Test_CreateFlexibleGpu(OscTinaTest):
 
     def test_T4743_dry_run_false(self):
         ret = None
-        if self.known_error:
-            known_error('BLD-3003', 'no gpu on IN2')
         try:
             ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname, DryRun=False)
             assert_dry_run(ret)
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert False, "remove known error"
+        except OscApiException as error:
+            if self.a1_r1.config.region.name == 'in-west-2':
+                check_oapi_error(error, 10001)
+                known_error('BLD-3003', 'no gpu on IN2')
+            else:
+                raise error
         finally:
             if ret:
                 self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=ret.response.FlexibleGpu.FlexibleGpuId)
@@ -146,17 +163,23 @@ class Test_CreateFlexibleGpu(OscTinaTest):
     @pytest.mark.region_gpu
     def test_T4898_with_generation(self):
         ret = None
-        if self.known_error:
-            known_error('BLD-3003', 'no gpu on IN2')
         try:
             ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME, SubregionName=self.subregionname, Generation='v4')
             ret.check_response()
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert False, "remove known error"
             assert not ret.response.FlexibleGpu.DeleteOnVmDeletion
             assert ret.response.FlexibleGpu.Generation == 'v4'
             assert ret.response.FlexibleGpu.ModelName == self.modelname
             assert ret.response.FlexibleGpu.SubregionName == self.subregionname
             assert ret.response.FlexibleGpu.State == 'allocated'
             assert not hasattr(ret.response.FlexibleGpu, 'VmId')
+        except OscApiException as error:
+            if self.a1_r1.config.region.name == 'in-west-2':
+                check_oapi_error(error, 10001)
+                known_error('BLD-3003', 'no gpu on IN2')
+            else:
+                raise error
         finally:
             if ret:
                 self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=ret.response.FlexibleGpu.FlexibleGpuId)
