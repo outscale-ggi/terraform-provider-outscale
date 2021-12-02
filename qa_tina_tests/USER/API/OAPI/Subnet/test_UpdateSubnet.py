@@ -1,6 +1,6 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
+from specs import check_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_vpcs_state
 
@@ -43,43 +43,43 @@ class Test_UpdateSubnet(OscTinaTest):
             self.a1_r1.oapi.UpdateSubnet()
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
 
     def test_T3723_missing_parameters(self):
         try:
             self.a1_r1.oapi.UpdateSubnet(SubnetId='subnet-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
         try:
             self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True)
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'MissingParameter', '7000')
+            check_oapi_error(err, 7000)
 
     def test_T3724_invalid_subnet_id(self):
         try:
             self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True, SubnetId='tata')
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4104')
+        except OscApiException as error:
+            check_oapi_error(error, 4104, invalid='tata', prefixes='subnet-')
         try:
             self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True, SubnetId='subnet-1234567')
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+        except OscApiException as error:
+            check_oapi_error(error, 4105, given_id='subnet-1234567')
         try:
             self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True, SubnetId='subnet-123456789')
             assert False, 'Call should not have been successful'
-        except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidParameterValue', '4105')
+        except OscApiException as error:
+            check_oapi_error(error, 4105, given_id='subnet-123456789')
 
     def test_T3725_unknown_subnet_id(self):
         try:
             self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True, SubnetId='subnet-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as err:
-            assert_oapi_error(err, 400, 'InvalidResource', '5057')
+            check_oapi_error(err, 5057, id='subnet-12345678')
 
     def test_T3726_valid_case_map_public_ip_on_launch_true(self):
         ret = self.a1_r1.oapi.UpdateSubnet(MapPublicIpOnLaunch=True, SubnetId=self.subnet_id).response.Subnet

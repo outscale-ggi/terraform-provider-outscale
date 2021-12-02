@@ -2,7 +2,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
@@ -78,4 +79,4 @@ class Test_LinkVolume(OscTinaTest):
             wait_volumes_state(self.a1_r1, [self.vol_id], state='in-use')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id=self.inst_info[INSTANCE_ID_LIST][0])

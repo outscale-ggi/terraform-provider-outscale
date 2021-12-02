@@ -4,10 +4,10 @@ import os
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.test_base import known_error
 from qa_test_tools.exceptions.test_exceptions import OscTestException
 from qa_test_tools.compare_objects import verify_response
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tests.USER.API.FCU.Security_Groups.test_RevokeSecurityGroupIngress import to_dict
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
 
@@ -38,7 +38,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             self.a1_r1.oapi.DeleteSecurityGroupRule(Flow='Inbound')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2738_missing_id(self):
         try:
@@ -51,7 +51,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Outbound',
@@ -62,7 +62,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2739_valid_public_inbound(self):
         try:
@@ -335,7 +335,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Inbound',
@@ -347,7 +347,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2743_unknown_protocol(self):
         try:
@@ -361,7 +361,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Inbound',
@@ -373,7 +373,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2744_invalid_port_range_inbound(self):
         try:
@@ -387,7 +387,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T3003_invalid_port_range_outbound(self):
         try:
@@ -401,7 +401,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2745_outbound_rules_without_net(self):
         try:
@@ -414,7 +414,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'OperationNotSupported', '8004')
+            check_oapi_error(error, 8004)
 
     def test_T2746_missing_port_spec(self):
         try:
@@ -423,7 +423,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Inbound',
@@ -441,7 +441,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Inbound',
@@ -465,7 +465,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Outbound',
@@ -490,7 +490,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
 
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
         try:
             self.a1_r1.oapi.DeleteSecurityGroupRule(
                 Flow='Outbound',
@@ -509,7 +509,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
             )
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+            check_oapi_error(error, 4047)
 
     def test_T2747_inbound_rules_array_1_element(self):
         try:
@@ -527,7 +527,7 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                         'IpRanges': ["10.0.0.12/32"]}],
                 SecurityGroupId=self.sg1.SecurityGroupId)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'DefaultError', '0')
+            check_oapi_error(error, 0)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3532_with_other_user(self):
@@ -541,4 +541,4 @@ class Test_DeleteSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5020')
+            check_oapi_error(error, 5020)

@@ -1,8 +1,9 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config.configuration import Configuration
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_internet_gateways_state, wait_vpcs_state
 
@@ -90,7 +91,7 @@ class Test_UnlinkInternetService(OscTinaTest):
             wait_internet_gateways_state(self.a1_r1, [inet_id], state='in-use')
             self.a2_r1.oapi.UnlinkInternetService(InternetServiceId=inet_id, NetId=net_id)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5001)
+            check_oapi_error(error, 5001)
         finally:
             if ret_link:
                 try:

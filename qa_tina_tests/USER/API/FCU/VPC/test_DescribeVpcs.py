@@ -132,7 +132,7 @@ class Test_DescribeVpcs(OscTinaTest):
         ret = self.a2_r1.fcu.DescribeVpcs(Filter=[{'Name': 'vpc-id', 'Value': self.vpc_id_list}])
         assert not ret.response.vpcSet
 
-    def test_T5962_with_tag_filter(self):
+    def test_T5963_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Vpc', self.vpc_id_list,
                                'fcu.DescribeVpcs', 'vpcSet.vpcId')
         assert indexes == [5, 6, 7, 8, 9, 10]

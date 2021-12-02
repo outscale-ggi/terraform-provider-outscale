@@ -2,6 +2,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
@@ -33,7 +34,7 @@ class Test_UpdateCa(OscTinaTest):
             self.a1_r1.oapi.UpdateCa()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T5318_required_params(self):
         ret = self.a1_r1.oapi.UpdateCa(CaId=self.ca_id, Description='test update')
@@ -50,7 +51,7 @@ class Test_UpdateCa(OscTinaTest):
             self.a2_r1.oapi.UpdateCa(CaId=self.ca_id, Description='test update')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4122')
+            check_oapi_error(error, 4122)
 
     def test_T5725_login_password(self):
         ret = self.a1_r1.oapi.UpdateCa(
@@ -67,6 +68,6 @@ class Test_UpdateCa(OscTinaTest):
                 CaId=self.ca_id, Description='test update')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_oapi_error(error, 1)

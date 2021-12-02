@@ -2,7 +2,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.tools.tina.wait_tools import wait_snapshots_state
 from qa_tina_tests.USER.API.OAPI.Snapshot.Snapshot import Snapshot
 
@@ -41,28 +42,28 @@ class Test_UpdateSnapshot(Snapshot):
             self.a1_r1.oapi.UpdateSnapshot()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T2199_invalid_snapshot_id(self):
         try:
             self.a1_r1.oapi.UpdateSnapshot(SnapshotId='tata')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T2200_unknown_snaphot_id(self):
         try:
             self.a1_r1.oapi.UpdateSnapshot(SnapshotId='snap-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T2201_no_permissions(self):
         try:
             self.a1_r1.oapi.UpdateSnapshot(SnapshotId=self.snap2_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T2202_permission_addition_accountIds_valid(self):
         permissions = {'Additions': {'AccountIds': [self.a2_r1.config.account.account_id]}}
@@ -78,7 +79,7 @@ class Test_UpdateSnapshot(Snapshot):
             self.a1_r1.oapi.UpdateSnapshot(SnapshotId=self.snap2_id, PermissionsToCreateVolume=permissions)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001', None)
+            check_oapi_error(error, 3001)
 
     def test_T2205_permission_addition_invalid_global_permissions(self):
         try:
@@ -86,7 +87,7 @@ class Test_UpdateSnapshot(Snapshot):
             self.a1_r1.oapi.UpdateSnapshot(SnapshotId=self.snap3_id, PermissionsToCreateVolume=permissions)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110', None)
+            check_oapi_error(error, 4110)
 
     def test_T2206_permission_addition_global_permissions(self):
         permissions = {'Additions': {'GlobalPermission': True}}
@@ -104,7 +105,7 @@ class Test_UpdateSnapshot(Snapshot):
             self.a1_r1.oapi.UpdateSnapshot(SnapshotId=self.snap2_id, PermissionsToCreateVolume=permissions)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002', None)
+            check_oapi_error(error, 3002)
 
     def test_T2209_permission_removal_accountIds_invalid(self):
         permissions = {'Removals': {'AccountIds': [self.a2_r1.config.account.account_id]}}
@@ -126,4 +127,4 @@ class Test_UpdateSnapshot(Snapshot):
             self.a2_r1.oapi.UpdateSnapshot(SnapshotId=self.snap2_id, PermissionsToCreateVolume=permissions)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5054')
+            check_oapi_error(error, 5054, id=self.snap2_id, owner=self.a2_r1.config.account.account_id)

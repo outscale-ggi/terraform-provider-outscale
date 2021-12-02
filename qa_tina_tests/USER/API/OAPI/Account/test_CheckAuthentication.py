@@ -1,6 +1,7 @@
 import string
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_test_tools.account_tools import create_account
 from qa_test_tools.config import config_constants
@@ -15,7 +16,7 @@ class Test_CheckAuthentication(OscTinaTest):
             self.a1_r1.oapi.CheckAuthentication()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T4744_required_param(self):
         ret = self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login, Password=self.a1_r1.config.account.password)
@@ -26,14 +27,14 @@ class Test_CheckAuthentication(OscTinaTest):
             self.a1_r1.oapi.CheckAuthentication(Password=self.a1_r1.config.account.password)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T4746_without_password(self):
         try:
             self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T4747_with_invalid_password(self):
         password = id_generator(size=20)
@@ -41,7 +42,7 @@ class Test_CheckAuthentication(OscTinaTest):
             self.a1_r1.oapi.CheckAuthentication(Login=self.a1_r1.config.account.login, Password=password)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '4120', 'InvalidParameterValue')
+            check_oapi_error(error, 4120)
 
     def create_account(self):
         email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='test_account_'))
@@ -64,7 +65,7 @@ class Test_CheckAuthentication(OscTinaTest):
             self.a1_r1.oapi.CheckAuthentication(Login=account_info['email'], Password=account_info['password'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 401, '11001', 'UserAccountProblem')
+            check_oapi_error(error, 11001)
         finally:
             self.delete_account(account_info)
 
@@ -75,7 +76,7 @@ class Test_CheckAuthentication(OscTinaTest):
             self.a1_r1.oapi.CheckAuthentication(Login=account_info['email'], Password=account_info['password'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 401, '11001', 'UserAccountProblem')
+            check_oapi_error(error, 11001)
         finally:
             self.delete_account(account_info)
 
@@ -86,7 +87,7 @@ class Test_CheckAuthentication(OscTinaTest):
             self.a1_r1.oapi.CheckAuthentication(Login=account_info['email'], Password=account_info['password'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '4120', 'InvalidParameterValue')
+            check_oapi_error(error, 4120)
 
     def test_T4751_with_frozen_account(self):
         account_info = self.create_account()
@@ -95,6 +96,6 @@ class Test_CheckAuthentication(OscTinaTest):
             self.a1_r1.oapi.CheckAuthentication(Login=account_info['email'], Password=account_info['password'])
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 401, '11001', 'UserAccountProblem')
+            check_oapi_error(error, 11001)
         finally:
             self.delete_account(account_info)

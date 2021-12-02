@@ -2,7 +2,7 @@ import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from specs import check_oapi_error
-from qa_test_tools.misc import assert_oapi_error, assert_dry_run
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc, create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc, delete_instances
@@ -120,7 +120,7 @@ class Test_LinkPublicIp(OscTinaTest):
             ret = self.a1_r1.oapi.LinkPublicIp(PublicIp=self.vpc_eips[4].publicIp)
             assert False, 'Call should not have been successful'
         except Exception as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         finally:
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[4].publicIp)
@@ -132,7 +132,7 @@ class Test_LinkPublicIp(OscTinaTest):
             association_id = ret.response.LinkPublicIpId
             assert False, 'Call should not have been successful'
         except Exception as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         finally:
             if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[5].publicIp)
@@ -146,7 +146,7 @@ class Test_LinkPublicIp(OscTinaTest):
             association_id = ret.response.LinkPublicIpId
         # for debug purposes
         except Exception as error:
-            assert_oapi_error(error, 400, 'MissingParameter', None)
+            check_oapi_error(error, 7000)
         finally:
             if association_id:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[6].publicIp)
@@ -187,7 +187,7 @@ class Test_LinkPublicIp(OscTinaTest):
                 self.a1_r1.oapi.LinkPublicIp(VmId=self.inst_info[INSTANCE_ID_LIST][1], PublicIp=eip.publicIp, AllowRelink=False)
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 409, 'ResourceConflict', '9029')
+                check_oapi_error(error, 9029)
         finally:
             if eip:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=eip.publicIp)
@@ -219,7 +219,7 @@ class Test_LinkPublicIp(OscTinaTest):
                                              AllowRelink=None)
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+                check_oapi_error(error, 4110)
         # for debug purposes
         except Exception as error:
             raise error
@@ -242,7 +242,7 @@ class Test_LinkPublicIp(OscTinaTest):
                                                         PublicIpId=eip.allocationId, AllowRelink=False).response.LinkPublicIpId
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 409, 'ResourceConflict', '9029')
+                check_oapi_error(error, 9029)
         # for debug purposes
         except Exception as error:
             raise error
@@ -288,7 +288,7 @@ class Test_LinkPublicIp(OscTinaTest):
             ret = self.a2_r1.oapi.LinkPublicIp(VmId=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0], PublicIp=self.vpc_eips[0].publicIp)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id=self.vpc_info[SUBNETS][0][INSTANCE_ID_LIST][0])
         finally:
             if ret:
                 self.a1_r1.fcu.DisassociateAddress(PublicIp=self.vpc_eips[0].publicIp)

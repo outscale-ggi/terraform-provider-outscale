@@ -2,8 +2,8 @@
 import os
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.compare_objects import verify_response, create_hints
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -33,7 +33,7 @@ class Test_CreateSecurityGroup(OscTinaTest):
             self.sg_id = ret.response.SecurityGroupId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2716_with_missing_description(self):
         try:
@@ -41,7 +41,7 @@ class Test_CreateSecurityGroup(OscTinaTest):
             self.sg_id = ret.response.SecurityGroupId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2717_with_missing_name(self):
         try:
@@ -49,7 +49,7 @@ class Test_CreateSecurityGroup(OscTinaTest):
             self.sg_id = ret.response.SecurityGroupId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2718_with_all_param(self):
         ret = self.a1_r1.oapi.CreateSecurityGroup(Description="test_desc", SecurityGroupName="test_name")
@@ -64,4 +64,4 @@ class Test_CreateSecurityGroup(OscTinaTest):
             self.sg_id = ret.response.SecurityGroupId
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)

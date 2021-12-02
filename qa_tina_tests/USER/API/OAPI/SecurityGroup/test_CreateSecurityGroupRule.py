@@ -2,8 +2,8 @@
 import os
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.compare_objects import verify_response
-from qa_test_tools.misc import assert_oapi_error
 from qa_tina_tests.USER.API.OAPI.SecurityGroup.SecurityGroup import SecurityGroup
 
 
@@ -15,7 +15,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 Flow='Inbound',)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2720_missing_id(self):
         for flow in ['Inbound', 'Outbound']:
@@ -29,7 +29,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'MissingParameter', '7000')
+                check_oapi_error(error, 7000)
 
     def test_T2721_valid_case_inbound(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -91,7 +91,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+                check_oapi_error(error, 4047)
 
     def test_T2725_unknown_protocol(self):
         for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
@@ -106,7 +106,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+                check_oapi_error(error, 4047)
 
     def test_T2726_invalid_port_range(self):
         for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
@@ -121,7 +121,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+                check_oapi_error(error, 4047)
             try:
                 self.a1_r1.oapi.CreateSecurityGroupRule(
                     Flow=flow,
@@ -133,7 +133,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+                check_oapi_error(error, 4047)
 
     def test_T2727_outbound_rules_without_net(self):
         try:
@@ -146,7 +146,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'OperationNotSupported', '8004')
+            check_oapi_error(error, 8004)
 
     def test_T2728_invalid_parameters_composition(self):
         try:
@@ -155,7 +155,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
         for flow, sg in [('Inbound', self.sg1), ('Outbound', self.sg3)]:
             try:
                 self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -175,7 +175,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameterValue', '4047')
+                check_oapi_error(error, 4047)
 
     def test_T2729_inbound_rules_array_1_element(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -244,7 +244,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 )
                 assert False, 'Call should not have been successful'
             except OscApiException as error:
-                assert_oapi_error(error, 400, 'InvalidParameter', '3002')
+                check_oapi_error(error, 3002)
 
     def test_T2731_inbound_rules_array_many_element(self):
         ret = self.a1_r1.oapi.CreateSecurityGroupRule(
@@ -404,7 +404,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 ToPortRange=-1,
                 SecurityGroupId=self.sg1.SecurityGroupId)
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3002')
+            check_oapi_error(error, 3002)
 
     def test_T4908_member_missing_security_identifier(self):
         try:
@@ -422,7 +422,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', 7000)
+            check_oapi_error(error, 7000)
 
     def test_T4909_member_incorrect_security_group_name(self):
         try:
@@ -441,7 +441,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5060)
+            check_oapi_error(error, 5060)
 
     def test_T4910_member_incorrect_security_group_id(self):
         try:
@@ -460,7 +460,7 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 SecurityGroupId=self.sg1.SecurityGroupId)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5060)
+            check_oapi_error(error, 5060)
 
     def test_T4911_incorrect_group_id(self):
         try:
@@ -473,4 +473,4 @@ class Test_CreateSecurityGroupRule(SecurityGroup):
                 SecurityGroupId='sg-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5020)
+            check_oapi_error(error, 5020)

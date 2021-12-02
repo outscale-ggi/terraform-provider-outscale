@@ -2,7 +2,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
+from specs import check_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
@@ -39,21 +39,21 @@ class Test_RebootVms(OscTinaTest):
             self.a1_r1.oapi.RebootVms()
             assert False, 'Call without ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2087_with_empty_ids(self):
         try:
             self.a1_r1.oapi.RebootVms(VmIds=[])
             assert False, 'Call without ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2088_with_invalid_ids(self):
         try:
             self.a1_r1.oapi.RebootVms(VmIds=['foo'])
             assert False, 'Call with invalid ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='foo', prefixes='i-')
 
     def test_T2089_from_running(self):
         self.a1_r1.oapi.RebootVms(VmIds=[self.info[INSTANCE_ID_LIST][0]])
@@ -70,7 +70,7 @@ class Test_RebootVms(OscTinaTest):
             self.a1_r1.oapi.RebootVms(VmIds=[self.info[INSTANCE_ID_LIST][2]])
             assert False, 'Call with stopping instance should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
 
     def test_T2092_from_stopped(self):
         self.a1_r1.oapi.StopVms(VmIds=[self.info[INSTANCE_ID_LIST][3]], ForceStop=False)
@@ -79,7 +79,7 @@ class Test_RebootVms(OscTinaTest):
             self.a1_r1.oapi.RebootVms(VmIds=[self.info[INSTANCE_ID_LIST][3]])
             assert False, 'Call with stopped instance should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
 
     def test_T2093_from_terminated(self):
         try:
@@ -89,21 +89,21 @@ class Test_RebootVms(OscTinaTest):
             self.a1_r1.oapi.RebootVms(VmIds=[vm_id])
             assert False, 'Call with terminated instance should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
 
     def test_T2094_with_unknown_param(self):
         try:
             self.a1_r1.oapi.RebootVms(VmIds=[self.info[INSTANCE_ID_LIST][5]], foo='bar')
             assert False, 'Call with unknown parameter should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameter', '3001')
+            check_oapi_error(error, 3001)
 
     def test_T2095_with_unknown_ids(self):
         try:
             self.a1_r1.oapi.RebootVms(VmIds=['i-12345678'])
             assert False, 'Call with invalid ids should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id='i-12345678')
 
     @pytest.mark.tag_sec_confidentiality
     def test_T2096_with_instance_from_another_account(self):
@@ -112,7 +112,7 @@ class Test_RebootVms(OscTinaTest):
             self.a1_r1.oapi.RebootVms(VmIds=[infouser2[INSTANCE_ID_LIST][0]])
             assert False, 'Call with instance from another account should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id=infouser2[INSTANCE_ID_LIST][0])
         finally:
             delete_instances(self.a2_r1, infouser2)
 
@@ -124,4 +124,4 @@ class Test_RebootVms(OscTinaTest):
             self.a1_r1.oapi.RebootVms(VmIds=[self.info[INSTANCE_ID_LIST][9]] + ['i-12345678'])
             assert False, 'Call with invalid instance should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5063')
+            check_oapi_error(error, 5063, id='i-12345678')

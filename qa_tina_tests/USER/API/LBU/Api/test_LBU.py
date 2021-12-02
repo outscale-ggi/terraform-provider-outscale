@@ -35,10 +35,6 @@ class Test_LBU(OscTinaTest):
     def test_T3871_method_get(self):
         self.a1_r1.lbu.DescribeLoadBalancers(method='GET')
 
-    # def test_T3872_check_log(self):
-    #    # TODO add test to check log
-    #    known_error('PQA-253', 'Add tool to check API logs.')
-
     @pytest.mark.tag_sec_confidentiality
     def test_T3873_without_authentication(self):
         try:
@@ -176,6 +172,7 @@ class Test_LBU(OscTinaTest):
                                                       osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
 
     def test_T6026_after_stamps(self):
+        sleep(2)
         try:
             date_time = datetime.datetime.utcnow() + datetime.timedelta(days=MIN_OVERTIME)
             date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')

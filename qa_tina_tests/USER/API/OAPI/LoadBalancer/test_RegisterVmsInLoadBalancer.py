@@ -1,7 +1,8 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina.setup_tools import setup_private_load_balancer, setup_public_load_balancer
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_vpcs
@@ -53,14 +54,14 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
             self.a1_r1.oapi.RegisterVmsInLoadBalancer()
             assert False, "call should not have been successful, must contain param LoadBalancerName"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2781_without_backend_vms_ids(self):
         try:
             self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name)
             assert False, "call should not have been successful, must contain param backend_vms_ids"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2782_with_lb_public_and_vms_in_vpc(self):
         try:
@@ -68,7 +69,7 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
                                                       BackendVmIds=[self.inst_ids2[0]])
             assert False, "call should not have been successful, bad backend_vms_ids name"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4086')
+            check_oapi_error(error, 4086)
 
     def test_T2783_with_valid_and_invalid_vm(self):
         try:
@@ -76,7 +77,10 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
                                                       BackendVmIds=[self.inst_ids[0], 'toto'])
             assert False, "call should not have been successful, bad backend_vms_ids name"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            if error.data != 'The provided value \'{invalid}\' does not respect the expected ID prefix \'{prefixes}\'.':
+                assert False, 'remove known error'
+                check_oapi_error(error, 4104, invalid='toto', prefixes='i-')
+            known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
 
     def test_T2784_with_invalid_vm(self):
         try:
@@ -84,7 +88,10 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
                                                       BackendVmIds=['toto'])
             assert False, "call should not have been successful, bad backend_vms_ids name"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            if error.data != 'The provided value \'{invalid}\' does not respect the expected ID prefix \'{prefixes}\'.':
+                assert False, 'remove known error'
+                check_oapi_error(error, 4104, invalid='toto', prefixes='i-')
+            known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
 
     def test_T2785_with_multi_invalid_backend_vms_ids(self):
         try:
@@ -92,21 +99,24 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
                                                       BackendVmIds=['tutu', 'toto'])
             assert False, "call should not have been successful, bad backend_vms_ids name"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            if error.data != 'The provided value \'{invalid}\' does not respect the expected ID prefix \'{prefixes}\'.':
+                assert False, 'remove known error'
+                check_oapi_error(error, 4104, invalid='tutu, toto', prefixes='i-')
+            known_error('API-355', 'Incorrect error formatting (LoadBalancer)')
 
     def test_T2786_without_lb(self):
         try:
             self.a1_r1.oapi.RegisterVmsInLoadBalancer(BackendVmIds=[self.inst_ids[0]])
             assert False, "call should not have been successful, must contain param LoadBalancerName"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2787_with_invalid_lb_name(self):
         try:
             self.a1_r1.oapi.RegisterVmsInLoadBalancer(BackendVmIds=[self.inst_ids[0]], LoadBalancerName='toto')
             assert False, "call should not have been successful, must contain valid param LoadBalancerName"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5030')
+            check_oapi_error(error, 5030)
 
     def test_T2788_with_deleted_lb(self):
         try:
@@ -119,7 +129,7 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
                                                       LoadBalancerName=name)
             assert False, "call should not have been successful"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5030')
+            check_oapi_error(error, 5030)
 
     def test_T2789_with_stopped_vm(self):
         ret = self.a1_r1.fcu.RunInstances(ImageId=self.a1_r1.config.region.get_info(constants.CENTOS_LATEST),
@@ -145,7 +155,7 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
                                                       BackendVmIds=[instance_terminated])
             assert False, "call should not have been successful, instance is terminated"
         except OscApiException as error:
-            assert_oapi_error(error, 409, 'InvalidState', '6003')
+            check_oapi_error(error, 6003)
 
     def test_T2791_with_vms_from_another_vpc(self):
         try:
@@ -153,7 +163,7 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
                                                       BackendVmIds=[self.inst_ids2[1]])
             assert False, "call should not have been successful, must contain valid instance"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4086')
+            check_oapi_error(error, 4086)
 
     def test_T2792_with_lb_in_vpc_and_vms_public(self):
         try:
@@ -161,7 +171,7 @@ class Test_RegisterVmsInLoadBalancer(OscTinaTest):
                                                       BackendVmIds=[self.inst_ids[0]])
             assert False, "call should not have been successful, must contain valid instance"
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4086')
+            check_oapi_error(error, 4086)
 
     def test_T2793_with_lb_in_vpc_and_vms_in_same_vpc(self):
         assert self.a1_r1.oapi.RegisterVmsInLoadBalancer(LoadBalancerName=self.lbu_name2,

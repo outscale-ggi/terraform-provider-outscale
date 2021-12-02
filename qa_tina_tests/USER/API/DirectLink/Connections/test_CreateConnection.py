@@ -89,7 +89,7 @@ class Test_CreateConnection(OscTinaTest):
             self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='foo', connectionName=id_generator(prefix='dl_'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'DirectConnectClientException', 'Invalid interface speed: foo')
+            assert_error(error, 400, 'DirectConnectClientException', "Value of parameter 'Speed' is not valid: foo. Supported values: 10Gbps, 1Gbps")
 
     def test_T4471_with_invalid_location(self):
         if self.known_error:

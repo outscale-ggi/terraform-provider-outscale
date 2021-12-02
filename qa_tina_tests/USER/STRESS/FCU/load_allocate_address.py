@@ -60,4 +60,6 @@ if __name__ == '__main__':
 
     main_args = args_p.parse_args()
 
+    print('start')
     test(main_args, 40, 5)
+    print('end')

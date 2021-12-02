@@ -2,6 +2,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.exceptions import OscTestException
 from qa_test_tools import misc
@@ -173,7 +174,7 @@ class Test_ReadImages(OscTinaTest):
             self.a1_r1.oapi.ReadImages(Filters={'PermissionsToLaunchGlobalPermission': [True, False]})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110', None)
+            check_oapi_error(error, 4110)
 
     def test_T2316_filters_a1_permissions_global_permission_and_accounts_ids(self):
         ret = self.a1_r1.oapi.ReadImages(Filters={
@@ -324,5 +325,10 @@ class Test_ReadImages(OscTinaTest):
     def test_T5969_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Image', self.image_ids,
                                             'oapi.ReadImages', 'Images.ImageId')
-        assert indexes == [3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 19, 20, 24, 25, 26, 27, 28, 29]
+        assert indexes == [6, 24, 25, 26, 27, 28, 29]
         known_error('API-399', 'Read calls do not support wildcards in tag filtering')
+
+    def test_T6097_filters_accountaliases_with_self_value(self):
+        ret = self.a1_r1.oapi.ReadImages(Filters={'AccountAliases': ['self']})
+        image_ids = [image.ImageId for image in ret.response.Images]
+        assert set(image_ids) == set(self.image_ids)

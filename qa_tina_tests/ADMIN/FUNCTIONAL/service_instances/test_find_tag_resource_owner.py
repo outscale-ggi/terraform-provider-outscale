@@ -33,7 +33,7 @@ class Test_find_tag_resource_owner(OscTinaTest):
 
     def test_T4434_with_vpc(self):
         ret = self.a1_r1.intel.netimpl.create_firewalls(resource=self.vpc_info[VPC_ID])
-        ret = self.a1_r1.intel.tag.find(resource=ret.response.result.master.vm, key='resource-owner')
+        ret = self.a1_r1.intel.tag.find(resource=ret.response.result.vm, key='resource-owner')
         assert len(ret.response.result) == 1
         assert ret.response.result[0].value == self.a1_r1.config.account.account_id
 

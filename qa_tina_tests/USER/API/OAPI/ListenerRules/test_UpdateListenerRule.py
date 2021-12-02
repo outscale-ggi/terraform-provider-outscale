@@ -2,6 +2,7 @@
 import os
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.compare_objects import verify_response, create_hints
 from qa_test_tools import misc
 from qa_tina_tools.test_base import OscTinaTest
@@ -63,14 +64,14 @@ class Test_UpdateListenerRule(OscTinaTest):
             self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name)
             assert False, 'call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '7000', 'MissingParameter')
+            check_oapi_error(error, 7000)
 
     def test_T4806_with_no_param(self):
         try:
             self.a1_r1.oapi.UpdateListenerRule()
             assert False, 'call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '7000', 'MissingParameter')
+            check_oapi_error(error, 7000)
 
     def test_T4807_with_valid_HostPattern(self):
         resp = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, HostPattern="*.abc.?.abc.*.com").response
@@ -82,7 +83,7 @@ class Test_UpdateListenerRule(OscTinaTest):
             self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, HostPattern=["*.abc.?.abc.*.com"])
             assert False, 'call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '4110', 'InvalidParameterValue')
+            check_oapi_error(error, 4110)
 
     def test_T4809_with_valid_PathPattern(self):
         resp = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, PathPattern="/.fr").response
@@ -93,7 +94,7 @@ class Test_UpdateListenerRule(OscTinaTest):
             self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, PathPattern=["/.fr"])
             assert False, 'call should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, '4110', 'InvalidParameterValue')
+            check_oapi_error(error, 4110)
 
     def test_T5555_with_valid_params(self):
         resp = self.a1_r1.oapi.UpdateListenerRule(ListenerRuleName=self.rule_name, HostPattern="*.abc.?.abc.*.fr", PathPattern="/.be").response

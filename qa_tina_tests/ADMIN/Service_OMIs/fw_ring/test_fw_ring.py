@@ -20,8 +20,8 @@ class Test_fw_ring(OscTinaTest):
         try:
             ret = cls.a1_r1.intel.subnet.find(network='vpc-00000000')
             cls.subnet_id = ret.response.result[1].id
-            ret = cls.a1_r1.intel.netimpl.firewall.get_firewalls(resource=cls.subnet_id)
-            inst_id = ret.response.result.master.vm
+            ret = cls.a1_r1.intel.netimpl.firewall.find_firewalls(filters={'resource': cls.subnet_id})
+            inst_id = ret.response.result[0].vm
             ret = cls.a1_r1.intel.nic.find(filters={'vm': inst_id})
 
             inst_ip = None

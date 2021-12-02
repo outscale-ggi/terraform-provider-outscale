@@ -3,6 +3,8 @@ import datetime
 
 import pytest
 
+from specs import check_tools
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
@@ -105,6 +107,20 @@ class Test_ReadVolumes(OscTinaTest):
     def test_T2974_filters_snap_id_unknown(self):
         ret = self.a1_r1.oapi.ReadVolumes(Filters={'SnapshotIds': ['snap-12345678']}).response.Volumes
         assert len(ret) == 0
+
+    def test_T6091_filters_snap_id_valid_value(self):
+        with pytest.raises(OscApiException) as error:
+            self.a1_r1.oapi.ReadVolumes(Filters={'SnapshotIds': self.snap_id})
+        check_tools.check_oapi_error(error.value, 4110)
+
+    def test_T6089_filters_snap_id_empty_list(self):
+        ret = self.a1_r1.oapi.ReadVolumes(Filters={'SnapshotIds': []}).response.Volumes
+        assert len(ret) == 0
+
+    def test_T6090_filters_snap_id_none(self):
+        with pytest.raises(OscApiException) as error:
+            self.a1_r1.oapi.ReadVolumes(Filters={'SnapshotIds': None})
+        check_tools.check_oapi_error(error.value, 4110)
 
     def test_T2975_filters_malformed_unknown(self):
         ret = self.a1_r1.oapi.ReadVolumes(Filters={'SnapshotIds': ['snap-123456']}).response.Volumes
@@ -209,5 +225,5 @@ class Test_ReadVolumes(OscTinaTest):
 
     def test_T5983_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Volume', self.vol_ids, 'oapi.ReadVolumes', 'Volumes.VolumeId')
-        assert indexes == [5, 6, 7, 8, 9, 10, 24, 25, 26, 27, 28, 29]
+        assert indexes == [6, 24, 25, 26, 27, 28, 29]
         known_error('API-399', 'ReadVolumes does not support wildcards filtering')

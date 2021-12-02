@@ -4,8 +4,9 @@ import os
 from cryptography.hazmat.primitives.asymmetric import ec
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config import config_constants as constants
-from qa_test_tools.misc import assert_oapi_error, id_generator
+from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import info_keys, oapi
@@ -247,7 +248,7 @@ class Test_CheckConnection(OscTinaTest):
             )
 
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4033')
+            check_oapi_error(error, 4033)
 
         finally:
             if vm_info:

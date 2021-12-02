@@ -1,7 +1,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_dry_run, assert_oapi_error
+from specs import check_oapi_error
+from qa_test_tools.misc import assert_dry_run
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
@@ -33,7 +34,7 @@ class Test_ReadAdminPassword(OscTinaTest):
         try:
             self.a1_r1.oapi.ReadAdminPassword()
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2809_with_valid_vm_id(self):
         self.a1_r1.oapi.ReadAdminPassword(VmId=self.info[INSTANCE_ID_LIST][0])
@@ -47,4 +48,4 @@ class Test_ReadAdminPassword(OscTinaTest):
         try:
             self.a2_r1.oapi.ReadAdminPassword(VmId=self.info[INSTANCE_ID_LIST][0])
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', 5063)
+            check_oapi_error(error, 5063, id=self.info[INSTANCE_ID_LIST][0])

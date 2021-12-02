@@ -12,7 +12,7 @@ class Test_create_shard(OscTinaTest):
         ret = None
         try:
             ret = self.a1_r1.intel.storage.create_shard(path='/testqa', host='some_host', pz='in1')
-            assert ret.response.result.tags[0].value == 'standard, gp2'
+            assert ret.response.result.tags[0].value == 'standard,gp2'
         finally:
             if ret:
                 self.a1_r1.intel.storage.delete_shard(mount_point=ret.response.result.mount_point)

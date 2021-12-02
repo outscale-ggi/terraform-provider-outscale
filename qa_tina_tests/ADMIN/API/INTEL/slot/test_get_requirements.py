@@ -1,5 +1,6 @@
 import pytest
 
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_instances
@@ -18,6 +19,11 @@ class Test_get_requirements(OscTinaTest):
             pytest.fail("Remove known error")
         except AssertionError:
             known_error('TINA-6694', 'get_requirements does not work')
+        except OscApiException as error:
+            if error.message == "Internal error.":
+                known_error('TINA-6694', 'get_requirements does not work')
+            else:
+                raise error
         finally:
             if inst_info:
                 delete_instances(self.a1_r1, inst_info)

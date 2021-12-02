@@ -3,6 +3,7 @@ import os
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_test_tools.config import config_constants as constants
 from qa_test_tools.misc import assert_dry_run
@@ -90,7 +91,7 @@ class Test_ReadVms(OscTinaTest):
             self.a1_r1.oapi.ReadVms(Filters={"VmStates": ['running']})
             assert False, 'call should not have been successful'
         except OscApiException as err:
-            misc.assert_oapi_error(err, 400, 'InvalidParameter', '3001')
+            check_oapi_error(err, 3001)
 
     def test_T5982_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'Vm', self.vm_info[info_keys.VM_IDS], 'oapi.ReadVms', 'Vms.VmId')

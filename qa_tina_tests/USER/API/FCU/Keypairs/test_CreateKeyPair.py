@@ -19,6 +19,8 @@ class Test_CreateKeyPair(OscTinaTest):
             assert False, "Creating key pair without key name should not have succeeded"
         except OscApiException as error:
             assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: Name')
+            known_error('TINA-6861', 'Incorrect error message')
+            assert_error(error, 400, 'MissingParameter', 'Parameter cannot be empty: KeyName')
 
     def test_T931_with_invalid_keyname(self):
         key_name = id_generator(size=256)

@@ -1,6 +1,6 @@
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error
+from specs import check_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_vpc
 from qa_tina_tools.tools.tina.delete_tools import delete_vpc
@@ -35,14 +35,14 @@ class Test_CreateRoute(OscTinaTest):
             self.a1_r1.oapi.CreateRoute()
             assert False, 'Call should not have been successful, missing parameter'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000')
+            check_oapi_error(error, 7000)
 
     def test_T2016_with_invalid_params(self):
         try:
             self.a1_r1.oapi.CreateRoute(DestinationIpRange='192.168.0.0/25', RouteTableId=self.vpc_info[ROUTE_TABLE_ID], GatewayId='igw-12345678')
             assert False, 'Call should not have been successful, invalid gateway id'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5001')
+            check_oapi_error(error, 5001)
 
     def test_T2017_with_valid_params(self):
         ret = self.a1_r1.oapi.CreateRoute(DestinationIpRange='100.0.0.0/24',

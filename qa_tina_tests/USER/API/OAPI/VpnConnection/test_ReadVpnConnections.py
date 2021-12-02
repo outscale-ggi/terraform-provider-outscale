@@ -1,6 +1,7 @@
 
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.tools.tina import wait_tools
@@ -138,7 +139,7 @@ class Test_ReadVpnConnections(VpnConnection):
             self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': False})
             assert False, 'Call should fail'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5138_filters_route_destination_ip_ranges_invalid_value(self):
         ret = self.a1_r1.oapi.ReadVpnConnections(Filters={'RouteDestinationIpRanges': ['foo']})
@@ -180,10 +181,9 @@ class Test_ReadVpnConnections(VpnConnection):
             assert False, 'Remove known error'
             assert False, 'Call should fail'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5933_after_update(self):
-        known_error('TINA-6738', 'On call intel.vpn.connection.update')
         self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
                                VpnOptions={"Phase1Options":{"DpdTimeoutAction":"test", "DpdTimeoutSeconds":1,"Phase1DhGroupNumbers":[1],
                                                             "Phase1EncryptionAlgorithms":["test"], "Phase1IntegrityAlgorithms":["test"],
@@ -209,8 +209,7 @@ class Test_ReadVpnConnections(VpnConnection):
         assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase2Options, "Phase2LifetimeSeconds")
         assert hasattr(ret.response.VpnConnections[0].VpnOptions.Phase2Options, "PreSharedKey")
 
-    def test_T5983_with_tag_filter(self):
+    def test_T5984_with_tag_filter(self):
         indexes, _ = misc.execute_tag_tests(self.a1_r1, 'VpnConnection', self.vpn_ids, 'oapi.ReadVpnConnections', 'VpnConnections.VpnConnectionId')
-        assert indexes == [5, 6, 7, 8, 9, 10, 14, 24, 25, 26, 27, 28, 29]
+        assert indexes == [6, 14, 24, 25, 26, 27, 28, 29]
         known_error('API-399', 'ReadVpnConnections does not support wildcards filtering')
-        

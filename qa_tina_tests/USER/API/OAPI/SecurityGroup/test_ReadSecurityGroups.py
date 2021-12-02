@@ -4,6 +4,7 @@ import os
 import pytest
 
 from qa_sdk_common.exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.compare_objects import verify_response
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
@@ -131,7 +132,7 @@ class Test_ReadSecurityGroups(SecurityGroup):
         try:
             self.a1_r1.oapi.ReadSecurityGroups(Filters=filters)
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5481_filters_descriptions(self):
         filters = {'Descriptions': [self.sg1.Description, self.sg3.Description]}

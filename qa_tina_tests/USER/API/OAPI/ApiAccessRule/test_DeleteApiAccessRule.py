@@ -1,5 +1,6 @@
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_pub import osc_api
+from specs import check_oapi_error
 from qa_tina_tools.tools.tina import create_tools
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
@@ -42,14 +43,14 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
             self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId='ca-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
+            check_oapi_error(error, 4118)
 
     def test_T5261_invalid_id(self):
         try:
             self.osc_sdk.oapi.DeleteApiAccessRule(ApiAccessRuleId='toto')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4118')
+            check_oapi_error(error, 4118)
 
     def test_T5262_invalid_id_type(self):
         self.my_setup()
@@ -58,7 +59,7 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
             self.api_access_rule_id = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4110')
+            check_oapi_error(error, 4110)
 
     def test_T5263_other_account(self):
         self.my_setup()
@@ -67,7 +68,7 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
             self.api_access_rule_id = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', '4122')
+            check_oapi_error(error, 4122)
 
     def test_T5264_dry_run(self):
         self.my_setup()
@@ -92,6 +93,6 @@ class Test_DeleteApiAccessRule(ApiAccessRule):
             self.api_access_rule_id = None
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            misc.assert_oapi_error(error, 400, 'InvalidParameterValue', 4120)
+            check_oapi_error(error, 4120)
             known_error('API-400', 'Incorrect error message')
-            misc.assert_oapi_error(error, 401, 'AccessDenied', 1)
+            check_oapi_error(error, 1)

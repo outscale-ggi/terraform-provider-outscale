@@ -1,10 +1,10 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, wait
-from qa_test_tools.test_base import known_error
-from qa_test_tools.misc import assert_oapi_error, id_generator
+from qa_test_tools.misc import id_generator
 from qa_test_tools.config.configuration import Configuration
 
 
@@ -54,9 +54,7 @@ class Test_UpdateVpnConnection(OscTinaTest):
             super(Test_UpdateVpnConnection, cls).teardown_class()
 
     def test_T5934_valid_case(self):
-        known_error('TINA-6738', 'On call intel.vpn.connection.update')
-        self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
-                                        VpnOptions={"TunnelInsideIpRange":"169.254.254.8/30"})
+        self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id, VpnOptions={"TunnelInsideIpRange":"169.254.254.8/30"})
 
     def test_T5935_required_params_only(self):
         self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id)
@@ -66,26 +64,27 @@ class Test_UpdateVpnConnection(OscTinaTest):
             self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId="vpn-12345678")
             assert False, 'Call should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5067')
+            check_oapi_error(error, 5067, id='vpn-12345678')
 
     def test_T5937_malformed_vpn_id(self):
         try:
             self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId="xxx-12345678")
             assert False, 'Call should fail'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104')
+            check_oapi_error(error, 4104, invalid='xxx-12345678', prefixes='vpn-')
 
     def test_T5938_with_invalid_PreSharedKey(self):
-        known_error('TINA-6738', 'On call intel.vpn.connection.update')
-        self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":"1234567890SDFGHJK"}})
+        try:
+            self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":""}})
+            assert False, 'Call should fail'
+        except OscApiException as error:
+            check_oapi_error(error, 4045, invalid='InvalidParameterValue')
 
     def test_T5939_with_valid_PreSharedKey(self):
-        known_error('TINA-6738', 'On call intel.vpn.connection.update')
         presharedkey = id_generator(size=26)
         self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id, VpnOptions={"Phase2Options":{"PreSharedKey":presharedkey}})
 
     def test_T5940_with_all_parameters(self):
-        known_error('TINA-6738', 'On call intel.vpn.connection.update')
         self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
                                VpnOptions={"Phase1Options":{"DpdTimeoutAction":"test", "DpdTimeoutSeconds":1,"Phase1DhGroupNumbers":[1],
                                                             "Phase1EncryptionAlgorithms":["test"], "Phase1IntegrityAlgorithms":["test"],
@@ -94,4 +93,11 @@ class Test_UpdateVpnConnection(OscTinaTest):
                                                              ["test"], "Phase2IntegrityAlgorithms": ["test"],
                                                              "Phase2LifetimeSeconds": 0, "PreSharedKey":"PreSharedKey"},
                                             "TunnelInsideIpRange":"169.254.254.8/30"})
-# TODO add functionnal test
+
+    def test_T6112_invalid_TunnelInsideIpRange(self):
+        try:
+            self.a1_r1.oapi.UpdateVpnConnection(VpnConnectionId=self.vpn_id,
+                                        VpnOptions={"TunnelInsideIpRange":""})
+            assert False, 'Call should fail'
+        except OscApiException as error:
+            check_oapi_error(error, 4045, invalid='InvalidParameterValue')

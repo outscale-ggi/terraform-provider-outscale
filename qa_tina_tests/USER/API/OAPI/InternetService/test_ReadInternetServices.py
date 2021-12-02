@@ -1,6 +1,7 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs import check_oapi_error
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
@@ -78,7 +79,7 @@ class Test_ReadInternetServices(OscTinaTest):
             for _ in range(6):
                 self.is_ids.append(self.a1_r1.oapi.CreateInternetService().response.InternetService.InternetServiceId)
         except OscApiException as err:
-            misc.assert_oapi_error(err, 400, 'TooManyResources (QuotaExceded)', '10023')
+            check_oapi_error(err, 10023)
 
     def test_T5067_with_link_net_ids_filter(self):
         ret = self.a1_r1.oapi.ReadInternetServices(Filters={'LinkNetIds': [self.net_id]})

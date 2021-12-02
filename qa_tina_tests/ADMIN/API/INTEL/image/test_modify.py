@@ -1,6 +1,6 @@
 from qa_sdk_common.exceptions import OscApiException
 from qa_test_tools.misc import assert_error
-from qa_test_tools.test_base import assert_code, known_error
+from qa_test_tools.test_base import known_error
 from qa_test_tools.config import config_constants as constants
 from qa_tina_tools.test_base import OscTinaTest
 
@@ -49,7 +49,7 @@ class Test_modify(OscTinaTest):
             self.a1_r1.intel.image.modify(owner=self.a1_r1.config.account.account_id, image=self.image_id, name=name)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_code(error, 200, "invalid-parameter-type - Value of parameter \'Name\' must be of type: str. Received: [\'foo\']")
+            assert_error(error, 200, 0, "invalid-parameter-type - Value of parameter \'Name\' must be of type: str. Received: [\'foo\']")
 
     def test_T5860_with_invalid_manifest_type(self):
         try:
@@ -57,14 +57,16 @@ class Test_modify(OscTinaTest):
             self.a1_r1.intel.image.modify(owner=self.a1_r1.config.account.account_id, image=self.image_id, manifest=manifest)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_code(error, 200, "invalid-parameter-type - Value of parameter \'Manifest\' must be of type: str. Received: [\'foo\']")
+            assert_error(error, 200, 0, "invalid-parameter-type - Value of parameter \'Manifest\' must be of type: str. Received: [\'foo\']")
 
     def test_T5861_with_empty_manifest(self):
         try:
             self.a1_r1.intel.image.modify(owner=self.a1_r1.config.account.account_id, image=self.image_id, manifest="")
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_code(error, 200, "missing-parameter")
+            assert_error(error, 200, 0, "missing-parameter - Insufficient parameters provided out of: Description, manifest,"
+                                    " name, setAsPublic, users. Expected at least: 1")
+
 
     def test_T5862_with_name_and_empty_manifest(self):
         name = "toto"
@@ -90,9 +92,9 @@ class Test_modify(OscTinaTest):
     def test_T5867_with_required_params(self):
         try:
             self.a1_r1.intel.image.modify(owner=self.a1_r1.config.account.account_id, image=self.image_id)
-            assert False, 'Remove known error'
+            assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_code(error, 503, "missing-parameter - Insufficient parameters provided out of: Description, manifest,"
+            assert_error(error, 200, 0, "missing-parameter - Insufficient parameters provided out of: Description, manifest,"
                                     " name, setAsPublic, users. Expected at least: 1")
 
     def test_T5856_without_owner(self):
@@ -100,14 +102,14 @@ class Test_modify(OscTinaTest):
             self.a1_r1.intel.image.modify(image=self.image_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_code(error, 200, "missing-parameter - Parameter cannot be empty: Owner")
+            assert_error(error, 200, 0, "missing-parameter - Parameter cannot be empty: Owner")
 
     def test_T5917_without_image_id(self):
         try:
             self.a1_r1.intel.image.modify(owner=self.a1_r1.config.account.account_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_code(error, 200, "missing-parameter - Parameter cannot be empty: ImageID")
+            assert_error(error, 200, 0, "missing-parameter - Parameter cannot be empty: ImageID")
 
     def test_T5931_from_another_account(self):
         try:
