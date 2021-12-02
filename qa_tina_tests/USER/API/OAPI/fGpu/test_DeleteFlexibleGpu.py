@@ -4,6 +4,7 @@ from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_test_tools.misc import assert_oapi_error, assert_dry_run
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
+from specs import check_oapi_error
 
 DEFAULT_GPU_ID = "fgpu-12345678"
 DEFAULT_MODEL_NAME = "nvidia-k2"
@@ -64,13 +65,19 @@ class Test_DeleteFlexibleGpu(OscTinaTest):
     def test_T4195_valid_params(self):
         fg_id = None
         try:
-            if self.a1_r1.config.region.name == 'in-west-2':
-                known_error('BLD-3003', 'no gpu on IN2')
             ret = self.a1_r1.oapi.CreateFlexibleGpu(ModelName=self.modelname, SubregionName=self.subregionname)
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert False, "remove known error"
             fg_id = ret.response.FlexibleGpu.FlexibleGpuId
             ret = self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=fg_id)
             fg_id = None
             ret.check_response()
+        except OscApiException as error:
+            if self.a1_r1.config.region.name == 'in-west-2':
+                check_oapi_error(error, 10001)
+                known_error('BLD-3003', 'no gpu on IN2')
+            else:
+                raise error
         finally:
             if fg_id:
                 self.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=fg_id)
