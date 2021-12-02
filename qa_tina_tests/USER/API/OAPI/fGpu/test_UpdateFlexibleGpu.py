@@ -5,6 +5,7 @@ from qa_test_tools.misc import assert_oapi_error
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
+from specs import check_oapi_error
 
 DEFAULT_GPU_ID = "fgpu-12345678"
 DEFAULT_MODEL_NAME = "nvidia-k2"
@@ -20,17 +21,24 @@ class Test_UpdateFlexibleGpu(OscTinaTest):
         super(Test_UpdateFlexibleGpu, cls).setup_class()
         cls.known_error = False
         try:
-            if cls.a1_r1.config.region.name == 'in-west-2':
-                cls.known_error = True
-                return
-            ret = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME,
-                                                   SubregionName=cls.a1_r1.config.region.az_name)
+            try:
+                ret = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName=DEFAULT_MODEL_NAME,
+                                                       SubregionName=cls.a1_r1.config.region.az_name)
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    assert False, 'remove known error'
+            except OscApiException as error:
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    check_oapi_error(error, 10001)
+                    cls.known_error = True
+                    return
             cls.fgpu_id = ret.response.FlexibleGpu.FlexibleGpuId
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
+            except Exception as error2:
+                raise error2
             finally:
-                raise
+                raise error1
 
     @classmethod
     def teardown_class(cls):
