@@ -168,7 +168,7 @@ class Test_CreateSnapshotExportTask(OscTinaTest):
 
     @pytest.mark.region_storageservice
     def test_T3891_with_existing_osu_bucket(self):
-        self.a1_r1.storageservice.create_bucket(Bucket=self.bucket_name)
+        self.a1_r1.oos.create_bucket(Bucket=self.bucket_name)
         self.bucket_created = True
         ret = self.a1_r1.fcu.CreateSnapshotExportTask(SnapshotId=self.snap_id, ExportToOsu={'DiskImageFormat': 'qcow2',
                                                                                             'OsuBucket': self.bucket_name})
