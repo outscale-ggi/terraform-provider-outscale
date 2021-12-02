@@ -9,6 +9,7 @@ from qa_tina_tools.tools.tina.create_tools import create_instances
 from qa_tina_tools.tools.tina.delete_tools import delete_instances
 from qa_tina_tools.tools.tina.info_keys import INSTANCE_ID_LIST
 from qa_tina_tools.tools.tina.wait_tools import wait_flexible_gpu_state
+from specs import check_oapi_error
 
 
 @pytest.mark.region_gpu
@@ -29,10 +30,9 @@ class Test_ReadFlexibleGpus(OscTinaTest):
             cls.single_account = False
             cls.inst_info_1 = None
             cls.inst_info_2 = None
+            cls.known_error = False
             cls.region_name_1 = cls.a1_r1.config.region.az_name
             ret = cls.a1_r1.intel.pci.find_gpu_reservations()
-            if cls.a1_r1.config.region.name == 'in-west-2':
-                cls.known_error = True
             if cls.max_fgpu - len(ret.response.result) < 2:
                 cls.insufficient_capacity = True
                 return
@@ -41,8 +41,16 @@ class Test_ReadFlexibleGpus(OscTinaTest):
             cls.inst_info_1 = create_instances(cls.a1_r1, nb=2, inst_type=cls.a1_r1.config.region.get_info(constants.DEFAULT_GPU_INSTANCE_TYPE))
             if not cls.single_account:
                 cls.inst_info_2 = create_instances(cls.a2_r1, nb=2, inst_type=cls.a2_r1.config.region.get_info(constants.DEFAULT_GPU_INSTANCE_TYPE))
-            cls.gpus_id_1 = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName='nvidia-k2',
-                                                             SubregionName=cls.region_name_1).response.FlexibleGpu.FlexibleGpuId
+            try:
+                cls.gpus_id_1 = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName='nvidia-k2',
+                                                                 SubregionName=cls.region_name_1).response.FlexibleGpu.FlexibleGpuId
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    assert False, 'remove known error'
+            except OscApiException as error:
+                if cls.a1_r1.config.region.name == 'in-west-2':
+                    check_oapi_error(error, 10001)
+                    cls.known_error = True
+                    return
             cls.gpus_id_2 = cls.a1_r1.oapi.CreateFlexibleGpu(ModelName='nvidia-k2',
                                                              SubregionName=cls.region_name_1).response.FlexibleGpu.FlexibleGpuId
             cls.res_link_1 = cls.a1_r1.oapi.LinkFlexibleGpu(FlexibleGpuId=cls.gpus_id_1, VmId=cls.inst_info_1[INSTANCE_ID_LIST][0])
@@ -53,11 +61,13 @@ class Test_ReadFlexibleGpus(OscTinaTest):
             wait_flexible_gpu_state(cls.a1_r1, [cls.gpus_id_1], state="attaching")
             if not cls.single_account:
                 wait_flexible_gpu_state(cls.a2_r1, [cls.gpus_id_3], state="attaching")
-        except:
+        except Exception as error1:
             try:
                 cls.teardown_class()
+            except Exception as error2:
+                raise error2
             finally:
-                raise
+                raise error1
 
     @classmethod
     def teardown_class(cls):
