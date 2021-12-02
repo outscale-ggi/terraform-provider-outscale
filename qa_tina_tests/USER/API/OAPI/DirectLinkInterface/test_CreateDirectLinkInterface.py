@@ -4,7 +4,8 @@ import string
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_oapi_error, id_generator
+from specs import check_oapi_error
+from qa_test_tools.misc import id_generator
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait
@@ -38,7 +39,7 @@ class Test_CreateDirectLinkInterface(OscTinaTest):
             self.a1_r1.oapi.CreateDirectLinkInterface()
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     @pytest.mark.region_admin
     @pytest.mark.region_directlink
@@ -64,7 +65,7 @@ class Test_CreateDirectLinkInterface(OscTinaTest):
             directlink_interface_id = ret_dli.response.DirectLinkInterface.DirectLinkInterfaceId
         except OscApiException as error:
             if self.a1_r1.config.region.name == 'in-west-2':
-                assert_oapi_error(error, 400, 'InsufficientCapacity', '10001', None)
+                check_oapi_error(error, 10001)
                 known_error('OPS-14319', 'no directlink on IN2')
             else:
                 raise error
@@ -81,74 +82,75 @@ class Test_CreateDirectLinkInterface(OscTinaTest):
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-12345678')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkInterface={'BgpAsn': 1})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkInterface={'Vlan': 1})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkInterface={'VirtualGatewayId': self.virtual_gateway_id})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkInterface={'DirectLinkInterfaceName': 'a_name'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-12345678',
                                                       DirectLinkInterface={'VirtualGatewayId': self.virtual_gateway_id})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-12345678',
                                                       DirectLinkInterface={'Vlan': 1, 'VirtualGatewayId': self.virtual_gateway_id})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-12345678',
                                                       DirectLinkInterface={'BgpAsn': 1, 'VirtualGatewayId': self.virtual_gateway_id})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-12345678',
                                                       DirectLinkInterface={'VirtualGatewayId': self.virtual_gateway_id,
                                                                            'DirectLinkInterfaceName': 'a_name'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'MissingParameter', '7000', None)
+            check_oapi_error(error, 7000)
 
     def test_T3908_invalid_direct_link_id(self):
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='tests',
-                                                      DirectLinkInterface={'BgpAsn': 1, 'Vlan': 2, 'VirtualGatewayId': self.virtual_gateway_id})
+                                                      DirectLinkInterface={'BgpAsn': 1, 'Vlan': 2, 'VirtualGatewayId': self.virtual_gateway_id,
+                                                      'DirectLinkInterfaceName': 'a_name'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104', None)
+            check_oapi_error(error, 4104, invalid='tests', prefixes='dxcon-')
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-1234567',
                                                       DirectLinkInterface={'BgpAsn': 1, 'Vlan': 2, 'VirtualGatewayId': self.virtual_gateway_id,
                                                                            'DirectLinkInterfaceName': 'a_name'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105', None)
+            check_oapi_error(error, 4105, given_id='dxcon-1234567')
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-123456789',
                                                       DirectLinkInterface={'BgpAsn': 1, 'Vlan': 2, 'VirtualGatewayId': self.virtual_gateway_id,
                                                                            'DirectLinkInterfaceName': 'a_name'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105', None)
+            check_oapi_error(error, 4105, given_id='dxcon-123456789')
 
     def test_T3909_unknown_direct_link_id(self):
         try:
@@ -157,24 +159,27 @@ class Test_CreateDirectLinkInterface(OscTinaTest):
                                                                            'DirectLinkInterfaceName': 'a_name'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidResource', '5072', None)
+            check_oapi_error(error, 5072, id='dxcon-12345678')
 
     def test_T3910_invalid_virtual_gateway_id(self):
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-12345678',
-                                                      DirectLinkInterface={'BgpAsn': 1, 'Vlan': 2, 'VirtualGatewayId': 'test'})
+                                                      DirectLinkInterface={'BgpAsn': 1, 'Vlan': 2, 'VirtualGatewayId': 'test',
+                                                                           'DirectLinkInterfaceName': 'a_name'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4104', None)
+            check_oapi_error(error, 4104, invalid='test', prefixes='vgw-')
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-12345678',
-                                                      DirectLinkInterface={'BgpAsn': 1, 'Vlan': 2, 'VirtualGatewayId': 'vgw-1234567'})
+                                                      DirectLinkInterface={'BgpAsn': 1, 'Vlan': 2, 'VirtualGatewayId': 'vgw-1234567',
+                                                                           'DirectLinkInterfaceName': 'a_name'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105', None)
+            check_oapi_error(error, 4105, given_id='vgw-1234567')
         try:
             self.a1_r1.oapi.CreateDirectLinkInterface(DirectLinkId='dxcon-12345678',
-                                                      DirectLinkInterface={'BgpAsn': 1, 'Vlan': 2, 'VirtualGatewayId': 'vgw-123456789'})
+                                                      DirectLinkInterface={'BgpAsn': 1, 'Vlan': 2, 'VirtualGatewayId': 'vgw-123456789',
+                                                                           'DirectLinkInterfaceName': 'a_name'})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_oapi_error(error, 400, 'InvalidParameterValue', '4105', None)
+            check_oapi_error(error, 4105, given_id='vgw-123456789')
