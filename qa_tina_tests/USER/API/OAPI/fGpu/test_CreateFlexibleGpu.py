@@ -16,12 +16,9 @@ class Test_CreateFlexibleGpu(OscTinaTest):
     def setup_class(cls):
         cls.quotas = {'gpu_limit': 4}
         super(Test_CreateFlexibleGpu, cls).setup_class()
-        cls.known_error = False
         try:
             cls.subregionname = cls.a1_r1.config.region.az_name
             cls.modelname = DEFAULT_MODEL_NAME
-            if cls.a1_r1.config.region.name == 'in-west-2':
-                cls.known_error = True
         except Exception as error:
             try:
                 cls.teardown_class()
