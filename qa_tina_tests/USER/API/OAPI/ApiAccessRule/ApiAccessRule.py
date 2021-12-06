@@ -5,6 +5,7 @@ from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.account_tools import delete_account, create_account
 from qa_test_tools.config import OscConfig
+from qa_test_tools.test_base import OSC_CU, get_export_value
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina.create_tools import create_certificate_setup
 
@@ -18,7 +19,7 @@ class ApiAccessRule(OscTinaTest):
         cls.tmp_file_paths = []
         cls.ca_ids = []
         try:
-            if os.getenv('OSC_CU', None):
+            if get_export_value(OSC_CU):
                 cls.osc_sdk = cls.a1_r1
             else:
                 email = 'qa+{}@outscale.com'.format(misc.id_generator(prefix='create_api_access_rule').lower())

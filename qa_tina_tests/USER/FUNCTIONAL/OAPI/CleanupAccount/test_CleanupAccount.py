@@ -1,5 +1,5 @@
-import os
 
+from qa_test_tools.test_base import get_export_value, OSC_CU
 from qa_tina_tools.test_base import OscTinaTest
 
 
@@ -8,7 +8,7 @@ class Test_CleanupAccount(OscTinaTest):
     @classmethod
     def setup_class(cls):
         super(Test_CleanupAccount, cls).setup_class()
-        if not os.getenv('OSC_CU', None):
+        if not get_export_value(OSC_CU):
             return
         try:
             # create items
@@ -55,7 +55,7 @@ class Test_CleanupAccount(OscTinaTest):
             raise
 
 #     def test_TXXX_cleanup_account(self):
-#         if not os.getenv('OSC_CU', False):
+#         if not os.getenv(OSC_CU, False):
 #             pytest.skip('Only executed when account is created')
 #         try:
 #             cleanup.cleanup_Account(self.a1_r1)
