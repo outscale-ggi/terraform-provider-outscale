@@ -3,12 +3,12 @@ from typing import Generator, List
 from _pytest.fixtures import SubRequest
 import pytest
 
-from qa_test_tools.test_base import known_error
-from qa_test_tools.misc import id_generator
 
 from specs import check_tools, check_oapi_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_common.objects.osc_objects import OscObject
+from qa_test_tools.test_base import known_error
+from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
 
 
