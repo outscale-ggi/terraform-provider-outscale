@@ -1,9 +1,8 @@
+from datetime import datetime
+import subprocess
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import oapi, check_tools, info_keys
 from qa_test_tools.config import config_constants
-from datetime import datetime
-import subprocess
-from subprocess import CalledProcessError
 
 
 MAX_WAIT_TIME = 240
@@ -27,7 +26,7 @@ class Test_port_management(OscTinaTest):
                 try:
                     subprocess.check_call(["ping -c 5 %s" % ip_address], shell=True)  # nosec - cannot put shell=True for the moment
                     status = True
-                except CalledProcessError:
+                except subprocess.CalledProcessError:
                     status = False
                 if status == expected_status:
                     break

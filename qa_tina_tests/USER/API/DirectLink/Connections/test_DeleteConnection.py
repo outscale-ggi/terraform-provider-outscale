@@ -2,10 +2,10 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from specs.check_tools import check_directlink_error
 from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
-from specs.check_tools import check_directlink_error
 
 
 @pytest.mark.region_admin

@@ -2,8 +2,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_tina_tools.test_base import OscTinaTest
 from specs.check_tools import check_directlink_error
+from qa_tina_tools.test_base import OscTinaTest
 
 
 @pytest.mark.region_directlink
