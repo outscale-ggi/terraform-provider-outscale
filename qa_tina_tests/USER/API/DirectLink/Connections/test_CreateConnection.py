@@ -2,7 +2,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import id_generator, assert_error
+from specs.check_tools import check_directlink_error
+from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
@@ -40,7 +41,7 @@ class Test_CreateConnection(OscTinaTest):
         if self.known_error:
             known_error('OPS-14319', 'NEW IN2 : no Directlink on in2')
         conn_id = None
-        connection_name = id_generator(prefix='dl_')
+        connection_name = misc.id_generator(prefix='dl_')
         try:
             ret = self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps', connectionName=connection_name)
             conn_id = ret.response.connectionId
@@ -59,10 +60,10 @@ class Test_CreateConnection(OscTinaTest):
         if self.known_error:
             known_error('OPS-14319', 'NEW IN2 : no Directlink on in2')
         try:
-            self.a1_r1.directlink.CreateConnection(location=self.location, connectionName=id_generator(prefix='dl_'))
+            self.a1_r1.directlink.CreateConnection(location=self.location, connectionName=misc.id_generator(prefix='dl_'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'DirectConnectClientException', 'Field bandwidth is required')
+            check_directlink_error(error, 7000, missing_parameters='bandwidth')
 
     def test_T4468_without_name(self):
         if self.known_error:
@@ -71,40 +72,40 @@ class Test_CreateConnection(OscTinaTest):
             self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps')
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'DirectConnectClientException', 'Field connectionName is required')
+            check_directlink_error(error, 7000, missing_parameters='connectionName')
 
     def test_T4469_without_location(self):
         if self.known_error:
             known_error('OPS-14319', 'NEW IN2 : no Directlink on in2')
         try:
-            self.a1_r1.directlink.CreateConnection(bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
+            self.a1_r1.directlink.CreateConnection(bandwidth='1Gbps', connectionName=misc.id_generator(prefix='dl_'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'DirectConnectClientException', 'Field location is required')
+            check_directlink_error(error, 7000, missing_parameters='location')
 
     def test_T4470_with_invalid_bandwidth(self):
         if self.known_error:
             known_error('OPS-14319', 'NEW IN2 : no Directlink on in2')
         try:
-            self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='foo', connectionName=id_generator(prefix='dl_'))
+            self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='foo', connectionName=misc.id_generator(prefix='dl_'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'DirectConnectClientException', "Value of parameter 'Speed' is not valid: foo. Supported values: 10Gbps, 1Gbps")
+            check_directlink_error(error, 4129, param='Speed', value='foo', options='10Gbps, 1Gbps')
 
     def test_T4471_with_invalid_location(self):
         if self.known_error:
             known_error('OPS-14319', 'NEW IN2 : no Directlink on in2')
         try:
-            self.a1_r1.directlink.CreateConnection(location='foo', bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
+            self.a1_r1.directlink.CreateConnection(location='foo', bandwidth='1Gbps', connectionName=misc.id_generator(prefix='dl_'))
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, 'DirectConnectClientException', "Location 'foo' is invalid.")
+            check_directlink_error(error, 5052, id='foo')
 
     def test_T5733_with_extra_param(self):
         if self.known_error:
             known_error('OPS-14319', 'NEW IN2 : no Directlink on in2')
         conn_id = None
-        connection_name = id_generator(prefix='dl_')
+        connection_name = misc.id_generator(prefix='dl_')
         try:
             ret = self.a1_r1.directlink.CreateConnection(location=self.location, bandwidth='1Gbps', connectionName=connection_name, Foo='Bar')
             conn_id = ret.response.connectionId

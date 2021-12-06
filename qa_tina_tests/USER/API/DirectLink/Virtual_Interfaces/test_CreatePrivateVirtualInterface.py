@@ -2,7 +2,8 @@
 import pytest
 
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
-from qa_test_tools.misc import assert_error, id_generator
+from specs.check_tools import check_directlink_error
+from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import wait_tools
@@ -39,7 +40,7 @@ class Test_CreatePrivateVirtualInterface(OscTinaTest):
             return
         self.conn_id = None
         OscTinaTest.setup_method(self, method)
-        ret = self.a1_r1.directlink.CreateConnection(location=self.location_code, bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
+        ret = self.a1_r1.directlink.CreateConnection(location=self.location_code, bandwidth='1Gbps', connectionName=misc.id_generator(prefix='dl_'))
         self.conn_id = ret.response.connectionId
         wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "pending")
 
@@ -59,7 +60,8 @@ class Test_CreatePrivateVirtualInterface(OscTinaTest):
             interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                                  newPrivateVirtualInterface=interface)
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Connection is not in valid state")
+            check_directlink_error(error, 6011)
+            #assert_error(error, 400, "DirectConnectClientException", "Connection is not in valid state")
         finally:
             if interface_info:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)
@@ -100,7 +102,8 @@ class Test_CreatePrivateVirtualInterface(OscTinaTest):
             wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
             interface_info = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id)
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Field newPrivateVirtualInterface is required")
+            check_directlink_error(error, 7000, missing_parameters='newPrivateVirtualInterface')
+            #assert_error(error, 400, "DirectConnectClientException", "Field newPrivateVirtualInterface is required")
         finally:
             if interface_info:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)
@@ -114,7 +117,8 @@ class Test_CreatePrivateVirtualInterface(OscTinaTest):
             wait_tools.wait_direct_link_connection_state(self.a1_r1, self.conn_id, "available")
             self.a1_r1.directlink.CreatePrivateVirtualInterface()
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException", "Field connectionId is required")
+            check_directlink_error(error, 7000, missing_parameters='connectionId')
+            #assert_error(error, 400, "DirectConnectClientException", "Field connectionId is required")
         finally:
             if interface_info:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)
@@ -130,8 +134,9 @@ class Test_CreatePrivateVirtualInterface(OscTinaTest):
             self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                 newPrivateVirtualInterface=interface)
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException",
-                         "Invalid type, newPrivateVirtualInterface.vlan must be an integer")
+            check_directlink_error(error, 4152, param='newPrivateVirtualInterface.vlan', value='s', expected_type='integer')
+            #assert_error(error, 400, "DirectConnectClientException",
+            #             "Invalid type, newPrivateVirtualInterface.vlan must be an integer")
         finally:
             if interface_info:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)
@@ -147,8 +152,8 @@ class Test_CreatePrivateVirtualInterface(OscTinaTest):
             self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                 newPrivateVirtualInterface=interface)
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException",
-                         "Invalid type, newPrivateVirtualInterface.asn must be an integer")
+            check_directlink_error(error, 4152, param='newPrivateVirtualInterface.asn', value='11111', expected_type='integer')
+            #assert_error(error, 400, "DirectConnectClientException", "Invalid type, newPrivateVirtualInterface.asn must be an integer")
         finally:
             if interface_info:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)
@@ -164,8 +169,9 @@ class Test_CreatePrivateVirtualInterface(OscTinaTest):
             self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                 newPrivateVirtualInterface=interface)
         except OscApiException as error:
-            assert_error(error, 400, "DirectConnectClientException",
-                         "Invalid type, newPrivateVirtualInterface.virtualInterfaceName must be a string")
+            check_directlink_error(error, 4152, param='newPrivateVirtualInterface.virtualInterfaceName', value=123, expected_type='string')
+            #assert_error(error, 400, "DirectConnectClientException",
+            #             "Invalid type, newPrivateVirtualInterface.virtualInterfaceName must be a string")
         finally:
             if interface_info:
                 self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info.response.virtualInterfaceId)
@@ -185,7 +191,8 @@ class Test_CreatePrivateVirtualInterface(OscTinaTest):
                 interface_info2 = self.a1_r1.directlink.CreatePrivateVirtualInterface(connectionId=self.conn_id,
                                                                                       newPrivateVirtualInterface=interface)
             except OscApiException as error:
-                assert_error(error, 400, "DirectConnectClientException", "Interface already exists with same parameters")
+                check_directlink_error(error, 9010)
+                #assert_error(error, 400, "DirectConnectClientException", "Interface already exists with same parameters")
             finally:
                 if interface_info2:
                     self.a1_r1.directlink.DeleteVirtualInterface(virtualInterfaceId=interface_info2.response.virtualInterfaceId)

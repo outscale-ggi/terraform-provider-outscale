@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from qa_test_tools.misc import id_generator
+from qa_test_tools import misc
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tools.tina import wait_tools
@@ -40,7 +40,7 @@ class Test_ConfirmPrivateVirtualInterface(OscTinaTest):
         if self.known_error:
             return
         OscTinaTest.setup_method(self, method)
-        ret = self.a1_r1.directlink.CreateConnection(location=self.location_code, bandwidth='1Gbps', connectionName=id_generator(prefix='dl_'))
+        ret = self.a1_r1.directlink.CreateConnection(location=self.location_code, bandwidth='1Gbps', connectionName=misc.id_generator(prefix='dl_'))
         self.conn_id = ret.response.connectionId
 
     def teardown_method(self, method):

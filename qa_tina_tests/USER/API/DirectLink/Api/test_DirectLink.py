@@ -4,22 +4,23 @@ import datetime
 import re
 import pytest
 
-from qa_sdk_common.exceptions.osc_exceptions import OscApiException
+from qa_sdk_common.exceptions.osc_exceptions import OscApiException, OscCheckException
 import qa_sdk_pub.osc_api as osc_api
+from specs.check_tools import check_directlink_error, check_oapi_error, CheckErrorType
 from qa_sdks.osc_sdk import OscSdk
 from qa_test_tools import misc
 from qa_test_tools.config import OscConfig
-from qa_test_tools.misc import assert_error
 from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 
-MIN_OVERTIME= 4
+MIN_OVERTIME = 4
 
 class Test_DirectLink(OscTinaTest):
 
     @pytest.mark.tag_sec_traceability
     def test_T3844_check_request_id(self):
         ret = self.a1_r1.directlink.DescribeLocations()
+        ret.check_response()
         assert re.search("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", ret.response.requestId)
 
     def test_T3845_invalid_call(self):
@@ -27,25 +28,26 @@ class Test_DirectLink(OscTinaTest):
             self.a1_r1.directlink.foo()
             assert False, 'Call not should have been successful'
         except OscApiException as error:
-            assert error.status_code == 400
-            assert error.error_code == "UnknownOperationException"
-            assert hasattr(error, 'message')
+            try:
+                check_directlink_error(error, 12000, invalid_action='foo')
+            except OscCheckException as check_error:
+                if check_error.info == CheckErrorType.MissingMessage:
+                    known_error('PQA-????', 'Check directlink error mapping')
+                raise check_error
 
     def test_T3846_invalid_param(self):
         try:
             self.a1_r1.directlink.DescribeLocations(foo='bar')
             assert False, 'Call not should have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 400, "DirectConnectClientException", "Operation doesn't expect any parameters")
+            check_directlink_error(error, 3001)
 
     def test_T3847_method_get(self):
         try:
             self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_METHOD: 'GET'})
             assert False, 'Call not should have been successful'
         except OscApiException as error:
-            assert error.status_code == 400
-            assert error.error_code == "SerializationException"
-            assert hasattr(error, 'message')
+            check_directlink_error(error, 4000)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3849_without_authentication(self):
@@ -53,8 +55,7 @@ class Test_DirectLink(OscTinaTest):
             self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_AUTHENTICATION: osc_api.AuthMethod.Empty})
             assert False, 'Call not should have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 401,"AuthFailure",
-                              "Outscale was not able to validate the provided access credentials. Invalid login/password or password has expired.")
+            check_directlink_error(error, 9)
 
     @pytest.mark.tag_sec_confidentiality
     def test_T3850_invalid_authentication(self):
@@ -64,9 +65,7 @@ class Test_DirectLink(OscTinaTest):
             self.a1_r1.directlink.DescribeLocations()
             assert False, 'Call not should not have been successful'
         except OscApiException as error:
-            misc.assert_error(error, 403, "SignatureDoesNotMatch",
-                              "The request signature we calculated does not match the signature you provided. " + \
-                                    "Check your AWS Secret Access Key and signing method. Consult the service documentation for details.")
+            check_directlink_error(error, 4144)
         finally:
             self.a1_r1.config.account.sk = sk_bkp
 
@@ -127,7 +126,7 @@ class Test_DirectLink(OscTinaTest):
             try:
                 account_sdk.oapi.ReadVms()
             except OscApiException as error:
-                misc.assert_error(error, 401, '4', 'AccessDenied')
+                check_oapi_error(error, 4)
         finally:
             if attach_policy:
                 self.a1_r1.eim.DetachUserPolicy(PolicyArn=policy_response.response.CreatePolicyResult.Policy.Arn, UserName=user_name)
@@ -145,7 +144,7 @@ class Test_DirectLink(OscTinaTest):
             self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, "RequestExpired", None)
+            check_directlink_error(error, 15, timestamp=date_time.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
 
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -169,7 +168,7 @@ class Test_DirectLink(OscTinaTest):
                                                           osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, "RequestExpired", None)
+            check_directlink_error(error, 15, timestamp=date_time.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
 
         date_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=800)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -183,7 +182,12 @@ class Test_DirectLink(OscTinaTest):
             self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, "InvalidParameterValue", None)
+            try:
+                check_directlink_error(error, 4166, header_date='Date')
+            except OscCheckException as check_error:
+                if check_error.info == CheckErrorType.MessageMismatch:
+                    known_error('PQA-????', 'Check directlink error mapping')
+                raise check_error
 
     def test_T6041_incorrect_date_stamp(self):
         date_stamp = 'toto'
@@ -195,7 +199,13 @@ class Test_DirectLink(OscTinaTest):
             self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_DATE_TIME_STAMP: date_time_stamp})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 400, "MissingParameter", None)
+            try:
+                check_directlink_error(error, 7009, header_name='Date')
+            except OscCheckException as check_error:
+                if check_error.info == CheckErrorType.MessageMismatch:
+                    known_error('PQA-????', 'Check directlink error mapping')
+                raise check_error
+
 
     def test_T6043_empty_date_stamp(self):
         try:
@@ -203,7 +213,7 @@ class Test_DirectLink(OscTinaTest):
             self.a1_r1.directlink.DescribeLocations(exec_data={osc_api.EXEC_DATA_DATE_STAMP: date_stamp})
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            assert_error(error, 401, 'AuthFailure', None)
+            check_directlink_error(error, 9)
 
     def test_T6044_after_date_time_stamp(self):
         try:
@@ -215,7 +225,7 @@ class Test_DirectLink(OscTinaTest):
             assert False, 'Call should not have been successful : {}'.format(ret.response.requestId)
         except OscApiException as error:
             assert False, "remove known error code"
-            assert_error(error, 400, "RequestExpired", None)
+            check_directlink_error(error, 15, timestamp=date_time.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
 
         date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')
@@ -247,7 +257,7 @@ class Test_DirectLink(OscTinaTest):
             assert False, 'Call should not have been successful : {}'.format(ret.response.requestId)
         except OscApiException as error:
             assert False, "remove known error code"
-            assert_error(error, 400, "RequestExpired", None)
+            check_directlink_error(error, 15, timestamp=date_time.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
 
         date_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=2)
         date_time_stamp = date_time.strftime('%Y%m%dT%H%M%SZ')

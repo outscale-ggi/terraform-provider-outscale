@@ -2,7 +2,7 @@ import pytest
 
 from qa_test_tools.config.configuration import Configuration
 from qa_test_tools import misc
-from qa_test_tools.test_base import known_error
+from qa_test_tools.test_base import known_error, OSC_CU
 from qa_tina_tools.test_base import OscTinaTest, get_export_value
 from qa_tina_tools.tools.tina.cleanup_tools import cleanup_dhcp_options
 from qa_tina_tests.USER.API.OAPI.DhcpOptions.DhcpOptions import validate_dhcp_options
@@ -102,7 +102,7 @@ class Test_ReadDhcpOptions(OscTinaTest):
         for dhcp in ret:
             validate_dhcp_options(dhcp, expected_dhcp={'Default': True})
         ret = self.a1_r1.oapi.ReadDhcpOptions(Filters={'Default': False}).response.DhcpOptionsSets
-        if get_export_value('OSC_CU') and len(self.azs) == 1:
+        if get_export_value(OSC_CU) and len(self.azs) == 1:
             assert len(ret) == 4, ' The amount of DHCP options displayed, does not match the amount expected'
         else:
             assert len(ret) == 5, ' The amount of DHCP options displayed, does not match the amount expected'
@@ -117,7 +117,7 @@ class Test_ReadDhcpOptions(OscTinaTest):
 
     def test_T2887_filters_domain_name(self):
         ret = self.a1_r1.oapi.ReadDhcpOptions(Filters={'DomainNames': [self.domain_name]}).response.DhcpOptionsSets
-        if get_export_value('OSC_CU') and len(self.azs) == 1:
+        if get_export_value(OSC_CU) and len(self.azs) == 1:
             assert len(ret) == 2, ' The amount of DHCP options displayed, does not match the amount expected'
         else:
             assert len(ret) == 3, ' The amount of DHCP options displayed, does not match the amount expected'
@@ -137,7 +137,7 @@ class Test_ReadDhcpOptions(OscTinaTest):
     @pytest.mark.tag_sec_confidentiality
     def test_T3452_other_account(self):
         ret = self.a2_r1.oapi.ReadDhcpOptions().response.DhcpOptionsSets
-        if get_export_value('OSC_CU') and len(self.azs) == 1:
+        if get_export_value(OSC_CU) and len(self.azs) == 1:
             assert not ret
         else:
             assert len(ret) == 1

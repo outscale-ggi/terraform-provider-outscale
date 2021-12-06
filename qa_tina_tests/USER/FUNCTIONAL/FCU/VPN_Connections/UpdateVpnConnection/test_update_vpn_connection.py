@@ -3,8 +3,8 @@
 import ipaddress
 import pytest
 
-from qa_tina_tests.USER.FUNCTIONAL.FCU.VPN_Connections.vpn import Vpn
 from qa_test_tools.misc import id_generator
+from qa_tina_tests.USER.FUNCTIONAL.FCU.VPN_Connections.vpn import Vpn
 
 
 @pytest.mark.region_internet
