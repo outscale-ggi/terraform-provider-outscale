@@ -3,9 +3,11 @@ from typing import Generator, List
 from _pytest.fixtures import SubRequest
 import pytest
 
-from specs import check_tools
+
+from specs import check_tools, check_oapi_error
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from qa_sdk_common.objects.osc_objects import OscObject
+from qa_test_tools.test_base import known_error
 from qa_test_tools.misc import id_generator
 from qa_tina_tools.test_base import OscTinaTest
 
@@ -39,9 +41,20 @@ class Test_ReadDirectLinks(OscTinaTest):
         location = self.a1_r1.oapi.ReadLocations().response.Locations[0].Code
         for _ in range(count):
             direct_link_name = id_generator(size=8, chars=string.ascii_lowercase)
-            direct_link = self.a1_r1.oapi.CreateDirectLink(DirectLinkName=direct_link_name, Location=location, Bandwidth='1Gbps').response.DirectLink
-            self.logger.debug(direct_link.display())
-            direct_link_list.append(direct_link)
+            try:
+                direct_link = self.a1_r1.oapi.CreateDirectLink(DirectLinkName=direct_link_name, Location=location,
+                                                               Bandwidth='1Gbps').response.DirectLink
+                self.logger.debug(direct_link.display())
+                direct_link_list.append(direct_link)
+            except OscApiException as error:
+                if self.a1_r1.config.region.name == 'in-west-2':
+                    if error.error_code == '10001':
+                        check_oapi_error(error, 10001)
+                        known_error('OPS-14319', 'no directlink on IN2')
+                    else:
+                        raise error
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert False, 'remove known error'
         yield direct_link_list
         self.logger.debug("Delete DirectLink list")
         for direct_link in direct_link_list:
