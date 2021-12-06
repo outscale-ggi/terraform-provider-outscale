@@ -129,7 +129,7 @@ class Test_DeleteDirectLinkInterface(OscTinaTest):
             assert False, 'Call should not have been successful'
         except OscApiException as error:
             if self.a1_r1.config.region.name == 'in-west-2':
-                check_oapi_error(error, 400, 10001)
+                check_oapi_error(error, 10001)
                 known_error('OPS-14319', 'no directlink on IN2')
             else:
                 check_oapi_error(error, 5073, id=directlink_interface_id)
