@@ -45,7 +45,7 @@ class Test_UpdateFlexibleGpu(OscTinaTest):
         try:
             if cls.fgpu_id:
                 cls.a1_r1.oapi.DeleteFlexibleGpu(FlexibleGpuId=cls.fgpu_id)
-            wait_flexible_gpu_state(cls.a1_r1, [cls.fgpu_id], cleanup=True)
+                wait_flexible_gpu_state(cls.a1_r1, [cls.fgpu_id], cleanup=True)
         finally:
             super(Test_UpdateFlexibleGpu, cls).teardown_class()
 
