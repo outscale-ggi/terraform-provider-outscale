@@ -6,6 +6,7 @@ import pytest
 from qa_sdk_common.exceptions.osc_exceptions import OscApiException
 from specs import check_oapi_error
 from qa_test_tools.misc import id_generator
+from qa_test_tools.test_base import known_error
 from qa_tina_tools.test_base import OscTinaTest
 from qa_tina_tools.tina import wait
 
@@ -75,6 +76,8 @@ class Test_DeleteDirectLinkInterface(OscTinaTest):
         try:
             location_var = self.a1_r1.oapi.ReadLocations().response.Locations[0].Code
             ret_dl = self.a1_r1.oapi.CreateDirectLink(DirectLinkName=direct_link_name, Location=location_var, Bandwidth='1Gbps')
+            if self.a1_r1.config.region.name == 'in-west-2':
+                assert False, "remove known error"
             wait.wait_DirectLinks_state(self.a1_r1, [ret_dl.response.DirectLink.DirectLinkId], state="pending")
             self.a1_r1.intel.dl.connection.activate(owner=self.a1_r1.config.account.account_id,
                                                     connection_id=ret_dl.response.DirectLink.DirectLinkId)
@@ -87,6 +90,12 @@ class Test_DeleteDirectLinkInterface(OscTinaTest):
             wait.wait_DirectLinkInterfaces_state(self.a1_r1, [directlink_interface_id], state='available')
             self.a1_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId=directlink_interface_id)
             wait.wait_DirectLinkInterfaces_state(self.a1_r1, [directlink_interface_id], state='deleted')
+        except OscApiException as error:
+            if self.a1_r1.config.region.name == 'in-west-2':
+                check_oapi_error(error, 10001)
+                known_error('OPS-14319', 'no directlink on IN2')
+            else:
+                raise error
         finally:
             if ret_dli:
                 self.a1_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId=directlink_interface_id)
@@ -119,7 +128,11 @@ class Test_DeleteDirectLinkInterface(OscTinaTest):
             self.a2_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId=directlink_interface_id)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 5073, id=directlink_interface_id)
+            if self.a1_r1.config.region.name == 'in-west-2':
+                check_oapi_error(error, 400, 10001)
+                known_error('OPS-14319', 'no directlink on IN2')
+            else:
+                check_oapi_error(error, 5073, id=directlink_interface_id)
         finally:
             if ret_dli:
                 self.a1_r1.oapi.DeleteDirectLinkInterface(DirectLinkInterfaceId=directlink_interface_id)
