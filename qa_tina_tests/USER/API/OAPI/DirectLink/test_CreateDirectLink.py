@@ -88,7 +88,7 @@ class Test_CreateDirectLink(OscTinaTest):
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='alpha1Gbps', DirectLinkName='test_name', Location=self.location)
             assert False, 'Call should not have been successful'
         except OscApiException as error:
-            check_oapi_error(error, 4047)
+            check_oapi_error(error, 4045)
         try:
             self.a1_r1.oapi.CreateDirectLink(Bandwidth='1', DirectLinkName='test_name', Location=self.location)
             assert False, 'Call should not have been successful'
