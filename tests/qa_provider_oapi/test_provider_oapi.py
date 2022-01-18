@@ -30,7 +30,7 @@ IGNORE_END_ELEMENTS = ['request_id',
                        'public_dns_name',
                        'private_dns_name',
                        'dns_name',
-    		       'secret_key',
+                       'secret_key',
                        'cookie_name',
                        'client_gateway_configuration',
                        'last_modification_date']
@@ -53,69 +53,74 @@ LOG_HANDLER.setFormatter(FORMATTER)
 logging.basicConfig(level=logging.DEBUG, handlers=[LOG_HANDLER])
 logging.getLogger('tpd_test').setLevel(logging.DEBUG)
 
+
 def generate_file(path, data):
     myFile = open(path, "w+")
     myFile.write(data)
     myFile.close()
 
-region_name = os.getenv('OSC_REGION', None)
-user_terraform = os.getenv('OSC_USER', None)
-version = os.getenv('PLUGIN_VERSION', None)
-assert region_name and user_terraform, 'verify that you added the region name and your terrafor user in ' \
-                                       'your venv environment '
-file_region = open(os.path.expanduser("~/.osc_regions"))
-dict_region = json.load(file_region)
-file_credential = open(os.path.expanduser("~/.osc_credentials"))
-dict_credential = json.load(file_credential)
-omi_id = dict_region[region_name]['centos_latest']
-inst_type = dict_region[region_name]['default_vm_type']
-access_key = dict_credential[user_terraform][region_name]['ak']
-secret_key = dict_credential[user_terraform][region_name]['sk']
-account_id = dict_credential[user_terraform][region_name]['account_id']
-data_provider = '''
-account_id = "{}"
-access_key_id = "{}"
-secret_key_id = "{}"
-region = "{}"
-'''.format(account_id, access_key, secret_key, region_name)
-generate_file('provider.auto.tfvars', data_provider)
-data_ressources = '''
-#####Ressources for tests#####
-image_id = "{}"
-vm_type = "{}"
-###########
-'''.format(omi_id, inst_type)
-generate_file('resources.auto.tfvars', data_ressources)
-provider_conf = '''
-terraform {{
-    required_providers {{
-        outscale = {{
-            source = "outscale-dev/outscale"
-            version = "{}"
+
+def generate_configuration_files():
+    region_name = os.getenv('OSC_REGION', None)
+    user_terraform = os.getenv('OSC_USER', None)
+    version = os.getenv('PLUGIN_VERSION', None)
+    assert region_name and user_terraform, 'verify that you added the region name and your terrafor user in ' \
+                                           'your venv environment '
+    file_region = open(os.path.expanduser("~/.osc_regions"))
+    dict_region = json.load(file_region)
+    file_credential = open(os.path.expanduser("~/.osc_credentials"))
+    dict_credential = json.load(file_credential)
+    omi_id = dict_region[region_name]['centos_latest']
+    inst_type = dict_region[region_name]['default_vm_type']
+    access_key = dict_credential[user_terraform][region_name]['ak']
+    secret_key = dict_credential[user_terraform][region_name]['sk']
+    account_id = dict_credential[user_terraform][region_name]['account_id']
+    data_provider = '''
+    account_id = "{}"
+    access_key_id = "{}"
+    secret_key_id = "{}"
+    region = "{}"
+    '''.format(account_id, access_key, secret_key, region_name)
+    generate_file('provider.auto.tfvars', data_provider)
+    data_ressources = '''
+    #####Ressources for tests#####
+    image_id = "{}"
+    vm_type = "{}"
+    ###########
+    '''.format(omi_id, inst_type)
+    generate_file('resources.auto.tfvars', data_ressources)
+    provider_conf = '''
+    terraform {{
+        required_providers {{
+            outscale = {{
+                source = "outscale-dev/outscale"
+                version = "{}"
+            }}
         }}
     }}
-}}
+    
+    provider "outscale" {{
+      access_key_id = var.access_key_id
+      secret_key_id = var.secret_key_id
+      region = var.region
+    }}
+    '''.format(version)
+    generate_file('provider.tf', provider_conf)
+    variables = '''
+    # provider configuration
+    variable "account_id" {}
+    variable "access_key_id" {}
+    variable "secret_key_id" {}
+    variable "region" {}
+    
+    # resources configuration
+    variable "image_id" {}
+    variable "vm_type" {}
+    '''
+    generate_file('variables.tf', variables)
 
-provider "outscale" {{
-  access_key_id = var.access_key_id
-  secret_key_id = var.secret_key_id
-  region = var.region
-}}
-'''.format(version)
-generate_file('provider.tf', provider_conf)
-variables = '''
-# provider configuration
-variable "account_id" {}
-variable "access_key_id" {}
-variable "secret_key_id" {}
-variable "region" {}
 
-# resources configuration
-variable "image_id" {}
-variable "vm_type" {}
-'''
-generate_file('variables.tf', variables)
-
+generate_configuration_files()
 terraform_vars = {}
 for file_name in VARIABLES_FILE_NAME:
     with open(file_name, 'r') as var_file:
@@ -327,8 +332,6 @@ def compare_json_files(output_file_name, ref_file_name):
     except FileNotFoundError:
         assert False, 'Could not compare files, missing reference file {}'.format(ref_file_name)
     compare_json('', json_out, json_ref, {})
-
-
 
 
 class ProviderOapiMeta(type):
