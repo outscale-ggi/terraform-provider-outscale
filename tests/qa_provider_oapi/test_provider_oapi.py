@@ -60,81 +60,6 @@ def generate_file(path, data):
     myFile.close()
 
 
-def generate_configuration_files():
-    region_name = os.getenv('OSC_REGION', None)
-    user_terraform = os.getenv('OSC_USER', None)
-    version = os.getenv('PLUGIN_VERSION', None)
-    assert region_name and user_terraform, 'verify that you added the region name and your terrafor user in ' \
-                                           'your venv environment '
-    file_region = open(os.path.expanduser("~/.osc_regions"))
-    dict_region = json.load(file_region)
-    file_credential = open(os.path.expanduser("~/.osc_credentials"))
-    dict_credential = json.load(file_credential)
-    omi_id = dict_region[region_name]['centos_latest']
-    inst_type = dict_region[region_name]['default_vm_type']
-    access_key = dict_credential[user_terraform][region_name]['ak']
-    secret_key = dict_credential[user_terraform][region_name]['sk']
-    account_id = dict_credential[user_terraform][region_name]['account_id']
-    data_provider = '''
-    account_id = "{}"
-    access_key_id = "{}"
-    secret_key_id = "{}"
-    region = "{}"
-    '''.format(account_id, access_key, secret_key, region_name)
-    generate_file('provider.auto.tfvars', data_provider)
-    data_ressources = '''
-    #####Ressources for tests#####
-    image_id = "{}"
-    vm_type = "{}"
-    ###########
-    '''.format(omi_id, inst_type)
-    generate_file('resources.auto.tfvars', data_ressources)
-    provider_conf = '''
-    terraform {{
-        required_providers {{
-            outscale = {{
-                source = "outscale-dev/outscale"
-                version = "{}"
-            }}
-        }}
-    }}
-    
-    provider "outscale" {{
-      access_key_id = var.access_key_id
-      secret_key_id = var.secret_key_id
-      region = var.region
-    }}
-    '''.format(version)
-    generate_file('provider.tf', provider_conf)
-    variables = '''
-    # provider configuration
-    variable "account_id" {}
-    variable "access_key_id" {}
-    variable "secret_key_id" {}
-    variable "region" {}
-    
-    # resources configuration
-    variable "image_id" {}
-    variable "vm_type" {}
-    '''
-    generate_file('variables.tf', variables)
-
-
-generate_configuration_files()
-terraform_vars = {}
-for file_name in VARIABLES_FILE_NAME:
-    with open(file_name, 'r') as var_file:
-        lines = var_file.readlines()
-        for line in lines:
-            line = line.strip()
-            if line.startswith('#'):
-                continue
-            elts = line.split('=')
-            if len(elts) != 2:
-                continue
-            terraform_vars[elts[0].strip()] = elts[1].strip().strip("\"")
-
-
 def get_test_file_names(test_path, prefix='step', suffix='.tf'):
     ret_file_names = []
     for tmp_file in os.listdir(test_path):
@@ -143,7 +68,7 @@ def get_test_file_names(test_path, prefix='step', suffix='.tf'):
     return sorted(ret_file_names)
 
 
-def validate_value_ref(path, parent, value, ids):
+def validate_value_ref(path, parent, value, ids, terraform_vars):
 
     replace_value = None
     replace = None
@@ -177,17 +102,17 @@ def validate_value_ref(path, parent, value, ids):
             parent[path_end] = replace_value
 
 
-def validate_dict_ref(path, json_ref, ids):
+def validate_dict_ref(path, json_ref, ids, terraform_vars):
     for key, value in json_ref.items():
-        validate_ref('{}.{}'.format(path, key), json_ref, value, ids)
+        validate_ref('{}.{}'.format(path, key), json_ref, value, ids, terraform_vars)
 
 
-def validate_list_ref(path, json_ref, ids):
+def validate_list_ref(path, json_ref, ids, terraform_vars):
     for i in range(len(json_ref)):
-        validate_ref('{}.{}'.format(path, i), json_ref, json_ref[i], ids)
+        validate_ref('{}.{}'.format(path, i), json_ref, json_ref[i], ids, terraform_vars)
 
 
-def validate_ref(path, parent, value, ids):
+def validate_ref(path, parent, value, ids, terraform_vars):
     path_end = path.split('.')[-1]
     if path in IGNORE_PATHS or path_end in IGNORE_END_ELEMENTS:
         parent[path_end] = NO_TEST_VALUE
@@ -198,13 +123,13 @@ def validate_ref(path, parent, value, ids):
             return
 
     if type(value) == dict:
-        validate_dict_ref(path, value, ids)
+        validate_dict_ref(path, value, ids, terraform_vars)
     elif type(value) == list:
-        validate_list_ref(path, value, ids)
+        validate_list_ref(path, value, ids, terraform_vars)
     elif type(value) == tuple:
         assert False, 'Unexpected type tuple for path {}'.format(path)
     else:
-        validate_value_ref(path, parent, value, ids)
+        validate_value_ref(path, parent, value, ids, terraform_vars)
     return value
 
 
@@ -310,12 +235,12 @@ def compare_json(path, out, ref, ids):
         compare_json_values(path, out, ref, ids)
 
 
-def compare_json_files(output_file_name, ref_file_name):
+def compare_json_files(output_file_name, ref_file_name, terraform_vars):
     json_out = None
     try:
         with open(output_file_name, 'r') as out_file:
             ids = {}
-            json_out = validate_ref('', None, json.load(out_file), ids)
+            json_out = validate_ref('', None, json.load(out_file), ids, terraform_vars)
     except FileNotFoundError:
         assert False, 'Could load file, missing output file {}'.format(ref_file_name)
 
@@ -370,6 +295,75 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         cls.logger = logging.getLogger('tpd_test')
         cls.log = None
         cls.error = False
+        region_name = os.getenv('OSC_REGION', None)
+        user_terraform = os.getenv('OSC_USER', None)
+        version = os.getenv('PLUGIN_VERSION', None)
+        assert region_name and user_terraform, 'verify that you added the region name and your terrafor user in ' \
+                                               'your venv environment '
+        file_region = open(os.path.expanduser("~/.osc_regions"))
+        dict_region = json.load(file_region)
+        file_credential = open(os.path.expanduser("~/.osc_credentials"))
+        dict_credential = json.load(file_credential)
+        omi_id = dict_region[region_name]['centos_latest']
+        inst_type = dict_region[region_name]['default_vm_type']
+        access_key = dict_credential[user_terraform][region_name]['ak']
+        secret_key = dict_credential[user_terraform][region_name]['sk']
+        account_id = dict_credential[user_terraform][region_name]['account_id']
+        data_provider = '''
+           account_id = "{}"
+           access_key_id = "{}"
+           secret_key_id = "{}"
+           region = "{}"
+           '''.format(account_id, access_key, secret_key, region_name)
+        generate_file('provider.auto.tfvars', data_provider)
+        data_ressources = '''
+           #####Ressources for tests#####
+           image_id = "{}"
+           vm_type = "{}"
+           ###########
+           '''.format(omi_id, inst_type)
+        generate_file('resources.auto.tfvars', data_ressources)
+        provider_conf = '''
+           terraform {{
+               required_providers {{
+                   outscale = {{
+                       source = "outscale-dev/outscale"
+                       version = "{}"
+                   }}
+               }}
+           }}
+
+           provider "outscale" {{
+             access_key_id = var.access_key_id
+             secret_key_id = var.secret_key_id
+             region = var.region
+           }}
+           '''.format(version)
+        generate_file('provider.tf', provider_conf)
+        variables = '''
+           # provider configuration
+           variable "account_id" {}
+           variable "access_key_id" {}
+           variable "secret_key_id" {}
+           variable "region" {}
+
+           # resources configuration
+           variable "image_id" {}
+           variable "vm_type" {}
+           '''
+        generate_file('variables.tf', variables)
+        cls.terraform_vars = {}
+        for file_name in VARIABLES_FILE_NAME:
+            with open(file_name, 'r') as var_file:
+                lines = var_file.readlines()
+                for line in lines:
+                    line = line.strip()
+                    if line.startswith('#'):
+                        continue
+                    elts = line.split('=')
+                    if len(elts) != 2:
+                        continue
+                    cls.terraform_vars[elts[0].strip()] = elts[1].strip().strip("\"")
 
     def setup_method(self, method):
         self.log = """
@@ -451,7 +445,7 @@ Log: {}
 
                     # TDOD erase once not needed anymore
                     if os.getenv('OSC_GENREF', False) or os.path.exists(ref_file_path):
-                        compare_json_files(out_file_path, ref_file_path)
+                        compare_json_files(out_file_path, ref_file_path, self.terraform_vars)
                     else:
                         check_file_name = check_file_names[check_file_index]
                         resource = '.'.join(check_file_name.split('.')[1:3])
