@@ -21,8 +21,7 @@
                         "last_modification_date": "########",
                         "request_id": "########",
                         "state": "ACTIVE"
-                    },
-                    "sensitive_attributes": []
+                    }
                 }
             ]
         },
@@ -43,7 +42,6 @@
                         "secret_key": "########",
                         "state": "ACTIVE"
                     },
-                    "sensitive_attributes": [],
                     "private": "bnVsbA=="
                 }
             ]
