@@ -298,17 +298,15 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         region_name = os.getenv('OSC_REGION', None)
         user_terraform = os.getenv('OSC_USER', None)
         version = os.getenv('PLUGIN_VERSION', None)
-        assert region_name and user_terraform, 'verify that you added the region name and your terrafor user in ' \
-                                               'your venv environment '
-        file_region = open(os.path.expanduser("~/.osc_regions"))
-        dict_region = json.load(file_region)
-        file_credential = open(os.path.expanduser("~/.osc_credentials"))
-        dict_credential = json.load(file_credential)
-        omi_id = dict_region[region_name]['centos_latest']
-        inst_type = dict_region[region_name]['default_vm_type']
-        access_key = dict_credential[user_terraform][region_name]['ak']
-        secret_key = dict_credential[user_terraform][region_name]['sk']
-        account_id = dict_credential[user_terraform][region_name]['account_id']
+        assert region_name and user_terraform and version, 'verify that you added the region name and your terrafor user ' \
+                                                           'and the provider version in your venv environment '
+        omi_id = os.getenv('OMI_ID', None)
+        inst_type = os.getenv('INST_TYPE', None)
+        access_key = os.getenv('AK', None)
+        secret_key = os.getenv('SK', None)
+        account_id = os.getenv('ACCOUNT_ID', None)
+        assert omi_id and inst_type and access_key and secret_key and account_id, 'verify that you added your regions an ' \
+                                                                                  'credentials configuration in your venv'
         data_provider = '''
            account_id = "{}"
            access_key_id = "{}"
