@@ -308,7 +308,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         assert omi_id and inst_type and access_key and secret_key and account_id, 'verify that you added your regions an ' \
                                                                                   'credentials configuration in your venv'
         data_provider = '''
-           account_id = "{}"
+           account_id = {}
            access_key_id = "{}"
            secret_key_id = "{}"
            region = "{}"
