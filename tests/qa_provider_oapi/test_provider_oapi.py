@@ -316,8 +316,8 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         generate_file('provider.auto.tfvars', data_provider)
         data_ressources = '''
            #####Ressources for tests#####
-           image_id = "{}"
-           vm_type = "{}"
+           image_id = {}
+           vm_type = {}
            ###########
            '''.format(omi_id, inst_type)
         generate_file('resources.auto.tfvars', data_ressources)
