@@ -309,8 +309,8 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
                                                                                   'credentials configuration in your venv'
         data_provider = '''
            account_id = {}
-           access_key_id = "{}"
-           secret_key_id = "{}"
+           access_key_id = {}
+           secret_key_id = {}
            region = "{}"
            '''.format(account_id, access_key, secret_key, region_name)
         generate_file('provider.auto.tfvars', data_provider)
