@@ -407,8 +407,8 @@ Log: {}
     def exec_test_step(self, tf_file_path, out_file_path):
         self.logger.debug("Exec step : {}".format(tf_file_path))
         self.log += "\nTerraform validate:\n{}".format(self.run_cmd(TERRAFORM_PATH+" validate -no-color")[0])
-        self.log += "\nTerraform plan:\n{}".format(self.run_cmd(TERRAFORM_PATH+" plan -no-color")[0])
-        self.log += "\nTerraform apply:\n{}".format(self.run_cmd(TERRAFORM_PATH+" apply -auto-approve -no-color")[0])
+        self.log += "\nTerraform plan:\n{}".format(self.run_cmd(TERRAFORM_PATH+" plan -lock=false -no-color")[0])
+        self.log += "\nTerraform apply:\n{}".format(self.run_cmd(TERRAFORM_PATH+" apply -auto-approve -lock=false -no-color")[0])
         self.log += "\nTerraform show:\n{}".format(self.run_cmd(TERRAFORM_PATH+" show -no-color")[0])
         self.run_cmd(TERRAFORM_PATH+" state pull > {}".format(out_file_path))
 
@@ -464,7 +464,7 @@ Log: {}
             raise
         finally:
             try:
-                self.run_cmd(TERRAFORM_PATH+" destroy -force -no-color")
+                self.run_cmd(TERRAFORM_PATH+" destroy -auto-approve -no-color")
             finally:
                 self.run_cmd("rm -f test.tf")
                 self.run_cmd("rm -f terraform.tfstate")
