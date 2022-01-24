@@ -318,8 +318,10 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
            #####Ressources for tests#####
            image_id = {}
            vm_type = {}
+           osu_bucket_name = "bucket-fortest"
+           service_name = "com.outscale.{}.api" 
            ###########
-           '''.format(omi_id, inst_type)
+           '''.format(omi_id, inst_type, region_name)
         generate_file('resources.auto.tfvars', data_ressources)
         provider_conf = '''
            terraform {{
@@ -348,6 +350,8 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
            # resources configuration
            variable "image_id" {}
            variable "vm_type" {}
+           variable "osu_bucket_name" {}
+           variable "service_name" {}
            '''
         generate_file('variables.tf', variables)
         cls.terraform_vars = {}
