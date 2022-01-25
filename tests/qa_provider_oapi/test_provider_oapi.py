@@ -338,7 +338,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         region_name = os.getenv('OSC_REGION', None)
         user_terraform = os.getenv('OSC_USER', None)
         version = os.getenv('PLUGIN_VERSION', None)
-        bucket_name = os.getenv('BUCKET_NAME', "bucket-fortest")
+        bucket_name = os.getenv('BUCKET_NAME', "bucket-qaterraform")
         assert region_name and user_terraform and version, 'verify that you added the region name and your terrafor user ' \
                                                            'and the provider version in your venv environment '
         omi_id = os.getenv('OMI_ID', None)
@@ -346,12 +346,10 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         access_key = os.getenv('AK', None)
         secret_key = os.getenv('SK', None)
         account_id = os.getenv('ACCOUNT_ID', None)
-
-
+        cls.connecteur = oos_connecteur(access_key, secret_key, region_name, 'oos')
         assert omi_id and inst_type and access_key and secret_key and account_id, 'verify that you added your regions an ' \
                                                                                   'credentials configuration in your venv'
-        cls.connecteur = oos_connecteur(access_key, secret_key, region_name, 'oos')
-        cls.connecteur.create_bucket(Bucket=bucket_name)
+
         data_provider = '''
            account_id = {}
            access_key_id = {}
