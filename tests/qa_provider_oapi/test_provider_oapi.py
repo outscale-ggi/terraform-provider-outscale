@@ -442,6 +442,13 @@ Log: {}
             if self.error:
                 self.logger.error(self.log)
 
+    @classmethod
+    def teardown_class(cls):
+        try:
+            delete_buckets(cls.connecteur)
+        except Exception as error:
+            raise error
+
     def run_cmd(self, cmd, exp_ret_code=0):
         self.logger.debug("Exec: %s", cmd)
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -521,4 +528,3 @@ Log: {}
             finally:
                 self.run_cmd("rm -f test.tf")
                 self.run_cmd("rm -f terraform.tfstate")
-                delete_buckets(self.connecteur)
