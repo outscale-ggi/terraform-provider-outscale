@@ -6,10 +6,8 @@ import os
 import subprocess
 import pytest
 import json
-import boto
 import botocore
 import boto3
-import ssl
 
 from qa_provider_oapi.check import main
 
