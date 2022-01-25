@@ -347,8 +347,11 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         secret_key = os.getenv('SK', None)
         account_id = os.getenv('ACCOUNT_ID', None)
 
+
         assert omi_id and inst_type and access_key and secret_key and account_id, 'verify that you added your regions an ' \
                                                                                   'credentials configuration in your venv'
+        cls.connecteur = oos_connecteur(access_key, secret_key, region_name, 'oos')
+        cls.connecteur.create_bucket(Bucket=bucket_name)
         data_provider = '''
            account_id = {}
            access_key_id = {}
@@ -401,8 +404,6 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
 
            '''
         generate_file('variables.tf', variables)
-        cls.connecteur = oos_connecteur(access_key, secret_key, region_name, 'oos')
-        cls.connecteur.create_bucket(Bucket=bucket_name)
         cls.terraform_vars = {}
         for file_name in VARIABLES_FILE_NAME:
             with open(file_name, 'r') as var_file:
