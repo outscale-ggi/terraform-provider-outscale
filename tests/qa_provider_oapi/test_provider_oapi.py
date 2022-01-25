@@ -347,7 +347,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         access_key = os.getenv('AK', None)
         secret_key = os.getenv('SK', None)
         account_id = os.getenv('ACCOUNT_ID', None)
-        cls.connecteur = oos_connecteur(access_key, secret_key, region_name, 'oos')
+        #cls.connecteur = oos_connecteur(access_key, secret_key, region_name, 'oos')
         assert omi_id and inst_type and access_key and secret_key and account_id, 'verify that you added your regions an ' \
                                                                                   'credentials configuration in your venv'
 
@@ -445,7 +445,8 @@ Log: {}
     @classmethod
     def teardown_class(cls):
         try:
-            delete_buckets(cls.connecteur, cls.bucket_name)
+            pass
+            #delete_buckets(cls.connecteur, cls.bucket_name)
         except Exception as error:
             raise error
 
