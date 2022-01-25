@@ -71,13 +71,14 @@ def oos_connecteur(ak, sk, region, service, verify=False):
     return conn3
 
 
-def delete_buckets(connecteur):
+def delete_buckets(connecteur, bucket_name):
     b_list = connecteur.list_buckets()['Buckets']
     for bucket in b_list:
-        k_list = connecteur.list_objects(Bucket=bucket['Name'])
-        if 'Contents' in list(k_list.keys()):
-            for k in k_list['Contents']:
-                connecteur.delete_object(Bucket=bucket['Name'], Key=k['Key'])
+        if bucket['Name'] != bucket_name:
+            k_list = connecteur.list_objects(Bucket=bucket['Name'])
+            if 'Contents' in list(k_list.keys()):
+                for k in k_list['Contents']:
+                    connecteur.delete_object(Bucket=bucket['Name'], Key=k['Key'])
         connecteur.delete_bucket(Bucket=bucket['Name'])
 
 
@@ -338,7 +339,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         region_name = os.getenv('OSC_REGION', None)
         user_terraform = os.getenv('OSC_USER', None)
         version = os.getenv('PLUGIN_VERSION', None)
-        bucket_name = os.getenv('BUCKET_NAME', "bucket-qaterraform")
+        cls.bucket_name = os.getenv('BUCKET_NAME', "bucket-qaterraform")
         assert region_name and user_terraform and version, 'verify that you added the region name and your terrafor user ' \
                                                            'and the provider version in your venv environment '
         omi_id = os.getenv('OMI_ID', None)
@@ -366,7 +367,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
            server_certificate_id = "arn:aws:iam::862135005579:server-certificate/cc-NZARGY"
            server_certificate_id_2 = "arn:aws:iam::862135005579:server-certificate/cc-5DIOY6"
            ###########
-           '''.format(omi_id, inst_type, bucket_name, region_name)
+           '''.format(omi_id, inst_type, cls.bucket_name, region_name)
         generate_file('resources.auto.tfvars', data_ressources)
         provider_conf = '''
            terraform {{
@@ -444,7 +445,7 @@ Log: {}
     @classmethod
     def teardown_class(cls):
         try:
-            delete_buckets(cls.connecteur)
+            delete_buckets(cls.connecteur, cls.bucket_name)
         except Exception as error:
             raise error
 
