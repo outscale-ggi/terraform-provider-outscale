@@ -50,8 +50,8 @@ setup(
     description="3DS Outscale Terraform tests",
     packages=PACKAGES,
     package_dir=PKG_DIR,
-    package_data={'qa_provider_oapi': ['data/*/*/*.tf', 'data/*/*/*.ref',
-                                       'data/*/*/*.check', 'data/*/*/*.txt']},
+    package_data={'qa_provider_oapi': ['data/*/*/*.tf', 'data/*/*/*.ref', 'data/*/*/*.check', 'data/*/*/*.txt',
+                                       'data/*/*/*.pub', 'data/*/*/*.pem']},
     data_files=[('etc/osc-qa-provider-oapi', ['qa_provider_oapi/variables.tf',
                                               'qa_provider_oapi/provider.tf'])],
     classifiers=[
@@ -60,6 +60,5 @@ setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
-    #scripts=['qa_tina_redwires/bin/osc-qa-tina-redwires'],
     install_requires=INSTALL_REQUIRES
 )

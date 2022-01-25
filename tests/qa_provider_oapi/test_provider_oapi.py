@@ -6,6 +6,10 @@ import os
 import subprocess
 import pytest
 import json
+import boto
+import botocore
+import boto3
+import ssl
 
 from qa_provider_oapi.check import main
 
@@ -58,6 +62,25 @@ def generate_file(path, data):
     myFile = open(path, "w+")
     myFile.write(data)
     myFile.close()
+
+
+def oos_connecteur(ak, sk, region, service, verify=False):
+    boto_config = {'s3': {'addressing_style': 'path'}}
+    boto_config['signature_version'] = 's3'
+    session = boto3.session.Session()
+    conn3 = session.client('s3', verify=verify, endpoint_url="https://{}.{}.outscale.com".format(service, region),
+                           aws_access_key_id=ak, aws_secret_access_key=sk, config=botocore.client.Config(**boto_config))
+    return conn3
+
+
+def delete_buckets(connecteur):
+    b_list = connecteur.list_buckets()['Buckets']
+    for bucket in b_list:
+        k_list = connecteur.list_objects(Bucket=bucket['Name'])
+        if 'Contents' in list(k_list.keys()):
+            for k in k_list['Contents']:
+                connecteur.delete_object(Bucket=bucket['Name'], Key=k['Key'])
+        connecteur.delete_bucket(Bucket=bucket['Name'])
 
 
 def get_test_file_names(test_path, prefix='step', suffix='.tf'):
@@ -155,8 +178,27 @@ def compare_json_dicts(path, dict_out, dict_ref, ids):
 
 def compare_json_lists(path, list_out, list_ref, ids):
     assert len(list_out) == len(list_ref)
-    for i in range(len(list_out)):
-        compare_json('{}.{}'.format(path, i), list_out[i], list_ref[i], ids)
+    current_ids = ids.copy()
+    found_elts = []
+    for out_elt in list_out:
+        errors = []
+        for ref_elt in list_ref:
+            if ref_elt in found_elts:
+                continue
+            try:
+                tmp_ids = current_ids.copy()
+                compare_json('{}'.format(path), out_elt, ref_elt, tmp_ids)
+                found_elts.append(ref_elt)
+                current_ids = tmp_ids
+                errors = []
+                break
+            except Exception as error:
+                tmp_ids = current_ids
+                errors.append(error)
+                pass
+        if errors:
+            assert False, 'Could not match set values for path {}, {}'.format(path, errors)
+    ids = current_ids
 
 
 def compare_json_sets(path, set_out, set_ref, ids):
@@ -298,6 +340,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         region_name = os.getenv('OSC_REGION', None)
         user_terraform = os.getenv('OSC_USER', None)
         version = os.getenv('PLUGIN_VERSION', None)
+        bucket_name = os.getenv('BUCKET_NAME', "bucket-fortest")
         assert region_name and user_terraform and version, 'verify that you added the region name and your terrafor user ' \
                                                            'and the provider version in your venv environment '
         omi_id = os.getenv('OMI_ID', None)
@@ -305,6 +348,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         access_key = os.getenv('AK', None)
         secret_key = os.getenv('SK', None)
         account_id = os.getenv('ACCOUNT_ID', None)
+
         assert omi_id and inst_type and access_key and secret_key and account_id, 'verify that you added your regions an ' \
                                                                                   'credentials configuration in your venv'
         data_provider = '''
@@ -318,10 +362,12 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
            #####Ressources for tests#####
            image_id = {}
            vm_type = {}
-           osu_bucket_name = "bucket-fortest"
+           osu_bucket_name = "{}"
            service_name = "com.outscale.{}.api" 
+           server_certificate_id = "arn:aws:iam::862135005579:server-certificate/cc-NZARGY"
+           server_certificate_id_2 = "arn:aws:iam::862135005579:server-certificate/cc-5DIOY6"
            ###########
-           '''.format(omi_id, inst_type, region_name)
+           '''.format(omi_id, inst_type, bucket_name, region_name)
         generate_file('resources.auto.tfvars', data_ressources)
         provider_conf = '''
            terraform {{
@@ -352,8 +398,13 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
            variable "vm_type" {}
            variable "osu_bucket_name" {}
            variable "service_name" {}
+           variable "server_certificate_id" {}
+           variable "server_certificate_id_2" {}
+
            '''
         generate_file('variables.tf', variables)
+        cls.connecteur = oos_connecteur(access_key, secret_key, region_name, 'oos')
+        cls.connecteur.create_bucket(Bucket=bucket_name)
         cls.terraform_vars = {}
         for file_name in VARIABLES_FILE_NAME:
             with open(file_name, 'r') as var_file:
@@ -472,3 +523,4 @@ Log: {}
             finally:
                 self.run_cmd("rm -f test.tf")
                 self.run_cmd("rm -f terraform.tfstate")
+                delete_buckets(self.connecteur)
