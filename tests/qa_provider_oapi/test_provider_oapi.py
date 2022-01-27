@@ -308,7 +308,7 @@ class ProviderOapiMeta(type):
             def func(self):
                 self.exec_test(test_name, test_path)
 
-            func.__name__ = "test_{}_{}".format(resource, test_name)
+            func.__name__ = "test__{}__{}".format(resource, test_name)
             return func
 
         for resource in os.listdir(ROOT_DIR):
