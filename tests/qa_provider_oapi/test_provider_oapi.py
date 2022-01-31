@@ -347,6 +347,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         access_key = os.getenv('AK', None)
         secret_key = os.getenv('SK', None)
         account_id = os.getenv('ACCOUNT_ID', None)
+        provider_type = os.getenv('PROVIDER_TYPE', 'PROD')
         #cls.connecteur = oos_connecteur(access_key, secret_key, region_name, 'oos')
         assert omi_id and inst_type and access_key and secret_key and account_id, 'verify that you added your regions an ' \
                                                                                   'credentials configuration in your venv'
@@ -385,7 +386,8 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
              region = var.region
            }}
            '''.format(version)
-        generate_file('provider.tf', provider_conf)
+        if provider_type == 'PROD':
+            generate_file('provider.tf', provider_conf)
         variables = '''
            # provider configuration
            variable "account_id" {}
