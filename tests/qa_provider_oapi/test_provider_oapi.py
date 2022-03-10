@@ -336,6 +336,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         cls.logger = logging.getLogger('tpd_test')
         cls.log = None
         cls.error = False
+        cls.generated_files = []
         region_name = os.getenv('OSC_REGION', None)
         user_terraform = os.getenv('OSC_USER', None)
         version = os.getenv('PLUGIN_VERSION', None)
@@ -359,6 +360,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
            region = "{}"
            '''.format(account_id, access_key, secret_key, region_name)
         generate_file('provider.auto.tfvars', data_provider)
+        cls.generated_files.append('provider.auto.tfvars')
         data_ressources = '''
            #####Ressources for tests#####
            image_id = {}
@@ -370,6 +372,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
            ###########
            '''.format(omi_id, inst_type, cls.bucket_name, region_name)
         generate_file('resources.auto.tfvars', data_ressources)
+        cls.generated_files.append('resources.auto.tfvars')
         provider_conf = '''
            terraform {{
                required_providers {{
@@ -388,6 +391,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
            '''.format(version)
         if provider_type == 'PROD':
             generate_file('provider.tf', provider_conf)
+            cls.generated_files.append('provider.tf')
         variables = '''
            # provider configuration
            variable "account_id" {}
@@ -405,6 +409,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
 
            '''
         generate_file('variables.tf', variables)
+        cls.generated_files.append('variables.tf')
         cls.terraform_vars = {}
         for file_name in VARIABLES_FILE_NAME:
             with open(file_name, 'r') as var_file:
@@ -447,7 +452,9 @@ Log: {}
     @classmethod
     def teardown_class(cls):
         try:
-            pass
+            if cls.generated_files:
+                for file in cls.generated_files:
+                    os.remove(file)
             #delete_buckets(cls.connecteur, cls.bucket_name)
         except Exception as error:
             raise error
