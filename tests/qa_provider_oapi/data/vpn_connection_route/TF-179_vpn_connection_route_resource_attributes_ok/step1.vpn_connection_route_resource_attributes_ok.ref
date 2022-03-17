@@ -23,12 +23,12 @@
                         "routes": [
                             {
                                 "destination_ip_range": "30.0.0.0/16",
-                                "route_type": "static",
+                                "route_type": "",
                                 "state": "available"
                             },
                             {
                                 "destination_ip_range": "40.0.0.0/16",
-                                "route_type": "static",
+                                "route_type": "",
                                 "state": "available"
                             }
                         ],

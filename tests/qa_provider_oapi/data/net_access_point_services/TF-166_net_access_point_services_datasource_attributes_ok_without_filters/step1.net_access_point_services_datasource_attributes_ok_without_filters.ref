@@ -19,59 +19,42 @@
                         "request_id": "########",
                         "services": [
                             {
-                                "ip_ranges": [
-                                    "10.27.13.133/32"
-                                ],
+                                "ip_ranges": "########",
                                 "service_id": "##id-1##",
                                 "service_name": "com.outscale.###region###.fcu"
                             },
                             {
-                                "ip_ranges": [
-                                    "10.27.13.133/32"
-                                ],
+                                "ip_ranges": "########",
                                 "service_id": "##id-2##",
                                 "service_name": "com.outscale.###region###.lbu"
                             },
                             {
-                                "ip_ranges": [
-                                    "10.27.13.133/32"
-                                ],
+                                "ip_ranges": "########",
                                 "service_id": "##id-3##",
                                 "service_name": "com.outscale.###region###.eim"
                             },
                             {
-                                "ip_ranges": [
-                                    "10.27.13.133/32"
-                                ],
+                                "ip_ranges": "########",
                                 "service_id": "##id-4##",
                                 "service_name": "com.outscale.###region###.icu"
                             },
                             {
-                                "ip_ranges": [
-                                    "10.27.13.133/32"
-                                ],
+                                "ip_ranges": "########",
                                 "service_id": "##id-5##",
                                 "service_name": "com.outscale.###region###.directlink"
                             },
                             {
-                                "ip_ranges": [
-                                    "10.27.13.133/32"
-                                ],
+                                "ip_ranges": "########",
                                 "service_id": "##id-6##",
                                 "service_name": "com.outscale.###region###.api"
                             },
                             {
-                                "ip_ranges": [
-                                    "10.27.13.133/32"
-                                ],
+                                "ip_ranges": "########",
                                 "service_id": "##id-7##",
                                 "service_name": "com.outscale.###region###.kms"
                             },
                             {
-                                "ip_ranges": [
-                                    "171.33.125.45/32",
-                                    "217.75.160.181/32"
-                                ],
+                                "ip_ranges": "########",
                                 "service_id": "##id-8##",
                                 "service_name": "com.outscale.###region###.oos"
                             }
