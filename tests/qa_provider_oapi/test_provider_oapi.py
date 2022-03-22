@@ -431,6 +431,7 @@ Log: {}
         """.format(method.__name__)
         self.error = False
         try:
+            self.run_cmd("rm .terraform.lock.hcl")
             self.run_cmd(TERRAFORM_PATH + " init -upgrade -no-color")
             stdout, _ = self.run_cmd(TERRAFORM_PATH+" version -no-color")
             self.log += "\nVERSION:{}\n".format("\n".join(stdout.splitlines()[:2]))
