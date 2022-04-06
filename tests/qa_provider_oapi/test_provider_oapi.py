@@ -364,13 +364,13 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         data_ressources = '''
            #####Ressources for tests#####
            image_id = {}
-           vm_type = {}
+           vm_type = tinav4.c1r1p2
            osu_bucket_name = "{}"
            service_name = "com.outscale.{}.api" 
            server_certificate_id = "arn:aws:iam::862135005579:server-certificate/cc-NZARGY"
            server_certificate_id_2 = "arn:aws:iam::862135005579:server-certificate/cc-5DIOY6"
            ###########
-           '''.format(omi_id, inst_type, cls.bucket_name, region_name)
+           '''.format(omi_id, cls.bucket_name, region_name)
         generate_file('resources.auto.tfvars', data_ressources)
         cls.generated_files.append('resources.auto.tfvars')
         provider_conf = '''
