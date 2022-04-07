@@ -364,7 +364,7 @@ class TestProviderOapi(metaclass=ProviderOapiMeta):
         data_ressources = '''
            #####Ressources for tests#####
            image_id = {}
-           vm_type = tinav4.c1r1p2
+           vm_type = "tinav4.c1r1p2"
            osu_bucket_name = "{}"
            service_name = "com.outscale.{}.api" 
            server_certificate_id = "arn:aws:iam::862135005579:server-certificate/cc-NZARGY"
